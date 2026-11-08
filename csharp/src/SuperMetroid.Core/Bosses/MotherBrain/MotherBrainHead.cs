@@ -202,20 +202,20 @@ internal sealed class MotherBrainHead
         {
             RotationAngle lowerAngle = state.LowerNeckAngle;
             RotationAngle upperAngle = state.UpperNeckAngle;
-            MotherBrainNeckMovement lowerIndex = state.LowerNeckMovementIndex;
-            MotherBrainNeckMovement upperIndex = state.UpperNeckMovementIndex;
+            MotherBrainNeckMovement lowerMovement = state.LowerNeckMovement;
+            MotherBrainNeckMovement upperMovement = state.UpperNeckMovement;
             MotherBrainNeckKinematics.StepAngles(
                 ref lowerAngle,
                 ref upperAngle,
-                ref lowerIndex,
-                ref upperIndex,
+                ref lowerMovement,
+                ref upperMovement,
                 state.NeckAngleDelta,
                 state.Head.Position.Y.Whole,
                 samus.Position.Y.Whole);
             state.LowerNeckAngle = lowerAngle;
             state.UpperNeckAngle = upperAngle;
-            state.LowerNeckMovementIndex = lowerIndex;
-            state.UpperNeckMovementIndex = upperIndex;
+            state.LowerNeckMovement = lowerMovement;
+            state.UpperNeckMovement = upperMovement;
         }
 
         MotherBrainNeckKinematics.CalculateGeometry(state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle, state.NeckJointDistances)

@@ -8,6 +8,19 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainNativeWords
 {
+    /// <summary>
+    /// The byte offset into the neck motion dispatchers' five-entry jump tables naming each <see cref="MotherBrainNeckMovement"/>;
+    /// both joints' tables share the layout.
+    /// </summary>
+    internal static readonly NativeWordIdentities<MotherBrainNeckMovement> NeckMovements = new(new Dictionary<MotherBrainNeckMovement, ushort>
+    {
+        [MotherBrainNeckMovement.None] = 0,
+        [MotherBrainNeckMovement.BobDown] = 2,
+        [MotherBrainNeckMovement.BobUp] = 4,
+        [MotherBrainNeckMovement.Lower] = 6,
+        [MotherBrainNeckMovement.Raise] = 8,
+    });
+
     /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainBodyFunction"/>.</summary>
     internal static readonly NativeWordIdentities<MotherBrainBodyFunction> MotherBrainBodyFunctions = new(new Dictionary<MotherBrainBodyFunction, ushort>
     {

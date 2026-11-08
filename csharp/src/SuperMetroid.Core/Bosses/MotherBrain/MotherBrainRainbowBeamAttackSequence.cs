@@ -129,8 +129,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         LowerNeckAngle = actor.LowerNeckAngle;
         UpperNeckAngle = actor.UpperNeckAngle;
         State.NeckMovementEnabled = actor.NeckMovementEnabled;
-        State.LowerNeckMovementIndex = actor.LowerNeckMovementIndex;
-        State.UpperNeckMovementIndex = actor.UpperNeckMovementIndex;
+        State.LowerNeckMovement = actor.LowerNeckMovement;
+        State.UpperNeckMovement = actor.UpperNeckMovement;
         BombCounter = actor.BombCounter;
         ThirdPhaseDeath.HitboxesEnabled = actor.HitboxesEnabled;
     }

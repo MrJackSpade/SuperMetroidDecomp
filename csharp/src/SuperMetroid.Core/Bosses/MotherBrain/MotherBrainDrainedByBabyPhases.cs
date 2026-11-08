@@ -62,8 +62,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // actor turn, changes form/neck geometry, seeds 48, and falls through so
         // that this first regain-balance call immediately decrements it to 47.
         _state.Body.Form = MotherBrainForm.DrainedByBabyMetroid;
-        _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
-        _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
+        _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+        _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
         _state.NeckAngleDelta = 1792;
         _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance;
         _state.FunctionTimer = 48;
@@ -86,8 +86,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
             PainfulWalkingStage = 0;
             PainfulWalkingAnimationDelay = 2;
             PainfulWalkingFunctionTimer = 0;
-            _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
-            _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+            _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+            _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam;
         }
         return false;
@@ -136,8 +136,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (PainfulWalkingStage >= 8)
         {
             _state.NeckAngleDelta = 64;
-            _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
-            _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
+            _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+            _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
             _state.SetHeadProgram(MotherBrainHeadProgram.DyingDrool);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom;
             return true;
@@ -159,7 +159,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (moveToBack.ReachedTarget)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyGoIntoLowPowerMode;
-            _state.UpperNeckMovementIndex = MotherBrainNeckMovement.None;
+            _state.UpperNeckMovement = MotherBrainNeckMovement.None;
             return true;
         }
         return false;
@@ -173,8 +173,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         // The brain slot independently advances the one-way neck raises. The body
         // clears drool once both indices reach zero, before waiting for its pose.
-        if (_state.LowerNeckMovementIndex == MotherBrainNeckMovement.None &&
-            _state.UpperNeckMovementIndex == MotherBrainNeckMovement.None)
+        if (_state.LowerNeckMovement == MotherBrainNeckMovement.None &&
+            _state.UpperNeckMovement == MotherBrainNeckMovement.None)
         {
             _state.DroolGenerationEnabled = false;
             if (_state.Body.Pose != MotherBrainBodyPose.Standing)

@@ -166,8 +166,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
-            _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
-            _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+            _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
+            _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
             requests.FinalBeamSoundQueued = true; // The final beam's sound.
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding;

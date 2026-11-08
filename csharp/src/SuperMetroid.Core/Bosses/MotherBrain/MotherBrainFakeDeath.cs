@@ -541,8 +541,8 @@ internal sealed class MotherBrainFakeDeath
         state.BrainPaletteHandlingEnabled = true;
         state.Form = MotherBrainForm.SecondPhase;
         state.DroolGenerationEnabled = true;
-        state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
-        state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+        state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
+        state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         state.NeckAngleDelta = 1280;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingShakeHead;
         state.FunctionTimer = 23;

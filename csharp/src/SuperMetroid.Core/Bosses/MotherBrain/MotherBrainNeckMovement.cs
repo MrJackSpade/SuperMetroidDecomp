@@ -1,24 +1,23 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Movement index of one Mother Brain neck joint: the value the lower and upper neck
-/// motion dispatchers use as an index into
-/// their five-entry jump tables. Both joints share the same table layout.
+/// How one Mother Brain neck joint moves on each enabled update. Both joints use the same movements. Its values are
+/// arbitrary.
 /// </summary>
 public enum MotherBrainNeckMovement
 {
-    /// <summary>Index 0: the joint does not move.</summary>
-    None = 0,
+    /// <summary>The joint does not move.</summary>
+    None,
 
-    /// <summary>Index 2: bob down, reversing at the lower limit.</summary>
-    BobDown = 2,
+    /// <summary>Bob down, reversing at the lower limit.</summary>
+    BobDown,
 
-    /// <summary>Index 4: bob up, reversing at the upper limit.</summary>
-    BobUp = 4,
+    /// <summary>Bob up, reversing at the upper limit.</summary>
+    BobUp,
 
-    /// <summary>Index 6: one-way lower that stops the joint at its limit.</summary>
-    Lower = 6,
+    /// <summary>One-way lower that stops the joint at its limit.</summary>
+    Lower,
 
-    /// <summary>Index 8: one-way raise that stops the joint at its limit.</summary>
-    Raise = 8,
+    /// <summary>One-way raise that stops the joint at its limit.</summary>
+    Raise,
 }

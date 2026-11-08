@@ -143,10 +143,10 @@ public sealed class MotherBrainEnemyState
     public int NeckAngleDelta { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
-    /// <summary>Lower-neck table byte offset: 0 inert, 2/4 alternating down/up, 6 one-way lowering, or 8 one-way raising; endpoints update this offset.</summary>
-    public MotherBrainNeckMovement LowerNeckMovementIndex { get; internal set; }
-    /// <summary>Upper-neck table byte offset 0, 2, 4, 6, or 8; processed after the lower half so raising targets observe its newly updated angle.</summary>
-    public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
+    /// <summary>How the lower neck moves: not at all, bobbing down and up, or a one-way lower or raise; reaching a limit changes it.</summary>
+    public MotherBrainNeckMovement LowerNeckMovement { get; internal set; }
+    /// <summary>How the upper neck moves; it moves after the lower neck, so a raise targets the lower neck's newly updated angle.</summary>
+    public MotherBrainNeckMovement UpperNeckMovement { get; internal set; }
 
     /// <summary>
     /// The updates her rise has spent readying her standing body so far, fewer than

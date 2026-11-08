@@ -39,11 +39,11 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Neck movement enabled.</summary>
     public required bool NeckMovementEnabled { get; init; }
 
-    /// <summary>Lower neck movement index selected by the current actor phase.</summary>
-    public required MotherBrainNeckMovement LowerNeckMovementIndex { get; init; }
+    /// <summary>The lower neck movement selected by the current actor phase.</summary>
+    public required MotherBrainNeckMovement LowerNeckMovement { get; init; }
 
-    /// <summary>Upper neck movement index selected by the current actor phase.</summary>
-    public required MotherBrainNeckMovement UpperNeckMovementIndex { get; init; }
+    /// <summary>The upper neck movement selected by the current actor phase.</summary>
+    public required MotherBrainNeckMovement UpperNeckMovement { get; init; }
 
     /// <summary>Number of live Mother Brain bomb enemy projectiles.</summary>
     public required int BombCounter { get; init; }

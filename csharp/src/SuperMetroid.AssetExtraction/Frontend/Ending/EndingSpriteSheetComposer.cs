@@ -31,8 +31,8 @@ internal static class EndingSpriteSheetComposer
     /// and <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The scene draws a pose its families do not compose, or a frame keeps its own colours in a set a colouring's shade
-    /// shows in another set's colours.
+    /// The scene draws a pose its families do not compose, a frame keeps its own colours in a set the drawn shade of one of
+    /// its colourings shows in that colouring's colours, or a shade the ending shows is authored for no listed actors.
     /// </exception>
     internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtwork objects, EndingPaletteSet palettes,
         EndingFontAtlas font, IPaletteFxColorSource paletteFx)
@@ -68,11 +68,12 @@ internal static class EndingSpriteSheetComposer
             }));
         }
         ColouringPictures<EndingSpriteColouring> pictures = ColouringPictures<EndingSpriteColouring>.Of(frames, EndingScreenInks.SpriteSet);
-        RequireOwnColoursKept(frames, pictures);
+        Dictionary<EndingSpriteColouring, SortedSet<int>> ownSets = OwnSets(frames);
         RgbColor[] sprites = page.SpriteColours(palettes);
         return new SpriteSheetSources([.. frames.Select(frame => frame.Frame)], sprites, sizes, PartsKeepOwnRows: true, Blank: blank)
         {
-            Shades = EndingScreenShades.Sprites(EndingScreenShades.Screen(palettes, paletteFx), sprites, pictures),
+            Shades = EndingScreenShades.Sprites(EndingScreenShades.Screen(palettes, paletteFx), sprites, pictures,
+                colouring => ownSets.TryGetValue(colouring, out SortedSet<int>? sets) ? sets : []),
         };
     }
 
@@ -157,20 +158,30 @@ internal static class EndingSpriteSheetComposer
         : [];
 
     /// <summary>
-    /// Requires that no frame keeps its own colours in a set a colouring's shade shows in another set's colours: the screen's
-    /// shades leave those sets to each colouring's own, so a part keeping its own colours there would not show them.
+    /// The sets the own-palette parts of each colouring's frames keep (#1544): such a part is its actor's, so it shows the
+    /// effects authored for the actors drawn in each colouring its frame is drawn in, in its own colours.
     /// </summary>
-    /// <exception cref="InvalidDataException">A frame keeps its own colours in such a set.</exception>
-    private static void RequireOwnColoursKept(List<ColouredFrame<EndingSpriteColouring>> frames, ColouringPictures<EndingSpriteColouring> pictures)
+    private static Dictionary<EndingSpriteColouring, SortedSet<int>> OwnSets(List<ColouredFrame<EndingSpriteColouring>> frames)
     {
+        var sets = new Dictionary<EndingSpriteColouring, SortedSet<int>>();
         foreach (ColouredFrame<EndingSpriteColouring> frame in frames)
         {
             foreach (SpriteFramePart part in frame.Frame.Frame.Parts)
             {
-                if (part.Palette is int own && pictures.Remapped.Contains(own))
-                    throw new InvalidDataException($"Ending sheet frame {frame.Frame.Name} keeps its own colours in set {own}, which a colouring's shade shows in another set's colours.");
+                if (part.Palette is not int own)
+                    continue;
+                foreach (EndingSpriteColouring colouring in frame.Colourings)
+                {
+                    if (!sets.TryGetValue(colouring, out SortedSet<int>? kept))
+                    {
+                        kept = [];
+                        sets.Add(colouring, kept);
+                    }
+                    kept.Add(own);
+                }
             }
         }
+        return sets;
     }
 
     /// <summary>The characters <paramref name="transfers"/> leave on the sprite page <paramref name="objectSelection"/> selects.</summary>

@@ -78,7 +78,7 @@ public static class SamusGrappleMovement
         // Firing's palette and sound setup.
         grapple.QuarterVelocity = FixedVector<RoomPixels>.Zero;
         grapple.RopeLength = 0;
-        grapple.RopeLengthDelta = 12;
+        grapple.RopeLengthDelta = GrappleBeamDefinitions.Physics.FiringExtension;
         grapple.AngularVelocity = 0;
         grapple.DirectionInputAcceleration = 0;
         grapple.GravityAcceleration = 0;
@@ -186,8 +186,8 @@ public static class SamusGrappleMovement
         if ((controllerInput & ControllerButton.X) == ControllerButton.None)
             return QueueFiringCancellation(grapple);
 
-        grapple.RopeLength += 12;
-        if (grapple.RopeLength >= 128)
+        grapple.RopeLength += GrappleBeamDefinitions.Physics.FiringExtension;
+        if (grapple.RopeLength >= GrappleBeamDefinitions.Physics.FiringCancelLength)
             return QueueFiringCancellation(grapple);
 
         // Firing tests the current endpoint against ordinary enemies before moving the

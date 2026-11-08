@@ -37,6 +37,19 @@ public readonly record struct UnsignedSixteenSixteen
     public static UnsignedSixteenSixteen FromRaw(uint rawValue) =>
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
 
+    /// <summary>
+    /// The speed that is the product of two non-negative quantities each counted in 256ths, as the grapple release
+    /// scales the swing's speed by a trigonometric component: 256ths times 256ths are 65536ths of a pixel. The product
+    /// must fit the type.
+    /// </summary>
+    /// <param name="twoFiftySixths">The first factor in 256ths, zero or more.</param>
+    /// <param name="otherTwoFiftySixths">The second factor in 256ths, zero or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A factor is negative.</exception>
+    /// <exception cref="OverflowException">The product lies outside the type's range.</exception>
+    public static UnsignedSixteenSixteen ProductOfTwoFiftySixths(int twoFiftySixths, int otherTwoFiftySixths) =>
+        FromRaw(checked((uint)Ensure.BetweenInclusive(0, int.MaxValue, twoFiftySixths) *
+            (uint)Ensure.BetweenInclusive(0, int.MaxValue, otherTwoFiftySixths)));
+
     /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel, which must not be negative.</summary>
     public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
 

@@ -38,12 +38,12 @@ internal static class GrappleQuantityRangesVerification
     /// <summary>Checks that rope length and endpoint frame accept their range limits and reject the values beyond them.</summary>
     internal static void VerifyGrappleQuantityRanges()
     {
-        var grapple = new SamusGrappleState { RopeLength = short.MaxValue, PointAnimationFrame = byte.MaxValue };
-        AssertEqual(short.MaxValue, grapple.RopeLength, "rope length accepts its largest stated value");
+        var grapple = new SamusGrappleState { RopeLength = GrappleBeamDefinitions.Physics.LongestRopeLength, PointAnimationFrame = byte.MaxValue };
+        AssertEqual(GrappleBeamDefinitions.Physics.LongestRopeLength, grapple.RopeLength, "rope length accepts its largest stated value");
         AssertEqual(byte.MaxValue, grapple.PointAnimationFrame, "endpoint frame accepts its largest restored value");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = -1; }, "rope length rejects a negative length");
-        AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = short.MaxValue + 1; },
-            "rope length rejects a length whose signed test would differ");
+        AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = GrappleBeamDefinitions.Physics.LongestRopeLength + 1; },
+            "rope length rejects a length firing never reaches");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.PointAnimationFrame = -1; }, "endpoint frame rejects a negative frame");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.PointAnimationFrame = byte.MaxValue + 1; },
             "endpoint frame rejects a frame no restored state holds");

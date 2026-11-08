@@ -6,7 +6,7 @@ internal static class BabyMetroidRoute
     /// <summary>Combines an authored waypoint with its callback and whether it is the final leg.</summary>
     private static BabyMetroidRouteRecord Record(int index) => new(
         BabyMetroidRouteDefinitions.Waypoints[index],
-        0,
+        BabyMetroidRouteDefinitions.AccelerationDivisor,
         index < BabyMetroidRouteDefinitions.FirstExtraEightLeg
             ? BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen
             : BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight,

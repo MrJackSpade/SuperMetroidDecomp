@@ -1,15 +1,12 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>
-/// Index into Mother Brain's three-entry phase-two attack dispatcher.
-/// The values are array indices in the original game, not host-only states.
-/// </summary>
+/// <summary>The step of one of Mother Brain's phase-two attacks. Its values are arbitrary.</summary>
 public enum MotherBrainAttackPhase
 {
-    /// <summary>Index 0 selects the next head/body attack using Samus movement and sampled RNG, then seeds the 64-update cooldown.</summary>
-    ChooseAttack = 0,
-    /// <summary>Index 1 decrements the unsigned attack cooldown until zero while the chosen head bytecode runs independently.</summary>
-    Cooldown = 1,
-    /// <summary>Index 2 resets the attack sub-dispatcher and returns the body to ordinary phase-two thinking.</summary>
-    EndAttack = 2,
+    /// <summary>Selects the next head/body attack using Samus movement and sampled RNG, then seeds the 64-update cooldown. A new attack starts here.</summary>
+    ChooseAttack,
+    /// <summary>Decrements the unsigned attack cooldown until zero while the chosen head bytecode runs independently.</summary>
+    Cooldown,
+    /// <summary>Resets the attack steps and returns the body to ordinary phase-two thinking.</summary>
+    EndAttack,
 }

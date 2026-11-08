@@ -97,11 +97,11 @@ internal static class NativeSnapshotMotherBrainImport
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
         state.WalkCounter = MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
-        state.AttackPhase = (MotherBrainAttackPhase)W(MotherBrainMemory.AttackPhase);
+        state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
         state.AttackCooldown = W(MotherBrainMemory.BodyAttackCooldown);
         state.BombCounter = W(MotherBrainMemory.BombCounter);
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
-        state.HandBeamPhase = (MotherBrainHandBeamPhase)W(MotherBrainMemory.DeathBeamAttackPhase);
+        state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWords(
             W(MotherBrainMemory.DeathBeamNext + 2), W(MotherBrainMemory.DeathBeamNext),
             W(MotherBrainMemory.DeathBeamNext + 6), W(MotherBrainMemory.DeathBeamNext + 4));

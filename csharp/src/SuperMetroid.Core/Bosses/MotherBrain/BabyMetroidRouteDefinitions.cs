@@ -11,8 +11,8 @@ internal static class BabyMetroidRouteDefinitions
     internal const int RecordCount = 8;
 
     /// <summary>
-    /// The eight authored waypoints. Each leg steers to its waypoint with a zero acceleration
-    /// divisor index; the first five legs use the wrong-way extra-16 callback and the final
+    /// The eight authored waypoints. Each leg steers to its waypoint with the acceleration divisor
+    /// <see cref="AccelerationDivisor"/>; the first five legs use the wrong-way extra-16 callback and the final
     /// three the extra-8 callback. Reaching the last waypoint ends the route.
     /// </summary>
     internal static readonly Position16<RoomPixels>[] Waypoints =
@@ -20,6 +20,9 @@ internal static class BabyMetroidRouteDefinitions
         new(160, 120), new(304, 122), new(192, 64), new(192, 112),
         new(224, 128), new(205, 144), new(204, 160), new(203, 176),
     ];
+    /// <summary>The gradual-acceleration divisor every route leg uses.</summary>
+    internal const int AccelerationDivisor = 16;
+
     /// <summary>First route leg that switches from the extra-16 to extra-8 wrong-way correction.</summary>
     internal const int FirstExtraEightLeg = 5;
 

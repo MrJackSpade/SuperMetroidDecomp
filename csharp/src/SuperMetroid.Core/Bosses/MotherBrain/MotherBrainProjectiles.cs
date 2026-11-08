@@ -223,19 +223,13 @@ internal sealed class MotherBrainProjectiles
         }
         else
         {
-            int accelerationIndex = bombState.Bounces;
-            if (accelerationIndex >= MotherBrainBombBounceDefinitions.StageCount)
-            {
-                throw new InvalidDataException(
-                    $"Mother Brain bomb bounce {accelerationIndex} is past its {MotherBrainBombBounceDefinitions.StageCount} authored bounces.");
-            }
-
-            acceleration = MotherBrainBombBounces.YAcceleration(accelerationIndex);
-            if (acceleration == 0)
+            if (MotherBrainBombBounces.YAcceleration(bombState.Bounces) is not { } bounceAcceleration)
             {
                 ExpireMotherBrainBomb(bomb, state);
                 return;
             }
+
+            acceleration = bounceAcceleration;
         }
 
         if (MoveMotherBrainBomb(bomb, acceleration))
@@ -423,14 +417,12 @@ internal sealed class MotherBrainProjectiles
             RoomEnemyProjectileKind.MotherBrainGlassShard,
             graphics: default);
 
-        // The shard initializer doubles the complete RNG word and masks it to an even nine-bit angle.
-        // The low eight-bit angle selects signed sine/cosine velocities; bits 5..8 choose
-        // one of sixteen authored shard animation lists.
-        int angleOffset = (_room.Random.Generate() * 2) & 510;
-        int angle = angleOffset >> 1;
+        // The shard's launch angle is the random word's low byte. It selects signed sine/cosine velocities, and its
+        // top four bits choose one of sixteen authored shard animation lists.
+        int angle = _room.Random.Generate() & byte.MaxValue;
         shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle + 64)));
         shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle) * 4));
-        int animationIndex = ((angleOffset >> 4) & 30) >> 1;
+        int animationIndex = angle >> 4;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 

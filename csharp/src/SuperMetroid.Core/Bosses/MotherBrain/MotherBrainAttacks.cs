@@ -67,8 +67,8 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Walks Mother Brain backwards toward X 40 at gait offset 8. Offset eight selects the slow
-    /// authored gait; the helper's hard floor at X=48 can report arrival before target 40.
+    /// Walks Mother Brain backwards toward X 40 at the slow gait; the helper's hard floor at X=48 can report arrival
+    /// before target 40.
     /// </summary>
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
         MotherBrainEnemyState state)
@@ -352,7 +352,10 @@ internal sealed class MotherBrainAttacks
     private static void FinishMotherBrainBombAttack(MotherBrainEnemyState state) =>
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
 
-    /// <summary>Literal target/pose/list behavior of walking backwards at delay-table offset six.</summary>
+    /// <summary>
+    /// Walks Mother Brain backwards toward <paramref name="targetX"/> at the medium gait; the hard floor at X=48 reports
+    /// arrival before a target left of it.
+    /// </summary>
     private static bool TryWalkMotherBrainBackwards(
         MotherBrainEnemyState state,
         int targetX)

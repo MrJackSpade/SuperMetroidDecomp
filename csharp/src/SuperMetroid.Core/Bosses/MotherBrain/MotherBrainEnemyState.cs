@@ -216,9 +216,8 @@ public sealed class MotherBrainEnemyState
     }
 
     /// <summary>
-    /// <c>attackPhase</c> dispatch index used by the attack dispatcher. Head animation
-    /// runs independently while this advances from selection, through 64 cooldown frames,
-    /// and back to the ordinary thinking function.
+    /// The step of the current attack. Head animation runs independently while this advances from selection, through
+    /// 64 cooldown frames, and back to the ordinary thinking function.
     /// </summary>
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
@@ -249,9 +248,8 @@ public sealed class MotherBrainEnemyState
     public int BodyTargetXPosition { get; internal set; }
 
     /// <summary>
-    /// <c>deathBeamAttackPhase</c> consumed by the hand-beam dispatcher. Despite the historical
-    /// symbol name, this is the ordinary phase-two red hand-beam attack, not the later
-    /// rainbow beam used when the head's health reaches zero.
+    /// The step of the hand-beam attack. This is the ordinary phase-two red hand-beam attack, not the later rainbow
+    /// beam used when the head's health reaches zero.
     /// </summary>
     public MotherBrainHandBeamPhase HandBeamPhase { get; internal set; }
 

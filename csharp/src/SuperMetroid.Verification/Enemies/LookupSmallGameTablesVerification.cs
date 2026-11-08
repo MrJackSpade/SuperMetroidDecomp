@@ -43,12 +43,16 @@ internal static class LookupSmallGameTablesVerification
     /// <summary>Checks every bomb-bounce gravity stage and its shared ordinary fall value.</summary>
     private static void VerifyMotherBrainBombBounceAccelerations(ISnesAddressSpace rom)
     {
-        for (int stage = 0; stage < MotherBrainBombBounceDefinitions.StageCount; stage++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c550 + 2 * stage)),
-                MotherBrainBombBounces.YAcceleration(stage), $"Bomb bounce stage {stage} gravity");
+        // The cartridge's table holds the fall gravity, then each bounce's, then a zero where the bomb expires.
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration,
-            "Stage zero shares the ordinary fall gravity");
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBombBounces.YAcceleration(10), "Bomb stage bound");
+            "The table's first entry is the ordinary fall gravity");
+        for (int bounces = 1; bounces <= MotherBrainBombBounces.Count; bounces++)
+            AssertEqual((int?)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
+                MotherBrainBombBounces.YAcceleration(bounces), $"Bomb gravity after bounce {bounces}");
+        int expiry = MotherBrainBombBounces.Count + 1;
+        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * expiry),
+            "The cartridge ends the bounces with a zero");
+        AssertTrue(MotherBrainBombBounces.YAcceleration(expiry) is null, "The bomb has no gravity after its last bounce");
     }
 
     /// <summary>Matches seven unrolled Crocomire bridge-dust spawn operands to their X/Y positions.</summary>

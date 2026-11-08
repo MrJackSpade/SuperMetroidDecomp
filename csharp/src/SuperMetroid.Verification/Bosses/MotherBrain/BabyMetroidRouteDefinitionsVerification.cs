@@ -23,8 +23,9 @@ internal static class BabyMetroidRouteDefinitionsVerification
                 $"Baby route {index} target X");
             AssertEqual(ReadRomWord(rom, address + 2), record.Target.Y,
                 $"Baby route {index} target Y");
-            AssertEqual(ReadRomWord(rom, address + 4), record.AccelerationDivisorIndex,
-                $"Baby route {index} acceleration-divisor index");
+            // The cartridge stores the divisor as its index into a table counting sixteen down to one.
+            AssertEqual(16 - ReadRomWord(rom, address + 4), record.AccelerationDivisor,
+                $"Baby route {index} acceleration divisor");
             AssertEqual(ReadRomWord(rom, address + 6), MotherBrainNativeWords.BabyMetroidRouteMovementFunctions.Word(record.MovementFunction),
                 $"Baby route {index}: the cartridge's routine word names the record's movement callback");
             // The cartridge reads one word past each record and ends the route when that word's

@@ -33,33 +33,31 @@ public readonly record struct SpriteImageInk
     /// <summary>The colour's place, with the flags above it.</summary>
     private readonly int fields;
 
-    /// <summary>Records one pixel.</summary>
-    /// <param name="colour">The place among the image's colours of the colour the pixel shows; null for a pixel with none.</param>
-    /// <param name="clear">Whether the pixel shows what lies behind it; a pixel with no colour is clear.</param>
+    /// <summary>Records one pixel that has a colour of its image's.</summary>
+    /// <param name="colour">The place among the image's colours of the colour the pixel shows.</param>
+    /// <param name="kind">How the pixel shows its colour.</param>
     /// <param name="frontTile">Whether the pixel lies in one of its layer's front tiles; false for every pixel of an actor's frame.</param>
-    /// <param name="blends">Whether the pixel takes part in colour blends where it is drawn as an actor's.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The colour's place is negative or past the largest an image holds.</exception>
-    /// <exception cref="ArgumentException">A pixel with no colour is not clear.</exception>
-    public SpriteImageInk(int? colour, bool clear, bool frontTile, bool blends)
+    /// <exception cref="ArgumentOutOfRangeException">The colour's place is negative or past the largest an image holds, or the kind is not defined.</exception>
+    public SpriteImageInk(int colour, ColouredInkKind kind, bool frontTile)
     {
-        if (colour is not { } place)
+        Ensure.AtLeastZero(colour);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(colour, ColourMaximum);
+        int marks = kind switch
         {
-            if (!clear)
-                throw new ArgumentException("A pixel with no colour of its image's is clear.", nameof(clear));
-            place = 0;
-        }
-        else
-        {
-            Ensure.AtLeastZero(place);
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(place, ColourMaximum, nameof(colour));
-        }
-        fields = place | (colour is null ? 0 : ColouredFlag) | (clear ? ClearFlag : 0) | (frontTile ? FrontTileFlag : 0)
-            | (blends ? BlendsFlag : 0);
+            ColouredInkKind.Clear => ClearFlag,
+            ColouredInkKind.Opaque => 0,
+            ColouredInkKind.Blending => BlendsFlag,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "A coloured pixel shows its colour clear, opaque or blending."),
+        };
+        fields = colour | ColouredFlag | marks | (frontTile ? FrontTileFlag : 0);
     }
+
+    /// <summary>Keeps a pixel's word as it is.</summary>
+    private SpriteImageInk(int fields) => this.fields = fields;
 
     /// <summary>A transparent pixel: clear, with no colour.</summary>
     /// <param name="frontTile">Whether the pixel lies in one of its layer's front tiles.</param>
-    public static SpriteImageInk Transparent(bool frontTile) => new(null, clear: true, frontTile, blends: false);
+    public static SpriteImageInk Transparent(bool frontTile) => new(ClearFlag | (frontTile ? FrontTileFlag : 0));
 
     /// <summary>The place among the image's colours of the colour the pixel shows; null for a transparent pixel.</summary>
     public int? Colour => (fields & ColouredFlag) != 0 ? fields & ColourMaximum : null;

@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Enemies.EnemyInstructionCodePointersVerif
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Cartridge;

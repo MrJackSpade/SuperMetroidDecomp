@@ -14,7 +14,7 @@ public sealed class SpriteImage
     /// The pixels and how each was inked, decoded when first read: an installation's stock images are verified when it
     /// opens, so decoding every sheet up front only cost the time and memory of images nothing draws (#1430).
     /// </summary>
-    private readonly Lazy<Content> content;
+    private readonly Lazy<SpriteImageLayers> content;
 
     /// <summary>The colours the image was coloured with.</summary>
     private readonly RgbColor[] standardColours;
@@ -62,7 +62,7 @@ public sealed class SpriteImage
 
     /// <summary>Checks one image's layers against its size and colours and keeps its pixels and inks.</summary>
     /// <exception cref="ArgumentException">A length does not match, or a pixel names a colour the image does not have.</exception>
-    private Content Check(ReadOnlySpan<RgbaPixel> pixels, ReadOnlySpan<SpriteImageInk> inks)
+    private SpriteImageLayers Check(ReadOnlySpan<RgbaPixel> pixels, ReadOnlySpan<SpriteImageInk> inks)
     {
         Ensure.LengthEqual(pixels, Size.X * Size.Y);
         Ensure.LengthEqual(inks, Size.X * Size.Y);
@@ -71,13 +71,8 @@ public sealed class SpriteImage
             if (ink.Colour is { } colour && colour >= standardColours.Length)
                 throw new ArgumentException($"Sprite image {Name} has a pixel of colour {colour}, past its {standardColours.Length}.", nameof(inks));
         }
-        return new Content(pixels.ToArray(), inks.ToArray());
+        return new SpriteImageLayers(pixels.ToArray(), inks.ToArray());
     }
-
-    /// <summary>An image's pixels and how each was inked.</summary>
-    /// <param name="Pixels">The pixels, row by row from the top.</param>
-    /// <param name="Inks">How each pixel was inked.</param>
-    private sealed record Content(RgbaPixel[] Pixels, SpriteImageInk[] Inks);
 
     /// <summary>The image's installed name.</summary>
     public string Name { get; }

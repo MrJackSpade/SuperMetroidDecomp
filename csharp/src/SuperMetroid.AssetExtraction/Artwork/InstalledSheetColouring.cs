@@ -77,7 +77,7 @@ internal static class InstalledSheetColouring
                 throw new InvalidDataException($"A sheet marks a pixel's front tile {front}; a pixel lies in a front tile (one) or not (zero).");
             int index = paletteIndices[pixel];
             inks[pixel] = IsTransparent(composed.Palette, index) ? SpriteImageInk.Transparent(front != 0)
-                : new SpriteImageInk(placeOf[index], IsClear(composed.Palette, index), front != 0, Blends(index));
+                : new SpriteImageInk(placeOf[index], KindOf(composed.Palette, index), front != 0);
         }
         var manifest = new InstalledSheetDocument
         {
@@ -110,7 +110,24 @@ internal static class InstalledSheetColouring
     {
         bool front = (mapPixel.G & FrontTileMark) != 0;
         return mapPixel.A == 0 ? SpriteImageInk.Transparent(front)
-            : new SpriteImageInk(mapPixel.R, (mapPixel.G & ClearMark) != 0, front, (mapPixel.G & BlendsMark) != 0);
+            : new SpriteImageInk(mapPixel.R, MarkedKind(mapPixel.G), front);
+    }
+
+    /// <summary>How a coloured pixel composed as <paramref name="index"/> shows its colour.</summary>
+    private static ColouredInkKind KindOf(SpriteImageColours palette, int index) =>
+        IsClear(palette, index) ? ColouredInkKind.Clear
+        : Blends(index) ? ColouredInkKind.Blending
+        : ColouredInkKind.Opaque;
+
+    /// <summary>How a coloured pixel whose map marks are <paramref name="marks"/> shows its colour.</summary>
+    /// <exception cref="InvalidDataException">The marks make the pixel both clear and blending.</exception>
+    private static ColouredInkKind MarkedKind(int marks)
+    {
+        bool clear = (marks & ClearMark) != 0;
+        bool blends = (marks & BlendsMark) != 0;
+        if (clear && blends)
+            throw new InvalidDataException("A palette map pixel marks a pixel both clear and blending.");
+        return clear ? ColouredInkKind.Clear : blends ? ColouredInkKind.Blending : ColouredInkKind.Opaque;
     }
 
     /// <summary>

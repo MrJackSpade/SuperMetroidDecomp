@@ -222,10 +222,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || !_earthquake.EarthquakeTimer.IsZero)
             return;
 
-        Func<int> readRandomNumber = _room.Random.Read;
-        // One random word in 32 (its low twelve bits below 128) picks the stronger quake.
-        int lowTwelveBits = readRandomNumber() % 4096;
-        if (lowTwelveBits < 128)
+        // One random word in 32 (its strength roll below 128) picks the stronger quake.
+        int strengthRoll = CeresDoorQuakeDefinitions.StrengthRoll.Of(_room.Random.Read());
+        if (strengthRoll < 128)
         {
             // Rarely select the stronger sibling quake six entries after the base type.
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);

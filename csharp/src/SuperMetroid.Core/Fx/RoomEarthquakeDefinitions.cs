@@ -27,8 +27,8 @@ public static class RoomEarthquakeDefinitions
     public const int RisingLiquidTimerBits = 32;
 
     /// <summary>
-    /// Base delays between rising lava's or acid's repeated rumble sounds, in emission order. The live RNG low two
-    /// bits are added at each emission.
+    /// Base delays between rising lava's or acid's repeated rumble sounds, in emission order. The live random
+    /// <see cref="RisingLiquidSoundJitter"/> is added at each emission.
     /// </summary>
     /// <remarks>
     /// Retained as the particular irregular rhythm of repeated identical rumble
@@ -42,6 +42,12 @@ public static class RoomEarthquakeDefinitions
     /// </remarks>
     public static ReadOnlySpan<ushort> RisingLiquidSoundBaseTimers =>
         [1, 3, 2, 1, 1, 2, 2, 1];
+
+    /// <summary>
+    /// The random selection, read from the current sample without drawing, of the extra updates added to a rumble
+    /// sound's base delay: 0 through 3.
+    /// </summary>
+    internal static readonly RandomSampleField RisingLiquidSoundJitter = new(0, 2);
 
     /// <summary>
     /// The six rooms whose special-FX initialization silences quake sounds, in the order the game compares them;

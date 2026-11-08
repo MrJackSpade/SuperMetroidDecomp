@@ -99,7 +99,7 @@ internal sealed class TourianUnlockBehavior
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
-        ByteAngle angle = ByteAngle.Wrapped((_room.Random.Generate() & 63) - 32);
+        ByteAngle angle = ByteAngle.Wrapped(_room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - 32);
         // The samples lie within one pixel either way, so four times one stays within four.
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle.RawValue + 64)));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(4 * Trigonometry.SignedNegativeCosineWord(angle.RawValue)));

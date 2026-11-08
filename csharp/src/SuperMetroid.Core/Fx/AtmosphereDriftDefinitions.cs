@@ -14,4 +14,7 @@ public static class AtmosphereDriftDefinitions
 
     /// <summary>Fog drifts right five sixteenths of a pixel a frame.</summary>
     public const int FogHorizontalVelocity = 80;
+
+    /// <summary>The random selection a rainy room's load reads to choose the rain's wind: one of four winds.</summary>
+    internal static readonly RandomSampleField RainWindChoice = new(2, 2);
 }

@@ -15,6 +15,9 @@ public static class LavaAcidWaveDefinitions
     /// <summary>Frames between lava's ambient bubbling sounds.</summary>
     public const int AmbientSoundPeriod = 112;
 
+    /// <summary>The random selection that chooses which of the three bubbling sounds lava plays: eight choices.</summary>
+    internal static readonly RandomSampleField AmbientSoundChoice = new(0, 3);
+
     /// <summary>The request priority of lava's ambient sound.</summary>
     public static readonly SoundRequestPriority AmbientSoundPriority = SoundRequestPriority.Normal;
 }

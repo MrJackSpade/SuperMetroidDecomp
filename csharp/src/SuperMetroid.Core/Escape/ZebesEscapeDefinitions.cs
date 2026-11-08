@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Escape;
 
 /// <summary>
 /// The Zebes escape rooms' shaking and explosions (#1415): the earthquake each escape room shakes with, how often a
-/// horizontal shake turns diagonal and for how long, and the tile outdoor explosions skip.
+/// horizontal shake turns diagonal and for how long, where the explosions go off and which one, and the tile outdoor
+/// explosions skip.
 /// </summary>
 public static class ZebesEscapeDefinitions
 {
@@ -28,6 +29,24 @@ public static class ZebesEscapeDefinitions
 
     /// <summary>A medium shaking room turns diagonal on an update whose random number is below this.</summary>
     public const int MediumChance = 384;
+
+    /// <summary>
+    /// The random selection that places an explosion across the screen: its pixels right of the camera's left edge, 256
+    /// positions.
+    /// </summary>
+    internal static readonly RandomSampleField ExplosionScreenX = new(0, 8);
+
+    /// <summary>
+    /// The random selection that places an explosion down the screen: its pixels below the camera's top edge, 256
+    /// positions, drawn from the same sample as <see cref="ExplosionScreenX"/>.
+    /// </summary>
+    internal static readonly RandomSampleField ExplosionScreenY = new(8, 8);
+
+    /// <summary>
+    /// The random selection, from the explosion's own sample, of which explosion goes off and whether it sounds: 16
+    /// choices, of which the first eight name an explosion and the rest keep the inherited one.
+    /// </summary>
+    internal static readonly RandomSampleField ExplosionChoice = new(0, 4);
 
     /// <summary>The blank foreground tile outdoor explosions skip.</summary>
     public const int BlankTile = 255;

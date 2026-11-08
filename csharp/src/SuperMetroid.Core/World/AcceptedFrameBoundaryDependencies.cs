@@ -9,9 +9,6 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="AcceptedFrameBoundary"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[ArchitectureReview("wide-dependencies", "The display snapshot boundary: each member is an owner whose state becomes " +
-    "visible at the frame boundary (scroll, windows, sprites, HUD, room layers, FX colors, X-ray, eye beam) and is read once to " +
-    "latch it; narrowing would only move the same reads into a second boundary.")]
 internal sealed record AcceptedFrameBoundaryDependencies
 {
     /// <summary>The input half of the frame boundary: the controller latches and the frame counters.</summary>

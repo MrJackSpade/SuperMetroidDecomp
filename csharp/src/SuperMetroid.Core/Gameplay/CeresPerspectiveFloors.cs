@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Samus.Drawing;

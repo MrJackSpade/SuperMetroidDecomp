@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
@@ -8,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// The opening cinematic as the import pipeline reads it (#633, #1463): the scene artwork the game binds, with the
 /// tilemaps, character atlases and sprite compositions its sheets are composed from (#1467).
 /// </summary>
+[ArchitectureReview("context-bag", "The opening cinematic's decoded artwork documents the import composes its sheets from; every member is immutable artwork data, not a service.")]
 public sealed record IntroCinematicArtworkParts : IntroCinematicSceneParts
 {
     /// <summary>Exactly four ordered 32x32 tilemap pages of the illustrated scenes.</summary>

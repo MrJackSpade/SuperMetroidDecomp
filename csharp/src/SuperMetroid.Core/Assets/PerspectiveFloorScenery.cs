@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Gameplay;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A picture fixed in the room around a perspective floor (#1545), drawn behind the floor and the actors: the getaway

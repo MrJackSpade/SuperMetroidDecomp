@@ -6,7 +6,6 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.World;
 

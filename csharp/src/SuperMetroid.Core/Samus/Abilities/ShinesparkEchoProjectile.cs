@@ -30,7 +30,7 @@ internal sealed class ShinesparkEchoProjectile
         BeamCombos.InitializeComboData(slot, BeamComboData.Echo);
         slot.FrameBehavior = SamusProjectileFrameBehavior.ShinesparkEcho;
         slot.EchoAngle = angle.ToByteAngle();
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(0));
+        slot.EchoRadius = 0;
     }
 
     /// <summary>Runs only the live slot's installed echo handler.</summary>

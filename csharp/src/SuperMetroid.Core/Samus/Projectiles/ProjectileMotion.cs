@@ -403,8 +403,8 @@ internal sealed class ProjectileMotion
         if (!link.IsActive)
             return;
 
-        int velocity = axis == Axis.Vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
-        int wholeMagnitude = EightEight.WholeOf(Math.Abs(velocity));
+        SignedEightEight velocity = axis == Axis.Vertical ? owner.Velocity.Y : owner.Velocity.X;
+        int wholeMagnitude = velocity.MagnitudeWholePixels;
         bool ownerExploded = owner.Type.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
         {
@@ -428,7 +428,7 @@ internal sealed class ProjectileMotion
         // strikes the door behind it still opens the cap through its link.
         int offset = wholeMagnitude - 10;
         int ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
-        int linkPosition = CoordinateAxis.Wrap(ownerPosition + (velocity < 0 ? offset : -offset));
+        int linkPosition = CoordinateAxis.Wrap(ownerPosition + (velocity.IsNegative ? offset : -offset));
         if (axis == Axis.Vertical)
             link.Position = link.Position.WithWholeY(linkPosition);
         else

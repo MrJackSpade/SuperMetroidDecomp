@@ -933,11 +933,11 @@ false,             CrashSequenceFinished: true);
             4 => SecondReleasedCrashEchoSlot,
             _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
         };
-        echo.Radius = projectile.Velocity.X.RawValue;
+        echo.Radius = projectile.EchoRadius;
         echo.Angle = projectile.EchoAngle.ToAngle();
         if (!StepReleasedCrashEcho(samus, cameraPosition,
             echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(echo.Radius));
+        projectile.EchoRadius = echo.Radius;
         projectile.Position = projectile.Position.WithWhole(echo.Position);
         return true;
     }
@@ -1106,13 +1106,13 @@ false,             CrashSequenceFinished: true);
         /// <summary>Byte-angle used to place the departing echo around Samus.</summary>
         public RotationAngle Angle { get; set; }
         /// <summary>
-        /// Expanding radius in pixels, 0 through <see cref="LargestRadius"/>, retained in the owning projectile's X
-        /// velocity word: zero when the echo departs and raised only by <see cref="ExpandRadius"/>. The sine lookup
-        /// places the echo with the radius taken modulo 256.
+        /// Expanding radius in pixels, 0 through <see cref="LargestRadius"/>, retained in the owning projectile slot's
+        /// echo radius: zero when the echo departs and raised only by <see cref="ExpandRadius"/>. The sine lookup
+        /// places the echo with the radius taken modulo 256, so an echo can stay on screen while the radius grows on.
         /// </summary>
         public int Radius { get; set; }
 
-        /// <summary>The largest radius the projectile velocity word holds; one more expansion wraps past it to zero.</summary>
+        /// <summary>The largest radius the game holds for an echo; one more expansion wraps past it to zero.</summary>
         internal const int LargestRadius = ushort.MaxValue;
 
         /// <summary>The radii the sine lookup places an echo at, in pixels; a radius past them places it from the centre again.</summary>

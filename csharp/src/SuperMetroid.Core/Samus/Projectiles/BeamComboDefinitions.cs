@@ -9,10 +9,10 @@ public static class BeamComboDefinitions
     public const int PlasmaOuterRadius = 192;
     /// <summary>The Plasma special beam attack's contraction switches phase below this radius.</summary>
     public const int PlasmaInnerThreshold = 45;
-    /// <summary>The Wave special beam attack's oscillator cap, in signed 8.8 units.</summary>
-    public const int WaveSpeedLimit = 2048;
-    /// <summary>The Wave special beam attack's per-frame acceleration, in signed 8.8 units.</summary>
-    public const int WaveAcceleration = 64;
+    /// <summary>The Wave special beam attack's oscillator cap: eight pixels per update.</summary>
+    public static readonly SignedEightEight WaveSpeedLimit = SignedEightEight.FromSignedRaw(2048);
+    /// <summary>The Wave special beam attack's per-update acceleration: a quarter of a pixel per update.</summary>
+    public static readonly SignedEightEight WaveAcceleration = SignedEightEight.FromSignedRaw(64);
     /// <summary>The sound of a Wave particle's removal.</summary>
     public static readonly SoundEffectId WaveRemovalSound = Library1Sound.WaveSpecialAttackEnd;
     /// <summary>The Wave special beam attack: the sound of the oscillator's pulse.</summary>

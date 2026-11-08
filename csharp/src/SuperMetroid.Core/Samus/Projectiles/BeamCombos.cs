@@ -85,14 +85,13 @@ internal sealed class BeamCombos
                     : default;
                 slot.WaveComboVerticalSpeed = default;
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
-                {
                     slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-                    slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(kind == SamusComboKind.Wave ? 0 : 40));
-                }
+                if (kind == SamusComboKind.Wave) slot.Velocity = slot.Velocity.WithX(SignedEightEight.Zero);
+                if (kind is SamusComboKind.Spazer or SamusComboKind.Plasma) slot.ComboOrbitRadius = 40;
                 if (kind == SamusComboKind.Spazer) slot.AuxiliaryPhase = SpazerComboPhase.Circling;
-                if (kind == SamusComboKind.Plasma) slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(40));
-                slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(kind is SamusComboKind.Wave or SamusComboKind.Ice ? 600
-                    : kind == SamusComboKind.Spazer ? (i & 1) == 0 ? 4 : -4 : 0));
+                if (kind is SamusComboKind.Wave or SamusComboKind.Ice) slot.ComboLifetime = 600;
+                if (kind == SamusComboKind.Spazer) slot.SpazerAngleStep = (i & 1) == 0 ? 4 : -4;
+                if (kind == SamusComboKind.Plasma) slot.PlasmaPhase = PlasmaRingPhase.Expanding;
                 if (kind == SamusComboKind.Wave)
                 {
                     slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + (i < 2 ? 128 : -128)), CoordinateAxis.Wrap(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128))));
@@ -159,7 +158,7 @@ internal sealed class BeamCombos
             slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
-        int distance = outward ? slot.Velocity.X.SignedRawValue : 32;
+        int distance = outward ? slot.ComboOrbitRadius : 32;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(slot.ComboAngle, distance);
         slot.Position = slot.Position.WithWrappedWholeX(samus.Position.X.Whole + orbit.X);
         if (outward && (CoordinateAxis.AsSigned(slot.Position.X.Whole - camera.X + 32) < 0 ||
@@ -178,15 +177,16 @@ internal sealed class BeamCombos
         slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
         SoundEffectId? sound = null;
         if (outward)
-            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, 8)));
+            slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, 8);
         else
         {
-            int oldLifetime = slot.Velocity.Y.SignedRawValue;
-            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(oldLifetime - 1));
+            // The lifetime starts at 600 and the particle turns outward as it leaves one, so it never passes zero.
+            int oldLifetime = slot.ComboLifetime;
+            slot.ComboLifetime = oldLifetime - 1;
             if (oldLifetime == 1)
             {
                 slot.FrameBehavior = SamusProjectileFrameBehavior.IceComboOutward;
-                slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(40));
+                slot.ComboOrbitRadius = 40;
                 sound = Library1Sound.IceSpecialAttackEnd;
             }
         }
@@ -194,7 +194,7 @@ internal sealed class BeamCombos
         _charge.FlareCounter = 0;
         return sound;
     }
-    /// <summary>The Plasma ring update; phase is stored in the slot's Y-speed word.</summary>
+    /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
     internal void StepPlasmaCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
@@ -208,20 +208,20 @@ internal sealed class BeamCombos
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
-            slot.ComboAngle, slot.Velocity.X.SignedRawValue);
+            slot.ComboAngle, slot.ComboOrbitRadius);
         slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(orbit.X + samus.Position.X.Whole), CoordinateAxis.Wrap(orbit.Y + samus.Position.Y.Whole)));
         slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
-        switch (slot.Velocity.Y.SignedRawValue)
+        switch (slot.PlasmaPhase)
         {
-            case 0:
-                slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, BeamComboDefinitions.PlasmaRadiusStep)));
-                if (slot.Velocity.X.SignedRawValue >= BeamComboDefinitions.PlasmaOuterRadius) slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(1));
+            case PlasmaRingPhase.Expanding:
+                slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, BeamComboDefinitions.PlasmaRadiusStep);
+                if (slot.ComboOrbitRadius >= BeamComboDefinitions.PlasmaOuterRadius) slot.PlasmaPhase = PlasmaRingPhase.Contracting;
                 break;
-            case 1:
-                slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, -BeamComboDefinitions.PlasmaRadiusStep)));
-                if (slot.Velocity.X.SignedRawValue < BeamComboDefinitions.PlasmaInnerThreshold) slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(2));
+            case PlasmaRingPhase.Contracting:
+                slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, -BeamComboDefinitions.PlasmaRadiusStep);
+                if (slot.ComboOrbitRadius < BeamComboDefinitions.PlasmaInnerThreshold) slot.PlasmaPhase = PlasmaRingPhase.FinalExpansion;
                 break;
-            case 2:
+            case PlasmaRingPhase.FinalExpansion:
                 // Only the final expansion checks visibility. The first two phases
                 // intentionally keep rings alive beyond the viewport, unlike Ice.
                 if (CoordinateAxis.AsSigned(slot.Position.X.Whole - camera.X + 32) < 0 ||
@@ -229,9 +229,9 @@ internal sealed class BeamCombos
                     CoordinateAxis.Difference(slot.Position.Y.Whole - camera.Y, 16) < 0 ||
                     CoordinateAxis.Difference(slot.Position.Y.Whole - camera.Y, 256) >= 0)
                     _animation.ClearProjectile(slot);
-                else slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(SamusComboMechanics.GrownOrbitRadius(slot.Velocity.X.SignedRawValue, BeamComboDefinitions.PlasmaRadiusStep)));
+                else slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, BeamComboDefinitions.PlasmaRadiusStep);
                 break;
-            default: throw new InvalidDataException("Plasma ring reached an invalid phase.");
+            default: throw new InvalidOperationException($"Undefined {nameof(PlasmaRingPhase)} {slot.PlasmaPhase}.");
         }
     }
     /// <summary>
@@ -284,7 +284,7 @@ internal sealed class BeamCombos
         else
         {
             Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
-                slot.ComboAngle, slot.Velocity.X.SignedRawValue);
+                slot.ComboAngle, slot.ComboOrbitRadius);
             slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + orbit.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + orbit.Y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114))));
             switch (slot.AuxiliaryPhase)
             {
@@ -292,8 +292,8 @@ internal sealed class BeamCombos
                     AdvanceSpazerAngle(slot);
                     if (slot.ComboAngle == ByteAngle.HalfTurn)
                     {
-                        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(160));
-                        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw((slot.SlotIndex & 1) == 0 ? 2 : -2));
+                        slot.ComboOrbitRadius = 160;
+                        slot.SpazerAngleStep = (slot.SlotIndex & 1) == 0 ? 2 : -2;
                         slot.Direction = SamusProjectileDirection.UpFacingRight;
                         slot.IsSpent = false;
                         slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
@@ -305,10 +305,11 @@ internal sealed class BeamCombos
                     else
                     {
                         AdvanceSpazerAngle(slot);
-                        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Velocity.X.SignedRawValue - 5));
-                        if (slot.Velocity.X.SignedRawValue == 0)
+                        // The radius falls from 160 by five an update, so it meets zero exactly and never passes it.
+                        slot.ComboOrbitRadius -= 5;
+                        if (slot.ComboOrbitRadius == 0)
                         {
-                            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw((slot.SlotIndex & 1) == 0 ? -2 : 2));
+                            slot.SpazerAngleStep = (slot.SlotIndex & 1) == 0 ? -2 : 2;
                             slot.ComboAngle = slot.ComboAngle.AddTableUnits(ByteAngle.HalfTurn.RawValue);
                             slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
@@ -323,8 +324,8 @@ internal sealed class BeamCombos
                     else
                     {
                         AdvanceSpazerAngle(slot);
-                        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Velocity.X.SignedRawValue + 5));
-                        if (slot.Velocity.X.SignedRawValue >= 96) BeginSpazerFall(slot);
+                        slot.ComboOrbitRadius += 5;
+                        if (slot.ComboOrbitRadius >= 96) BeginSpazerFall(slot);
                     }
                     break;
                 default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {slot.AuxiliaryPhase}.");
@@ -337,7 +338,7 @@ internal sealed class BeamCombos
 
     /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed step.</summary>
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
-        slot.ComboAngle = slot.ComboAngle.AddTableUnits(slot.Velocity.Y.SignedRawValue);
+        slot.ComboAngle = slot.ComboAngle.AddTableUnits(slot.SpazerAngleStep);
 
     /// <summary>Moves a circling Spazer particle outward and switches its primary pair to falling echo artwork.</summary>
     private static void BeginSpazerFall(SamusProjectileSlot slot)
@@ -366,13 +367,14 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return BeamComboDefinitions.WaveRemovalSound;
         }
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(slot.Velocity.Y.SignedRawValue - 1));
-        if (slot.Velocity.Y.SignedRawValue <= 0)
+        // The lifetime starts at 600 and the particle ends when it reaches zero, so it never passes zero.
+        slot.ComboLifetime -= 1;
+        if (slot.ComboLifetime <= 0)
         {
             _animation.ClearProjectile(slot);
             return BeamComboDefinitions.WaveRemovalSound;
         }
-        int oldXSpeed = slot.Velocity.X.SignedRawValue;
+        SignedEightEight oldXSpeed = slot.Velocity.X;
         CountdownStep trailStep = slot.TrailTimer.Decrement();
         slot.TrailTimer = trailStep.Remaining;
         if (trailStep.IsZero)
@@ -380,17 +382,20 @@ internal sealed class BeamCombos
             slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole))));
+        slot.Velocity = slot.Velocity.WithX(AccelerateWaveAxis(slot.Velocity.X, CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole)));
         slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
-        slot.WaveComboVerticalSpeed = SignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.WaveComboVerticalSpeed.SignedRawValue, CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
+        slot.WaveComboVerticalSpeed = AccelerateWaveAxis(slot.WaveComboVerticalSpeed, CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole));
         slot.Position = slot.Position.AdvanceY(slot.WaveComboVerticalSpeed.ToSixteenSixteenDelta());
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
-        return slot.SlotIndex == 3 && (oldXSpeed < 0) != slot.Velocity.X.IsNegative ? BeamComboDefinitions.WavePulseSound : null;
+        return slot.SlotIndex == 3 && oldXSpeed.IsNegative != slot.Velocity.X.IsNegative ? BeamComboDefinitions.WavePulseSound : null;
     }
 
-    /// <summary>Moves one Wave velocity component toward Samus, respecting the acceleration and signed speed bound.</summary>
-    private static int AccelerateWaveAxis(int speed, int targetDelta)
+    /// <summary>
+    /// Moves one Wave velocity component toward Samus, respecting the acceleration and signed speed bound. The speed
+    /// stays within one acceleration of the bound either way, far inside the 8.8 range.
+    /// </summary>
+    private static SignedEightEight AccelerateWaveAxis(SignedEightEight speed, int targetDelta)
     {
         if (targetDelta < 0)
             return speed > -BeamComboDefinitions.WaveSpeedLimit ? speed - BeamComboDefinitions.WaveAcceleration : speed;

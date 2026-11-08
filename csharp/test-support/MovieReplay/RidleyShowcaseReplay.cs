@@ -730,8 +730,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check(owner + " XFraction", unchecked(projectile.Position.X.Fraction), NativeSnapshotMemory.ProjectileXFraction + index);
                     Check(owner + " YFraction", unchecked(projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
                 }
-                Check(owner + " XVelocity", unchecked((ushort)projectile.Velocity.X.SignedRawValue), NativeSnapshotMemory.ProjectileXVelocity + index);
-                Check(owner + " YVelocity", unchecked((ushort)projectile.Velocity.Y.SignedRawValue), NativeSnapshotMemory.ProjectileYVelocity + index);
+                Check(owner + " XVelocity", SamusProjectileVelocityWords.X(projectile), NativeSnapshotMemory.ProjectileXVelocity + index);
+                Check(owner + " YVelocity", SamusProjectileVelocityWords.Y(projectile), NativeSnapshotMemory.ProjectileYVelocity + index);
                 ushort recordedDirection = W(NativeSnapshotMemory.ProjectileDirection + index);
                 if (projectile.Direction != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(recordedDirection) ||
                     projectile.IsSpent != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeSpent(recordedDirection))

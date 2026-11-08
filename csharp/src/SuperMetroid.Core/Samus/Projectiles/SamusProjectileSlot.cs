@@ -50,10 +50,7 @@ public sealed class SamusProjectileSlot
 
     /// <summary>Room-pixel 16.16 position.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>
-    /// Signed 8.8 per-update velocity. Special attacks keep their orbit radius, lifetime and phase counters here
-    /// instead.
-    /// </summary>
+    /// <summary>Signed 8.8 per-update velocity.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
@@ -87,6 +84,27 @@ public sealed class SamusProjectileSlot
 
     /// <summary>The homing vertical speed of a Wave special-attack particle.</summary>
     public SignedEightEight WaveComboVerticalSpeed { get; internal set; }
+
+    /// <summary>
+    /// The orbit radius, in pixels, of an outward Ice, a Plasma or a Spazer special-attack particle: the distance from
+    /// Samus its angle places it at.
+    /// </summary>
+    public int ComboOrbitRadius { get; internal set => field = Ensure.AtLeastZero(value); }
+
+    /// <summary>
+    /// The updates an inward Ice or a Wave special-attack particle has left: 600 when the attack starts, counted down
+    /// each update until the Ice particle turns outward or the Wave particle ends.
+    /// </summary>
+    public int ComboLifetime { get; internal set => field = Ensure.AtLeastZero(value); }
+
+    /// <summary>The phase of a Plasma special-attack ring.</summary>
+    public PlasmaRingPhase PlasmaPhase { get; internal set; }
+
+    /// <summary>The signed angle step, in table units, a Spazer special-attack particle turns by each update.</summary>
+    public int SpazerAngleStep { get; internal set; }
+
+    /// <summary>The expanding radius, in pixels, of a Shinespark crash echo that holds the slot.</summary>
+    public int EchoRadius { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>The departure angle of a Shinespark crash echo, to the angle table's whole steps.</summary>
     public ByteAngle EchoAngle { get; internal set; }
@@ -162,6 +180,11 @@ public sealed class SamusProjectileSlot
         SuperMissileLinkSlot = 0;
         ComboAngle = default;
         WaveComboVerticalSpeed = default;
+        ComboOrbitRadius = 0;
+        ComboLifetime = 0;
+        PlasmaPhase = PlasmaRingPhase.Expanding;
+        SpazerAngleStep = 0;
+        EchoRadius = 0;
         EchoAngle = default;
         ChainsawPowerBombFuse = WrappingCountdown.Start(0);
     }

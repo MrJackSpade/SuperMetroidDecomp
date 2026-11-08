@@ -68,6 +68,18 @@ public readonly record struct FixedCoordinate
         FromRaw(unchecked(Subpixels + (uint)displacement.RawValue));
 
     /// <summary>
+    /// This position moved toward increasing coordinates by <paramref name="distance"/>, the fraction carrying into the
+    /// whole pixel, which wraps around the coordinate range as <see cref="MovedBy(SignedSixteenSixteen)"/> does.
+    /// </summary>
+    public FixedCoordinate MovedForward(UnsignedSixteenSixteen distance) => FromRaw(unchecked(Subpixels + distance.RawValue));
+
+    /// <summary>
+    /// This position moved toward decreasing coordinates by <paramref name="distance"/>, the fraction borrowing from the
+    /// whole pixel, which wraps around the coordinate range as <see cref="MovedBy(SignedSixteenSixteen)"/> does.
+    /// </summary>
+    public FixedCoordinate MovedBack(UnsignedSixteenSixteen distance) => FromRaw(unchecked(Subpixels - distance.RawValue));
+
+    /// <summary>
     /// This position moved by a signed 8.8 velocity, in 256ths of a pixel: the velocity's fraction lands in the upper
     /// half of the position's fraction, so the 256ths below it are left as they were, and its carry and whole pixels move
     /// the whole pixel, which wraps around the coordinate range.

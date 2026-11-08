@@ -51,6 +51,12 @@ public readonly record struct WrappingCountdown
     /// <summary>The frames at which a countdown reads as negative: it has run past zero.</summary>
     private const int NegativeFrom = 1 << 15;
 
+    /// <summary>
+    /// The most frames a countdown can start at, 65535: one less than the frames a countdown started at zero waits
+    /// after wrapping. A duration or delay that is only ever loaded into a countdown is bounded by it.
+    /// </summary>
+    public const int LongestStart = (1 << 16) - 1;
+
     /// <summary>The countdown's count, 0 through 65535.</summary>
     [IntegerQuantity("the countdown's remaining count")]
     private readonly ushort count;

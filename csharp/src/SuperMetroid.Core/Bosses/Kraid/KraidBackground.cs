@@ -70,7 +70,7 @@ internal sealed class KraidBackground
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
         rock.Velocity = rock.Velocity.WithX(new SignedEightEight(0));
-        rock.Velocity = rock.Velocity.WithY(SignedEightEight.Wrapped((_access.ReadKraidRandomNumber() & 63) + 64));
+        rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromSignedRaw((_access.ReadKraidRandomNumber() & 63) + 64));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         return true;
     }

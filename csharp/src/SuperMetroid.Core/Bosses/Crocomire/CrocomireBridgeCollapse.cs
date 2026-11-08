@@ -342,7 +342,7 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
         // The fragment initializer reads RandomNumberSeed; it does not advance it.
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped((_room.Random.Read() & 63) + 64));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw((_room.Random.Read() & 63) + 64));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);
     }

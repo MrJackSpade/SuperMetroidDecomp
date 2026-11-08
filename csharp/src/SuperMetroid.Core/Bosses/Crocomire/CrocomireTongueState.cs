@@ -4,9 +4,5 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 public sealed class CrocomireTongueState
 {
     /// <summary>The tongue's horizontal offset from the body, in pixels, added to the body's X every update.</summary>
-    public int BodyXOffset
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int BodyXOffset { get; internal set; }
 }

@@ -80,11 +80,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Zebetites' shared pulse counter, advanced by every primary Zebetite in the room; it starts at zero with the
     /// room. It selects only the pulse the Zebetites show.
     /// </summary>
-    public int SharedPaletteCycle
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int SharedPaletteCycle { get; internal set; }
 
     /// <summary>The pulse frame last shown, or null before the pulse's first step in the room (#1512).</summary>
     internal int? PulseShown { get; private set; }

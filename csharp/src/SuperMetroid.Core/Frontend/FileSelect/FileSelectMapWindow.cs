@@ -32,13 +32,11 @@ public sealed class FileSelectMapWindow
         var label = installedLabels.Get(area);
         edges[0] = edges[1] = new FixedCoordinate(label.X, 0);
         edges[2] = edges[3] = new FixedCoordinate(label.Y, 0);
-        timer = Ensure.BetweenInclusive(0, ushort.MaxValue, motion.Timer);
-        if (timer > short.MaxValue)
-            throw new InvalidDataException("Map-window timer must begin before signed underflow.");
-        velocities[0] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Left));
-        velocities[1] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Right));
-        velocities[2] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Top));
-        velocities[3] = SignedSixteenSixteen.FromRaw(unchecked((int)motion.Bottom));
+        timer = Ensure.AtLeastZero(motion.Timer);
+        velocities[0] = motion.Left;
+        velocities[1] = motion.Right;
+        velocities[2] = motion.Top;
+        velocities[3] = motion.Bottom;
     }
 
     /// <summary>

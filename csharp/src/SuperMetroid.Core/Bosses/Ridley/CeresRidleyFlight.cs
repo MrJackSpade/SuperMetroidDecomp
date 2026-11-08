@@ -110,7 +110,8 @@ internal sealed class CeresRidleyFlight
     {
         // The fallthrough from A6AF deliberately applies both -16 and +20 on the crossing
         // frame. Do not combine these into a single acceleration outside this state.
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue + 20));
+        // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + SignedEightEight.FromSignedRaw(20));
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
             state.Function = RidleyAiFunction.CeresHovering;
@@ -169,7 +170,7 @@ internal sealed class CeresRidleyFlight
     {
         int verticalVelocity = state.Velocity.Y.SignedRawValue;
         int magnitude = Math.Max(128, Math.Abs(verticalVelocity));
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(verticalVelocity < 0 ? -magnitude : magnitude));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(verticalVelocity < 0 ? -magnitude : magnitude));
         AccelerateRidleyToward(slot, state, new(slot.Position.X.Whole, 88), 16);
 
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
@@ -352,7 +353,7 @@ internal sealed class CeresRidleyFlight
         }
 
         state.BabyFunction = CeresBabyFunction.CarriedInFeet;
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-512));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(-512));
         BeginCeresRidleyRetreat(state);
     }
 

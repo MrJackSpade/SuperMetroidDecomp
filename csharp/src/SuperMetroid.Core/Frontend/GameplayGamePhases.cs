@@ -166,7 +166,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
-        session.SetDisplayBrightness(Ensure.BetweenInclusive(0, byte.MaxValue, session.ceresDeparture.Brightness));
+        session.SetDisplayBrightness(session.ceresDeparture.Brightness);
         if (ceresFadeFinished)
         {
             // The blackout state saves the live area-six/station-zero slot only after

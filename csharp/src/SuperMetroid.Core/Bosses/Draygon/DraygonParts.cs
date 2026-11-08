@@ -279,13 +279,14 @@ internal sealed class DraygonParts
             return;
 
         Position16<RoomPixels> gaze = eye.Position.Whole +
-            new Offset16<RoomPixels>(CoordinateAxis.AsSigned(facing == HorizontalDirection.Right ? 24 : -24), -32);
-        int angle = EnemyMath.CalculateBearing(samus.Position.Whole - gaze).RawValue;
+            new Offset16<RoomPixels>(facing == HorizontalDirection.Right ? 24 : -24, -32);
+        Bearing bearing = EnemyMath.CalculateBearing(samus.Position.Whole - gaze);
         DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
-        if (angle == eyeState.LookAngle)
+        if (bearing == eyeState.LookAngle)
             return;
 
-        eyeState.LookAngle = angle;
+        eyeState.LookAngle = bearing;
+        int angle = bearing.RawValue;
         DraygonProgram look = angle switch
         {
             < 32 => facing == HorizontalDirection.Right

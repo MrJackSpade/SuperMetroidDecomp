@@ -97,7 +97,7 @@ internal sealed class CrocomireBodyLayer
     private static int OnScreenCrocomireBodyLayerX(int bodyX, Position16<RoomPixels> camera)
     {
         int relative = CoordinateAxis.Wrap(camera.X - bodyX + 51);
-        return EnemyMath.WrappedMagnitude(relative) >= 284 ? 256 : relative;
+        return CoordinateAxis.Distance(camera.X + 51, bodyX) >= 284 ? 256 : relative;
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>

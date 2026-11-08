@@ -374,7 +374,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
                     panPosition.Whole.AsSignedWord())
                 : null,
-            Ensure.BetweenInclusive(0, byte.MaxValue, Brightness), gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
+            Brightness, gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled
                 ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimation[BabyFrame]).Shaded(FloorShading)
                 : null);

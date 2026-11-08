@@ -387,8 +387,8 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
-            (projectile.Velocity.Y.RawValue + 24) & 16383));
+        projectile.Velocity = projectile.Velocity.WithY(
+            RestartingFallSpeed.Accelerate(projectile.Velocity.Y, CrocomireBridgeFragmentDefinitions.Gravity));
     }
 
     /// <summary>

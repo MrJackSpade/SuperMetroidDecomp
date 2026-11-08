@@ -8,6 +8,12 @@ public static class PhantoonMotionDefinitions
     /// update, below which the leftward pull stops (the NTSC value, about -8 pixels per update; PAL differs).
     /// </summary>
     public const int SwoopNegativeXThreshold = -2047;
+
+    /// <summary>The swoop's horizontal pull toward its target, in 256ths of a pixel an update, each update.</summary>
+    public static SignedEightEight SwoopHorizontalPull { get; } = SignedEightEight.FromSignedRaw(32);
+
+    /// <summary>The swoop's vertical pull toward its target, in 256ths of a pixel an update, each update.</summary>
+    public static SignedEightEight SwoopVerticalPull { get; } = SignedEightEight.FromSignedRaw(64);
     /// <summary>The swoop target's far X position: once the target reaches it, the target counts back toward zero.</summary>
     public const int SwoopTargetTurnX = 256;
     /// <summary>The leftmost swoop X position, 64 pixels left of the room's origin.</summary>

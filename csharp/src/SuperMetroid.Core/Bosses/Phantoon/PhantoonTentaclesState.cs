@@ -19,8 +19,11 @@ public sealed class PhantoonTentaclesState
     /// <summary>The tentacles' signed 8.8 swoop velocity in pixels per update.</summary>
     public EightEightVector<RoomPixels> SwoopVelocity { get; internal set; }
 
-    /// <summary>The tentacles' swoop target X position, which sweeps out to its turn and back.</summary>
-    public int SwoopTargetX { get; internal set => field = Ensure.BetweenInclusive(0, short.MaxValue, value); }
+    /// <summary>
+    /// The tentacles' swoop target X position, which sweeps out by two pixels an update to its turn at
+    /// <see cref="PhantoonMotionDefinitions.SwoopTargetTurnX"/> and back to zero.
+    /// </summary>
+    public int SwoopTargetX { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>Whether the tentacles' swoop target has reached its turn and is counting back toward zero.</summary>
     public bool SwoopReturning { get; internal set; }

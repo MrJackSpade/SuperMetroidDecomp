@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Sbug;
@@ -214,7 +215,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             draygonEyeRecord.Function = words.A == 0 ? null : DraygonNativeWords.EyeFunctions.Decode(words.A, "recorded DraygonEyeFunction");
             // The game compares only the look angle's low byte, the bearing it stored.
-            draygonEyeRecord.LookAngle = words.F & byte.MaxValue;
+            draygonEyeRecord.LookAngle = new Bearing(words.F & byte.MaxValue);
         }
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {

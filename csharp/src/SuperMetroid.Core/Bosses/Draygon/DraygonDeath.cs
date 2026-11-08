@@ -191,14 +191,8 @@ internal sealed class DraygonDeath
     /// <summary>Moves the body along a sine-table angle at the supplied speed.</summary>
     private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, ByteAngle movementAngle, int speed)
     {
-        uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            movementAngle,
-            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
-            angleOffset: RotationAngle.QuarterTurn.TableIndex));
-        uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            movementAngle,
-            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
-            angleOffset: RotationAngle.HalfTurn.TableIndex));
+        UnsignedSixteenSixteen xMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.QuarterTurn);
+        UnsignedSixteenSixteen yMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.HalfTurn);
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
             body.Position.X,
             xMagnitude,

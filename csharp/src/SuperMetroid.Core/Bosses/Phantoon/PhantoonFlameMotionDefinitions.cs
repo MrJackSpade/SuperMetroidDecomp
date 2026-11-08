@@ -5,6 +5,14 @@ internal static class PhantoonFlameMotionDefinitions
 {
     /// <summary>Enraged initializer: signed clockwise/counterclockwise angle step magnitude.</summary>
     internal const int RageAngleStep = 2;
+
+    /// <summary>
+    /// The gravity on a falling or bouncing casual flame and a falling rain flame, in 256ths of a pixel an update, each
+    /// update. A flame lands when its terrain probe finds a block, at the latest as it leaves the room, at most fifty
+    /// screens tall (<see cref="Rooms.Scrolling.RoomScrollGrid.StorageByteCount"/>), and a bounce restarts it at three
+    /// pixels an update upward, so its speed stays below 64 pixels an update.
+    /// </summary>
+    internal static readonly SignedEightEight FlameGravity = SignedEightEight.FromSignedRaw(16);
     /// <summary>Updates an intro flame circles at its full radius before the circle starts closing.</summary>
     internal const int IntroCircleDelay = 180;
     /// <summary>The radius, in pixels, an intro flame starts circling at; it closes by one every other update.</summary>

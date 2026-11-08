@@ -42,6 +42,23 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>Replaces only the fractional word, as cartridge routines that store one half do.</summary>
     public SignedSixteenSixteen WithFraction(int fraction) => FromParts(WholePixels, fraction);
 
+    /// <summary>The displacement with no fraction: its whole pixels, the fraction dropped.</summary>
+    public SignedSixteenSixteen WithoutFraction() => FromParts(WholePixels, 0);
+
+    /// <summary>
+    /// The displacement with its whole pixels lowered to <paramref name="maximumWhole"/> when they lie above it, its
+    /// fraction kept, as routines that clamp only the whole pixels do.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsAtMost(int maximumWhole) =>
+        WholePixels > maximumWhole ? WithWholePixels(maximumWhole) : this;
+
+    /// <summary>
+    /// The displacement with its whole pixels raised to <paramref name="minimumWhole"/> when they lie below it, its
+    /// fraction kept, as routines that clamp only the whole pixels do.
+    /// </summary>
+    public SignedSixteenSixteen WithWholePixelsAtLeast(int minimumWhole) =>
+        WholePixels < minimumWhole ? WithWholePixels(minimumWhole) : this;
+
     /// <summary>Adds two displacements, carrying the fraction and wrapping at 32 bits.</summary>
     public static SignedSixteenSixteen operator +(SignedSixteenSixteen left, SignedSixteenSixteen right) =>
         new(unchecked(left.RawValue + right.RawValue));

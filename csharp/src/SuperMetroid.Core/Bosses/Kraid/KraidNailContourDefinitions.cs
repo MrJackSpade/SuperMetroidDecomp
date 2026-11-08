@@ -14,11 +14,11 @@ internal static class KraidNailContourDefinitions
     /// Each ledge's left offset. Independently reviewed for #1165 against the original NTSC values:
     /// the four ledges advance 24 pixels from -64 to 8.
     /// </summary>
-    internal static readonly short[] Lefts = [-64, -40, -16, 8];
+    internal static readonly int[] Lefts = [-64, -40, -16, 8];
 
     /// <summary>
     /// The comparison boundary paired with each left offset. The first three ledges are 56 pixels apart, starting at 16;
     /// the final authored head boundary is -128.
     /// </summary>
-    internal static readonly short[] Tops = [16, -40, -96, -128];
+    internal static readonly int[] Tops = [16, -40, -96, -128];
 }

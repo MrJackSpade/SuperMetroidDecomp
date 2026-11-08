@@ -47,7 +47,7 @@ internal static class MotherBrainEncodingDomainsVerification
         {
             MotherBrainWalkCredit credit = MotherBrainWalkCreditConstants.FromNativeWord(checked((ushort)start)).AddCredit(earned);
             int expected = NativeAdd(start, earned);
-            AssertEqual(expected, credit.Word, $"walk credit {start} plus {earned} wraps like the native add");
+            AssertEqual(expected, credit.Credit, $"walk credit {start} plus {earned} wraps like the native add");
             AssertEqual(expected < MotherBrainWalkCredit.StepCredit, credit.BelowStep,
                 $"walk credit {start} plus {earned} compares unsigned against one step");
             AssertEqual(expected == 0, credit.IsEmpty, $"walk credit {start} plus {earned} emptiness");
@@ -63,7 +63,7 @@ internal static class MotherBrainEncodingDomainsVerification
             foreach (int cost in new[] { MotherBrainWalkCredit.StepCredit, MotherBrainWalkCredit.HyperBeamShotCost })
             {
                 int expected = NativeSignedSpend(start, cost);
-                AssertEqual(expected, credit.SpendForShot(cost).Word, $"walk credit {start} less shot cost {cost}");
+                AssertEqual(expected, credit.SpendForShot(cost).Credit, $"walk credit {start} less shot cost {cost}");
                 int remainder = ((start - cost) % WordRange + WordRange) % WordRange;
                 AssertEqual(remainder < SignedWordLimit, credit.CoversShot(cost),
                     $"walk credit {start} covers shot cost {cost} exactly when the signed remainder is non-negative");
@@ -87,12 +87,12 @@ internal static class MotherBrainEncodingDomainsVerification
                 MotherBrainForm.ThirdPhase, MotherBrainProjectileType.Beam, credit);
             int hyperRemainder = ((start - MotherBrainWalkCredit.HyperBeamShotCost) % WordRange + WordRange) % WordRange;
             bool overdrawn = hyperRemainder >= SignedWordLimit;
-            AssertEqual(overdrawn ? 0 : hyperRemainder, hyper.WalkCredit.Word, $"final-phase beam from credit {start}");
+            AssertEqual(overdrawn ? 0 : hyperRemainder, hyper.WalkCredit.Credit, $"final-phase beam from credit {start}");
             AssertEqual(overdrawn, hyper.HyperBeamRecoil, $"final-phase beam from credit {start} recoils only on overdraw");
 
             MotherBrainShotReactionResult beam = MotherBrainShotReaction.Resolve(
                 MotherBrainForm.SecondPhase, MotherBrainProjectileType.Beam, credit);
-            AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), beam.WalkCredit.Word,
+            AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), beam.WalkCredit.Credit,
                 $"second-phase beam from credit {start}");
             AssertEqual(false, beam.HyperBeamRecoil, $"second-phase beam from credit {start} never recoils");
 
@@ -102,7 +102,7 @@ internal static class MotherBrainEncodingDomainsVerification
 
             MotherBrainShotReactionResult powerBomb = MotherBrainShotReaction.Resolve(
                 MotherBrainForm.SecondPhase, MotherBrainProjectileType.PowerBomb, credit);
-            AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), powerBomb.WalkCredit.Word,
+            AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), powerBomb.WalkCredit.Credit,
                 $"power bomb from credit {start} takes the wrapped reaction-zero branch");
         }
     }

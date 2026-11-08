@@ -275,7 +275,9 @@ internal sealed class MotherBrainProjectiles
         RoomEnemyProjectileSlot bomb,
         int acceleration)
     {
-        bomb.Velocity = bomb.Velocity.WithY(SignedEightEight.Wrapped(bomb.Velocity.Y.RawValue + acceleration));
+        // Every floor bounce restarts the fall at two pixels an update upward, and between bounces the bomb falls back no
+        // further than from the height its launch reaches to its floor at 208, so the speed stays within a few pixels an update.
+        bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + SignedEightEight.FromSignedRaw(acceleration));
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
         // Both boundaries are signed CMP/BMI tests. X reflects without clamping; the floor
@@ -349,7 +351,8 @@ internal sealed class MotherBrainProjectiles
         int velocity = fragment.Velocity.X.SignedRawValue;
         int speed = Math.Max(0, Math.Abs(velocity) - MotherBrainDeathDefinitions.DoorFragmentDrag);
         fragment.Velocity = fragment.Velocity.WithX(SignedEightEight.FromSignedRaw(velocity < 0 ? -speed : speed));
-        fragment.Velocity = fragment.Velocity.WithY(SignedEightEight.Wrapped(fragment.Velocity.Y.RawValue + MotherBrainDeathDefinitions.DoorFragmentGravity));
+        // A fragment falls for its lifetime of 32 updates at most, so its gravity adds at most four pixels an update.
+        fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + SignedEightEight.FromSignedRaw(MotherBrainDeathDefinitions.DoorFragmentGravity));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime expires when it passes zero.
         MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
@@ -378,7 +381,8 @@ internal sealed class MotherBrainProjectiles
             tube.DustPending = false;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + 6));
+        // A tube falls from the ceiling to its floor at 208 and is removed there, so its speed stays a few pixels an update.
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SignedEightEight.FromSignedRaw(6));
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
         if (projectile.Position.Y.Whole < 208)
             return;
@@ -451,7 +455,9 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        shard.Velocity = shard.Velocity.WithY(SignedEightEight.Wrapped(shard.Velocity.Y.RawValue + 32));
+        // A shard is removed once it leaves the first 256 lines, so it falls at most that far and its speed stays a few
+        // pixels an update above its launch speed.
+        shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromSignedRaw(32));
 
         // The masked test succeeds for 1/16 of samples. The condition itself consumes one
         // random value every live shard frame; a successful sparkle consumes two more below.
@@ -558,7 +564,8 @@ internal sealed class MotherBrainProjectiles
     internal static void RunMotherBrainFallingDroolFrameBehavior(
         RoomEnemyProjectileSlot drool)
     {
-        drool.Velocity = drool.Velocity.WithY(SignedEightEight.Wrapped(drool.Velocity.Y.RawValue + 12));
+        // The drool splashes once it falls to 215, so its speed stays a few pixels an update.
+        drool.Velocity = drool.Velocity.WithY(drool.Velocity.Y + SignedEightEight.FromSignedRaw(12));
         drool.Position = drool.Position.AdvanceY(drool.Velocity.Y.ToSixteenSixteenDelta());
         if (drool.Position.Y.Whole < 215)
             return;

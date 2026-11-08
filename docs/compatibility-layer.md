@@ -111,6 +111,12 @@ service only when it has its own timing contract; coherent responsibilities shar
 statues is the game's own work, and the compatibility behaviour it carries, its place in the random sequence, is
 `EffectPhaseRandomOrder`'s. Its documentation states its frame point and evidence.
 
+`RestartingFallSpeed` (Bosses, #1547) is kept as gameplay, not a service: Kraid's ceiling rocks and Crocomire's bridge
+fragments add their gravity and keep only the speed's part below 64 pixels an update, so a fall that reached that speed
+would start again from rest. It is a rule of those two falls, stated in their own 8.8 speeds, as `SeekingVelocityRun` is
+of the seeking bosses; a rock or fragment leaves its room long before it reaches the restart. Every other boss velocity
+sum is an ordinary 8.8 sum that fails outside the type's range, each bounded by its clamp, its room or its lifetime.
+
 The two wall actors Ceres Ridley's retreat spawns (`CeresRidleyFlight.SpawnCeresRidleyGetawayWalls`, Bosses, #1545) are
 kept as gameplay, not a service. The getaway scene shows the chamber's walls itself, as scenery behind its turning
 floor (`CeresRidleyGetaway.ChamberWalls`); the original drew them as sprites because its turning view had no other

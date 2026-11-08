@@ -420,7 +420,7 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        flame.Velocity = flame.Velocity.WithY(SignedEightEight.Wrapped(flame.Velocity.Y.RawValue + 16));
+        flame.Velocity = flame.Velocity.WithY(flame.Velocity.Y + PhantoonFlameMotionDefinitions.FlameGravity);
         if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
 
@@ -459,7 +459,7 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        flame.Velocity = flame.Velocity.WithY(SignedEightEight.Wrapped(flame.Velocity.Y.RawValue + 16));
+        flame.Velocity = flame.Velocity.WithY(flame.Velocity.Y + PhantoonFlameMotionDefinitions.FlameGravity);
         if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
         {
             PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
@@ -521,7 +521,7 @@ internal sealed class PhantoonCombat
             _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
         }
 
-        flame.Velocity = flame.Velocity.WithY(SignedEightEight.Wrapped(flame.Velocity.Y.RawValue + 16));
+        flame.Velocity = flame.Velocity.WithY(flame.Velocity.Y + PhantoonFlameMotionDefinitions.FlameGravity);
         if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.RainImpact));

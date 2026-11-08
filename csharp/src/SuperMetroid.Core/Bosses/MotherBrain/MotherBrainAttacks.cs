@@ -209,8 +209,7 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        int verticalDistance = EnemyMath.WrappedMagnitude(CoordinateAxis.Wrap(
-            state.Head.Position.Y.Whole + 4 - samus.Position.Y.Whole));
+        int verticalDistance = CoordinateAxis.Distance(state.Head.Position.Y.Whole + 4, samus.Position.Y.Whole);
         ReadOnlySpan<int> thresholds = verticalDistance < 32
             ? [16, 32, 208]
             : [64, 128, 192];

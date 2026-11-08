@@ -170,7 +170,7 @@ internal sealed class RidleyTail
             // forbidden forward interval clamp to angle 232 before expansion.
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardEnd;
-            int target = CoordinateAxis.Wrap(RidleyTailDefinitions.LeftWhipTargetBase + targetByte - additional);
+            int target = RidleyTailDefinitions.LeftWhipTargetBase.AddRaw(targetByte - additional).RawValue;
             if (target < root.Angle)
             {
                 state.ClockwiseWhipTarget = target;
@@ -181,7 +181,7 @@ internal sealed class RidleyTail
         {
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardStart;
-            int target = CoordinateAxis.Wrap(RidleyTailDefinitions.RightWhipTargetBase + targetByte + additional);
+            int target = RidleyTailDefinitions.RightWhipTargetBase.AddRaw(targetByte + additional).RawValue;
             if (target >= root.Angle)
             {
                 state.CounterClockwiseWhipTarget = target;

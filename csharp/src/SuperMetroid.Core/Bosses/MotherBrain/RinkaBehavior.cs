@@ -440,26 +440,24 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0)
             return true;
-        int relativeY = CoordinateAxis.Wrap(slot.Position.Y.Whole + 16 - _rinkaCamera.Y);
-        if (CoordinateAxis.AsSigned(relativeY) < 0 || !EnemyMath.IsNegative16(relativeY - 256))
+        int relativeY = CoordinateAxis.Difference(slot.Position.Y.Whole + 16, _rinkaCamera.Y);
+        if (relativeY is < 0 or >= 256)
             return true;
         if (CoordinateAxis.AsSigned(slot.Position.X.Whole) < 0)
             return true;
-        int relativeX = CoordinateAxis.Wrap(slot.Position.X.Whole + 16 - _rinkaCamera.X);
-        return CoordinateAxis.AsSigned(relativeX) < 0 || !EnemyMath.IsNegative16(relativeX - 288);
+        int relativeX = CoordinateAxis.Difference(slot.Position.X.Whole + 16, _rinkaCamera.X);
+        return relativeX is < 0 or >= 288;
     }
 
     /// <summary>The strict camera-origin test used only for special spawns.</summary>
     private bool RinkaSpawnIsOutsideCamera(Position16<RoomPixels> position)
     {
         if (CoordinateAxis.AsSigned(position.Y) < 0 ||
-            CoordinateAxis.Difference(position.Y, _rinkaCamera.Y) < 0 ||
-            !EnemyMath.IsNegative16(position.Y - _rinkaCamera.Y - 224))
+            CoordinateAxis.Difference(position.Y, _rinkaCamera.Y) is < 0 or >= 224)
         {
             return true;
         }
-        return CoordinateAxis.Difference(position.X, _rinkaCamera.X) < 0 ||
-            !EnemyMath.IsNegative16(position.X - _rinkaCamera.X - 256);
+        return CoordinateAxis.Difference(position.X, _rinkaCamera.X) is < 0 or >= 256;
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>

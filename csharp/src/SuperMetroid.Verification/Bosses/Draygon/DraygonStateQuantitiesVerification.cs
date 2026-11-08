@@ -62,7 +62,7 @@ internal static class DraygonStateQuantitiesVerification
     private static void VerifyGoopBobWrap()
     {
         (_, DraygonEnemyState state) = NewDraygon();
-        state.SwoopVelocity = 0;
+        state.SwoopVelocity = default;
         state.GoopYOscillationAngle = RotationAngle.FromTableIndex(byte.MaxValue);
         DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new ByteAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
@@ -160,7 +160,7 @@ internal static class DraygonStateQuantitiesVerification
             AssertEqual(expected[index], state.SwoopYPositions[index], $"swoop path sample {index}");
         AssertEqual(state.Body.Position.Y.Whole, state.SwoopYPositions[expected.Count], "the path ends at the body's height");
         uint velocity = SixteenSixteen.FromWhole((uint)EnemyMath.WrappedMagnitude(unchecked(resetX - 200))) / (uint)expected.Count;
-        AssertEqual(velocity, state.SwoopVelocity, "swoop horizontal speed");
+        AssertEqual(velocity, state.SwoopVelocity.RawValue, "swoop horizontal speed");
     }
 
     /// <summary>A Draygon encounter over a fresh enemy system with all four parts bound and asleep.</summary>

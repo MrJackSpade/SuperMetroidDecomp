@@ -26,7 +26,9 @@ internal static class FileSelectMapWindowMotions
         Position16<ScreenPixels> origin = StockOrigin(area);
         int x = origin.X, y = origin.Y;
         int farthest = Math.Max(Math.Max(x, 256 - x), Math.Max(y, 256 - y));
-        uint Velocity(int distance, int sign) => unchecked((uint)(sign * ((256 * distance / farthest) << 10)));
+        // A sixty-fourth of a pixel is 1024 65536ths.
+        SignedSixteenSixteen Velocity(int distance, int sign) =>
+            SignedSixteenSixteen.FromRaw(sign * (256 * distance / farthest) * 1024);
         return new(farthest / 4, Velocity(x, -1), Velocity(256 - x, 1),
             Velocity(y, -1), Velocity(256 - y, 1));
     }

@@ -307,11 +307,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
+        // The fall speed stops at four pixels an update.
         int oldVelocity = projectile.Velocity.Y.SignedRawValue;
         int nextVelocity = oldVelocity + 64;
         if (nextVelocity >= 0 && oldVelocity >= 960)
             nextVelocity = 1024;
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(nextVelocity));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(nextVelocity));
     }
 
     /// <summary>Runs Mini-Kraid's body spikes per frame.</summary>

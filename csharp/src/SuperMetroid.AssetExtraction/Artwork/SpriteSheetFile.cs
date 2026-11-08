@@ -60,7 +60,7 @@ public static class SpriteSheetFile
         InstalledSheetDocument document = JsonAssetDocument.Read<InstalledSheetDocument>(manifest, Options, $"sprite sheet {name}");
         if (document.Version != Version)
             throw new InvalidDataException($"Sprite sheet {name} has manifest revision {document.Version}, not {Version}.");
-        if (document.Colours is null || document.Source?.Inks is null || document.Source.Inks.Length != document.Colours.Length)
+        if (document.Colours is null || document.Source is null || document.Source.Inks is null || document.Source.Inks.Length != document.Colours.Length)
             throw new InvalidDataException($"Sprite sheet {name} does not say where each of its {document.Colours?.Length ?? 0} colours came from.");
         return document;
     }

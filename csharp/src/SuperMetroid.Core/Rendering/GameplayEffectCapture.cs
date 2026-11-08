@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Captures each gameplay effect as the display model describes it, at the frame boundary (#1409): sampled waves for
 /// the liquids' waves and the heat haze (#1468), colours added through window shapes for beams, the Power Bomb and the
 /// Ceres haze, the X-ray's cone, and the
-/// room effects' layer blends. The backend draws these descriptions; nothing here draws.
+/// room effects' own blends (#1545). The backend draws these descriptions; nothing here draws.
 /// </summary>
 public static class GameplayEffectCapture
 {
@@ -125,50 +125,38 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// The waterfall rooms' blend (#1514): the waterfall, the background and the room's liquid lying behind the foreground,
-    /// darken the foreground, the actors taking part in blends and the backdrop, unhalved, everywhere on the screen.
+    /// The blend of a room effect whose overlay lies behind the room (#1514, #1545): the overlay, and the background where
+    /// the effect lays it behind too, change the layers the effect's blend names where each is frontmost, unhalved,
+    /// everywhere on the screen. The spores brighten the background, the actors taking part in blends and the backdrop, so
+    /// they never brighten the room's terrain; the waterfall darkens the foreground, those actors and the backdrop.
     /// </summary>
-    public static GameplayBlendLayer CaptureWaterfall(GameplaySceneLayer gameplay,
+    public static GameplayBlendLayer CaptureEffectBlendingBehind(GameplaySceneLayer gameplay,
         RoomFxOverlayRenderSnapshot fx)
     {
-        if (fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
-            throw new ArgumentException("Waterfall capture requires the waterfall rooms' subtractive blend.", nameof(fx));
+        RoomEffectBlend blend = fx.Blend
+            ?? throw new ArgumentException($"Room FX type {fx.Type} describes no blend.", nameof(fx));
+        BlendedLayers blended = blend.BlendsBehind
+            ?? throw new ArgumentException($"Room FX type {fx.Type} lays its overlay over the room, not behind it.", nameof(fx));
         return new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
         {
-            Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
-            Operation = BlendOperation.Subtract,
+            Blended = blended,
+            Operation = blend.Operation,
             Halved = false,
             Colour = RgbColor.Black,
-        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay), backgroundBehind: true);
+        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay), blend.BackgroundBehind);
     }
 
     /// <summary>
-    /// Resolves the room effect's type, its liquid's visibility and its wave's phase into the effect overlay's blend: what
+    /// Resolves the room effect's blend, its liquid's visibility and its wave's phase into the effect overlay's blend: what
     /// the overlay shows of the effect's <paramref name="page"/>, its line scrolls and how it combines.
     /// </summary>
+    /// <exception cref="InvalidDataException">The effect shows a page but describes no blend.</exception>
     public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayPage page)
     {
-        LayerBlendingConfiguration required = fx.Type switch
-        {
-            RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.LavaAcidAdditive,
-            RoomFxType.Water or RoomFxType.TourianEntranceStatue => fx.LayerBlendConfiguration,
-            RoomFxType.Rain => LayerBlendingConfiguration.Rain,
-            RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
-            RoomFxType.Spores => LayerBlendingConfiguration.Spores,
-            RoomFxType.None or
-                RoomFxType.ScrollingSky or
-                RoomFxType.UnusedScrollingSky or
-                RoomFxType.Fireflea or
-                RoomFxType.CeresRidley or
-                RoomFxType.CeresElevator or
-                RoomFxType.CeresHaze => throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor."),
-            _ => throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor."),
-        };
-        if (RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is not
-            (LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive or
-            LayerBlendingConfiguration.LiquidOrFogAdditive))
-            throw new InvalidDataException("Water has an incompatible layer-blending configuration.");
-        if (fx.LayerBlendConfiguration != required) throw new InvalidDataException("Room FX has an incompatible layer-blending configuration.");
+        if (!RoomFxOverlayState.ShowsPage(fx.Type))
+            throw new NotSupportedException($"Room FX type {fx.Type} has no captured effect overlay compositor.");
+        RoomEffectBlend blend = fx.Blend
+            ?? throw new InvalidDataException($"Room FX type {fx.Type} shows a page but describes no blend.");
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         if (liquid && CoordinateAxis.AsSigned(fx.Surface.Y) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
@@ -183,10 +171,7 @@ public static class GameplayEffectCapture
         // A liquid's lines above the tile row holding its surface show the overlay's top, above the page, where nothing shows.
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (ScreenGeometry.BackgroundTileSizePixels - 1);
         LineScroll vertical = liquid ? ScrollBands.Split(0, firstSurfaceLine, fx.Scroll.Y) : ScrollBands.Uniform(fx.Scroll.Y);
-        bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
-            LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
-        return new(OverlayOf(Ensure.NotNull(page), atmosphere), HudHeight, subtract ? BlendOperation.Subtract : BlendOperation.Add,
-            horizontal, vertical);
+        return new(OverlayOf(Ensure.NotNull(page), atmosphere), HudHeight, blend.Operation, horizontal, vertical);
     }
 
     /// <summary>
@@ -208,25 +193,6 @@ public static class GameplayEffectCapture
         return new OverlayPicture(picture, Position16<ImagePixels>.Zero, new Extent16<OverlayPixels>(picture.Size.X, picture.Size.Y),
             new Position16<OverlayPixels>(0, FxOverlayPageDefinitions.LiquidPageTop),
             new Extent16<OverlayPixels>(FxOverlayPageDefinitions.RepeatWidth, FxOverlayPageDefinitions.LiquidRepeatHeight));
-    }
-
-    /// <summary>
-    /// The spores' blend (#1514): the spores, lying behind, brighten the background, the actors taking part in blends and
-    /// the backdrop where each is frontmost, everywhere on the screen; the foreground keeps its colour, so the spores never
-    /// brighten the room's terrain, as an overlay added over the finished frame would.
-    /// </summary>
-    public static GameplayBlendLayer CaptureSpores(GameplaySceneLayer gameplay,
-        RoomFxOverlayRenderSnapshot fx)
-    {
-        if (fx.Type != RoomFxType.Spores)
-            throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
-        return new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
-        {
-            Blended = BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
-            Operation = BlendOperation.Add,
-            Halved = false,
-            Colour = RgbColor.Black,
-        }, CaptureRoomFxOverlay(fx, gameplay.Rooms.ShownFxOverlay));
     }
 
     /// <summary>

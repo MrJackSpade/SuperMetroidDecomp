@@ -40,6 +40,9 @@ internal static class LookupRoomFxFieldsVerification
         0xA15E, 0xA17E, 0xA180, 0xA182, 0xA184, 0xA186, 0xA188,
     ];
 
+    /// <summary>The record's two blend bytes, which the import reads into the visor animation and the effect blend.</summary>
+    private static readonly int[] BlendOffsets = [10, 11];
+
     /// <summary>Checks all record identities and each field's native offset and width.</summary>
     internal static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
         SortedDictionary<ushort, RoomFxRecordDefinition> originals)
@@ -51,8 +54,7 @@ internal static class LookupRoomFxFieldsVerification
         Suite(nameof(VerifyRoomFxPackedYVelocity), () => VerifyRoomFxPackedYVelocity(rom));
         Suite(nameof(VerifyRoomFxTimer), () => VerifyRoomFxTimer(rom));
         Suite(nameof(VerifyRoomFxType), () => VerifyRoomFxType(rom));
-        Suite(nameof(VerifyRoomFxDefaultLayerBlend), () => VerifyRoomFxDefaultLayerBlend(rom));
-        Suite(nameof(VerifyRoomFxLayer3LayerBlend), () => VerifyRoomFxLayer3LayerBlend(rom));
+        Suite(nameof(VerifyRoomFxBlends), () => VerifyRoomFxBlends(rom));
         Suite(nameof(VerifyRoomFxLiquidOptions), () => VerifyRoomFxLiquidOptions(rom));
         Suite(nameof(VerifyRoomFxPaletteFxBitset), () => VerifyRoomFxPaletteFxBitset(rom));
         Suite(nameof(VerifyRoomFxAnimatedTileBitset), () => VerifyRoomFxAnimatedTileBitset(rom));
@@ -99,10 +101,27 @@ internal static class LookupRoomFxFieldsVerification
     private static void VerifyRoomFxTimer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
     /// <summary>Checks the effect discriminator byte at offset nine.</summary>
     private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => RoomFxRecordEncoding.TypeByte(record.Type));
-    /// <summary>Checks ordinary layer blend settings at offset ten.</summary>
-    private static void VerifyRoomFxDefaultLayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 10, 1, record => RoomFxRecordEncoding.LayerBlendByte(record.DefaultLayerBlend));
-    /// <summary>Checks the layer-three blend override at offset eleven.</summary>
-    private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => RoomFxRecordEncoding.LayerBlendByte(record.EffectLayerBlend));
+    /// <summary>
+    /// Checks that each record holds the visor animation and the effect blend the import reads from its blend bytes at
+    /// offsets ten and eleven (#1545); the record holds no byte there, as several bytes read alike. A terminator holds a
+    /// steady visor and no blend.
+    /// </summary>
+    private static void VerifyRoomFxBlends(SuperMetroidAddressSpace rom)
+    {
+        foreach (ushort pointer in OriginalFxRecordPointers)
+        {
+            int address = 0x830000 | pointer;
+            RoomFxRecordDefinition actual = RoomFxDefinitions.RecordAt(pointer);
+            bool terminator = ReadVerificationWord(rom, address) == ushort.MaxValue;
+            RoomVisorAnimation visor = terminator ? RoomVisorAnimation.Steady
+                : RoomFxRecordCodec.VisorAnimation(RoomFxFieldRomByte(rom, address + BlendOffsets[0]), $"FX {pointer:X4}");
+            RoomEffectBlend? blend = terminator ? null
+                : RoomFxRecordCodec.EffectBlend(actual.Type, RoomFxFieldRomByte(rom, address + BlendOffsets[1]), $"FX {pointer:X4}");
+            AssertEqual(visor, actual.VisorAnimation, $"FX {pointer:X4} visor animation");
+            AssertEqual(blend, actual.EffectBlend, $"FX {pointer:X4} effect blend");
+        }
+    }
+
     /// <summary>Checks liquid rendering flags at offset twelve.</summary>
     private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordEncoding.LiquidOptionsByte(record.LiquidOptions));
     /// <summary>Checks the palette effects, encoded through the header's area's list, against the bits at offset thirteen.</summary>
@@ -137,7 +156,8 @@ internal static class LookupRoomFxFieldsVerification
             for (int index = offset; index < offset + width; index++)
             {
                 AssertEqual(OriginalByte(index), actual.ReadByte(index), "FX byte view");
-                if (index < 15)
+                // A word reaching a blend byte has no view: the record holds what the import read from it.
+                if (index < 15 && !BlendOffsets.Contains(index + 1))
                     AssertEqual(LittleEndianBytes.Word(OriginalByte(index), OriginalByte(index + 1)),
                         actual.ReadWord(index), "FX overlapping word view");
             }

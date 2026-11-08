@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>Whether a blend brightens what it covers by adding a colour or darkens it by subtracting one.</summary>
 public enum BlendOperation

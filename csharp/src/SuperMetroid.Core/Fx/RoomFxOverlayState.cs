@@ -136,8 +136,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Zero-extended FX timer byte loaded from record offset eight.</summary>
     public WrappingCountdown Timer { get; private set; }
 
-    /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
-    public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
+    /// <summary>How the effect's overlay blends with the room (#1545), as the FX record describes it, or null when it shows no overlay.</summary>
+    public RoomEffectBlend? Blend { get; private set; }
 
     /// <summary>The effect overlay's live scroll.</summary>
     public Position16<OverlayPixels> Scroll { get; private set; }
@@ -217,7 +217,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Surface = new(0, BaseY.Whole);
 
         Type = definition.Type;
-        LayerBlendConfiguration = definition.EffectLayerBlend;
+        Blend = definition.EffectBlend;
         animatedTiles.Load(Type);
         PaletteBlend = definition.PaletteBlend;
 
@@ -331,7 +331,6 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         if (Type == RoomFxType.Fireflea)
         {
-            LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
             Fireflea.Step(FixedColors, frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
             return;
         }
@@ -400,7 +399,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public RoomFxOverlayRenderSnapshot? CaptureForDisplay() => IsRenderable
         ? new RoomFxOverlayRenderSnapshot(
             Type,
-            LayerBlendConfiguration,
+            Blend,
             Scroll,
             Surface,
             LiquidOptions,
@@ -440,7 +439,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// LoadFxEntry reloads motion, blending and three colors, but does not restart
     /// per-line effects, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
-    internal LayerBlendingConfiguration ApplyEntry(RoomFxRecordDefinition definition)
+    internal void ApplyEntry(RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
         BaseY = BaseY.WithWhole(definition.BaseYPosition ?? UnnamedSurfaceY);
@@ -448,9 +447,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
-        LayerBlendConfiguration = definition.EffectLayerBlend;
+        Blend = definition.EffectBlend;
         PaletteBlend = definition.PaletteBlend;
-        return definition.DefaultLayerBlend;
     }
 
     /// <summary>
@@ -767,7 +765,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         TargetSurface = Position16<RoomPixels>.Zero;
         YVelocity = default;
         Timer = WrappingCountdown.Start(0);
-        LayerBlendConfiguration = default;
+        Blend = null;
         Scroll = Position16<OverlayPixels>.Zero;
         drift = Offset16<OverlaySubpixels>.Zero;
         rainWindVelocity = Offset16<OverlaySubpixels>.Zero;

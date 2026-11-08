@@ -14,63 +14,108 @@ namespace SuperMetroid.Core.Fx;
 /// (#1415): the room-FX catalog generator decodes the retail records once, and checks that seed synthetic records encode
 /// through it. Core holds only the decoded fields: a record's two effect bitsets select from its room's area's lists
 /// (<see cref="AreaPaletteFxObjects"/>, <see cref="AreaAnimatedTileObjects"/>), and the decoded record names the effects
-/// they select (#1526). Never linked by player hosts.
+/// they select (#1526). The record's two blend bytes select entries of the game's blending dispatcher; the import reads
+/// them once into the room effect's own blend and whether the room animates Samus's visor (#1545), and the numbers stay
+/// here. Never linked by player hosts.
 /// </summary>
 internal static class RoomFxRecordCodec
 {
-    /// <summary>The bank-$88 dispatcher byte naming each <see cref="LayerBlendingConfiguration"/>.</summary>
-    internal static readonly NativeWordIdentities<LayerBlendingConfiguration> LayerBlends = new(new Dictionary<LayerBlendingConfiguration, ushort>
-    {
-        [LayerBlendingConfiguration.Unconfigured] = 0x00,
-        [LayerBlendingConfiguration.NormalGameplay] = 0x02,
-        [LayerBlendingConfiguration.PhantoonHidden] = 0x04,
-        [LayerBlendingConfiguration.UnusedSemiTransparentSprites] = 0x06,
-        [LayerBlendingConfiguration.WreckedShipPowerOff] = 0x08,
-        [LayerBlendingConfiguration.Spores] = 0x0a,
-        [LayerBlendingConfiguration.Fireflea] = 0x0c,
-        [LayerBlendingConfiguration.Rain] = 0x0e,
-        [LayerBlendingConfiguration.MorphBallEye] = 0x10,
-        [LayerBlendingConfiguration.SuitPickup] = 0x12,
-        [LayerBlendingConfiguration.WaterSubtractive] = 0x14,
-        [LayerBlendingConfiguration.WaterfallSubtractive] = 0x16,
-        [LayerBlendingConfiguration.LiquidOrFogAdditive] = 0x18,
-        [LayerBlendingConfiguration.PhantoonSemiTransparent] = 0x1a,
-        [LayerBlendingConfiguration.UnusedHalfAdditiveReversedBackgrounds] = 0x1c,
-        [LayerBlendingConfiguration.LavaAcidAdditive] = 0x1e,
-        [LayerBlendingConfiguration.NormalGameplayAlternate] = 0x20,
-        [LayerBlendingConfiguration.UnusedWaterSubtractive] = 0x22,
-        [LayerBlendingConfiguration.MotherBrainWindow] = 0x24,
-        [LayerBlendingConfiguration.UnusedHalfAdditive] = 0x26,
-        [LayerBlendingConfiguration.VisorBackdrop28] = 0x28,
-        [LayerBlendingConfiguration.VisorBackdrop2A] = 0x2a,
-        [LayerBlendingConfiguration.HazeOrTorizo] = 0x2c,
-        [LayerBlendingConfiguration.UnusedSubtractive] = 0x2e,
-        [LayerBlendingConfiguration.FogAdditive] = 0x30,
-        [LayerBlendingConfiguration.UnusedSubtractiveBackground] = 0x32,
-        [LayerBlendingConfiguration.MotherBrainPhaseTwo] = 0x34,
-    });
+    /// <summary>The blend byte that configures nothing, as a terminator and a record of no effect hold it.</summary>
+    internal const byte UnconfiguredBlendByte = 0x00;
+    /// <summary>The blend byte of ordinary gameplay: no effect overlay blends with the room.</summary>
+    internal const byte NormalBlendByte = 0x02;
+    /// <summary>The default blend byte of the Wrecked Ship's rooms before its power returns; the port draws nothing of it.</summary>
+    internal const byte WreckedShipPowerOffBlendByte = 0x08;
+    /// <summary>The effect blend byte of the spores, which lie behind the room and brighten it.</summary>
+    internal const byte SporesBlendByte = 0x0a;
+    /// <summary>The effect blend byte of the rain, whose overlay brightens the room.</summary>
+    internal const byte RainBlendByte = 0x0e;
+    /// <summary>The effect blend byte of water whose overlay darkens the room.</summary>
+    internal const byte WaterDarkensBlendByte = 0x14;
+    /// <summary>The effect blend byte of the waterfall rooms' water, which lies behind the room with the background and darkens it.</summary>
+    internal const byte WaterfallBlendByte = 0x16;
+    /// <summary>The effect blend byte of water or the Tourian statues' water whose overlay brightens the room.</summary>
+    internal const byte LiquidBrightensBlendByte = 0x18;
+    /// <summary>The effect blend byte of lava and acid, whose overlay brightens the room.</summary>
+    internal const byte LavaAcidBlendByte = 0x1e;
+    /// <summary>The first of the two default blend bytes whose rooms animate Samus's visor.</summary>
+    internal const byte VisorBackdropBlendByte = 0x28;
+    /// <summary>The second of the two default blend bytes whose rooms animate Samus's visor.</summary>
+    internal const byte VisorBackdropAlternateBlendByte = 0x2a;
+    /// <summary>The effect blend byte of the fog, whose overlay brightens the room.</summary>
+    internal const byte FogBlendByte = 0x30;
 
     /// <summary>The record that ends a list: every field cleared.</summary>
     internal static RoomFxRecordDefinition Terminator { get; } = new(null, true, 0, 0, default, 0, RoomFxType.None,
-        LayerBlendingConfiguration.Unconfigured, LayerBlendingConfiguration.Unconfigured, RoomLiquidOptions.None,
+        RoomVisorAnimation.Steady, null, RoomLiquidOptions.None,
         [], [], RoomFxPaletteBlend.None);
+
+    /// <summary>
+    /// Whether a room whose record holds default blend byte <paramref name="value"/> animates Samus's visor (#1545): the
+    /// two backdrop entries do; nothing, ordinary gameplay and the Wrecked Ship's unpowered rooms do not.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The byte names no default blend a retail room holds; the message names <paramref name="context"/>.</exception>
+    internal static RoomVisorAnimation VisorAnimation(byte value, string context) => value switch
+    {
+        VisorBackdropBlendByte or VisorBackdropAlternateBlendByte => RoomVisorAnimation.Animated,
+        UnconfiguredBlendByte or NormalBlendByte or WreckedShipPowerOffBlendByte => RoomVisorAnimation.Steady,
+        _ => throw new InvalidDataException($"{context} default blend ${value:X2} names no room's blend."),
+    };
+
+    /// <summary>
+    /// The blend a room effect of <paramref name="type"/> shows when its record holds effect blend byte
+    /// <paramref name="value"/> (#1545), or null for an effect that shows no overlay. Each effect that shows a page names
+    /// its own blend, water any of its three; every other effect names none.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The byte names no blend, or one the effect does not show; the message names <paramref name="context"/>.</exception>
+    internal static RoomEffectBlend? EffectBlend(RoomFxType type, byte value, string context)
+    {
+        RoomEffectBlend? blend = value switch
+        {
+            UnconfiguredBlendByte or NormalBlendByte => null,
+            LavaAcidBlendByte or LiquidBrightensBlendByte or FogBlendByte or RainBlendByte => RoomEffectBlendDefinitions.OverlayBrightens,
+            WaterDarkensBlendByte => RoomEffectBlendDefinitions.OverlayDarkens,
+            WaterfallBlendByte => RoomEffectBlendDefinitions.WaterfallDarkensBehind,
+            SporesBlendByte => RoomEffectBlendDefinitions.SporesBrightenBehind,
+            _ => throw new InvalidDataException($"{context} effect blend ${value:X2} names no room effect's blend."),
+        };
+        if (!EffectShowsBlend(type, value))
+            throw new InvalidDataException($"{context} effect blend ${value:X2} is not a blend a {type} effect shows.");
+        return blend;
+    }
+
+    /// <summary>Whether an effect of <paramref name="type"/> shows the blend effect blend byte <paramref name="value"/> names.</summary>
+    private static bool EffectShowsBlend(RoomFxType type, byte value) => type switch
+    {
+        RoomFxType.Lava or RoomFxType.Acid => value == LavaAcidBlendByte,
+        RoomFxType.Water or RoomFxType.TourianEntranceStatue =>
+            value is WaterDarkensBlendByte or WaterfallBlendByte or LiquidBrightensBlendByte,
+        RoomFxType.Rain => value == RainBlendByte,
+        RoomFxType.Fog => value == FogBlendByte,
+        RoomFxType.Spores => value == SporesBlendByte,
+        RoomFxType.None or RoomFxType.ScrollingSky or RoomFxType.UnusedScrollingSky or RoomFxType.Fireflea or
+            RoomFxType.CeresRidley or RoomFxType.CeresElevator or RoomFxType.CeresHaze =>
+            value is UnconfiguredBlendByte or NormalBlendByte,
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown room effect."),
+    };
 
     /// <summary>
     /// Decodes the sixteen bytes of a record that applies to <paramref name="door"/>, or is its list's default when null,
     /// in a room of <paramref name="area"/>, whose lists its effect bits select from.
     /// </summary>
-    /// <exception cref="InvalidDataException">A field names no effect, blend or palette blend; the message names <paramref name="context"/>.</exception>
+    /// <exception cref="InvalidDataException">A field names no effect, blend or palette blend, or the effect blend is not one the effect shows; the message names <paramref name="context"/>.</exception>
     internal static RoomFxRecordDefinition Decode(DoorDefinition? door, AreaId area, ReadOnlySpan<byte> native, string context)
     {
         Ensure.LengthEqual(native, RoomFxToolingRomData.Record.ByteCount);
+        RoomFxType type = RoomFxRecordWords.Types.Decode(native[RoomFxRomDataRecordTooling.TypeOffset], $"{context} room-FX type");
         return new(door, false,
             SurfaceY(Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset)),
             SurfaceY(Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset)),
             new SignedEightEight(Word(native, RoomFxRomDataRecordTooling.YVelocityOffset)),
             native[RoomFxRomDataRecordTooling.TimerOffset],
-            RoomFxRecordWords.Types.Decode(native[RoomFxRomDataRecordTooling.TypeOffset], $"{context} room-FX type"),
-            LayerBlends.Decode(native[RoomFxRomDataRecordTooling.DefaultLayerBlendConfigurationOffset], $"{context} default layer blend"),
-            LayerBlends.Decode(native[RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset], $"{context} layer-three blend"),
+            type,
+            VisorAnimation(native[RoomFxRomDataRecordTooling.DefaultBlendOffset], context),
+            EffectBlend(type, native[RoomFxRomDataRecordTooling.EffectBlendOffset], context),
             LiquidOptions(native[RoomFxRomDataRecordTooling.LiquidOptionsOffset]),
             PaletteEffects(area, native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset]),
             AnimatedTiles(area, native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset]),

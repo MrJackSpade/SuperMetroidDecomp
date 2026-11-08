@@ -235,7 +235,7 @@ public sealed class D3D11FrameRenderer : IDisposable
     private unsafe void DispatchBackgroundMath(OverlayBlendLayer layer)
     {
         var data = ClearUploadConstants();
-        data[0] = (uint)(layer.Operation == Core.Rendering.BlendOperation.Add
+        data[0] = (uint)(layer.Operation == Core.Assets.BlendOperation.Add
             ? D3D11TileOperation.AddLayer : D3D11TileOperation.SubtractLayer);
         data[8] = 1;
         data[14] = (uint)D3D11RoomSource.FxOverlay;
@@ -390,8 +390,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         | (blend.Halved ? BlendHalves : 0)
         | blend.Operation switch
         {
-            Core.Rendering.BlendOperation.Add => 0u,
-            Core.Rendering.BlendOperation.Subtract => BlendSubtracts,
+            Core.Assets.BlendOperation.Add => 0u,
+            Core.Assets.BlendOperation.Subtract => BlendSubtracts,
             _ => throw new InvalidOperationException($"Undefined blend operation {blend.Operation}."),
         };
 

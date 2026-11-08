@@ -135,10 +135,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded("advance Mother Brain's glass-room argument").MotherBrain.IncrementGlassRoomArgument();
     }
 
-    /// <summary>Forwards Mother Brain's default layer blend to loaded room services.</summary>
-    public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
-        Loaded("write Mother Brain's layer-blending configuration").MotherBrain.SetLayerBlendingDefault(configuration);
-
     /// <summary>Forwards a picture written over BG1 to the loaded room.</summary>
     public void WriteForegroundPicture(WrittenPicture picture) =>
         Loaded("write over the room's BG1").WriteForegroundPicture(picture);

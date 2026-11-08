@@ -25,17 +25,17 @@ internal static class RoomFxSnapshotTestsVerification
         int samples = 0;
         var configurations = new[]
         {
-            new Configuration(RoomFxType.Water, LayerBlendingConfiguration.WaterSubtractive),
-            new Configuration(RoomFxType.Water, LayerBlendingConfiguration.WaterfallSubtractive),
-            new Configuration(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive),
-            new Configuration(RoomFxType.Lava, LayerBlendingConfiguration.LavaAcidAdditive),
-            new Configuration(RoomFxType.Acid, LayerBlendingConfiguration.LavaAcidAdditive),
-            new Configuration(RoomFxType.Rain, LayerBlendingConfiguration.Rain),
-            new Configuration(RoomFxType.Fog, LayerBlendingConfiguration.FogAdditive),
+            new Configuration(RoomFxType.Water, RoomEffectBlendDefinitions.OverlayDarkens),
+            new Configuration(RoomFxType.Water, RoomEffectBlendDefinitions.WaterfallDarkensBehind),
+            new Configuration(RoomFxType.Water, RoomEffectBlendDefinitions.OverlayBrightens),
+            new Configuration(RoomFxType.Lava, RoomEffectBlendDefinitions.OverlayBrightens),
+            new Configuration(RoomFxType.Acid, RoomEffectBlendDefinitions.OverlayBrightens),
+            new Configuration(RoomFxType.Rain, RoomEffectBlendDefinitions.OverlayBrightens),
+            new Configuration(RoomFxType.Fog, RoomEffectBlendDefinitions.OverlayBrightens),
         };
         // The effect's page shows the fixture's random VRAM (#1348, #1514).
         FxOverlayPage plane = FxOverlayFixtures.PageFromVram(vram.Bytes, cgram.Colors);
-        foreach ((RoomFxType type, LayerBlendingConfiguration blend) in configurations)
+        foreach ((RoomFxType type, RoomEffectBlend blend) in configurations)
         foreach (short surface in new short[] { -20, 0, 32, 100, 223, 300 })
         foreach (int phase in new[] { 0, 7, 15 })
         foreach (ushort currentY in new ushort[] { 400, ushort.MaxValue })
@@ -48,7 +48,7 @@ internal static class RoomFxSnapshotTestsVerification
                 new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, 15));
             RgbaPixel[] actual = DisplayRendering.Render(packet);
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
-                $"room FX {type}/{blend} at {surface}, phase {phase}, Y {currentY} preserves HUD band");
+                $"room FX {type}/{blend.Operation} at {surface}, phase {phase}, Y {currentY} preserves HUD band");
         }
         var owned = new OverlayBlendLayer(null, 32, BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
         AssertThrows<ArgumentNullException>(() => new OverlayBlendLayer(null, 32,
@@ -57,7 +57,7 @@ internal static class RoomFxSnapshotTestsVerification
             (BlendOperation)255, ScrollBands.Uniform(0), ScrollBands.Uniform(0)), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], 15));
         AssertThrows<InvalidDataException>(() => GameplayEffectCapture.CaptureRoomFxOverlay(
-            new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture preserves invalid water configuration failure");
+            new(RoomFxType.Water, null, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)), plane), "capture rejects water that describes no blend");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion and ownership agree.");
     }
 }

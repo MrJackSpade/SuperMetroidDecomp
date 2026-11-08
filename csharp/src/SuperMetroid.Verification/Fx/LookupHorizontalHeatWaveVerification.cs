@@ -24,7 +24,7 @@ internal static class LookupHorizontalHeatWaveVerification
         foreach (ushort baseScroll in new ushort[] { 0, ushort.MaxValue })
         {
             var fx = new RoomFxOverlayRenderSnapshot(RoomFxType.Lava,
-                LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
+                RoomEffectBlendDefinitions.OverlayBrightens, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave)
                 { LavaAcidBackgroundWavePhase = phase };
             // The described heat haze (#1468), evaluated on each gameplay line.

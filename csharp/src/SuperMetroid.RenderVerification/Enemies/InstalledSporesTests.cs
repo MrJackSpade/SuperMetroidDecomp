@@ -66,8 +66,8 @@ internal static class InstalledSporesTests
             RoomFxOverlayState baseline = RoomFxOverlayState.ForDefinition(new RoomFxSession(), definition, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
-            Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
-                "A compiled spores record selects incompatible blending.");
+            Require(baseline.Blend == RoomEffectBlendDefinitions.SporesBrightenBehind,
+                "A compiled spores record describes another blend.");
             // Since #1348 the room's BG3 plane shows the effect's page directly instead of a copy written into VRAM.
             // The plane names the effect's page (#1466); the installed sheet pictures its words.
             Require(baseline.EffectPageType == RoomFxType.Spores && baseline.EffectPlane.EffectPage == RoomFxType.Spores,
@@ -111,7 +111,7 @@ internal static class InstalledSporesTests
                             FxOverlay = FxOverlayFixtures.PageOf(baseline.EffectPlane, InstalledAreaMapPresentation.RoomFxPagesOf(stock),
                                 new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]),
                         });
-                    var layer = GameplayEffectCapture.CaptureSpores(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
+                    var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(gameplay, (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay().")));
                     Require(!layer.RevealBlocks && layer.Blend.Blended == (BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop) &&
                         layer.Blend.Operation == BlendOperation.Add && !layer.Blend.Halved &&
                         layer.Window.IsClosed && layer.OverlayBehind is not null && !layer.BackgroundBehind,
@@ -199,11 +199,11 @@ internal static class InstalledSporesTests
             var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Foreground : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
-            var layer = GameplayEffectCapture.CaptureSpores(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
+            var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0)))) with
                 {
                     FxOverlay = FxOverlayFixtures.PageFromVram(vram.Bytes, colors, 0x4000),
                 }),
-                new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
+                new(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind, Position16<OverlayPixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredScene(FramePaint.FromOam(vram.Bytes, colors, oam, 1, 0), [layer], 15);
             RgbaPixel[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only

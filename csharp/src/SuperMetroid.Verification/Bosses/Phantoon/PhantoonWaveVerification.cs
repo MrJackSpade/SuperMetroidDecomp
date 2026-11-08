@@ -105,34 +105,34 @@ internal static class PhantoonWaveVerification
         boss.MouthState.LayerControl = PhantoonLayerControl.Removed;
         for (int i = 0; i < PhantoonBlendingState.SetupCalls; i++)
         {
-            blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-            AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "blend setup does not run pre-instruction");
+            blend.Step(boss);
+            AssertEqual(PhantoonBodyBlend.Room, blend.Configuration, "blend setup does not run pre-instruction");
         }
-        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-        AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.Configuration, "flag takes priority over delete control");
+        blend.Step(boss);
+        AssertEqual(PhantoonBodyBlend.Translucent, blend.Configuration, "flag takes priority over delete control");
         blend.LatchDisplay(mosaicBlockSize: 5);
         boss.MosaicBlockSize = 6;
         boss.SemiTransparent = false;
         // The fade-in's control (the cartridge's word $8001, low byte one) is the room-default state.
         boss.MouthState.LayerControl = PhantoonLayerControl.RoomDefault;
-        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-        AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "the room-default control retains the current room default, not the previous blend");
-        AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
+        blend.Step(boss);
+        AssertEqual(PhantoonBodyBlend.Room, blend.Configuration, "the room-default control retains the current room default, not the previous blend");
+        AssertEqual(PhantoonBodyBlend.Translucent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
         AssertEqual(5, blend.DisplayedMosaicBlockSize, "live mosaic size change waits for next accepted NMI");
         boss.MouthState.LayerControl = PhantoonLayerControl.Hidden;
-        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-        AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "the hidden control hides the body");
+        blend.Step(boss);
+        AssertEqual(PhantoonBodyBlend.Hidden, blend.Configuration, "the hidden control hides the body");
         boss.MouthState.LayerControl = PhantoonLayerControl.Removed;
-        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-        AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "delete call still publishes hidden configuration");
+        blend.Step(boss);
+        AssertEqual(PhantoonBodyBlend.Hidden, blend.Configuration, "delete call still publishes hidden configuration");
         boss.SemiTransparent = true;
-        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
-        AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "deleted owner no longer overrides room");
+        blend.Step(boss);
+        AssertEqual(PhantoonBodyBlend.Room, blend.Configuration, "deleted owner no longer overrides room");
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, blend);
         stream.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBlendingState>(stream);
-        restored.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+        restored.Step(boss);
         AssertEqual(blend.Configuration, restored.Configuration, "deleted blend owner survives debugger roundtrip");
         AssertEqual(5, restored.DisplayedMosaicBlockSize, "display mosaic size survives debugger roundtrip");
     }

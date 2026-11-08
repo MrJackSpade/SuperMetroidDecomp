@@ -29,7 +29,8 @@ internal sealed class GameplayScreenLayers
 
     /// <summary>
     /// Chooses the layers before projectile callbacks run: a door transition's own layers, foreground and the sprites alone
-    /// while Mother Brain's death hides background, and the waterfall rooms' layers when their blending is subtractive.
+    /// while Mother Brain's death hides background, and the waterfall rooms' layers when their effect's blend lays the
+    /// background behind the room (#1545).
     /// </summary>
     internal void Choose(RoomScope room)
     {
@@ -39,7 +40,7 @@ internal sealed class GameplayScreenLayers
                     ? ScreenLayers.None
                     : ScreenLayers.Background));
         if (_room.DoorTransitionShownLayers is null &&
-            room.FxOverlay.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
+            room.FxOverlay.Blend is { BackgroundBehind: true })
         {
             Chosen = WaterfallRoomDisplayRules.ShownLayers;
         }

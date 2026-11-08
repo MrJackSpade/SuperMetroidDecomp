@@ -92,9 +92,9 @@ internal static class SamusVisorColorsVerification
         {
             int sourceShade = native.NextShade;
             native.Update(nativeColours, 0,
-                LayerBlendingConfiguration.VisorBackdrop28);
+                RoomVisorAnimation.Animated);
             installed.Update(installedColours, 0,
-                LayerBlendingConfiguration.VisorBackdrop28);
+                RoomVisorAnimation.Animated);
             // `$91:D864` reloads the expired countdown to the frame delay only on the call
             // that writes a color; countdown calls leave it below that delay.
             bool expectedWrite = native.Timer == SamusPaletteDefinitions.Visor.FrameDelay;

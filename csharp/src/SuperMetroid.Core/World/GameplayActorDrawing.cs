@@ -122,7 +122,7 @@ internal sealed class GameplayActorDrawing
                 LastBeamChargePaletteStep = room.Projectiles.UpdateBeamChargePalette(
                     _player.Colours,
                     _player.Samus,
-                    _display.LayerBlendingDefaultConfig);
+                    _display.VisorAnimation);
                 LastVisorPaletteStep = room.Projectiles.LastVisorPaletteStep;
                 // Carry from HandleBeamChargePalettes bypasses the entire special
                 // dispatcher on glow expiry. In particular, stored shine must not tick

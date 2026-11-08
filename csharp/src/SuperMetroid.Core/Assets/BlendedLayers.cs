@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rendering;
+namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// What a gameplay blend changes (#1514): the pixels where the room's foreground, its background, an actor taking part in

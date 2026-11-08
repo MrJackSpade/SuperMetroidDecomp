@@ -60,7 +60,6 @@ internal static class FirefleaFxVerification
         for (int frame = 0; frame < 100; frame++) fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
         AssertEqual(timer, fx.Fireflea.Timer, "X-ray frozen time retains flashing phase");
         AssertEqual(red, fixedColor.Color.FadeLevels.Red, "X-ray frozen time retains fixed color");
-        AssertEqual(LayerBlendingConfiguration.Fireflea, fx.LayerBlendConfiguration, "frozen Fireflea still selects blending");
         for (ushort level = 0; level <= 12; level += 2)
         {
             fx = RoomFxOverlayState.ForDefinition(fxSession, record, 0);

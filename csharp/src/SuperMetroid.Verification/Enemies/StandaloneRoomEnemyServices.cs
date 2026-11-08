@@ -138,8 +138,5 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public void DisableControls() => throw Missing("disable Samus's controls");
         /// <summary>Fails when Mother Brain glass setup lacks its room-effects service.</summary>
         public void IncrementGlassRoomArgument() => throw Missing("advance Mother Brain's glass-room argument");
-        /// <summary>Fails when Mother Brain changes blending without an installed room-effects service.</summary>
-        public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
-            throw Missing("write Mother Brain's layer-blending configuration");
     }
 }

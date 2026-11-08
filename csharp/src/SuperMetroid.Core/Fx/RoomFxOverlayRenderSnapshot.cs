@@ -1,9 +1,12 @@
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Immutable gameplay effect overlay values published by one frame boundary.</summary>
+/// <summary>
+/// Immutable gameplay effect overlay values published by one frame boundary, with how the effect's overlay blends with the
+/// room (#1545), or null when the effect describes no blend.
+/// </summary>
 public readonly record struct RoomFxOverlayRenderSnapshot(
     RoomFxType Type,
-    LayerBlendingConfiguration LayerBlendConfiguration,
+    RoomEffectBlend? Blend,
     Position16<OverlayPixels> Scroll,
     Position16<RoomPixels> Surface,
     RoomLiquidOptions LiquidOptions = RoomLiquidOptions.None,

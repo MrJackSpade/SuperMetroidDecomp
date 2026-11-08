@@ -17,7 +17,7 @@ internal static class RoomFxTextureDriftVerification
     internal static void VerifyRoomFxTextureDrift()
     {
         // 1100 quarter-pixel steps carry water's accumulator through its sign change and past its wrap.
-        RoomFxOverlayState water = Load(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive,
+        RoomFxOverlayState water = Load(RoomFxType.Water, RoomEffectBlendDefinitions.OverlayBrightens,
             RoomLiquidOptions.SurfaceDrift, randomNumber: 0);
         ushort expectedWater = 0;
         for (int frame = 0; frame < 1100; frame++)
@@ -27,7 +27,7 @@ internal static class RoomFxTextureDriftVerification
             expectedWater = unchecked((ushort)(expectedWater + WaterWaveDefinitions.HorizontalSubscrollVelocity));
         }
 
-        RoomFxOverlayState stillWater = Load(RoomFxType.Water, LayerBlendingConfiguration.LiquidOrFogAdditive,
+        RoomFxOverlayState stillWater = Load(RoomFxType.Water, RoomEffectBlendDefinitions.OverlayBrightens,
             RoomLiquidOptions.None, randomNumber: 0);
         for (int frame = 0; frame < 600; frame++)
         {
@@ -38,7 +38,7 @@ internal static class RoomFxTextureDriftVerification
         // Each of the four wind speeds the random number selects, through enough six-pixel falls to wrap.
         for (int selection = 0; selection < 4; selection++)
         {
-            RoomFxOverlayState rain = Load(RoomFxType.Rain, LayerBlendingConfiguration.Rain,
+            RoomFxOverlayState rain = Load(RoomFxType.Rain, RoomEffectBlendDefinitions.OverlayBrightens,
                 RoomLiquidOptions.None, randomNumber: selection * 4);
             ushort expectedX = 0;
             ushort expectedY = 0;
@@ -60,13 +60,13 @@ internal static class RoomFxTextureDriftVerification
     }
 
     /// <summary>A room-FX owner loaded from a synthetic record of <paramref name="type"/>.</summary>
-    private static RoomFxOverlayState Load(RoomFxType type, LayerBlendingConfiguration blend, RoomLiquidOptions options,
+    private static RoomFxOverlayState Load(RoomFxType type, RoomEffectBlend blend, RoomLiquidOptions options,
         int randomNumber)
     {
         var stateSession = new RoomFxSession();
         RoomFxOverlayState state;
         var record = new RoomFxRecordDefinition(Door: null, Terminates: false, BaseYPosition: 100, TargetYPosition: 100,
-            YVelocity: default, Timer: 0, Type: type, DefaultLayerBlend: blend, EffectLayerBlend: blend,
+            YVelocity: default, Timer: 0, Type: type, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: blend,
             LiquidOptions: options, PaletteEffects: [], AnimatedTiles: [],
             PaletteBlend: RoomFxPaletteBlend.None);
         state = RoomFxOverlayState.ForDefinition(stateSession, record, checked((ushort)randomNumber));

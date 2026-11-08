@@ -197,8 +197,7 @@ public sealed class SamusProjectileSystem
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
         SamusColours colours,
         SamusState samus,
-        LayerBlendingConfiguration layerBlendingDefaultConfig =
-            LayerBlendingConfiguration.NormalGameplay)
+        RoomVisorAnimation roomVisorAnimation = RoomVisorAnimation.Steady)
     {
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
@@ -239,7 +238,7 @@ public sealed class SamusProjectileSystem
             LastVisorPaletteStep = samus.VisorPalette.Update(
                 colours,
                 samus.Xray.SpecialPaletteKind,
-                layerBlendingDefaultConfig);
+                roomVisorAnimation);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.Inactive);
             return LastBeamChargePaletteStep;

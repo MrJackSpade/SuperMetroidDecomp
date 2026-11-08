@@ -31,7 +31,7 @@ internal static class LookupLiquidWaveVerification
         foreach (ushort baseScroll in new ushort[] { 0, ushort.MaxValue })
         {
             var water = new RoomFxOverlayRenderSnapshot(RoomFxType.Water,
-                LayerBlendingConfiguration.WaterSubtractive, new Position16<OverlayPixels>(baseScroll, 0),
+                RoomEffectBlendDefinitions.OverlayDarkens, new Position16<OverlayPixels>(baseScroll, 0),
                 Surface: new(0, 100), LiquidOptions: RoomLiquidOptions.BackgroundWave, WaterOverlayWavePhase: phase,
                 WaterBackgroundWavePhase: phase, WaterSurfaceScreenY: 100);
             var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankFxOverlay());

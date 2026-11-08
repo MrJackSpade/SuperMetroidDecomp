@@ -79,10 +79,6 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Advances the Mother Brain glass PLM argument after an enemy-driven phase event.</summary>
     public void IncrementGlassRoomArgument() => roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
 
-    /// <summary>Installs Mother Brain's requested default layer-blending configuration.</summary>
-    public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
-        display.LayerBlendingDefaultConfig = configuration;
-
     /// <inheritdoc />
     public void WriteForegroundPicture(WrittenPicture picture) => room.LoadedScope.WriteForegroundPicture(picture);
 

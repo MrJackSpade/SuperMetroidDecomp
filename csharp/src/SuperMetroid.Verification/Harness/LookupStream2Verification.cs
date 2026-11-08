@@ -1537,7 +1537,7 @@ internal static class LookupStream2Verification
             AssertEqual(ended ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
             AssertEqual(ended ? steps.Count : position + 1, state.NextFlickerStep, "Ghost actual next step");
             bool remainsInvisible = ended || position % 2 == 0;
-            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost actual visibility preserves unrelated flags");
+            AssertEqual(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : EnemyProperties.None), slot.Properties, "Ghost actual visibility preserves unrelated flags");
         }
         state.PhaseTimer = 2;
         state.NextFlickerStep = 0;
@@ -1545,7 +1545,7 @@ internal static class LookupStream2Verification
         flicker(slot, state);
         AssertEqual(1, state.PhaseTimer, "Ghost interval countdown");
         AssertEqual(0, state.NextFlickerStep, "Ghost no early interval advance");
-        AssertEqual((ushort)EnemyProperties.Invisible, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost no early visibility change");
+        AssertEqual(EnemyProperties.Invisible, slot.Properties, "Ghost no early visibility change");
         state.PhaseTimer = 0;
         flicker(slot, state);
         AssertEqual(0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost terminal next call clears invisibility");

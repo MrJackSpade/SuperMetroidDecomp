@@ -13,12 +13,15 @@ namespace SuperMetroid.Verification.Enemies.Zoa;
 /// <summary>Checks Zoa animation selectors and live rise-to-shoot list handoffs.</summary>
 internal static class ZoaAnimationDefinitionsVerification
 {
+    /// <summary>A selector holding every value no animation flag names, which no animation table entry selects.</summary>
+    private const ZoaAnimationSelector UnnamedSelector = ~(ZoaAnimationSelector.Rising | ZoaAnimationSelector.FacingRight);
+
     /// <summary>Compares four native animation pointers and optionally exercises live state transitions.</summary>
     internal static void VerifyZoaAnimationDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         for (int index = 0; index < 4; index++)
         {
-            var selector = (ZoaAnimationSelector)index;
+            ZoaAnimationSelector selector = ZoaNativeWords.AnimationSelectorOf(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitions.ReferenceAddress + index * 2)),
                 NativeEnemyProgramOracle.EntryOf(ZoaNativeListAddresses.Entries, ZoaPrograms.Program(selector)),
                 $"Zoa animation selector {selector}");
@@ -26,8 +29,11 @@ internal static class ZoaAnimationDefinitionsVerification
 
         foreach (ushort invalid in new ushort[] { 4, 5, 0x8000, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() =>
-                ZoaPrograms.Program((ZoaAnimationSelector)invalid),
-                "Zoa animation rejects unsupported flag combinations");
+                ZoaNativeWords.AnimationSelectorOf(invalid),
+                "Zoa animation selector word rejects unsupported flag combinations");
+        AssertThrows<InvalidDataException>(() =>
+            ZoaPrograms.Program(UnnamedSelector),
+            "Zoa animation rejects unsupported flag combinations");
         if (definitionsOnly)
         {
             Console.WriteLine("Zoa animation cases: four original pointers and unsupported flag bounds pass.");
@@ -38,7 +44,7 @@ internal static class ZoaAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(facingRight: true));
 
         AssertThrows<InvalidDataException>(
-            () => ZoaPrograms.Program((ZoaAnimationSelector)4),
+            () => ZoaPrograms.Program(UnnamedSelector),
             "Zoa animation selector past table");
         Console.WriteLine(
             "Zoa animation definitions: four native selectors, all four installs, and both complete live facing/rise/shoot handoffs pass with the pointer table forbidden.");
@@ -47,9 +53,12 @@ internal static class ZoaAnimationDefinitionsVerification
     /// <summary>Checks all four selector installs reset the instruction and loop timers.</summary>
     private static void VerifyAllZoaAnimationHandoffs()
     {
-        for (int index = 0; index < 4; index++)
+        foreach (ZoaAnimationSelector selector in new[]
+            {
+                ZoaAnimationSelector.None, ZoaAnimationSelector.Rising, ZoaAnimationSelector.FacingRight,
+                ZoaAnimationSelector.FacingRight | ZoaAnimationSelector.Rising,
+            })
         {
-            var selector = (ZoaAnimationSelector)index;
             var slot = NewZoaAnimationSlot();
             var state = new ZoaEnemyState()
             {

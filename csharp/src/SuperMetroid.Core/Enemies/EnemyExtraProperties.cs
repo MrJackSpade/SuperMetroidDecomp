@@ -14,8 +14,8 @@ public enum EnemyExtraProperties
     /// Selects the extended-spritemap path and admits the actor even when its ordinary
     /// radius-based visibility test would reject it.
     /// </summary>
-    UsesExtendedSpritemap = 1 << 2,
+    UsesExtendedSpritemap = 1 << 0,
 
     /// <summary>Set when the instruction interpreter installs a new timed frame.</summary>
-    NewInstructionFrame = 1 << 15,
+    NewInstructionFrame = 1 << 1,
 }

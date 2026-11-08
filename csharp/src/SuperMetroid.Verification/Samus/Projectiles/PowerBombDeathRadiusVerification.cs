@@ -34,7 +34,7 @@ internal static class PowerBombDeathRadiusVerification
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
             var higher = Place(enemies.SlotTable.Slots[1], explosionX, killerLethal ? (ushort)1 : (ushort)1000);
-            higher.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(killerRespawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0);
+            higher.Properties = killerRespawns ? EnemyProperties.RespawnIfKilled : EnemyProperties.None;
             var lower = Place(enemies.SlotTable.Slots[0], unchecked((ushort)(explosionX + lowerXOffset)), 1000);
 
             enemies.Collision.ResolveOrdinaryPowerBombHits(new(explosionX, explosionY), radius);

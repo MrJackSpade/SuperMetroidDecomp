@@ -15,7 +15,7 @@ internal static class RoomLevelPlaneAccess
         /// </summary>
         internal RoomBlockAppearance[] Blocks => [.. self.Cells.Cells.Select(cell => new RoomBlockAppearance(cell.Definition, cell.Flips))];
 
-        /// <summary>What block <paramref name="blockIndex"/> shows, as <see cref="Blocks"/> names it.</summary>
+        /// <summary>What block <paramref name="blockIndex"/> shows, as the plane's blocks name it.</summary>
         internal RoomBlockAppearance BlockAt(int blockIndex)
         {
             RoomBlockCell cell = self.Cells.Cells[blockIndex];

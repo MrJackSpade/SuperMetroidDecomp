@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core;
-using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -88,14 +87,17 @@ internal static class RoomBlockPicturesVerification
     /// rebind the characters its background reads, BG2 draws the library background's image, and every pixel of its two
     /// pages paints what BG2's tilemap tiles paint over the live characters, frame after frame. Crateria Power Bombs runs
     /// the sky's main loop without its band HDMA, so BG2 shows its rock background's image, not the sky (#1403).
-    /// </summary>
-    internal static void VerifyRoomBackgroundImages()
-    {
-        CheckBackground(RoomHeaderDefinitions.Parlor, expectRebound: false);
-        CheckBackground(RoomHeaderDefinitions.CrateriaPowerBombs, expectRebound: false);
-        CheckBackground(RoomHeaderDefinitions.Statues, expectRebound: true);
-        CheckSky(RoomHeaderDefinitions.LandingSite);
-    }
+    ///  Each room is its own suite, as each loads and steps its own room.</summary>
+    internal static void VerifyParlorBackgroundImage() => CheckBackground(RoomHeaderDefinitions.Parlor, expectRebound: false);
+
+    /// <summary>Checks the Crateria Power Bombs room's background image as <see cref="VerifyParlorBackgroundImage"/> checks the Parlor's.</summary>
+    internal static void VerifyCrateriaPowerBombsBackgroundImage() => CheckBackground(RoomHeaderDefinitions.CrateriaPowerBombs, expectRebound: false);
+
+    /// <summary>Checks the Statues room's background image, which rebinds, as <see cref="VerifyParlorBackgroundImage"/> checks the Parlor's.</summary>
+    internal static void VerifyStatuesBackgroundImage() => CheckBackground(RoomHeaderDefinitions.Statues, expectRebound: true);
+
+    /// <summary>Checks the Landing Site's sky image (<see cref="CheckSky"/>).</summary>
+    internal static void VerifyLandingSiteSkyImage() => CheckSky(RoomHeaderDefinitions.LandingSite);
 
     /// <summary>
     /// Loads sky room <paramref name="room"/> and checks BG2 draws the sky's rows from their image: every pixel of every row
@@ -657,7 +659,10 @@ internal static class RoomBlockPicturesVerification
     internal static int RoomBlockPicturesCommand()
     {
         Suite(nameof(VerifyRoomBlockPictures), VerifyRoomBlockPictures);
-        Suite(nameof(VerifyRoomBackgroundImages), VerifyRoomBackgroundImages);
+        Suite(nameof(VerifyParlorBackgroundImage), VerifyParlorBackgroundImage);
+        Suite(nameof(VerifyCrateriaPowerBombsBackgroundImage), VerifyCrateriaPowerBombsBackgroundImage);
+        Suite(nameof(VerifyStatuesBackgroundImage), VerifyStatuesBackgroundImage);
+        Suite(nameof(VerifyLandingSiteSkyImage), VerifyLandingSiteSkyImage);
         Suite(nameof(VerifyTileWordPictures), VerifyTileWordPictures);
         Suite(nameof(VerifyBg3Pictures), VerifyBg3Pictures);
         Suite(nameof(VerifyMode7TilePictures), VerifyMode7TilePictures);

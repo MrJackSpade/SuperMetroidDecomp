@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
@@ -108,6 +109,7 @@ internal static class RoomCharacterInstallationVerification
         // A manifest entry that names no background tilemap (#1414) is rejected. The installation is shared and never
         // changes, so the altered manifest is written over a private copy of the installed background directory.
         using var backgroundScratch = new TestScratchDirectory("room-background-manifest-rejection");
+        Directory.CreateDirectory(backgroundScratch.Root);
         foreach (string file in Directory.GetFiles(installed.RoomBackgroundTilemapDirectory))
             File.Copy(file, Path.Combine(backgroundScratch.Root, Path.GetFileName(file)));
         string backgroundManifestPath = Path.Combine(backgroundScratch.Root, RoomBackgroundTilemapArtworkFiles.ManifestFileName);
@@ -180,21 +182,32 @@ internal static class RoomCharacterInstallationVerification
         return vram;
     }
 
+    /// <summary>The retail cartridge the room-art installation contract reads, loaded once for every part.</summary>
+    private static readonly Lazy<CartridgeImportAddressSpace> roomArtworkBus =
+        new(() => CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath));
+
+    /// <summary>The landing site's room header, imported once from <see cref="roomArtworkBus"/>.</summary>
+    private static readonly Lazy<SelectedRoom> landingSite =
+        new(() => SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(roomArtworkBus.Value, 0x91f8));
+
     /// <summary>
-    /// Runs the room-art installation contract, each part timed on its own, over the shared repository installation: the
+    /// The room-art installation contract's parts, each a suite of its own over the shared repository installation: the
     /// parts only read it, and the one that alters a manifest does so in its own copy of that directory.
     /// </summary>
+    internal static RegisteredSuite[] RoomArtworkInstallationSuites() =>
+    [
+        new(nameof(VerifyRoomArtworkRenderParity), () => VerifyRoomArtworkRenderParity(RepositoryInstallation.Installation, roomArtworkBus.Value)),
+        new(nameof(VerifyRoomVisualLayouts), () => VerifyRoomVisualLayouts(RepositoryInstallation.Installation, roomArtworkBus.Value, landingSite.Value)),
+        new(nameof(VerifyXrayRevealVisualInstallation), () => VerifyXrayRevealVisualInstallation(RepositoryInstallation.Installation)),
+        new(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(RepositoryInstallation.Installation, roomArtworkBus.Value, landingSite.Value)),
+    ];
+
+    /// <summary>Runs every part of the room-art installation contract (<see cref="RoomArtworkInstallationSuites"/>).</summary>
     [VerificationCommand("--room-artwork-installation")]
     internal static int RoomArtworkInstallationCommand()
     {
-        string roomArtworkRom = RepositoryRomPath;
-        GameInstallation installed = RepositoryInstallation.Installation;
-        CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(roomArtworkRom);
-        SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        Suite(nameof(VerifyRoomArtworkRenderParity), () => VerifyRoomArtworkRenderParity(installed, bus));
-        Suite(nameof(VerifyRoomVisualLayouts), () => VerifyRoomVisualLayouts(installed, bus, landing));
-        Suite(nameof(VerifyXrayRevealVisualInstallation), () => VerifyXrayRevealVisualInstallation(installed));
-        Suite(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(installed, bus, landing));
+        foreach (RegisteredSuite suite in RoomArtworkInstallationSuites())
+            Suite(suite.Name, suite.Body);
         return 0;
     }
 }

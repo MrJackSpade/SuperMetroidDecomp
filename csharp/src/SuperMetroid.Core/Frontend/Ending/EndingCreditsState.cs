@@ -482,7 +482,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal AffineFloor? Floor()
     {
         EndingFloorShot shot = EndingScreenFloor.ShotOf(Stage.Phase);
-        return shot == EndingFloorShot.None ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot).Shaded(screen.Colours.Shading);
+        return shot == EndingFloorShot.None ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot)
+            .Shaded(screen.Colours.SceneryShading(EndingFloorDefinitions.Scenery[shot]));
     }
 
     /// <summary>
@@ -513,11 +514,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private SpriteSheetFrame Picture(SpriteSheetId sheet, string picture) => InstalledArtwork.SpriteSheet(sheet).Frame(picture);
 
     /// <summary>
-    /// A one-screen plane showing the whole-screen picture <paramref name="picture"/> in the ending's colours (#1467, #1512):
-    /// the phase that shows it shows it whole, never gated by whether its upload has happened (#1515).
+    /// A one-screen plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, in
+    /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole, never gated by whether
+    /// its upload has happened (#1515).
     /// </summary>
-    internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture) =>
-        new(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<PlanePixels>.Zero, screen.Colours.Shading)]);
+    internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, EndingScenery scenery) =>
+        new(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);
 
     /// <summary>
     /// The explosion's one-screen <paramref name="map"/> (#1467, #1515), its picture placed where the screen shows it: its
@@ -529,16 +531,17 @@ internal sealed class EndingCreditsState : IFrontendScreen
         int height = ScreenCells.Y * ScreenGeometry.BackgroundTileSizePixels;
         var corner = new Position16<PlanePixels>(0, height - EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
         return new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
-            EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.Shading)]);
+            EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
     }
 
     /// <summary>The credits roll's plane: its held rows' line pictures (#1467) in the ending's colours (#1512).</summary>
-    internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows), screen.Colours.Shading);
+    internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
+        screen.Colours.SceneryShading(EndingScenery.CreditsRows));
 
     /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane (#1467, #1515), in the ending's colours (#1512).</summary>
     internal PicturedPlane WaitingPlane(Extent16<TilemapCells> size) => new(size,
         [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<PlanePixels>.Zero,
-            screen.Colours.Shading)]);
+            screen.Colours.SceneryShading(EndingScenery.WaitingBackdrop))]);
 
     /// <summary>
     /// The <paramref name="size"/> plane of the text page <paramref name="page"/> (#1467, #1515): the staging page's text as
@@ -550,7 +553,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         SpriteSheet sheet = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingPostCreditsPictures);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
-        PictureShading shading = screen.Colours.Shading;
+        PictureShading shading = screen.Colours.SceneryShading(EndingScenery.PostCreditsText);
         bool twoScreens = size.Y > EndingScreenDefinitions.TilemapHeight;
         if (page == EndingTextScreen.ResultPanel)
         {

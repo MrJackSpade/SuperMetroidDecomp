@@ -37,12 +37,14 @@ internal static class EndingPictureSheetComposer
     /// <summary>Each ending picture sheet: how it is composed and the frames it holds.</summary>
     private static readonly IReadOnlyDictionary<SpriteSheetId, PictureSheet> PictureSheets = new Dictionary<SpriteSheetId, PictureSheet>
     {
-        [SpriteSheetId.EndingCreditsRows] = new(ComposeCredits, () => CreditsRows().Select(row => row.Name)),
+        [SpriteSheetId.EndingCreditsRows] = new(ComposeCredits, () => CreditsRows().Select(row => row.Name), [EndingScenery.CreditsRows]),
         [SpriteSheetId.EndingPostCreditsPictures] = new(ComposePostCredits, () =>
             [EndingPictureNames.WaitingBackdrop, EndingPictureNames.Logo, EndingPictureNames.ResultPanel, EndingPictureNames.CopyrightPanel,
-                EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)]),
-        [SpriteSheetId.EndingWavySamusPicture] = new(ComposeWavySamus, () => [EndingPictureNames.WavySamus]),
-        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => Enum.GetValues<EndingObjectFragmentId>().Select(EndingPictureNames.ExplosionMap)),
+                EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)],
+            [EndingScenery.WaitingBackdrop, EndingScenery.LogoPicture, EndingScenery.PostCreditsText]),
+        [SpriteSheetId.EndingWavySamusPicture] = new(ComposeWavySamus, () => [EndingPictureNames.WavySamus], [EndingScenery.WavySamus]),
+        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => Enum.GetValues<EndingObjectFragmentId>().Select(EndingPictureNames.ExplosionMap),
+            [EndingScenery.ExplosionPictures]),
     };
 
     /// <summary>The ending's picture sheets.</summary>
@@ -50,13 +52,15 @@ internal static class EndingPictureSheetComposer
 
     /// <summary>
     /// Composes ending picture sheet <paramref name="sheet"/> from the installed artwork <paramref name="sources"/> read,
-    /// shaded in every ending shade over its background colours (#1512).
+    /// shaded over its background colours in every ending shade authored for its pictures' scenery (#1512, #1544).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is not an ending picture sheet.</exception>
     internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
     {
-        ComposedSpriteSheet composed = Ensure.Listed(PictureSheets, sheet).Compose(Ensure.NotNull(sources));
-        IReadOnlyList<SheetShade> shades = EndingScreenShades.Pictures(EndingScreenShades.Screen(sources.EndingPalettes, sources.Maps.RoomPaletteFx));
+        PictureSheet pictures = Ensure.Listed(PictureSheets, sheet);
+        ComposedSpriteSheet composed = pictures.Compose(Ensure.NotNull(sources));
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Pictures(EndingScreenShades.Screen(sources.EndingPalettes, sources.Maps.RoomPaletteFx),
+            pictures.Scenery);
         return composed with { Manifest = composed.Manifest with { Shades = SheetShade.Documents(shades) } };
     }
 
@@ -300,10 +304,15 @@ internal static class EndingPictureSheetComposer
         }
     }
 
-    /// <summary>An ending picture sheet: how it is composed from the installed artwork, and the frames it holds.</summary>
+    /// <summary>
+    /// An ending picture sheet: how it is composed from the installed artwork, the frames it holds, and the scenery its
+    /// pictures are, whose colour effects it is pre-coloured in (#1544).
+    /// </summary>
     /// <param name="Compose">Composes the sheet.</param>
     /// <param name="Frames">The sheet's frame names.</param>
-    private sealed record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames);
+    /// <param name="Scenery">The scenery its pictures are.</param>
+    private sealed record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames,
+        EndingScenery[] Scenery);
 
     /// <summary>A pictured row of the credits roll.</summary>
     /// <param name="Name">The row's picture name.</param>

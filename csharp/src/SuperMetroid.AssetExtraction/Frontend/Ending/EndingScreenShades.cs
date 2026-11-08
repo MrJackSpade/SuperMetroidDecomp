@@ -13,9 +13,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <summary>
 /// The shades the import pre-colours the ending's sheets in (#1512), over the screen's colours: each colour load, each fade
 /// level of each faded group, each flash, each logo crossfade step and each palette-effect record the ending's objects show.
-/// Each ending sheet takes the part of each that falls on its inks: a picture its background colours, a floor all of them,
-/// and a sprite sheet, under each actor colouring and only for the effects authored for its actors (#1544), its colouring's
-/// group over the palette-inheriting parts' inks and its own-palette parts' groups over their own inks.
+/// Each ending sheet takes the part of each that falls on its inks, only for the effects authored for what it holds
+/// (#1544): a picture sheet its background colours and a floor all of them, for the effects authored for its scenery, and a
+/// sprite sheet, under each actor colouring and for the effects authored for its actors, its colouring's group over the
+/// palette-inheriting parts' inks and its own-palette parts' groups over their own inks.
 /// </summary>
 internal static class EndingScreenShades
 {
@@ -83,9 +84,25 @@ internal static class EndingScreenShades
         return shades;
     }
 
-    /// <summary>The part of each of <paramref name="screen"/> that falls on a picture's background colours, whose inks are the screen's.</summary>
-    internal static IReadOnlyList<SheetShade> Pictures(IReadOnlyList<SheetShade> screen) =>
-        [.. Ensure.NotNull(screen).Select(shade => Within(shade, 0, EndingScreenInks.SpriteFirst, 0))];
+    /// <summary>
+    /// The shades of <paramref name="screen"/> authored for any of <paramref name="scenery"/> (#1544), the background
+    /// pictures or floor one sheet holds: a floor's inks are the screen's colours, so each covers the floor's colours it
+    /// writes.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A screen shade is of no colour effect the ending shows.</exception>
+    internal static IReadOnlyList<SheetShade> Scenery(IReadOnlyList<SheetShade> screen, IReadOnlyCollection<EndingScenery> scenery)
+    {
+        Ensure.NotNull(scenery);
+        return [.. Ensure.NotNull(screen).Where(shade => scenery.Any(shown => EndingColourOwners.Shows(shown, shade.Shade)))];
+    }
+
+    /// <summary>
+    /// The part of each of <paramref name="screen"/> authored for any of <paramref name="scenery"/> (#1544), the pictures one
+    /// sheet holds, that falls on a picture's background colours, whose inks are the screen's.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A screen shade is of no colour effect the ending shows.</exception>
+    internal static IReadOnlyList<SheetShade> Pictures(IReadOnlyList<SheetShade> screen, IReadOnlyCollection<EndingScenery> scenery) =>
+        [.. Scenery(screen, scenery).Select(shade => Within(shade, 0, EndingScreenInks.SpriteFirst, 0))];
 
     /// <summary>
     /// A sprite sheet's shades from <paramref name="screen"/> (#1513, #1544): each colouring's drawn shade, its own sprite

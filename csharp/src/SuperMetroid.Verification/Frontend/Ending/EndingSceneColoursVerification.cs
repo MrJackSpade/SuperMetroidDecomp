@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>
 /// Checks that each ending scene shows its own colours (#1544): a scene's whole screen of colours starts it, so nothing an
 /// earlier scene showed shows in it, while the scene's own loads, fades and effects stay; cleared palette effects stop
-/// showing their records; each actor shows only the effects authored for it.
+/// showing their records; each actor, background picture and floor shows only the effects authored for it.
 /// </summary>
 internal static class EndingSceneColoursVerification
 {
@@ -66,9 +66,27 @@ internal static class EndingSceneColoursVerification
                 EndingShades.Under(planet, EndingShades.Faded(EndingFade.ExplodingPlanet, 5)),
                 EndingShades.Under(planet, EndingShades.Flashed(EndingFlash.PlanetGlow)), EndingShades.Under(planet, planetFadeOut)]),
             "the planet shows its fade, its glow's flash and its fade-out, in the order shown");
-        AssertTrue(actors.Shading.Shades.Contains(gunshipRecord), "the backgrounds still show the gunship's record");
+        // Each background picture and floor shows only the effects authored for it (#1544): the gunship's floor shows its
+        // scene's colours and its emergence, none of the planet's effects, and the explosion's pictures not the gunship's.
+        AssertTrue(actors.SceneryShading(EndingScenery.FlyawayFloor).Shades.SequenceEqual([explosionColours, gunshipRecord]),
+            "the gunship's floor shows its scene's colours and its emergence, and none of the planet's effects");
+        AssertTrue(actors.SceneryShading(EndingScenery.ExplosionPictures).Shades.SequenceEqual([explosionColours]),
+            "the explosion's pictures show their scene's colours and not the gunship's emergence");
+
+        // The post-credits shot's turning floor is drawn in the shot's colours, so it keeps the shot's fade and restore,
+        // and none of Samus shooting's fade.
+        var shot = new EndingColours();
+        shot.Load(EndingColourLoad.PostCredits, black);
+        shot.Fade(EndingFade.Shot, 7);
+        shot.Fade(EndingFade.ShootingSamus, 3);
+        AssertTrue(shot.SceneryShading(EndingScenery.PostCreditsShotFloor).Shades.SequenceEqual(
+                [EndingShades.Loaded(EndingColourLoad.PostCredits), EndingShades.Faded(EndingFade.Shot, 7)]),
+            "the post-credits shot's floor fades with the shot, not with Samus shooting");
+        shot.Load(EndingColourLoad.RestoredShot, null);
+        AssertEqual(EndingShades.Loaded(EndingColourLoad.RestoredShot), shot.SceneryShading(EndingScenery.PostCreditsShotFloor).Shades[^1],
+            "the post-credits shot's floor shows the shot's restored colours");
         Console.WriteLine("  Ending scene colours: each scene shows its own colours, loads and effects within a scene, cleared effects end, "
-            + "each actor shows only its own effects.");
+            + "each actor, picture and floor shows only its own effects.");
     }
 
     /// <summary>Runs the ending scene colour checks.</summary>

@@ -25,7 +25,7 @@ internal static class EndingCreditsPresentation
         {
             bool crossfading = ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted;
             if (crossfading)
-                layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo),
+                layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo, EndingScenery.LogoPicture),
                     Position16<PlanePixels>.Zero));
             // While the logo's picture fades in, its sprites glow over it. The logo is drawn from the shooting scene's
             // sheet, which holds it.
@@ -60,7 +60,7 @@ internal static class EndingCreditsPresentation
             {
                 // The wavy Samus glows over the waiting backdrop where it is drawn.
                 int age = EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer;
-                layers.Add(new AddedPicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus),
+                layers.Add(new AddedPicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus, EndingScenery.WavySamus),
                     PostCreditsLayer(ending), VerticalScroll: EndingWavySamus.VerticalScrollAtAge(age))
                 {
                     HorizontalWave = EndingWavySamus.WaveAtAge(age),

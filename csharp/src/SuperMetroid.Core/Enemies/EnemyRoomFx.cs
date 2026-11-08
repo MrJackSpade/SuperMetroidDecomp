@@ -16,9 +16,9 @@ internal sealed class EnemyRoomFx
     /// </summary>
     internal void BindRoomFx(RoomFxOverlayState roomFx) => FxOverlay = roomFx;
 
-    /// <summary>Applies a liquid target, packed velocity, and delay at an AI command boundary so the FX timer is not reset each frame.</summary>
-    internal void PublishLiquidMotion(int target, int velocity, int delay) =>
+    /// <summary>Applies a liquid target, velocity, and delay at an AI command boundary so the FX timer is not reset each frame.</summary>
+    internal void PublishLiquidMotion(int target, SignedEightEight velocity, int delay) =>
         // Execute at the AI command, not from retained state each frame:
         // repeated application would continually reset the liquid handler's delay.
-        FxOverlay?.SetLiquidMotion(targetYPosition: target, packedYVelocity: velocity, timer: delay);
+        FxOverlay?.SetLiquidMotion(targetYPosition: target, yVelocity: velocity, timer: delay);
 }

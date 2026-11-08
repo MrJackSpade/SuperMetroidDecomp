@@ -64,7 +64,7 @@ internal sealed class EscapeRoomEffects
         if (type is { } quake)
         {
             enemies.Earthquake.EarthquakeType = quake;
-            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);
+            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
         }
         if (setup == RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking)
             _system.SetEvent(SuperMetroid.Core.Progression.EventNumber.ZebesTimebombSet);

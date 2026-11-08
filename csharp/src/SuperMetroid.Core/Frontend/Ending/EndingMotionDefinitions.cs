@@ -51,6 +51,12 @@ public static class EndingMotionDefinitions
     /// <summary>The fly-to-camera phase's velocity decrease per update: 1/256 pixel per update squared.</summary>
     public static SignedSixteenSixteen PlanetAcceleration => SignedSixteenSixteen.FromRaw(256);
 
+    /// <summary>The starfield's flyaway speed when the fast planet escape starts it: a quarter pixel an update to the right.</summary>
+    public static SignedSixteenSixteen StarsFlyawayInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(4);
+
+    /// <summary>The starfield's flyaway slowing each update, applied before it moves: 32 65536ths of a pixel an update.</summary>
+    public static SignedSixteenSixteen StarsFlyawayDeceleration => SignedSixteenSixteen.FromRaw(32);
+
     /// <summary>The credits' vertical scroll per update: half a pixel.</summary>
     public static SignedSixteenSixteen CreditsScrollVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 

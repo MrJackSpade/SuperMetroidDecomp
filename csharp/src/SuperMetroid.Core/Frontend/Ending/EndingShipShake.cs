@@ -32,16 +32,16 @@ public static class EndingShipShake
     private const int SlowPositiveSteps = SlowFirstPositiveRun + SlowSecondPositiveRun;
 
     /// <summary>The displacement of one whole cycle, fast or slow: two pixels.</summary>
-    private static readonly int CycleDisplacement = SignedSixteenSixteen.FromParts(2, 0).RawValue;
+    private static readonly SignedSixteenSixteen CycleDisplacement = SignedSixteenSixteen.FromParts(2, 0);
     /// <summary>The per-step fast delta that yields the cycle displacement.</summary>
-    private static readonly int FastAmplitude =
-        CycleDisplacement / (2 * FastPositiveSteps - EndingMotionDefinitions.PlanetFastPatternLength);
+    private static readonly SignedSixteenSixteen FastAmplitude =
+        CycleDisplacement.DividedBy(2 * FastPositiveSteps - EndingMotionDefinitions.PlanetFastPatternLength);
     /// <summary>The per-step slow delta that yields the cycle displacement.</summary>
-    private static readonly int SlowAmplitude =
-        CycleDisplacement / (2 * SlowPositiveSteps - EndingMotionDefinitions.PlanetSlowPatternLength);
+    private static readonly SignedSixteenSixteen SlowAmplitude =
+        CycleDisplacement.DividedBy(2 * SlowPositiveSteps - EndingMotionDefinitions.PlanetSlowPatternLength);
 
     /// <summary>Fast step <paramref name="index"/>'s displacement: repeated positive/negative runs and a shorter final positive run.</summary>
-    public static int PlanetFastDelta(int index)
+    public static SignedSixteenSixteen PlanetFastDelta(int index)
     {
         if ((uint)index >= EndingMotionDefinitions.PlanetFastPatternLength) throw new ArgumentOutOfRangeException(nameof(index));
         int completeRuns = EndingMotionDefinitions.PlanetFastPatternLength / FastRunPeriod * FastRunPeriod;
@@ -52,7 +52,7 @@ public static class EndingShipShake
     }
 
     /// <summary>Slow step <paramref name="index"/>'s displacement: two positive runs separated by negative steps.</summary>
-    public static int PlanetSlowDelta(int index)
+    public static SignedSixteenSixteen PlanetSlowDelta(int index)
     {
         if ((uint)index >= EndingMotionDefinitions.PlanetSlowPatternLength) throw new ArgumentOutOfRangeException(nameof(index));
         int secondStart = SlowFirstPositiveRun + SlowFirstNegativeRun;

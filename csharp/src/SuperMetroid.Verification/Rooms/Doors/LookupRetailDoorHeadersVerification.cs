@@ -38,14 +38,14 @@ internal static class LookupRetailDoorHeadersVerification
     private static void VerifyDoorSamusSpeedDecoding()
     {
         AssertEqual(DoorSamusSpeed.AxisDefault, DoorRecordCodec.DecodeSamusSpeed(0x8000), "a negative distance word is the axis default");
-        AssertEqual(384, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Up), "vertical axis default push");
-        AssertEqual(384, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Down), "vertical axis default push");
-        AssertEqual(200, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Left), "horizontal axis default push");
-        AssertEqual(200, DoorSamusSpeed.AxisDefault.StepSubpixels(DoorDirection.Right), "horizontal axis default push");
+        AssertEqual(SignedEightEight.FromSignedRaw(384), DoorSamusSpeed.AxisDefault.Step(DoorDirection.Up), "vertical axis default push");
+        AssertEqual(SignedEightEight.FromSignedRaw(384), DoorSamusSpeed.AxisDefault.Step(DoorDirection.Down), "vertical axis default push");
+        AssertEqual(SignedEightEight.FromSignedRaw(200), DoorSamusSpeed.AxisDefault.Step(DoorDirection.Left), "horizontal axis default push");
+        AssertEqual(SignedEightEight.FromSignedRaw(200), DoorSamusSpeed.AxisDefault.Step(DoorDirection.Right), "horizontal axis default push");
         AssertEqual(DoorSamusSpeed.SubpixelsPerStep(0x01c0), DoorRecordCodec.DecodeSamusSpeed(0x01c0), "a door's own distance word");
-        AssertEqual(0x01c0, DoorRecordCodec.DecodeSamusSpeed(0x01c0).StepSubpixels(DoorDirection.Up), "a door's own push ignores the axis");
+        AssertEqual(SignedEightEight.FromSignedRaw(0x01c0), DoorRecordCodec.DecodeSamusSpeed(0x01c0).Step(DoorDirection.Up), "a door's own push ignores the axis");
         AssertEqual(DoorSamusSpeed.None, DoorRecordCodec.DecodeSamusSpeed(0), "a zero distance word is no push");
-        AssertEqual(0, DoorSamusSpeed.None.StepSubpixels(DoorDirection.Left), "no push");
+        AssertEqual(SignedEightEight.Zero, DoorSamusSpeed.None.Step(DoorDirection.Left), "no push");
     }
 
     /// <summary>Accepts exactly the 597 physical door headers and rejects pseudo-doors and interior bytes.</summary>

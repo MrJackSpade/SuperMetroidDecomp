@@ -127,14 +127,12 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>
     /// Samus's fixed-point displacement for one scroll update: the door's speed (or the
-    /// axis default), added along right/down and subtracted along left/up, wrapping at
-    /// 32 bits.
+    /// axis default), added along right/down and subtracted along left/up.
     /// </summary>
     internal static FixedVector<RoomPixels> GetSamusStep(DoorDefinition door)
     {
-        int magnitude = SixteenSixteen.FromEightEight(door.SamusSpeed.StepSubpixels(door.Orientation.Direction));
-        var step = SignedSixteenSixteen.FromRaw(magnitude);
-        var back = SignedSixteenSixteen.FromRaw(-magnitude);
+        SignedSixteenSixteen step = door.SamusSpeed.Step(door.Orientation.Direction).ToSixteenSixteenDelta();
+        SignedSixteenSixteen back = -step;
         return door.Orientation.Direction switch
         {
             DoorDirection.Right => new(step, SignedSixteenSixteen.Zero),

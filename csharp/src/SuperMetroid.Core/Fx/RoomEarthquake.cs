@@ -28,11 +28,10 @@ internal sealed class RoomEarthquake
 
     /// <summary>
     /// Room-shake type selecting background/projectile offsets and whether actors shake; types 0 through 35 are
-    /// consumed by <see cref="Advance"/>, while 36 and above are ignored there. Producers write a type from 0 through
-    /// 65535 (a sixteen-bit word); every test is an ordinary comparison of that non-negative number, so values
-    /// outside the range are rejected rather than wrapped.
+    /// consumed by <see cref="Advance"/>, while 36 and above are ignored there. Producers write their authored types;
+    /// every test is an ordinary comparison of that non-negative number, so a negative type is rejected.
     /// </summary>
-    public int EarthquakeType { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int EarthquakeType { get; set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>
     /// Displacement produced by the most recent <see cref="Advance"/>. It is deliberately a delta rather than

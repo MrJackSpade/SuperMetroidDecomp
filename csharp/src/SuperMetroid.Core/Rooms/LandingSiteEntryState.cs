@@ -13,11 +13,11 @@ public sealed record LandingSiteEntryState(
     int UpScroller,
     int DownScroller)
 {
-    /// <summary>The room's up-scroller distance in pixels, 0 through 255.</summary>
-    public int UpScroller { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, UpScroller);
+    /// <summary>The room's up-scroller distance in pixels; a distance, so never negative.</summary>
+    public int UpScroller { get; } = Ensure.AtLeastZero(UpScroller);
 
-    /// <summary>The room's down-scroller distance in pixels, 0 through 255.</summary>
-    public int DownScroller { get; } = Ensure.BetweenInclusive(0, byte.MaxValue, DownScroller);
+    /// <summary>The room's down-scroller distance in pixels; a distance, so never negative.</summary>
+    public int DownScroller { get; } = Ensure.AtLeastZero(DownScroller);
 
     /// <summary>Validated area projected from the logical room identity.</summary>
     public AreaId AreaIndex => RoomIdentity.Area;

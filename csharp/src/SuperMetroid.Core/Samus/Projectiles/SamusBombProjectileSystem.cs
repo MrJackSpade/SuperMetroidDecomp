@@ -1064,12 +1064,12 @@ public sealed class SamusBombProjectileSystem
     {
         SamusBombJumpDirection publishedDirection = SamusBombJumpDirection.None;
 
-        // The bomb-jump scan runs in ascending slot order. Only damage-bearing placed
+        // The bomb-jump scan runs in ascending slot order. Only occupied slots holding placed
         // bombs that have not struck an enemy reach the geometric test; spread bombs never launch Samus.
         for (int slotIndex = 0; slotIndex < SlotCount; slotIndex++)
         {
             SamusBombProjectileSlot slot = _slots[slotIndex];
-            if (slot.Damage == 0 ||
+            if (!slot.IsActive ||
                 slot.IsBombSpread ||
                 slot.Type.Family.IsExplosion ||
                 slot.IsSpent)

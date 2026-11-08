@@ -33,7 +33,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Whether a placed bomb's explosion has reacted with the five-block cross of terrain around it; it does so once.</summary>
     public bool HasReactedToTerrain { get; internal set; }
 
-    /// <summary>Damage from the bomb's projectile data; zero excludes the slot from damage-bearing overlap tests.</summary>
+    /// <summary>Damage from the bomb's projectile data, which every bomb carries; zero while the slot is empty.</summary>
     public int Damage
     {
         get;
@@ -63,7 +63,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>The bomb's fuse, and after detonation its explosion phase counter.</summary>
     public WrappingCountdown BombTimer { get; internal set; }
 
-    /// <summary>A live program marks the slot active.</summary>
+    /// <summary>Whether the slot holds a bomb: a placed bomb runs its program until the slot is cleared.</summary>
     public bool IsActive => Cursor is not null;
 
     /// <summary>Clears the slot's state before reuse or deletion.</summary>

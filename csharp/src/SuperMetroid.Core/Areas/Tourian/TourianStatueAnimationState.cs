@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>
 /// The Tourian statue room's shared animation state: which boss statues are still animating, whether one statue is
 /// already playing its release, and whether all four have released. The game sets and clears these bits
-/// independently (OR and AND-NOT), so they compose.
+/// independently (OR and AND-NOT), so they compose. The values are arbitrary and nothing reads them.
 /// </summary>
 [Flags]
 public enum TourianStatueAnimationState
@@ -27,5 +27,5 @@ public enum TourianStatueAnimationState
     AllReleased = 1 << 4,
 
     /// <summary>One statue is playing its release; the others keep idling until it finishes, so releases play one at a time.</summary>
-    ReleaseInProgress = 1 << 15,
+    ReleaseInProgress = 1 << 5,
 }

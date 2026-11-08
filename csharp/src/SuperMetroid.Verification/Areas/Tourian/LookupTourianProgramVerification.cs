@@ -79,7 +79,7 @@ internal static class LookupTourianProgramVerification
             {
                 case AnimatedTileInstruction.SetTourianStatueAnimationState:
                 {
-                    var flags = (TourianStatueAnimationState)operand;
+                    TourianStatueAnimationState flags = TourianStatueNativeWords.AnimationState(operand, at);
                     if (flags == TourianStatueAnimationState.ReleaseInProgress)
                         steps.Add(Cue(TourianStatueTileCueKind.ClaimRelease));
                     else
@@ -91,8 +91,8 @@ internal static class LookupTourianProgramVerification
                 }
                 case AnimatedTileInstruction.ResetTourianStatueAnimationState:
                 {
-                    var flags = (TourianStatueAnimationState)operand;
-                    if ((flags & TourianStatueAnimationState.ReleaseInProgress) != 0)
+                    TourianStatueAnimationState flags = TourianStatueNativeWords.AnimationState(operand, at);
+                    if ((flags & TourianStatueAnimationState.ReleaseInProgress) != TourianStatueAnimationState.None)
                     {
                         AssertEqual(TourianStatueAnimationState.ReleaseInProgress | definition.AnimatingFlag, flags,
                             $"{at}: release finish clears the turn with the statue's flag");

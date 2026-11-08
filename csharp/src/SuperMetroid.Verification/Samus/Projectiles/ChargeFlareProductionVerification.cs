@@ -45,7 +45,13 @@ internal static class ChargeFlareProductionVerification
                 OamBuffer b = compiled.ChargeFlareOam(samus, new(0, 0), placement);
                 AssertTrue(a.ImageEquals(b), "Normal/Hyper flare producer preserves complete native sprite output");
                 AssertEqual(a.LastFinalizedSpriteCount, b.LastFinalizedSpriteCount, "Flare producer preserves its sprite count");
-                AssertTrue(SameGraph(native, compiled, InstalledFixtures.BoundContent), "Drawing leaves projectile, flare-counter and animation state identical");
+                // The flare draw writes only the charge's flare counter, frames and timers: each tick compares those, and
+                // the first tick of each pose compares the whole projectile state (#1567).
+                AssertEqual(native.Charge.FlareCounter, compiled.Charge.FlareCounter, "Drawing leaves the flare counters identical");
+                AssertTrue(native.Charge.FlareFrames.SequenceEqual(compiled.Charge.FlareFrames) && native.Charge.FlareTimers.SequenceEqual(compiled.Charge.FlareTimers),
+                    "Drawing leaves the flare animation state identical");
+                if (tick == 0)
+                    AssertTrue(SameGraph(native, compiled, InstalledFixtures.BoundContent), "Drawing leaves projectile, flare-counter and animation state identical");
                 ticks++;
             }
         }

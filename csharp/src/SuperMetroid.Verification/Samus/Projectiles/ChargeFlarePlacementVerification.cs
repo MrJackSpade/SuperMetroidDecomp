@@ -33,7 +33,6 @@ internal static class ChargeFlarePlacementVerification
     /// <summary>Compares stock flare placement across pose, direction, coordinate, and Mode 7 cases, then checks state isolation and malformed-document rejection.</summary>
     internal static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
-        Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
         byte[] json = ChargeFlarePlacementExtractor.Extract(bus);
         var stock = ChargeFlarePlacementFile.Load(new MemoryStream(json));
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock));

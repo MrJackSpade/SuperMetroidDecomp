@@ -5,8 +5,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlareProductionVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFlarePresentationVerification;
-using static SuperMetroid.Verification.Samus.Grapple.GrapplePointAnimationVerification;
-using static SuperMetroid.Verification.Samus.Grapple.GrappleTileArtworkVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
@@ -22,8 +20,7 @@ using SuperMetroid.Verification.Harness;
 internal static class ChargeFlareCompositionsVerification
 {
     /// <summary>Checks extracted parts across selector, position, and OAM capacity cases, then rejects malformed assets.</summary>
-    internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
-        bool flareOnly = false)
+    internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus)
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSprites.Load(new MemoryStream(json));
@@ -35,11 +32,6 @@ internal static class ChargeFlareCompositionsVerification
             roomAssets, maps));
         Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, body,
             roomAssets, maps, InstalledFixtures.Projectiles.GrappleTiles));
-        if (!flareOnly)
-        {
-            VerifyGrapplePointAnimation(bus);
-            VerifyGrappleTileArtwork(bus);
-        }
         int cases = 0;
         for (ushort selector = 0; selector < ChargeFlareSpriteSelection.Selectors.Count; selector++)
         {
@@ -107,8 +99,7 @@ internal static class ChargeFlareCompositionsVerification
     {
         string flareRom = RepositoryRomPath;
         Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(flareRom)),
-            flareOnly: true));
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(flareRom))));
         return 0;
     }
 }

@@ -129,6 +129,7 @@ using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleBodyPlacementVerification;
+using static SuperMetroid.Verification.Samus.Grapple.GrapplePointAnimationVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleCompiledMathVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleConnectionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
@@ -648,6 +649,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyProjectileFrameBindings), () => VerifyProjectileFrameBindings(LoadRepositoryRom())),
         new(nameof(VerifyChargeFlareDefinitions), () => VerifyChargeFlareDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyChargeFlarePlacement), () => VerifyChargeFlarePlacement(LoadRepositoryRom())),
+        new(nameof(VerifyGrapplePointAnimation), () => VerifyGrapplePointAnimation(LoadRepositoryRom())),
         new(nameof(VerifyProjectileVisualParts), () => VerifyProjectileVisualParts()),
         new(nameof(VerifyProjectileCompositions), () => VerifyProjectileCompositions(LoadRepositoryRom())),
         new(nameof(VerifyProjectileOrigins), () => VerifyProjectileOrigins(LoadRepositoryRom())),

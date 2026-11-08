@@ -170934,6 +170934,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Samus.Grapple.GrappleFlarePresentationVerification.FlareState",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Grapple/GrappleFlarePresentationVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Verification.Samus.Grapple.GrappleGatesVerification",
       "kind": "static class",
       "scope": "test",

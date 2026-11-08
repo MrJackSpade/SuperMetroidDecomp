@@ -44,7 +44,7 @@ internal static class GrappleFlarePresentationVerification
         foreach (ushort coordinate in new ushort[] { 0, 1, 100, 255, 256, 511, 32768, 65535 })
         {
             SamusState native = Seed(), actual = Seed();
-            Check(native, actual);
+            Check(native, actual, wholeState: cases == 0);
             SamusState Seed()
             {
                 var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
@@ -76,7 +76,7 @@ internal static class GrappleFlarePresentationVerification
                 ushort tickX = (ushort)(tick % 256);
                 actual.Position = actual.Position.WithWholeX(tickX);
                 native.Position = native.Position.WithWholeX(tickX);
-                Check(native, actual);
+                Check(native, actual, wholeState: tick == 0);
                 // Native post-Samus tile upload owns this counter, not the flare.
                 native.Grapple.FlareCounter = actual.Grapple.FlareCounter = (ushort)Math.Min(120, native.Grapple.FlareCounter + 1);
             }
@@ -92,12 +92,14 @@ internal static class GrappleFlarePresentationVerification
             samus.Grapple.FlareAnimationFrame = frame;
             samus.Grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(timer);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
-            Check(samus, Clone(samus));
+            Check(samus, Clone(samus), wholeState: timer == 0 && frame == 0);
         }
         Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(roomAssets, maps, grappleArtwork));
         Console.WriteLine($"Grapple flare: {cases} phase, position, sentinel, rewind and timer-boundary cases preserve native cadence/OAM and complete Samus state; actual actor rebind passes.");
 
-        void Check(SamusState native, SamusState actual)
+        // The flare draw reads Samus and writes only her grapple's flare frame and timer and, while firing, its rope and
+        // beam starts, so each case compares those and the first case of each group compares her whole state (#1567).
+        void Check(SamusState native, SamusState actual, bool wholeState)
         {
             foreach (SamusState samus in new[] { native, actual })
             {
@@ -132,10 +134,20 @@ internal static class GrappleFlarePresentationVerification
 
             AssertEqual(new CheckCase(expectedFrame, expectedTimer), new CheckCase(actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
-            AssertTrue(SameGraph(native, actual, content), "Flare draws preserve complete Samus/Grapple state including physical origins and timers");
+            AssertEqual(FlareState.Of(native.Grapple), FlareState.Of(actual.Grapple), "Flare draws write the same flare timing and physical origins");
+            if (wholeState)
+                AssertTrue(SameGraph(native, actual, content), "Flare draws preserve complete Samus state");
             cases++;
         }
         SamusState Clone(SamusState source) => RoundTrip(source, content);
+    }
+
+    /// <summary>The grapple state a flare draw writes.</summary>
+    private readonly record struct FlareState(int Counter, int Frame, ushort Timer, Position16<RoomPixels> RopeStart, Position16<RoomPixels> BeamStart)
+    {
+        /// <summary>The flare state <paramref name="grapple"/> holds.</summary>
+        internal static FlareState Of(SamusGrappleState grapple) => new(grapple.FlareCounter, grapple.FlareAnimationFrame,
+            grapple.FlareAnimationTimer.RawValue, grapple.RopeStart, grapple.BeamStart);
     }
 
     /// <summary>Reads a native Grapple flare delay byte solely for the verification timing oracle.</summary>

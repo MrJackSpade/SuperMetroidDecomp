@@ -194,7 +194,7 @@ internal sealed class CeresRidleyBabyScene
             if (AdvanceCeresBabyDrawInstruction(state) is { } babyFrame)
             {
                 _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresBaby), babyFrame,
-                    state.BabyPosition.Whole.ToScreen(camera), EnemyShades.HitFlashed);
+                    state.BabyPosition.Whole.ToScreen(camera), EnemyShades.HurtFlashLook);
             }
         }
 

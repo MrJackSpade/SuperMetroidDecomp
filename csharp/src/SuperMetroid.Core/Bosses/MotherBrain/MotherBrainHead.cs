@@ -133,7 +133,7 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // The custom draw hook bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
-                (head.FlashTimer % 2 != 0) ? EnemyShades.HitFlashed : state.Colours.OwnShading),
+                (head.FlashTimer % 2 != 0) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))

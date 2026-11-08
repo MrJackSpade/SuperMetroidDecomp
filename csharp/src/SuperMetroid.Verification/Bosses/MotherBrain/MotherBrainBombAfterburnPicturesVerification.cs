@@ -26,7 +26,7 @@ internal static class MotherBrainBombAfterburnPicturesVerification
     {
         EnemyPresentation presentation = SpawnedObjectFixtures.Presentation(TourianRoomStateDefinitions.MotherBrainDefault);
         // The graphics Ridley's projectile code spawns every fireball and afterburn stage with.
-        SpriteGraphics graphics = SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours);
+        SpriteGraphics graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         var frames = RidleyFireballVisualDefinitions.ShownProjectileFrames
             .Where(entry => ChainKinds.Contains(entry.Key.Kind))
             .Select(entry => entry.Value)

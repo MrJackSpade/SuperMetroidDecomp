@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     /// The graphics the production-drawn checks give a projectile: the enemy projectiles' colours, palette row five, at
     /// character zero, where every set composes each object it can spawn (#1392).
     /// </summary>
-    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours);
+    private static readonly SpriteGraphics SpawnedGraphics = SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook);
 
     /// <summary>Projectile kinds whose typed programs (#641) present frames by key instead of running a native list.</summary>
     private static readonly HashSet<RoomEnemyProjectileKind> TypedProgramKinds =
@@ -652,7 +652,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static PictureShading SharedSpawnShading(EnemyDefinitionId spawner) =>
             spawner is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
                 ? new MotherBrainColours().OwnShading
-                : EnemyShades.InEnemyProjectileColours;
+                : EnemyShades.InProjectileLook;
 
         // The spawner's set loaded, its artwork sequences at a step where the frame is drawn.
         static RoomEnemySystem SpawnerSystem(InstalledEnemyArtwork artwork, EnemyDefinitionId spawner, EnemyProjectileFrameId frame)

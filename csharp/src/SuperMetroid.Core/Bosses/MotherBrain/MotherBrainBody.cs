@@ -98,7 +98,7 @@ internal sealed class MotherBrainBody
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.Invisible);
-        body.Shading = EnemyShades.HitFlashed;
+        body.Shading = EnemyShades.HurtFlashLook;
 
         _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
         {
@@ -372,7 +372,7 @@ internal sealed class MotherBrainBody
         MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            graphics: SpriteGraphics.SharedIn(EnemyShades.HitFlashed));
+            graphics: SpriteGraphics.SharedIn(EnemyShades.HurtFlashLook));
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.Graphics = SpriteGraphics.SharedIn(state.Colours.OwnShading);

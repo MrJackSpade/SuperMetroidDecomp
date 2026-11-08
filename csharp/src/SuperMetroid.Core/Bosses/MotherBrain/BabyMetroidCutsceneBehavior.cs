@@ -189,7 +189,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
-        slot.Shading = baby.HitFlashPaletteShown ? EnemyShades.HitFlashed : colours.BabyShading;
+        slot.Shading = baby.HitFlashPaletteShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
         slot.Health = baby.Health;
     }
 

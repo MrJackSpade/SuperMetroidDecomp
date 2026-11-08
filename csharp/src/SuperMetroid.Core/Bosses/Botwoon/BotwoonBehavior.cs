@@ -746,7 +746,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 _spriteObjects.SpawnRoomSpriteObject(
                     new((_room.Random.Generate() & 31) + 232, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
-                    graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
+                    graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
 
@@ -758,7 +758,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     _spriteObjects.SpawnRoomSpriteObject(
                         new((_room.Random.Generate() & 63) + 224, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
-                        graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
+                        graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }
             }
         }
@@ -982,7 +982,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot head = _head ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.");
         segment.Graphics = segment.Graphics.In(head.FlashTimer != 0 && (randomEnemyCounter & 2) != 0
-            ? EnemyShades.HitFlashed
+            ? EnemyShades.HurtFlashLook
             : (BotwoonState ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.")).BodyShading);
     }
 
@@ -1007,7 +1007,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
         // The landed segment hands its animation to the shared big-explosion list.
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
-        segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours);
+        segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);

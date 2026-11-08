@@ -24,7 +24,7 @@ internal sealed class RidleyColours : IGameplayShadingSource
     internal PictureShading SpriteShading(bool flashing)
     {
         PictureShading laid = Sprites.Over(PictureShading.Standard);
-        return flashing ? laid.With(EnemyShades.HitFlash) : laid;
+        return flashing ? laid.With(EnemyShades.HurtFlash) : laid;
     }
 
     /// <inheritdoc />

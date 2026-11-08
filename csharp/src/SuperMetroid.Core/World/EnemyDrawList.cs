@@ -223,7 +223,7 @@ internal sealed class EnemyDrawList
         // it lies over the enemy's own shading: pixels it moves show the selected row, and pixels whose row the selection
         // leaves as it is keep showing what the enemy's own effects laid there.
         if (slot.FlashTimer != 0 && (_frameContext.RandomEnemyCounter & 2) != 0)
-            return slot.Shading.With(EnemyShades.HitFlash);
+            return slot.Shading.With(EnemyShades.HurtFlash);
 
         if (slot.FrozenTimer != 0 &&
             (slot.FrozenTimer >= 90 || (slot.FrozenTimer / 2 % 2 != 0)))

@@ -32,7 +32,7 @@ internal static class RidleyHitFlashVerification
     {
         var colours = new RidleyColours();
         colours.Sprites.Lay(RidleyShades.NorfairStart);
-        AssertTrue(colours.SpriteShading(true).Shades.SequenceEqual([RidleyShades.NorfairStart, EnemyShades.HitFlash]),
+        AssertTrue(colours.SpriteShading(true).Shades.SequenceEqual([RidleyShades.NorfairStart, EnemyShades.HurtFlash]),
             "Ridley's flashing draw lays the hurt flash after the shades his encounter laid");
         AssertTrue(colours.SpriteShading(false).Shades.SequenceEqual([RidleyShades.NorfairStart]),
             "Ridley's ordinary draw shows the shades his encounter laid");
@@ -50,7 +50,7 @@ internal static class RidleyHitFlashVerification
 
         Dictionary<string, SpriteSheetShadeDocument> shades = sheet.Manifest.Shades
             ?? throw new InvalidOperationException("Ridley's sheet installs its shades.");
-        SpriteSheetShadeDocument flash = shades[EnemyShades.HitFlash.Key];
+        SpriteSheetShadeDocument flash = shades[EnemyShades.HurtFlash.Key];
         AssertTrue(flash.Inks.SequenceEqual(painted), "The hurt flash lists every ink Ridley paints, those whose flash colour equals their own among them");
         for (int index = 0; index < flash.Inks.Length; index++)
         {

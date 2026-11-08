@@ -359,7 +359,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
         body.Shading = originalShading;
         SpawnPowampSpikeBurst(body);
-        body.Shading = EnemyShades.InEnemyProjectileColours;
+        body.Shading = EnemyShades.InProjectileLook;
     }
 
     /// <summary>Copies common shot/freeze presentation from the body to its balloon.</summary>

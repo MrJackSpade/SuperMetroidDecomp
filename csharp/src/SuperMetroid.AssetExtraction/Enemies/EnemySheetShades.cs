@@ -183,9 +183,9 @@ internal sealed class EnemySheetShades
     /// <summary>The selection shades every enemy and spawned-object sheet takes: the hit flash, the frozen look and the enemy projectiles' colours.</summary>
     internal IReadOnlyList<SheetRowShade> Shared() =>
     [
-        new(EnemyShades.HitFlash, EnemySheetRowDefinitions.Common, colours.SpriteColours),
+        new(EnemyShades.HurtFlash, EnemySheetRowDefinitions.Common, colours.SpriteColours),
         new(EnemyShades.Frozen, EnemySheetRowDefinitions.Beams, colours.With(EnemySheetRowDefinitions.Beams, 0, FrozenColours())),
-        new(EnemyShades.EnemyProjectileColours, EnemySheetRowDefinitions.EnemyProjectiles, colours.SpriteColours),
+        new(EnemyShades.ProjectileLook, EnemySheetRowDefinitions.EnemyProjectiles, colours.SpriteColours),
     ];
 
     /// <summary>

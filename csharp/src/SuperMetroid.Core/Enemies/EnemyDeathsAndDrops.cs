@@ -72,7 +72,7 @@ internal sealed class EnemyDeathsAndDrops
     /// (<see cref="PowerBombRadiusAfterKill"/>).
     /// </summary>
     internal void RecordKill(RoomEnemySlot enemy) =>
-        _powerBombRadius.RecordKill(enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled));
+        _powerBombRadius.RecordKill(enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));
 
     /// <summary>
     /// Starts an enemy's generic death. The enemy is cleared immediately,
@@ -92,7 +92,7 @@ internal sealed class EnemyDeathsAndDrops
                 throw new InvalidOperationException("Grapple enemy death requires the live Samus owner.");
             SamusForEnemyDrops.Grapple.Phase = GrapplePhase.Dropped;
         }
-        bool respawns = enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled);
+        bool respawns = enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
         RoomEnemySpawnSnapshot survivingSpawn = enemy.Spawn;
         RoomEnemyProjectileSlot? explosion = _projectiles.AllocateEnemyProjectile();
         if (explosion is not null)

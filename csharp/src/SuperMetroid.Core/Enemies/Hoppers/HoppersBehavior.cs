@@ -39,10 +39,10 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case HopperCueKind.ProcessOffScreen:
-                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
                 break;
             case HopperCueKind.StopProcessingOffScreen:
-                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
                 break;
             case HopperCueKind.PlaySound:
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Hoppers, cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound."), priority: SoundRequestPriority.Normal);

@@ -65,7 +65,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer forces animation processing for both halves and clears the
         // instruction interpreter's loop counter before choosing the half-specific list.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -336,7 +336,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // The balloon is deleted, the spikes fire, and the body dies with the explosion the burst's last spike's place in
         // the projectile pool selects.
         balloon.Slot.Health = 0;
-        balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
+        balloon.Slot.Presence = balloon.Slot.Presence.With(EnemyPresence.Deleted);
         int? lastSpikePlace = SpawnPowampSpikeBurst(body);
         _deathsAndDrops.StartGenericEnemyDeath(body,
             EnemyDeathExplosions.ForLeftoverNumber(PowampBurstExplosion.AuthoredExplosionAfter(lastSpikePlace)));
@@ -351,7 +351,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         PowampBalloon balloon = RequirePowampBalloon(body);
-        balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
+        balloon.Slot.Presence = balloon.Slot.Presence.With(EnemyPresence.Deleted);
         body.Shading = originalShading;
         SpawnPowampSpikeBurst(body);
         body.Shading = EnemyShades.InProjectileLook;
@@ -385,7 +385,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampBalloon balloon = RequirePowampBalloon(body);
         if (body.Health == 0)
         {
-            balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
+            balloon.Slot.Presence = balloon.Slot.Presence.With(EnemyPresence.Deleted);
             return;
         }
 

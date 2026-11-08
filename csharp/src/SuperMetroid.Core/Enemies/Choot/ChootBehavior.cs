@@ -187,10 +187,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
     private static ChootProgram? ApplyChootCue(RoomEnemySlot slot, ChootCue cue)
     {
-        slot.Properties = cue.Kind switch
+        slot.Processing = cue.Kind switch
         {
-            ChootCueKind.ProcessOffScreen => slot.Properties.With(EnemyProperties.ProcessOffScreen),
-            ChootCueKind.StopProcessingOffScreen => slot.Properties.Without(EnemyProperties.ProcessOffScreen),
+            ChootCueKind.ProcessOffScreen => slot.Processing.With(EnemyProcessing.OffScreen),
+            ChootCueKind.StopProcessingOffScreen => slot.Processing.Without(EnemyProcessing.OffScreen),
             _ => throw new InvalidOperationException($"Undefined {nameof(ChootCueKind)} {cue.Kind}."),
         };
         return null;

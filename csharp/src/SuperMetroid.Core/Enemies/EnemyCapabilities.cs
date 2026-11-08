@@ -15,7 +15,7 @@ internal enum EnemyCapabilities
     ExtendedSamusHitboxes = 1,
 
     /// <summary>
-    /// Ordinary projectile collision enters the extended-frame shot walker. <see cref="EnemyExtraProperties.UsesExtendedSpritemap"/>
+    /// Ordinary projectile collision enters the extended-frame shot walker. <see cref="RoomEnemySlot.DrawsExtendedFrames"/>
     /// alone is not sufficient: Mother Brain and several custom-drawn actors set it for scheduling or rendering while their shot
     /// paths use a header radius or encounter-specific geometry.
     /// </summary>

@@ -183,7 +183,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.BurrowTimer == 0)
         {
             slot.Shading = EnemyShades.InProjectileLook;
-            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }
 

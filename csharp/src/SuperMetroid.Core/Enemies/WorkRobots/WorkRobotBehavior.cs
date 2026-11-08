@@ -96,8 +96,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer sets the animation-script bit and the unknown-but-observable high
         // bit. Population records already carry process-off-screen in retail rooms.
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(4);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial);
@@ -119,7 +119,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The placement names the unpowered pose the robot holds.
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(slot.SpawnSettings<WorkRobotSpawnSettings>().Pose);
-        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
+        slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 

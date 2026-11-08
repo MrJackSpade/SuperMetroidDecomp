@@ -102,7 +102,7 @@ internal sealed class EnemyCollision
             // tail processing checks the tip later. Do not flatten either to the header's
             // dummy 8x8 radius here. An actor with no translated touch reaction is skipped.
             if (slot.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
-                slot.Properties.HasAny(EnemyProperties.Deleted) ||
+                slot.Presence.HasAny(EnemyPresence.Deleted) ||
                 (slot.Entity as IEnemyTouchReaction)?.FindTouch() is not { } touch)
             {
                 continue;
@@ -183,9 +183,8 @@ internal sealed class EnemyCollision
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
                 CommonEnemyEmptyFrames.DrawsNothing(enemy.Frame) ||
                 enemy.InvincibilityTimer != 0 ||
-                enemy.Properties.HasAny(
-                    EnemyProperties.Deleted |
-                    EnemyProperties.IgnoreSamusCollision) ||
+                enemy.Presence.HasAny(EnemyPresence.Deleted) ||
+                enemy.Contact.HasAny(EnemyContact.IgnoresSamus) ||
                 (enemy.Entity as IEnemyShotReaction)?.FindShot() is not { } reaction)
             {
                 continue;
@@ -321,11 +320,11 @@ internal sealed class EnemyCollision
                     // overlapping enemies in this pass still receive the live payload.
                     projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
-                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                        enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                             !projectile.Type.BeamCombination.HasPlasma);
                 }
                 else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex,
-                    enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
+                    enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam)))
                     continue;
 
                 reaction.AfterImpact?.Invoke(shot);
@@ -445,8 +444,7 @@ internal sealed class EnemyCollision
             bool usesCommonShotAi = ShotAi(enemy) == EnemyReaction.NormalEnemyShot;
             bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
-            bool usesExtendedHitboxes =
-                enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
+            bool usesExtendedHitboxes = enemy.DrawsExtendedFrames;
             bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
                 enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
@@ -455,10 +453,10 @@ internal sealed class EnemyCollision
                     !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
                 enemy.Frame is null ||
                 enemy.InvincibilityTimer != 0 ||
-                enemy.Properties.HasAny(EnemyProperties.Deleted) ||
+                enemy.Presence.HasAny(EnemyPresence.Deleted) ||
                 headerSuppressesMultiboxShotCollision ||
                 usesExtendedHitboxes &&
-                    enemy.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
+                    enemy.Contact.HasAny(EnemyContact.IgnoresSamus))
             {
                 continue;
             }
@@ -630,7 +628,7 @@ internal sealed class EnemyCollision
             horizontalRadius = _powerBombRadius.HorizontalRadius(horizontalRadius);
             if (enemy.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn ||
                 enemy.InvincibilityTimer != 0 ||
-                enemy.Properties.HasAny(EnemyProperties.Deleted))
+                enemy.Presence.HasAny(EnemyPresence.Deleted))
             {
                 continue;
             }
@@ -660,7 +658,7 @@ internal sealed class EnemyCollision
             if (reaction?.ReplacesCommon is { } privateReaction)
             {
                 privateReaction(enemy, samus);
-                enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+                enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
                 reactionCount++;
                 continue;
             }
@@ -684,7 +682,7 @@ internal sealed class EnemyCollision
 
             reaction?.AfterCommon?.Invoke(enemy, samus);
 
-            enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
+            enemy.Processing = enemy.Processing.With(EnemyProcessing.OffScreen);
             reactionCount++;
         }
 
@@ -841,12 +839,12 @@ internal sealed class EnemyCollision
     /// is owned by the encounter-specific projectile resolver.
     /// </summary>
     internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
-        enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
+        enemy.DrawsExtendedFrames &&
         (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != EnemyCapabilities.None;
 
     /// <summary>
     /// Identifies actors whose ordinary projectile collision actually enters
-    /// the extended-frame shot walker. <see cref="EnemyExtraProperties.UsesExtendedSpritemap"/> alone is not
+    /// the extended-frame shot walker. <see cref="RoomEnemySlot.DrawsExtendedFrames"/> alone is not
     /// sufficient: Mother Brain and several custom-drawn actors set it for scheduling or
     /// rendering while their shot paths use a header radius or encounter-specific geometry.
     /// Keeping this predicate beside the dispatcher gives data-backed probes the same boundary
@@ -854,7 +852,7 @@ internal sealed class EnemyCollision
     /// hitbox pointer.
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
-        enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
+        enemy.DrawsExtendedFrames &&
         (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != EnemyCapabilities.None;
 
     /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>

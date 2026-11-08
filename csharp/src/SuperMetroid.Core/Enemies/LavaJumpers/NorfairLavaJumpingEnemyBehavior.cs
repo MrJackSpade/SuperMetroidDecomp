@@ -86,7 +86,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             case NorfairLavaJumpingEnemyFunction.BeginJump:
                 state.YVelocity = NorfairLavaJumps.InitialVerticalVelocity(random);
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
-                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NorfairLavaJumpingEnemy, EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound, priority: SoundRequestPriority.Normal);
                 return;
 
@@ -124,7 +124,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);
                     InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Hidden);
                     state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
-                    slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                    slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
                 }
                 else
                 {
@@ -158,7 +158,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         // health, frozen timer, the parent's Y velocity, and Y position respectively.
         if (parent.Health == 0)
         {
-            follower.Properties = follower.Properties.With(EnemyProperties.Deleted);
+            follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
@@ -174,11 +174,11 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         {
             // The second half appears only while the parent is travelling upward. At the
             // apex and during descent, the parent animation alone owns the visible shape.
-            follower.Properties = follower.Properties.With(EnemyProperties.Invisible);
+            follower.Presence = follower.Presence.With(EnemyPresence.Hidden);
             return;
         }
 
-        follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
+        follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
     }
 
@@ -196,7 +196,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 $"Norfair lava-jumping follower in slot {follower.SlotIndex} must immediately follow " +
                 "a parent record of the same definition. " +
                 $"Preceding slot: definition={parent.DefinitionId}, " +
-                $"health=${parent.Health:X4}, spawn={parent.Spawn.Population.SpawnSettings}, properties={parent.Properties}.");
+                $"health=${parent.Health:X4}, spawn={parent.Spawn.Population.SpawnSettings}, contact={parent.Contact}, processing={parent.Processing}, presence={parent.Presence}.");
         }
     }
 

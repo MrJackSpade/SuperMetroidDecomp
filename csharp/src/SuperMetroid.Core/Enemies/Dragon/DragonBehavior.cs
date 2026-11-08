@@ -73,7 +73,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.InstalledAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
                 DragonAnimationSelector.WingsFacingLeft));
-            slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
             state.Function = DragonEnemyFunction.WingNoOp;
             return;
         }
@@ -245,7 +245,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot following = _partners.Of(actor).FollowUpRecipient;
         if (actor.Health == 0)
         {
-            following.Properties = following.Properties.With(EnemyProperties.Deleted);
+            following.Presence = following.Presence.With(EnemyPresence.Deleted);
             return;
         }
 

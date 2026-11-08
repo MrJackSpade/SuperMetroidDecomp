@@ -44,7 +44,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MorphBallEyeEnemyState();
         slot.SetSpeciesState(state);
 
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

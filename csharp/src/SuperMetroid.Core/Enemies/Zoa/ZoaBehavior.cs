@@ -61,7 +61,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.
         state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaPrograms.Program(ZoaAnimationSelector.None));
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Runs a Zoa's per-frame behaviour, dispatching proximity wait, rise, or horizontal shot from the room state.</summary>
@@ -120,7 +120,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         SamusState samus)
     {
-        slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0)
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
@@ -159,7 +159,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         // saved population coordinate and becomes invisible until the next proximity wake.
         // The return stores only the whole words: the subpixel fractions left by the
         // rise and the shot carry into the next flight.
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
         state.AnimationScriptTableIndex = ZoaAnimationSelector.None;
         SetZoaProgram(slot, state);

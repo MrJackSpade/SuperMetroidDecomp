@@ -116,8 +116,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         // The invisibility property controls rendering only. The intangibility property controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the
         // entire eruption while becoming a live collision body here.
-        graphics.Properties = graphics.Properties.Without(EnemyProperties.Invisible);
-        hitbox.Properties = hitbox.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        graphics.Presence = graphics.Presence.Without(EnemyPresence.Hidden);
+        hitbox.Contact = hitbox.Contact.Without(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Runs the active Hibashi.</summary>
@@ -127,7 +127,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.InactiveTimer = state.InactiveTimerReset;
-        graphics.Properties = graphics.Properties.With(EnemyProperties.Invisible);
+        graphics.Presence = graphics.Presence.With(EnemyPresence.Hidden);
         state.Function = HibashiEnemyFunction.Inactive;
     }
 
@@ -167,8 +167,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActivityFinished = true;
         hitbox.Radius = new(0, 0);
         graphics.Position = graphics.Position.WithWholeY(state.SpawnHeight.Y);
-        graphics.Properties = graphics.Properties.With(EnemyProperties.Invisible);
-        hitbox.Properties = hitbox.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        graphics.Presence = graphics.Presence.With(EnemyPresence.Hidden);
+        hitbox.Contact = hitbox.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>The hitbox part the visible geyser found when it was placed; retail populations always list one right after it.</summary>

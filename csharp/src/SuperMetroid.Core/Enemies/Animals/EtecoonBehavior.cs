@@ -93,7 +93,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer sets the animation-script property. The host scheduler also uses the
         // same bit to admit the authored animation script, so retain the authored
         // bit instead of inferring animation activity from the population record.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

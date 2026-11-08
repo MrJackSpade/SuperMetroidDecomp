@@ -114,8 +114,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         _ship = new GunshipPieces(slot, _slotTable.ListedAfter(slot, 1), _slotTable.ListedAfter(slot, 2));
         var part = new GunshipPartState();
         slot.SetSpeciesState(part);
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot] = AnimationProgramCursor<GunshipProgram>.Start(GunshipProgram.TopHull);
@@ -144,8 +144,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         var part = new GunshipPartState();
         slot.SetSpeciesState(part);
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot] = AnimationProgramCursor<GunshipProgram>.Start(slot.SpawnSettings<GunshipSpawnSettings>().Part == GunshipBottomPiece.EntrancePad

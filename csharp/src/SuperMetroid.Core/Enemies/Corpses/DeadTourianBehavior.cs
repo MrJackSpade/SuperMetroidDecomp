@@ -111,7 +111,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.PreRotDelayCounter >= 16)
                 {
                     state.Function = DeadTourianCorpseFunction.Rotting;
-                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                    slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 }
                 return;
             case DeadTourianCorpseFunction.Rotting:
@@ -130,15 +130,15 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
         state.Function = DeadTourianCorpseFunction.Rotting;
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
+        slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Power-bomb callbacks reject actors whose decomposition already made them intangible.</summary>
     private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemySlot slot)
     {
         RequireDeadTourianCorpseState(slot);
-        if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
+        if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTourianCorpseRotting(slot);
     }
 

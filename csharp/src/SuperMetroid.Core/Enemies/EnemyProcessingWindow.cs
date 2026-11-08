@@ -67,21 +67,21 @@ internal sealed class EnemyProcessingWindow
         {
             if (slot.DefinitionId is 0 or EnemyDefinitionId.Respawn)
                 continue;
-            if (slot.Properties.HasAny(EnemyProperties.Deleted))
+            if (slot.Presence.HasAny(EnemyPresence.Deleted))
             {
                 slot.Unbind();
                 continue;
             }
 
             bool active = _frameContext.ProcessAllEnemies ||
-                slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
+                slot.Processing.HasAny(EnemyProcessing.OffScreen) ||
                 (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None ||
                 EnemyIsWithinProcessingWindow(slot, camera);
             if (!active)
                 continue;
 
             _activeEnemies.Add(slot);
-            if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
+            if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus))
                 _interactiveEnemies.Add(slot);
         }
     }

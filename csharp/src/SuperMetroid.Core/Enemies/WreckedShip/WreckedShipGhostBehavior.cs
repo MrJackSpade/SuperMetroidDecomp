@@ -48,10 +48,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         // The initializer sets the animation-script, intangibility and invisibility properties. In this host those mean
         // instruction processing, exclusion from Samus interaction, and invisibility.
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.RunsAnimationScript |
-            EnemyProperties.IgnoreSamusCollision |
-            EnemyProperties.Invisible);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -260,8 +259,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         // Clearing intangibility and invisibility makes the fully materialized ghost visible and eligible for the
         // ordinary touch/shot collision handlers authored by its enemy definition.
-        slot.Properties = slot.Properties.Without(
-            EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+        slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
+        slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.Function = WreckedShipGhostAiFunction.BobbingWhileVisible;
         state.BobbingOrigin = new(0, slot.Position.Y.Whole);
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
@@ -292,7 +291,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
-        slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         state.Fade.BeginVanishing();
     }
 
@@ -305,7 +304,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.Function = WreckedShipGhostAiFunction.InitialInvisibleDelay;
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
     }
 
@@ -333,7 +332,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 return;
         }
 
-        slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
     }
 
     /// <summary>

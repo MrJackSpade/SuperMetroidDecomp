@@ -90,7 +90,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepCounter = 0;
         state.SpawnPosition = slot.Position.Whole;
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         state.Program = AnimationProgramCursor<AlcoonProgram>.Start(AlcoonProgram.WalkingLeft);
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
         SetupAlcoonJumpMovement(state);

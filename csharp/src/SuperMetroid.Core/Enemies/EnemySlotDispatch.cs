@@ -41,8 +41,11 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Layer = definition.Layer;
         slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
 
-        slot.Properties = population.Properties;
-        slot.ExtraProperties = population.ExtraProperties;
+        slot.Contact = population.Contact;
+        slot.Processing = population.Processing;
+        slot.Presence = population.Presence;
+        slot.DrawsExtendedFrames = population.DrawsExtendedFrames;
+        slot.NewInstructionFrame = false;
         slot.AiStates = EnemyAiStates.None;
         slot.Timer = WrappingCountdown.Start(0);
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -90,7 +93,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         InitializeSlotFromDefinition(slot, population, _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId));
         RunInitializationAi(slot, EnemySpawnSurroundings.None);
         // Spawning writes the empty frame after initialization, before the first animation tick.
-        slot.Frame = slot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
+        slot.Frame = slot.Processing.HasAny(EnemyProcessing.AnimationScript)
             ? EnemyFrameId.Empty
             : null;
         _slotTable.CoverSpawn(slot);

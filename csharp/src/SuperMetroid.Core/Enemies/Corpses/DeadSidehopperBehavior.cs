@@ -93,12 +93,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         // The mask clears the solid bit and any inherited process-offscreen bit,
         // then explicitly reinstalls only process-offscreen. Do not replace this with an
         // enum union: preserving the unrelated population-property bits is observable.
-        slot.Properties = slot.Properties.Replace(
-            EnemyProperties.SolidToSamus | EnemyProperties.ProcessOffScreen,
-            EnemyProperties.ProcessOffScreen);
+        slot.Contact = slot.Contact.Without(EnemyContact.SolidToSamus);
+        slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
         // The victim's room lists the Shitroid first; a Shitroid that starts hidden has already fed, so the victim is gone.
-        if (_slotTable.ListedFirst().Properties.HasAny(EnemyProperties.Invisible))
-            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+        if (_slotTable.ListedFirst().Presence.HasAny(EnemyPresence.Hidden))
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
 
         slot.Position = slot.Position.WithWhole(new(488, 184));
         slot.Radius = slot.Radius.WithY(21);
@@ -220,7 +219,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 if (state.PreRotDelayCounter >= 16)
                 {
                     state.Function = DeadSidehopperAiFunction.Rotting;
-                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                    slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 }
                 return;
 
@@ -327,7 +326,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
-        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
+        slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.Radius = slot.Radius.WithY(12);
     }
 
@@ -352,7 +351,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private static void ResolveDeadSidehopperShot(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        if (slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
+        if (slot.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.IsDrained)
         {
             return;
@@ -401,8 +400,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state)
     {
         state.Function = DeadSidehopperAiFunction.Rotting;
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
+        slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Runs one rot call and its dust, moving its kind's rows as the call moves them (#1531).</summary>

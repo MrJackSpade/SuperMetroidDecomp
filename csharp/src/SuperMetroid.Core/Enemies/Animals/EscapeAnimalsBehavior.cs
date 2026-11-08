@@ -54,18 +54,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // deletes the actor before changing any animation, position, palette, or AI fields.
         if (HasCrittersEscaped())
         {
-            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
-        // The animation-script property disables ordinary Samus collision and
-        // the tangibility property marks the actor tangible. Those bits keep their independently
-        // observed scheduler/collision meanings as RunsAnimationScript and
-        // IgnoreSamusCollision. The remaining high bit stays unnamed because this family never proves
-        // its broader engine-wide meaning.
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.RunsAnimationScript | EnemyProperties.IgnoreSamusCollision);
-        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
+        // An escaping animal runs its animation script, is left out of the ordinary touch pass against Samus and
+        // stands solid to her.
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus | EnemyContact.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         // The initializer selects the common sprite colours, which the import colours the escape Etecoons' sheets in (#1512).
@@ -84,14 +80,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(new EscapeDachoraEnemyState());
         if (HasCrittersEscaped())
         {
-            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
         // Dachora's population already supplies both properties, but the initializer sets the animation-script property again.
         // Expressing the idempotent write documents the executable routine and keeps a
         // synthetic/debug population faithful to retail initialization.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

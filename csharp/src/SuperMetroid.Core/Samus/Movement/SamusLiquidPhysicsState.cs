@@ -805,7 +805,7 @@ public sealed class SamusLiquidPhysicsState
         // This is the special-palette timer, not the palette cycle timer: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
             !bossPresent &&
-            SamusInputSnapshot.SharedShineTimer(samus) == 0 &&
+            !SamusInputSnapshot.HoldsShine(samus) &&
             !samus.HorizontalSpeed.SpeedBoostCounter.IsAtFullStage)
         {
             QueueSound(Library3Sound.Footsteps, priority: SoundRequestPriority.Normal);

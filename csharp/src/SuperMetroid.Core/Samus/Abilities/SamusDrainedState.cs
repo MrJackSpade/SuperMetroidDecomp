@@ -53,10 +53,10 @@ public sealed class SamusDrainedState
     public int CommonPaletteTimer { get; private set; }
 
     /// <summary>
-    /// Index of the Hyper Beam palette shown by the rainbow cycle, 0 through the palette count minus one: cleared by
-    /// both rainbow commands and advanced by one on each timer expiry, returning to zero after the last palette.
+    /// The step of the Hyper Beam glow the rainbow cycle shows, 0 through the glow's step count minus one: cleared by
+    /// both rainbow commands and advanced by one on each timer expiry, returning to zero after the last step.
     /// </summary>
-    public int ChargePaletteIndex { get; private set; }
+    public int HyperBeamGlowStep { get; private set; }
 
     /// <summary>
     /// The get-up handler installed by either drain setup, able or unable to stand. It
@@ -209,19 +209,16 @@ public sealed class SamusDrainedState
         if (!RainbowPaletteEnabled)
             return false;
 
-        // The handler doubles the palette number, selects one of ten complete palette
-        // frames, and copies all sixteen colors before decrementing the shared timer.
-        int paletteFrame = ChargePaletteIndex %
-            SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount;
-        colours.ShowSuit(SamusShades.HyperBeamSuit(paletteFrame));
+        // The handler shows the glow's current step before counting down the shared timer.
+        colours.ShowSuit(SamusShades.HyperBeamSuit(HyperBeamGlowStep));
 
         if (--CommonPaletteTimer > 0)
             return true;
 
         CommonPaletteTimer = SpecialPaletteFrame;
-        ChargePaletteIndex++;
-        if (ChargePaletteIndex >= SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount)
-            ChargePaletteIndex = 0;
+        HyperBeamGlowStep++;
+        if (HyperBeamGlowStep >= SamusPaletteDefinitions.FullBodyCycles.HyperBeamPaletteCount)
+            HyperBeamGlowStep = 0;
         return true;
     }
 

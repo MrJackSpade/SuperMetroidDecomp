@@ -272,7 +272,7 @@ public sealed class SamusShinesparkState
     public void BeginWindup(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (SamusInputSnapshot.SharedShineTimer(samus) == 0)
+        if (!SamusInputSnapshot.HoldsShine(samus))
             throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
 
         InitializeWindup(samus);
@@ -597,7 +597,7 @@ public sealed class SamusShinesparkState
         samus.InputSnapshot.AutoJumpInputPending = false;
         if (!deferPoseChange)
             ApplyDirectionalLaunchPose(samus, targetPose);
-        samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
+        samus.HorizontalSpeed.ClearSpeedEchoes();
         LaunchSoundRequested = true;
         LaunchSoundSuppressed = _audioPowerBomb?.IsActive == true;
     }
@@ -875,7 +875,7 @@ false);
     {
         // Resolve the crash axis before publishing the standing pose.
         var departureAngles = ShinesparkEchoDepartures.DepartureAngles(samus.Pose, projectiles?.DrainedCrashDepartures);
-        samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
+        samus.HorizontalSpeed.ClearSpeedEchoes();
 
         // The game reserves fixed projectile slots three and four. Its projectile counter
         // admits both while below four, only slot four at exactly four, and neither at five

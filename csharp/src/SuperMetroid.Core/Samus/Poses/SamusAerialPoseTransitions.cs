@@ -770,7 +770,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         bool left = targetPose is
             SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpAimUpLeftPose or
             SamusPoseId.NormalJumpAimDiagonalUpLeftPose;
-        if ((!right && !left) || SamusInputSnapshot.SharedShineTimer(samus) == 0)
+        if ((!right && !left) || !SamusInputSnapshot.HoldsShine(samus))
         {
             return false;
         }

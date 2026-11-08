@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionDefinitions;
 using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionHandler;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
@@ -57,16 +58,16 @@ internal static class GrappleConnections
     };
 
     /// <summary>Directional standing/crouching poses after the rope drops.</summary>
-    internal static SamusPoseId DroppedPose(int direction, bool compact) => direction switch
+    internal static SamusPoseId DroppedPose(SamusProjectileDirection direction, bool compact) => direction switch
     {
-        0 => compact ? CrouchingAimUpRightPose : StandingAimUpRightPose,
-        1 => compact ? CrouchingAimDiagonalUpRightPose : StandingAimDiagonalUpRightPose,
-        2 or 4 => compact ? CrouchingRightPose : FacingRightNormalPose,
-        3 => compact ? CrouchingAimDiagonalDownRightPose : StandingAimDiagonalDownRightPose,
-        5 or 7 => compact ? CrouchingLeftPose : FacingLeftNormalPose,
-        6 => compact ? CrouchingAimDiagonalDownLeftPose : StandingAimDiagonalDownLeftPose,
-        8 => compact ? CrouchingAimDiagonalUpLeftPose : StandingAimDiagonalUpLeftPose,
-        9 => compact ? CrouchingAimUpLeftPose : StandingAimUpLeftPose,
+        SamusProjectileDirection.UpFacingRight => compact ? CrouchingAimUpRightPose : StandingAimUpRightPose,
+        SamusProjectileDirection.UpRight => compact ? CrouchingAimDiagonalUpRightPose : StandingAimDiagonalUpRightPose,
+        SamusProjectileDirection.Right or SamusProjectileDirection.DownFacingRight => compact ? CrouchingRightPose : FacingRightNormalPose,
+        SamusProjectileDirection.DownRight => compact ? CrouchingAimDiagonalDownRightPose : StandingAimDiagonalDownRightPose,
+        SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.Left => compact ? CrouchingLeftPose : FacingLeftNormalPose,
+        SamusProjectileDirection.DownLeft => compact ? CrouchingAimDiagonalDownLeftPose : StandingAimDiagonalDownLeftPose,
+        SamusProjectileDirection.UpLeft => compact ? CrouchingAimDiagonalUpLeftPose : StandingAimDiagonalUpLeftPose,
+        SamusProjectileDirection.UpFacingLeft => compact ? CrouchingAimUpLeftPose : StandingAimUpLeftPose,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 

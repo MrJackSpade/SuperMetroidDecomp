@@ -8,12 +8,13 @@ namespace SuperMetroid.Core.Samus;
 internal sealed class SamusInputSnapshot
 {
     /// <summary>
-    /// The live special-palette timer: ordinary stored-shine countdown or Crystal Flash's palette
-    /// timer. A grab-interrupted Flash keeps the latter ticking indefinitely, so
-    /// the game's jump admission still sees a nonzero shine without a Stored phase.
+    /// Whether Samus holds a stored shine as the footstep sound, her body's draw and the jump into a shinespark windup
+    /// test it: while her stored-shine countdown runs, or while Crystal Flash's palette runs
+    /// (<see cref="CrystalFlashReadsAsStoredShine"/>). A grab-interrupted Flash keeps its palette running indefinitely, so
+    /// the jump admission still sees a shine without a Stored phase.
     /// </summary>
-    public static int SharedShineTimer(SamusState samus) => samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
-        ? samus.CrystalFlash.SpecialPaletteTimer.RemainingFrames : samus.Shinespark.ShineTimer;
+    public static bool HoldsShine(SamusState samus) => CrystalFlashReadsAsStoredShine.HoldsShine(
+        samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash, samus.Shinespark.ShineTimer);
 
     /// <summary>
     /// The Fire edge retained by the post-draw input filter

@@ -918,7 +918,7 @@ internal sealed class RoomLoader
         // The held beam charge survives on the session; Samus's own echo storage is cleared.
         if (_player.Samus is { } loadingSamus)
         {
-            loadingSamus.HorizontalSpeed.ResetSpeedEchoPositionsForRoomTransition();
+            loadingSamus.HorizontalSpeed.ClearSpeedEchoes();
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
         var bombs = new SamusBombProjectileSystem();

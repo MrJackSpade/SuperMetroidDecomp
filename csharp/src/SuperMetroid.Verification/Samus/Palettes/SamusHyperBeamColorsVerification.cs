@@ -289,7 +289,7 @@ internal static class SamusHyperBeamColorsVerification
                 $"Hyper Beam call {call} owns palette");
             // Original91D96F copies the selected row before DEC; EnableRainbow's
             // timer/reload are1, so every call advances and wraps at native limit10.
-            AssertEqual((ushort)((call + 1) % 10), installedSamus.Drained.ChargePaletteIndex,
+            AssertEqual((ushort)((call + 1) % 10), installedSamus.Drained.HyperBeamGlowStep,
                 $"Hyper Beam call {call} next frame");
             AssertEqual(1, installedSamus.Drained.CommonPaletteTimer,
                 $"Hyper Beam call {call} native timer");

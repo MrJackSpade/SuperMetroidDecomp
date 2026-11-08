@@ -310,21 +310,21 @@ level, right, unchecked((ushort)(frame + 1))),
         "rainbow handler owns palette dispatcher");
     AssertEqual(0x1000, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow first call loads Hyper Beam palette zero");
-    AssertEqual(1, unable.Drained.ChargePaletteIndex,
+    AssertEqual(1, unable.Drained.HyperBeamGlowStep,
         "one-call rainbow cadence advances immediately");
     unable.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
     unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
     AssertEqual(2, unable.Drained.CommonPaletteTimer,
         "Baby-raised rainbow delay reloads two");
-    AssertEqual(2, unable.Drained.ChargePaletteIndex,
+    AssertEqual(2, unable.Drained.HyperBeamGlowStep,
         "rainbow second palette advances into delayed index");
     unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
     AssertEqual(0x1040, drainedColours.ShownSuit(drainedSources)[0],
         "rainbow delayed index loads before timer decrement");
-    AssertEqual(2, unable.Drained.ChargePaletteIndex,
+    AssertEqual(2, unable.Drained.HyperBeamGlowStep,
         "rainbow delay holds palette index for first call");
     unable.Drained.UpdatePalette(drainedColours, unable.EquippedItems);
-    AssertEqual(3, unable.Drained.ChargePaletteIndex,
+    AssertEqual(3, unable.Drained.HyperBeamGlowStep,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);

@@ -132,16 +132,10 @@ public sealed class SamusGrappleState
     public bool CancelFromConnectedPose { get; set; }
 
     /// <summary>
-    /// Grapple flare counter. Grapple seeds one, increments it after tile uploads, and saturates at 120;
-    /// teardown returns it to zero before ordinary charge handling can resume. Writes outside 0 through 32767
-    /// are rejected, which keeps the saturation test an ordinary comparison.
+    /// How far the muzzle flare has come: firing marks it just fired, each connected-beam draw moves it on a stage, and
+    /// teardown clears it before ordinary charge handling can resume.
     /// </summary>
-    [IntegerQuantity("updates the grapple flare has shown")]
-    public int FlareCounter
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, short.MaxValue, value);
-    }
+    public GrappleFlareStage FlareStage { get; set; }
 
     /// <summary>
     /// Position in the main-flare delay stream, 0 through 65535. The flare step advances and rewinds it as a

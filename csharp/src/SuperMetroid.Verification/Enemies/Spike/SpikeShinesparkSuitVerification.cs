@@ -74,7 +74,7 @@ internal static class SpikeShinesparkSuitVerification
         uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
         int frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
-        int frozenShineTimer = SamusInputSnapshot.SharedShineTimer(frozenSamus);
+        int frozenShineTimer = frozenSamus.Shinespark.ShineTimer;
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         int frozenKnockbackTimer = frozenSamus.KnockbackTimer;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterFrameBoundary = () =>
@@ -86,7 +86,7 @@ internal static class SpikeShinesparkSuitVerification
             new AnimationResult(frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),
             "Reserve command zero freezes the unmorph animation cursor");
         AssertEqual(new VerifySpikeShinesparkSuitCase(frozenShineTimer, frozenPalette),
-            new VerifySpikeShinesparkSuitCase(SamusInputSnapshot.SharedShineTimer(frozenSamus), frozenSamus.Shinespark.PaletteType),
+            new VerifySpikeShinesparkSuitCase(frozenSamus.Shinespark.ShineTimer, frozenSamus.Shinespark.PaletteType),
             "Reserve command zero freezes stored-shine palette progression");
         AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer,
             "global hurt timer continues while Reserve owns Samus");
@@ -111,7 +111,7 @@ internal static class SpikeShinesparkSuitVerification
             bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
                 samus.Shinespark.PaletteType == SamusSpecialPaletteType.Shinesparking &&
-                SamusInputSnapshot.SharedShineTimer(samus) != 0;
+                SamusInputSnapshot.HoldsShine(samus);
             AssertEqual(expected.RetainsSuit, retainedSuit,
                 $"underwater Reserve suit freeze {expected.FreezeAfter}, launch {expected.LaunchAfter}");
         }

@@ -159,7 +159,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble palette begins at color ten");
     AssertEqual(0x0205, crystalColours.ShownBeams(crystalSources)[15],
         "Crystal Flash bubble palette copies six colors");
-    AssertEqual(5, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
+    AssertEqual(5, samus.CrystalFlash.BubbleTimer,
         "Crystal Flash bubble timer reloads five");
     AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer,
         "Crystal Flash body timer comes from interleaved ROM record");
@@ -304,7 +304,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
-    AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
+    AssertTrue(samus.CrystalFlash.BeamPaletteRestoreRequested,
         "cleanup requests normal palette restoration");
     AssertTrue(samus.CrystalFlash.UpdatePalette(crystalColours, samus),
         "Crystal Flash finish restores beam palette");

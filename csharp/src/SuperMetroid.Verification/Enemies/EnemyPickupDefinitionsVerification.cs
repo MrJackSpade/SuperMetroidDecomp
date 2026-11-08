@@ -16,7 +16,7 @@ internal static class EnemyPickupDefinitionsVerification
     {
         for (int index = 0; index < 6; index++)
         {
-            var kind = (EnemyPickupKind)index;
+            EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
                 animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0,
@@ -25,7 +25,7 @@ internal static class EnemyPickupDefinitionsVerification
 
         for (int index = 1; index <= 5; index++)
         {
-            var kind = (EnemyPickupKind)index;
+            EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             var projectile = new RoomEnemyProjectileSlot(index)
             {
                 FrameHold = WrappingCountdown.Start(0xffff),

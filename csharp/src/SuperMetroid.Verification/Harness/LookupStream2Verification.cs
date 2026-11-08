@@ -1055,7 +1055,7 @@ internal static class LookupStream2Verification
         ushort[] randomValues = [1, 61, 121, 181, 186, 246];
         for (int column = 0; column < 6; column++)
         {
-            EnemyPickupKind expected = (EnemyPickupKind)rom.ReadCartridgeByte(0x86f25e + column);
+            EnemyPickupKind expected = EnemyPickupNativeWords.Selectors.Decode(rom.ReadCartridgeByte(0x86f25e + column), "probability-column pickup");
             AssertEqual(expected, EnemyDropTables.ForProbabilityColumn(column),
                 "Native probability-column pickup identity");
             var samus = CreateDropTestSamus();

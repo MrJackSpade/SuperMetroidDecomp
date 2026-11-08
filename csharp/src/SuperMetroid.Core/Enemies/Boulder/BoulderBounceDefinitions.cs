@@ -10,7 +10,7 @@ public static class BoulderBounceDefinitions
     /// <remarks>
     /// #625 / #647 retained table: all three words are
     /// authored values. A formula for counters
-    /// 1 and 2 needs a separate exception for counter 0's rolling sentinel, so
+    /// 1 and 2 needs a separate exception for counter 0, the last impact before rolling, so
     /// the three explicit choices state the collision sequence more clearly.
     /// VerifyCompiledBoulderBounces exercises each real floor collision, the
     /// zero-to-minus-one handoff, and both invalid counter boundaries.

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>One eye-door request to allocate an actor from the shared enemy-projectile pool.</summary>
 /// <param name="Definition">What is spawned; allocation and actor lifetime belong to the enemy-projectile owner.</param>
 /// <param name="Facing">The side the spawning eye faces: it places the attack and launches the sweat; smoke ignores it.</param>
-/// <param name="RoomObjectBlockIndex">Zero-based row-major room-cell index of the spawning PLM, in 16-pixel blocks rather than a byte offset; the consumer supplies the room row stride.</param>
+/// <param name="RoomObjectBlockIndex">The room cell of the spawning eye door: its place in the room's row-major grid of sixteen-pixel blocks; the consumer supplies the room's width in blocks.</param>
 /// <param name="DoorBit">The spawning eye door's door bit, which attack initialization retains for the persistent opened-door-bit
 /// check; null once the door has opened, when only sweat and smoke, which do not consume it, are spawned.</param>
 public readonly record struct EyeDoorProjectileRequest(

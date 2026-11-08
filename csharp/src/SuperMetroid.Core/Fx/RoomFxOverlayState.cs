@@ -52,8 +52,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public RoomFxPaletteBlend? PaletteBlend { get; private set; }
     /// <summary>
-    /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
-    /// byte offsets effect overlay scroll before the next velocity step.
+    /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed whole
+    /// pixels shift the effect overlay's scroll before the next velocity step.
     /// </summary>
     private Offset16<OverlaySubpixels> drift;
     /// <summary>

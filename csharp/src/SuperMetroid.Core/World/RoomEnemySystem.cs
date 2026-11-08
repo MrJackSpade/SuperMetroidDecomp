@@ -664,7 +664,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         PolypBehavior = new PolypBehavior(Room, Projectiles);
         PlatformsBehavior = new PlatformsBehavior(Terrain);
         PipeBugsBehavior = new PipeBugsBehavior(SlotTable);
-        PhantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding });
+        PhantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding });
         OwtchBehavior = new OwtchBehavior(Room);
         OldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(Room, Projectiles, Audio);
         NuclearWaffleBehavior = new NuclearWaffleBehavior(Projectiles, SpriteObjects, Audio);

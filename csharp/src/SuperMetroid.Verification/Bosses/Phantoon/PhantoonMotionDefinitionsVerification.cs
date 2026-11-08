@@ -25,8 +25,8 @@ internal static class PhantoonMotionDefinitionsVerification
             native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(unchecked((short)native[i]), definitions[i], "Phantoon compiled motion value");
         }
-        Action<PhantoonPartState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
-        Action<PhantoonPartState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;
+        Action<PhantoonBodyState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
+        Action<PhantoonBodyState> reverse = PhantoonPatterns.AdjustPhantoonReverseFigureEightSpeed;
         ushort[] phases = [0, 1, 2, 3, 0xffff];
         ushort[] fractions = [0, 1, 0x5ff, 0x600, 0xefff, 0xf000, 0xf9ff, 0xfa00, 0xffff];
         PhantoonMotionCase[] cases = [.. new[] { false, true }.SelectMany(backwards => phases.SelectMany(phase =>
@@ -36,7 +36,7 @@ internal static class PhantoonMotionDefinitionsVerification
         ParallelSweep.For(0, cases.Length, index =>
         {
             (bool backwards, ushort phase, ushort fraction) = cases[index];
-            var words = new PhantoonPartState();
+            var words = new PhantoonBodyState();
             // Every whole speed the figure-eight reaches, with a margin: its caps keep it within seven entries of rest.
             for (int whole = -16; whole <= 16; whole++)
             {

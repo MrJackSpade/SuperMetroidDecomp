@@ -29,27 +29,27 @@ internal sealed class PhantoonOpening
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
         state.StartingFlameRequests++;
-        if (SpawnPhantoonStartingFlame(body, state.Parts[body.SlotIndex].StartingFlameIndex))
+        if (SpawnPhantoonStartingFlame(body, state.BodyState.StartingFlameIndex))
             state.StartingFlamesSpawned++;
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
-        state.Parts[body.SlotIndex].FunctionTimer = 30;
-        state.Parts[body.SlotIndex].StartingFlameIndex = WrappingCounter.IncrementWord(state.Parts[body.SlotIndex].StartingFlameIndex);
-        if (state.Parts[body.SlotIndex].StartingFlameIndex < 8)
+        state.BodyState.FunctionTimer = 30;
+        state.BodyState.StartingFlameIndex = WrappingCounter.IncrementWord(state.BodyState.StartingFlameIndex);
+        if (state.BodyState.StartingFlameIndex < 8)
             return;
 
-        state.Parts[body.SlotIndex].StartingFlameIndex = 0;
-        state.Parts[state.Tentacles.SlotIndex].RoundDamage = 0;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
-        state.Parts[body.SlotIndex].FunctionTimer = 30;
+        state.BodyState.StartingFlameIndex = 0;
+        state.TentaclesState.RoundDamage = 0;
+        state.BodyState.Function = PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
+        state.BodyState.FunctionTimer = 30;
         state.BossDoorObjectRequest = RoomObjectHeaderId.DrawPhantoonDoorDuringBossFight;
     }
 
     /// <summary>Holds the body between intro flame spawns.</summary>
-    internal static void RunPhantoonStartingFlamePause(PhantoonPartState body)
+    internal static void RunPhantoonStartingFlamePause(PhantoonBodyState body)
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(body))
             return;
@@ -63,19 +63,19 @@ internal sealed class PhantoonOpening
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        state.Parts[body.SlotIndex].StartingFlamesActive = false;
+        state.BodyState.StartingFlamesActive = false;
         state.SemiTransparent = true;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WavyFadeIn;
-        state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
-        state.Parts[body.SlotIndex].FunctionTimer = 120;
-        state.Parts[state.Mouth.SlotIndex].WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
-        state.Parts[state.Mouth.SlotIndex].WaveAmplitudeShrinking = false;
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.BodyState.Function = PhantoonAiFunction.WavyFadeIn;
+        state.MouthState.LayerControl = PhantoonLayerControl.RoomDefault;
+        state.BodyState.FunctionTimer = 120;
+        state.MouthState.WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
+        state.MouthState.WaveAmplitudeShrinking = false;
+        state.EyeState.FadeComplete = false;
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(5));
-        state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
+        state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.Wave.Begin(PhantoonWaveDefinitions.IntroLength);
     }
 
@@ -86,18 +86,18 @@ internal sealed class PhantoonOpening
     {
         _presentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
         if (PhantoonPresentation.AdvancePhantoonWaveAmplitude(
-                state.Parts[state.Mouth.SlotIndex],
+                state.MouthState,
                 PhantoonBehavior.PhantoonIntroAmplitudeDelta,
                 PhantoonBehavior.PhantoonIntroMaximumAmplitude))
         {
-            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.PickFirstRoundPattern;
-            state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
-            state.Parts[body.SlotIndex].FunctionTimer = 30;
+            state.BodyState.Function = PhantoonAiFunction.PickFirstRoundPattern;
+            state.MouthState.LayerControl = PhantoonLayerControl.RoomDefault;
+            state.BodyState.FunctionTimer = 30;
             return;
         }
 
-        if (PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
-            state.Parts[state.Mouth.SlotIndex].WaveAmplitudeShrinking = true;
+        if (PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
+            state.MouthState.WaveAmplitudeShrinking = true;
     }
 
     /// <summary>Allocates one intro flame with its chosen orbit direction.</summary>

@@ -79,7 +79,7 @@ public sealed class PhantoonWaveEffect
     {
         if (_pendingSetup)
         {
-            boss.Parts[boss.Eye.SlotIndex].WaveLength = _pendingLength;
+            boss.EyeState.WaveLength = _pendingLength;
             _setupLength = _pendingLength;
             Phase = PhantoonWaveDefinitions.InitialPhase;
             Active = true;
@@ -87,15 +87,15 @@ public sealed class PhantoonWaveEffect
             return; // The setup update does not also ripple.
         }
         if (!Active) return;
-        if (boss.Parts[boss.Eye.SlotIndex].WaveLength is null)
+        if (boss.EyeState.WaveLength is null)
         {
             Active = false; // The wave ends, keeping its last shape.
             return;
         }
-        Phase = PhaseInCycle(Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta);
-        if (boss.Parts[boss.Eye.SlotIndex].WaveLength != _setupLength)
-            throw new InvalidOperationException($"Phantoon's wave length {boss.Parts[boss.Eye.SlotIndex].WaveLength} changed from its setup length {_setupLength}.");
-        _built = new(Phase, boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude, boss.BodyLayerPlacement.X);
+        Phase = PhaseInCycle(Phase + 2 * boss.MouthState.WavyPhaseDelta);
+        if (boss.EyeState.WaveLength != _setupLength)
+            throw new InvalidOperationException($"Phantoon's wave length {boss.EyeState.WaveLength} changed from its setup length {_setupLength}.");
+        _built = new(Phase, boss.MouthState.WaveAmplitude, boss.BodyLayerPlacement.X);
     }
 
     /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>

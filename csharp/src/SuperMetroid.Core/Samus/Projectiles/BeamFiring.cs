@@ -575,10 +575,10 @@ internal sealed class BeamFiring
         };
         SignedEightEight y = direction switch
         {
-            // The rising share is a signed count of 256ths; it and the base speed combine as wrapping velocities.
+            // The rising launch velocity and the base speed combine as wrapping velocities.
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
                 SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft =>
-                SignedEightEight.Wrapped(inheritance.RisingLaunchShare()) - baseSpeed,
+                inheritance.RisingLaunchVelocity() - baseSpeed,
             SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight or
                 SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft =>
                 inheritance.InheritedVelocity(VerticalDirection.Down) + baseSpeed,

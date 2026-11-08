@@ -94,9 +94,6 @@ public sealed class ProjectileLaunchInheritance
         return inherited.IsNegative ? quarter : quarter - QuarterVelocityRange;
     }
 
-    /// <summary><see cref="RisingLaunchVelocity"/> in 256ths of a pixel an update, for the launch that still adds raw speeds.</summary>
-    public int RisingLaunchShare() => RisingLaunchVelocity().SignedRawValue;
-
     /// <summary>
     /// The inherited velocity of the distance at <paramref name="place"/>: its whole pixels within their 256-pixel cycle,
     /// and the 256ths of the fraction recorded before it, the camera subspeed before the first distance.

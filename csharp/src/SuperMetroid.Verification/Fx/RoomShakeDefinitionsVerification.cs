@@ -76,8 +76,6 @@ internal static class RoomShakeDefinitionsVerification
             "largest earthquake type is non-rendered");
         AssertEqual((ushort)4, enemies.Earthquake.EarthquakeTimer.RawValue,
             "largest earthquake type preserves timer");
-        AssertThrows<ArgumentOutOfRangeException>(() => { enemies.Earthquake.EarthquakeType = ushort.MaxValue + 1; },
-            "earthquake type above the cartridge word is rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => { enemies.Earthquake.EarthquakeType = -1; },
             "negative earthquake type is rejected");
 

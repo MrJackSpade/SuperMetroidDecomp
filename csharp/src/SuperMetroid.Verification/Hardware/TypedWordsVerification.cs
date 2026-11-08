@@ -220,9 +220,9 @@ internal static void VerifyTypedNativeWords()
     AssertThrows<OverflowException>(
         () => SignedEightEight.FromWholePixels(128),
         "signed 8.8 checked whole conversion rejects positive overflow");
-    AssertThrows<OverflowException>(
+    AssertThrows<ArgumentOutOfRangeException>(
         () => SignedSixteenSixteen.FromWholePixels(32768),
-        "signed 16.16 checked whole conversion rejects positive overflow");
+        "signed 16.16 whole conversion rejects positive overflow");
 
     CountdownStep fromOne = WrappingCounter.Decrement(0x0001);
     AssertEqual((ushort)0x0000, fromOne.Value, "native DEC one reaches zero");

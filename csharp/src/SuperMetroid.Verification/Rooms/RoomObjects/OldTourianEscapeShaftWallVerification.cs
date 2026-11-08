@@ -86,8 +86,8 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual((ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius, Word(0xb449), "the burst first scatters");
         AssertEqual(OldTourianWallExplosionCue.Scatter, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(burst[0], "the burst publishes a cue").Cue, "the burst scatters");
         EnemyProjectileScatter scatter = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter;
-        AssertEqual(LittleEndianBytes.Word(checked((byte)scatter.Range.X), checked((byte)scatter.Center.X)), Word(0xb44b), "the X scatter mask and centre");
-        AssertEqual(LittleEndianBytes.Word(checked((byte)scatter.Range.Y), checked((byte)scatter.Center.Y)), Word(0xb44d), "the Y scatter mask and centre");
+        AssertEqual(LittleEndianBytes.Word(checked((byte)((scatter.XRange.Outcomes - 1) << scatter.XRange.Shift)), checked((byte)scatter.Center.X)), Word(0xb44b), "the X scatter mask and centre");
+        AssertEqual(LittleEndianBytes.Word(checked((byte)((scatter.YRange.Outcomes - 1) << scatter.YRange.Shift)), checked((byte)scatter.Center.Y)), Word(0xb44d), "the Y scatter mask and centre");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, Word(0xb44f), "the burst then sounds");
         AssertEqual(OldTourianWallExplosionCue.ExplosionSound, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(burst[1], "the burst publishes a cue").Cue, "the burst sounds");
 

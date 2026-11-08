@@ -220,7 +220,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Kago samples the existing random word and never advances it. SpawnEprojInner has
         // already cleared subpositions, velocities, flags, and collision scratch for us.
-        int initialIdleFrames = (ReadKagoRandomNumber() & 7) + 1;
+        int initialIdleFrames = KagoDefinitions.FirstIdleFrames.Of(ReadKagoRandomNumber()) + 1;
         projectile.State = new KagoBugState(source)
         {
             IdleFrames = initialIdleFrames,
@@ -370,7 +370,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Landed-animation cue: returns the bug to idle.</summary>
     internal void StartKagoBugIdle(RoomEnemyProjectileSlot projectile)
     {
-        projectile.StateOf<KagoBugState>().IdleFrames = (ReadKagoRandomNumber() & 31) + 1;
+        projectile.StateOf<KagoBugState>().IdleFrames = KagoDefinitions.LandedIdleFrames.Of(ReadKagoRandomNumber()) + 1;
         projectile.FrameBehavior =
             EnemyProjectileFrameBehavior.KagoBugWaiting;
     }

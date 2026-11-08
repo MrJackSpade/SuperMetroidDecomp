@@ -360,7 +360,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // even though all three accepted values select the same list.
         int choice;
         do
-            choice = _room.Random.Generate() & 3;
+            choice = _room.Random.Next(SpacePirateDecisions.DivekickChoice);
         while (choice == 0);
 
         InstallNinjaPirateInstruction(

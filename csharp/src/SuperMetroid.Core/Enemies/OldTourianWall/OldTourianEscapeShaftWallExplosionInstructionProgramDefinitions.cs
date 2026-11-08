@@ -17,8 +17,11 @@ internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefini
     /// <summary>The loop count the list loads into the general timer; the burst plays once.</summary>
     internal const int BurstCount = 1;
 
-    /// <summary>The random scatter's masks, seven pixels across and fifteen down, each centred on zero.</summary>
-    internal static EnemyProjectileScatter Scatter => new(new(7, 15), new(0, 0));
+    /// <summary>
+    /// The random scatter's fields, zero to seven pixels across (three bits) and zero to fifteen down (four bits), each
+    /// centred on zero.
+    /// </summary>
+    internal static EnemyProjectileScatter Scatter => new(XRange: new(0, 3), YRange: new(0, 4), Center: new(0, 0));
 
     /// <summary>The sound each burst's explosion makes.</summary>
     internal static SoundEffectId ExplosionSound => Library2Sound.SmallExplosion;

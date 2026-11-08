@@ -385,7 +385,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         bool jumpLeft = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
             jumpLeft ? -2 : 2,
-            (random & 1) - 8));
+            KiHunterMotionDefinitions.ShallowerGroundJump.Of(random) - 8));
         InstallKiHunterInstruction(
             body,
             body.RequireSpeciesState<KiHunterEnemyState>(),

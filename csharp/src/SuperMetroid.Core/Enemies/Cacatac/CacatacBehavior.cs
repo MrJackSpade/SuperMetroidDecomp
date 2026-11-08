@@ -133,7 +133,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The 3/256 random attack gate.</summary>
     private void MaybeStartCacatacAttack(RoomEnemySlot slot, CacatacEnemyState state)
     {
-        int decision = SharedRandomState.LowerByteAdvancedBy(_room.Random.Generate(), slot.FrameCounter);
+        int decision = (_room.Random.Next(CacatacAttackDefinitions.AttackRoll) + slot.FrameCounter) %
+            CacatacAttackDefinitions.AttackRoll.Outcomes;
         if (decision >= 3)
             return;
 

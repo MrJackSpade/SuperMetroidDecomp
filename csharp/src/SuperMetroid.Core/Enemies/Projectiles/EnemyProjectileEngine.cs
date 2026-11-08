@@ -727,25 +727,27 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Runs the death actor's two explosion cues. Both consume one object-number operand and one
-    /// RNG word; its low and high bytes offset X and Y around the death actor respectively.
+    /// RNG word; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that word's fields that offset X and Y
+    /// around the death actor, before both are centred back by <paramref name="center"/>.
     /// CreateSpriteAtPos owns a separate finite pool, so these decorations never
     /// consume one of the eighteen pickup/death projectile slots.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(
         RoomEnemyProjectileSlot projectile,
         RoomSpriteObjectKind kind,
-        int mask,
+        RandomSampleField xScatter,
+        RandomSampleField yScatter,
         int center)
     {
         int random = _room.Random.Generate();
         _ = _spriteObjects.SpawnRoomSpriteObject(new(
-            CoordinateAxis.Wrap(projectile.Position.X.Whole + (random & mask) - center),
-            CoordinateAxis.Wrap(projectile.Position.Y.Whole + (SharedRandomState.UpperByte(random) & mask) - center)),
+            CoordinateAxis.Wrap(projectile.Position.X.Whole + xScatter.Of(random) - center),
+            CoordinateAxis.Wrap(projectile.Position.Y.Whole + yScatter.Of(random) - center)),
             kind, graphics: default);
     }
 
     /// <summary>
-    /// Uses RNG rejection and sign bits to reposition a projectile within <paramref name="scatter"/>'s masks.
+    /// Uses RNG rejection and sign bits to reposition a projectile within <paramref name="scatter"/>'s fields.
     /// Each axis rejects negative candidate offsets, while two independent bits from the first random sample choose
     /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
     /// host RNG approximation would produce a visibly different debris cloud and desynchronize later randomness.
@@ -753,33 +755,45 @@ internal sealed class EnemyProjectileEngine
     internal void Scatter(RoomEnemyProjectileSlot projectile, EnemyProjectileScatter scatter)
     {
         Ensure.NotNull(projectile);
-        // The masks and centres are authored byte values (checked below), so the offsets stay within one byte.
-        int xMask = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Range.X);
+        // The fields and centres are authored byte operands (checked below), so the offsets stay within one byte.
+        RandomSampleField xRange = RequireLowByteField(scatter.XRange);
         int xCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.X);
-        int yMask = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Range.Y);
+        RandomSampleField yRange = RequireLowByteField(scatter.YRange);
         int yCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
         int xOffset;
         do
         {
-            xOffset = (xMask & SharedRandomState.LowerByte(_room.Random.Generate())) - xCenter;
+            xOffset = _room.Random.Next(xRange) - xCenter;
         }
         while (xOffset < 0);
-        if (SharedRandomState.IsInUpperHalf(signSample))
+        if (EnemyProjectileScatter.NegativeX.IsSetIn(signSample))
             xOffset = -xOffset;
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole + xOffset);
 
         int yOffset;
         do
         {
-            yOffset = (yMask & SharedRandomState.LowerByte(_room.Random.Generate())) - yCenter;
+            yOffset = _room.Random.Next(yRange) - yCenter;
         }
         while (yOffset < 0);
-        if ((signSample >> 14 & 1) != 0)
+        if (EnemyProjectileScatter.NegativeY.IsSetIn(signSample))
             yOffset = -yOffset;
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + yOffset);
     }
+
+    /// <summary>
+    /// <paramref name="field"/>, checked to lie within a sample's low byte, as the scatter's authored byte operand does.
+    /// </summary>
+    private static RandomSampleField RequireLowByteField(RandomSampleField field)
+    {
+        _ = Ensure.BetweenInclusive(0, LowByteBits, field.Shift + field.Width);
+        return field;
+    }
+
+    /// <summary>The bits of a sample's low byte, the only bits a scatter's range reads.</summary>
+    private const int LowByteBits = 8;
 
     /// <summary>
     /// Allocates the shared room-graphics dust/explosion actor.
@@ -998,7 +1012,8 @@ internal sealed class EnemyProjectileEngine
     /// Draws the one-in-four branch: it is taken when both high bits of the room's next random
     /// number are set.
     /// </summary>
-    internal bool TakeOneInFourBranch() => _room.Random.Generate() >> 14 == 3;
+    internal bool TakeOneInFourBranch() =>
+        _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;
 
     /// <summary>Sets every behavior bit in <paramref name="flags"/>, as a list's property OR does.</summary>
     internal static void SetPropertyFlags(RoomEnemyProjectileSlot projectile, EnemyProjectilePropertyFlags flags)

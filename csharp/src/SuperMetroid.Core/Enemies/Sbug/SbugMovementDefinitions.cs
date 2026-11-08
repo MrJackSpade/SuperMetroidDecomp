@@ -4,6 +4,12 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal static class SbugMovementDefinitions
 {
     /// <summary>
+    /// The random field that turns an Sbug starting a random movement leg: the low byte, bits zero to seven, less a
+    /// quarter turn, added to its heading.
+    /// </summary>
+    internal static readonly RandomSampleField RandomTurn = new(0, 8);
+
+    /// <summary>
     /// The eight facings counter-clockwise from right, one per eighth of a turn: a heading shows the facing whose eighth
     /// of the turn, counted on from <see cref="SbugDefinitions.FirstFacingStart"/>, contains it.
     /// </summary>

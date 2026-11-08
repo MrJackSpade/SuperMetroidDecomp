@@ -37,9 +37,12 @@ internal static class MiscDustProjectileDefinitionsVerification
             int address = placementTable + index * 8;
             MiscDustPlacementDefinition definition =
                 MiscDustProjectiles.SmokePlacement(index);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), definition.RandomMask.X,
+            // The native masks apply to the sample's low (X) and high (Y) bytes; each field reads exactly those bits.
+            int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2));
+            AssertEqual(nativeXMask, (definition.XScatter.Outcomes - 1) << definition.XScatter.Shift,
                 $"misc-dust placement X mask {index}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), definition.RandomMask.Y,
+            AssertEqual(nativeYMask << 8, (definition.YScatter.Outcomes - 1) << definition.YScatter.Shift,
                 $"misc-dust placement Y mask {index}");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.Base.X,
                 $"misc-dust placement X base {index}");
@@ -57,10 +60,10 @@ internal static class MiscDustProjectileDefinitionsVerification
             AssertTrue(smoke.Animation is MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
-                (random & definition.RandomMask.X))), smoke.Position.X.Whole,
+                (random & nativeXMask))), smoke.Position.X.Whole,
                 $"eye-door smoke production X {index}");
             AssertEqual(unchecked((ushort)(9 * 16 + 8 + definition.Base.Y +
-                ((random >> 8) & definition.RandomMask.Y))), smoke.Position.Y.Whole,
+                ((random >> 8) & nativeYMask))), smoke.Position.Y.Whole,
                 $"eye-door smoke production Y {index}");
             AssertEqual(1, advances, $"eye-door smoke RNG advance {index}");
         }

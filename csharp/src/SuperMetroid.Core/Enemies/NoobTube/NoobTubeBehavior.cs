@@ -345,11 +345,11 @@ internal sealed class NoobTubeBehavior
                 projectile.Position = projectile.Position.WithWholeX(oddFrame ? projectile.StateOf<NoobTubeDebrisState>().X.Whole : NoobTubeDebrisDefinitions.HiddenXPosition);
                 break;
             case NoobTubeProjectileCueKind.AssignShardFallingAngle:
-                projectile.StateOf<NoobTubeDebrisState>().SwayPhase = SharedRandomState.UpperByte(_room.Random.Generate());
+                projectile.StateOf<NoobTubeDebrisState>().SwayPhase = _room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayPhase);
                 projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.ShardFallYVelocity);
                 break;
             case NoobTubeProjectileCueKind.AssignBubbleFallingAngle:
-                projectile.StateOf<NoobTubeDebrisState>().SwayPhase = SharedRandomState.UpperByte(_room.Random.Generate());
+                projectile.StateOf<NoobTubeDebrisState>().SwayPhase = _room.Random.Next(NoobTubeDebrisDefinitions.FallingSwayPhase);
                 break;
             case NoobTubeProjectileCueKind.SetFrameBehavior:
                 projectile.FrameBehavior = cue.FrameBehavior;

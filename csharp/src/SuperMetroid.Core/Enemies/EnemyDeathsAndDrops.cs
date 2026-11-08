@@ -143,23 +143,23 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>
     /// Shared implementation of the twelve item-drop routines.
     /// Each iteration advances RNG once for both coordinates; allocation
-    /// and drop selection then advance it independently inside the pickup. The X scatter
-    /// masks the sample's lower random byte and the Y scatter its upper one.
+    /// and drop selection then advance it independently inside the pickup. Both scatters read
+    /// their fields from the one sample.
     /// </summary>
     internal void SpawnEnemyDropScatter(
         EnemyDefinitionId definitionId,
         int count,
         int xBase,
-        int xMask,
+        RandomSampleField xScatter,
         int yBase,
-        int yMask)
+        RandomSampleField yScatter)
     {
         for (int drop = 0; drop < count; drop++)
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
-                CoordinateAxis.Wrap((random & xMask) + xBase),
-                CoordinateAxis.Wrap((SharedRandomState.UpperByte(random) & yMask) + yBase)), definitionId);
+                CoordinateAxis.Wrap(xScatter.Of(random) + xBase),
+                CoordinateAxis.Wrap(yScatter.Of(random) + yBase)), definitionId);
         }
     }
 
@@ -173,8 +173,8 @@ internal sealed class EnemyDeathsAndDrops
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
-                CoordinateAxis.Wrap(origin.X + EnemyDropMasks.HorizontalScatter.Of(random) - 16),
-                CoordinateAxis.Wrap(origin.Y + EnemyDropMasks.VerticalScatter.Of(random) - 16)), definitionId);
+                CoordinateAxis.Wrap(origin.X + EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16),
+                CoordinateAxis.Wrap(origin.Y + EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16)), definitionId);
         }
     }
 
@@ -301,7 +301,7 @@ internal sealed class EnemyDeathsAndDrops
         int random;
         do
         {
-            random = SharedRandomState.LowerByte(_room.Random.Generate());
+            random = _room.Random.Next(EnemyDropSelectionDefinitions.DropRoll);
         }
         while (random == 0);
 
@@ -604,10 +604,20 @@ internal sealed class EnemyDeathsAndDrops
                 projectile.Clear();
                 return null;
             case EnemyDeathProjectileCueKind.SpawnSpriteWithin32:
-                _projectiles.SpawnRandomEnemyDeathSprite(projectile, cue.SpriteObject, mask: 63, center: 32);
+                _projectiles.SpawnRandomEnemyDeathSprite(
+                    projectile,
+                    cue.SpriteObject,
+                    EnemyDeathExplosionDefinitions.WideSpriteHorizontalScatter,
+                    EnemyDeathExplosionDefinitions.WideSpriteVerticalScatter,
+                    center: 32);
                 return null;
             case EnemyDeathProjectileCueKind.SpawnSpriteWithin16:
-                _projectiles.SpawnRandomEnemyDeathSprite(projectile, cue.SpriteObject, mask: 31, center: 16);
+                _projectiles.SpawnRandomEnemyDeathSprite(
+                    projectile,
+                    cue.SpriteObject,
+                    EnemyDeathExplosionDefinitions.NarrowSpriteHorizontalScatter,
+                    EnemyDeathExplosionDefinitions.NarrowSpriteVerticalScatter,
+                    center: 16);
                 return null;
             case EnemyDeathProjectileCueKind.PlayEnemyKilledSound:
                 // The sound-queueing instruction returns to the next instruction, so the following duration starts the next frame.

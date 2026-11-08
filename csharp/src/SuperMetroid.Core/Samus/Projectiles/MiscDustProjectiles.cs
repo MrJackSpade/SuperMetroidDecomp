@@ -44,12 +44,18 @@ internal static class MiscDustProjectiles
     {
         if (placementIndex >= 5)
             throw new InvalidDataException($"Misc-dust placement index {placementIndex} exceeds the five placement records.");
-        if (placementIndex == 0) return default;
+        // The point placement reads no bits: its fields have one outcome, zero.
+        if (placementIndex == 0) return new(new(0, 0), new(HighByteShift, 0), default);
         bool tall = placementIndex >= 3;
-        int xRadius = 1 << (placementIndex + (tall ? 0 : 1));
-        int yRadius = tall ? xRadius * 2 : xRadius;
+        int xWidth = placementIndex + (tall ? 1 : 2);
+        int yWidth = tall ? xWidth + 1 : xWidth;
+        // Each box is centred: its base is minus half the span its field scatters across.
         return new(
-            new Extent16<RoomPixels>(CoordinateAxis.Wrap(xRadius * 2 - 1), CoordinateAxis.Wrap(yRadius * 2 - 1)),
-            new Offset16<RoomPixels>(CoordinateAxis.AsSigned(-xRadius), CoordinateAxis.AsSigned(-yRadius)));
+            new RandomSampleField(0, xWidth),
+            new RandomSampleField(HighByteShift, yWidth),
+            new Offset16<RoomPixels>(CoordinateAxis.AsSigned(-(1 << (xWidth - 1))), CoordinateAxis.AsSigned(-(1 << (yWidth - 1)))));
     }
+
+    /// <summary>The position of a sample's high byte, whose bits scatter the smoke's Y axis.</summary>
+    private const int HighByteShift = 8;
 }

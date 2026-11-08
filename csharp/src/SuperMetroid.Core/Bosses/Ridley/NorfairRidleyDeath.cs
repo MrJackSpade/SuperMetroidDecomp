@@ -162,9 +162,9 @@ internal sealed class NorfairRidleyDeath
             EnemyDefinitionId.Ridley,
             count: 16,
             xBase: 64,
-            xMask: 127,
+            xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 320,
-            yMask: 63);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         RidleyDeathDropRequested = true;
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(3));
         body.Properties = body.Properties.With(EnemyProperties.Deleted);

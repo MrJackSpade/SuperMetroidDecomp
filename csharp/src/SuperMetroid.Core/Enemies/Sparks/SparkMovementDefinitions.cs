@@ -11,4 +11,10 @@ internal static class SparkMovementDefinitions
 
     /// <summary>An emitter that drops falling sparks.</summary>
     internal static readonly SparkMovementDefinition Emitter = new(SparkProgram.Emitter, SparkEnemyFunction.EmitFallingSparks);
+
+    /// <summary>
+    /// The random field that sets a randomly delayed Spark's base function time, zero to sixty-three updates before the
+    /// fixed four are added: bits zero to five.
+    /// </summary>
+    internal static readonly RandomSampleField RandomDelay = new(0, 6);
 }

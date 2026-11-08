@@ -14,4 +14,10 @@ internal static class KagoDefinitions
     /// so the game reads it back from the chosen jump magnitude rather than drawing again.
     /// </summary>
     internal static readonly RandomSampleField LeftJump = new(8, 1);
+
+    /// <summary>The random field that adds zero to seven updates to a new Kago bug's first wait: bits zero to two.</summary>
+    internal static readonly RandomSampleField FirstIdleFrames = new(0, 3);
+
+    /// <summary>The random field that adds zero to thirty-one updates to a landed Kago bug's wait: bits zero to four.</summary>
+    internal static readonly RandomSampleField LandedIdleFrames = new(0, 5);
 }

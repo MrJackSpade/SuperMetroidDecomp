@@ -134,10 +134,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int baseTime = state.BaseFunctionTime;
         if (state.RequestsRandomDelay)
-        {
-            Func<int> nextRandom = _room.Random.Generate;
-            baseTime = (nextRandom() & 63) + 4;
-        }
+            baseTime = _room.Random.Next(SparkMovementDefinitions.RandomDelay) + 4;
 
         state.FunctionTimer = baseTime + additionalTime;
     }

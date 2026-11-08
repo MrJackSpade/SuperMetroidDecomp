@@ -255,10 +255,13 @@ internal static class TorizoProjectileAnimationsVerification
                 AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.GoldenTorizoOrb), cartridge.ReadCartridgeWord(address + 4), $"{at}: Golden Torizo orb header");
                 return 4;
             case TorizoProjectileCue.Scatter scatter:
-                AssertEqual(new EnemyProjectileScatter(
-                        new(OperandByte(cartridge, address + 2), OperandByte(cartridge, address + 4)),
-                        new(OperandByte(cartridge, address + 3), OperandByte(cartridge, address + 5))),
-                    scatter.Spread, $"{at}: scatter");
+                // Each range field reads exactly the bits of its native mask operand.
+                AssertEqual<int>(OperandByte(cartridge, address + 2), (scatter.Spread.XRange.Outcomes - 1) << scatter.Spread.XRange.Shift,
+                    $"{at}: scatter X range");
+                AssertEqual<int>(OperandByte(cartridge, address + 4), (scatter.Spread.YRange.Outcomes - 1) << scatter.Spread.YRange.Shift,
+                    $"{at}: scatter Y range");
+                AssertEqual(new Extent16<RoomPixels>(OperandByte(cartridge, address + 3), OperandByte(cartridge, address + 5)),
+                    scatter.Spread.Center, $"{at}: scatter center");
                 return 4;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearFrameBehavior or TorizoProjectileCueKind.AimSuperMissileTowardSamus or
                 TorizoProjectileCueKind.AimSuperMissileAwayFromSamus or TorizoProjectileCueKind.ReturnToOrigin or TorizoProjectileCueKind.RaiseDust or

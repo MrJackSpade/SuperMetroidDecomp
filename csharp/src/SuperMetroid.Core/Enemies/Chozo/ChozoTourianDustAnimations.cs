@@ -17,7 +17,7 @@ internal static class ChozoTourianDustAnimations
     {
         [P.Footsteps] =
         [
-            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Range: new(15, 15), Center: new(0, 3)))),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 3)))),
             Show(0, 2),
             Show(1, 2),
             Show(2, 2),
@@ -27,7 +27,7 @@ internal static class ChozoTourianDustAnimations
         ],
         [P.SpikeClearingExplosions] =
         [
-            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Range: new(15, 15), Center: new(0, 3)))),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 3)))),
             Show(4, 5),
             Show(5, 5),
             Show(6, 5),
@@ -45,7 +45,7 @@ internal static class ChozoTourianDustAnimations
         [P.TourianDescentDustLoop] =
         [
             Cue(new EnemyProjectileCommonCue.Command(CK.ReturnToOrigin)),
-            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(Range: new(63, 3), Center: new(0, 0)))),
+            Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 6), YRange: new(0, 2), Center: new(0, 0)))),
             Show(10, 2),
             Show(11, 2),
             Show(12, 2),

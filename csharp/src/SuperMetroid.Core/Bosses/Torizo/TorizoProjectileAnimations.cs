@@ -26,7 +26,7 @@ internal static class TorizoProjectileAnimations
         [P.ExplosionLowHealthInitialLoop] =
         [
             Cue(new TorizoProjectileCue.Command(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(Range: new(15, 15), Center: new(0, 0)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 4), Center: new(0, 0)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(P.ExplosionLowHealthInitialLoop, 0, 2),
             Show(P.ExplosionLowHealthInitialLoop, 1, 2),
@@ -48,7 +48,7 @@ internal static class TorizoProjectileAnimations
         [P.ExplosionDeathInitialLoop] =
         [
             Cue(new TorizoProjectileCue.Command(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(Range: new(31, 63), Center: new(0, 16)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 16)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(P.ExplosionDeathInitialLoop, 0, 4),
             Show(P.ExplosionDeathInitialLoop, 1, 6),
@@ -68,7 +68,7 @@ internal static class TorizoProjectileAnimations
         [P.ExplosionDeathSmokeSetupLoop] =
         [
             Cue(new TorizoProjectileCue.Command(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(Range: new(31, 63), Center: new(0, 4)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 4)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: Library2Sound.SmallExplosion, Priority: SoundRequestPriority.Normal)),
             Show(P.ExplosionDeathSmokeSetupLoop, 0, 8),
             Show(P.ExplosionDeathSmokeSetupLoop, 1, 8),
@@ -357,7 +357,7 @@ internal static class TorizoProjectileAnimations
         [P.SonicBoomWallImpactLoop] =
         [
             Cue(new TorizoProjectileCue.Command(K.ReturnToOrigin)),
-            Cue(new TorizoProjectileCue.Scatter(Spread: new(Range: new(15, 31), Center: new(0, 0)))),
+            Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 4), YRange: new(0, 5), Center: new(0, 0)))),
             Show(P.SonicBoomWallImpactLoop, 0, 2),
             Show(P.SonicBoomWallImpactLoop, 1, 2),
             Show(P.SonicBoomWallImpactLoop, 2, 3),

@@ -289,8 +289,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
         }
 
-        Func<int> readRandomNumber = _room.Random.Read;
-        state.LaserCooldown = WrappingCountdown.Start((readRandomNumber() & 31) + 16);
+        state.LaserCooldown = WrappingCountdown.Start(WorkRobotLaserDefinitions.CooldownJitter.Of(_room.Random.Read()) + 16);
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingProgram;
     }

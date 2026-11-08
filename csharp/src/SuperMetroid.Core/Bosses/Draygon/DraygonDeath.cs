@@ -106,9 +106,9 @@ internal sealed class DraygonDeath
             EnemyDefinitionId.DraygonBody,
             count: 16,
             xBase: 128,
-            xMask: byte.MaxValue,
+            xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
             yBase: 352,
-            yMask: 63);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         EnemyProperties deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;
         state.Eye.Properties = deletedProperties;

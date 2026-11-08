@@ -166,7 +166,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
         int random = _room.Random.Generate();
-        int decision = SharedRandomState.LowerByteAdvancedBy(random, slot.FrameCounter);
+        int decision = (OwtchMovementDefinitions.SinkRoll.Of(random) + slot.FrameCounter) % OwtchMovementDefinitions.SinkRoll.Outcomes;
         if (decision < 6)
             state.Behavior = OwtchBehaviorState.Sinking;
     }

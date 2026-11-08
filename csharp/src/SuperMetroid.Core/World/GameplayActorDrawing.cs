@@ -285,7 +285,7 @@ internal sealed class GameplayActorDrawing
                 _player.Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
                     _sprites,
                     _room.Camera.PixelPosition,
-                    Ensure.BetweenInclusive(0, ushort.MaxValue, _player.Samus.LiquidPhysics.FxYPosition),
+                    _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,
                     _player.Samus.Presentation.BodyFrames.Sheets);
 
                 // Drawing modes one and two differ only in sprite priority: one appends the

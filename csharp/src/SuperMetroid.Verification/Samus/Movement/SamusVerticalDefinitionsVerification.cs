@@ -27,8 +27,8 @@ internal static class SamusVerticalDefinitionsVerification
             bool gravity = (equipment & 2) != 0;
             bool boost = (equipment & 4) != 0;
             samus.EquippedItems = ((high ? SamusEquipmentFlags.HiJumpBoots : 0) | (gravity ? SamusEquipmentFlags.GravitySuit : 0) | (boost ? SamusEquipmentFlags.SpeedBooster : 0));
-            samus.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
-            samus.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
+            samus.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
+            samus.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
             samus.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             int medium = launch == 2 || gravity || environment == 3 ? 0 : environment;
             int address = launch == 2 ? 0x909eb9 : launch == 1

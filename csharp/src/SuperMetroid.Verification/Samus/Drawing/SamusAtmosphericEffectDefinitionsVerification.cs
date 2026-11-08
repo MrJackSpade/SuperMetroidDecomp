@@ -67,9 +67,12 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         AssertThrows<InvalidDataException>(
             () => SamusAtmosphericEffects.IsRunningFootContact(10),
             "running foot-contact frame past table");
+        AssertEqual(CrateriaAtmosphericEffectFlags.None,
+            SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentities.CrateriaSpacePirateShaft),
+            "a Crateria room the policy does not name has none");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.ForCrateriaRoom(new RoomIdentity(AreaId.Crateria, 16)),
-            "Crateria atmospheric room past table");
+            () => SamusAtmosphericEffects.ForCrateriaRoom(new RoomIdentity(AreaId.Brinstar, 0)),
+            "a room outside Crateria has no Crateria atmospheric policy");
 
         Console.WriteLine(
             "Samus atmospheric definitions: 28 splash selectors, 10 running-contact flags, both 16-byte Crateria policy copies, and all production handoffs pass with source tables forbidden.");

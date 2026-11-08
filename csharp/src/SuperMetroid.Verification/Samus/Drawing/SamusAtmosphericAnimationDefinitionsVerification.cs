@@ -96,7 +96,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 effects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, animationTimer: 1, anchor: new(100, drawY));
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
-                effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
+                effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, waterSurfaceLine: drawY,
                     SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
                 oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
@@ -109,7 +109,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
                 effects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, animationTimer: 0x8001,
                     anchor: new(100, drawY));
                 oamFrame.BeginFrame();
-                effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: drawY,
+                effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, waterSurfaceLine: drawY,
                     SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
                 oamFrame.FinalizeAsOam();
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer.RawValue,
@@ -131,7 +131,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             anchor: new(100, 100));
         var oamFrame = new SpriteFrameBuffer();
         oamFrame.BeginFrame();
-        effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, fxYPosition: 100);
+        effects.UpdateAndDraw(oamFrame, Position16<RoomPixels>.Zero, waterSurfaceLine: 100);
         OamBuffer oam = oamFrame.FinalizeAsOam();
         AssertEqual(0, oam.AppendedSpriteCount, "the null-pointer footstep splash draws nothing");
     }

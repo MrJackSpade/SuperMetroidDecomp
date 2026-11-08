@@ -29,8 +29,10 @@ internal static class SamusImpulseDefinitionsVerification
         {
             bomb.EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster | (gravity == 1 ? SamusEquipmentFlags.GravitySuit : 0));
             bomb.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
-            bomb.LiquidPhysics.FxYPosition = liquid == 1 ? (ushort)raw : ushort.MaxValue;
-            bomb.LiquidPhysics.LavaAcidYPosition = liquid == 2 ? (ushort)raw : ushort.MaxValue;
+            // A surface word from 32768 up lies above the room, where the game's sign test finds no surface.
+            int? surface = raw <= short.MaxValue ? raw : null;
+            bomb.LiquidPhysics.WaterSurfaceY = liquid == 1 ? surface : null;
+            bomb.LiquidPhysics.LavaAcidSurfaceY = liquid == 2 ? surface : null;
             bomb.BombJumpRequest = SamusBombJumpRequest.Published(direction).Accept();
             bomb.BombJumpStarting = true;
             bomb.BombJumpActive = false;
@@ -59,8 +61,8 @@ internal static class SamusImpulseDefinitionsVerification
             var hurt = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             SamusPoseMetadata.RefreshCollisionRadii(hurt);
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
-            hurt.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
-            hurt.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
+            hurt.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
+            hurt.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
             hurt.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             hurt.BombJumpRequest = SamusBombJumpRequest.Published(SamusBombJumpDirection.Left).Accept();
             hurt.BombJumpStarting = true;

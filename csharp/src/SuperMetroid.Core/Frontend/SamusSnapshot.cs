@@ -49,9 +49,9 @@ public sealed class SamusSnapshot
     /// <summary>The medium Samus's physics currently use.</summary>
     public required SamusLiquidMedium Medium { get; init; }
 
-    /// <summary>The water surface's height in the room.</summary>
-    public required int WaterSurfaceY { get; init; }
+    /// <summary>The water surface's height in the room, or none when the room has no water surface.</summary>
+    public required int? WaterSurfaceY { get; init; }
 
-    /// <summary>The lava or acid surface's height in the room.</summary>
-    public required int LavaAcidSurfaceY { get; init; }
+    /// <summary>The lava or acid surface's height in the room, or none when the room has no lava or acid surface.</summary>
+    public required int? LavaAcidSurfaceY { get; init; }
 }

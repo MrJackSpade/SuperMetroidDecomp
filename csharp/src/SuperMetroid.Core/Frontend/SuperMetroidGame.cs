@@ -485,8 +485,8 @@ public sealed class SuperMetroidGame
                 EscapeTimer = runtime.EscapeTimer.Phase,
                 Fx = samus.LiquidPhysics.FxType,
                 Medium = samus.LiquidPhysics.LiquidPhysicsType,
-                WaterSurfaceY = samus.LiquidPhysics.FxYPosition,
-                LavaAcidSurfaceY = samus.LiquidPhysics.LavaAcidYPosition,
+                WaterSurfaceY = samus.LiquidPhysics.WaterSurfaceY,
+                LavaAcidSurfaceY = samus.LiquidPhysics.LavaAcidSurfaceY,
             }
             : null,
     };

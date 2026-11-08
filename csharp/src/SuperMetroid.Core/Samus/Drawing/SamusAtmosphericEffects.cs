@@ -38,11 +38,12 @@ internal static class SamusAtmosphericEffects
         return animationFrame % 5 == 2;
     }
 
-    /// <summary>Room-specific landing/rain and wet-floor policies.</summary>
+    /// <summary>A Crateria room's landing/rain and wet-floor policy; a room the policy does not name has none.</summary>
+    /// <exception cref="InvalidDataException">The room is outside Crateria.</exception>
     internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(RoomIdentity room)
     {
-        if (room.Area != AreaId.Crateria || room.RoomIndex >= CrateriaPolicyRooms)
-            throw new InvalidDataException($"Room {room} is outside the {CrateriaPolicyRooms} Crateria atmospheric selectors.");
+        if (room.Area != AreaId.Crateria)
+            throw new InvalidDataException($"Room {room} is outside Crateria's atmospheric policy.");
         return CrateriaRoomEffects.TryGetValue(room, out CrateriaAtmosphericEffectFlags effects)
             ? effects
             : CrateriaAtmosphericEffectFlags.None;

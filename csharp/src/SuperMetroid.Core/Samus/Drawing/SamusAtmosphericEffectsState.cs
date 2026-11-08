@@ -81,12 +81,15 @@ public sealed class SamusAtmosphericEffectsState
     /// </summary>
     /// <param name="sprites">Frame receiving visible effects as draws, the highest slot first.</param>
     /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
-    /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
+    /// <param name="waterSurfaceLine">
+    /// The water surface's room Y as the diving splash reads it on each update, which for a room without a water surface is
+    /// the line <see cref="SuperMetroid.Core.Compatibility.AbsentWaterSurfaceLine"/> gives.
+    /// </param>
     /// <param name="sheets">The installed sheets every visible effect draws from; required when one is visible.</param>
     public void UpdateAndDraw(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
-        int fxYPosition,
+        int waterSurfaceLine,
         InstalledSpriteSheets? sheets = null)
     {
         Ensure.NotNull(sprites);
@@ -138,7 +141,7 @@ public sealed class SamusAtmosphericEffectsState
                 case SamusAtmosphericEffectType.DivingSplash:
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
-                    slot.Position = slot.Position.WithY(fxYPosition);
+                    slot.Position = slot.Position.WithY(waterSurfaceLine);
                     DrawSamusTableSpritemap(drawing, slot, slotIndex, SamusAtmosphereSheetDefinitions.DivingSplashFrame(slot.AnimationFrame));
                     break;
 

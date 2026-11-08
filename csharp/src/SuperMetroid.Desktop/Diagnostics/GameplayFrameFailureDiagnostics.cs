@@ -33,6 +33,10 @@ internal static class GameplayFrameFailureDiagnostics
             $"input={samus.HeldButtons}; newlyPressed={samus.NewlyPressedButtons}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.DrainedPhase}; drainedHandler={samus.DrainedGetUp}; " +
             $"escapeTimer={samus.EscapeTimer}; fx={samus.Fx}; medium={samus.Medium}; " +
-            $"waterY=${samus.WaterSurfaceY:X4}; acidY=${samus.LavaAcidSurfaceY:X4}";
+            $"waterY={Surface(samus.WaterSurfaceY)}; acidY={Surface(samus.LavaAcidSurfaceY)}";
     }
+
+    /// <summary>A liquid surface's height in hexadecimal, or "none" when the room has no such surface.</summary>
+    private static string Surface(int? surface) =>
+        surface is int y ? $"${y.ToString("X4", System.Globalization.CultureInfo.InvariantCulture)}" : "none";
 }

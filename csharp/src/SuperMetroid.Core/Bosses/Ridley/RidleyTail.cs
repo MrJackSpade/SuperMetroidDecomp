@@ -24,17 +24,14 @@ internal sealed class RidleyTail
     private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Provides the live random word sampled by Ceres curl and pogo whip decisions.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Resolves Ridley's body in physical enemy slot zero for tail contact gates.</summary>
-    private readonly EnemySlotTable _slotTable;
 
     /// <summary>Connects tail kinematics, collision, and encounter control to shared room and projectile state.</summary>
-    internal RidleyTail(EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter, EnemyRoomBinding room, EnemySlotTable slotTable)
+    internal RidleyTail(EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter, EnemyRoomBinding room)
     {
         _frameContext = frameContext;
         _projectiles = projectiles;
         _ridleyEncounter = ridleyEncounter;
         _room = room;
-        _slotTable = slotTable;
     }
 
     /// <summary>
@@ -375,7 +372,7 @@ internal sealed class RidleyTail
     /// <summary>Applies tail-tip contact damage after joint positions are solved, unless Ridley carries Samus or collision is disabled.</summary>
     internal bool ResolveRidleyTailSamusContact(SamusState samus)
     {
-        RoomEnemySlot body = _slotTable.Slots[0];
+        RoomEnemySlot body = _ridleyEncounter.Parts.Body;
         RidleyEnemyState? state = _ridleyEncounter.Ridley;
         // The tail composition checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.

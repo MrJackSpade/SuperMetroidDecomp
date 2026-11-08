@@ -20,7 +20,7 @@ internal sealed class CeresRidleyFlight
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
+    /// <summary>Finds the free place the turning-floor wall enemy takes when Ridley spawns it.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -44,11 +44,7 @@ internal sealed class CeresRidleyFlight
     /// </summary>
     internal void InitializeCeresRidley(RoomEnemySlot slot)
     {
-        if (slot.SlotIndex != 0)
-        {
-            throw new InvalidDataException(
-                $"Ceres Ridley requires the first enemy slot, not slot {slot.SlotIndex}.");
-        }
+        _ridleyEncounter.Parts.RequireBody(slot, "Ceres Ridley");
 
         // Ceres Ridley's initialization clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;

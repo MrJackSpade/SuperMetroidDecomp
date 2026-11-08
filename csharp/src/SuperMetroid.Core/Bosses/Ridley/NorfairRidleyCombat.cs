@@ -50,11 +50,7 @@ internal sealed class NorfairRidleyCombat
     /// </summary>
     internal void InitializeNorfairRidley(RoomEnemySlot slot)
     {
-        if (slot.SlotIndex != 0)
-        {
-            throw new InvalidDataException(
-                $"Lower Norfair Ridley requires the first enemy slot, not slot {slot.SlotIndex}.");
-        }
+        _ridleyEncounter.Parts.RequireBody(slot, "Lower Norfair Ridley");
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
         {

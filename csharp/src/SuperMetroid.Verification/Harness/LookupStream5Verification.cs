@@ -337,7 +337,7 @@ internal static class LookupStream5Verification
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
             slots[0].FrameCounter = tick;
-            system.CeresDoorBehavior.RunCeresDoorPaletteAnimation();
+            system.CeresDoorBehavior.RunCeresDoorPaletteAnimation(slots[0]);
             AssertEqual(strips[(tick & 2) >> 1], floor.Drawn.Single(), "Actual platform phase draws its strip over the floor");
         }
         string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
@@ -1873,10 +1873,10 @@ internal static class LookupStream5Verification
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel");
             var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0) { Floor = RoomBackgroundsFixtures.CeresFloor() }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            Action tick = system.CeresDoorBehavior.RunCeresDoorPaletteAnimation;
+            RoomEnemySlot door = system.SlotTable.Slots[0];
             foreach (int counter in Enumerable.Range(0, 64))
             {
-                system.SlotTable.Slots[0].FrameCounter = (ushort)counter; tick();
+                door.FrameCounter = (ushort)counter; system.CeresDoorBehavior.RunCeresDoorPaletteAnimation(door);
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
                 AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");

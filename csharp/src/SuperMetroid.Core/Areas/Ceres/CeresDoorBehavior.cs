@@ -28,8 +28,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues the door's opening and destruction sounds.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Provides slot zero's frame counter for the shared palette cycle.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Shows the pre-explosion overlay's characters over the room's sprite characters.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>
@@ -44,7 +42,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
-        _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
         _projectiles = dependencies.Projectiles;
         _ridleyEncounter = dependencies.CeresEscape;
@@ -198,7 +195,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             case CeresDoorFunction.RotatingElevatorRoomDefault:
-                RunCeresDoorPaletteAnimation();
+                RunCeresDoorPaletteAnimation(slot);
                 if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
                     // Entering the destruction state installs the destruction function and initializes all three
@@ -216,7 +213,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             case CeresDoorFunction.ElevatorAnimation:
-                RunCeresDoorPaletteAnimation();
+                RunCeresDoorPaletteAnimation(slot);
                 return;
 
             default:
@@ -293,13 +290,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         _audio.QueueEnemySound(Library2Sound.BigExplosion, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Cycles door colors and the room's turning-floor elevator frame from slot zero's frame counter.</summary>
-    internal void RunCeresDoorPaletteAnimation()
+    /// <summary>
+    /// Cycles the elevator room's glow and the room's turning-floor elevator frame by <paramref name="door"/>'s own update
+    /// count. The glow and the platform strip are only drawn, so the door clocks them itself; the original game read the
+    /// room's first enemy's count, which only shifts the drawn phase where another enemy is listed first.
+    /// </summary>
+    internal void RunCeresDoorPaletteAnimation(RoomEnemySlot door)
     {
-        // The door's palette cycle selects six colors by frame-counter bits 3..5. The enemy
-        // frame counter advances at the same cadence, so slot zero is the shared
-        // timebase for the room-owned palette cycle.
-        int frame = _slotTable.Slots[0].FrameCounter;
+        int frame = Ensure.NotNull(door).FrameCounter;
 
         // AnimateCeresElevatorPlatform does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door

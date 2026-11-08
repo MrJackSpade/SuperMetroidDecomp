@@ -22,8 +22,6 @@ internal sealed class CeresRidleyGetaway
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves the door and turning-floor wall enemy records beside Ridley.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Writes Ceres target colors and supplemental composite drawing.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Owns the shared Ridley encounter and its battle state.</summary>
@@ -42,7 +40,6 @@ internal sealed class CeresRidleyGetaway
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
-        _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
@@ -226,7 +223,7 @@ internal sealed class CeresRidleyGetaway
                 return;
 
             case CeresSelfDestructPhase.HoldingTitle:
-                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 if (--state.CeresEscapeTextDelayTimer != 0)
                     return;
 
@@ -243,7 +240,7 @@ internal sealed class CeresRidleyGetaway
                 return;
 
             case CeresSelfDestructPhase.JapaneseSubtitle:
-                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 if (--state.CeresEscapeTextDelayTimer == 0)
                 {
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.TypingWarning;
@@ -260,13 +257,13 @@ internal sealed class CeresRidleyGetaway
                 return;
 
             case CeresSelfDestructPhase.TypingWarning:
-                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 if (StepCeresEscapeTypewriter(state))
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.Finishing;
                 return;
 
             case CeresSelfDestructPhase.Finishing:
-                UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
+                UpdateCeresSelfDestructPalette(state, _ridleyEncounter.Parts.Body.FrameCounter);
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;

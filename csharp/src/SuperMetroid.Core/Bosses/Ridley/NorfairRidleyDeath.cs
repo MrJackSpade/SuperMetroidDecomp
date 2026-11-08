@@ -59,7 +59,7 @@ internal sealed class NorfairRidleyDeath
     internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot) =>
         InitializeNorfairRidleyExplosion(
             slot,
-            _ridleyEncounter.Body,
+            _ridleyEncounter.Parts.Body,
             _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
                 "A Ridley breakup actor has no shared Ridley owner."));
 

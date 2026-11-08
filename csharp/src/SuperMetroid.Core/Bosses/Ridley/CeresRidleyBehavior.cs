@@ -44,10 +44,10 @@ internal sealed class CeresRidleyBehavior
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
         Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Dispatch = dependencies.Dispatch, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, RidleyEncounter = _ridleyEncounter });
-        BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.SlotTable, dependencies.Presentation.Surfaces, _ridleyEncounter);
+        BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.Presentation.Surfaces, _ridleyEncounter);
         Fades = new CeresRidleyFades(dependencies.Audio);
-        Hits = new CeresRidleyHits(dependencies.Room, dependencies.SlotTable, dependencies.Collision, _ridleyEncounter);
-        Getaway = new CeresRidleyGetaway(new CeresRidleyGetawayDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation.Surfaces, RidleyEncounter = _ridleyEncounter, RoomStatus = _roomStatus, BossArtwork = _bossArtwork });
+        Hits = new CeresRidleyHits(dependencies.Room, dependencies.Collision, _ridleyEncounter);
+        Getaway = new CeresRidleyGetaway(new CeresRidleyGetawayDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Audio = dependencies.Audio, Presentation = dependencies.Presentation.Surfaces, RidleyEncounter = _ridleyEncounter, RoomStatus = _roomStatus, BossArtwork = _bossArtwork });
     }
 
     /// <summary>

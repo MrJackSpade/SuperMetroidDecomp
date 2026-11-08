@@ -276,12 +276,9 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>
-    /// Runs the eight descending allocations and the spike-wall piece
-    /// initializer. Its Y-position table has eight unsigned
-    /// values, all exactly 56 + 16*i for i=0..7. Entries 0..7 correspond to physical
-    /// projectile slots 10..17; the checked managed index is slot minus 10.
-    /// Clearing the pool before this call makes the spawn order Y=168 down
-    /// to 56. The table has no ninth entry.
+    /// Spawns the wall's eight pieces, bottom piece first, and runs the spike-wall piece initializer on each. Each piece
+    /// carries its place in the wall, zero for the top piece, and stands at 56 + 16 times its place, so the spawn order
+    /// runs Y=168 up to 56. The caller empties the projectile pool just before, so every piece is spawned.
     /// </summary>
     internal void SpawnCrocomireSpikeWallPieces()
     {
@@ -289,9 +286,7 @@ internal sealed class CrocomireSkeleton
             throw new InvalidOperationException("Crocomire spike wall spawned without an owner.");
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.Body);
 
-        // Each piece's height follows its projectile slot. Clearing the pool immediately
-        // before this call guarantees slots 17..10 and heights 56, 72, ..., 168.
-        for (int count = 0; count < 8; count++)
+        for (int count = 0; count < CrocomireSpikeMotionDefinitions.PieceCount; count++)
         {
             RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
             if (projectile is null)
@@ -302,16 +297,10 @@ internal sealed class CrocomireSkeleton
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces,
                 graphics);
             projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.SpikeWallPiece));
-            int yTableIndex = projectile.SlotIndex - 10;
-            if ((uint)yTableIndex >= 8)
-            {
-                throw new InvalidDataException(
-                    $"Crocomire spike wall occupied unexpected projectile slot {projectile.SlotIndex}.");
-            }
-
-            projectile.Position = projectile.Position.WithWhole(new(528, 56 + yTableIndex * 16));
+            int piece = CrocomireSpikeMotionDefinitions.PieceCount - 1 - count;
+            projectile.Position = projectile.Position.WithWhole(new(528, 56 + piece * 16));
             projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-            projectile.State = new CrocomireSpikeWallPieceState();
+            projectile.State = new CrocomireSpikeWallPieceState(piece);
             projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         }
     }

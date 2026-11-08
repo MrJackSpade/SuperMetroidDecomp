@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>

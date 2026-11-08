@@ -39,7 +39,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Rooms;
 

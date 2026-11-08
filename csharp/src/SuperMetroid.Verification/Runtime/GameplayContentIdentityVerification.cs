@@ -1,19 +1,15 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.AssetExtraction.Installation;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
-using SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Checks canonical hashes for shared sprite pixels and X-ray visuals.</summary>
 internal static class GameplayContentIdentityVerification

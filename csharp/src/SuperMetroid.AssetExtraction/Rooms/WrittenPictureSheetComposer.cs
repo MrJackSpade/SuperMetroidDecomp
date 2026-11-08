@@ -71,7 +71,7 @@ internal static class WrittenPictureSheetComposer
         RgbColor[] shared = ColoursOf(writers[0], standard);
         foreach (TileWordWriter writer in writers.Skip(1))
         {
-            if (!shared.AsSpan().SequenceEqual(ColoursOf(writer, standard)))
+            if (!shared.SequenceEqual(ColoursOf(writer, standard)))
                 throw new InvalidDataException($"The pictures {writers[0]} and {writer} write share a sheet but show different colours.");
         }
         return shared;

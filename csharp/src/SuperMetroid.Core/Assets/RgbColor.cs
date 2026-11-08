@@ -68,7 +68,7 @@ public readonly record struct RgbColor
             Math.Min(FullChannel, Blue + added.Blue));
 
     /// <summary>The host pixel showing this colour, opaque.</summary>
-    public RgbaPixel ToRgbaPixel() => new((byte)Red, (byte)Green, (byte)Blue);
+    public RgbaPixel ToRgbaPixel() => new((byte)Red, (byte)Green, (byte)Blue); // cartridge-encoding: allow(HostPixelFormat) - each channel is held to 0-255 by the constructor, and the host RGBA8888 pixel stores it in one byte
 
     /// <inheritdoc />
     public override string ToString() => $"Rgb(r{Red}, g{Green}, b{Blue})";

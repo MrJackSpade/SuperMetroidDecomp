@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// own, the explosion's crossfade fades the escape's far background out of the planet's floor, its burst and finale run
 /// their effects over the explosion's pictures, the whiteout's floor colour is the flyaway floor's, and the post-credits
 /// shot's floor is drawn in the shot's colours. No ending frame keeps its own colours in another actor's colour group but
-/// the animals' escape pod's: every cinematic frame the import reads from the cartridge inherits its actor's colours, and
+/// the animals' escape pod's: every installed cinematic frame inherits its actor's colours, and
 /// the shooting stars keep their own.
 /// </summary>
 internal static class EndingColourOwnerDefinitions

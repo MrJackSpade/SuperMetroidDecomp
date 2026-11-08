@@ -31,7 +31,7 @@ internal static class PauseShownColours
         // Only the map's highlighted sprites show the cycle (#1544): the equipment page's selector and reserve strip,
         // which the cartridge draws in the same colour group, show their own colours.
         if (pause.paletteAnimation.ShownFrame is int frame && pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
-                .Any(draw => draw.Shading.Shades.Contains(MapSpriteShades.Highlight(frame))))
+                .Any(draw => Ensure.NotNull(draw.Shading).Shades.Contains(MapSpriteShades.Highlight(frame))))
             InstalledAreaMapPresentation.HighlightColoursOf(maps).Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
         PictureShading arrow = pause.ReserveArrowShading;
         if (!arrow.IsStandard)

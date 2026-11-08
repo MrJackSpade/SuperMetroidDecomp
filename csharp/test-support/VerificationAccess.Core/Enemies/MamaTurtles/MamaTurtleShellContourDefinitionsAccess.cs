@@ -7,8 +7,8 @@ internal static class MamaTurtleShellContourDefinitionsAccess
     /// <summary>Reads raw shell-contour offsets used by Mama Turtle collision comparisons.</summary>
     extension(MamaTurtleShellContourDefinitions)
     {
-        /// <summary>Returns one raw word by native table index for cartridge parity checks.</summary>
-        internal static short GetRawOffset(int index)
+        /// <summary>Returns one offset by its table index for cartridge parity checks.</summary>
+        internal static int GetRawOffset(int index)
         {
             if ((uint)index >= MamaTurtleShellContourDefinitions.EntryCount)
                 throw new ArgumentOutOfRangeException(nameof(index));

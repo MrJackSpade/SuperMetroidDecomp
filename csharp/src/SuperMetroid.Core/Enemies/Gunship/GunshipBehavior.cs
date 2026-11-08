@@ -297,7 +297,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // 4.5 pixels per call; below that threshold it slows to 2.5 and clamps the
         // top hull to 1119 before beginning the game's seventeen-entry bounce table.
         // The clamp writes only whole positions; subpixels keep this call's sum.
-        uint delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
+        SignedSixteenSixteen delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
         AddGunshipYFixed(samus, top, delta);
         if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
             return;
@@ -359,16 +359,16 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Adds the same 16.16 Y displacement to Samus and all three ship components.</summary>
-    private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
+    private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, SignedSixteenSixteen delta)
     {
         FixedCoordinate samusY = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction)
-            .MovedBy(SignedSixteenSixteen.FromRaw(unchecked((int)delta)));
+            .MovedBy(delta);
         samus.Position = samus.Position.WithWholeY(samusY.Whole);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(samusY.Fraction);
 
         foreach (RoomEnemySlot slot in Pieces(top).All)
         {
-            slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(unchecked((int)delta))));
+            slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(delta));
         }
     }
 

@@ -21,14 +21,14 @@ internal static class GunshipMotionDefinitions
     /// </remarks>
     internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];
 
-    /// <summary>Above this Y the descending ship moves $4.8000 pixels per call; below it, $2.8000.</summary>
+    /// <summary>Above this Y the descending ship moves 4.5 pixels per call; below it, 2.5.</summary>
     internal const int SlowDescentY = 768;
 
-    /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>, 16.16 pixels per call.</summary>
-    internal const uint FastDescentSpeed = 294912u;
+    /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>: four and a half pixels per call.</summary>
+    internal static readonly SignedSixteenSixteen FastDescentSpeed = SignedSixteenSixteen.FromParts(4, 32768);
 
-    /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>, 16.16 pixels per call.</summary>
-    internal const uint SlowDescentSpeed = 163840u;
+    /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>: two and a half pixels per call.</summary>
+    internal static readonly SignedSixteenSixteen SlowDescentSpeed = SignedSixteenSixteen.FromParts(2, 32768);
 
     /// <summary>The landed top hull's Y, where the descent clamps.</summary>
     internal const int LandedTopY = 1119;

@@ -36,7 +36,7 @@ internal static class RoomFxRecordDefinitionAccess
             9 => RoomFxRecordEncoding.TypeByte(self.Type),
             10 or 11 =>
                 throw new NotSupportedException($"The record holds the blend the import read from byte {offset}, not the byte."),
-            12 => RoomFxRecordEncoding.LiquidOptionsByte(self.LiquidOptions),
+            12 => RoomFxRecordCodec.LiquidOptionsByte(self.LiquidOptions),
             13 => RoomFxRecordEncoding.PaletteEffectsByte(self.PaletteEffects, self.HeaderArea),
             14 => RoomFxRecordEncoding.AnimatedTilesByte(self.AnimatedTiles, self.HeaderArea),
             15 => RoomFxRecordEncoding.PaletteBlendByte(self.PaletteBlend),

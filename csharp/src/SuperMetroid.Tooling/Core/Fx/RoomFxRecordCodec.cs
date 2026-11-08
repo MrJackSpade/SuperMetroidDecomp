@@ -123,8 +123,58 @@ internal static class RoomFxRecordCodec
     /// <summary>The surface height a record's height word names, or null for <see cref="UnnamedSurfaceWord"/>.</summary>
     internal static int? SurfaceY(ushort word) => word == UnnamedSurfaceWord ? null : word;
 
-    /// <summary>The liquid options a record's options byte selects; every bit is kept, tested or not.</summary>
-    internal static RoomLiquidOptions LiquidOptions(byte value) => (RoomLiquidOptions)value;
+    /// <summary>A liquid option and the bit of a record's options byte that selects it.</summary>
+    /// <param name="Option">The option.</param>
+    /// <param name="Bit">Its bit in the options byte.</param>
+    private readonly record struct LiquidOptionBit(RoomLiquidOptions Option, int Bit);
+
+    /// <summary>Each liquid option and the options-byte bit that selects it.</summary>
+    private static readonly LiquidOptionBit[] LiquidOptionBits =
+    [
+        new(RoomLiquidOptions.SurfaceDrift, 1 << 0),
+        new(RoomLiquidOptions.BackgroundWave, 1 << 1),
+        new(RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave, 1 << 2),
+        new(RoomLiquidOptions.Untested, 1 << 3),
+        new(RoomLiquidOptions.LargeTide, 1 << 6),
+        new(RoomLiquidOptions.SmallTide, 1 << 7),
+    ];
+
+    /// <summary>The liquid options a record's options byte selects; every named bit is kept, tested or not.</summary>
+    /// <exception cref="InvalidDataException">The byte sets a bit that selects no option.</exception>
+    internal static RoomLiquidOptions LiquidOptions(byte value)
+    {
+        RoomLiquidOptions options = RoomLiquidOptions.None;
+        int unnamed = value;
+        foreach (LiquidOptionBit entry in LiquidOptionBits)
+        {
+            if ((value & entry.Bit) != 0)
+                options |= entry.Option;
+            unnamed &= ~entry.Bit;
+        }
+        if (unnamed != 0)
+            throw new InvalidDataException($"Liquid options ${value:X2} set bits ${unnamed:X2}, which select no option.");
+        return options;
+    }
+
+    /// <summary>
+    /// The options byte that selects <paramref name="options"/>: the byte checks seed synthetic records with and compare
+    /// the decode against, and the word Samus's liquid physics copies, which the native capture seed writes.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="options"/> holds a value that names no option.</exception>
+    internal static byte LiquidOptionsByte(RoomLiquidOptions options)
+    {
+        int value = 0;
+        RoomLiquidOptions unencoded = options;
+        foreach (LiquidOptionBit entry in LiquidOptionBits)
+        {
+            if ((options & entry.Option) != RoomLiquidOptions.None)
+                value |= entry.Bit;
+            unencoded &= ~entry.Option;
+        }
+        if (unencoded != RoomLiquidOptions.None)
+            throw new ArgumentOutOfRangeException(nameof(options), options, "The options hold a value that names no liquid option.");
+        return checked((byte)value);
+    }
 
     /// <summary>
     /// The palette effects a record's palette-effect byte starts in a room of <paramref name="area"/>, in ascending bit

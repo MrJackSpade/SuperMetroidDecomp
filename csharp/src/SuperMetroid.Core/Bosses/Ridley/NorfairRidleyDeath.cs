@@ -241,7 +241,7 @@ internal sealed class NorfairRidleyDeath
                 ? horizontalMagnitude
                 : -horizontalMagnitude), default),
         };
-        fragment.SetSpeciesState(fragmentState, fragmentState.ClearWithRecord);
+        fragment.SetSpeciesState(fragmentState);
 
         // Tail fragments start from their tail segment; the body fragments start from the body.
         if (RidleyExplosionDefinitions.TailSegment.TryGetValue(part, out int tailIndex))

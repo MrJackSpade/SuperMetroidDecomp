@@ -51,7 +51,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
         var doorState = new CeresDoorEnemyState { HandsDrawingToRidley = true };
-        door.SetSpeciesState(doorState, doorState.ClearWithRecord);
+        door.SetSpeciesState(doorState);
         door.Position = door.Position.WithWhole(new(100, 80));
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapDocuments.Load(

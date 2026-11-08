@@ -78,7 +78,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
         BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous));
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         state.FunctionTimer = 0;
         state.Function = null;
@@ -522,9 +522,16 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.KnockbackTimer = 0;
     }
 
-    /// <summary>Runs the private post-common-shot tail.</summary>
-    private static void ResolveBeetomShotAfterCommon(RoomEnemySlot slot, BeetomEnemyState state)
+    /// <summary>
+    /// Runs the private post-common-shot tail: a surviving Beetom frozen while draining drops, and lets go of Samus. A
+    /// hit that killed the Beetom took it from its slot with its state, and the slot's next Beetom starts detached, so
+    /// the tail has nothing left to change.
+    /// </summary>
+    private static void ResolveBeetomShotAfterCommon(RoomEnemySlot slot)
     {
+        if (slot.Health == 0)
+            return;
+        BeetomEnemyState state = slot.RequireSpeciesState<BeetomEnemyState>();
         if (slot.FrozenTimer != 0 && state.Function is
             BeetomEnemyFunction.DrainingLeft or BeetomEnemyFunction.DrainingRight)
         {
@@ -561,13 +568,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
     internal static void AddBeetomBombReactions(EnemySharedReactions table)
     {
-        // Common damage can clear a lethally hit slot before this private tail runs. The game still clears Beetom's
-        // separate attached flag after returning from common shot AI, so the identity is matched before dispatch.
+        // Common damage can kill the Beetom before this private tail runs, so the identity is matched before dispatch.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Beetom &&
                                                        EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.BeetomShot &&
                                                        c.SelectedShotAi == EnemyReaction.BeetomShot)
         {
-            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
+            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
         });
     }
 
@@ -597,7 +603,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Beetom &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.BeetomShot)
         {
-            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
+            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
         });
     }
 

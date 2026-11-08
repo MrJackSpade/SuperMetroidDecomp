@@ -40,7 +40,7 @@ internal static class WreckedShipGhostBobbingVerification
                 BobbingOrigin = new(0, originY),
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };
-            slot.SetSpeciesState(state, state.ClearWithRecord);
+            slot.SetSpeciesState(state);
 
             WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(slot, frame);
 

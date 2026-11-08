@@ -4,15 +4,14 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>
 /// The state of one walking Space Pirate. The patrol posts are room positions that wrap at sixteen bits, because
 /// population parameter two is added and subtracted without clamping by the initializer; the walk compares the Pirate
-/// with them by the wrapped spatial difference. The behaviour and posts are values the game keeps in the enemy's
-/// common record, so a kill empties them with that record (<see cref="ClearWithRecord"/>).
+/// with them by the wrapped spatial difference.
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<WalkingSpacePirateProgram> Program { get; set; }
 
-    /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current behaviour.</summary>
     public WalkingSpacePirateFunction? Function { get; internal set; }
 
     /// <summary>
@@ -37,12 +36,4 @@ public sealed class WalkingSpacePirateEnemyState
 
     /// <summary>Successful allocations from the actor's three-shot firing animations.</summary>
     public int SpawnedLaserCount { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour and both posts at zero.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        LeftPost = Position16<RoomPixels>.Zero;
-        RightPost = Position16<RoomPixels>.Zero;
-    }
 }

@@ -68,7 +68,9 @@ internal sealed class KraidProjectiles
         _access.AttachKraidPart(nail, state);
         nail.Shading = _parts.Body.Shading;
         KraidNailState nailPart = _parts.NailStateOf(state, nail);
-        nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
+        // A fingernail is set up at rest with its horizontal fraction primed: the room's first setup starts it at rest, and
+        // a respawn follows the kill that stopped it (KilledFingernailStops).
+        nailPart.NailVelocity = FixedVector<RoomPixels>.FromWords(0, 40, 0, 0);
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
         nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
@@ -270,7 +272,10 @@ internal sealed class KraidProjectiles
         RoomEnemySlot sibling = ReferenceEquals(nail, _parts.FirstNail) ? _parts.SecondNail : _parts.FirstNail;
         KraidNailState siblingPart = _parts.NailStateOf(_access.RequireKraidState(nail), sibling);
         int random = _room.Random.Read();
-        part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
+        // A sibling killed since it was set up holds its place without its state, and launches nothing.
+        bool siblingKilled = !ReferenceEquals(sibling.SpeciesState<KraidPartState>(), siblingPart);
+        part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(
+            KilledFingernailStops.SiblingSpeed(siblingPart.NailVelocity.Y.WholeWord, stopped: 0, siblingKilled));
         part.NailLaunched = true;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);

@@ -1,18 +1,15 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
-/// <summary>
-/// The state of a Boyon, with its six parallel extended words. The values the game keeps in the enemy's
-/// common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of a Boyon, with its six parallel extended words.</summary>
 public sealed class BoyonEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BoyonProgram> Program { get; set; }
 
     /// <summary>
-    /// The multiplier its bounce curve is scaled by, from its spawn settings; a kill empties it to zero. The multiply
-    /// takes it whole, so a multiplier the multiply could not hold, above 255, is rejected.
+    /// The multiplier its bounce curve is scaled by, from its spawn settings. The multiply takes it whole, so a
+    /// multiplier the multiply could not hold, above 255, is rejected.
     /// </summary>
     public int SpeedMultiplier
     {
@@ -113,15 +110,4 @@ public sealed class BoyonEnemyState
 
     /// <summary>One-time gate for the initial curve-index calculation.</summary>
     public bool BounceSpeedCalculated { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        SpeedMultiplier = 0;
-        Speed = 0;
-        JumpHeight = 0;
-        DistanceAccumulator = 0;
-        SpeedTableIndex = 0;
-        Bouncing = false;
-    }
 }

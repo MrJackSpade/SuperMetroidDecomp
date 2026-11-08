@@ -2,9 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// One dead sidehopper's corpse state: its silhouette, rot schedule, animation, hop, palette and contact progress. The
-/// values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
-/// cref="ClearWithRecord"/>).
+/// One dead sidehopper's corpse state: its silhouette, rot schedule, animation, hop, palette and contact progress.
 /// </summary>
 public sealed class DeadSidehopperEnemyState
 {
@@ -28,9 +26,7 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
     internal RottingCorpseKind Flesh { get; init; }
 
-    /// <summary>
-    /// The current dead-sidehopper AI behaviour; none once a kill has emptied the record.
-    /// </summary>
+    /// <summary>The current dead-sidehopper AI behaviour.</summary>
     public DeadSidehopperAiFunction? Function { get; internal set; }
 
     /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
@@ -80,12 +76,4 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
     internal void CountPreRotDelayCall() =>
         PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        PreRotDelayCounter = 0;
-        StateTimer = 0;
-    }
 }

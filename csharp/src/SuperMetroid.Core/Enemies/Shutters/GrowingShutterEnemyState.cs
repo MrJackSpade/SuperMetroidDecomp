@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
 /// The state of a growing shutter: its behaviour, the four independently positioned 16-pixel growth sections' origins,
-/// its growth level and its extended movement state. The values the game keeps in the enemy's common record are
-/// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// its growth level and its extended movement state.
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
@@ -27,8 +26,8 @@ public sealed class GrowingShutterEnemyState
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
-    /// The dispatcher behaviour; initialization selects a wait function and activation replaces it with a
-    /// growth function. None once a kill has emptied the record.
+    /// The dispatcher behaviour; initialization selects a wait function and activation replaces it with a growth
+    /// function.
     /// </summary>
     public GrowingShutterFunction? Function { get; internal set; }
 
@@ -91,14 +90,4 @@ public sealed class GrowingShutterEnemyState
     internal Position16<RoomPixels> OriginForLevel() => GrowthLevel < SectionCount
         ? SectionOrigin(GrowthLevel)
         : throw new InvalidOperationException($"Growing shutter level {GrowthLevel} has no section origin.");
-
-    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour, no origins, level zero.</summary>
-    internal void ClearWithRecord()
-    {
-        ActivationTimer = 0;
-        ActivationDistance = 0;
-        Function = null;
-        Array.Clear(_sectionOrigins);
-        GrowthLevel = 0;
-    }
 }

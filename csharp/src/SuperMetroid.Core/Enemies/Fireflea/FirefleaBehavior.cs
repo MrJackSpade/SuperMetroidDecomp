@@ -34,7 +34,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeFireflea(RoomEnemySlot slot)
     {
         var state = new FirefleaEnemyState(slot);
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();

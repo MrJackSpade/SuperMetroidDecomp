@@ -2,10 +2,9 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
 /// The state of one gunship hull or pad slot. Each value is the part's own: the game keeps the top hull's bob timer
-/// with the bottom hull's engine-sound timer, its base Y and landing-brake step with the bottom hull's rumble frame, and
-/// its function with the bottom hull's escape speed, but each hull reads only its own meanings, and the top hull's
-/// landing brake ends by setting the base Y before anything reads it. The values are emptied with the record when the
-/// slot is killed (<see cref="ClearWithRecord"/>).
+/// with the bottom hull's engine-sound timer, its base Y and landing-brake step with the bottom hull's rumble frame,
+/// and its function with the bottom hull's escape speed, but each hull reads only its own meanings, and the top hull's
+/// landing brake ends by setting the base Y before anything reads it.
 /// </summary>
 internal sealed class GunshipPartState
 {
@@ -69,20 +68,4 @@ internal sealed class GunshipPartState
     /// <summary>The state of a gunship slot, failing if the slot never initialized as a gunship part.</summary>
     internal static GunshipPartState Of(RoomEnemySlot slot) =>
         slot.SpeciesState<GunshipPartState>() ?? throw new InvalidOperationException("A gunship slot has no state.");
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    [IntendedDuplicate("each state clears its own record values; the shared shape is only the assignment of zero")]
-    internal void ClearWithRecord()
-    {
-        FunctionTimer = 0;
-        EngineReadyingElapsed = 0;
-        BobPhase = 0;
-        BobTimer = 0;
-        EngineSoundTimer = 0;
-        BaseY = 0;
-        LandingBrakeStep = 0;
-        RumbleFrame = 0;
-        EscapeVelocity = 0;
-        Function = GunshipFunction.None;
-    }
 }

@@ -94,7 +94,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
             Program = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program),
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         state.Function = initialization.Function;
     }

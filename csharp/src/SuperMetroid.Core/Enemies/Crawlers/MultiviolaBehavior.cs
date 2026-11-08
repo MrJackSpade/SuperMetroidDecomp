@@ -41,7 +41,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             Heading = slot.SpawnSettings<MultiviolaSpawnSettings>().Heading,
             Speed = slot.SpawnSettings<MultiviolaSpawnSettings>().Speed,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // Retail redundantly performs the same magnitude calculation here and again at the
         // beginning of every main-AI call, so the speeds are already set when the room

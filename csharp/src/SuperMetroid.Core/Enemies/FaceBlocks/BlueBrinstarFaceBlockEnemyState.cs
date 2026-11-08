@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
-/// <summary>
-/// The state of the Blue Brinstar face block. Its activation latch and last horizontal distance
-/// are values the game keeps in the enemy's common record, so a kill empties them with that record
-/// (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of the Blue Brinstar face block.</summary>
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
@@ -33,12 +29,4 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     /// this names, so a face looking right wakes for Samus to its left.
     /// </summary>
     public bool FacesRight { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record: not activated, no distance.</summary>
-    internal void ClearWithRecord()
-    {
-        Activated = false;
-        LastHorizontalDelta = 0;
-        FacesRight = false;
-    }
 }

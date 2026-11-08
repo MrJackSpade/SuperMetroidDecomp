@@ -290,7 +290,7 @@ internal sealed class MotherBrainFakeDeath
             FloorY = tubeBody.Floor,
             FallDelay = settings.FallDelay,
         };
-        tube.SetSpeciesState(state, state.ClearWithRecord);
+        tube.SetSpeciesState(state);
     }
 
     /// <summary>Runs the function dispatcher for physical tube enemies.</summary>

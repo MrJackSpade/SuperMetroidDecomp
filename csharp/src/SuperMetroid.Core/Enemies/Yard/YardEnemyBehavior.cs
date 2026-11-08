@@ -98,7 +98,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             IdleCrawlSpeed = settings.CrawlSpeed,
             CrawlSpeed = settings.CrawlSpeed,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);

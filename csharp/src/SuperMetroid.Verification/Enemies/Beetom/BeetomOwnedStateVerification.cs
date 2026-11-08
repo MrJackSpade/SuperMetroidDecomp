@@ -7,13 +7,13 @@ namespace SuperMetroid.Verification.Enemies.Beetom;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Beetom state the species owns: its arc speed index at the apex and the floor, and the cleared record.</summary>
+/// <summary>Checks the Beetom state the species owns: its arc speed index at the apex and the floor, and its inherited facing.</summary>
 internal static class BeetomOwnedStateVerification
 {
     /// <summary>
     /// Confirms a rising step that lands exactly on zero keeps rising, one that would pass below zero restarts the
-    /// index at zero and falls (the cartridge's signed underflow test), falling holds at index 64, and a kill empties
-    /// the values kept in the common record while the facing survives it, and the slot's next Beetom inherits that facing.
+    /// index at zero and falls (the cartridge's signed underflow test), falling holds at index 64, and the slot's next
+    /// Beetom, set up after a kill took the first with its state, inherits the facing the first left.
     /// </summary>
     internal static void VerifyBeetomOwnedState()
     {
@@ -38,12 +38,8 @@ internal static class BeetomOwnedStateVerification
         BeetomEnemyState state = enemies.BeetomStates[0]
             ?? throw new InvalidOperationException("The initialized Beetom has no state.");
         state.FacingRight = true;
-        state.YSpeedTableIndex = 12;
         slot.Clear();
-        AssertEqual(null, state.Function, "a kill empties the function");
-        AssertEqual(0, state.YSpeedTableIndex, "a kill empties the speed index");
-        AssertEqual(0, state.ButtonCounter, "a kill empties the escape counter");
-        AssertTrue(state.FacingRight, "the Beetom's facing outlives the kill");
+        AssertEqual<BeetomEnemyState?>(null, enemies.BeetomStates[0], "a kill takes the Beetom's state with it");
 
         // The next Beetom set up in the slot inherits the facing its predecessor left; a Beetom in another slot does not.
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
@@ -57,7 +53,7 @@ internal static class BeetomOwnedStateVerification
         BeetomEnemyState first = enemies.BeetomStates[1]
             ?? throw new InvalidOperationException("The other slot's Beetom has no state.");
         AssertTrue(!first.FacingRight, "a slot's first Beetom faces left");
-        Console.WriteLine("Beetom owned state: the apex underflow, the falling cap and the cleared record match.");
+        Console.WriteLine("Beetom owned state: the apex underflow, the falling cap and the inherited facing match.");
     }
 
     /// <summary>Runs the focused Beetom owned-state check.</summary>

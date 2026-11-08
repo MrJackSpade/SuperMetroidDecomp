@@ -86,7 +86,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         var state = new AlcoonEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         state.StepCounter = 0;
         state.SpawnPosition = slot.Position.Whole;

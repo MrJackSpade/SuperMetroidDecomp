@@ -2,14 +2,12 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// Typed state of the three Pipe Bug families. The function and the Brinstar flight direction are values the game
-/// keeps in the enemy's common record, emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>); the
-/// rest is per-family state the game kept in its extended words. Each property belongs to the family its
-/// summary names; the others never read it.
+/// Typed state of the three Pipe Bug families. Each property belongs to the family its summary names; the others never
+/// read it.
 /// </summary>
 public sealed class PipeBugEnemyState
 {
-    /// <summary>Captures the original enemy identity before generic death can clear its live definition word.</summary>
+    /// <summary>Starts the state of the Pipe Bug set up in <paramref name="slot"/>, recording which family it is.</summary>
     internal PipeBugEnemyState(RoomEnemySlot slot)
     {
         DefinitionAtInitialization = slot.DefinitionId;
@@ -18,12 +16,7 @@ public sealed class PipeBugEnemyState
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<PipeBugProgram> Program { get; set; }
 
-    /// <summary>
-    /// Header which created this physical state projection. Generic death clears the live
-    /// definition word on the following scheduler scan, but formation code continues
-    /// to reach the record's variables from the neighbouring slot. Species-aware
-    /// typed views must therefore use this immutable owner, not the disposable live word.
-    /// </summary>
+    /// <summary>The Pipe Bug family this state was set up for, one of the three that share it.</summary>
     public EnemyDefinitionId DefinitionAtInitialization { get; }
 
     /// <summary>
@@ -33,7 +26,7 @@ public sealed class PipeBugEnemyState
     /// </summary>
     public bool BrinstarFliesLeft { get; internal set; }
 
-    /// <summary>The current AI function; none once a kill has emptied the record.</summary>
+    /// <summary>The current AI function.</summary>
     public PipeBugEnemyFunction? Function { get; internal set; }
 
     /// <summary>Gets the whole-pixel spawn position restored after leaving the screen.</summary>
@@ -96,11 +89,4 @@ public sealed class PipeBugEnemyState
     public bool ArcRising { get; internal set; }
     /// <summary>Gets whether a yellow Pipe Bug has completed its one authored arc.</summary>
     public bool ArcCompleted { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        BrinstarFliesLeft = false;
-        Function = null;
-    }
 }

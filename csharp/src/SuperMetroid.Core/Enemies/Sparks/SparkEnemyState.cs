@@ -1,16 +1,13 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
-/// <summary>
-/// The state of one Spark. The function, base time and countdown are values the game keeps in the enemy's
-/// common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of one Spark.</summary>
 public sealed class SparkEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes; none until the Spark is initialized.</summary>
     internal AnimationProgramCursor<SparkProgram>? Program { get; set; }
 
-    /// <summary>The always-active, intermittent or falling-spark behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The always-active, intermittent or falling-spark behaviour.</summary>
     public SparkEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -27,12 +24,4 @@ public sealed class SparkEnemyState
 
     /// <summary>The countdown decremented with the game's <c>DEC; BEQ</c>: reaching zero expires it, and one that starts from zero wraps instead.</summary>
     public int FunctionTimer { get; internal set; }
-
-    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        BaseFunctionTime = 0;
-        FunctionTimer = 0;
-    }
 }

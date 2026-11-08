@@ -27,13 +27,4 @@ public sealed class KraidBodyState : KraidPartState
 
     /// <summary>The body's head-instruction timer.</summary>
     public int HeadTimer { get; internal set; }
-
-    /// <inheritdoc/>
-    internal override void ClearWithRecord()
-    {
-        base.ClearWithRecord();
-        CeilingRock = 0;
-        RisingRockTimer = 0;
-        HeadTimer = 0;
-    }
 }

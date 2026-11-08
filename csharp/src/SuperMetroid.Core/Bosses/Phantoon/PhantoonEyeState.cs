@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// Phantoon's eye's own state: its closed timer and shot marker, the figure-eight's direction, the body's colour fades,
-/// its rage waves, its dying fades and death mosaic, and the length of the wave it carries. The values are emptied when
-/// the eye is killed (<see cref="ClearWithRecord"/>).
+/// its rage waves, its dying fades and death mosaic, and the length of the wave it carries.
 /// </summary>
 /// <remarks>
 /// Every phase loads the values it reads when it starts: the dying fade cycles start from the zero the figure-eight
@@ -58,21 +57,4 @@ public sealed class PhantoonEyeState
 
     /// <summary>Starts the eye as a Phantoon part: its wave mode off.</summary>
     internal void StartPart() => WaveLength = null;
-
-    /// <summary>Empties the eye's values, as a kill empties its record.</summary>
-    [IntendedDuplicate("each part's state clears its own record values; the shared shape is only the assignment of zero")]
-    internal void ClearWithRecord()
-    {
-        ClosedTimer = 0;
-        ShotMarker = 0;
-        FigureEightReversed = false;
-        DyingFadeCycles = 0;
-        _deathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
-        DeathMosaicFinished = false;
-        FadeDenominator = 0;
-        FadeNumerator = 0;
-        FadeComplete = false;
-        RageWaveCount = 0;
-        WaveLength = null;
-    }
 }

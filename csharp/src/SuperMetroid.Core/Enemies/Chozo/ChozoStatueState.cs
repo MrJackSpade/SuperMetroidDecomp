@@ -1,10 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>
-/// The state of a Chozo statue. The values the game keeps in the enemy's common record are emptied with
-/// it when the enemy is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of a Chozo statue.</summary>
 public sealed class ChozoStatueState
 {
     /// <summary>Where the animation resumes.</summary>
@@ -13,16 +10,8 @@ public sealed class ChozoStatueState
     /// <summary>The carry-motion record, 0 through 31, the statue last moved by.</summary>
     public int CarryRecord { get; internal set; }
 
-    /// <summary>The literal pre-instruction pointer; none once a kill has emptied the record.</summary>
+    /// <summary>The literal pre-instruction pointer.</summary>
     public ChozoStatueFrameBehavior? FrameBehavior { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        CarryRecord = 0;
-        FrameBehavior = null;
-        HandTriggered = false;
-    }
 
     /// <summary>Whether this is the Wrecked Ship statue (parameter two zero) rather than Lower Norfair's (two).</summary>
     public bool IsWreckedShip { get; internal set; }

@@ -154,7 +154,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             Function = initialization.MainFunction,
             Program = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program),
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // Only the pre-explosion overlay shows the door's own look (#1406, #1538).
         if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)

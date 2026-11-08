@@ -4,25 +4,24 @@ namespace SuperMetroid.Verification.Enemies.Stoke;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Stoke state the species owns: its 16.16 walking speeds and the cleared record.</summary>
+/// <summary>Checks the Stoke state the species owns: its 16.16 walking speeds.</summary>
 internal static class StokeOwnedStateVerification
 {
     /// <summary>
     /// Initializes a Stoke for every linear-speed record and confirms each walking speed is that record's half as
-    /// one signed 16.16 value, then confirms a kill empties the record's speeds, facing and behaviour.
+    /// one signed 16.16 value.
     /// </summary>
     internal static void VerifyStokeOwnedState()
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        StokeEnemyState? state = null;
         for (int record = 0; record < EnemyLinearSpeedDefinitions.RowCount; record++)
         {
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Stoke, (ushort)StokeDirection.Right);
             slot.SetSpawnParameter2(EnemyDefinitionId.Stoke, (ushort)record);
             StokeBehavior.InitializeStoke(slot);
-            state = enemies.StokeStates[0] ?? throw new InvalidOperationException("The initialized Stoke has no state.");
+            StokeEnemyState state = enemies.StokeStates[0] ?? throw new InvalidOperationException("The initialized Stoke has no state.");
             SignedSixteenSixteen right = EnemyLinearSpeeds.Row(record).Positive;
             SignedSixteenSixteen left = EnemyLinearSpeeds.Row(record).Negative;
             AssertEqual(right, state.RightVelocity, $"record {record} rightward speed");
@@ -30,14 +29,7 @@ internal static class StokeOwnedStateVerification
             AssertEqual(StokeAiFunction.Moving, state.Function, $"record {record} walks");
             AssertEqual(StokeDirection.Right, state.Direction, $"record {record} walks right");
         }
-
-        slot.Clear();
-        StokeEnemyState cleared = state ?? throw new InvalidOperationException("No Stoke was initialized.");
-        AssertEqual(SignedSixteenSixteen.Zero, cleared.RightVelocity, "a kill empties the rightward speed");
-        AssertEqual(SignedSixteenSixteen.Zero, cleared.LeftVelocity, "a kill empties the leftward speed");
-        AssertEqual(StokeDirection.Left, cleared.Direction, "a kill empties the facing");
-        AssertEqual(null, cleared.Function, "a kill empties the behaviour");
-        Console.WriteLine("Stoke owned state: all linear-speed records and the cleared record match.");
+        Console.WriteLine("Stoke owned state: all linear-speed records match.");
     }
 
     /// <summary>Runs the focused Stoke owned-state check.</summary>

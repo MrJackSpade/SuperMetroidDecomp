@@ -4,12 +4,12 @@ namespace SuperMetroid.Verification.Enemies.Hibashi;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Hibashi state each part owns: its captured population parameters, spawn height and the cleared record.</summary>
+/// <summary>Checks the Hibashi state each part owns: its captured population parameters and spawn height.</summary>
 internal static class HibashiOwnedStateVerification
 {
     /// <summary>
     /// Initializes a graphics part and its collision part and confirms each keeps its own population parameters (the
-    /// full reset word and the part selector), the graphics part keeps its spawn height, and a kill empties the record.
+    /// full reset word and the part selector), and the graphics part keeps its spawn height.
     /// </summary>
     internal static void VerifyHibashiOwnedState()
     {
@@ -32,12 +32,7 @@ internal static class HibashiOwnedStateVerification
         AssertEqual((ushort)0x0120, graphicsState.SpawnHeight.Y, "the graphics part keeps its spawn height");
         AssertEqual(HibashiEnemyFunction.Inactive, graphicsState.Function, "the graphics part starts inactive");
         AssertEqual(null, hitboxState.Function, "the collision part runs no state machine");
-
-        graphics.Clear();
-        AssertEqual(null, graphicsState.Function, "a kill empties the function");
-        AssertEqual(0, graphicsState.InactiveTimerReset, "a kill empties the reset parameter");
-        AssertEqual(Position16<RoomPixels>.Zero, graphicsState.SpawnHeight, "a kill empties the spawn height");
-        Console.WriteLine("Hibashi owned state: both parts' parameters, the spawn height and the cleared record match.");
+        Console.WriteLine("Hibashi owned state: both parts' parameters and the spawn height match.");
     }
 
     /// <summary>Runs the focused Hibashi owned-state check.</summary>

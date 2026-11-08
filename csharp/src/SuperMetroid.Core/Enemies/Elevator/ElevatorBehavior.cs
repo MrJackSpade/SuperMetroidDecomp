@@ -121,7 +121,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     internal void InitializeElevator(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new ElevatorEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);

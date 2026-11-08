@@ -75,12 +75,16 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool isArms = slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms;
         // The room lists each Evir's arms right after its body and its spit right after the arms.
+        RoomEnemySlot? body = isArms
+            ? RequireEvirPart(slot, _slotTable.ListedBefore(slot, 1), EnemyDefinitionId.Evir, "arms body", initializing: true)
+            : null;
         _partners.Place(slot, new EvirPartners(
-            Body: isArms ? _slotTable.ListedBefore(slot, 1) : null,
+            Body: body,
+            BodyState: body?.RequireSpeciesState<EvirEnemyState>(),
             Spit: isArms ? null : _slotTable.ListedAfter(slot, 2),
             FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfter(slot, distance), reach: 2)));
         var state = new EvirEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         if (isArms)
         {
@@ -147,7 +151,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeEvirProjectile(RoomEnemySlot slot)
     {
         // The room lists each Evir's spit two places after its body, behind the arms.
-        _partners.Place(slot, new EvirPartners(Body: _slotTable.ListedBefore(slot, 2), Spit: null, FollowUpRecipients: null));
+        RoomEnemySlot spitBody = RequireEvirPart(slot, _slotTable.ListedBefore(slot, 2), EnemyDefinitionId.Evir, "projectile body", initializing: true);
         var state = new EvirEnemyState
         {
             RequestedProgram = EvirProgram.ProjectileNormal,
@@ -157,13 +161,20 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = EvirAiFunction.ProjectileIdle,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        _partners.Place(slot, new EvirPartners(
+            Body: spitBody,
+            BodyState: spitBody.RequireSpeciesState<EvirEnemyState>(),
+            Spit: null,
+            FollowUpRecipients: null)
+        {
+            SpitState = state,
+        });
+        slot.SetSpeciesState(state);
         InstallEvirInstruction(slot, state);
 
-        RoomEnemySlot body = RequireEvirPart(slot, _partners.Of(slot).Body, EnemyDefinitionId.Evir, "projectile body", initializing: true);
         // The projectile definition has no graphics-set entry of its own; it shows the body's colours, and its sheet
         // pictures it in the Evir's art.
-        slot.Shading = body.Shading;
+        slot.Shading = spitBody.Shading;
         ResetEvirProjectilePosition(slot, state);
 
         // Clears installed-list after having installed the normal list. That oddity
@@ -191,7 +202,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             _partners.Of(slot).Spit,
             EnemyDefinitionId.EvirProjectile,
             "body projectile");
-        EvirEnemyState projectileState = projectile.RequireSpeciesState<EvirEnemyState>();
+        EvirEnemyState projectileState = SpitStateOf(projectile);
 
         // Direction is allowed to follow Samus only while the projectile is fully present.
         // During regeneration the mouth, arms, and projectile retain their launch facing.
@@ -279,8 +290,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, EvirArmsUpdate update = EvirArmsUpdate.Main)
     {
         RoomEnemySlot body = RequireEvirPart(arms, _partners.Of(arms).Body, EnemyDefinitionId.Evir, "arms body", update == EvirArmsUpdate.Initialization);
-        EvirEnemyState bodyState = body.RequireSpeciesState<EvirEnemyState>();
-        state.Facing = bodyState.Facing;
+        state.Facing = BodyFacingOf(arms);
         arms.Position = arms.Position.WithWhole(new(CoordinateAxis.Wrap(
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 10)));
         RequestEvirInstruction(
@@ -295,8 +305,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResetEvirProjectilePosition(RoomEnemySlot projectile, EvirEnemyState state)
     {
         RoomEnemySlot body = RequireSpitBody(projectile);
-        EvirEnemyState bodyState = body.RequireSpeciesState<EvirEnemyState>();
-        state.Facing = bodyState.Facing;
+        state.Facing = BodyFacingOf(projectile);
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 18)));
     }
@@ -412,14 +421,39 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Both regeneration instructions test the animation installed on the spit's body, not any facing of its own.
     /// </summary>
-    private bool EvirBodyFacesRight(RoomEnemySlot projectile)
+    private bool EvirBodyFacesRight(RoomEnemySlot projectile) =>
+        (BodyPlaceOf(projectile).SpeciesState<EvirEnemyState>() ?? BodyStateOf(projectile)).InstalledProgram == EvirProgram.BodyFacingRight;
+
+    /// <summary>
+    /// The facing an arms or spit reads from its body: the living body's own; a deleted body's last; or, once a hit has
+    /// killed the body, the left facing the kill left it (<see cref="KilledEvirBodyFacing"/>). A killed body's place keeps
+    /// no health; a deleted one keeps its health.
+    /// </summary>
+    private EvirFacing BodyFacingOf(RoomEnemySlot part)
     {
-        RoomEnemySlot bodySlot = _partners.Of(projectile).Body
-            ?? throw new InvalidDataException($"Evir projectile {projectile.SlotIndex} has no body.");
-        EvirEnemyState body = bodySlot.SpeciesState<EvirEnemyState>() ?? throw new InvalidDataException(
-            $"Evir projectile {projectile.SlotIndex}'s body, enemy {bodySlot.SlotIndex}, has no Evir state.");
-        return body.InstalledProgram == EvirProgram.BodyFacingRight;
+        RoomEnemySlot bodyPlace = BodyPlaceOf(part);
+        if (bodyPlace.SpeciesState<EvirEnemyState>() is { } living)
+            return living.Facing;
+        return KilledEvirBodyFacing.Facing(BodyStateOf(part).Facing, EvirFacing.Left, bodyKilled: bodyPlace.Health == 0);
     }
+
+    /// <summary>The place of the body an arms or spit found when it was placed.</summary>
+    private RoomEnemySlot BodyPlaceOf(RoomEnemySlot part) =>
+        _partners.Of(part).Body
+            ?? throw new InvalidDataException($"Evir enemy {part.SlotIndex} is a body, which follows no body.");
+
+    /// <summary>
+    /// The state of a body's spit: the spit's own while it holds its place, or, once a power bomb's follow-up deleted it,
+    /// the state it left there (<see cref="EvirPartners.SpitState"/>).
+    /// </summary>
+    private EvirEnemyState SpitStateOf(RoomEnemySlot spit) =>
+        spit.SpeciesState<EvirEnemyState>() ?? _partners.Of(spit).SpitState
+            ?? throw new InvalidDataException($"Evir enemy {spit.SlotIndex} is not a spit.");
+
+    /// <summary>The state of the body an arms or spit found when it was placed (<see cref="EvirPartners.BodyState"/>).</summary>
+    private EvirEnemyState BodyStateOf(RoomEnemySlot part) =>
+        _partners.Of(part).BodyState
+            ?? throw new InvalidDataException($"Evir enemy {part.SlotIndex} is a body, which follows no body.");
 
     /// <summary>Animation cue: finishes regeneration.</summary>
     private static void FinishEvirRegeneration(EvirEnemyState state)
@@ -454,7 +488,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemySlot RequireSpitBody(RoomEnemySlot projectile) =>
         RequireEvirPart(projectile, _partners.Of(projectile).Body, EnemyDefinitionId.Evir, "projectile body");
 
-    /// <summary>Validates a partner an Evir part found when it was placed, tolerating a cleared header after initialization.</summary>
+    /// <summary>Validates a partner an Evir part found when it was placed: its identity as it is placed, and the place after.</summary>
     private static RoomEnemySlot RequireEvirPart(
         RoomEnemySlot owner,
         RoomEnemySlot? partner,
@@ -463,11 +497,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         bool initializing = false)
     {
         // A partner is a place, not its live header. Contact can clear the body after the active list was built; its
-        // deleted arms and spit still execute once and read the cleared common words. Validate authored identities at
-        // initialization, then keep reaching the established place.
-        if (partner is null ||
-            (partner.DefinitionId != expectedDefinition &&
-                (initializing || partner.SpeciesState<EvirEnemyState>() is null)))
+        // deleted arms and spit still execute once and read the cleared common words, and a power bomb's follow-up can
+        // delete a body whose arms and spit live on. Validate authored identities at initialization, then keep reaching
+        // the established place.
+        if (partner is null || (initializing && partner.DefinitionId != expectedDefinition))
         {
             throw new InvalidDataException(
                 $"Evir {relationship} of enemy {owner.SlotIndex} is {partner?.DefinitionId.ToString() ?? "absent"}, " +

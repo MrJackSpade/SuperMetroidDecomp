@@ -2,17 +2,13 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
-/// The state of a hopper, with the seven parallel extension words. These names intentionally retain
-/// “speed table index” where the game does: replacing them with host gravity fields would hide the buggy quadratic
-/// table that defines the retail jump arc. The values the game keeps in the enemy's common record are emptied with
-/// it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// The state of a hopper, with the seven parallel extension words. These names intentionally retain “speed table index”
+/// where the game does: replacing them with host gravity fields would hide the buggy quadratic table that defines the
+/// retail jump arc.
 /// </summary>
 public sealed class HopperEnemyState
 {
-    /// <summary>
-    /// The current hopper dispatcher pointer, advanced one setup stage per AI call; none once a kill has
-    /// emptied the record.
-    /// </summary>
+    /// <summary>The current hopper dispatcher pointer, advanced one setup stage per AI call.</summary>
     public HopperEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -55,13 +51,4 @@ public sealed class HopperEnemyState
 
     /// <summary>Population parameter one: zero means floor, nonzero means ceiling.</summary>
     public bool UpsideDown { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        YSpeedTableIndex = 0;
-        XVelocity = 0;
-        YSpeedTableIndexDelta = 0;
-    }
 }

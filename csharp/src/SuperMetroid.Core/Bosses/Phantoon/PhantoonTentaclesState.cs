@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// Phantoon's tentacles' own state: the shot that asks for a swoop, the round's damage, the hurt flash, the swoop's
-/// target and velocity, and the next death explosion. The values are emptied when the tentacles are killed
-/// (<see cref="ClearWithRecord"/>).
+/// target and velocity, and the next death explosion.
 /// </summary>
 /// <remarks>
 /// Every phase loads the values it reads when it starts. Each count is never negative: the round's damage only adds
@@ -40,17 +39,4 @@ public sealed class PhantoonTentaclesState
 
     /// <summary>Whether the hurt flash has painted the body white since the health palette was last restored.</summary>
     public bool HurtFlashShown { get; internal set; }
-
-    /// <summary>Empties the tentacles' values, as a kill empties their record.</summary>
-    [IntendedDuplicate("each part's state clears its own record values; the shared shape is only the assignment of zero")]
-    internal void ClearWithRecord()
-    {
-        SwoopRequested = false;
-        RoundDamage = 0;
-        SwoopVelocity = default;
-        _swoopTargetX = 0;
-        SwoopReturning = false;
-        ExplosionIndex = 0;
-        HurtFlashShown = false;
-    }
 }

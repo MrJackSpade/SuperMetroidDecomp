@@ -23,6 +23,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// right after it.
     /// </summary>
     private readonly EnemyPartLinks<RoomEnemySlot[]> _formations = new();
+    /// <summary>
+    /// The places set up as Norfair Pipe Bugs this room. A formation member killed and not yet respawned holds no state,
+    /// and its place is still the formation's.
+    /// </summary>
+    private readonly HashSet<RoomEnemySlot> _norfairPlaces = [];
 
     /// <summary>Binds the shared enemy pool needed to validate Norfair formation membership.</summary>
     internal PipeBugsBehavior(EnemySlotTable slotTable)
@@ -74,6 +79,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Only the formation's first bug has a trigger width; it leads the four its room lists after it.
         if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth != 0)
             _formations.Place(slot, [slot, .. _slotTable.ListedRunAfter(slot, NorfairFormationSize - 1)]);
+        _ = _norfairPlaces.Add(slot);
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -312,8 +318,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
             return;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
-        if (formation.All(member =>
-                member.RequireSpeciesState<PipeBugEnemyState>().Function == PipeBugEnemyFunction.NorfairWaitForFormation))
+        if (formation.All(member => KilledGametHoldsFormation.Waits(
+                member.SpeciesState<PipeBugEnemyState>(),
+                static state => state.Function == PipeBugEnemyFunction.NorfairWaitForFormation)))
         {
             state.Function = PipeBugEnemyFunction.NorfairWaitForSamus;
         }
@@ -340,17 +347,21 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         leader.Timer = WrappingCountdown.Start(0);
         bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
+        // A member killed since the formation armed has nothing to launch: it respawns waiting, as a new bug.
         foreach (RoomEnemySlot member in formation)
         {
-            member.RequireSpeciesState<PipeBugEnemyState>().Program = AnimationProgramCursor<PipeBugProgram>.Start(samusIsRight
+            if (member.SpeciesState<PipeBugEnemyState>() is not { } memberState)
+                continue;
+            memberState.Program = AnimationProgramCursor<PipeBugProgram>.Start(samusIsRight
                 ? PipeBugProgram.GametRisingRight
                 : PipeBugProgram.GametRisingLeft);
-            member.RequireSpeciesState<PipeBugEnemyState>().Function = PipeBugEnemyFunction.NorfairRise;
+            memberState.Function = PipeBugEnemyFunction.NorfairRise;
         }
 
         for (int index = 0; index < formation.Length; index++)
         {
-            PipeBugEnemyState memberState = formation[index].RequireSpeciesState<PipeBugEnemyState>();
+            if (formation[index].SpeciesState<PipeBugEnemyState>() is not { } memberState)
+                continue;
             memberState.StaggerTarget = PipeBugFormation.NorfairStaggerTarget(index);
             memberState.NorfairPostRiseFunction = PipeBugFormation.NorfairPostRiseFunction(index);
         }
@@ -440,24 +451,25 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
     }
 
-    /// <summary>The formation the leader found when it was placed, rejecting an incomplete or unrelated formation.</summary>
+    /// <summary>
+    /// The formation the leader found when it was placed, rejecting an incomplete or unrelated formation: every member's
+    /// place was set up as a Norfair Pipe Bug, and holds one or, killed, none until it respawns
+    /// (<see cref="KilledGametHoldsFormation"/>).
+    /// </summary>
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
     {
         RoomEnemySlot[] formation = _formations.Of(leader);
         foreach (RoomEnemySlot member in formation)
         {
             PipeBugEnemyState? state = member.SpeciesState<PipeBugEnemyState>();
-            if (state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet)
+            bool killed = state is null && member.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn;
+            if (!_norfairPlaces.Contains(member) ||
+                (!killed && state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet))
             {
                 throw new InvalidDataException(
-                    $"Norfair Pipe Bug formation slot {member.SlotIndex} is " +
-                    $"owned by initialized enemy {state?.DefinitionAtInitialization.ToString() ?? "none"}, " +
-                    $"expected {EnemyDefinitionId.Gamet}.");
+                    $"Norfair Pipe Bug formation slot {member.SlotIndex} holds {member.DefinitionId}, " +
+                    $"not a {EnemyDefinitionId.Gamet} or a killed one's place.");
             }
-            // The formation behaviours never re-check the live definition. They read and
-            // write five consecutive 64-byte records even after generic death has changed
-            // one member's definition to zero. Retaining the initialized typed owner here
-            // preserves that raw alias without accepting an unrelated never-Pipe-Bug slot.
         }
         return formation;
     }
@@ -644,7 +656,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         return state;
     }
 

@@ -84,7 +84,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
             BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The initial left-facing animation intentionally disagrees with installed selector zero,
         // whose table entry is right-facing idle. Because SetOumInstList suppresses equal

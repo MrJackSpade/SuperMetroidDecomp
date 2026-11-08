@@ -5,13 +5,13 @@ namespace SuperMetroid.Verification.Enemies.Skultera;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Skultera state the species owns: its oscillation phase wrap, speeds and the cleared record.</summary>
+/// <summary>Checks the Skultera state the species owns: its oscillation phase wrap and speeds.</summary>
 internal static class SkulteraOwnedStateVerification
 {
     /// <summary>
     /// Initializes a Skultera and confirms its speeds are the linear-speed record's halves, its radius and angle step
-    /// come from parameter two, the phase wraps through a full turn in both directions as the cartridge's low-byte
-    /// sum does, and a kill empties the values kept in the common record.
+    /// come from parameter two, and the phase wraps through a full turn in both directions as the cartridge's
+    /// low-byte sum does.
     /// </summary>
     internal static void VerifySkulteraOwnedState()
     {
@@ -37,13 +37,7 @@ internal static class SkulteraOwnedStateVerification
         state.AngleDelta = -state.AngleDelta;
         state.AdvanceAngle();
         AssertEqual((byte)250, state.Angle.TableIndex, "the phase wraps backward through a full turn");
-
-        slot.Clear();
-        AssertEqual(null, state.Function, "a kill empties the function");
-        AssertEqual(SignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties the rightward speed");
-        AssertEqual(RotationAngle.Zero, state.Angle, "a kill empties the phase");
-        AssertEqual(20, state.Radius, "the radius outlives the kill");
-        Console.WriteLine("Skultera owned state: speeds, phase wrap and the cleared record match.");
+        Console.WriteLine("Skultera owned state: speeds and phase wrap match.");
     }
 
     /// <summary>Runs the focused Skultera owned-state check.</summary>

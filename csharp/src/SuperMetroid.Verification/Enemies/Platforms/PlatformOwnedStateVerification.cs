@@ -5,13 +5,13 @@ namespace SuperMetroid.Verification.Enemies.Platforms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Tripper and Kamer state the platforms own: speeds, resting height, acceleration and the cleared record.</summary>
+/// <summary>Checks the Tripper and Kamer state the platforms own: speeds, resting height and acceleration.</summary>
 internal static class PlatformOwnedStateVerification
 {
     /// <summary>
     /// Initializes a Tripper on the room's last pixel row and confirms its speeds come from the linear-speed record as
-    /// one 16.16 value each, its resting height wraps to the top row, its acceleration index climbs by one and holds
-    /// at the cap, and a kill empties the values kept in the common record.
+    /// one 16.16 value each, its resting height wraps to the top row, and its acceleration index climbs by one and
+    /// holds at the cap.
     /// </summary>
     internal static void VerifyPlatformOwnedState()
     {
@@ -40,13 +40,7 @@ internal static class PlatformOwnedStateVerification
             PlatformsBehavior.IncrementAndClampPlatformYSpeed(state);
             AssertEqual(expected, state.YSpeedTableIndex, "acceleration climbs by one and holds at the cap");
         }
-
-        slot.Clear();
-        AssertEqual(SignedSixteenSixteen.Zero, state.RightSpeed, "a kill empties the rightward speed");
-        AssertEqual(SignedSixteenSixteen.Zero, state.LeftSpeed, "a kill empties the leftward speed");
-        AssertEqual(Position16<RoomPixels>.Zero, state.RestingHeight, "a kill empties the resting height");
-        AssertEqual(0, state.YSpeedTableIndex, "a kill empties the acceleration index");
-        Console.WriteLine("Platform owned state: speeds, wrapped resting height, clamped acceleration and the cleared record match.");
+        Console.WriteLine("Platform owned state: speeds, wrapped resting height and clamped acceleration match.");
     }
 
     /// <summary>Runs the focused platform owned-state check.</summary>

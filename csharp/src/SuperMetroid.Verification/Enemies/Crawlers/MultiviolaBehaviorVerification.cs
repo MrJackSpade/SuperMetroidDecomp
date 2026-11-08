@@ -11,31 +11,6 @@ using SuperMetroid.Core.World;
 /// <summary>Checks that Multiviola starts and runs its typed animation (#641).</summary>
 internal static class MultiviolaBehaviorVerification
 {
-    /// <summary>Confirms a kill empties the Multiviola's velocity, as the cleared common record does.</summary>
-    internal static void VerifyMultiviolaOwnedState()
-    {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
-        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnWords(EnemyDefinitionId.Multiviola, words => words);
-        MultiviolaBehavior.InitializeMultiviola(slot);
-        MultiviolaEnemyState state = slot.EntityState<MultiviolaEntity, MultiviolaEnemyState>()
-            ?? throw new InvalidOperationException("Multiviola has no state.");
-        state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0x8000, 0xffff, 0x4000);
-        slot.Clear();
-        AssertEqual(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties the velocity");
-        Console.WriteLine("Multiviola owned state: the cleared record matches.");
-    }
-
-    /// <summary>Runs the focused Multiviola owned-state check.</summary>
-    [VerificationCommand("--multiviola-owned-state")]
-    internal static int MultiviolaOwnedStateCommand()
-    {
-        VerifyMultiviolaOwnedState();
-        return 0;
-    }
-
     /// <summary>The real initializer starts the Flying program, which the runtime then plays through once and back.</summary>
     internal static void VerifyMultiviolaBehavior()
     {

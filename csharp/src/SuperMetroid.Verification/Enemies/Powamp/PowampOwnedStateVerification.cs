@@ -4,13 +4,13 @@ namespace SuperMetroid.Verification.Enemies.Powamp;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Powamp state each half owns: the balloon's spawn and grapple rise, the body's velocity, and the cleared record.</summary>
+/// <summary>Checks the Powamp state each half owns: the balloon's spawn and grapple rise, and the body's velocity.</summary>
 internal static class PowampOwnedStateVerification
 {
     /// <summary>
     /// Initializes a balloon and its body and confirms the balloon keeps its spawn and full-word grapple rise, the body
-    /// starts resting, finishing inflation gives the body exactly half a pixel per update upward (the cartridge's
-    /// $FFFF:$8000), and a kill empties the half's record.
+    /// starts resting, and finishing inflation gives the body exactly half a pixel per update upward (the cartridge's
+    /// $FFFF:$8000).
     /// </summary>
     internal static void VerifyPowampOwnedState()
     {
@@ -38,11 +38,7 @@ internal static class PowampOwnedStateVerification
         enemies.PowampBehavior.RunPowampMain(body, bodyState, null);
         AssertEqual(PowampEnemyFunction.InflatedRiseToTargetHeight, bodyState.Function, "inflation finishes");
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x8000), bodyState.YVelocity, "the body rises half a pixel per update");
-
-        body.Clear();
-        AssertEqual(SignedSixteenSixteen.Zero, bodyState.YVelocity, "a kill empties the body's velocity");
-        AssertEqual(null, bodyState.Function, "a kill empties the body's function");
-        Console.WriteLine("Powamp owned state: both halves' values and the cleared record match.");
+        Console.WriteLine("Powamp owned state: both halves' values match.");
     }
 
     /// <summary>Runs the focused Powamp owned-state check.</summary>

@@ -4,12 +4,12 @@ namespace SuperMetroid.Verification.Enemies.Flies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the fly state the family owns: the circling phase's revolution and wrap, and the cleared record.</summary>
+/// <summary>Checks the fly state the family owns: the circling phase's revolution and wrap.</summary>
 internal static class FlyOwnedStateVerification
 {
     /// <summary>
     /// A clockwise fly's phase returns to zero after sixteen circling updates (the cartridge's 32-unit steps of its
-    /// nine-bit angle), an anticlockwise step from zero wraps to the last step, and a kill empties the record.
+    /// nine-bit angle), and an anticlockwise step from zero wraps to the last step.
     /// </summary>
     internal static void VerifyFlyOwnedState()
     {
@@ -28,13 +28,7 @@ internal static class FlyOwnedStateVerification
         AssertEqual(RotationAngle.Zero, state.Angle, "sixteen circling updates complete a revolution");
         state.AdvanceCircle(clockwise: false);
         AssertEqual((byte)240, state.Angle.TableIndex, "an anticlockwise step from zero wraps to the last step");
-
-        state.TargetHeight = new Position16<RoomPixels>(0, 0x0123);
-        slot.Clear();
-        AssertEqual(RotationAngle.Zero, state.Angle, "a kill empties the phase");
-        AssertEqual(Position16<RoomPixels>.Zero, state.TargetHeight, "a kill empties the target height");
-        AssertEqual(null, state.Function, "a kill empties the function");
-        Console.WriteLine("Fly owned state: the circling revolution, its wrap and the cleared record match.");
+        Console.WriteLine("Fly owned state: the circling revolution and its wrap match.");
     }
 
     /// <summary>Runs the focused fly owned-state check.</summary>

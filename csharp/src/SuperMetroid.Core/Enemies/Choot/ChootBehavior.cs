@@ -20,7 +20,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeChoot(RoomEnemySlot slot)
     {
         var state = new ChootEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         SetChootProgram(slot, state, ChootProgram.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;

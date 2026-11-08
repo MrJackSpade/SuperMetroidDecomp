@@ -270,7 +270,10 @@ internal sealed class EnemyCollision
                     projectileDirection,
                     family,
                     usesExtendedHitboxes,
-                    hitboxShotAi);
+                    hitboxShotAi)
+                {
+                    StruckOccupant = enemy.OccupantStates,
+                };
 
                 if (RunShotStage(reaction.BeforeSuperMissileQuake, shot))
                 {
@@ -516,7 +519,10 @@ internal sealed class EnemyCollision
                     ordinaryProjectiles,
                     samus,
                     selectedShotAi,
-                    usesExtendedHitboxes);
+                    usesExtendedHitboxes)
+                {
+                    StruckOccupant = enemy.OccupantStates,
+                };
                 var bombReactions = enemy.Entity as IEnemyBombReaction;
                 if (bombReactions?.FindBombSpecial(bombContext) is { } special)
                 {

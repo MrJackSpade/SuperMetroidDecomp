@@ -67,7 +67,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             InitialYSpeedTableIndexThreeQuarters = 0,
             InitialYSpeedTableIndexHalf = 0,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
     }
 

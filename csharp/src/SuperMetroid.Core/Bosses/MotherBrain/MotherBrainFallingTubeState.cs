@@ -4,17 +4,15 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The state of one of Mother Brain's falling tubes. Its function, floor, fall speed and smoke cadence are values the
-/// keeps in the enemy's common record, so they are emptied with the record when the tube is killed
-/// (<see cref="ClearWithRecord"/>). Its setup starts its animation every time, so nothing it holds is inherited from an
-/// earlier occupant of its slot (#1476).
+/// The state of one of Mother Brain's falling tubes. Its setup starts its animation every time, so nothing it holds is
+/// inherited from an earlier occupant of its slot (#1476).
 /// </summary>
 internal sealed class MotherBrainFallingTubeState
 {
-    /// <summary>Where the falling tube's program resumes (#641); a kill leaves it where it was.</summary>
+    /// <summary>Where the falling tube's program resumes (#641).</summary>
     public AnimationProgramCursor<MotherBrainTubePiece> Cursor { get; internal set; }
 
-    /// <summary>The tube function; none once a kill has emptied the record.</summary>
+    /// <summary>The tube function.</summary>
     public MotherBrainTubeFunction? Function { get; internal set; }
 
     /// <summary>The room Y, in pixels, at which a non-main tube explodes.</summary>
@@ -39,15 +37,4 @@ internal sealed class MotherBrainFallingTubeState
 
     /// <summary>The main tube's wait before it falls (parameter two), counted down past zero.</summary>
     public int FallDelay { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        FallDelay = 0;
-        Function = null;
-        FloorY = 0;
-        FallSpeed = default;
-        SmokeDelay = 0;
-        SmokePositionIndex = 0;
-    }
 }

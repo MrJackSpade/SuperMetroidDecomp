@@ -1,11 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>
-/// Typed corpse state for one dead Zoomer, Ripper, or Skree. The function and the pre-rot count are values the
-/// game keeps in the enemy's common record, so they are emptied with that record when the corpse's slot is
-/// cleared (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>Typed corpse state for one dead Zoomer, Ripper, or Skree.</summary>
 public sealed class DeadTourianCorpseEnemyState
 {
     /// <summary>The corpse's typed pose (#641), started by setup.</summary>
@@ -23,7 +19,7 @@ public sealed class DeadTourianCorpseEnemyState
 
     /// <summary>Owning room slot; state is registered for this slot until room reset.</summary>
     public RoomEnemySlot Slot { get; }
-    /// <summary>The phase main AI runs; none once the record has been emptied.</summary>
+    /// <summary>The phase main AI runs.</summary>
     public DeadTourianCorpseFunction? Function { get; internal set; }
     /// <summary>Corpse family selected by the enemy header, determining callbacks and the tiled artwork layout.</summary>
     public DeadTourianCorpseSpecies Species { get; }
@@ -53,11 +49,4 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
     internal void CountPreRotDelayCall() =>
         PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
-
-    /// <summary>Empties the function and pre-rot count, when the corpse's common record is emptied.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        PreRotDelayCounter = 0;
-    }
 }

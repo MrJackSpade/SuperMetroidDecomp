@@ -48,7 +48,10 @@ internal static class KraidNailSiblingVerification
     /// <summary>Reads one native launch-table byte for the field comparison.</summary>
     private static byte KraidNailLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks both nail slots, sibling flags, RNG preservation, and the actual launch or waiting phase.</summary>
+    /// <summary>
+    /// Checks both nail slots, sibling flags, RNG preservation, the actual launch or waiting phase, and that a launch
+    /// after its sibling was killed reads the sibling as stopped (<see cref="KilledFingernailStops"/>).
+    /// </summary>
     internal static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(rom));
@@ -64,6 +67,12 @@ internal static class KraidNailSiblingVerification
         enemies.VerificationServices().ReadRandom = () => random;
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
         Action<RoomEnemySlot, KraidNailState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
+        // Both fingernails live in their places, so each launch reads its sibling's speed.
+        foreach (int place in new[] { 6, 7 })
+        {
+            RoomEnemySlot living = enemies.SlotTable.Slots[place];
+            living.SetSpeciesState<KraidPartState>(enemies.KraidBehavior.Parts.NailStateOf(state, living));
+        }
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         foreach (bool siblingAlternate in new[] { false, true })
@@ -90,7 +99,21 @@ internal static class KraidNailSiblingVerification
             AssertEqual((ushort)raw, enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.Y.WholeWord, "Sibling velocity remains unchanged");
             AssertEqual((diagonal ? KraidAiFunction.FingernailFire : KraidAiFunction.FingernailWaitForLint), enemies.KraidBehavior.Parts.NailStateOf(state, nail).Function, "Sibling choice selects actual launch phase");
         }
-        Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and both sibling spawn modes match native launch handoff without ROM access.");
+
+        // A killed sibling has stopped: the launch reads no speed from it, whatever speed it last moved at.
+        RoomEnemySlot firstNail = enemies.SlotTable.Slots[6];
+        RoomEnemySlot secondNail = enemies.SlotTable.Slots[7];
+        KraidNailState killedSibling = enemies.KraidBehavior.Parts.NailStateOf(state, secondNail);
+        killedSibling.NailVelocity = FixedVector<RoomPixels>.FromWords(0, 0, 0x8000, 0);
+        killedSibling.AlternateSpawn = false;
+        random = 0;
+        secondNail.Clear();
+        initialize(firstNail, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail));
+        AssertEqual(KraidNailLaunch.FromSiblingVelocity(0).Y.WholeWord, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail).NailVelocity.Y.WholeWord,
+            "a launch after its sibling was killed reads the sibling as stopped");
+        AssertTrue(KraidNailLaunch.FromSiblingVelocity(0).Y.WholeWord != KraidNailLaunch.FromSiblingVelocity(0x8000).Y.WholeWord,
+            "a stopped sibling launches its pair differently from one moving down");
+        Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and both sibling spawn modes match native launch handoff without ROM access, and a killed sibling reads as stopped.");
     }
 
     /// <summary>Reads native nail launch words solely as the verification oracle.</summary>

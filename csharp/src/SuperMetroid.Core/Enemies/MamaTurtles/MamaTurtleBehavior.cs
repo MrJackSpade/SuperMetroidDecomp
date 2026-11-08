@@ -145,7 +145,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = MamaTurtleAiFunction.Initial,
             AsleepFlag = 1,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The population already supplies the animation-script property, but the initializer explicitly sets it again.
         // Spell that write out because animation processing is essential to leaving shell.
@@ -167,7 +167,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
             Velocity = new Offset16<RoomPixels>(slot.SpawnSettings<TurtleSpawnSettings>().Speed, 0),
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

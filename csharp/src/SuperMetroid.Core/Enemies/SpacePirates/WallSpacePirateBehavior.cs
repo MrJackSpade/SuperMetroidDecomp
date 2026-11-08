@@ -62,7 +62,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     internal static void InitializeWallSpacePirate(RoomEnemySlot slot)
     {
         var state = new WallSpacePirateEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         WallSpacePirateOptions flags = slot.SpawnSettings<WallSpacePirateSpawnSettings>().Options;
         bool startsOnRight = (flags & WallSpacePirateOptions.StartsOnRightWall) != WallSpacePirateOptions.None;
@@ -363,10 +363,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             {
                 if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)
                     return false;
-                // The shared Pirate shot tail clears one value before requesting death animation
-                // variant four: a wall Pirate's jump destination (used only as a debug destination, so its fatal clear
-                // is observable) or a Ninja's spin-jump speed; a walking Pirate keeps nothing there.
-                ClearPirateMoveOnShotDeath(c.Enemy);
                 // The Gold Ninja's death records its position as the drop origin before EnemyDeath clears the slot;
                 // it then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine
                 // spawns the drops.
@@ -404,14 +400,5 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                     return;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
             });
-    }
-
-    /// <summary>Clears the value the shared Pirate shot tail empties, in the state of the family owning the slot.</summary>
-    private static void ClearPirateMoveOnShotDeath(RoomEnemySlot enemy)
-    {
-        if (enemy.Entity is WallSpacePirateEntity && enemy.SpeciesState<WallSpacePirateEnemyState>() is { } wall)
-            wall.WallJumpDestination = Position16<RoomPixels>.Zero;
-        else if (enemy.Entity is NinjaSpacePirateEntity && enemy.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninja)
-            ninja.CalculatedSpinJumpSpeed = 0;
     }
 }

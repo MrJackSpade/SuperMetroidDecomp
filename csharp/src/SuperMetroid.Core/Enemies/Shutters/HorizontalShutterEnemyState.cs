@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
-/// <summary>The state of the game's complete, though retail-unused, horizontal shutter. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).</summary>
+/// <summary>The state of the game's complete, though retail-unused, horizontal shutter.</summary>
 public sealed class HorizontalShutterEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
@@ -9,7 +9,7 @@ public sealed class HorizontalShutterEnemyState
 
     /// <summary>
     /// The dispatcher behaviour of the retail-unused horizontal shutter, retained across wait, movement, and
-    /// endpoint-rest updates; none once a kill has emptied the record.
+    /// endpoint-rest updates.
     /// </summary>
     public HorizontalShutterFunction? Function { get; internal set; }
 
@@ -58,13 +58,4 @@ public sealed class HorizontalShutterEnemyState
     /// reaction, so the first reaction heads the primary way.
     /// </summary>
     public ShutterHeading ReactionDirection { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        FunctionTimer = WrappingCountdown.Start(0);
-        RightVelocity = SignedSixteenSixteen.Zero;
-        LeftVelocity = SignedSixteenSixteen.Zero;
-    }
 }

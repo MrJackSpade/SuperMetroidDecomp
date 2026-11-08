@@ -1,17 +1,13 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>
-/// The state of the Wrecked Ship ghost, with its extension words. Its behaviour, phase timer and
-/// flicker offset are values the game keeps in the enemy's common record, so a kill empties them with that record
-/// (<see cref="ClearWithRecord"/>); the extension outlives the kill.
-/// </summary>
+/// <summary>The state of the Wrecked Ship ghost, with its extension words.</summary>
 public sealed class WreckedShipGhostEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<WreckedShipGhostProgram> Program { get; set; }
 
-    /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The current behaviour.</summary>
     public WreckedShipGhostAiFunction? Function { get; internal set; }
 
     /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Function"/>.</summary>
@@ -26,14 +22,6 @@ public sealed class WreckedShipGhostEnemyState
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour, timer or flicker offset.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        PhaseTimer = 0;
-        FlickerTableOffset = 0;
     }
 
     /// <summary>
@@ -72,7 +60,7 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>
     /// The ghost's fading colours and the target its fade moves toward (#1512): the compatibility value whose step
-    /// results end the ghost's brightening and fades. The extension outlives a kill, as these colours do.
+    /// results end the ghost's brightening and fades.
     /// </summary>
     public WreckedShipGhostFade Fade { get; } = new();
 }

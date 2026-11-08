@@ -296,7 +296,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             Wing: isWing ? null : _slotTable.ListedAfter(slot, 1),
             FollowUpRecipient: FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfter(slot, distance), reach: 1)[0]));
         var state = new DragonEnemyState { IsWing = isWing };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         return state;
     }
 

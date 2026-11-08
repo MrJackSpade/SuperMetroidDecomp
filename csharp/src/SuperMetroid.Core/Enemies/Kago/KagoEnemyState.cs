@@ -1,17 +1,13 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Kago;
 
-/// <summary>
-/// The state of the Kago. Its behaviour, animation speed and death latch are values the game keeps in the enemy's
-/// common record, so a kill empties them with that record (<see cref="ClearWithRecord"/>); its hit counter lives
-/// outside the record and outlives the kill.
-/// </summary>
+/// <summary>The state of the Kago.</summary>
 public sealed class KagoEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<KagoProgram> Program { get; set; }
 
-    /// <summary>The current behaviour, installed at initialization and replaced on the first AI update; none once a kill has emptied the record.</summary>
+    /// <summary>The current behaviour, installed at initialization and replaced on the first AI update.</summary>
     public KagoEnemyFunction? Function { get; internal set; }
 
     /// <summary>Whether the shell runs its three-frame loop rather than its ten-frame one.</summary>
@@ -28,12 +24,4 @@ public sealed class KagoEnemyState
 
     /// <summary>Number of Kago bugs successfully allocated from this shell.</summary>
     public int SpawnedBugCount { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour, the slow loop, no death.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        UsesFastAnimation = false;
-        DeathAnimationStarted = false;
-    }
 }

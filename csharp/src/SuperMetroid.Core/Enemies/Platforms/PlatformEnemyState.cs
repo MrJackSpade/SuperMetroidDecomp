@@ -3,9 +3,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
 /// The state of one Tripper or Kamer platform: its patrol speeds, the height it rises back to, its vertical
-/// acceleration, and the movement and art it has selected. The resting height, the speeds and the acceleration index
-/// are values the game keeps in the enemy's common record, so they are emptied with that record when the enemy
-/// is killed (<see cref="ClearWithRecord"/>); the rest outlive the kill.
+/// acceleration, and the movement and art it has selected.
 /// </summary>
 public sealed class PlatformEnemyState
 {
@@ -52,16 +50,4 @@ public sealed class PlatformEnemyState
 
     /// <summary>True only for Kamer, the suspensor platform, whose art differs from Tripper's.</summary>
     public bool IsSuspensorPlatform { get; internal set; }
-
-    /// <summary>
-    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: the
-    /// resting height, both speeds and the acceleration index read as zero.
-    /// </summary>
-    internal void ClearWithRecord()
-    {
-        RestingHeight = Position16<RoomPixels>.Zero;
-        RightSpeed = SignedSixteenSixteen.Zero;
-        LeftSpeed = SignedSixteenSixteen.Zero;
-        YSpeedTableIndex = 0;
-    }
 }

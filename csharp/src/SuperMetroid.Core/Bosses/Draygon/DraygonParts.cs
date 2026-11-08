@@ -64,7 +64,7 @@ internal sealed class DraygonParts
             MinimapDisabledAndBossTilesExplored = true,
             Function = DraygonAiFunction.IntroInitialDelay,
         };
-        body.SetSpeciesState(Draygon, Draygon.ClearWithRecord);
+        body.SetSpeciesState(Draygon);
         body.Shading = Draygon.Colours.Sprites;
         Draygon.SetCursor(body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingLeftIdle));
         Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
@@ -82,7 +82,7 @@ internal sealed class DraygonParts
             case DraygonPart.Eye:
                 // Inert until the body publishes facing AI.
                 var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.Inert };
-                part.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
+                part.SetSpeciesState(eyeState);
                 state.Eye = part;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingLeftIdle));
                 return;

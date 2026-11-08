@@ -102,7 +102,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // Both branches first clear the four lifecycle/collision bits. The special
         // Mother Brain variant is always processed off-screen but never uses generic death
@@ -567,7 +567,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Clearing the enemy record leaves its spawn data in place, which the respawn cue rebuilds
         // the Rinka from; a special Rinka that does not respawn keeps it as every cleared record does.
         slot.Spawn = survivingSpawnSnapshot;
-        slot.SetSpeciesState<RinkaEnemyState>(null);
         if (respawns)
         {
             _deathsAndDrops.InstallRespawnPlaceholder(slot);

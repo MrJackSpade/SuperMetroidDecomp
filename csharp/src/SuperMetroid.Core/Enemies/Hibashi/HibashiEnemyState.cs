@@ -3,16 +3,14 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
 /// The state of one Hibashi part. Every shipped pillar uses two consecutive records: part zero owns art and timing,
-/// while the nonzero part is the invisible collision body manipulated by part zero. Every value here is one the
-/// game keeps in the enemy's common record (its variables and population parameters), so it is emptied with
-/// that record when the part is killed (<see cref="ClearWithRecord"/>).
+/// while the nonzero part is the invisible collision body manipulated by part zero.
 /// </summary>
 public sealed class HibashiEnemyState
 {
     /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<HibashiProgram> Program { get; set; }
 
-    /// <summary>The graphics part's behaviour, initialized to inactive; collision parts do not dispatch it, and none once a kill has emptied the record.</summary>
+    /// <summary>The graphics part's behaviour, initialized to inactive; collision parts do not dispatch it.</summary>
     public HibashiEnemyFunction? Function { get; internal set; }
 
     /// <summary>Countdown decremented once per inactive AI update; zero steps to -1 and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>
@@ -29,15 +27,4 @@ public sealed class HibashiEnemyState
 
     /// <summary>Whether this is the collision part (population parameter two nonzero) rather than the graphics part.</summary>
     public bool IsCollisionPart { get; internal set; }
-
-    /// <summary>Empties every value, when a kill empties the part's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        InactiveTimer = 0;
-        ActivityFinished = false;
-        SpawnHeight = Position16<RoomPixels>.Zero;
-        InactiveTimerReset = 0;
-        IsCollisionPart = false;
-    }
 }

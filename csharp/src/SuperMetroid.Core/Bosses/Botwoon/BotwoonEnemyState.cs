@@ -5,27 +5,21 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's state beyond the head's enemy record, including its thirteen body segments, which are not
-/// ordinary enemies and so are named here rather than given enemy records. The values the game keeps in the head's
-/// common record are emptied with it when the head is killed (<see cref="ClearWithRecord"/>).
+/// Botwoon's state beyond the head's enemy record, including its thirteen body segments, which are not ordinary enemies
+/// and so are named here rather than given enemy records.
 /// </summary>
 public sealed class BotwoonEnemyState
 {
     /// <summary>
-    /// The main-function pointer, owning initial waiting, traversal/spitting, and synchronized death
-    /// progression; none once a kill has emptied the record.
+    /// The main-function pointer, owning initial waiting, traversal/spitting, and synchronized death progression.
     /// </summary>
     public BotwoonEnemyFunction? Function { get; internal set; }
 
-    /// <summary>
-    /// The independent movement callback, choosing direct hole movement or an authored path;
-    /// none once a kill has emptied the record.
-    /// </summary>
+    /// <summary>The independent movement callback, choosing direct hole movement or an authored path.</summary>
     public BotwoonMovementFunction? MovementFunction { get; internal set; }
 
     /// <summary>
-    /// The independent head callback, controlling movement orientation, aiming, spit-frame admission, and
-    /// cooldown; none once a kill has emptied the record.
+    /// The independent head callback, controlling movement orientation, aiming, spit-frame admission, and cooldown.
     /// </summary>
     public BotwoonHeadFunction? HeadFunction { get; internal set; }
 
@@ -151,12 +145,4 @@ public sealed class BotwoonEnemyState
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
     internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        MovementFunction = null;
-        HeadFunction = null;
-    }
 }

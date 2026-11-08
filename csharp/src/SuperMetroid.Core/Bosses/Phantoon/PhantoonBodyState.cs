@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// Phantoon's body's own state: the encounter phase it dispatches, its phase timer, its starting flames, its
-/// figure-eight and its death explosions. The values are emptied when the body is killed (<see cref="ClearWithRecord"/>).
+/// figure-eight and its death explosions.
 /// </summary>
 /// <remarks>
 /// Every phase loads the values it reads when it starts: the starting-flame index, path cursor and explosion pass are
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </remarks>
 public sealed class PhantoonBodyState
 {
-    /// <summary>The encounter phase, or null once a kill has emptied the body.</summary>
+    /// <summary>The encounter phase.</summary>
     private PhantoonAiFunction? _function;
 
     /// <summary>The body's next starting flame, 0 through 7.</summary>
@@ -54,19 +54,4 @@ public sealed class PhantoonBodyState
     /// value that holds the request, which no reader consumes before a phase overwrites it (#1472).
     /// </summary>
     internal void StartPart() => FlameRainRequested = false;
-
-    /// <summary>Empties the body's values, as a kill empties its record.</summary>
-    [IntendedDuplicate("each part's state clears its own record values; the shared shape is only the assignment of zero")]
-    internal void ClearWithRecord()
-    {
-        StartingFlameIndex = 0;
-        PathCursor = 0;
-        ExplosionPass = 0;
-        StartingFlamesActive = false;
-        FigureEightSpeed = SignedSixteenSixteen.Zero;
-        SpeedPhase = 0;
-        FunctionTimer = 0;
-        _function = null;
-        FlameRainRequested = false;
-    }
 }

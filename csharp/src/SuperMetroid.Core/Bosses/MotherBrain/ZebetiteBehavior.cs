@@ -98,7 +98,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot.Spawn.Population);
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // One more property bit is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
@@ -281,7 +281,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Clear();
         slot.Spawn = survivingSpawn;
-        slot.SetSpeciesState<ZebetiteEnemyState>(null);
         _roomStatus.RecordKill();
     }
 

@@ -3,10 +3,7 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>
-/// Crocomire's body state. The values the body's record keeps are
-/// emptied with the record when the body is killed (<see cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>Crocomire's body state.</summary>
 /// <remarks>
 /// The original game keeps the queued steps, the death-phase delay, the rumble step and the vertical acceleration in
 /// one record value; the reaction timer, the vertical speed and the skeleton speed's fraction in a second; and the
@@ -167,25 +164,5 @@ public sealed class CrocomireEnemyState
         VerticalSpeed = 0;
         VerticalSubpixel = 0;
         VerticalAcceleration = acceleration;
-    }
-
-    /// <summary>Empties the values the game keeps in the body's common record.</summary>
-    [IntendedDuplicate("each state clears its own record values; the shared shape is only the assignment of zero")]
-    internal void ClearWithRecord()
-    {
-        DeathSequenceIndex = CrocomireDeathPhase.Fighting;
-        FightFlags = CrocomireFightFlags.None;
-        _hitCount = 0;
-        FightFunction = CrocomireFightFunction.ResetAnimation;
-        SavedFightFunction = CrocomireFightFunction.ResetAnimation;
-        _stepCounter = 0;
-        DeathPhaseDelay = 0;
-        RumbleStep = 0;
-        VerticalAcceleration = 0;
-        ReactionTimer = 0;
-        VerticalSpeed = 0;
-        ProjectileCounter = 0;
-        VerticalSubpixel = 0;
-        SkeletonVelocity = SignedSixteenSixteen.Zero;
     }
 }

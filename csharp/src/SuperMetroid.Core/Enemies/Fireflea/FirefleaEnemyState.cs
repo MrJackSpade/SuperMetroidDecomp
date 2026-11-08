@@ -2,10 +2,9 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
-/// The state of a Fireflea. The values the game keeps in the enemy's common record are emptied with it when the
-/// enemy is killed (<see cref="ClearWithRecord"/>). The speed and the vertical extents are the Fireflea's own too: setup
-/// writes the speed, and writes the extents for every Fireflea that moves vertically, the only kind that reads them, so
-/// nothing a previous Fireflea in the slot left reaches a new one.
+/// The state of a Fireflea. The speed and the vertical extents are the Fireflea's own: setup writes the speed, and
+/// writes the extents for every Fireflea that moves vertically, the only kind that reads them, so nothing a previous
+/// Fireflea in the slot left reaches a new one.
 /// </summary>
 public sealed class FirefleaEnemyState
 {
@@ -56,13 +55,4 @@ public sealed class FirefleaEnemyState
 
     /// <summary>Whether the spawn settings choose circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
     public bool UsesCircularMovement => _slot.SpawnSettings<FirefleaSpawnSettings>().Path == FirefleaPath.Circling;
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        AngularSpeed = SignedSixteenSixteen.Zero;
-        Radius = 0;
-        Angle = RotationAngle.FromTableIndex(0);
-        Center = Position16<RoomPixels>.Zero;
-    }
 }

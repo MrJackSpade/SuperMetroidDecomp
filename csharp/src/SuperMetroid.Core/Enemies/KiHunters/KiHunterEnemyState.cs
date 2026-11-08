@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
 /// Ki-Hunter's body or wing state. A body and a detached wing put different meanings in the same common-record word,
-/// and each meaning has its own value; detachment sets each detached value before reading it. The values the game
-/// keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// and each meaning has its own value; detachment sets each detached value before reading it.
 /// </summary>
 public sealed class KiHunterEnemyState
 {
@@ -23,7 +22,7 @@ public sealed class KiHunterEnemyState
     /// <summary>Role fixed by the initializer, retained even if deletion clears the definition word; body and wing callbacks still use adjacent physical slots.</summary>
     public bool IsWing { get; }
 
-    /// <summary>Main-AI dispatcher; none once a kill has emptied the record.</summary>
+    /// <summary>Main-AI dispatcher.</summary>
     public KiHunterEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -59,8 +58,8 @@ public sealed class KiHunterEnemyState
 
     /// <summary>
     /// A detached wing's quadratic speed sum, accumulated at detachment until it reaches the detached-speed threshold.
-    /// Detachment never resets it: it continues from zero or the earlier sum, and a kill empties it. Its sum wraps as
-    /// the game's word does, through <see cref="AccumulateDetachedSpeed"/>.
+    /// Detachment never resets it: it continues from zero or the earlier sum. Its sum wraps as the game's word does,
+    /// through <see cref="AccumulateDetachedSpeed"/>.
     /// </summary>
     public int DetachedSpeedAccumulator
     {
@@ -141,17 +140,4 @@ public sealed class KiHunterEnemyState
 
     /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's word does.</summary>
     internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WrappingCounter.AddWord(DetachedSpeedAccumulator, step);
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        SwoopTarget = Position16<RoomPixels>.Zero;
-        DetachedSpeedIndex = 0;
-        SwoopOrigin = Position16<RoomPixels>.Zero;
-        DetachedSpeedAccumulator = 0;
-        AnimationChangeAngle = 0;
-        SwoopAngle = 0;
-        WingArcAngle = RotationAngle.FromTableIndex(0);
-    }
 }

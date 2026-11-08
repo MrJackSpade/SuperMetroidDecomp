@@ -2,11 +2,7 @@ using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>
-/// The state of a Yard. Names follow what each word does rather than generic extension indexes. The values the
-/// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
-/// cref="ClearWithRecord"/>).
-/// </summary>
+/// <summary>The state of a Yard. Names follow what each word does rather than generic extension indexes.</summary>
 public sealed class YardEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
@@ -37,8 +33,8 @@ public sealed class YardEnemyState
     }
 
     /// <summary>
-    /// movement dispatcher pointer, which may lag a direction instruction by one update and therefore owns
-    /// dispatch independently of <see cref="Direction"/>; none once a kill has emptied the record.
+    /// movement dispatcher pointer, which may lag a direction instruction by one update and therefore owns dispatch
+    /// independently of <see cref="Direction"/>.
     /// </summary>
     public YardMovementFunction? MovementFunction { get; internal set; }
 
@@ -62,21 +58,11 @@ public sealed class YardEnemyState
 
     /// <summary>
     /// The side of its block the Yard holds, which signs the crawl velocity the shared crawler reset gives it after a
-    /// landing; emptied with the record.
+    /// landing.
     /// </summary>
     internal CrawlerSurfaceOrientation BlockSide { get; set; }
     /// <summary>Mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
     public YardBehavior Behavior { get; internal set; }
     /// <summary>Parallel flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
     public bool BouncedHorizontally { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        CrawlingVelocity = default;
-        BlockSide = CrawlerSurfaceOrientation.UpsideRight;
-        AirborneFacingDirection = YardAirborneFacing.Left;
-        ConsecutiveTurnCounter = 0;
-        MovementFunction = null;
-    }
 }

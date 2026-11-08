@@ -105,10 +105,10 @@ internal sealed class KraidEncounterAccess
     /// <summary>The state of the Kraid fingernail in <paramref name="slot"/>.</summary>
     internal KraidNailState NailState(RoomEnemySlot slot) => _parts.NailStateOf(RequireKraidState(slot), slot);
 
-    /// <summary>Installs a part's state with its slot, so a kill empties its record values.</summary>
+    /// <summary>Installs a part's state for the part's occupant of its slot; the encounter keeps it across the part's kills and respawns.</summary>
     internal void AttachKraidPart(RoomEnemySlot slot, KraidEnemyState state)
     {
         KraidPartState part = _parts.StateOf(state, slot);
-        slot.SetSpeciesState(part, part.ClearWithRecord);
+        slot.SetSpeciesState(part);
     }
 }

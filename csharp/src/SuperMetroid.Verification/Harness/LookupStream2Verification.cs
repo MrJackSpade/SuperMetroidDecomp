@@ -1404,7 +1404,7 @@ internal static class LookupStream2Verification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()) { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
-        slot.SetSpeciesState(part, part.ClearWithRecord);
+        slot.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)
         {

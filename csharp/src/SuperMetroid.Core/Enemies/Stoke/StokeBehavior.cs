@@ -74,7 +74,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = StokeAiFunction.Moving,
             Direction = settings.Direction,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // Initialization writes the common empty map, then picks the left list by default.
         // A right-moving Stoke takes the right-facing branch. The room-loader tail later

@@ -2,9 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
-/// The state of the Morph Ball eye. The mount and eye body share a definition, but parameter two's sign selects
-/// their role. The values the game keeps in the enemy's common record are emptied with it when the enemy is killed
-/// (<see cref="ClearWithRecord"/>).
+/// The state of the Morph Ball eye. The mount and eye body share a definition, but parameter two's sign selects their
+/// role.
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
@@ -25,15 +24,6 @@ public sealed class MorphBallEyeEnemyState
     /// <summary>Activation/deactivation countdown.</summary>
     public int FunctionTimer { get; internal set; }
 
-    /// <summary>Indirect function word; none once a kill has emptied the record.</summary>
+    /// <summary>Indirect function word.</summary>
     public MorphBallEyeAiFunction? Function { get; internal set; }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        IsActivated = false;
-        Angle = RotationAngle.FromTableIndex(0);
-        FunctionTimer = 0;
-        Function = null;
-    }
 }

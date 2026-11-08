@@ -167,7 +167,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RipperEnemyState CreateRipperState(RoomEnemySlot slot)
     {
         var state = new RipperEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         return state;
     }
 

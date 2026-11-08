@@ -71,7 +71,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             IdleDisabled = false,
             BounceSpeedCalculated = false,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         SetBoyonProgram(slot, state, BoyonProgram.Idle);
     }
 

@@ -54,7 +54,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeSkultera(RoomEnemySlot slot)
     {
         var state = new SkulteraEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The placement names the way it starts swimming and the speed it swims at either way.
         SkulteraSpawnSettings settings = slot.SpawnSettings<SkulteraSpawnSettings>();

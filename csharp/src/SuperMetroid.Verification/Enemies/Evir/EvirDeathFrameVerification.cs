@@ -59,7 +59,7 @@ internal static class EvirDeathFrameVerification
         AssertEqual(EnemyDefinitionId.None, projectile.DefinitionId, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemies.Count, "no orphan Evir remains active");
         AssertThrows<InvalidDataException>(() => initialize(arms, samus),
-            "initialization still rejects a missing body even when a prior typed state survives");
+            "initialization still rejects a missing body");
         Console.WriteLine("Evir death frame: real contact kill, cleared-slot arm/spit reads, single death and next-frame removal confirmed.");
     }
 

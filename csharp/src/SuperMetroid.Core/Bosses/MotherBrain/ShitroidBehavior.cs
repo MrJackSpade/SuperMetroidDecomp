@@ -102,7 +102,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.ReactsToSamus = false;
         Shitroid = state;
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         // The entry's target colours are where the room's colours fade to; this runtime shows the completed fade: the
         // Shitroid and its victim in the entry's colours (#1512), and the drained corpses in theirs, which the corpses'
         // own initializers show.

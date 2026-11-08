@@ -4,10 +4,8 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of an ordinary Metroid, with its three parallel extension words. The two sprite-object references
-/// are the managed equivalent of the original's sprite-object indexes; the drain accumulator is
-/// the third parallel word. The values the game keeps in the enemy's common record are emptied with it when the
-/// enemy is killed (<see cref="ClearWithRecord"/>).
+/// The state of an ordinary Metroid, with its three parallel extension words. The two sprite-object references are the
+/// managed equivalent of the original's sprite-object indexes; the drain accumulator is the third parallel word.
 /// </summary>
 public sealed class MetroidEnemyState
 {
@@ -66,14 +64,5 @@ public sealed class MetroidEnemyState
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        IceDamageToFreeze = 0;
-        Velocity = FixedVector<RoomPixels>.Zero;
-        EscapeTimer = 0;
-        Function = default;
     }
 }

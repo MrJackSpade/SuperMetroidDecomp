@@ -2,16 +2,14 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of one ninja Pirate. The speed and spawn position are the ninja's own state, which nothing else reads. The
-/// values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
-/// cref="ClearWithRecord"/>).
+/// The state of one ninja Pirate. The speed and spawn position are the ninja's own state, which nothing else reads.
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<NinjaSpacePirateProgram> Program { get; set; }
 
-    /// <summary>Movement/decision function; none once a kill has emptied the record.</summary>
+    /// <summary>Movement/decision function.</summary>
     public NinjaSpacePirateFunction? Function { get; internal set; }
 
     /// <summary>
@@ -79,14 +77,4 @@ public sealed class NinjaSpacePirateEnemyState
     /// sixteen-bit speed does.
     /// </summary>
     internal void ChangeSpeed(int delta) => Speed = SignedEightEight.Wrapped(Speed.RawValue + delta);
-
-    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = null;
-        CalculatedSpinJumpSpeed = 0;
-        PostsMidpoint = Position16<RoomPixels>.Zero;
-        LeftPost = Position16<RoomPixels>.Zero;
-        RightPost = Position16<RoomPixels>.Zero;
-    }
 }

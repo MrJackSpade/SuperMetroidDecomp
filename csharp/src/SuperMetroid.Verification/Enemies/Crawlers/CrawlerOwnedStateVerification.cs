@@ -4,13 +4,12 @@ namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the crawler state the families own: the initial velocity reset and the cleared record.</summary>
+/// <summary>Checks the crawler state the families own: the initial velocity reset.</summary>
 internal static class CrawlerOwnedStateVerification
 {
     /// <summary>
     /// Initializes a Zoomer whose properties select a reversed X and confirms its velocity is the parameter's speed on
-    /// both axes with that sign, then confirms a kill empties the velocity and behaviour kept in the common record while
-    /// the saved surface behaviour outlives it.
+    /// both axes with that sign.
     /// </summary>
     internal static void VerifyCrawlerOwnedState()
     {
@@ -26,13 +25,7 @@ internal static class CrawlerOwnedStateVerification
         AssertEqual(new EightEightVector<RoomPixels>(new SignedEightEight(unchecked((ushort)-speed)), new SignedEightEight(speed)),
             state.Velocity, "the reset speed with the X sign the properties select");
         AssertEqual<CrawlerEnemyFunction?>(CrawlerEnemyFunction.InstructionPending, state.Function, "a new crawler waits for its instruction");
-
-        state.NonFallingFunction = CrawlerEnemyFunction.CrawlingVertically;
-        slot.Clear();
-        AssertEqual(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties the velocity");
-        AssertEqual<CrawlerEnemyFunction?>(null, state.Function, "a kill empties the behaviour");
-        AssertEqual<CrawlerEnemyFunction?>(CrawlerEnemyFunction.CrawlingVertically, state.NonFallingFunction, "the saved surface behaviour outlives the kill");
-        Console.WriteLine("Crawler owned state: the velocity reset and the cleared record match.");
+        Console.WriteLine("Crawler owned state: the velocity reset matches.");
     }
 
     /// <summary>Runs the focused crawler owned-state check.</summary>

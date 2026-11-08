@@ -184,23 +184,14 @@ internal static class EscapeEtecoonDefinitionsVerification
         return 0;
     }
 
-    /// <summary>
-    /// Confirms an initialized escape Etecoon owns a pre-instruction, and that a kill empties its velocity and
-    /// pre-instruction as the cleared common record does.
-    /// </summary>
+    /// <summary>Confirms an initialized escape Etecoon owns a pre-instruction.</summary>
     internal static void VerifyEscapeEtecoonOwnedState()
     {
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
-        RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
         AssertTrue(state.FrameBehavior is not null, "an initialized escape Etecoon has a pre-instruction");
-        state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0x0380), default);
-
-        etecoon.Clear();
-        AssertEqual<EscapeEtecoonFrameBehavior?>(null, state.FrameBehavior, "a kill empties the pre-instruction");
-        AssertEqual(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties the velocity");
-        Console.WriteLine("  Escape Etecoon owned state: the cleared record matches.");
+        Console.WriteLine("  Escape Etecoon owned state: an initialized escape Etecoon has a pre-instruction.");
     }
 
     /// <summary>Runs the retail-backed Etecoon instruction migration command.</summary>

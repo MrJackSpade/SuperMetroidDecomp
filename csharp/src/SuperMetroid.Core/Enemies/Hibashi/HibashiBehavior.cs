@@ -56,7 +56,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             InactiveTimerReset = slot.SpawnSettings<HibashiSpawnSettings>().InactiveTime,
             IsCollisionPart = slot.SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine words below.

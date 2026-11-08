@@ -4,12 +4,11 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the walking Space Pirate state the species owns: its patrol posts and the cleared record.</summary>
+/// <summary>Checks the walking Space Pirate state the species owns: its patrol posts.</summary>
 internal static class WalkingSpacePirateOwnedStateVerification
 {
     /// <summary>
-    /// Initializes a walking Pirate at X 256 with a patrol radius of 48 and confirms its posts lie that far either side,
-    /// then confirms a kill empties the behaviour and both posts kept in the common record.
+    /// Initializes a walking Pirate at X 256 with a patrol radius of 48 and confirms its posts lie that far either side.
     /// </summary>
     internal static void VerifyWalkingSpacePirateOwnedState()
     {
@@ -24,12 +23,7 @@ internal static class WalkingSpacePirateOwnedStateVerification
             ?? throw new InvalidOperationException("The walking Pirate has no state.");
         AssertEqual(new Position16<RoomPixels>(0x0100 - 48, 0), state.LeftPost, "the left post lies the patrol radius left");
         AssertEqual(new Position16<RoomPixels>(0x0100 + 48, 0), state.RightPost, "the right post lies the patrol radius right");
-
-        slot.Clear();
-        AssertEqual<WalkingSpacePirateFunction?>(null, state.Function, "a kill empties the behaviour");
-        AssertEqual(Position16<RoomPixels>.Zero, state.LeftPost, "a kill empties the left post");
-        AssertEqual(Position16<RoomPixels>.Zero, state.RightPost, "a kill empties the right post");
-        Console.WriteLine("Walking Space Pirate owned state: the patrol posts and the cleared record match.");
+        Console.WriteLine("Walking Space Pirate owned state: the patrol posts match.");
     }
 
     /// <summary>Runs the focused walking Space Pirate owned-state check.</summary>

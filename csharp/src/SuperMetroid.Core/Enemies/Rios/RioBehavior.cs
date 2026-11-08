@@ -47,7 +47,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledProgram = null,
             Function = RioEnemyFunction.WaitingForSamus,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The Rio's setup writes the list directly rather than calling the animation installer. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.

@@ -86,14 +86,13 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.FrameHold = WrappingCountdown.Start(1);
         var state = new LowerNorfairRioEnemyState { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
         return new NewLowerNorfairRioInstructionSystemResult(enemies, slot, state);
     }
 
     /// <summary>
     /// Initializes a Lower Norfair Rio parent and its flame follower and confirms parameter one's sign bit selects the
-    /// follower, then confirms a kill empties the velocity, behaviour and follower selection kept in the common record
-    /// while the follower visibility outlives it.
+    /// follower.
     /// </summary>
     internal static void VerifyLowerNorfairRioOwnedState()
     {
@@ -111,15 +110,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         LowerNorfairRioEnemyState followerState = follower.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()
             ?? throw new InvalidOperationException("The Lower Norfair Rio follower has no state.");
         AssertTrue(!parentState.IsFollower && followerState.IsFollower, "parameter one's sign bit selects the follower");
-
-        followerState.FollowerVisible = true;
-        followerState.Velocity = new(new SignedEightEight(0x0180), new SignedEightEight(0xff00));
-        follower.Clear();
-        AssertEqual<LowerNorfairRioEnemyFunction?>(null, followerState.Function, "a kill empties the behaviour");
-        AssertEqual(default(EightEightVector<RoomPixels>), followerState.Velocity, "a kill empties the velocity");
-        AssertTrue(!followerState.IsFollower, "a kill empties the follower selection with its parameter");
-        AssertTrue(followerState.FollowerVisible, "the follower visibility outlives the kill");
-        Console.WriteLine("Lower Norfair Rio owned state: the follower selection and the cleared record match.");
+        Console.WriteLine("Lower Norfair Rio owned state: the follower selection matches.");
     }
 
     /// <summary>Runs the focused Lower Norfair Rio owned-state check.</summary>

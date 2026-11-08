@@ -71,9 +71,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Initializes the dead Sidehopper.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
     {
-        if (slot.SpeciesState<DeadSidehopperEnemyState>() is not null)
-            throw new InvalidDataException($"Dead sidehopper slot {slot.SlotIndex} was initialized twice.");
-
         DeadSidehopperLayout layout = slot.SpawnSettings<DeadSidehopperSpawnSettings>().Layout;
         switch (layout)
         {
@@ -140,7 +137,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         {
             Flesh = definition.Kind,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         _deadMonsters.BeginRows(state.Flesh, definition.RowCount);
         return state;

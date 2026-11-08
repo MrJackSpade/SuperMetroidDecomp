@@ -3,9 +3,8 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
 /// The state of one half of a Powamp: a nonzero population parameter one makes the balloon, while zero is the
-/// immediately following moving body. The game reuses the same record words for different values in each half;
-/// here each half's values have their own members. Every value here is one the game keeps in the enemy's
-/// common record, so it is emptied with that record when the half is killed (<see cref="ClearWithRecord"/>).
+/// immediately following moving body. The game reuses the same record words for different values in each half; here
+/// each half's values have their own members.
 /// </summary>
 public sealed class PowampEnemyState
 {
@@ -36,7 +35,7 @@ public sealed class PowampEnemyState
     /// <summary>The body's countdown, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or signed underflow.</summary>
     public int FunctionTimer { get; internal set; }
 
-    /// <summary>The main-AI behaviour; balloons keep the no-op, and none once a kill has emptied the record.</summary>
+    /// <summary>The main-AI behaviour; balloons keep the no-op.</summary>
     public PowampEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -44,18 +43,4 @@ public sealed class PowampEnemyState
     /// death, and from spawn for a balloon, whose parameter two is its grapple travel distance.
     /// </summary>
     public bool RefusesContact { get; internal set; }
-
-    /// <summary>Empties every value, when a kill empties the half's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        IsBalloon = false;
-        RefusesContact = false;
-        YVelocity = SignedSixteenSixteen.Zero;
-        BalloonSpawn = Position16<RoomPixels>.Zero;
-        WiggleIndex = 0;
-        WiggleTimer = 0;
-        BalloonGrappleTravelDistance = 0;
-        FunctionTimer = 0;
-        Function = null;
-    }
 }

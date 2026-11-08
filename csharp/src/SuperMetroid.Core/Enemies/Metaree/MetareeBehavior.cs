@@ -58,7 +58,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             AttackReady = false,
             YVelocity = 0,
         };
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The initializer starts the idle animation directly rather than going through the change detector,
         // because both requested and installed indexes intentionally start at zero.

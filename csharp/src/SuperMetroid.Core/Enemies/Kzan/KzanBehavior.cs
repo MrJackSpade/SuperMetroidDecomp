@@ -47,7 +47,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeKzanTop(RoomEnemySlot slot)
     {
         var state = new KzanEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
         slot.FrameHold = WrappingCountdown.Start(1);

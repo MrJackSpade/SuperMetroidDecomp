@@ -113,7 +113,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             IsWreckedShip = isWreckedShip,
             HandTriggered = false,
         };
-        statue.SetSpeciesState(state, state.ClearWithRecord);
+        statue.SetSpeciesState(state);
         _statue = statue;
 
         // The statue draws on the lowest layer, as every retail room shows it.

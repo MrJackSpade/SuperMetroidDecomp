@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// Phantoon's mouth's own state: its casual flames, the shot pattern, the wave's amplitude and phase step, and the
-/// control of Phantoon's layer. The values are emptied when the mouth is killed (<see cref="ClearWithRecord"/>).
+/// control of Phantoon's layer.
 /// </summary>
 /// <remarks>
 /// Every phase loads the values it reads when it starts. Each count is never negative except the casual-flame count,
@@ -54,18 +54,4 @@ public sealed class PhantoonMouthState
     /// holds the pattern, which no reader consumes before a phase overwrites it (#1472).
     /// </summary>
     internal void StartPart() => ShotPattern = 0;
-
-    /// <summary>Empties the mouth's values, as a kill empties its record.</summary>
-    [IntendedDuplicate("each part's state clears its own record values; the shared shape is only the assignment of zero")]
-    internal void ClearWithRecord()
-    {
-        CasualFlamePattern = 0;
-        CasualFlameHold = 0;
-        _casualFlameCount = 0;
-        WaveAmplitude = 0;
-        WaveAmplitudeShrinking = false;
-        WavyPhaseDelta = 0;
-        LayerControl = PhantoonLayerControl.Hidden;
-        ShotPattern = 0;
-    }
 }

@@ -101,7 +101,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
         var state = new WalkingSpacePirateEnemyState();
-        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.SetSpeciesState(state);
 
         // The facing option alone selects the initial facing. The slow-laser option is an
         // independent projectile-flinch option and must not accidentally select right art.

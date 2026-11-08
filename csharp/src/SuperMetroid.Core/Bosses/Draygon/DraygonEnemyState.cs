@@ -7,10 +7,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide state and the values the game keeps in the body's common
-/// record, which are emptied with the record when the body is killed (<see cref="ClearWithRecord"/>). The four visible
-/// enemy records remain physical <see cref="RoomEnemySlot"/> instances; the eye's record values live in its own
-/// <see cref="DraygonEyeState"/>.
+/// Draygon's encounter-wide state and the values of his body. The four visible enemy records remain physical <see cref="RoomEnemySlot"/> instances; the eye's record values live
+/// in its own <see cref="DraygonEyeState"/>.
 /// </summary>
 public sealed class DraygonEnemyState
 {
@@ -250,15 +248,4 @@ public sealed class DraygonEnemyState
 
     /// <summary>The unsigned 16.16 horizontal speed the swoop and goop passes add to or subtract from the body's X.</summary>
     internal uint SwoopVelocity { get; set; }
-
-    /// <summary>Empties the values the game keeps in the body's common record.</summary>
-    internal void ClearWithRecord()
-    {
-        Function = DraygonAiFunction.None;
-        IntroFrames = 0;
-        BurialWait = 0;
-        SwoopEntry = 0;
-        SwoopPathEntryCount = 0;
-        SwoopVelocity = 0;
-    }
 }

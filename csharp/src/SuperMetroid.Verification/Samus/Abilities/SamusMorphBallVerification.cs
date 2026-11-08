@@ -908,7 +908,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     while (!powerBombs.PowerBombExplosion.IsActive)
         powerBombFuse = powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
     AssertEqual(0, powerBombs.Slots[0].BombTimer.RawValue,
-        "$FFFF fuse sentinel is consumed by first mode-three collision call");
+        "the fuse has run out once the explosion starts");
     AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
         powerBombs.PowerBombExplosion.Phase,
         "fuse expiry allocates HDMA list without executing setup");

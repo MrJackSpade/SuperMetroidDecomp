@@ -16,12 +16,8 @@ internal static class SamusAtmosphericEffectDefinitions
     /// </summary>
     internal const SamusAtmosphericEffectType ScratchListType = SamusAtmosphericEffectType.AlternateFootstepSplash;
 
-    /// <summary>The number of Crateria rooms the atmospheric policy covers.</summary>
-    internal const int CrateriaPolicyRooms = 16;
-
     /// <summary>
-    /// The Crateria rooms whose atmospheric policy is nonzero, and that policy; every other room the
-    /// policy covers has none.
+    /// The Crateria rooms whose atmospheric policy is nonzero, and that policy; every other Crateria room has none.
     /// </summary>
     internal static readonly FrozenDictionary<RoomIdentity, CrateriaAtmosphericEffectFlags> CrateriaRoomEffects =
         new Dictionary<RoomIdentity, CrateriaAtmosphericEffectFlags>

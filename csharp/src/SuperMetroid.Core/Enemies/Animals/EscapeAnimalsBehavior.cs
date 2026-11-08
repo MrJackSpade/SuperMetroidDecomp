@@ -195,7 +195,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FrameBehavior = EscapeEtecoonFrameBehavior.Cleared;
                 return null;
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
-                return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : goToIfAcidHigh.Target;
+                return IsAcidLow(samus) ? null : goToIfAcidHigh.Target;
             case EscapeEtecoonCue.Move move:
                 slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + move.Offset);
                 return null;
@@ -210,7 +210,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case EscapeDachoraCueKind.GoToIfAcidHigh:
-                return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : cue.Target;
+                return IsAcidLow(samus) ? null : cue.Target;
             case EscapeDachoraCueKind.GoToIfCrittersEscaped:
                 return HasCrittersEscaped() ? cue.Target : null;
             case EscapeDachoraCueKind.MoveLeft:
@@ -227,9 +227,12 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samples the critters-escaped event for Dachora's instruction-list branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(EventNumber.CrittersEscaped);
 
-    /// <summary>Treats absent Samus/liquid context as the maximum Y for acid-height branches.</summary>
-    private static int EscapeAnimalLavaY(SamusState? samus) =>
-        samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
+    /// <summary>
+    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent,
+    /// as it is with no Samus or liquid context.
+    /// </summary>
+    private static bool IsAcidLow(SamusState? samus) =>
+        samus?.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;
 
     /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>
     private static void AddEscapeAnimalX(RoomEnemySlot slot, SignedSixteenSixteen displacement) =>

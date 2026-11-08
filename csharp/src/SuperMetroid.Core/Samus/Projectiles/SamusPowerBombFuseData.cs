@@ -24,6 +24,4 @@ public static class SamusPowerBombFuseData
             [new(SamusProjectileProgram.Bomb, 3)] = new(SamusProjectileProgram.FastBomb, 2),
             [new(SamusProjectileProgram.Bomb, 4)] = new(SamusProjectileProgram.FastBomb, 3),
         }.ToFrozenDictionary();
-    /// <summary>Fuse-expiration marker consumed separately by the subsequent collision routine.</summary>
-    public const int ExplosionStartedSentinel = ushort.MaxValue;
 }

@@ -98,8 +98,8 @@ internal static class InstalledSporesTests
                 if (frame is < 50 or 510 or 511 or 512 or 1024 or 1049)
                 {
                     var liquid = new SamusLiquidPhysicsState(); liquid.ConfigureFor(baseline);
-                    Require(liquid.FxType == RoomFxType.Spores && liquid.FxYPosition == ushort.MaxValue &&
-                        liquid.LavaAcidYPosition == ushort.MaxValue, "Spore artwork activated liquid physics.");
+                    Require(liquid.FxType == RoomFxType.Spores && liquid.WaterSurfaceY is null &&
+                        liquid.LavaAcidSurfaceY is null, "Spore artwork activated liquid physics.");
                 }
                 Require(baseline.SoundRequests.Count == 0 && baseline.EarthquakeRequest is null,
                     "Spore presentation produced audio or earthquake side effects.");

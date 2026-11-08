@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -57,7 +58,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.YSpeed = default;
             runtime.StepFrame(0);
-            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinations.FromTableIndex(beam)));
+            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
@@ -65,7 +66,7 @@ internal static class GameplayGrapplePaletteVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
-            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinations.FromTableIndex(beam)));
+            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "native pose-change window refires grapple");
             AssertPalette("pose-change refiring");

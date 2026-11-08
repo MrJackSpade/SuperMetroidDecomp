@@ -6,19 +6,18 @@ public static class SamusPowerBombFuse
 {
     /// <summary>
     /// Computes the timer/list writes and requests the caller's existing explosion
-    /// or deletion operation. Collision consumes the expiration sentinel after this call;
-    /// it must not be folded into the fuse, because other callbacks can reach this routine.
+    /// or deletion operation. The step that runs the fuse out starts the explosion; the caller's
+    /// boundary reactions wait for the update after it, because other callbacks can reach this routine.
     /// </summary>
     public static PowerBombFuseStep Step(WrappingCountdown timer, bool explosionArmed)
     {
         // A stopped fuse is left alone. Otherwise the fuse counts down: reaching zero
-        // expires the fuse, and the fast-list switch tests the decremented count.
+        // runs the fuse out and starts the explosion, and the fast-list switch tests the decremented count.
         if (timer.IsZero)
             return new(timer, FastAnimation: false, SpawnExplosion: false, DeleteProjectile: !explosionArmed);
         CountdownStep fuse = timer.Decrement();
         if (fuse.IsZero)
-            return new(WrappingCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel), FastAnimation: false,
-                SpawnExplosion: true, DeleteProjectile: false);
+            return new(fuse.Remaining, FastAnimation: false, SpawnExplosion: true, DeleteProjectile: false);
         return new(fuse.Remaining, FastAnimation: fuse.Remaining.IsAt(SamusPowerBombFuseData.FastAnimationTimer),
             SpawnExplosion: false, DeleteProjectile: false);
     }

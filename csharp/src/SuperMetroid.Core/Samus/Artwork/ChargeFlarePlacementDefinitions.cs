@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
-
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
@@ -9,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class ChargeFlarePlacementDefinitions
 {
     /// <summary>The ten named aiming directions each movement mode places the flare for.</summary>
-    public const int DirectionCount = SamusFiringTableDefinitions.DirectionCount;
+    public const int DirectionCount = 10;
 
     /// <summary>The beam flare's placements while Samus turns, one for each aim a turning pose holds.</summary>
     public const int TurningPlacementCount = 3;

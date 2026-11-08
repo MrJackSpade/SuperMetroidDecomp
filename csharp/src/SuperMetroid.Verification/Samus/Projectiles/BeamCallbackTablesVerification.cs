@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -29,14 +30,14 @@ internal static class BeamCallbackTablesVerification
             {
                 AssertEqual(
                     CartridgeImportSource.Require(retail).ReadCartridgeWord((table + combination * sizeof(ushort))),
-                    SamusBeamCallbacks.Resolve(charged, SamusBeamCombinations.FromTableIndex(combination)).NativePointer,
+                    SamusBeamCallbacks.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(combination)).NativePointer,
                     $"charged={charged} callback {combination:X1} matches cartridge");
 
             }
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusBeamCallbacks.Resolve(false, SamusBeamCombinations.FromTableIndex(16)),
+            () => SamusBeamCallbacks.Resolve(false, SamusBeamCombinationTableOrder.FromTableIndex(16)),
             "beam combination rejects index beyond low nibble");
 
         var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
@@ -57,7 +58,7 @@ internal static class BeamCallbackTablesVerification
                 projectiles.Firing.TryFireBeam(room, samus, ControllerButton.X, shared, null, charged);
                 AssertTrue(!projectiles.Slots[0].Type.IsNone || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
-                AssertEqual((SamusBeamCallbacks.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated ?? throw new InvalidOperationException("Verification requires SamusBeamCallbacks.Resolve(charged, SamusBeamCombinations.FromTableIndex(beam....")),
+                AssertEqual((SamusBeamCallbacks.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beamType)).Translated ?? throw new InvalidOperationException("Verification requires SamusBeamCallbacks.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beam....")),
                     projectiles.Slots[0].FrameBehavior,
                     $"charged={charged} beam {beamType:X1} initializer installs compiled callback");
                 continue;
@@ -77,7 +78,7 @@ internal static class BeamCallbackTablesVerification
             // lowest live slot after the release frame.
             SamusProjectileSlot fired = projectiles.Slots.First(slot => slot.IsActive);
             SamusBeamCallbackDefinition expected =
-                SamusBeamCallbacks.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType));
+                SamusBeamCallbacks.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(beamType));
             AssertEqual(
                 (expected.Translated ?? throw new InvalidOperationException("Verification requires expected.Translated.")),
                 fired.FrameBehavior,

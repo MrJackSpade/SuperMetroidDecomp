@@ -114,7 +114,10 @@ internal sealed class CrocomireBodyLayer
         int xOffset = random & 63;
         if ((random & 2) == 0)
             xOffset = ~xOffset;
-        int acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
+        // Crocomire's room always has its acid surface, which its tide only moves.
+        int acidY = samus is null
+            ? 224
+            : samus.LiquidPhysics.LavaAcidSurfaceY ?? throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
         _spriteObjects.SpawnRoomSpriteObject(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - (SharedRandomState.UpperByte(random) & 31))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,

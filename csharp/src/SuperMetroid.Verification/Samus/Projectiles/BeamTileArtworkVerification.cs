@@ -35,8 +35,8 @@ internal static class BeamTileArtworkVerification
         AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have installed artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
-            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))];
-            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinations.FromTableIndex(selection));
+            byte[] png = files[BeamTileAtlasDefinitions.FileName(SamusBeamCombinationTableOrder.FromTableIndex(selection))];
+            var atlas = BeamTileAtlas.Load(new MemoryStream(png), SamusBeamCombinationTableOrder.FromTableIndex(selection));
             var native = new SnesVram(); var extracted = new SnesVram();
             LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);

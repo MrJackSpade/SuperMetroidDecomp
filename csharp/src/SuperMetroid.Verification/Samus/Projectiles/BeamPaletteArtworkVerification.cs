@@ -44,7 +44,7 @@ internal static class BeamPaletteArtworkVerification
             RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog });
             for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
                 AssertEqual(expected.Colors[SamusColourNative.BeamFirstCgram + i], shown[i], "Extracted beam palette matches the native beam colours");
-            AssertTrue(catalog.Colours(SamusBeamCombinations.FromTableIndex(selection)).SequenceEqual(shown),
+            AssertTrue(catalog.Colours(SamusBeamCombinationTableOrder.FromTableIndex(selection)).SequenceEqual(shown),
                 "The shown beams are the extracted selection's palette");
         }
         string json = Encoding.UTF8.GetString(bytes);

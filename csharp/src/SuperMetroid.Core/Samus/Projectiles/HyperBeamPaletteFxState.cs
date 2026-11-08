@@ -38,8 +38,8 @@ public sealed class HyperBeamPaletteFxState
     /// </summary>
     public int FrameHold { get; private set; }
 
-    /// <summary>Last palette record written, or -1 before the first handler call.</summary>
-    public int CurrentFrameIndex { get; private set; } = -1;
+    /// <summary>The cycle position of the last palette record written, or none before the first handler call.</summary>
+    public int? CurrentFrameIndex { get; private set; }
 
     /// <summary>
     /// Number of completed ten-frame loops, a count the port keeps. No game value holds it and nothing in
@@ -58,7 +58,7 @@ public sealed class HyperBeamPaletteFxState
         // reusable slot fields to clear, but preserves every observable field and delay.
         IsActive = true;
         FrameHold = 1;
-        CurrentFrameIndex = -1;
+        CurrentFrameIndex = null;
         CompletedCycles = 0;
         Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
     }
@@ -101,7 +101,7 @@ public sealed class HyperBeamPaletteFxState
         if (frameIndex < 0)
             throw new InvalidDataException($"The Hyper Beam palette program showed record {shown.Frame.Record}, outside its cycle.");
         // The cycle's goto returns to its first record: showing it again completes a cycle.
-        if (frameIndex == 0 && CurrentFrameIndex >= 0)
+        if (frameIndex == 0 && CurrentFrameIndex is not null)
             CompletedCycles++;
 
         colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));

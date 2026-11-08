@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -43,8 +44,9 @@ internal static class BeamSpeedRowsVerification
             int y = direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0;
             // The fire frame's beam pre-instruction adds one direction-indexed acceleration
             // word to the speed-row velocity before the slot is observable.
-            int ax = SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamXAccelerations + direction * 2);
-            int ay = SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamYAccelerations + direction * 2);
+            EightEightVector<RoomPixels> acceleration = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction)).Beam;
+            int ax = acceleration.X.SignedRawValue;
+            int ay = acceleration.Y.SignedRawValue;
             AssertEqual(unchecked((short)(x + ax)), shot.Velocity.X.SignedRawValue, $"beam {combination} direction {direction} native speed-row X");
             AssertEqual(unchecked((short)(y + ay)), shot.Velocity.Y.SignedRawValue, $"beam {combination} direction {direction} native speed-row Y");
         }
@@ -66,13 +68,25 @@ internal static class BeamSpeedRowsVerification
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectileSlot>((records, launched) =>
             BeamFiring.InitializePowerBeamVelocity(records, launched, unauthored));
         var stationary = new ProjectileLaunchInheritance();
-        for (int address = 0x90c303; address < 0x90c37b; address += 2)
-            AssertEqual(unchecked((short)retail.ReadCartridgeWord(address)), SamusProjectileAccelerations.Read(address - SamusSourceDefinitionsConstants.FiringTables.Value),
-                "All 60 compiled acceleration words match the pinned ROM without authored reads");
-        foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d1, 0x90c2d2, 0x90c301, 0x90c37b, 0x90ffff })
-            AssertThrows<InvalidDataException>(
-                () => SamusProjectileAccelerations.Read(address - SamusSourceDefinitionsConstants.FiringTables.Value),
-                "Unknown or unaligned projectile motion address fails instead of reading adjacent ROM");
+        // Each firing direction's beam, missile and Super Missile accelerations are the words the motion routines read
+        // for that direction: sixty words in all.
+        for (ushort direction = 0; direction < SamusSourceDefinitionsConstants.FiringDirectionCount; direction++)
+        {
+            SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(SamusProjectileWordCodec.DecodeDirection(direction));
+            short RomWord(int address) => unchecked((short)retail.ReadCartridgeWord(address));
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.BeamXAccelerations + direction * 2), accelerations.Beam.X.SignedRawValue,
+                $"direction {direction} beam X acceleration matches the pinned ROM");
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.BeamYAccelerations + direction * 2), accelerations.Beam.Y.SignedRawValue,
+                $"direction {direction} beam Y acceleration matches the pinned ROM");
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.MissileAccelerations + direction * 4), accelerations.Missile.X.SignedRawValue,
+                $"direction {direction} missile X acceleration matches the pinned ROM");
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.MissileAccelerations + direction * 4 + 2), accelerations.Missile.Y.SignedRawValue,
+                $"direction {direction} missile Y acceleration matches the pinned ROM");
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.SuperMissileAccelerations + direction * 4), accelerations.SuperMissile.X.SignedRawValue,
+                $"direction {direction} Super Missile X acceleration matches the pinned ROM");
+            AssertEqual(RomWord(SamusSourceDefinitionsConstants.SuperMissileAccelerations + direction * 4 + 2), accelerations.SuperMissile.Y.SignedRawValue,
+                $"direction {direction} Super Missile Y acceleration matches the pinned ROM");
+        }
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
         {
@@ -126,7 +140,7 @@ internal static class BeamSpeedRowsVerification
                 AssertEqual(y, new FixedCoordinate(owner.Position.Y.Whole, owner.Position.Y.Fraction).RawValue, "Missile Y trajectory retains fixed-point carry");
             }
         }
-        Console.WriteLine("Projectile motion definitions: 60 native acceleration words, the Spazer/Plasma launch speeds, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
+        Console.WriteLine("Projectile motion definitions: 60 native acceleration words by direction, the Spazer/Plasma launch speeds, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
     }
 
     /// <summary>Forwards fixture writes while rejecting native projectile-mechanics source reads.</summary>

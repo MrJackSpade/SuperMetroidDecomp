@@ -23,8 +23,8 @@ internal static class ProjectileFileContractsVerification
                 Path.Combine(directory, BeamTileAtlasDefinitions.FileName(index)))));
         var compiledBeams = ProjectilePresentationFiles.Load(directory).BeamTiles;
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-            AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span.SequenceEqual(
-                expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinations.FromTableIndex(selection))).Span),
+            AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span.SequenceEqual(
+                expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span),
                 "file-context beam assembly retains every transfer byte and selection");
         var sheets = Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(index =>
         {

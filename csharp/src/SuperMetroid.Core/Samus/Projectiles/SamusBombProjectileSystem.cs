@@ -649,14 +649,9 @@ public sealed class SamusBombProjectileSystem
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            // Collision mode three first turns the fuse-expiration sentinel 65535 into
-            // zero without touching terrain. Every later frame scans the newly reached
-            // rectangle border using the high bytes of the explosion's shared radii.
-            if (slot.BombTimer.IsNegative)
-            {
-                slot.BombTimer = WrappingCountdown.Start(0);
-            }
-            else if (slot.BombTimer.IsZero && PowerBombExplosion.IsArmed)
+            // The update the explosion starts on touches no terrain. Every later frame scans the
+            // newly reached rectangle border using the high bytes of the explosion's shared radii.
+            if (!explosionStarted && slot.BombTimer.IsZero && PowerBombExplosion.IsArmed)
             {
                 CollectPowerBombBoundaryReactions(
                     level,

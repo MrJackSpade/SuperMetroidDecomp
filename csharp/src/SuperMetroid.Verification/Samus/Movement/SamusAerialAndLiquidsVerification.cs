@@ -359,7 +359,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit : 0,
         };
-        ordinary.LiquidPhysics.FxYPosition = submerged ? (ushort)0 : ushort.MaxValue;
+        ordinary.LiquidPhysics.WaterSurfaceY = submerged ? 0 : null;
         ordinary.LiquidPhysics.CinematicFunctionActive = cinematic;
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(ordinary, SamusPoseId.SpinJumpRightPose);
         bool expectedSound = !cinematic && (!submerged || gravity);
@@ -1123,7 +1123,7 @@ internal static void VerifySamusAtmosphericEffects()
     var oamFrame = new SpriteFrameBuffer();
     oamFrame.BeginFrame();
     OamBuffer oam;
-    effects.UpdateAndDraw(oamFrame, camera: new(0, 0), fxYPosition: 0,
+    effects.UpdateAndDraw(oamFrame, camera: new(0, 0), waterSurfaceLine: 0,
         SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(1, effects.Slots[0].AnimationTimer.RawValue, "atmospheric positive timer decrements");
@@ -1133,7 +1133,7 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(5, oam.GetEntry(0).Palette, "lava direct OAM retains ROM palette");
 
     oamFrame.BeginFrame();
-    effects.UpdateAndDraw(oamFrame, camera: new(0, 0), fxYPosition: 0,
+    effects.UpdateAndDraw(oamFrame, camera: new(0, 0), waterSurfaceLine: 0,
         SamusBodySheetFixtures.ForAtmosphere(atmosphere: atmosphericArt));
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(1, effects.Slots[0].AnimationFrame,
@@ -1293,7 +1293,7 @@ internal static void VerifySamusAtmosphericEffects()
     // Ceres/debug deletion writes only frame/type. Position and timer are observable stale
     // WRAM. Zero vertical speed returns even earlier and therefore does not delete anything.
     landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Ceres, 0);
-    landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
+    landing.LiquidPhysics.WaterSurfaceY = null;
     landing.Kinematics.YSpeed = landing.Kinematics.YSpeed.WithWhole(1);
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
@@ -1318,7 +1318,7 @@ internal static void VerifySamusAtmosphericEffects()
     SeedLandingSiteInlineRoomByte(bus);
     landing.LiquidPhysics.RoomIdentity = RoomIdentities.LandingSite;
     landing.LiquidPhysics.FxType = RoomFxType.Rain;
-    landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
+    landing.LiquidPhysics.WaterSurfaceY = null;
     landing.Kinematics.YSpeed = landing.Kinematics.YSpeed.WithFraction(1);
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,

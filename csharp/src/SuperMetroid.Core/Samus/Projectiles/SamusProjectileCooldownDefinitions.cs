@@ -7,11 +7,20 @@ internal static class SamusProjectileCooldownDefinitions
     internal const int FrozenTime = 32;
 
     /// <summary>
-    /// The non-beam cooldowns, one row per non-beam projectile kind. The missile (row one) waits 10 frames,
-    /// the super missile (row two) 20, the power bomb (row three) 40 and the morph-ball bomb (row five) 16; every
-    /// other kind's row is zero.
+    /// The updates every retail beam combination but Plasma and Ice waits after an uncharged shot fired with Charge
+    /// equipped or on a fresh press.
     /// </summary>
-    internal static readonly byte[] NonBeamCooldownRows = [0, 10, 20, 40, 0, 16, 0, 0, 0];
-    /// <summary>Low-nibble beam bits: Plasma plus Ice without Wave or Spazer.</summary>
-    internal const int PlasmaIce = 10;
+    internal const int UnchargedShot = 15;
+
+    /// <summary>The updates the Plasma and Ice combination waits after such an uncharged shot: its own faster cadence.</summary>
+    internal const int PlasmaIceUnchargedShot = 12;
+
+    /// <summary>
+    /// The updates every retail beam combination waits after a charged shot or a special attack, double the ordinary
+    /// uncharged delay.
+    /// </summary>
+    internal const int ChargedShot = 30;
+
+    /// <summary>The updates every retail beam combination waits after an uncharged shot repeated by holding the button without Charge.</summary>
+    internal const int HeldFireShot = 25;
 }

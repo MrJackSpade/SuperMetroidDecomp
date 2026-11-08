@@ -9,13 +9,13 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// The room-FX words and derived liquid state consulted by Samus's physics.
+/// The room's liquid surfaces and derived liquid state consulted by Samus's physics.
 /// </summary>
 /// <remarks>
 /// Super Metroid does not have one universal "underwater" flag. Different routines
-/// compare either Samus's top, bottom, or bottom-minus-one boundary against the live FX
+/// compare either Samus's top, bottom, or bottom-minus-one boundary against the live
 /// surface, and the remembered medium records the medium selected by the animation/room-load pass.
-/// Keeping the literal source words here lets each translated caller reproduce its own
+/// Keeping each surface here lets each translated caller reproduce its own
 /// comparison instead of sharing a convenient but incorrect host-side boolean.
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
@@ -32,13 +32,13 @@ public sealed class SamusLiquidPhysicsState
         {
             case RoomFxType.Water:
             case RoomFxType.TourianEntranceStatue:
-                ConfigureWater(fx.Surface.Y, fx.LiquidOptions, fx.Type);
+                ConfigureWater(LiveSurface(fx), fx.LiquidOptions, fx.Type);
                 return;
             case RoomFxType.Lava:
-                ConfigureLavaAcid(fx.Surface.Y);
+                ConfigureLavaAcid(LiveSurface(fx));
                 return;
             case RoomFxType.Acid:
-                ConfigureLavaAcid(fx.Surface.Y, RoomFxType.Acid);
+                ConfigureLavaAcid(LiveSurface(fx), RoomFxType.Acid);
                 return;
             case RoomFxType.None:
             case RoomFxType.Spores:
@@ -51,13 +51,21 @@ public sealed class SamusLiquidPhysicsState
             case RoomFxType.CeresElevator:
             case RoomFxType.CeresHaze:
                 // Non-liquid FX still own the FX type. Preserve that identity for atmospheric
-                // effects while restoring both liquid positions to their negative sentinel.
+                // effects while the room has neither liquid surface.
                 ConfigureNonLiquidRoomFx(fx.Type);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined RoomFxType {fx.Type}.");
         }
     }
+
+    /// <summary>
+    /// The room effect's liquid surface as Samus's physics sees it: none when the effect shows no liquid. The effect
+    /// publishes a surface from 32768 up (65535 when it names none) above the room, where the game's sign test finds no
+    /// surface.
+    /// </summary>
+    private static int? LiveSurface(RoomFxOverlayState fx) =>
+        CoordinateAxis.AsSigned(fx.Surface.Y) >= 0 ? fx.Surface.Y : null;
 
     /// <summary>32770: a negative atmospheric timer, so the slot neither moves nor draws while it holds.</summary>
     private const int BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;
@@ -74,21 +82,27 @@ public sealed class SamusLiquidPhysicsState
     public RoomFxType FxType { get; set; }
 
     /// <summary>
-    /// General FX surface Y. A negative 16-bit value tells movement
-    /// routines to consult <see cref="LavaAcidYPosition"/> instead of the water surface.
+    /// The water surface's room Y, 0 through 32767, or none when the room has no water surface; movement routines then
+    /// consult <see cref="LavaAcidSurfaceY"/> instead.
     /// </summary>
-    public int FxYPosition
+    public int? WaterSurfaceY
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = ushort.MaxValue;
+        set => field = value is int surface ? Ensure.BetweenInclusive(0, short.MaxValue, surface) : null;
+    }
 
-    /// <summary>Lava/acid surface Y; negative means absent.</summary>
-    public int LavaAcidYPosition
+    /// <summary>The lava or acid surface's room Y, 0 through 32767, or none when the room has no lava or acid surface.</summary>
+    public int? LavaAcidSurfaceY
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    } = ushort.MaxValue;
+        set => field = value is int surface ? Ensure.BetweenInclusive(0, short.MaxValue, surface) : null;
+    }
+
+    /// <summary>
+    /// The water surface as the air-bubble test and the diving splash read it, which do not test whether the room has
+    /// one: an absent surface reads as <see cref="AbsentWaterSurfaceLine"/> says, wrapped to the room's coordinates.
+    /// </summary>
+    internal int UntestedWaterSurfaceLine => CoordinateAxis.Wrap(AbsentWaterSurfaceLine.Read(WaterSurfaceY));
 
     /// <summary>
     /// The room's liquid options. The water-physics option disables water
@@ -160,29 +174,32 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Nonzero cinematic-function state suppresses ordinary footstep audio.</summary>
     public bool CinematicFunctionActive { get; set; }
 
-    /// <summary>Configures water words while preserving the ordinary or statue room's FX identity.</summary>
-    public void ConfigureWater(int surfaceY, RoomLiquidOptions liquidOptions = RoomLiquidOptions.None, RoomFxType type = RoomFxType.Water)
+    /// <summary>
+    /// Configures the water surface, or none, while preserving the ordinary or statue room's FX identity; the room has no
+    /// lava or acid surface.
+    /// </summary>
+    public void ConfigureWater(int? surfaceY, RoomLiquidOptions liquidOptions = RoomLiquidOptions.None, RoomFxType type = RoomFxType.Water)
     {
         if (!RoomFxTypes.UsesWater(type))
             throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water FX dispatcher.");
         FxType = type;
-        FxYPosition = surfaceY;
-        LavaAcidYPosition = ushort.MaxValue;
+        WaterSurfaceY = surfaceY;
+        LavaAcidSurfaceY = null;
         LiquidOptions = liquidOptions;
     }
 
-    /// <summary>Configures the exact room-FX words for a lava (type two) or acid (type four) surface.</summary>
+    /// <summary>Configures a lava or acid surface, or none; the room has no water surface.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is neither lava nor acid.</exception>
-    public void ConfigureLavaAcid(int surfaceY, RoomFxType type = RoomFxType.Lava)
+    public void ConfigureLavaAcid(int? surfaceY, RoomFxType type = RoomFxType.Lava)
     {
         FxType = type is RoomFxType.Lava or RoomFxType.Acid ? type : throw new ArgumentOutOfRangeException(nameof(type), type, "Only lava or acid has a lava/acid surface.");
-        FxYPosition = ushort.MaxValue;
-        LavaAcidYPosition = surfaceY;
+        WaterSurfaceY = null;
+        LavaAcidSurfaceY = surfaceY;
         LiquidOptions = RoomLiquidOptions.None;
     }
 
     /// <summary>
-    /// Selects a non-liquid room FX while restoring the two negative liquid sentinels.
+    /// Selects a non-liquid room FX, which leaves the room with neither liquid surface.
     /// Rain and other atmospheric owners still need their FX type,
     /// so clearing the entire state would discard observable animation behavior.
     /// </summary>
@@ -194,12 +211,12 @@ public sealed class SamusLiquidPhysicsState
         FxType = type;
     }
 
-    /// <summary>Restores the no-FX sentinel state used by dry rooms.</summary>
+    /// <summary>Restores the no-FX state of a dry room, which has neither liquid surface.</summary>
     public void Clear()
     {
         FxType = RoomFxType.None;
-        FxYPosition = ushort.MaxValue;
-        LavaAcidYPosition = ushort.MaxValue;
+        WaterSurfaceY = null;
+        LavaAcidSurfaceY = null;
         LiquidOptions = RoomLiquidOptions.None;
         LiquidPhysicsType = SamusLiquidMedium.Air;
         PeriodicSubDamage = 0;
@@ -244,7 +261,7 @@ public sealed class SamusLiquidPhysicsState
     /// Suit bit first, then performs the raw bottom-boundary liquid test. Keeping those two
     /// decisions separate lets the caller reproduce both the submerged Power/Varia early
     /// return and Gravity Suit's unconditional palette-animation bypass. Water option bit
-    /// two still disables water, while a negative general-FX surface falls through to the
+    /// two still disables water, while a room with no water surface falls through to the
     /// independent lava/acid surface exactly as the game does.
     /// </remarks>
     public bool IsBottomBoundarySubmerged(SamusState samus)
@@ -260,8 +277,8 @@ public sealed class SamusLiquidPhysicsState
     /// <remarks>
     /// This test is intentionally not the ordinary movement-medium selector. The game's grapple
     /// checks the suit-palette Gravity bit, requires a nonzero FX type, and compares only the
-    /// general FX Y word against Samus's bottom. It does not consult liquid-options bit two
-    /// and never falls back to the lava/acid Y word. Those quirks are retained rather than
+    /// water surface against Samus's bottom. It does not consult liquid-options bit two
+    /// and never falls back to the lava/acid surface. Those quirks are retained rather than
     /// replacing the game's single flag with a friendlier host notion of “submerged.”
     /// </remarks>
     public bool DetermineGrappleSubmersion(SamusState samus)
@@ -269,7 +286,7 @@ public sealed class SamusLiquidPhysicsState
         Ensure.NotNull(samus);
         return !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             FxType != RoomFxType.None &&
-            IsBelowSurface(FxYPosition, samus.Kinematics.BottomBoundary);
+            IsBelowSurface(WaterSurfaceY, samus.Kinematics.BottomBoundary);
     }
 
     /// <summary>
@@ -356,7 +373,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if (fxKind is RoomFxType.Lava or RoomFxType.Acid &&
-            IsBelowSurface(LavaAcidYPosition, bottom))
+            IsBelowSurface(LavaAcidSurfaceY, bottom))
         {
             if (fxKind == RoomFxType.Lava && samus.HorizontalSpeed.SpeedBoostCounter != default)
             {
@@ -516,17 +533,11 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        // Crateria's space-pirate shaft bypasses the 16-byte classification table and
-        // always chooses the dry-dust handler, still subject to live liquid submersion.
+        // Crateria's space-pirate shaft bypasses the room policy and always chooses the
+        // dry-dust handler, still subject to live liquid submersion.
         if (RoomIdentity == RoomIdentities.CrateriaSpacePirateShaft)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
-            return;
-        }
-
-        if (RoomIdentity.RoomIndex >= 16)
-        {
-            DeleteLandingPair();
             return;
         }
 
@@ -574,7 +585,7 @@ public sealed class SamusLiquidPhysicsState
 
         // Both landing particle handlers suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`
-        // preserves the signed surface sentinels and water option-bit-two exemption used by
+        // preserves the absent surfaces and water option-bit-two exemption used by
         // those routines. Importantly, suppression RETURNS and leaves old slot data intact.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
@@ -677,7 +688,7 @@ public sealed class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 0, SamusAtmosphericEffectType.DivingSplash, animationFrame: 0, animationTimer: 2,
-                new(samus.Position.X.Whole, FxYPosition));
+                new(samus.Position.X.Whole, UntestedWaterSurfaceLine));
             return;
         }
 
@@ -696,8 +707,10 @@ public sealed class SamusLiquidPhysicsState
         int frameCounter,
         SharedRandom random)
     {
+        // Leaving water for a room configured without a water surface still runs this test, on the surface as it is
+        // read untested.
         int mouthY = CoordinateAxis.Wrap(top - 24);
-        if (CoordinateAxis.Difference(mouthY, FxYPosition) < 0 ||
+        if (CoordinateAxis.Difference(mouthY, UntestedWaterSurfaceLine) < 0 ||
             (frameCounter & 127) != 0 ||
             !AtmosphericEffects.Slots[2].IsEmpty)
         {
@@ -717,7 +730,9 @@ public sealed class SamusLiquidPhysicsState
         int top,
         int frameCounter)
     {
-        if (CoordinateAxis.Difference(top, LavaAcidYPosition) >= 0 ||
+        // The spray runs only while Samus is below the lava or acid surface, so the surface is present.
+        int surface = LavaAcidSurfaceY ?? throw new InvalidOperationException("Lava surface spray requires a lava or acid surface.");
+        if (CoordinateAxis.Difference(top, surface) >= 0 ||
             // The game tests one bit of slot zero's effect, which the lava spray, bubbles and both dusts set.
             AtmosphericEffects.Slots[0].Type is SamusAtmosphericEffectType.LavaSurfaceDamage or SamusAtmosphericEffectType.Bubbles or
                 SamusAtmosphericEffectType.Dust or SamusAtmosphericEffectType.AlternateDust)
@@ -737,7 +752,7 @@ public sealed class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 slot, SamusAtmosphericEffectType.LavaSurfaceDamage, animationFrame: 0, timers[slot],
-                new(xPositions[slot], LavaAcidYPosition));
+                new(xPositions[slot], surface));
         }
 
         if ((frameCounter & 1) == 0)
@@ -764,7 +779,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 useWetFootsteps = false;
             }
-            else if (RoomIdentity.RoomIndex < 16)
+            else
             {
                 CrateriaAtmosphericEffectFlags specialType =
                     SamusAtmosphericEffects.ForCrateriaRoom(RoomIdentity);
@@ -818,26 +833,26 @@ public sealed class SamusLiquidPhysicsState
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
 
     /// <summary>
-    /// Movement routines distinguish water from lava by the sign of the general FX surface, then
+    /// Movement routines distinguish water from lava by whether the room has a water surface, then
     /// perform signed 16-bit subtraction against the selected surface. Retain that exact
-    /// ordering so sentinel and wraparound behavior stay exact.
+    /// ordering so absence and wraparound behavior stay exact.
     /// </summary>
     private SamusLiquidMedium DetermineRawMediumAtBoundary(int boundary)
     {
-        if (CoordinateAxis.AsSigned(FxYPosition) >= 0)
+        if (WaterSurfaceY is not null)
             return WaterAffectsBoundary(boundary) ? SamusLiquidMedium.Water : SamusLiquidMedium.Air;
-        return IsBelowSurface(LavaAcidYPosition, boundary) ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air;
+        return IsBelowSurface(LavaAcidSurfaceY, boundary) ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air;
     }
 
     /// <summary>Applies the room's water-disable option before comparing a boundary with the water surface.</summary>
     internal bool WaterAffectsBoundary(int boundary) =>
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) == RoomLiquidOptions.None &&
-        IsBelowSurface(FxYPosition, boundary);
+        IsBelowSurface(WaterSurfaceY, boundary);
 
-    /// <summary>Uses signed 16-bit subtraction and rejects a negative absent-surface sentinel.</summary>
-    internal static bool IsBelowSurface(int surface, int boundary) =>
-        CoordinateAxis.AsSigned(surface) >= 0 &&
-        CoordinateAxis.Difference(surface, boundary) < 0;
+    /// <summary>Whether <paramref name="boundary"/> lies below a present surface, by signed 16-bit subtraction; no surface is never above it.</summary>
+    internal static bool IsBelowSurface(int? surface, int boundary) =>
+        surface is int y &&
+        CoordinateAxis.Difference(y, boundary) < 0;
 
     /// <summary>Runs the wall jump's pose-entry dust writes, shared by ordinary and grapple wall jumps.</summary>
     internal void SpawnWallJumpDust(SamusState samus)

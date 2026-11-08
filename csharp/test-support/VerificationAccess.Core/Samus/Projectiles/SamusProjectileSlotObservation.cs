@@ -72,8 +72,8 @@ internal sealed class SamusProjectileSlotObservation
                 $"{projectiles.Slots.Count}.");
     }
 
-    /// <summary>Uses the native damage word, rather than the active flag, as the allocation occupancy marker.</summary>
-    private static bool IsOccupied(SamusProjectileSlot slot) => slot.Damage != 0;
+    /// <summary>Uses the slot's occupancy, rather than the active flag, as the allocation marker.</summary>
+    private static bool IsOccupied(SamusProjectileSlot slot) => slot.IsOccupied;
 
     /// <summary>Recognizes only active beam and missile explosion families as collision conversions.</summary>
     private static bool IsLiveExplosion(SamusProjectileSlot slot) =>

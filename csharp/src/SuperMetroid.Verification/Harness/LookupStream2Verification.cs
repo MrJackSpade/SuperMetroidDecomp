@@ -1240,19 +1240,11 @@ internal static class LookupStream2Verification
         }
     }
 
-    /// <summary>Checks left/right trail pointer selectors and their native table domain.</summary>
+    /// <summary>Checks the left and right trail programs every trailing projectile spawns against the selector words read for it.</summary>
     internal static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
 
         int start = SamusProjectileRomDataTrailsConstants.LeftInstructionPointers;
-        int end = SamusProjectileRomDataTrailsConstants.RightInstructionPointers +
-            SamusProjectileRomDataTrailsConstants.InstructionPointerCount * sizeof(ushort);
-        for (int address = start; address < end; address += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address),
-                "Trail selectors retain every aligned native word of both tables");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the word past the right table");
         // Every projectile that trails: each beam combination uncharged and charged, the Spazer special attack's trailing
         // pair, and both missiles. The Shinespark crash's echo runs its own update, which spawns no trail (#1500).
         SamusProjectileType[] trailing =
@@ -1264,16 +1256,7 @@ internal static class LookupStream2Verification
         ];
         foreach (SamusProjectileType trailingType in trailing)
         {
-            int selection = trailingType.Family switch
-            {
-                SamusProjectileFamily.Missile => ProjectileTrailDefinitions.FirstSpecialSelection,
-                SamusProjectileFamily.SuperMissile => ProjectileTrailDefinitions.FirstSpecialSelection + 1,
-                SamusProjectileFamily.Beam => trailingType.BeamTableRow,
-                SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or SamusProjectileFamily.BeamExplosion or
-                    SamusProjectileFamily.MissileExplosion =>
-                    throw new InvalidOperationException($"{trailingType} leaves no trail."),
-                _ => throw new InvalidOperationException($"Undefined projectile family {trailingType.Family}."),
-            };
+            int selection = ProjectileTrailNative.Selection(trailingType);
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var projectile = new SamusProjectileSlot(0)
             {
@@ -1291,7 +1274,7 @@ internal static class LookupStream2Verification
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
-        Console.WriteLine("Trail selectors: both tables' native words and every trailing projectile's real spawn selection pass.");
+        Console.WriteLine("Trail selectors: every trailing projectile's real spawn selection passes.");
     }
 
     /// <summary>Checks Mother Brain tube palette ramps and actual CGRAM sequence.</summary>

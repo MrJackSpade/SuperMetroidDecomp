@@ -22,14 +22,14 @@ public sealed class BeamTileCatalog : IInstalledArtworkContent
         // references share only matching pixels; separately supplied edits remain isolated.
         for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
         {
-            SamusBeamCombination selection = SamusBeamCombinations.FromTableIndex(index);
+            SamusBeamCombination selection = SamusBeamCombinationTableOrder.FromTableIndex(index);
             if (BeamTileAtlasDefinitions.CanonicalSelection(selection) != selection) continue;
             if (BeamTileAtlasDefinitions.SharedTileSourceSelection(selection) is SamusBeamCombination source)
                 sheets[index] = sheets[index].SharePixelsFrom(sheets[source.TableIndex], sharing: BeamTileSharing.SharedTiles);
         }
         for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
         {
-            SamusBeamCombination selection = SamusBeamCombinations.FromTableIndex(index);
+            SamusBeamCombination selection = SamusBeamCombinationTableOrder.FromTableIndex(index);
             SamusBeamCombination source = BeamTileAtlasDefinitions.CanonicalSelection(selection);
             if (source != selection)
                 sheets[index] = sheets[index].SharePixelsFrom(sheets[source.TableIndex], sharing: BeamTileSharing.WholeSheet);

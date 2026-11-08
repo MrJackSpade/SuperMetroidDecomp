@@ -28,8 +28,8 @@ internal static class WallJumpDustVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             var liquid = samus.LiquidPhysics;
-            liquid.FxYPosition = medium is 1 or 3 ? (ushort)100 : medium == 4 ? (ushort)114 : ushort.MaxValue;
-            liquid.LavaAcidYPosition = medium == 2 ? (ushort)100 : ushort.MaxValue;
+            liquid.WaterSurfaceY = medium is 1 or 3 ? 100 : medium == 4 ? 114 : null;
+            liquid.LavaAcidSurfaceY = medium == 2 ? 100 : null;
             liquid.LiquidOptions = medium == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             liquid.AtmosphericEffects.SetSlot(3, SamusAtmosphericEffectType.FootstepSplash, 2, 7, new(33, 44));
             liquid.AtmosphericEffects.SetSlot(2, SamusAtmosphericEffectType.FootstepSplash, 1, 9, new(55, 66));

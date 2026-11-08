@@ -50,8 +50,7 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        int directionOffset = slot.Direction.ToAimIndex() * 2;
-        Accelerate(slot, new EightEightVector<RoomPixels>(SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamXAccelerations + directionOffset), SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamYAccelerations + directionOffset)));
+        Accelerate(slot, SamusProjectileAccelerations.For(slot.Direction).Beam);
 
         SamusProjectileDirection direction = slot.Direction;
         bool collided = direction switch
@@ -140,20 +139,20 @@ internal sealed class ProjectileMotion
         Position16<RoomPixels> cameraPosition,
         ISamusRoomObjects? roomObjects)
     {
-        int direction = slot.Direction.ToAimIndex();
-        Accelerate(slot, new EightEightVector<RoomPixels>(SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamXAccelerations + direction * 2), SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)));
+        SamusProjectileDirection direction = slot.Direction;
+        Accelerate(slot, SamusProjectileAccelerations.For(direction).Beam);
 
         // Wave's block collisions advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
         // or clips the shot. The span scanners below now publish ordinary shootable-block
         // PLMs while intentionally discarding their carry result, matching this fallthrough.
-        if (direction is 2 or 7 or 1 or 3 or 6 or 8)
+        if (MovesHorizontally(direction))
         {
             slot.Position = slot.Position.AdvanceX(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.X.SignedRawValue));
             ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, slot, roomObjects);
         }
-        if (direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
+        if (MovesVertically(direction))
         {
             slot.Position = slot.Position.AdvanceY(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.Y.SignedRawValue));
             ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, slot, roomObjects);
@@ -184,12 +183,13 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        int direction = slot.Direction.ToAimIndex();
+        SamusProjectileDirection direction = slot.Direction;
+        SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(direction);
 
         // The missile's frame behaviour first applies the same small directional
         // acceleration as beams. On the ignition frame the missile's ignition below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
-        Accelerate(slot, new EightEightVector<RoomPixels>(SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamXAccelerations + direction * 2), SamusProjectileAccelerations.Read(SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)));
+        Accelerate(slot, accelerations.Beam);
 
         if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
@@ -199,19 +199,22 @@ internal sealed class ProjectileMotion
         }
         else
         {
-            int acceleration = SamusFiringTableDefinitions.MissileAccelerations + direction * 4;
-            Accelerate(slot, new EightEightVector<RoomPixels>(SamusProjectileAccelerations.Read(acceleration), SamusProjectileAccelerations.Read(acceleration + 2)));
+            Accelerate(slot, accelerations.Missile);
         }
 
         bool collided = direction switch
         {
-            0 or 4 or 5 or 9 => MoveMissileVertically(level, slot, roomObjects),
-            2 or 7 => MoveMissileHorizontally(level, slot, roomObjects),
-            1 or 3 or 6 or 8 =>
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft =>
+                MoveMissileVertically(level, slot, roomObjects),
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left =>
+                MoveMissileHorizontally(level, slot, roomObjects),
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
+                SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft =>
                 MoveMissileHorizontally(level, slot, roomObjects) ||
                 MoveMissileVertically(level, slot, roomObjects),
             _ => throw new InvalidDataException(
-                $"Missile slot contains invalid direction ${direction:X2}."),
+                $"Missile slot contains undefined direction {direction}."),
         };
         if (collided)
             _terrainCollision.KillMissile(slot, sharedProjectiles);
@@ -249,7 +252,7 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        int direction = slot.Direction.ToAimIndex();
+        SamusProjectileDirection direction = slot.Direction;
         if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
             // A Super Missile ignites as a missile does on its first alpha pass, and then
@@ -259,13 +262,11 @@ internal sealed class ProjectileMotion
         }
         else
         {
-            int acceleration =
-                SamusFiringTableDefinitions.SuperMissileAccelerations + direction * 4;
-            Accelerate(slot, new EightEightVector<RoomPixels>(SamusProjectileAccelerations.Read(acceleration), SamusProjectileAccelerations.Read(acceleration + 2)));
+            Accelerate(slot, SamusProjectileAccelerations.For(direction).SuperMissile);
         }
 
         bool collided = false;
-        if (direction is 2 or 7 or 1 or 3 or 6 or 8)
+        if (MovesHorizontally(direction))
         {
             collided = MoveMissileHorizontally(level, slot, roomObjects);
             if (collided)
@@ -273,7 +274,7 @@ internal sealed class ProjectileMotion
             UpdateSuperMissileLinkAxis(
                 level, slot, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
         }
-        if (!collided && direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
+        if (!collided && MovesVertically(direction))
         {
             collided = MoveMissileVertically(level, slot, roomObjects);
             if (collided)
@@ -289,9 +290,20 @@ internal sealed class ProjectileMotion
         return collided;
     }
 
+    /// <summary>Whether a shot in <paramref name="direction"/> moves horizontally: every direction but straight up or down.</summary>
+    private static bool MovesHorizontally(SamusProjectileDirection direction) => direction is
+        SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight or
+        SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft;
+
+    /// <summary>Whether a shot in <paramref name="direction"/> moves vertically: every direction but straight left or right.</summary>
+    private static bool MovesVertically(SamusProjectileDirection direction) => direction is
+        SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight or
+        SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft or
+        SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft;
+
     /// <summary>
-    /// Adds one update's acceleration to the shot's velocity: the motion table's X and Y entries at the two offsets. The
-    /// velocity stays far inside its range, since a shot accelerating that long has left the movement window.
+    /// Adds one update's acceleration to the shot's velocity, the direction's entry for the shot's kind. The velocity
+    /// stays far inside its range, since a shot accelerating that long has left the movement window.
     /// </summary>
     private static void Accelerate(SamusProjectileSlot slot, EightEightVector<RoomPixels> acceleration) =>
         slot.Velocity = new(
@@ -344,7 +356,7 @@ internal sealed class ProjectileMotion
         SamusState samus,
         SamusProjectileSlot owner)
     {
-        SamusProjectileSlot? link = _slotTable.Slots.FirstOrDefault(candidate => candidate.Damage == 0);
+        SamusProjectileSlot? link = _slotTable.Slots.FirstOrDefault(candidate => !candidate.IsOccupied);
         if (link is null)
             return;
 

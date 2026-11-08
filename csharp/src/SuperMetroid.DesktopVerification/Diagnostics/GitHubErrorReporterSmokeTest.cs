@@ -113,7 +113,7 @@ public static class GitHubErrorReporterSmokeTest
         samus.Drained.GetUpHandler = DrainedGetUpHandler.UnableToStand;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
-        samus.LiquidPhysics.LavaAcidYPosition = 100;
+        samus.LiquidPhysics.LavaAcidSurfaceY = 100;
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         GameplaySnapshot beforeSnapshot = game.CaptureGameplaySnapshot();

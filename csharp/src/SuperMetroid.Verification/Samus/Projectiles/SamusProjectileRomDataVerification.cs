@@ -16,8 +16,6 @@ internal static class SamusProjectileRomDataVerification
     /// </summary>
     internal static void VerifySamusProjectileRomData()
     {
-        AssertEqual(12, SamusFiringTableDefinitions.CombinationCount,
-            "retail beam-combination table count");
         AssertEqual(39, SamusProjectileRomDataTrailsConstants.InstructionPointerCount,
             "retail trail pointer count");
 
@@ -43,33 +41,33 @@ internal static class SamusProjectileRomDataVerification
         })
         {
             TouchRange(bus, originTable,
-                SamusFiringTableDefinitions.DirectionCount * sizeof(ushort),
+                SamusSourceDefinitionsConstants.FiringDirectionCount * sizeof(ushort),
                 $"projectile origin table ${originTable:X6}");
         }
 
-        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.UnchargedCooldowns,
-            SamusFiringTableDefinitions.ChargedRowOffset +
-                SamusFiringTableDefinitions.CombinationCount,
-            "uncharged beam cooldown rows");
-        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.AutoFireCooldowns,
-            SamusFiringTableDefinitions.CombinationCount, "beam auto-fire cooldowns");
+        TouchRange(bus, SamusSourceDefinitionsConstants.UnchargedCooldowns,
+            SamusSourceDefinitionsConstants.ChargedCooldowns - SamusSourceDefinitionsConstants.UnchargedCooldowns +
+                SamusSourceDefinitionsConstants.RetailBeamCombinationCount,
+            "uncharged and charged beam cooldown rows");
+        TouchRange(bus, SamusSourceDefinitionsConstants.HeldFireCooldowns,
+            SamusSourceDefinitionsConstants.RetailBeamCombinationCount, "beam held-fire cooldowns");
         TouchRange(bus, SamusProjectileBeamTables.UnchargedSounds,
-            SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
+            SamusSourceDefinitionsConstants.RetailBeamCombinationCount * sizeof(ushort),
             "uncharged beam sounds");
         TouchRange(bus, SamusProjectileBeamTables.ChargedSounds,
-            SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
+            SamusSourceDefinitionsConstants.RetailBeamCombinationCount * sizeof(ushort),
             "charged beam sounds");
-        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.BeamXAccelerations,
-            SamusFiringTableDefinitions.DirectionCount * sizeof(ushort),
+        TouchRange(bus, SamusSourceDefinitionsConstants.BeamXAccelerations,
+            SamusSourceDefinitionsConstants.FiringDirectionCount * sizeof(ushort),
             "beam X accelerations");
-        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.BeamYAccelerations,
-            SamusFiringTableDefinitions.DirectionCount * sizeof(ushort),
+        TouchRange(bus, SamusSourceDefinitionsConstants.BeamYAccelerations,
+            SamusSourceDefinitionsConstants.FiringDirectionCount * sizeof(ushort),
             "beam Y accelerations");
         TouchRange(bus, SamusSourceDefinitions.TilePointers.Value,
-            SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
+            SamusSourceDefinitionsConstants.RetailBeamCombinationCount * sizeof(ushort),
             "beam tile pointers");
         TouchRange(bus, SamusSourceDefinitions.PalettePointers.Value,
-            SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
+            SamusSourceDefinitionsConstants.RetailBeamCombinationCount * sizeof(ushort),
             "beam palette pointers");
 
         foreach (int dataPointerTable in new[]
@@ -79,9 +77,9 @@ internal static class SamusProjectileRomDataVerification
         })
         {
             TouchRange(bus, dataPointerTable,
-                SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
+                SamusSourceDefinitionsConstants.RetailBeamCombinationCount * sizeof(ushort),
                 $"beam data-pointer table ${dataPointerTable:X6}");
-            for (int beam = 0; beam < SamusFiringTableDefinitions.CombinationCount; beam++)
+            for (int beam = 0; beam < SamusSourceDefinitionsConstants.RetailBeamCombinationCount; beam++)
             {
                 ushort dataPointer = ReadProjectileWord(
                     bus,
@@ -93,7 +91,7 @@ internal static class SamusProjectileRomDataVerification
                     $"beam {beam} data record");
 
                 for (int direction = 0;
-                    direction < SamusFiringTableDefinitions.DirectionCount;
+                    direction < SamusSourceDefinitionsConstants.FiringDirectionCount;
                     direction++)
                 {
                     ushort instructionPointer = ReadProjectileWord(
@@ -114,12 +112,12 @@ internal static class SamusProjectileRomDataVerification
             (SamusProjectileNonBeamTables.SuperMissileLinkDataPointers -
                 SamusProjectileNonBeamTables.DataPointers),
             "non-beam data-pointer table");
-        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.MissileAccelerations,
-            SamusFiringTableDefinitions.DirectionCount *
+        TouchRange(bus, SamusSourceDefinitionsConstants.MissileAccelerations,
+            SamusSourceDefinitionsConstants.FiringDirectionCount *
                 SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "missile acceleration records");
-        TouchRange(bus, SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.SuperMissileAccelerations,
-            SamusFiringTableDefinitions.DirectionCount *
+        TouchRange(bus, SamusSourceDefinitionsConstants.SuperMissileAccelerations,
+            SamusSourceDefinitionsConstants.FiringDirectionCount *
                 SamusProjectileNonBeamTables.AccelerationRecordByteCount,
             "Super Missile acceleration records");
 
@@ -137,7 +135,7 @@ internal static class SamusProjectileRomDataVerification
         })
         {
             TouchRange(bus, offsets,
-                SamusFiringTableDefinitions.CombinationCount * sizeof(ushort),
+                SamusSourceDefinitionsConstants.RetailBeamCombinationCount * sizeof(ushort),
                 $"trail offset-family table ${offsets:X6}");
         }
 

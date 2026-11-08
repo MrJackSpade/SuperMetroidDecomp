@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -7,7 +8,7 @@ internal static class SamusProjectileBeamTables
     /// <summary>Charged firing sound IDs indexed by beam combination.</summary>
     public const int ChargedSounds = 0x90c2a7;
     /// <summary>Damage word followed by one instruction pointer per direction.</summary>
-    public const int DataRecordByteCount = sizeof(ushort) + SamusFiringTableDefinitions.DirectionCount * sizeof(ushort);
+    public const int DataRecordByteCount = sizeof(ushort) + SamusSourceDefinitionsConstants.FiringDirectionCount * sizeof(ushort);
     /// <summary>Duration, spritemap, radii, and animation word in one instruction record.</summary>
     public const int InstructionRecordByteCount = 8;
     /// <summary>Uncharged firing sound IDs indexed by beam combination.</summary>

@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -31,7 +32,9 @@ internal static class ProjectileCooldownsVerification
         {
             int address = shot switch
             {
-                BeamShotCooldowns.Shot.Uncharged => 0x90c254, BeamShotCooldowns.Shot.Charged => 0x90c264, BeamShotCooldowns.Shot.HeldFire => 0x90c283,
+                BeamShotCooldowns.Shot.Uncharged => SamusSourceDefinitionsConstants.UnchargedCooldowns,
+                BeamShotCooldowns.Shot.Charged => SamusSourceDefinitionsConstants.ChargedCooldowns,
+                BeamShotCooldowns.Shot.HeldFire => SamusSourceDefinitionsConstants.HeldFireCooldowns,
                 _ => throw new ArgumentOutOfRangeException(nameof(shot)),
             } + beams.TableIndex;
             int actual = beams.IsRetail
@@ -39,13 +42,6 @@ internal static class ProjectileCooldownsVerification
                 : InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring.Cooldown(beams, shot);
             AssertEqual(retail.ReadCartridgeByte(address), actual, $"{beams} {shot} cooldown matches the byte the fire routine reads");
         }
-        for (int address = 0x90c27a; address < 0x90c283; address++)
-            AssertEqual(retail.ReadCartridgeByte(address), SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value),
-                "non-beam cooldown matches its native byte");
-        foreach (int address in new[] { 0x908000, 0x90c253, 0x90c260, 0x90c270, 0x90c274, 0x90c28f, 0x90c291, 0x90ffff })
-            AssertThrows<InvalidDataException>(
-                () => SamusProjectileCooldowns.ReadByte(address - SamusSourceDefinitionsConstants.FiringTables.Value),
-                "Unknown cooldown address fails instead of reading adjacent presentation data");
         var room = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })
@@ -100,10 +96,10 @@ internal static class ProjectileCooldownsVerification
                 EquippedBeams = (SamusBeamFlags)beam, SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 };
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
-            AssertEqual(retail.ReadCartridgeByte(0x90c254 + projectiles.Slots[0].Type.BeamTableRow),
-                shared.CooldownTimer.RawValue, "Combo reads the cooldown at its beam-table row, into padding/non-beam neighbors");
+            AssertEqual(retail.ReadCartridgeByte(SamusSourceDefinitionsConstants.ChargedCooldowns + projectiles.Slots[0].Type.BeamCombination.TableIndex),
+                shared.CooldownTimer.RawValue, "A special attack waits its combination's charged-shot cooldown, the row its first particle selects");
         }
-        Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
+        Console.WriteLine("Projectile cooldowns: 48 combination cooldown bytes, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
     /// <summary>Blocks migrated cooldown bytes during actual projectile firing.</summary>

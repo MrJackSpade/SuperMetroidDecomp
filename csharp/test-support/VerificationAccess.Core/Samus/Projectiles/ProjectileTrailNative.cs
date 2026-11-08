@@ -1,20 +1,18 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Verification's native view of the trail programs: where bank $90 stores their steps and selections.</summary>
 internal static class ProjectileTrailNative
 {
-    /// <summary>$90:B5BB, the left selection table; the right table follows it at $90:B609.</summary>
-    private const int LeftSelections = 0x90b5bb;
+    /// <summary>The first selection past the beam shots' thirty-two: the missiles, then the echoes by their beams.</summary>
+    private const int FirstSpecialSelection = 32;
 
-    /// <summary>The selections each side's table holds.</summary>
-    private const int TableSelections = 39;
-
-    /// <summary>The words the selector reads: the left table, then the right table.</summary>
-    private const int SelectorWords = 2 * TableSelections;
+    /// <summary>The selections of the beam shots' uncharged half; the charged half follows.</summary>
+    private const int ChargedSelectionOffset = 16;
 
     /// <summary>The bank-$90 address of the movement instruction a move step names.</summary>
     internal static ushort InstructionAddress(ProjectileTrailInstruction movement) => movement switch
@@ -38,18 +36,6 @@ internal static class ProjectileTrailNative
         internal static ushort Wave => ProjectileTrailSources.Start(ProjectileTrailProgram.Wave);
         /// <summary>$90:B5A1, the missile program.</summary>
         internal static ushort Missile => ProjectileTrailSources.Start(ProjectileTrailProgram.Missile);
-
-        /// <summary>The start of the program the selector word at <paramref name="address"/>, in either side's table, selects.</summary>
-        internal static ushort ReadSelector(int address)
-        {
-            int offset = address - LeftSelections;
-            if ((uint)offset >= SelectorWords * sizeof(ushort) || (offset & 1) != 0)
-                throw new InvalidDataException($"Projectile trail selector ${address:X6} is outside the two selector tables.");
-            int index = offset / sizeof(ushort);
-            return ProjectileTrailSources.Start(index < TableSelections
-                ? ProjectileTrailSelection.Select(index, HorizontalDirection.Left)
-                : ProjectileTrailSelection.Select(index - TableSelections, HorizontalDirection.Right));
-        }
     }
 
     /// <summary>The programs' native mechanics words.</summary>
@@ -83,6 +69,22 @@ internal static class ProjectileTrailNative
             ? word
             : throw new InvalidDataException($"Projectile trail program word ${address:X6} is outside compiled mechanics data.");
     }
+
+    /// <summary>
+    /// The place in each side's selection table at which the trail spawner reads <paramref name="trailing"/>'s programs:
+    /// a beam shot's by its beams, in the charged half when charged; the missile's and Super Missile's after the beam
+    /// shots; an echo's after those, by the beams it carries.
+    /// </summary>
+    internal static int Selection(SamusProjectileType trailing) => trailing.Family switch
+    {
+        SamusProjectileFamily.Missile => FirstSpecialSelection,
+        SamusProjectileFamily.SuperMissile => FirstSpecialSelection + 1,
+        SamusProjectileFamily.Beam => trailing.BeamCombination.TableIndex +
+            (trailing.Echo is not null ? FirstSpecialSelection : trailing.IsChargedBeam ? ChargedSelectionOffset : 0),
+        SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or SamusProjectileFamily.BeamExplosion or
+            SamusProjectileFamily.MissileExplosion => throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "The projectile leaves no trail."),
+        _ => throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "Undefined projectile family."),
+    };
 
     /// <summary>The bank-$90 address of <paramref name="frame"/>'s pose.</summary>
     internal static ushort Address(ProjectileTrailFrame frame) => ProjectileTrailSources.FrameAddress(frame);

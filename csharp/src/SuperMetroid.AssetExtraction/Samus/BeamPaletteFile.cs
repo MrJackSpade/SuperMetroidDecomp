@@ -64,7 +64,7 @@ public static class BeamPaletteFile
         var compiled = new RgbColor[BeamTileAtlasDefinitions.SelectionCount][];
         for (int selection = 0; selection < compiled.Length; selection++)
         {
-            if (!document.Palettes.TryGetValue(BeamPaletteFile.Key(SamusBeamCombinations.FromTableIndex(selection)), out var colors) ||
+            if (!document.Palettes.TryGetValue(BeamPaletteFile.Key(SamusBeamCombinationTableOrder.FromTableIndex(selection)), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
             compiled[selection] = new RgbColor[colors.Length];

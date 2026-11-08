@@ -199,9 +199,8 @@ public sealed class SamusDrainedState
 
         if (_suitPaletteRestoreRequested)
         {
-            // The drained palette and the rainbow-stop command choose Gravity before Varia, then Power. The table
-            // stores byte offsets 0/2/4 rather than a host enum, matching every other Samus
-            // palette restoration path.
+            // The drained palette and the rainbow-stop command choose Gravity before Varia, then Power, as every
+            // other Samus palette restoration path does.
             SamusNormalSuitPalette.Load(colours, equippedItems);
             _suitPaletteRestoreRequested = false;
             return true;

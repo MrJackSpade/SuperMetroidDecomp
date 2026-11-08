@@ -35,8 +35,6 @@ internal static class RoomSheetShades
             shades.AddRange(KraidBackdropShades.Of(standard, inputs.Bosses.KraidColors
                 ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours.")));
         }
-        if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.DraygonBody)))
-            shades.AddRange(BossSheetShades.DraygonBackground(inputs.Bosses));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.SporeSpawn)))
             shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
         if (HoldsPhantoon(rooms))

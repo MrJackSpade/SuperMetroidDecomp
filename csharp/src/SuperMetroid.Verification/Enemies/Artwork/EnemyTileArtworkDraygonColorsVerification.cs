@@ -148,12 +148,12 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         }
 
         // The colours Draygon shows: the import's shades of his installed colours, laid as his colour state names them over
-        // his room's pictures and his sprites (#1512).
+        // his body layer and his sprites (#1512).
         RgbColor[] Shown()
         {
             IReadOnlyList<SheetShade> background = BossSheetShades.DraygonBackground(stock.Bosses);
             IReadOnlyList<SheetShade> sprites = BossSheetShades.OwnRow(stock.Bosses, EnemyDefinitionId.DraygonBody, 0);
-            ushort[] colours = BossShadeColours.Laid(GameplayShadingProbe.ShadingOf(state.Colours, GameplayPictures.Room,
+            ushort[] colours = BossShadeColours.Laid(GameplayShadingProbe.ShadingOf(state.Colours, GameplayPictures.BossBody,
                 background.Select(shade => shade.Shade)).Shades, background, BossShadeColours.Room, 0);
             foreach (PictureShade shade in state.Colours.Sprites.Shades)
                 BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);

@@ -15,7 +15,7 @@ public sealed class DraygonEnemyState
     /// <summary>Anchors the encounter-wide state to Draygon's physical body slot.</summary>
     internal DraygonEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>Draygon's body layer's, room background's and sprites' colours (#1512).</summary>
+    /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>
     internal DraygonColours Colours { get; } = new();
 
     /// <summary>Gives his body and his attached tail and arms the shading his colours show now (#1512).</summary>
@@ -25,22 +25,6 @@ public sealed class DraygonEnemyState
         Body.Shading = sprites;
         Tail.Shading = sprites;
         Arms.Shading = sprites;
-    }
-
-    /// <summary>
-    /// Gives the Evirs his opening and burial spawn among <paramref name="spriteObjects"/> the shading his sprites show
-    /// now (#1512). They draw in the palette row his initialization selects for him, which his hurt updates rewrite, so
-    /// they show his material colours and their white flash as he does, from the update that writes them.
-    /// </summary>
-    internal void ShadeEvirs(RoomSpriteObjectPool spriteObjects)
-    {
-        Ensure.NotNull(spriteObjects);
-        PictureShading sprites = Colours.Sprites;
-        foreach (RoomSpriteObjectSlot evir in spriteObjects.Slots)
-        {
-            if (evir.IsActive && evir.Kind is RoomSpriteObjectKind.DraygonIntroEvir or RoomSpriteObjectKind.DraygonDeathEvirFacingRight)
-                evir.Graphics = evir.Graphics.In(sprites);
-        }
     }
 
     /// <summary>His body, which owns encounter movement, health, and the body-function dispatcher, and runs first.</summary>

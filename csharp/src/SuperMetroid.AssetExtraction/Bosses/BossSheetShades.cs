@@ -188,7 +188,7 @@ internal static class BossSheetShades
     }
 
     /// <summary>
-    /// The shades of Draygon's background colours, which his body layer and his room's pictures share: his material
+    /// The shades of Draygon's body layer: his material
     /// colours, their white flash and his eight health bands.
     /// </summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>

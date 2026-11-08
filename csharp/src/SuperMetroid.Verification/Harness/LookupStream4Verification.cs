@@ -2922,7 +2922,7 @@ internal static class LookupStream4Verification
         return 0;
     }
 
-    /// <summary>Every shade Draygon's colours can lay over his room's pictures: his material colours, their white flash and each health band.</summary>
+    /// <summary>Every shade Draygon's colours can lay over his body layer: his material colours, their white flash and each health band.</summary>
     private static readonly SuperMetroid.Core.Assets.PictureShade[] DraygonRoomShades =
     [
         SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Background,
@@ -2930,9 +2930,9 @@ internal static class LookupStream4Verification
         .. Enumerable.Range(0, 8).Select(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Health),
     ];
 
-    /// <summary>The shading Draygon's colours give his room's pictures, which share his background colours (#1512).</summary>
+    /// <summary>The shading Draygon's colours give his body layer (#1512).</summary>
     private static PictureShading DraygonRoomShading(DraygonColours colours) =>
-        GameplayShadingProbe.ShadingOf(colours, GameplayPictures.Room, DraygonRoomShades);
+        GameplayShadingProbe.ShadingOf(colours, GameplayPictures.BossBody, DraygonRoomShades);
 
     /// <summary>
     /// Lays the shading Draygon's colours publish over <paramref name="cgram"/> as <paramref name="catalog"/>'s imported

@@ -39,7 +39,7 @@ internal static class FirefleaEyeVerification
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
         // The colours the frame's pictures show, composed from their published shading and the import's colours (#1512).
-        var memory = FramePaint.FromNative(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), sprites.Draws);
+        var memory = FramePaint.FromNativeGameplay(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), sprites.Draws);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var actualDarkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, actualDarkness.Blend.Blended,

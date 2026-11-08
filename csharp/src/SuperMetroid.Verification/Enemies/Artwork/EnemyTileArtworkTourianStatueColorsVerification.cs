@@ -70,14 +70,18 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 $"the statue scene's {scene} is on the decoration's installed sheet");
         }
         var guard = NewTourianStatueColorGuard(bus, forbidden);
+        // The places of the native image the scene sheet holds a colour for (#1544): a sheet holds only the colours its
+        // pictures show, so a native write to any other place shows nothing in the port.
+        HashSet<int> sceneHeld = [.. Enumerable.Range(0, statueSheet.StandardColours.Length)
+            .Select(colour => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.CartridgeColourOf(statueSheet, colour))];
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             RoomEnemySystem installed = CreateEnemy(stock);
             Initialize(installed, parameter);
             RgbColor[] shown = NativeColouredPictures.ShownIn(statueSheet, installed.SlotTable.Slots[0].Shading);
-            AssertNativeWrites(shown, 0xaad785, TourianStatuePaletteConstants.BaseCgramIndex, TourianStatueColorFormat.BaseColorCount,
+            AssertNativeWrites(shown, sceneHeld, 0xaad785, TourianStatuePaletteConstants.BaseCgramIndex, TourianStatueColorFormat.BaseColorCount,
                 $"Tourian statue entry parameter {parameter} shows the native base colours");
-            AssertNativeWrites(shown, 0xaad765, TourianStatuePaletteConstants.StatueCgramIndex, TourianStatueColorFormat.StatueColorCount,
+            AssertNativeWrites(shown, sceneHeld, 0xaad765, TourianStatuePaletteConstants.StatueCgramIndex, TourianStatueColorFormat.StatueColorCount,
                 $"Tourian statue entry parameter {parameter} shows the native statue colours");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
@@ -91,7 +95,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             RoomEnemySystem installed = CreateEnemy(stock);
             installed.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
-            AssertNativeWrites(NativeColouredPictures.ShownIn(statueSheet, installed.TourianEntranceStatueBehavior.SceneShading),
+            AssertNativeWrites(NativeColouredPictures.ShownIn(statueSheet, installed.TourianEntranceStatueBehavior.SceneShading), sceneHeld,
                 0x86b91e + parameter * 4, TourianStatuePaletteConstants.EyeCgramIndex, TourianStatueColorDefinitions.EyeColorCount,
                 $"Tourian eye parameter {parameter} shows the native eye glow colours");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
@@ -119,12 +123,14 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // (#1512): the room-tile statues grey over the room's pictures, the sprite statues over the scene's.
         RgbColor[] greyRoom = GameplayShownColours.Of(installedRoom, InstalledFixtures.SamusShadeSources);
         RgbColor[] greyScene = NativeColouredPictures.ShownIn(statueSheet, installedRoom.Enemies.TourianEntranceStatueBehavior.SceneShading);
+        HashSet<int> roomHeld = [.. GameplayShownColours.ComparedIn(installedRoom)];
         foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
         {
             AssertEqual((ushort)0x837f, ReadReferenceWord(program + 0x62),
                 "native statue program grey-palette instruction");
             int destination = ReadReferenceWord(program + 0x64) / 2;
-            AssertNativeWrites(destination < SnesCgram.ColorCount / 2 ? greyRoom : greyScene, 0x87839c, destination,
+            bool room = destination < SnesCgram.ColorCount / 2;
+            AssertNativeWrites(room ? greyRoom : greyScene, room ? roomHeld : sceneHeld, 0x87839c, destination,
                 TourianStatueColorDefinitions.GreyColorCount, $"Tourian grey room instruction at colour {destination} shows the native grey");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -146,19 +152,21 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
 
         // Native palette writes from $AA:D7C8, $86:B88E and $87:837F, read from the cartridge independently of the installed
-        // catalog: the colours shown at the written places are the written words. A sprite colour set's colour zero is
-        // transparent, so no picture holds a colour there (#1544) and the write to it shows nothing.
-        void AssertNativeWrites(RgbColor[] shown, int source, int destination, int count, string context)
+        // catalog: the colours shown at the written places the pictures hold are the written words, and at least one written
+        // place is held.
+        void AssertNativeWrites(RgbColor[] shown, HashSet<int> held, int source, int destination, int count, string context)
         {
+            int compared = 0;
             for (int color = 0; color < count; color++)
             {
-                int place = destination + color;
-                if (place >= SnesCgram.ColorCount / 2 && place % 16 == 0)
+                if (!held.Contains(destination + color))
                     continue;
+                compared++;
                 ushort word = ReadReferenceWord(source + color * 2);
                 AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), shown[destination + color],
                     $"{context}: colour {destination + color}");
             }
+            AssertTrue(compared > 0, $"{context}: the pictures hold a written colour");
         }
 
         ushort ReadReferenceWord(int address) =>

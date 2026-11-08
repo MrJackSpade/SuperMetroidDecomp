@@ -96,9 +96,10 @@ internal static class CeresElevatorArrivalVerification
             SpriteImage sheet = ((ImageSpriteDraw)draw).Image.Sheet;
             ShadeInks inks = sheet.Shade(CeresElevatorShades.ConcealerCleared);
             // The shade names the sheet's own colours; the import composed each as a palette index (#1544).
-            VerificationAssertions.AssertTrue(inks.Inks.Select(ink => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexOf(sheet, ink))
-                    .SequenceEqual([spriteColour]) && inks.Colours.SequenceEqual([RgbColor.Black]),
-                "the concealer's shade shows the cartridge's cleared sprite colour black");
+            int[] composed = [.. inks.Inks.Select(ink => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexOf(sheet, ink))];
+            VerificationAssertions.AssertTrue(composed.SequenceEqual([spriteColour]) && inks.Colours.SequenceEqual([RgbColor.Black]),
+                $"the concealer's shade shows the cartridge's cleared sprite colour {spriteColour} black on {sheet.Name}: it recolours composed "
+                + $"places [{string.Join(", ", composed)}] to [{string.Join(", ", inks.Colours)}]");
         }
     }
 

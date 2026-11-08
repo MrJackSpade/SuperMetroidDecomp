@@ -309,7 +309,7 @@ internal static class NativeEnemyFamilyStateImport
             zebetiteRecord.Generation = words.D;
             zebetiteRecord.GenerationFlags = MotherBrainNativeWords.DecodeGenerationFlags(words.F);
         }
-        // Slot zero's word C is the Zebetites' shared palette counter whichever enemy occupies the slot.
+        // The native snapshot keeps the Zebetites' shared pulse counter in slot zero's word C, whichever enemy occupies the slot.
         if (slot.SlotIndex == 0)
             enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)

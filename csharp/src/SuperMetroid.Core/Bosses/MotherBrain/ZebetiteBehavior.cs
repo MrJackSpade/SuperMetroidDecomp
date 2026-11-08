@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -77,11 +78,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     public CameraDistanceMode CameraDistanceIndex { get; internal set; }
 
     /// <summary>
-    /// The Zebetites' shared palette-cycle counter: physical slot zero's record word C
-    /// (the first Zebetite's own palette counter) whichever enemy holds that slot, advanced by every Zebetite in the room.
-    /// It restarts with slot zero's record: at room load, when a Zebetite initializes into slot zero, and when a kill
-    /// empties a slot-zero Zebetite. Tourian's Zebetite room puts Mother Brain's body in slot zero, and the body never
-    /// uses that word.
+    /// The Zebetites' shared pulse counter, advanced by every primary Zebetite in the room; it starts at zero with the
+    /// room. It selects only the pulse the Zebetites show.
     /// </summary>
     public int SharedPaletteCycle
     {
@@ -101,12 +99,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot.Spawn.Population);
-        slot.SetSpeciesState(state, () =>
-        {
-            state.ClearWithRecord();
-            if (slot.SlotIndex == 0)
-                SharedPaletteCycle = 0;
-        });
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // One more property bit is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
@@ -115,8 +108,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Shading = PulseShading;
-        if (slot.SlotIndex == 0)
-            SharedPaletteCycle = 0;
         state.Function = state.IsSecondaryHalf
             ? ZebetiteAiFunction.WaitForDoorTransition
             : ZebetiteAiFunction.SpawnLinkedHalf;
@@ -166,8 +157,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != ZebetiteGenerationFlags.None)
         {
             RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
-            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedSlot = slot.SlotIndex;
-            state.LinkedSlot = secondary.SlotIndex;
+            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf = slot;
+            state.LinkedHalf = secondary;
         }
 
         state.Function = ZebetiteAiFunction.WaitForDoorTransition;
@@ -189,7 +180,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunZebetiteActive(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         CycleZebetitePalette(slot);
-        // Every Zebetite shows the shared pulse; slot zero's half steps it before the others run (#1512).
+        // Every Zebetite shows the shared pulse; each primary half steps it as it runs (#1512).
         slot.Shading = PulseShading;
         SelectZebetiteHealthAnimation(slot, state);
 
@@ -213,7 +204,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             SpawnZebetite(ZebetiteHalf.Primary);
     }
 
-    /// <summary>Applies the shared two-color cycle using physical slot zero's counter when no fade suppresses it.</summary>
+    /// <summary>Steps the shared pulse when no fade suppresses it.</summary>
     internal void CycleZebetitePalette(RoomEnemySlot slot)
     {
         if (PaletteChangeNumber != 0 || slot.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
@@ -240,8 +231,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal RoomEnemySlot SpawnZebetite(ZebetiteHalf half)
     {
         // The spawn takes the first free slot. In particular, a primary's death vacates
-        // its slot before spawning the next generation; surviving linked halves keep
-        // naming that reused slot.
+        // its place before spawning the next generation; surviving linked halves keep
+        // naming that reused place.
         RoomEnemySlot spawned = _slotTable.FindFreeSlot() ??
             throw new InvalidOperationException("Zebetite progression filled every enemy slot.");
 
@@ -267,7 +258,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every Zebetite shares one source: a second hit in the same update replaces the first hit's request
         // (the update-end rule of EnemyAudioQueue.RequestSoundAtUpdateEnd).
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Zebetite, ZebetiteShotSound, SoundRequestPriority.Normal);
-        RoomEnemySlot linked = _slotTable.Slots[struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedSlot];
+        RoomEnemySlot linked = ZebetiteShotShare.Recipient(_slotTable.Slots, struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf);
         linked.Health = struck.Health;
         linked.FlashTimer = struck.FlashTimer;
     }
@@ -289,10 +280,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 
-        int slotIndex = slot.SlotIndex;
         slot.Clear();
         slot.Spawn = survivingSpawn;
-        _slotTable.Slots[slotIndex].SetSpeciesState<ZebetiteEnemyState>(null);
+        slot.SetSpeciesState<ZebetiteEnemyState>(null);
         _roomStatus.RecordKill();
     }
 

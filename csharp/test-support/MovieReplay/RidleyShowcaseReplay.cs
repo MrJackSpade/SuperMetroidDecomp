@@ -463,7 +463,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // The pause screen holds no colours; its pictures show the import's colours under the shadings it names (#1512).
                 PauseMenuState menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
                 comparedPalette = PauseShownColours.Of(menu);
-                comparedColours = Enumerable.Range(0, SnesCgram.ColorCount);
+                comparedColours = PauseShownColours.ComparedIn(menu);
             }
             if (!deferLoadingOwners)
             foreach (int color in comparedColours)

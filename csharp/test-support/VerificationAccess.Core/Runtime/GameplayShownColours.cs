@@ -19,6 +19,9 @@ internal static class GameplayShownColours
     /// <summary>The background colours, the first of the image.</summary>
     private const int BackgroundColours = 128;
 
+    /// <summary>The HUD layer's colours: its eight sets of four, the first of the background colours.</summary>
+    private const int HudColours = 32;
+
     /// <summary>Colours in one sprite row.</summary>
     private const int RowColours = 16;
 
@@ -29,16 +32,22 @@ internal static class GameplayShownColours
     internal const int SamusBeamsFirst = BackgroundColours + 6 * RowColours;
 
     /// <summary>
-    /// The native colours <see cref="Of"/> composes for <paramref name="runtime"/>'s room: each background colour one of the
-    /// room's or the HUD's pictures has, and Samus's suit row and her beams' row but for each row's first colour, which a
-    /// sprite's transparent ink stands for and no draw ever shows.
+    /// The native colours <see cref="Of"/> composes for <paramref name="runtime"/>'s room: each background colour the HUD's
+    /// pictures have, each the room's pictures have outside the HUD's colours, and Samus's suit row and her beams' row but
+    /// for each row's first colour, which a sprite's transparent ink stands for and no draw ever shows.
     /// </summary>
+    /// <remarks>
+    /// The cartridge keeps the HUD's colours in the room's first colours and spares them from a door's fade, so a room
+    /// picture coloured from one of those places showed the HUD's unfaded colour there. That sharing was a presentation
+    /// quirk (#1544): the room's pictures show the room's own colours under the room's shading, so the native colours at
+    /// those places say nothing about what the port's room shows, and only the HUD's own places in its range are compared.
+    /// </remarks>
     internal static IReadOnlyList<int> ComparedIn(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
         SpriteImage room = runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image;
         SpriteImage hud = runtime.Room.LoadedScope.FxOverlayPictures.Sheet.Sheet.Image;
-        return [.. Places(room).Concat(Places(hud)).Distinct().Order(),
+        return [.. Places(room).Where(place => place >= HudColours).Concat(Places(hud)).Distinct().Order(),
             .. Enumerable.Range(SamusSuitFirst + 1, RowColours - 1), .. Enumerable.Range(SamusBeamsFirst + 1, RowColours - 1)];
     }
 

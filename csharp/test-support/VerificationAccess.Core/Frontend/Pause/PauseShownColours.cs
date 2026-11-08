@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Assets;
@@ -21,17 +23,43 @@ internal static class PauseShownColours
     /// <summary>The colour the reserve arrow's lighter bevel shows.</summary>
     private const int ArrowLightColour = 6 * 16 + 11;
 
+    /// <summary>The colours of the sprite colour group the highlight cycle recolours.</summary>
+    private const int HighlightColours = 16;
+
+    /// <summary>The highlight frame <paramref name="pause"/>'s highlighted map sprites show, or null when none is drawn.</summary>
+    private static int? ShownHighlight(PauseMenuState pause) =>
+        pause.paletteAnimation.ShownFrame is int frame && pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
+            .Any(draw => Ensure.NotNull(draw.Shading).Shades.Contains(MapSpriteShades.Highlight(frame)))
+            ? frame : null;
+
+    /// <summary>
+    /// The native colours <see cref="Of"/> composes that the pause screen's pictures show: every colour, but for the
+    /// highlight cycle's colour group while no highlighted map sprite is drawn.
+    /// </summary>
+    /// <remarks>
+    /// The cartridge cycles that group whenever the pause screen runs, and the equipment page's selector and reserve
+    /// strip drew in it and glowed with the map's highlight. That sharing was a presentation quirk (#1544): they show
+    /// their own colours, so the native colours of the group say nothing about them.
+    /// </remarks>
+    internal static IReadOnlyList<int> ComparedIn(PauseMenuState pause)
+    {
+        Ensure.NotNull(pause);
+        bool highlighted = ShownHighlight(pause) is not null;
+        return [.. Enumerable.Range(0, SnesCgram.ColorCount)
+            .Where(colour => highlighted || colour is < HighlightFirstColour or >= HighlightFirstColour + HighlightColours)];
+    }
+
     /// <summary>The colours <paramref name="pause"/>'s pictures show now.</summary>
     /// <exception cref="InvalidOperationException">The pause screen's presentation was not read from an installation.</exception>
     internal static RgbColor[] Of(PauseMenuState pause)
     {
         Ensure.NotNull(pause);
         AreaMapPresentation maps = pause.screen.Artwork;
-        RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(maps).Pause.ToArray();
+        // The pause colours are import knowledge (#1544): the game reads no palette document, so they come from the import's read.
+        RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(InstalledFixtures.Maps).Pause.ToArray();
         // Only the map's highlighted sprites show the cycle (#1544): the equipment page's selector and reserve strip,
         // which the cartridge draws in the same colour group, show their own colours.
-        if (pause.paletteAnimation.ShownFrame is int frame && pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
-                .Any(draw => Ensure.NotNull(draw.Shading).Shades.Contains(MapSpriteShades.Highlight(frame))))
+        if (ShownHighlight(pause) is int frame)
             InstalledAreaMapPresentation.HighlightColoursOf(maps).Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
         PictureShading arrow = pause.ReserveArrowShading;
         if (!arrow.IsStandard)

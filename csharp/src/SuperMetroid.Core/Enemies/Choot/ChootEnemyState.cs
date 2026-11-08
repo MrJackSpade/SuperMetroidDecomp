@@ -20,7 +20,7 @@ public sealed class ChootEnemyState
     /// </summary>
     public int YSpeedTableIndex { get; internal set; }
 
-    /// <summary>The falling pattern's current frame, advanced by one per falling update and restarted at each terminator.</summary>
+    /// <summary>The falling pattern's current frame, advanced by one per falling update and restarted at each loop's end.</summary>
     public int FallingPatternFrame { get; internal set; }
 
     /// <summary>Loop counter initialized to parameter one's low byte minus one, expiring when it decrements below zero.</summary>
@@ -38,7 +38,7 @@ public sealed class ChootEnemyState
     /// <summary>Spawn X and the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling origin at the apex transition.</summary>
     public Position16<RoomPixels> InitialFallingPosition { get; internal set; }
 
-    /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
+    /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every loop's end.</summary>
     public Position16<RoomPixels> FallingOrigin { get; internal set; }
 
     /// <summary>The ascent record index calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>

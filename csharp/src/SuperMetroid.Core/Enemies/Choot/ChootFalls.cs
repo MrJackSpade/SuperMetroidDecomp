@@ -12,20 +12,26 @@ internal static class ChootFalls
             ? distance
             : throw new InvalidOperationException($"Undefined {nameof(ChootFallingPath)} {fallingPath}.");
 
-    /// <summary>Returns the exact physical sample of one falling path at one frame.</summary>
-    internal static ChootFallingPathPoint At(ChootFallingPath fallingPath, int frameIndex)
+    /// <summary>
+    /// The offset from the falling origin of one falling path at one frame, or null at the frame after the path's last
+    /// sample, which ends one loop of the path.
+    /// </summary>
+    /// <exception cref="InvalidDataException"><paramref name="frameIndex"/> lies past the loop's end.</exception>
+    internal static Offset16<RoomPixels>? At(ChootFallingPath fallingPath, int frameIndex)
     {
         if (!Paths.TryGetValue(fallingPath, out Offset16<RoomPixels>[]? path))
             throw new InvalidOperationException($"Undefined ChootFallingPath {fallingPath}.");
 
         int sourceFrame = CollapseExpandedPlateaus(frameIndex, PlateauHolds[fallingPath]);
-        if ((uint)sourceFrame >= (uint)path.Length)
+        if (sourceFrame == path.Length)
+            return null;
+        if ((uint)sourceFrame > (uint)path.Length)
         {
             throw new InvalidDataException(
                 $"Choot falling-pattern frame {frameIndex} exceeds stream {fallingPath}.");
         }
 
-        return new ChootFallingPathPoint(path[sourceFrame]);
+        return path[sourceFrame];
     }
 
     /// <summary>Maps a slow-path physical frame back to the normal stream, repeating the two authored plateau samples.</summary>

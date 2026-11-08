@@ -29,24 +29,32 @@ internal static class ChootPatternDefinitionsVerification
                 $"Choot pattern distance {patternIndex}");
 
             int pathAddress = 0xa20000 | ChootNativeWords.ChootFallingPaths.Word(fallingPath);
-            for (int frameIndex = 0; frameIndex < frameCounts[patternIndex]; frameIndex++)
+            for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-                ChootFallingPathPoint point = ChootFalls.At(
+                Offset16<RoomPixels> point = ChootFalls.At(
                     fallingPath,
-                    frameIndex);
+                    frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
-                    unchecked((ushort)point.Offset.X),
+                    unchecked((ushort)point.X),
                     $"Choot path X {patternIndex}/{frameIndex}");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4 + 2)),
-                    unchecked((ushort)point.Offset.Y),
+                    unchecked((ushort)point.Y),
                     $"Choot path Y {patternIndex}/{frameIndex}");
             }
+
+            // The native path ends each loop with a (-32768, -32768) pair; the port's path ends at that frame.
+            int endFrame = frameCounts[patternIndex] - 1;
+            AssertEqual((ushort)0x8000, CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + endFrame * 4)),
+                $"Choot path {patternIndex} native loop end X");
+            AssertEqual((ushort)0x8000, CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + endFrame * 4 + 2)),
+                $"Choot path {patternIndex} native loop end Y");
+            AssertTrue(ChootFalls.At(fallingPath, endFrame) is null, $"Choot path {patternIndex} ends its loop at the native end frame");
 
             AssertThrows<InvalidDataException>(
                 () => ChootFalls.At(
                     fallingPath,
                     frameCounts[patternIndex]),
-                $"Choot path {patternIndex} rejects its first post-terminator frame");
+                $"Choot path {patternIndex} rejects the frame after its loop's end");
 
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
@@ -86,14 +94,14 @@ internal static class ChootPatternDefinitionsVerification
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
-                ChootFallingPathPoint point = ChootFalls.At(
+                Offset16<RoomPixels> point = ChootFalls.At(
                     fallingPath,
-                    frameIndex);
+                    frameIndex) ?? throw new InvalidDataException($"Choot path {patternIndex} ends early at {frameIndex}.");
                 runFall(fallSlot, fallState);
-                AssertEqual(unchecked((ushort)(0x4000 + point.Offset.X)),
+                AssertEqual(unchecked((ushort)(0x4000 + point.X)),
                     fallSlot.Position.X.Whole,
                     $"Choot production fall X {patternIndex}/{frameIndex}");
-                AssertEqual(unchecked((ushort)(0x5000 + point.Offset.Y)),
+                AssertEqual(unchecked((ushort)(0x5000 + point.Y)),
                     fallSlot.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
                 AssertEqual(frameIndex + 1,

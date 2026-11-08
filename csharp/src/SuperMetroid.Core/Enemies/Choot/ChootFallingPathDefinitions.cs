@@ -12,16 +12,12 @@ internal static class ChootFallingPathDefinitions
     /// <summary>Additional copies of each plateau sample in the very-slow path.</summary>
     private const int VerySlowPlateauFrames = 30;
 
-    /// <summary>The (-32768, -32768) sample that ends a path loop.</summary>
-    private static readonly Offset16<RoomPixels> End = new(short.MinValue, short.MinValue);
-
     /// <summary>
     /// The normal falling pattern.
-    /// Each sample is a signed X/Y offset; the final <see cref="End"/> sample is the terminator.
+    /// Each sample is a signed X/Y offset; the frame after the last sample ends one loop of the path.
     /// </summary>
     /// <remarks>
-    /// The authored path holds all 73 motion pairs and the final
-    /// (-32768, -32768) sentinel. Choot consumes one pair per fall frame and
+    /// The authored path holds all 73 motion pairs. Choot consumes one pair per fall frame and
     /// adds its signed offsets to the 16-bit path origin; the following
     /// loop Y distance is separate from this path.
     /// </remarks>
@@ -37,13 +33,11 @@ internal static class ChootFallingPathDefinitions
         new(-11, 18), new(-12, 18), new(-12, 18), new(-12, 18), new(-13, 18), new(-13, 18), new(-13, 18), new(-12, 20),
         new(-11, 22), new(-10, 23), new(-9, 25), new(-7, 26), new(-6, 27), new(-5, 28), new(-3, 29), new(-2, 30),
         new(-1, 31),
-        End,
     ];
 
     /// <summary>The wide falling pattern.</summary>
     /// <remarks>
-    /// All 73 signed X/Y motion pairs and the (-32768, -32768) sentinel
-    /// are authored values. Selector 1 consumes one pair per
+    /// All 73 signed X/Y motion pairs are authored values. The path consumes one pair per
     /// frame; its loop Y distance is separate.
     /// </remarks>
     private static readonly Offset16<RoomPixels>[] Wide =
@@ -58,13 +52,11 @@ internal static class ChootFallingPathDefinitions
         new(-20, 17), new(-21, 17), new(-22, 17), new(-22, 17), new(-23, 17), new(-24, 17), new(-24, 17), new(-22, 19),
         new(-20, 20), new(-18, 22), new(-16, 23), new(-14, 24), new(-11, 25), new(-9, 26), new(-6, 27), new(-4, 28),
         new(-2, 29),
-        End,
     ];
 
     /// <summary>The very wide falling pattern.</summary>
     /// <remarks>
-    /// All 73 signed X/Y motion pairs and the (-32768, -32768) sentinel
-    /// are authored values. Selector 2 consumes one pair per
+    /// All 73 signed X/Y motion pairs are authored values. The path consumes one pair per
     /// frame; its loop Y distance is separate.
     /// </remarks>
     private static readonly Offset16<RoomPixels>[] VeryWide =
@@ -79,7 +71,6 @@ internal static class ChootFallingPathDefinitions
         new(-29, 20), new(-30, 20), new(-31, 19), new(-32, 19), new(-33, 19), new(-34, 19), new(-34, 19), new(-31, 21),
         new(-28, 23), new(-25, 24), new(-22, 26), new(-18, 27), new(-15, 28), new(-12, 29), new(-8, 30), new(-5, 31),
         new(-2, 32),
-        End,
     ];
 
     /// <summary>The authored samples each falling path follows; the slow paths follow the normal path.</summary>

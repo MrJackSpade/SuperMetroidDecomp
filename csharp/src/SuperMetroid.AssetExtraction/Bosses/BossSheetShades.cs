@@ -237,7 +237,7 @@ internal static class BossSheetShades
     private static IEnumerable<SheetShade> Botwoon(BossSourceArtwork bosses, int firstInk)
     {
         BotwoonColorCatalog botwoon = bosses.BotwoonColors ?? throw new InvalidDataException("Botwoon is shaded from the installed Botwoon colours.");
-        for (int band = 0; band < BotwoonHealthPaletteDefinitions.CompletePhase; band++)
+        for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
         {
             int shown = band;
             yield return SheetShade.Run(BotwoonShades.Health(shown), firstInk,

@@ -2343,7 +2343,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var guard = NewBotwoonColorReadGuard(rom);
-                Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPalette;
+                Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
                 var state = new BotwoonEnemyState();
                 // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
@@ -2351,16 +2351,16 @@ internal static class LookupStream4Verification
                 ushort[] Shown() => BossShadeColours.Laid(state.BodyShading.Shades, botwoonShades, BossShadeColours.Sprites, 0x1234);
                 for (int band = 0; band < 8; band++)
                 {
-                    state.PalettePhase = band;
+                    state.HealthBandsPassed = band;
                     head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
                     ushort[] before = Shown();
                     update(head, state);
-                    AssertEqual(band, state.PalettePhase, "exact threshold does not advance");
+                    AssertEqual(band, state.HealthBandsPassed, "exact threshold does not advance");
                     ushort[] held = Shown();
                     for (int color = 0; color < 256; color++) AssertEqual(before[color], held[color], "exact threshold preserves CGRAM");
                     head.Health--;
                     update(head, state);
-                    AssertEqual(band + 1, state.PalettePhase, "below threshold advances exactly one band");
+                    AssertEqual(band + 1, state.HealthBandsPassed, "below threshold advances exactly one band");
                     ushort[] cgram = Shown();
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram[color], "actual producer copies all16 including transparent metadata and preserves neighbors");

@@ -200,17 +200,17 @@ internal static class LookupStream5Verification
             // The fade writes Phantoon's palette rows toward its installed fade colors.
             system.TileArtwork = InstalledFixtures.EnemyTiles;
             system.BossArtwork = InstalledFixtures.BossArtwork;
-            Action<RoomEnemySlot, PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
+            Action<PhantoonEnemyState> fade = system.PhantoonBehavior.Patterns.RunPhantoonFlameRainFadeOut;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain;
             body.Position = body.Position.WithWhole(new(111, 99)); state.BodyState.PathCursor = 42; state.BodyState.FunctionTimer = 17;
             state.BodyState.Function = PhantoonAiFunction.FadeOutDuringFlameRain;
             // He fades out of the colouring the fight shows him in (#1512), his health band's.
             state.Colours.Show(PhantoonBodyLook.Health(0));
-            fade(body, state); // The eye's independent fade has not completed yet.
+            fade(state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
             AssertEqual(17, state.BodyState.FunctionTimer, "Incomplete fade preserves prior countdown");
             state.EyeState.FadeComplete = true;
-            fade(body, state);
+            fade(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
             AssertEqual(duration, state.BodyState.FunctionTimer, "Completed fade selects exact native hidden duration");
             AssertEqual(PhantoonAiFunction.SpawnFlameRain, state.BodyState.Function, "Completed fade starts hidden waiting phase");
@@ -259,12 +259,12 @@ internal static class LookupStream5Verification
             system.PhantoonBehavior.Combat.Phantoon = state;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
-            Action<RoomEnemySlot, PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
+            Action<PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.Patterns.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
             system.FrameContext.SeedFrameCounter((ushort)(bucket << 1));
             body.Position = body.Position.WithWhole(new(128, 96)); state.BodyState.FunctionTimer = 1; state.BodyState.FlameRainRequested = true;
-            begin(body, state);
+            begin(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
             AssertEqual(duration, state.EyeState.ClosedTimer, "Native first-round closed-eye duration");
             AssertEqual(reversed, state.EyeState.FigureEightReversed, "Direction selection remains independent of duration bucket");

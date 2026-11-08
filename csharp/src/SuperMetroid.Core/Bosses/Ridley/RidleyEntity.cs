@@ -40,7 +40,7 @@ internal sealed class RidleyEntity(
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         RidleyPart.Ridley or RidleyPart.Ceres => ridley.Animation.AdvanceRidleyBodyTypedAnimation,
-        RidleyPart.Explosion => (enemy, _) => ridley.Animation.AdvanceRidleyBreakupAnimation(enemy),
+        RidleyPart.Explosion => (enemy, _) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(enemy),
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}."),
     };
 

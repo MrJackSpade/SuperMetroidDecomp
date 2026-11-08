@@ -385,7 +385,6 @@ internal sealed class KraidRise
 
                     // The foot owns first-phase lunges independently of the body thinker.
                     // Its 300-frame delay starts on the exact rise-completion frame.
-                    RoomEnemySlot foot = _parts.Foot;
                     state.FootState.Function = KraidAiFunction.FootFirstPhaseThinking;
                     state.FootState.FunctionTimer = 300;
                     state.FootState.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;

@@ -40,7 +40,7 @@ internal static class KraidReportedCollisionsVerification
             state.HeadProgram = closed
                 ? AnimationProgramCursor<KraidHeadProgram>.Start(KraidHeadProgram.Roar)
                 : new AnimationProgramCursor<KraidHeadProgram>(KraidHeadProgram.Roar, 4);
-            runtime.Enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction(body, state);
+            runtime.Enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction(state);
             bool marked = false;
             bool spawned = false;
             for (int frame = 0; frame < 24; frame++)

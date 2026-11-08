@@ -162,13 +162,13 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 PhantoonOpening.RunPhantoonStartingFlamePause(state.BodyState);
                 break;
             case PhantoonAiFunction.WaitForStartingFlamesToDisappear:
-                Opening.RunPhantoonStartingFlameOrbitWait(body, state);
+                Opening.RunPhantoonStartingFlameOrbitWait(state);
                 break;
             case PhantoonAiFunction.WavyFadeIn:
                 Opening.RunPhantoonWavyFadeIn(body, state);
                 break;
             case PhantoonAiFunction.PickFirstRoundPattern:
-                Patterns.RunPhantoonPickFirstRoundPattern(body, state);
+                Patterns.RunPhantoonPickFirstRoundPattern(state);
                 break;
             case PhantoonAiFunction.MoveInFigureEightThenOpenEye:
                 Patterns.RunPhantoonFirstRoundFigureEight(body, state);
@@ -207,7 +207,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 PhantoonPatterns.RunPhantoonFlameRainVulnerableWindow(body, state);
                 break;
             case PhantoonAiFunction.FadeOutDuringFlameRain:
-                Patterns.RunPhantoonFlameRainFadeOut(body, state);
+                Patterns.RunPhantoonFlameRainFadeOut(state);
                 break;
             case PhantoonAiFunction.SpawnFlameRain:
                 Patterns.RunPhantoonHiddenFlameRain(body, state);
@@ -216,7 +216,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Patterns.RunPhantoonInitialFlameRain(body, state);
                 break;
             case PhantoonAiFunction.FadeOutBeforeRage:
-                Patterns.RunPhantoonFadeOutBeforeRage(body, state);
+                Patterns.RunPhantoonFadeOutBeforeRage(state);
                 break;
             case PhantoonAiFunction.MoveToTopCenterForRage:
                 PhantoonPatterns.RunPhantoonRageHiddenWait(body, state);
@@ -228,7 +228,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Patterns.RunPhantoonRage(body, state);
                 break;
             case PhantoonAiFunction.FadeOutAfterRage:
-                Patterns.RunPhantoonRageFadeOut(body, state);
+                Patterns.RunPhantoonRageFadeOut(state);
                 break;
             case PhantoonAiFunction.FinishFatalSwoop:
                 PhantoonDeath.RunPhantoonFatalSwoop(body, state, RequirePhantoonSamus(samus));
@@ -243,7 +243,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Death.BeginPhantoonWavyMosaicDeath(body, state);
                 break;
             case PhantoonAiFunction.DyingFadeOut:
-                Death.RunPhantoonWavyMosaicDeath(body, state);
+                Death.RunPhantoonWavyMosaicDeath(state);
                 break;
             case PhantoonAiFunction.AlmostDead:
                 Death.ClearPhantoonDeathGraphics(body, state);

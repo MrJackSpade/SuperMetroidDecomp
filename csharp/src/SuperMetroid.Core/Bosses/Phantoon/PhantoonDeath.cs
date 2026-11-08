@@ -60,7 +60,6 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        RoomEnemySlot eye = state.Eye;
         if ((state.EyeState.DyingFadeCycles & 1) != 0)
             _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
         else
@@ -87,7 +86,6 @@ internal sealed class PhantoonDeath
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        RoomEnemySlot tentacles = state.Tentacles;
         PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.TentaclesState.ExplosionIndex);
         state.BodyState.FunctionTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
@@ -139,7 +137,6 @@ internal sealed class PhantoonDeath
 
     /// <summary>Advances death-wave and mosaic counters before room activation.</summary>
     internal void RunPhantoonWavyMosaicDeath(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
         PhantoonPresentation.AdvancePhantoonWaveAmplitude(
@@ -147,7 +144,6 @@ internal sealed class PhantoonDeath
             PhantoonBehavior.PhantoonDeathWaveDelta,
             PhantoonBehavior.PhantoonDeathWaveMaximum);
 
-        RoomEnemySlot eye = state.Eye;
         PhantoonEyeState eyePart = state.EyeState;
         if (!eyePart.DeathMosaicFinished)
         {

@@ -202,7 +202,7 @@ internal sealed class KraidCombat
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&
                 KraidFunctionGroups.BeforeDeath.Contains(state.BodyState.Function))
-                BeginKraidDeath(body, state);
+                BeginKraidDeath(state);
         }
 
         return mouthHits;
@@ -283,7 +283,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Switches the body from combat to its scripted death function.</summary>
-    private void BeginKraidDeath(RoomEnemySlot body, KraidEnemyState state)
+    private void BeginKraidDeath(KraidEnemyState state)
     {
         state.BodyState.Function = KraidAiFunction.DeathInitialize;
         state.ClearMouthReactions();

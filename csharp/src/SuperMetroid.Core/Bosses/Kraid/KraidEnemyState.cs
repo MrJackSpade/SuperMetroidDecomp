@@ -50,15 +50,6 @@ public sealed class KraidEnemyState
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidPart)} {part}."),
     };
 
-    /// <summary>The state of Kraid's lint <paramref name="part"/>.</summary>
-    internal KraidLintState Lint(KraidLintPart part) => part switch
-    {
-        KraidLintPart.Top => TopLintState,
-        KraidLintPart.Middle => MiddleLintState,
-        KraidLintPart.Bottom => BottomLintState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidLintPart)} {part}."),
-    };
-
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public int ThinkingTimer { get; internal set; }
     /// <summary>

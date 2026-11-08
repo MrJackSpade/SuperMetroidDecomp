@@ -226,15 +226,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.MouthOpenReaction:
-                Head.RunKraidMouthOpenReaction(body, state);
+                Head.RunKraidMouthOpenReaction(state);
                 return;
 
             case KraidAiFunction.InitializeEyeGlow:
-                Head.InitializeKraidEyeGlow(body, state);
+                Head.InitializeKraidEyeGlow(state);
                 return;
 
             case KraidAiFunction.GlowEye:
-                Head.GlowKraidEye(body, state);
+                Head.GlowKraidEye(state);
                 return;
 
             case KraidAiFunction.UnglowEye:
@@ -246,7 +246,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.ProcessHeadInstructionAndTimer:
-                _ = Head.ProcessKraidHeadInstruction(body, state);
+                _ = Head.ProcessKraidHeadInstruction(state);
                 KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 

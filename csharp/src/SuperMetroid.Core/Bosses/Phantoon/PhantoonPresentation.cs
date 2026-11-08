@@ -27,7 +27,6 @@ internal sealed class PhantoonPresentation
         if ((_frameContext.FrameCounter & 1) != 0 || state.EyeState.FadeComplete)
             return;
 
-        RoomEnemySlot eye = state.Eye;
         state.EyeState.FadeDenominator = denominator;
         int numerator = state.EyeState.FadeNumerator;
         if (denominator + 1 < numerator)

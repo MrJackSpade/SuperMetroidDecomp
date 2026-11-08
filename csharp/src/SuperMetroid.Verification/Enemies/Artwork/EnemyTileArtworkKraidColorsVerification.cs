@@ -412,7 +412,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 break;
             }
             case KraidPaletteConsumer.DeathArm:
-                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath)(body, state);
+                new Action<KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath)(state);
                 AssertTrue(state.Colours.ShowsDeathArm, "Kraid's death shows his death colours");
                 Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], new RgbColor[SpriteImage.SpriteColourCount]),
                     KraidShades.DeathArm, 0);

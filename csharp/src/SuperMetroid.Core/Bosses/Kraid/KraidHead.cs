@@ -101,7 +101,7 @@ internal sealed class KraidHead
     /// <summary>Advances the open-mouth attack and its head instruction timing.</summary>
     internal void RunKraidMouthOpenAttack(RoomEnemySlot body, KraidEnemyState state)
     {
-        if (ProcessKraidHeadInstruction(body, state) == KraidHeadProgramResult.ProgramEnded)
+        if (ProcessKraidHeadInstruction(state) == KraidHeadProgramResult.ProgramEnded)
         {
             SetupKraidFirstPhaseThinking(body, state);
             state.BodyState.HeadTimer = 90;
@@ -139,19 +139,19 @@ internal sealed class KraidHead
     /// Counts the displayed head frame down and runs the head program on when it expires. A cleared timer holds the
     /// head, as does a timer still counting; a timer reaching zero gives the program's result.
     /// </summary>
-    internal KraidHeadProgramResult ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
+    internal KraidHeadProgramResult ProcessKraidHeadInstruction(KraidEnemyState state)
     {
         KraidBodyState part = state.BodyState;
         if (part.HeadTimer == 0)
             return KraidHeadProgramResult.PoseHeld;
-        return --part.HeadTimer == 0 ? ExecuteKraidHeadInstruction(body, state) : KraidHeadProgramResult.PoseHeld;
+        return --part.HeadTimer == 0 ? ExecuteKraidHeadInstruction(state) : KraidHeadProgramResult.PoseHeld;
     }
 
     /// <summary>
     /// Runs Kraid's head program to its next pose: cries on the way are announced, and a pose installs its duration as
     /// the head timer and shows its image; a program's end leaves the cursor there.
     /// </summary>
-    internal KraidHeadProgramResult ExecuteKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
+    internal KraidHeadProgramResult ExecuteKraidHeadInstruction(KraidEnemyState state)
     {
         AnimationProgramCursor<KraidHeadProgram> cursor = state.HeadProgram ?? throw new InvalidDataException(
             "Kraid's head program has not been started.");
@@ -202,9 +202,9 @@ internal sealed class KraidHead
     }
 
     /// <summary>Updates the mouth-open reaction after a damaging shot.</summary>
-    internal void RunKraidMouthOpenReaction(RoomEnemySlot body, KraidEnemyState state)
+    internal void RunKraidMouthOpenReaction(KraidEnemyState state)
     {
-        if (ProcessKraidHeadInstruction(body, state) != KraidHeadProgramResult.ProgramEnded)
+        if (ProcessKraidHeadInstruction(state) != KraidHeadProgramResult.ProgramEnded)
             return;
         state.BodyState.Function = KraidAiFunction.MainloopThinking;
         state.BodyState.HeadTimer = 90;
@@ -223,18 +223,18 @@ internal sealed class KraidHead
     }
 
     /// <summary>Seeds eye-glow palette state after a body hit.</summary>
-    internal void InitializeKraidEyeGlow(RoomEnemySlot body, KraidEnemyState state)
+    internal void InitializeKraidEyeGlow(KraidEnemyState state)
     {
         state.BodyState.Function = KraidAiFunction.GlowEye;
         state.HeadProgram = KraidHeadAnimations.EyeGlowAfterEntryFrame;
         state.BodyState.HeadTimer = KraidHeadAnimations.EyeGlowEntryDuration;
-        GlowKraidEye(body, state);
+        GlowKraidEye(state);
     }
 
     /// <summary>Steps the eye highlight while the body reacts to a hit.</summary>
-    internal void GlowKraidEye(RoomEnemySlot body, KraidEnemyState state)
+    internal void GlowKraidEye(KraidEnemyState state)
     {
-        _ = ProcessKraidHeadInstruction(body, state);
+        _ = ProcessKraidHeadInstruction(state);
         // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
         if (state.Colours.EyeGlow.Glow())
             state.BodyState.Function = KraidAiFunction.UnglowEye;

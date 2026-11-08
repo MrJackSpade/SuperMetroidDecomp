@@ -195,7 +195,7 @@ internal sealed class PhantoonCombat
             }
 
             if (hitboxShotAi == EnemyReaction.Ignore ||
-                Part(body).Function is PhantoonAiFunction.DyingFadeInOut or PhantoonAiFunction.DyingExplosions or
+                state.BodyState.Function is PhantoonAiFunction.DyingFadeInOut or PhantoonAiFunction.DyingExplosions or
                     PhantoonAiFunction.BeginFinalWavyDeath or PhantoonAiFunction.DyingFadeOut or PhantoonAiFunction.AlmostDead or
                     PhantoonAiFunction.Dead or PhantoonAiFunction.NoOperation)
             {
@@ -274,7 +274,7 @@ internal sealed class PhantoonCombat
             _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
             state.TentaclesState.RearmHurtFlash();
             body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
-            BeginPhantoonDeathSequence(body, state);
+            BeginPhantoonDeathSequence(state);
             return;
         }
 
@@ -341,7 +341,6 @@ internal sealed class PhantoonCombat
     {
         state.BodyState.Function = fadeOut;
         state.BodyState.FunctionTimer = 0;
-        RoomEnemySlot tentacles = state.Tentacles;
         RoomEnemySlot eye = state.Eye;
         state.TentaclesState.SwoopRequested = false;
         state.TentaclesState.RoundDamage = 0;
@@ -355,7 +354,6 @@ internal sealed class PhantoonCombat
 
     /// <summary>Switches from combat to the fatal swoop and death phases.</summary>
     private static void BeginPhantoonDeathSequence(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
         state.BodyState.Function = state.BodyState.Function is

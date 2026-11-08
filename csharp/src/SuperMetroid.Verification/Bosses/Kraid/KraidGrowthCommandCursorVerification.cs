@@ -36,7 +36,7 @@ internal static class KraidGrowthCommandCursorVerification
         var state = new KraidEnemyState();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         enemies.KraidBehavior.Access.Kraid = state;
-        Func<RoomEnemySlot, KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
+        Func<KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
         Action<RoomEnemySlot, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, cameraY);
         var body = enemies.SlotTable.Slots[0];
         var foot = enemies.SlotTable.Slots[5];
@@ -44,7 +44,7 @@ internal static class KraidGrowthCommandCursorVerification
         state.InitialHealth = 1000;
         body.Health = 874;
         state.HeadProgram = native.CursorAt(0x96e2);
-        execute(body, state);
+        execute(state);
         AssertEqual(native.CursorAt(0x96ea), state.HeadProgram, "head interpreter leaves the next cursor on the roar command");
         KraidHeadFrame? displayed = state.DisplayedHeadFrame;
         state.FootState.Function = KraidAiFunction.FootPrepareFirstPhaseLunge;

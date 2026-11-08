@@ -33,13 +33,11 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Chooses the first-round movement and flame pattern from encounter state.</summary>
     internal void RunPhantoonPickFirstRoundPattern(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        RoomEnemySlot eye = state.Eye;
         state.EyeState.WaveLength = null;
         state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
         state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
@@ -276,7 +274,7 @@ internal sealed class PhantoonPatterns
     {
         PointPhantoonEyeAtSamus(body, state, samus);
         state.SemiTransparent = false;
-        BeginPhantoonSwoop(body, state);
+        BeginPhantoonSwoop(state);
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
     }
 
@@ -400,7 +398,7 @@ internal sealed class PhantoonPatterns
         {
             state.TentaclesState.SwoopRequested = false;
             state.BodyState.FlameRainRequested = true;
-            BeginPhantoonSwoop(body, state);
+            BeginPhantoonSwoop(state);
             return;
         }
 
@@ -414,7 +412,6 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Hides the body after the vulnerable rain interval.</summary>
     internal void RunPhantoonFlameRainFadeOut(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
@@ -448,7 +445,6 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
-        RoomEnemySlot eye = state.Eye;
         StepPhantoonFigureEight(body, state.BodyState, state.EyeState);
         StepPhantoonCasualFlameSchedule(state);
         // Reaching zero expires the timer, as does running past it.
@@ -462,7 +458,6 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Hides the body before entering the enraged attack cycle.</summary>
     internal void RunPhantoonFadeOutBeforeRage(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
@@ -531,7 +526,6 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Hides the body after the enraged swoop.</summary>
     internal void RunPhantoonRageFadeOut(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
@@ -543,10 +537,8 @@ internal sealed class PhantoonPatterns
 
     /// <summary>Seeds swoop speed and direction from Samus's current position.</summary>
     private static void BeginPhantoonSwoop(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        RoomEnemySlot tentacles = state.Tentacles;
         state.TentaclesState.SwoopVelocity = new(new SignedEightEight(1024), new SignedEightEight(1024));
         state.TentaclesState.SwoopTargetX = 0;
         state.TentaclesState.SwoopReturning = false;
@@ -565,7 +557,6 @@ internal sealed class PhantoonPatterns
         SamusState samus,
         PhantoonSwoopTarget target)
     {
-        RoomEnemySlot tentacles = state.Tentacles;
         PhantoonTentaclesState tentaclePart = state.TentaclesState;
         // The target sweeps two pixels an update out to its turn and back to zero, where it starts out again.
         if (tentaclePart.SwoopReturning)
@@ -649,7 +640,6 @@ internal sealed class PhantoonPatterns
         if ((_frameContext.FrameCounter & 1) != 0 || state.EyeState.FadeComplete)
             return;
 
-        RoomEnemySlot eye = state.Eye;
         state.EyeState.FadeDenominator = denominator;
         int numerator = state.EyeState.FadeNumerator;
         if (denominator + 1 < numerator)
@@ -684,8 +674,6 @@ internal sealed class PhantoonPatterns
     internal void PickPhantoonSecondRoundPattern(
         PhantoonEnemyState state)
     {
-        RoomEnemySlot body = state.Body;
-        RoomEnemySlot eye = state.Eye;
         state.BodyState.FunctionTimer = 60;
         state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Generate() & 7];
         if ((_frameContext.FrameCounter & 1) != 0)

@@ -104,7 +104,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         this.japaneseText = setup.JapaneseText;
         Stage = new EndingStage(setup.GameTimeHours, screen, sprites);
         InstalledArtwork = new EndingArtwork(Stage);
-        Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, sprites, Stage);
+        Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage, Flyaway, InstalledArtwork);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
         CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, postCreditsPage, Stage, InstalledArtwork);

@@ -16,7 +16,7 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemySlot
     public EnemyMainAiHandler? FindMain() => CeresSteamBehavior.RunCeresSteamMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceCeresSteamAnimation(enemy);
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => CeresSteamBehavior.AdvanceCeresSteamAnimation(enemy);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => CeresSteamBehavior.FindHitboxReaction(Slot, probe, out reaction);

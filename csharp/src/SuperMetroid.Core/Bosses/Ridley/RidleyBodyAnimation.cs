@@ -130,7 +130,7 @@ internal sealed class RidleyBodyAnimation
     /// Runs a breakup fragment's program where the enemy instruction interpreter would: its pose shows for one update
     /// and then holds, raising the new-frame flag when shown.
     /// </summary>
-    internal void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)
+    internal static void AdvanceRidleyBreakupAnimation(RoomEnemySlot fragment)
     {
         if (!EnemyProgramAnimation.Expire(fragment))
             return;

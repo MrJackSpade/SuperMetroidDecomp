@@ -29,7 +29,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Runs a vent's typed program where the enemy instruction interpreter would.</summary>
-    internal void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
+    internal static void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;

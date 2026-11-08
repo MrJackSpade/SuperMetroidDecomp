@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -7,6 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley encounter state shared by the Ceres and Lower Norfair fights, and the
 /// <c>ceres_status</c> escape handoff value that Ceres Ridley publishes.
 /// </summary>
+[RoomLifetime]
 internal sealed class RidleyEncounter : ICeresEscapeStatus
 {
     /// <summary>Binds both Ridley encounters to the room's enemies, among which <see cref="Parts"/> names his.</summary>

@@ -69,11 +69,11 @@ internal sealed class KraidDeath
         switch (state.BodyState.Function)
         {
             case KraidAiFunction.DeathInitialize:
-                InitializeKraidDeath(body, state);
+                InitializeKraidDeath(state);
                 return;
 
             case KraidAiFunction.DeathFadeOut:
-                _ = _head.ProcessKraidHeadInstruction(body, state);
+                _ = _head.ProcessKraidHeadInstruction(state);
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
                     state.BodyState.Function = KraidAiFunction.DeathShowUpperBody;
@@ -84,7 +84,7 @@ internal sealed class KraidDeath
                 return;
 
             case KraidAiFunction.DeathShowUpperBody:
-                _ = _head.ProcessKraidHeadInstruction(body, state);
+                _ = _head.ProcessKraidHeadInstruction(state);
                 state.BodyState.Function = KraidAiFunction.DeathShowLowerBody;
                 foreach (RoomEnemySlot lint in _parts.Lints)
                 {
@@ -95,7 +95,7 @@ internal sealed class KraidDeath
                 return;
 
             case KraidAiFunction.DeathShowLowerBody:
-                _ = _head.ProcessKraidHeadInstruction(body, state);
+                _ = _head.ProcessKraidHeadInstruction(state);
                 state.BodyState.Function = KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = 43;
                 body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
@@ -210,7 +210,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Starts the death animation and prepares its room mutation schedule.</summary>
-    internal void InitializeKraidDeath(RoomEnemySlot body, KraidEnemyState state)
+    internal void InitializeKraidDeath(KraidEnemyState state)
     {
         if (state.HurtFrame != 0)
             return;
@@ -236,7 +236,7 @@ internal sealed class KraidDeath
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
     private void RunKraidDeathSink(RoomEnemySlot body, KraidEnemyState state)
     {
-        _ = _head.ProcessKraidHeadInstruction(body, state);
+        _ = _head.ProcessKraidHeadInstruction(state);
         if (--state.DeathSoundTimer == 0)
         {
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);

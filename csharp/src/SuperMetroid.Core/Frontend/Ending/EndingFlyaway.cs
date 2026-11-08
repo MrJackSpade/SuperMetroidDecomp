@@ -15,17 +15,14 @@ internal sealed class EndingFlyaway
     private readonly bool crittersEscaped;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
-    private readonly List<EndingSprite> sprites ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingFlyaway(bool crittersEscaped, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage)
+    internal EndingFlyaway(bool crittersEscaped, EndingScreen screen, EndingStage stage)
     {
         this.crittersEscaped = crittersEscaped;
         this.screen = screen;
-        this.sprites = sprites;
         _stage = stage;
     }
 

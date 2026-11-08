@@ -26,8 +26,8 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
         var unstarted = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
-        Func<RoomEnemySlot, KraidEnemyState, KraidHeadProgramResult> run = unstarted.KraidBehavior.Head.ExecuteKraidHeadInstruction;
-        AssertThrows<InvalidDataException>(() => run(unstarted.SlotTable.Slots[0], new KraidEnemyState()),
+        Func<KraidEnemyState, KraidHeadProgramResult> run = unstarted.KraidBehavior.Head.ExecuteKraidHeadInstruction;
+        AssertThrows<InvalidDataException>(() => run(new KraidEnemyState()),
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
         Console.WriteLine(
@@ -43,11 +43,11 @@ internal static class KraidHeadInstructionsVerification
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            Func<RoomEnemySlot, KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
+            Func<KraidEnemyState, KraidHeadProgramResult> execute = enemies.KraidBehavior.Head.ExecuteKraidHeadInstruction;
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new KraidEnemyState { HeadProgram = record.Cursor };
 
-            KraidHeadProgramResult result = execute(body, state);
+            KraidHeadProgramResult result = execute(state);
             if (record.IsTerminator)
             {
                 AssertEqual(KraidHeadProgramResult.ProgramEnded, result, $"Kraid terminator ${record.Pointer:X4} result");
@@ -88,8 +88,8 @@ internal static class KraidHeadInstructionsVerification
         enemies.KraidBehavior.Access.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
-        var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
+        var glow = new Action<KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
+        var death = new Action<KraidEnemyState>(enemies.KraidBehavior.Death.InitializeKraidDeath);
         var combat = new Action<RoomEnemySlot, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
             enemies.KraidBehavior.RunKraidCombatFunction(combatBody, combatState, cameraX));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -115,17 +115,17 @@ internal static class KraidHeadInstructionsVerification
                 state.BodyState.HeadTimer, "Second-phase roar timer loads only on thinker expiry");
         }
 
-        glow(body, state);
+        glow(state);
         AssertEqual(
             unchecked(KraidHeadAnimations.EyeGlowEntryDuration - 1),
             state.BodyState.HeadTimer, "Eye glow consumes one timer tick on initialization");
         state.HurtFrame = 1;
         state.BodyState.HeadTimer = 999;
-        death(body, state);
+        death(state);
         AssertEqual(999, state.BodyState.HeadTimer,
             "Active hurt frame delays death timer setup");
         state.HurtFrame = 0;
-        death(body, state);
+        death(state);
         AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.BodyState.HeadTimer,
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,

@@ -60,7 +60,6 @@ internal sealed class PhantoonOpening
 
     /// <summary>Waits for the initial flames to finish orbiting before the next phase.</summary>
     internal void RunPhantoonStartingFlameOrbitWait(
-        RoomEnemySlot body,
         PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))

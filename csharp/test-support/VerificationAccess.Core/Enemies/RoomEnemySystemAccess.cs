@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -60,7 +59,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.World;
 
 /// <summary>Verification access to <see cref="RoomEnemySystem"/> members production does not use.</summary>

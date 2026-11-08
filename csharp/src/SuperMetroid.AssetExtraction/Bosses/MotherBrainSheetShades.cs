@@ -1,16 +1,10 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.AssetExtraction.World.RoomStates;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain;

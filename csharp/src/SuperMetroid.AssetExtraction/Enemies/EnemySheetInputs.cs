@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 

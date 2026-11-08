@@ -8,7 +8,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;

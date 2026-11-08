@@ -40,10 +40,10 @@ internal static class EndingPaletteImport
         var colours = new RgbColor[count];
         for (int index = 0; index < count; index++)
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)));
-            if (!RgbColor.IsColorWord(word))
+            int word = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(index * sizeof(ushort)));
+            if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException($"Ending {id} palette color {index} has an unrepresentable high bit.");
-            colours[index] = RgbColor.FromWord(word);
+            colours[index] = RgbColor.FromWord(checked((ushort)word));
         }
         if (count == ScreenColourImage.ColorCount)
             return EndingPaletteRecognition.FromScreen(colours);

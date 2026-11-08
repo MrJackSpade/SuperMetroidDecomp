@@ -22,7 +22,7 @@ internal static class PauseSelectorCompositionsVerification
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
         AssertEqual(0, stock.StoredCompositionOverrideCount, "stock selector has no phase composition table");
         AssertTrue(!stock.StoresCompositionParts, "stock selector stores no sprite part records");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1, PictureShading.Standard), "negative composition phase");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), 0, 0, -1), "negative composition phase");
     }
 
     /// <summary>

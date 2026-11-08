@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;

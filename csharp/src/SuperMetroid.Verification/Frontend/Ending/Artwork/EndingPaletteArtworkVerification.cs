@@ -15,9 +15,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>

@@ -2,7 +2,6 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;

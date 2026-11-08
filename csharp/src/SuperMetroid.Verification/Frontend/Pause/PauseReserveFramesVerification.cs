@@ -49,8 +49,8 @@ internal static class PauseReserveFramesVerification
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
             AssertEqual(false, PauseReserveTankVisualWords.Ordinals.TryDecode(invalid, out _), "unsupported native reserve identity");
         var undefined = (PauseReserveTankVisual)(-1);
-        AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, 0, PictureShading.Standard), "unsupported reserve identity");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1, PictureShading.Standard), "anchor error precedes unknown visual");
+        AssertThrows<InvalidOperationException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, 0), "unsupported reserve identity");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1), "anchor error precedes unknown visual");
     }
 
     /// <summary>Compares each stock reserve part against its native map.</summary>
@@ -96,7 +96,7 @@ internal static class PauseReserveFramesVerification
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
             DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
             SpriteSheet sheet = MenuSheetFixtures.PauseSprites(presentation);
-            presentation.Draw(actual, sheet, PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), index, PictureShading.Standard);
+            presentation.Draw(actual, sheet, PauseReserveTankVisualWords.Ordinals.Decode(frame.Id, "reserve visual"), index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
                 "native reserve frame selection, OAM attributes and ordering");

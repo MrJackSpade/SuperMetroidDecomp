@@ -13,7 +13,6 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;

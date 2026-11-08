@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 

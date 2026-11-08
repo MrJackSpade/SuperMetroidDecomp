@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;

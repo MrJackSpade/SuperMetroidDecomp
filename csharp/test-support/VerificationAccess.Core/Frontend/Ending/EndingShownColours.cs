@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;

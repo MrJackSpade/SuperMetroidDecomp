@@ -1011,7 +1011,7 @@ internal sealed class SamusPoseTransitionPhase
             // residue selects mode two deceleration; exact zero falls through to
             // command two's stopped mode and definition fallback on the next frame.
             samus.HorizontalSpeed.AccelerationMode =
-                samus.HorizontalSpeed.BaseFixed != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
+                samus.HorizontalSpeed.HasBaseSpeed ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
         }
         else if ((frame.PoseAtFrameStart is SamusPoseId.MorphBallMovingRightPose or
                      SamusPoseId.MorphBallMovingLeftPose or

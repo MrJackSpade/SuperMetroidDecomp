@@ -74,6 +74,9 @@ public static class SamusAerialMovement
             (samus.Kinematics.YSpeed.Fraction + samus.HorizontalSpeed.ExtraRunSpeed.Fraction) % PixelFractionSteps);
     }
 
+    /// <summary>How far the spin wall-jump probe looks for a wall behind Samus, in pixels.</summary>
+    private const int WallJumpProbePixels = 8;
+
     /// <summary>The steps of a speed's fraction of a pixel; a fraction sum past them keeps only its remainder.</summary>
     private const int PixelFractionSteps = 65536;
 
@@ -126,7 +129,7 @@ public static class SamusAerialMovement
             SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-            var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: default);
             BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
@@ -134,16 +137,16 @@ public static class SamusAerialMovement
             // Is not an empty Y frame: it applies only the externally produced
             // displacement. Zero returns before collision, positive values gain the
             // downward +1.0 bias, and negative values move upward exactly as supplied.
-            int? externalY = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(
+            SignedSixteenSixteen? externalY = SamusExtraDisplacement.CalculateExtraOnlyVerticalDisplacement(
                 samus.Kinematics);
             BlockMoveResult? vertical = null;
-            if (externalY is int displacement)
+            if (externalY is { } displacement)
             {
                 vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
             }
             return new AerialMovementResult(
-                Landed: externalY >= 0 && vertical is { Collided: true },
-                HitCeiling: externalY < 0 && vertical is { Collided: true });
+                Landed: externalY is { IsNegative: false } && vertical is { Collided: true },
+                HitCeiling: externalY is { IsNegative: true } && vertical is { Collided: true });
         }
 
         ApplyVariableJumpCutoff(samus.Kinematics, controllerInput);
@@ -231,7 +234,7 @@ public static class SamusAerialMovement
             // Stops only base motion when no forward input remains.
             // Dash momentum is intentionally retained for a later direction press/landing.
             ClearBaseHorizontalMotion(speed);
-            calculation = new AerialBaseSpeedResult(0, ReachedMaximum: false);
+            calculation = new AerialBaseSpeedResult(default, ReachedMaximum: false);
         }
         else if (speed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
@@ -392,7 +395,7 @@ public static class SamusAerialMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        uint baseSpeed = speed.CalculateBaseSpeed(movementType);
+        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
         var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
@@ -530,7 +533,7 @@ public static class SamusAerialMovement
             SamusLiquidMedium.Air => SamusStandaloneSpeedRecord.GrappleReleaseAir,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
-        uint baseSpeed = speed.CalculateBaseSpeed(speedRecord);
+        UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(speedRecord);
 
         bool horizontalInput = (controllerInput &
             (ControllerButton.Left | ControllerButton.Right)) != ControllerButton.None;
@@ -540,7 +543,7 @@ public static class SamusAerialMovement
             // Clears both persistent base words and the frame displacement.
             speed.BaseSpeed = default;
             // This branch bypasses the speed calculation; retain the previous total-speed pair.
-            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new HorizontalBlockMove { Displacement = 0 });
+            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.Zero });
         }
         else
         {
@@ -636,32 +639,26 @@ public static class SamusAerialMovement
         // Snapshots the OLD speed into displacement before changing the stored
         // velocity. A newly initialized zero-speed fall therefore moves zero pixels on its
         // first handler call even though gravity has already accumulated for next frame.
-        uint oldSpeed = state.VerticalSpeedFixed;
+        UnsignedSixteenSixteen oldSpeed = state.YSpeed;
         if (state.YDirection == SamusVerticalDirection.Down)
         {
             // Tests equality with whole speed five. Values above five are not
             // clamped; preserving that oddity matters for externally scripted velocities.
             if (state.YSpeed.Whole != 5)
-            {
-                SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed + SixteenSixteen.Compose(
-                    state.YAcceleration.Whole,
-                    state.YAcceleration.Fraction)));
-            }
+                state.YSpeed += state.YAcceleration;
         }
         else
         {
-            SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed - SixteenSixteen.Compose(
-                state.YAcceleration.Whole,
-                state.YAcceleration.Fraction)));
+            state.YSpeed -= state.YAcceleration;
         }
 
-        int displacement = state.YDirection == SamusVerticalDirection.Down
-            ? unchecked((int)oldSpeed)
-            : unchecked(-(int)oldSpeed);
+        SignedSixteenSixteen displacement = state.YDirection == SamusVerticalDirection.Down
+            ? oldSpeed.AsDisplacement()
+            : -oldSpeed.AsDisplacement();
         displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             displacement);
-        downwardDisplacement = displacement >= 0;
+        downwardDisplacement = !displacement.IsNegative;
         BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
 
         // (down) and the upward mover (up) publish this word after every move. A
@@ -680,7 +677,7 @@ public static class SamusAerialMovement
                 : SamusVerticalCollisionResult.None;
         }
 
-        hitCeiling = displacement < 0 && vertical.Collided;
+        hitCeiling = displacement.IsNegative && vertical.Collided;
         if (hitCeiling && ceilingResponse != SamusCeilingResponse.Deferred)
         {
             // Ordinary handlers consume the ceiling collision as a jump stop. A turn
@@ -741,7 +738,7 @@ public static class SamusAerialMovement
         // Test Left first and probe RIGHT; the mirror Right chord probes
         // LEFT. That counter-intuitive direction is deliberate: the button points away from
         // the wall behind the newly facing spin pose.
-        int requested = heldLeft ? 8 << 16 : -(8 << 16);
+        SignedSixteenSixteen requested = SignedSixteenSixteen.FromParts(heldLeft ? WallJumpProbePixels : -WallJumpProbePixels, 0);
         BlockMoveResult probe = SamusBlockCollision.ProbeWallHorizontal(
 
             level,
@@ -836,12 +833,6 @@ public static class SamusAerialMovement
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
-    }
-
-    /// <summary>Splits a 16.16 vertical magnitude back into Samus's independent words.</summary>
-    private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
-    {
-        state.YSpeed = UnsignedSixteenSixteen.FromRaw(speed);
     }
 
 }

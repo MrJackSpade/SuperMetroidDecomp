@@ -336,7 +336,7 @@ internal static class GModeGateGlitchVerification
             RoomLevelData controlLevel = CreateLevel();
             var controlObjects = RoomObjectFixtures.Unbound();
             SamusState controlSamus = CreateSamus();
-            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = controlLevel, RoomObjects = controlObjects }, controlSamus.Kinematics, controlSamus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = controlLevel, RoomObjects = controlObjects }, controlSamus.Kinematics, controlSamus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(4 << 16), ScanLeftToRight = true });
             AssertTrue(control.Collided,
                 $"available PLM allocation retains ordinary solid contact for {description}");
 
@@ -345,7 +345,7 @@ internal static class GModeGateGlitchVerification
             FillSuspendedObjectPool(roomObjects);
             SamusState samus = CreateSamus();
 
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(4 << 16), ScanLeftToRight = true });
             AssertEqual(expectedPass, !result.Collided,
                 $"full PLM pool gives cartridge default collision for {description}");
             AssertEqual(collisionType,

@@ -41,7 +41,7 @@ internal static class IntroSamusDemoMovement
             {
                 // Running deceleration preserves the running pose and consults
                 // definition byte two only once both base-speed halves reach exact zero.
-                fallback = samus.HorizontalSpeed.BaseFixed != 0
+                fallback = samus.HorizontalSpeed.HasBaseSpeed
                     ? samus.Pose
                     : SamusPoseMetadata.ReadNoInputFallbackPose(samus);
             }
@@ -108,7 +108,7 @@ internal static class IntroSamusDemoMovement
             // Momentum command one rechecks speed after beta movement. A remaining residue
             // selects deceleration mode two; exact zero lets next frame choose standing.
             samus.HorizontalSpeed.AccelerationMode =
-                samus.HorizontalSpeed.BaseFixed != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
+                samus.HorizontalSpeed.HasBaseSpeed ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
         }
         else if (fallback is { } fallbackPose)
         {

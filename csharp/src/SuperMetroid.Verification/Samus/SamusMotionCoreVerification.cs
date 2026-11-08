@@ -128,15 +128,15 @@ internal static void VerifySamusHorizontalSpeed()
     // Four acceleration calls produce 0.C000 exactly. Fifteen calls would reach 2.D000,
     // so the native quirked comparison clamps that result down to the table's 2.C000 cap.
     StepFrames(4, _ => speed.CalculateBaseSpeed(movementType: SamusMovementType.Running));
-    AssertEqual(0x0000c000u, speed.BaseFixed, "running acceleration after four calls");
+    AssertEqual(0x0000c000u, speed.BaseSpeed.RawValue, "running acceleration after four calls");
     StepFrames(11, _ => speed.CalculateBaseSpeed(movementType: SamusMovementType.Running));
-    AssertEqual(0x0002c000u, speed.BaseFixed, "running acceleration clamps at 2.C000");
+    AssertEqual(0x0002c000u, speed.BaseSpeed.RawValue, "running acceleration clamps at 2.C000");
 
     // Deceleration subtracts 0.8000 per call. Crossing below zero makes the signed high
     // word negative, clearing both halves and restoring acceleration mode zero.
     speed.AccelerationMode = SamusAccelerationMode.Decelerating;
     StepFrames(6, _ => speed.CalculateBaseSpeed(movementType: SamusMovementType.Running));
-    AssertEqual(0u, speed.BaseFixed, "running deceleration underflow clears speed");
+    AssertEqual(0u, speed.BaseSpeed.RawValue, "running deceleration underflow clears speed");
     AssertEqual(SamusAccelerationMode.Accelerating, speed.AccelerationMode, "running deceleration restores acceleration mode");
 
     // `$90:973E` adds the literal no-booster 0.1000 pair once per running+B frame. The
@@ -436,17 +436,17 @@ internal static void VerifySamusHorizontalSpeed()
     // that shift; 2.0 + 2.0 therefore becomes 0.4000 when the largest divisor, five, is stored.
     speed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0);
     speed.SpeedDivisor = SamusHorizontalSpeedState.LargestSpeedDivisor;
-    AssertEqual(0x00004000u, speed.CalculateTotalSpeed(0x00020000), "total speed divisor caps at four");
+    AssertEqual(0x00004000u, speed.CalculateTotalSpeed(UnsignedSixteenSixteen.FromRaw(0x00020000)).RawValue, "total speed divisor caps at four");
     AssertEqual(0x4000, speed.TotalSpeed.Fraction, "total subspeed publication");
 
     // The displacement clamp replaces only the signed whole word and preserves the low
     // fraction. These deliberately oversized values catch a tempting floating-point clamp.
     speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(0);
     speed.SpeedDivisor = 0;
-    AssertEqual(0x000f1234, speed.CalculateRightDisplacement(0x00101234), "right displacement +15 clamp");
+    AssertEqual(0x000f1234, speed.CalculateRightDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234)).RawValue, "right displacement +15 clamp");
     // Negation happens before clamping, so 0 - $0010:1234 is $FFEF:EDCC. The clamp
     // replaces only its high word, producing $FFF1:EDCC rather than mirroring $1234.
-    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(0x00101234), "left displacement -15 clamp");
+    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234)).RawValue, "left displacement -15 clamp");
 
     Console.WriteLine("  Samus speed: acceleration, deceleration, submerged palette gate, boost departure echoes, divisor, and clamp agree.");
 }

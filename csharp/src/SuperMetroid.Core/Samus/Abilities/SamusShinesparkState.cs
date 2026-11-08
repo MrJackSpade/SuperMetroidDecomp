@@ -1038,18 +1038,13 @@ false,             CrashSequenceFinished: true);
         ISamusRoomObjects? roomObjects)
     {
         ShineTimer = 15;
-        uint accelerated = unchecked(SixteenSixteen.Compose(
-            samus.HorizontalSpeed.ExtraRunSpeed.Whole,
-            samus.HorizontalSpeed.ExtraRunSpeed.Fraction) + SixteenSixteen.Compose(
-                samus.Kinematics.YAcceleration.Whole,
-                samus.Kinematics.YAcceleration.Fraction));
-        samus.HorizontalSpeed.ExtraRunSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
+        samus.HorizontalSpeed.ExtraRunSpeed += samus.Kinematics.YAcceleration;
         if (samus.HorizontalSpeed.ExtraRunSpeed.Whole >= 15)
         {
             samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(15, 0);
         }
 
-        var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: 0);
+        var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
         return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
@@ -1062,43 +1057,37 @@ false,             CrashSequenceFinished: true);
         ISamusRoomObjects? roomObjects)
     {
         ShineTimer = 15;
-        VerticalAcceleration += SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteen.Compose(
-            samus.Kinematics.YAcceleration.Whole,
-            samus.Kinematics.YAcceleration.Fraction)));
-        uint acceleration = unchecked((uint)VerticalAcceleration.RawValue);
-
-        uint speed = unchecked(SixteenSixteen.Compose(
-            samus.Kinematics.YSpeed.Whole,
-            samus.Kinematics.YSpeed.Fraction) + acceleration);
-        samus.Kinematics.YSpeed = UnsignedSixteenSixteen.FromRaw(speed);
+        VerticalAcceleration += samus.Kinematics.YAcceleration.AsDisplacement();
+        samus.Kinematics.YSpeed += VerticalAcceleration;
 
         // The clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the speed even after movement reaches its cap.
-        uint displacementSpeed = samus.Kinematics.YSpeed.Whole >= 14
-            ? SixteenSixteen.Compose(14, samus.Kinematics.YSpeed.Fraction)
-            : speed;
-        int upwardDisplacement = unchecked(-(int)displacementSpeed);
-        upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
+        UnsignedSixteenSixteen displacementSpeed = samus.Kinematics.YSpeed.Whole >= 14
+            ? samus.Kinematics.YSpeed.WithWhole(14)
+            : samus.Kinematics.YSpeed;
+        SignedSixteenSixteen upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             samus.Kinematics,
-            upwardDisplacement);
+            -displacementSpeed.AsDisplacement());
 
         // The upward move temporarily negates the signed result, clamps only a positive
         // upward magnitude at 15 whole pixels while preserving its fraction, then negates
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
-        int collisionMagnitude = unchecked(-upwardDisplacement);
-        int collisionMagnitudeWhole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(collisionMagnitude));
-        if (CoordinateAxis.Difference(collisionMagnitudeWhole, 15) >= 0)
+        // The cap test is the sign of the whole pixels' difference from fifteen, which wraps for a magnitude more
+        // than 32753 pixels upward or downward, as the game's word comparison does.
+        SignedSixteenSixteen collisionMagnitude = -upwardDisplacement;
+        if (CoordinateAxis.Difference(collisionMagnitude.WholePixels, 15) >= 0)
         {
-            collisionMagnitude = SignedSixteenSixteen.FromParts(15, SixteenSixteen.FractionOf(collisionMagnitude)).RawValue;
-            upwardDisplacement = unchecked(-collisionMagnitude);
+            collisionMagnitude = SignedSixteenSixteen.FromParts(15, collisionMagnitude.Fraction);
+            upwardDisplacement = -collisionMagnitude;
         }
         // Shinespark's solid-enemy branch sets collision and returns without
         // adding the clipped distance to Y. The ordinary upward mover instead advances
         // to the enemy boundary; using it here shifts the entire crash/recovery anchor.
+        UnsignedSixteenSixteen enemyProbeDistance = UnsignedSixteenSixteen.FromDisplacement(collisionMagnitude);
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
             samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,
-            FixedCoordinate.WholeOf(collisionMagnitude), SixteenSixteen.FractionOf(collisionMagnitude));
+            enemyProbeDistance.Whole, enemyProbeDistance.Fraction);
         samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemySlot);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);

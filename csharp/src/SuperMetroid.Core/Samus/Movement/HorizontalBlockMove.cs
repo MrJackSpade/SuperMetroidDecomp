@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>One horizontal block move: the displacement and which collision side effects it publishes (#633).</summary>
 public sealed record HorizontalBlockMove
 {
-    /// <summary>Signed horizontal displacement in 16.16 pixel units; negative moves left and nonnegative selects the right entry.</summary>
-    public required int Displacement { get; init; }
+    /// <summary>Signed horizontal displacement; negative moves left and nonnegative selects the right entry.</summary>
+    public required SignedSixteenSixteen Displacement { get; init; }
 
     /// <summary>Explicit permission to break supported collision-bomb blocks in addition to pose and momentum checks.</summary>
     public bool CanBreakBombBlocks { get; init; } = false;

@@ -254,7 +254,7 @@ internal static class RidleyFullMovieVerification
             };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-            samus.HorizontalSpeed.CalculateTotalSpeed(0x00054321);
+            samus.HorizontalSpeed.CalculateTotalSpeed(UnsignedSixteenSixteen.FromRaw(0x00054321));
             samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(branch == 3 ? (ushort)0 : (ushort)5);
             if (branch == 0) SamusAerialMovement.StepNormalJump(room, samus, 0, 0);
             else if (branch == 1) SamusAerialMovement.StepFalling(room, samus, 0, 0);
@@ -509,7 +509,7 @@ internal static class RidleyFullMovieVerification
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "spring release retains native final displacement");
         AssertEqual(SamusPoseId.SpringBallGroundLeftPose, samus.Pose, "spring release selects stationary pose immediately");
-        AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "spring release clears base momentum after movement");
+        AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "spring release clears base momentum after movement");
         AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "released spring ball stays stopped next update");
@@ -524,7 +524,7 @@ internal static class RidleyFullMovieVerification
         samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(5); samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(0);
         runtime.StepFrame(0);
         AssertEqual(0x00cb4000u, samus.Kinematics.Position.X.RawValue, "stationary spring hurt frame preserves native displacement");
-        AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "stationary spring fallback clears hurt mover base speed");
+        AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "stationary spring fallback clears hurt mover base speed");
         AssertEqual(SamusPoseId.SpringBallGroundRightPose, samus.Pose, "stationary spring hurt fallback keeps pose");
         Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
     }

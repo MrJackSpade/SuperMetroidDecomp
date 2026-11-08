@@ -100,14 +100,14 @@ level, samus, frameCounter: 0, controllerInput: 0);
     for (ushort frame = 0; frame < 4; frame++)
         SamusGroundedMovement.StepRunning(level, samus, frame);
     AssertTrue(samus.Position.X.Whole > rightXBefore, "right aimed run moves right");
-    uint rightRunSpeed = samus.HorizontalSpeed.BaseFixed;
+    uint rightRunSpeed = samus.HorizontalSpeed.BaseSpeed.RawValue;
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.RunningAimDiagonalDownRightPose);
-    AssertEqual(rightRunSpeed, samus.HorizontalSpeed.BaseFixed, "right running aim change preserves speed");
+    AssertEqual(rightRunSpeed, samus.HorizontalSpeed.BaseSpeed.RawValue, "right running aim change preserves speed");
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.RunningAimUpRightPose);
     SamusGroundedMovement.StepRunning(level, samus, frameCounter: 1);
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.StandingAimUpRightPose);
     SamusGroundedMovement.StepStanding(level, samus, frameCounter: 0, controllerInput: 0);
-    AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "right aimed running-to-standing cleanup");
+    AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "right aimed running-to-standing cleanup");
 
     // Install left-facing normal through a fresh state so the transition helper never
     // crosses families; native left records are an independent mirrored family.
@@ -139,14 +139,14 @@ level, leftSamus, frameCounter: 1, controllerInput: 0);
     for (ushort frame = 0; frame < 4; frame++)
         SamusGroundedMovement.StepRunning(level, leftSamus, frame);
     AssertTrue(leftSamus.Position.X.Whole < leftXBefore, "left aimed run moves left");
-    uint leftRunSpeed = leftSamus.HorizontalSpeed.BaseFixed;
+    uint leftRunSpeed = leftSamus.HorizontalSpeed.BaseSpeed.RawValue;
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimDiagonalDownLeftPose);
-    AssertEqual(leftRunSpeed, leftSamus.HorizontalSpeed.BaseFixed, "left running aim change preserves speed");
+    AssertEqual(leftRunSpeed, leftSamus.HorizontalSpeed.BaseSpeed.RawValue, "left running aim change preserves speed");
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimUpLeftPose);
     SamusGroundedMovement.StepRunning(level, leftSamus, frameCounter: 0);
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.StandingAimUpLeftPose);
     SamusGroundedMovement.StepStanding(level, leftSamus, frameCounter: 1, controllerInput: 0);
-    AssertEqual(0u, leftSamus.HorizontalSpeed.BaseFixed, "left aimed running-to-standing cleanup");
+    AssertEqual(0u, leftSamus.HorizontalSpeed.BaseSpeed.RawValue, "left aimed running-to-standing cleanup");
 
     AssertThrows<InvalidOperationException>(
         () => SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, 
@@ -356,7 +356,7 @@ level, samus, ControllerButton.A, unchecked((ushort)index));
     AssertEqual(21, compactFall.Kinematics.Radius.Y, "the next alpha publishes the landing radius");
     AssertEqual(0u, compactFall.Kinematics.VerticalSpeedFixed, "compact landing clears vertical speed");
     AssertEqual(SamusVerticalDirection.None, compactFall.Kinematics.YDirection, "compact landing clears vertical direction");
-    AssertEqual(0u, compactFall.HorizontalSpeed.BaseFixed, "compact landing clears horizontal speed");
+    AssertEqual(0u, compactFall.HorizontalSpeed.BaseSpeed.RawValue, "compact landing clears horizontal speed");
 
     // Issue #27's slot-zero capture lands radius-ten `$2D` exactly on the boundary between
     // the solid and air quadrants of two square half-blocks, then expands to radius 21.
@@ -653,7 +653,7 @@ internal static void VerifySamusGunExtendedMovement()
             $"{facing} forward-jump release restarts target animation");
         AssertEqual(0x00034567u, releasedForwardJump.Kinematics.VerticalSpeedFixed,
             $"{facing} forward-jump release preserves vertical velocity");
-        AssertEqual(0x000289abu, releasedForwardJump.HorizontalSpeed.BaseFixed,
+        AssertEqual(0x000289abu, releasedForwardJump.HorizontalSpeed.BaseSpeed.RawValue,
             $"{facing} forward-jump release preserves horizontal velocity");
         AssertEqual(SamusVerticalDirection.Up, releasedForwardJump.Kinematics.YDirection,
             $"{facing} forward-jump release preserves vertical direction");
@@ -703,7 +703,7 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(SamusPoseId.FiringLandingRightPose, falling.Pose, "held Shot selects firing landing $E6");
     AssertEqual(21, falling.Kinematics.Radius.Y, "firing landing expands to standing radius");
     AssertEqual(0u, falling.Kinematics.VerticalSpeedFixed, "firing landing clears Y speed");
-    AssertEqual(0u, falling.HorizontalSpeed.BaseFixed, "firing landing clears X speed");
+    AssertEqual(0u, falling.HorizontalSpeed.BaseSpeed.RawValue, "firing landing clears X speed");
     // $E6 shares the native 05,02,F8,01 landing program: its F8 command
     // follows seven animation ticks, independent of held-Shot selection.
     for (int tick = 0; tick < 7; tick++)

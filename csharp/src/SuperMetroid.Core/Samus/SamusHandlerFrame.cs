@@ -125,7 +125,7 @@ internal sealed class SamusHandlerFrame
     internal void SamplePoseLookup(SamusPoseTransitionLookup lookup, SamusState samus)
     {
         UsePoseDefinitionFallback = lookup.UsesPoseDefinitionFallback;
-        DeceleratingFallbackHasMomentum = samus.HorizontalSpeed.BaseFixed != 0;
+        DeceleratingFallbackHasMomentum = samus.HorizontalSpeed.HasBaseSpeed;
     }
 
     /// <summary>Samples whether Samus movement is enabled as alpha's head finishes.</summary>

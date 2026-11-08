@@ -115,7 +115,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
     aerialSpeed.SelectNormalAirSpeedTable();
     AerialBaseSpeedResult accelerated =
         aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.NormalJumping);
-    AssertEqual(0x0000c000u, accelerated.Speed, "aerial mode two uses native normal-jump acceleration");
+    AssertEqual(0x0000c000u, accelerated.Speed.RawValue, "aerial mode two uses native normal-jump acceleration");
     AssertTrue(!accelerated.ReachedMaximum, "aerial sub-cap call clears carry");
 
     // Mirror the launch through the left-facing spin-jump route. This checks that mode two
@@ -320,8 +320,8 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1))),
                         Position = new(new(x, 0), new(36, 0)),
                         Radius = new(12, 12),
                     };
-                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom }, leftToRight, null, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = true });
-                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom }, rightToLeft, null, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = false });
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom }, leftToRight, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(1 << 16), ScanLeftToRight = true });
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom }, rightToLeft, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(1 << 16), ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
                     AssertEqual(ltr.AcceptedDisplacement, rtl.AcceptedDisplacement,

@@ -59,7 +59,7 @@ public static class SamusBombJumpMovement
             // The bomb jump bypasses the normal movement-type pointer and feeds its own speed table
             // directly to the deceleration-allowed calculator. Direction one is left;
             // direction three is right. Existing base words intentionally participate.
-            uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
+            UnsignedSixteenSixteen baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
                 SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == SamusBombJumpDirection.Left, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
@@ -120,13 +120,11 @@ public static class SamusBombJumpMovement
         ISamusRoomObjects roomObjects)
     {
         SamusKinematicsState state = samus.Kinematics;
-        uint oldSpeed = state.VerticalSpeedFixed;
-        uint acceleration = state.YAcceleration.RawValue;
-        uint nextSpeed = unchecked(oldSpeed - acceleration);
-        state.YSpeed = UnsignedSixteenSixteen.FromRaw(nextSpeed);
-        int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
+        UnsignedSixteenSixteen oldSpeed = state.YSpeed;
+        state.YSpeed = oldSpeed - state.YAcceleration;
+        SignedSixteenSixteen displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
-            unchecked(-(int)oldSpeed));
+            -oldSpeed.AsDisplacement());
         BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
         if (result.Collided)
         {
@@ -134,7 +132,7 @@ public static class SamusBombJumpMovement
             state.YDirection = SamusVerticalDirection.Down;
         }
         // A non-negative displacement, including the apex's zero, moves Samus down.
-        return new BombJumpRise(result, displacement >= 0);
+        return new BombJumpRise(result, !displacement.IsNegative);
     }
 
     /// <summary>Clears bomb-jump direction, handler, and pose-input latches before normal movement resumes.</summary>

@@ -25,7 +25,7 @@ internal static class KnockbackHorizontalStopVerification
             SamusKnockbackMovement.Step(level, samus, 0);
             AssertTrue(Math.Abs(unchecked((int)(samus.Kinematics.Position.X.RawValue - clippedBefore))) < 98304,
                 "knockback encounters nearby solid enemy and is clipped short of its 1.5-pixel move");
-            AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "clipped knockback clears base momentum immediately");
+            AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "clipped knockback clears base momentum immediately");
             AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "clipped knockback clears extra whole momentum");
             AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "clipped knockback clears extra fractional momentum");
             samus.Kinematics.InteractiveEnemies = [];

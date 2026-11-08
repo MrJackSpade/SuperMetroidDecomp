@@ -114,7 +114,7 @@ internal static class SamusHorizontalSpeedStateAccess
         {
             foreach ((SamusStandaloneSpeedRecord record, int recordAddress) in StandaloneAddresses)
                 if (recordAddress == address)
-                    return self.CalculateBaseSpeed(record);
+                    return self.CalculateBaseSpeed(record).RawValue;
             throw new InvalidDataException($"Samus horizontal speed entry ${address:X6} is not an authored standalone record.");
         }
     }

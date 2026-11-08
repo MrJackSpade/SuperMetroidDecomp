@@ -105,6 +105,9 @@ public static class SamusGrappleMovement
         grapple.Anchor = samus.Position.Whole + grapple.OriginOffset;
     }
 
+    /// <summary>How far the grapple wall-jump probe looks for a wall toward the side Samus faces, in pixels.</summary>
+    private const int WallJumpProbePixels = 16;
+
     /// <summary>The 16.16 steps of a quarter of one 8.8 velocity step: an 8.8 velocity's quarter is the velocity times this.</summary>
     private const int QuarterOfVelocityStep = 64;
 
@@ -562,9 +565,8 @@ public static class SamusGrappleMovement
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's direction byte. The shared probe preserves
         // square slopes, behaviour dispatch, available distance, and enemy identity.
-        int signedProbe = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
-            ? -(16 << 16)
-            : 16 << 16;
+        SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromParts(
+            SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -WallJumpProbePixels : WallJumpProbePixels, 0);
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
 
             level,

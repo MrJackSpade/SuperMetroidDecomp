@@ -11,15 +11,15 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// a move left from the displacement's sign (zero is not negative, so it moves
 /// right), while their unconditional solid-enemy probe reads the stored direction.
 /// </remarks>
-public readonly record struct SamusHorizontalDisplacement(int Displacement, SamusCollisionDirection CollisionDirection)
+public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen Displacement, SamusCollisionDirection CollisionDirection)
 {
     /// <summary>
     /// Displacement from a base speed plus extra X displacement by an already-decided direction: the
     /// leftward calculator or the rightward one.
     /// </summary>
-    public static SamusHorizontalDisplacement Toward(bool left, SamusState samus, uint baseSpeed)
+    public static SamusHorizontalDisplacement Toward(bool left, SamusState samus, UnsignedSixteenSixteen baseSpeed)
     {
-        int extraDisplacement = samus.Kinematics.ExtraDisplacement.X.RawValue;
+        SignedSixteenSixteen extraDisplacement = samus.Kinematics.ExtraDisplacement.X;
         return left
             ? new(samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed, extraDisplacement), SamusCollisionDirection.Left)
             : new(samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed, extraDisplacement), SamusCollisionDirection.Right);
@@ -30,7 +30,7 @@ public readonly record struct SamusHorizontalDisplacement(int Displacement, Samu
     /// X direction; any other word value (normally mode one, turning) reverses it. The game
     /// compares rather than validating the mode, so every value is handled this way.
     /// </summary>
-    public static SamusHorizontalDisplacement ForPoseDirection(SamusState samus, uint baseSpeed)
+    public static SamusHorizontalDisplacement ForPoseDirection(SamusState samus, UnsignedSixteenSixteen baseSpeed)
     {
         SamusFacingDirection facing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool reversePoseDirection = samus.HorizontalSpeed.AccelerationMode is not (SamusAccelerationMode.Accelerating or SamusAccelerationMode.Decelerating);

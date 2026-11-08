@@ -24,7 +24,7 @@ internal static class FallingSpeedRecurrenceVerification
             SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseId.FallingLeftPose);
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating,
                 samus.HorizontalSpeed.AccelerationMode, "fall entry selects acceleration mode from extra speed");
-            AssertEqual(0x2c000u, samus.HorizontalSpeed.BaseFixed, "fall entry does not clamp base speed");
+            AssertEqual(0x2c000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "fall entry does not clamp base speed");
             AssertEqual(extraWhole, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "fall entry preserves whole dash component");
             AssertEqual(extraFraction, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "fall entry preserves fractional dash component");
         }
@@ -40,8 +40,8 @@ internal static class FallingSpeedRecurrenceVerification
             {
                 uint expected = (frame & 1) == 0 ? 0x10000u : 0x1c000u;
                 var result = speed.CalculateBaseSpeedDecelerationDisallowed(SamusMovementType.Falling);
-                AssertEqual(expected, result.Speed, $"retail falling speed medium={medium} frame={frame}");
-                AssertEqual(expected, speed.BaseFixed, "falling speed persists the CPU-observed recurrence");
+                AssertEqual(expected, result.Speed.RawValue, $"retail falling speed medium={medium} frame={frame}");
+                AssertEqual(expected, speed.BaseSpeed.RawValue, "falling speed persists the CPU-observed recurrence");
                 AssertEqual(SamusAccelerationMode.Decelerating, speed.AccelerationMode, "aerial decelerating mode is kept by the falling recurrence");
             }
         }

@@ -46,7 +46,7 @@ public static class SamusMovementDefinitions
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion
     {
-        /// <summary>Per-frame 16.16 extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>
-        public const uint ExtraRunAcceleration = 4096u;
+        /// <summary>Per-frame extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>
+        public static readonly UnsignedSixteenSixteen ExtraRunAcceleration = UnsignedSixteenSixteen.FromSixteenthsOfPixel(1);
     }
 }

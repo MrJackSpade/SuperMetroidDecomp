@@ -104,9 +104,9 @@ public sealed class MaridiaElevatubeRoomMainState
         // Stores the whole and fractional X words separately every frame.
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
-        int displacement = SixteenSixteen.FromEightEight(Velocity.SignedRawValue);
+        SignedSixteenSixteen displacement = Velocity.ToSixteenSixteenDelta();
         FixedCoordinate tracked = new FixedCoordinate(TrackedPosition.Y, TrackedFraction)
-            .MovedBy(SignedSixteenSixteen.FromRaw(displacement));
+            .MovedBy(displacement);
         TrackedPosition = new(0, tracked.Whole);
         TrackedFraction = tracked.Fraction;
         carryover.LeaveFraction(TrackedFraction);

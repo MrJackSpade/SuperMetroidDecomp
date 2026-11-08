@@ -48,9 +48,7 @@ internal static class SamusGroundedPoseTransitions
     internal static void FoldExtraRunSpeedIntoBaseAndStartTurn(SamusState samus)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        uint combinedSpeed = unchecked(speed.BaseFixed +
-            speed.ExtraRunSpeed.RawValue);
-        speed.BaseSpeed = UnsignedSixteenSixteen.FromRaw(combinedSpeed);
+        speed.BaseSpeed += speed.ExtraRunSpeed;
         speed.ExtraRunSpeed = default;
         speed.AccelerationMode = SamusAccelerationMode.Turning;
     }
@@ -196,9 +194,7 @@ internal static class SamusGroundedPoseTransitions
                 return SelectRanIntoWallPose(target);
         }
 
-        int onePixelForward = facingLeft
-            ? -(1 << 16)
-            : 1 << 16;
+        SignedSixteenSixteen onePixelForward = SignedSixteenSixteen.FromParts(facingLeft ? -1 : 1, 0);
         onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(target)
@@ -578,9 +574,7 @@ internal static class SamusGroundedPoseTransitions
         // Folds the run-button/speed-booster component into base speed
         // with two independent 16-bit ADCs and their carry. Use one wrapping 16.16 add to
         // preserve exactly that pair of operations, including overflow at the high word.
-        uint combinedSpeed = unchecked(speed.BaseFixed +
-            speed.ExtraRunSpeed.RawValue);
-        speed.BaseSpeed = UnsignedSixteenSixteen.FromRaw(combinedSpeed);
+        speed.BaseSpeed += speed.ExtraRunSpeed;
 
         // The handler consumes the extra component and selects acceleration mode
         // one. The direction selector interprets that mode as “move opposite the NEW facing direction”

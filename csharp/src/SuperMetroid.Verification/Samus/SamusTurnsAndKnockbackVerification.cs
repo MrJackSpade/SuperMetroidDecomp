@@ -88,7 +88,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         {
             Position = new(new(x, 0x4321), new(48, 0x1234)), Radius = new(5, 5),
         };
-        var result = SamusBlockCollision.ProbeWallHorizontal(level, probeState, null, SixteenSixteen.FromWhole(distance));
+        var result = SamusBlockCollision.ProbeWallHorizontal(level, probeState, null, SignedSixteenSixteen.FromParts(distance, 0));
         AssertEqual(hit, result.Collided, "wall probe detects the constructed wall");
         AssertEqual(x, probeState.Position.X.Whole, "wall probe preserves whole-pixel X");
         AssertEqual(fraction, probeState.Position.X.Fraction, "wall probe preserves native fractional write");
@@ -144,7 +144,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             SamusAerialPoseTransitions.TryApplyAerialTurn(samus, level, genericTarget, frameCounter: 0),
             $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
-        AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseFixed, "aerial selector folds extra speed");
+        AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "aerial selector folds extra speed");
         AssertEqual(SamusAccelerationMode.Turning, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
     }
 
@@ -202,7 +202,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new SharedRandom() });
         AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(endpoint), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? SamusAccelerationMode.Accelerating : SamusAccelerationMode.Decelerating, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
-        AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
+        AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseSpeed.RawValue, "turn endpoint retains base speed");
         AssertEqual(FixedCoordinate.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
         AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSpeed.Fraction, "turn endpoint retains fractional dash speed");
 
@@ -214,7 +214,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         AssertEqual(SamusAccelerationMode.Accelerating, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer.RawValue, "released turn does not restart animation");
-        AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "released turn retains base speed until next movement");
+        AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseSpeed.RawValue, "released turn retains base speed until next movement");
 
         var lavaEndpoint = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
         lavaEndpoint.LiquidPhysics.ConfigureLavaAcid(8);

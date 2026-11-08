@@ -27,7 +27,7 @@ public static class SamusBlockCollision
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
-        int signedDistance,
+        SignedSixteenSixteen signedDistance,
         ISamusRoomObjects? roomObjects = null)
     {
         Ensure.NotNull(state);
@@ -78,7 +78,7 @@ public static class SamusBlockCollision
             storedDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
             throw new ArgumentOutOfRangeException(nameof(move.CollisionMovementDirection));
 
-        int acceptedDisplacement = move.Displacement;
+        int acceptedDisplacement = move.Displacement.RawValue;
         bool collided = false;
         SolidEnemyCollisionResult? enemyCollision = null;
         RoomCollisionBlock? collisionBlock = null;
@@ -89,21 +89,19 @@ public static class SamusBlockCollision
             // Presents enemy collision with an unsigned magnitude even though the
             // managed block mover receives signed 16.16 displacement. Preserve both halves:
             // enemy clipping clears the fractional half only when it actually collides.
-            uint magnitude = acceptedDisplacement < 0
-                ? unchecked((uint)(-acceptedDisplacement))
-                : unchecked((uint)acceptedDisplacement);
+            UnsignedSixteenSixteen magnitude = move.Displacement.Magnitude();
             // The sign of the requested distance selects the entry: zero is not negative and enters right.
             // The probe itself reads the calculator's stored direction, so a zero move
             // still detects tangency (and clears fractional Y) in the facing direction.
-            bool entersLeft = acceptedDisplacement < 0;
+            bool entersLeft = move.Displacement.IsNegative;
             SamusCollisionDirection direction = move.CollisionMovementDirection ??
                 (entersLeft ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
             SolidEnemyCollisionResult probe = SamusSolidEnemyCollision.Probe(
                 state,
                 state.InteractiveEnemies,
                 direction,
-                FixedCoordinate.WholeOf(unchecked((int)magnitude)),
-                (int)SixteenSixteen.FractionOf(magnitude));
+                magnitude.Whole,
+                magnitude.Fraction);
             state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
@@ -357,7 +355,7 @@ public static class SamusBlockCollision
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
             move.AlignToSlopeAfterMovement)
             mover.ProjectileInheritance.Record(
-                move.Displacement < 0 ? HorizontalDirection.Left : HorizontalDirection.Right,
+                move.Displacement.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right,
                 SignedSixteenSixteen.FromRaw(acceptedDisplacement));
 
         // Align Y to whole pixels after both collision and non-collision paths.
@@ -391,7 +389,7 @@ public static class SamusBlockCollision
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
-        int acceptedDisplacement = move.Displacement;
+        int acceptedDisplacement = move.Displacement.RawValue;
         bool collided = false;
         bool sandContact = false;
         SolidEnemyCollisionResult? enemyCollision = null;
@@ -408,18 +406,16 @@ public static class SamusBlockCollision
         if (move.IncludeSolidEnemies && state.InteractiveEnemies.Count != 0)
         {
             // Uses the same unsigned whole-and-fraction distance magnitude contract as X.
-            uint magnitude = acceptedDisplacement < 0
-                ? unchecked((uint)(-acceptedDisplacement))
-                : unchecked((uint)acceptedDisplacement);
-            SamusCollisionDirection direction = acceptedDisplacement < 0
+            UnsignedSixteenSixteen magnitude = move.Displacement.Magnitude();
+            SamusCollisionDirection direction = move.Displacement.IsNegative
                 ? SamusCollisionDirection.Up
                 : SamusCollisionDirection.Down;
             SolidEnemyCollisionResult probe = SamusSolidEnemyCollision.Probe(
                 state,
                 state.InteractiveEnemies,
                 direction,
-                FixedCoordinate.WholeOf(unchecked((int)magnitude)),
-                (int)SixteenSixteen.FractionOf(magnitude));
+                magnitude.Whole,
+                magnitude.Fraction);
             state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
@@ -451,7 +447,7 @@ public static class SamusBlockCollision
         if (owner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe)
             mover.ProjectileInheritance.Record(
-                move.Displacement < 0 ? VerticalDirection.Up : VerticalDirection.Down,
+                move.Displacement.IsNegative ? VerticalDirection.Up : VerticalDirection.Down,
                 SignedSixteenSixteen.FromRaw(acceptedDisplacement));
         // Publishes sand contact after either signed movement direction.
         // Pose probes instead consume only the block handler's carry result.

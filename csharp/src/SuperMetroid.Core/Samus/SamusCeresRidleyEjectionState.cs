@@ -107,7 +107,7 @@ public sealed class SamusCeresRidleyEjectionState
         SamusHorizontalSpeedState horizontalSpeed = samus.HorizontalSpeed;
         horizontalSpeed.SelectEnvironmentSpeedTable(
             samus.LiquidPhysics.DetermineMovementMedium(samus));
-        uint baseSpeed = horizontalSpeed.CalculateBaseSpeed(
+        UnsignedSixteenSixteen baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == CeresRidleyShoveDirection.Left, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
@@ -136,13 +136,8 @@ public sealed class SamusCeresRidleyEjectionState
         // resulting 16.16 word is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
         if (samus.Kinematics.YSpeed.Whole < TerminalDownwardSpeed)
-        {
-            uint accelerated = unchecked(
-                samus.Kinematics.VerticalSpeedFixed +
-                (samus.Kinematics.YAcceleration.RawValue));
-            samus.Kinematics.YSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
-        }
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (frameCounter & 1) == 0 });
+            samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = (frameCounter & 1) == 0 });
 
         return new CeresRidleyEjectionResult();
     }

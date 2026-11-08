@@ -94,10 +94,8 @@ internal static class MotherBrainFakeDeathObjectsVerification
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {
             RoomObjectShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
-            int x = 5 + (runIndex == 0 ? 0 :
-                draw.Runs.Span[runIndex - 1].Next.X);
-            int y = 3 + (runIndex == 0 ? 0 :
-                draw.Runs.Span[runIndex - 1].Next.Y);
+            int x = 5 + run.Start.X;
+            int y = 3 + run.Start.Y;
             bool vertical = run.Direction == RoomObjectRunDirection.Vertical;
             for (int block = 0; block < run.Blocks.Length; block++)
                 expected[(y + (vertical ? block : 0)) * width +

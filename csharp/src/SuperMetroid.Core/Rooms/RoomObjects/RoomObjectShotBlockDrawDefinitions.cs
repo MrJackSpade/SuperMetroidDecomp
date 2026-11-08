@@ -8,14 +8,17 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectShotBlockDrawDefinitions
 {
-    /// <summary>One run: its direction, the terrain it writes, then the signed offset to the next run.</summary>
+    /// <summary>
+    /// One run: its direction, the terrain it writes and where it starts. A draw's runs are a list whose end is its last
+    /// run (#1546).
+    /// </summary>
     /// <param name="Direction">The direction the run writes its blocks in.</param>
     /// <param name="Blocks">The terrain the run writes, one per block.</param>
-    /// <param name="Next">The signed offset to the next run.</param>
+    /// <param name="Start">Where the run's first block lies, in blocks from the draw's origin; the first run starts at the origin.</param>
     internal readonly record struct Run(
         RoomObjectRunDirection Direction,
         ReadOnlyMemory<RoomTerrainBlock> Blocks,
-        Offset16<RoomBlocks> Next)
+        Offset16<RoomBlocks> Start)
     {
         /// <summary>The number of blocks the run writes.</summary>
         internal int Count => Blocks.Length;

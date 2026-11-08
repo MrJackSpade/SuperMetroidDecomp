@@ -63,7 +63,7 @@ internal static class LookupCannonLayoutsVerification
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Cannon layout run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Cannon layout offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Cannon layout start bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Cannon layout word run bounds");
                 }
             }
@@ -78,13 +78,15 @@ internal static class LookupCannonLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "Cannon layout native direction");
                     AssertEqual(count, shape.BlockCount(run), "Cannon layout native calculated count");
-                    AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Cannon layout native calculated continuation");
+                    // The cartridge ends each run with the next run's start, and the last with no offset.
+                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "Cannon layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Cannon layout native DTO geometry");
                         AssertEqual(count, part.Blocks.Length, "Cannon layout native DTO count");
-                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Cannon layout native DTO offset");
+                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "Cannon layout native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})

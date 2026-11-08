@@ -65,6 +65,6 @@ public static class RoomObjectTourianAccessVisualFiles
     {
         TourianAccessDraws.Describe(draw, out int rows, out RoomTerrainBlock block);
         return RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), rows, static _ => 4, (_, _) => block,
-            RoomObjectDrawListExport.Horizontal, static _ => 0, row => row + 1 < rows ? row + 1 : 0);
+            RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
     }
 }

@@ -40,15 +40,18 @@ internal static class LookupMotherBrainBoundaryVerification
                 cursor += 2 + count * 2;
                 sbyte x = unchecked((sbyte)MotherBrainBoundaryGeometryRomByte(rom, 0x840000 | cursor++));
                 sbyte y = unchecked((sbyte)MotherBrainBoundaryGeometryRomByte(rom, 0x840000 | cursor++));
-                AssertEqual(x, shape.NextX(run), "Mother Brain native boundary X");
-                AssertEqual(y, shape.NextY(run), "Mother Brain native boundary Y");
+                // The cartridge ends each run with the next run's start, and the last with no offset.
+                Offset16<RoomBlocks> continuation = run + 1 < MotherBrainFakeDeathDraws.BoundaryDraw.RunCount
+                    ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                AssertEqual(x, continuation.X, "Mother Brain native boundary X");
+                AssertEqual(y, continuation.Y, "Mother Brain native boundary Y");
                 foreach (var draw in new[] {dto,exports[index]})
                 {
                     AssertEqual(2, draw.Runs.Length, "Mother Brain two boundary runs");
                     AssertRunHeader(direction, draw.Runs.Span[run], "Mother Brain DTO direction/count");
                     AssertEqual(count, draw.Runs.Span[run].Blocks.Length, "Mother Brain DTO run width");
-                    AssertEqual(x, draw.Runs.Span[run].Next.X, "Mother Brain DTO X");
-                    AssertEqual(y, draw.Runs.Span[run].Next.Y, "Mother Brain DTO Y");
+                    AssertEqual(x, RoomObjectRunContinuationCodec.X(draw, run), "Mother Brain DTO X");
+                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(draw, run), "Mother Brain DTO Y");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run,bad), "Mother Brain boundary cell bounds");
@@ -57,8 +60,7 @@ internal static class LookupMotherBrainBoundaryVerification
             foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad,0), "Mother Brain boundary run bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(bad), "Mother Brain boundary X bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(bad), "Mother Brain boundary Y bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(bad), "Mother Brain boundary start bounds");
             }
         }
     }

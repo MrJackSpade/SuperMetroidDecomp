@@ -82,18 +82,19 @@ internal static class TourianAccessObjectProgramsVerification
         foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in draws)
         {
             int cursor = RoomObjectDrawAddressCodec.Of(draw.Draw);
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in draw.Runs.Span)
+            for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
+                RoomObjectShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
                 foreach (RoomTerrainBlock block in run.Blocks.Span)
                     AssertTourianDrawBlock(block);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)run.Next.X),
+                    unchecked((byte)RoomObjectRunContinuationCodec.X(draw, runIndex)),
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run X offset matches ROM");
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)run.Next.Y),
+                    unchecked((byte)RoomObjectRunContinuationCodec.Y(draw, runIndex)),
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run Y offset matches ROM");
             }
             AssertEqual(checked((ushort)(cursor - RoomObjectDrawAddressCodec.Of(draw.Draw))),

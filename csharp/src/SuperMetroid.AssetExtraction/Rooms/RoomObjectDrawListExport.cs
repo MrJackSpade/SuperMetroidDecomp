@@ -20,31 +20,36 @@ internal static class RoomObjectDrawListExport
     /// <summary>The direction of every run of a draw that writes its runs along their rows.</summary>
     internal static readonly Func<int, RoomObjectRunDirection> Horizontal = static _ => RoomObjectRunDirection.Horizontal;
 
-    /// <summary>Builds the draw list of a draw whose runs are described one by one.</summary>
+    /// <summary>Where each of a draw's stacked rows starts: its row number of blocks below the origin.</summary>
+    internal static readonly Func<int, Offset16<RoomBlocks>> Stacked = static run => new(0, run);
+
+    /// <summary>
+    /// Builds the draw list of a draw whose runs are described one by one, each placed where it starts (#1546); the
+    /// cartridge's continuation after each run is derived by <see cref="RoomObjectRunContinuationCodec"/>.
+    /// </summary>
     /// <param name="draw">The draw the list exports.</param>
     /// <param name="runCount">The number of runs the draw writes.</param>
     /// <param name="blockCount">The number of blocks in a run.</param>
     /// <param name="blockAt">The terrain at a cell of a run.</param>
     /// <param name="direction">The direction a run writes its blocks in.</param>
-    /// <param name="nextX">The horizontal block offset after a run.</param>
-    /// <param name="nextY">The vertical block offset after a run.</param>
+    /// <param name="start">Where a run starts, in blocks from the draw's origin.</param>
+    /// <exception cref="InvalidDataException">The draw has no run, or its first run does not start at its origin.</exception>
     internal static DrawList Runs(RoomObjectDraw draw, int runCount, Func<int, int> blockCount, Func<int, int, RoomTerrainBlock> blockAt,
-        Func<int, RoomObjectRunDirection> direction, Func<int, int> nextX, Func<int, int> nextY)
+        Func<int, RoomObjectRunDirection> direction, Func<int, Offset16<RoomBlocks>> start)
     {
+        if (runCount < 1 || start(0) != Offset16<RoomBlocks>.Zero)
+            throw new InvalidDataException($"Draw {draw} does not start its first run at its origin.");
         var runs = new Run[runCount];
         for (int run = 0; run < runs.Length; run++)
         {
             var blocks = new RoomTerrainBlock[blockCount(run)];
             for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = blockAt(run, cell);
-            runs[run] = new(direction(run), blocks, new(nextX(run), nextY(run)));
+            runs[run] = new(direction(run), blocks, start(run));
         }
         return new(draw, runs);
     }
 
-    /// <summary>
-    /// Builds the draw list of a draw of horizontal strips, each placed where it starts (#1546): each run's continuation
-    /// is the next strip's start, and the last run's is the zero offset that ends a cartridge draw list.
-    /// </summary>
+    /// <summary>Builds the draw list of a draw of horizontal strips, each placed where it starts (#1546).</summary>
     /// <param name="draw">The draw the list exports.</param>
     /// <param name="stripCount">The number of strips the draw writes.</param>
     /// <param name="blockCount">The number of blocks in a strip.</param>
@@ -52,14 +57,8 @@ internal static class RoomObjectDrawListExport
     /// <param name="start">Where a strip starts, in blocks from the draw's origin.</param>
     /// <exception cref="InvalidDataException">The draw has no strip, or its first strip does not start at its origin.</exception>
     internal static DrawList Strips(RoomObjectDraw draw, int stripCount, Func<int, int> blockCount, Func<int, int, RoomTerrainBlock> blockAt,
-        Func<int, Offset16<RoomBlocks>> start)
-    {
-        if (stripCount < 1 || start(0) != Offset16<RoomBlocks>.Zero)
-            throw new InvalidDataException($"Draw {draw} does not start its first strip at its origin.");
-        return Runs(draw, stripCount, blockCount, blockAt, Horizontal,
-            strip => strip + 1 < stripCount ? start(strip + 1).X : 0,
-            strip => strip + 1 < stripCount ? start(strip + 1).Y : 0);
-    }
+        Func<int, Offset16<RoomBlocks>> start) =>
+        Runs(draw, stripCount, blockCount, blockAt, Horizontal, start);
 
     /// <summary>Builds the draw list of a draw that writes one run and ends there.</summary>
     /// <param name="draw">The draw the list exports.</param>

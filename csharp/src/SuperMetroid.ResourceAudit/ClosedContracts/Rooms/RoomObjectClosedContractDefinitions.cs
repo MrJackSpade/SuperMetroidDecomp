@@ -31,7 +31,7 @@ internal static class RoomObjectClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/RoomObjectBombTorizoHandVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandObjectDrawDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandDraws.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandStrip.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectBlockStrip.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/BombTorizoHandArtwork.cs")]),
         new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainGlassVisualCatalog", "plm-mother-brain-glass-complete-draws", ["GetAppearance"],
             [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks,

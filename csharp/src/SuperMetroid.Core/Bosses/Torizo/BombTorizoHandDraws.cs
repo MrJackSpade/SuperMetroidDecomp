@@ -10,29 +10,28 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class BombTorizoHandDraws
 {
     /// <summary>
-    /// An intact or cleared hand draw. Original run order and origin-relative continuations are preserved.
+    /// An intact or cleared hand draw: its strips in the original run order, each starting at its own offset from the
+    /// hand PLM block.
     /// </summary>
     internal readonly record struct Draw(BombTorizoHandDraw Frame)
     {
         /// <summary>The draw's strips in authored run order.</summary>
-        private BombTorizoHandStrip[] Strips => BombTorizoHandObjectDrawDefinitions.Strips[Frame];
+        private RoomObjectBlockStrip[] Strips => BombTorizoHandObjectDrawDefinitions.Strips[Frame];
         /// <summary>Gets the number of horizontal strips in the selected draw list.</summary>
         internal int RunCount => Strips.Length;
         /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
         internal int BlockCount(int run) => Strip(run).Cells.Length;
-        /// <summary>Gets a strip's horizontal origin relative to the hand PLM block.</summary>
-        internal int OriginX(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Origin.X);
-        /// <summary>Gets a strip's vertical origin relative to the hand PLM block.</summary>
-        internal int OriginY(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Origin.Y);
+        /// <summary>Where a strip starts, in blocks from the hand PLM block.</summary>
+        internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
         /// <summary>Gets one strip cell's terrain block.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)
         {
-            BombTorizoHandStrip strip = Strip(run);
+            RoomObjectBlockStrip strip = Strip(run);
             if ((uint)cell >= strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));
             return strip.Cells[cell];
         }
         /// <summary>Selects a strip, rejecting indices outside the selected intact or cleared list.</summary>
-        private BombTorizoHandStrip Strip(int run) =>
+        private RoomObjectBlockStrip Strip(int run) =>
             (uint)run < RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
     }
 

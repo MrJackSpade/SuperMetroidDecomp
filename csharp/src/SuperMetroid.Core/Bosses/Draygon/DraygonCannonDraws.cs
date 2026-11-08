@@ -31,17 +31,14 @@ internal static class DraygonCannonDraws
             CheckRun(run);
             return Right || run == 2 ? 2 : 1;
         }
-        /// <summary>Moves left between split top-row cells and otherwise keeps the X cursor.</summary>
-        internal int NextX(int run)
+        /// <summary>
+        /// Where a run starts, in blocks from the cannon's origin: a right frame's lower row one block down; a left
+        /// frame's split top-row cell one block left, then its lower row one block left and down.
+        /// </summary>
+        internal Offset16<RoomBlocks> Start(int run)
         {
             CheckRun(run);
-            return !Right && run < 2 ? -1 : 0;
-        }
-        /// <summary>Advances to the lower row after the right row or left split pair.</summary>
-        internal int NextY(int run)
-        {
-            CheckRun(run);
-            return run == (Right ? 0 : 1) ? 1 : 0;
+            return new(!Right && run > 0 ? -1 : 0, run == (Right ? 1 : 2) ? 1 : 0);
         }
         /// <summary>The cannon cell's collision, mirror and shield or damage tile.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)

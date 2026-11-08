@@ -68,8 +68,7 @@ internal static class LookupStationLayoutsVerification
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Station layout run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Station layout X bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Station layout offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Station layout start bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Station layout word run bounds");
                 }
             }
@@ -94,13 +93,15 @@ internal static class LookupStationLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "Station layout native direction");
                     AssertEqual(count, shape.BlockCount(run), "Station layout native calculated count");
-                    AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Station layout native calculated continuation");
+                    // The cartridge ends each run with the next run's start, and the last with no offset.
+                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "Station layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Station layout native DTO geometry");
                         AssertEqual(count, part.Count, "Station layout native DTO count");
-                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Station layout native DTO offset");
+                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "Station layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2)),

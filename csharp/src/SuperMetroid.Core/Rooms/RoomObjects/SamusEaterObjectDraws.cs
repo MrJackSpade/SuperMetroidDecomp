@@ -41,18 +41,17 @@ internal static class SamusEaterObjectDraws
             2 => 4,
             _ => throw new ArgumentOutOfRangeException(nameof(run)),
         };
-        /// <summary>Moves left between mouth blocks while keeping the foliage run in its original column.</summary>
-        internal static int NextX(int run) => run switch
+        /// <summary>The runs a plant draw writes: its two mouth runs, then its foliage.</summary>
+        internal const int RunCount = 3;
+        /// <summary>
+        /// Where a run starts, in blocks from the plant's origin: the second mouth run two blocks left of the first, and
+        /// the foliage two blocks left and one row toward the plant body: up for a floor plant, down for a ceiling one.
+        /// </summary>
+        internal Offset16<RoomBlocks> Start(int run) => run switch
         {
-            0 or 1 => -2,
-            2 => 0,
-            _ => throw new ArgumentOutOfRangeException(nameof(run)),
-        };
-        /// <summary>Offsets the second mouth run toward the plant body, reversing the step for ceiling plants.</summary>
-        internal int NextY(int run) => run switch
-        {
-            0 or 2 => 0,
-            1 => Ceiling ? 1 : -1,
+            0 => Offset16<RoomBlocks>.Zero,
+            1 => new(-2, 0),
+            2 => new(-2, Ceiling ? 1 : -1),
             _ => throw new ArgumentOutOfRangeException(nameof(run)),
         };
         /// <summary>The phase block, collision kind, and orientation mirroring of a single mouth or foliage block.</summary>

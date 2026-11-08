@@ -124,7 +124,7 @@ public static class RoomObjectShotBlockVisualFiles
     private static RoomObjectShotBlockDrawDefinitions.DrawList Export(ShotBlockObjectDraws.Draw draw) =>
         RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), draw.RunCount, _ => draw.BlocksPerRun, draw.BlockAt,
             _ => draw.Vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal,
-            static _ => 0, run => run + 1 < draw.RunCount ? 1 : 0);
+            RoomObjectDrawListExport.Stacked);
 
     /// <summary>Yields breakup frames interleaved by shape, followed by the three restoration draws.</summary>
     internal static IEnumerable<ShotBlockObjectDraws.Draw> Calculated
@@ -153,8 +153,9 @@ public static class RoomObjectShotBlockVisualFiles
         {
             int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
             var visuals = new List<RoomBlockAppearance[]>();
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            for (int runIndex = 0; runIndex < list.Runs.Length; runIndex++)
             {
+                RoomObjectShotBlockDrawDefinitions.Run run = list.Runs.Span[runIndex];
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != RoomObjectRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Shot-block draw list {list.Draw} has a different shape in the source cartridge.");
@@ -170,9 +171,9 @@ public static class RoomObjectShotBlockVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != unchecked((byte)run.Next.X) ||
+                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != unchecked((byte)RoomObjectRunContinuationCodec.X(list, runIndex)) ||
                     bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, unchecked((ushort)(cursor + 1)))) !=
-                        unchecked((byte)run.Next.Y))
+                        unchecked((byte)RoomObjectRunContinuationCodec.Y(list, runIndex)))
                     throw new InvalidDataException(
                         $"Shot-block draw list {list.Draw} has a different next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));

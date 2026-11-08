@@ -18,7 +18,7 @@ internal static class NoobTubeObjectDraws
     /// Seven named layouts. Wide runs are twelve cells:
     /// symmetric pipe edges surround air; the floor adds a second solid edge cell.
     /// Panel rows use adjacent tiles, vertically reflected below the centre.
-    /// Continuations are absolute offsets from the PLM origin, not accumulated steps.
+    /// Each run starts at its own offset from the PLM origin; the list ends at its last run.
     /// </summary>
     internal readonly record struct Draw(NoobTubeDraw Frame)
     {
@@ -55,11 +55,11 @@ internal static class NoobTubeObjectDraws
             _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Frame}."),
         };
 
-        /// <summary>Gives the next run's absolute vertical offset from the PLM origin.</summary>
-        internal int NextY(int run)
+        /// <summary>Where a run starts, in blocks from the PLM origin: the first at the origin, each later one at its row.</summary>
+        internal Offset16<RoomBlocks> Start(int run)
         {
             CheckRun(run);
-            return run == RunCount - 1 ? 0 : Row(run + 1);
+            return new(0, run == 0 ? 0 : Row(run));
         }
 
         /// <summary>The glass, rim, pipe-edge, or air block, with its collision and mirroring, of one tube cell.</summary>

@@ -139,10 +139,10 @@ internal static class ShotBlockObjectProgramsVerification
                     forbidden.Add(0x840000 | cursor++);
                 }
 
-                AssertEqual(unchecked((byte)run.Next.X), rom.ReadCartridgeByte(0x840000 | cursor),
+                AssertEqual(unchecked((byte)RoomObjectRunContinuationCodec.X(list, runIndex)), rom.ReadCartridgeByte(0x840000 | cursor),
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} next X");
                 forbidden.Add(0x840000 | cursor++);
-                AssertEqual(unchecked((byte)run.Next.Y), rom.ReadCartridgeByte(0x840000 | cursor),
+                AssertEqual(unchecked((byte)RoomObjectRunContinuationCodec.Y(list, runIndex)), rom.ReadCartridgeByte(0x840000 | cursor),
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} next Y");
                 forbidden.Add(0x840000 | cursor++);
                 runIndex++;

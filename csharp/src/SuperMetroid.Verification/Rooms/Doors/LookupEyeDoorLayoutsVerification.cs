@@ -78,8 +78,8 @@ internal static class LookupEyeDoorLayoutsVerification
                 {
                     AssertRunHeader(header,run,"Eye door DTO direction/count");
                     AssertEqual(count,run.Count,"Eye door DTO length");
-                    AssertEqual(0,(int)run.Next.X,"Eye door terminal X");
-                    AssertEqual(0,(int)run.Next.Y,"Eye door terminal Y");
+                    AssertEqual(0,(int)RoomObjectRunContinuationCodec.X(view, 0),"Eye door terminal X");
+                    AssertEqual(0,(int)RoomObjectRunContinuationCodec.Y(view, 0),"Eye door terminal Y");
                 }
                 else
                     for (int cell = 0; cell < count; cell++)

@@ -80,8 +80,8 @@ internal static class KraidDrawMappingsVerification
             AssertEqual(expected.Count, run.Count, "Kraid export word extent");
             ushort tail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + expected.Count * 2));
             AssertEqual((ushort)0, tail, "Kraid native terminator has zero displacement");
-            AssertEqual((sbyte)0, run.Next.X, "Kraid export terminal X");
-            AssertEqual((sbyte)0, run.Next.Y, "Kraid export terminal Y");
+            AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.X(exported[expected.Pointer], 0), "Kraid export terminal X");
+            AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.Y(exported[expected.Pointer], 0), "Kraid export terminal Y");
         }
     }
 

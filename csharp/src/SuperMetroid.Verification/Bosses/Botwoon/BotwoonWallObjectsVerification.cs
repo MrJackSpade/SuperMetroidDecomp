@@ -44,10 +44,10 @@ internal static class BotwoonWallObjectsVerification
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallObjectDraws.BlockAt(index), "Botwoon fill rejects invalid block index");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-            unchecked((byte)draw.Runs.Span[0].Next.X),
+            unchecked((byte)RoomObjectRunContinuationCodec.X(draw, 0)),
             "Botwoon clear final X offset");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-            unchecked((byte)draw.Runs.Span[0].Next.Y),
+            unchecked((byte)RoomObjectRunContinuationCodec.Y(draw, 0)),
             "Botwoon clear final Y offset");
         AssertEqual(BotwoonWallObjectDrawDefinitions.EndExclusive, cursor,
             "Botwoon clear draw covers exactly its native span");

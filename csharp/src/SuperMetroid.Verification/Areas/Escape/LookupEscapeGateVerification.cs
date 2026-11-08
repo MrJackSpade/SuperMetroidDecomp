@@ -105,8 +105,8 @@ internal static class LookupEscapeGateVerification
                     AssertEqual(RoomObjectRunDirection.Vertical, frame.Runs.Span[0].Direction, "Escape gate DTO runs down its column");
                     AssertEqual(4, frame.Runs.Span[0].Count, "Escape gate DTO block count");
                     AssertEqual(4, frame.Runs.Span[0].Blocks.Length, "Escape gate DTO width");
-                    AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Escape gate DTO final X");
-                    AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Escape gate DTO final Y");
+                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.X(frame, 0), "Escape gate DTO final X");
+                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.Y(frame, 0), "Escape gate DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Escape gate calculated row bounds");

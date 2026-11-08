@@ -53,11 +53,11 @@ internal static class DownwardGateObjectDraws
             return Column ? 5 : Right ? 2 : 1;
         }
 
-        /// <summary>Moves left between the two left-trigger runs; other runs stay in their column.</summary>
-        internal int NextX(int run)
+        /// <summary>Where a run starts, in blocks from the gate's origin: a left trigger's second run one block left of it.</summary>
+        internal Offset16<RoomBlocks> Start(int run)
         {
             if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return !Column && !Right && run == 0 ? -1 : 0;
+            return new(!Column && !Right && run == 1 ? -1 : 0, 0);
         }
         /// <summary>Calculates the stationary/moving top tile, filled shootable rows, or color-specific trigger tile.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)

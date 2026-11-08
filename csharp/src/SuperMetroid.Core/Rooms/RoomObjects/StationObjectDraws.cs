@@ -44,8 +44,8 @@ internal static class StationObjectDraws
     }
 
     /// <summary>
-    /// One station draw list's geometry. Station runs are horizontal and every continuation is an absolute
-    /// origin-relative offset, not accumulated. Each layout is its own sealed record holding only what it needs; these
+    /// One station draw list's geometry. Station runs are horizontal and each starts at its own offset from the draw's
+    /// origin; the list ends at its last run. Each layout is its own sealed record holding only what it needs; these
     /// rules cover only the twenty owned draw pointers.
     /// </summary>
     /// <param name="Id">The draw list.</param>
@@ -61,18 +61,11 @@ internal static class StationObjectDraws
             return BlocksPerRun;
         }
 
-        /// <summary>The horizontal block offset from the draw's origin after run <paramref name="run"/>.</summary>
-        internal int NextX(int run)
+        /// <summary>Where run <paramref name="run"/> starts, in blocks from the draw's origin; the first run starts at the origin.</summary>
+        internal Offset16<RoomBlocks> Start(int run)
         {
             CheckRun(run);
-            return run == 0 ? Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, FirstRunX) : 0;
-        }
-
-        /// <summary>The vertical block offset from the draw's origin after run <paramref name="run"/>.</summary>
-        internal int NextY(int run)
-        {
-            CheckRun(run);
-            return RunY(run);
+            return new(run == 1 ? SecondRunX : 0, RunStartY(run));
         }
 
         /// <summary>The terrain at <paramref name="cell"/> of run <paramref name="run"/>.</summary>
@@ -85,11 +78,11 @@ internal static class StationObjectDraws
         /// <summary>The blocks each run writes.</summary>
         private protected virtual int BlocksPerRun => 1;
 
-        /// <summary>The horizontal offset after the first run; every later run adds none.</summary>
-        private protected virtual int FirstRunX => 0;
+        /// <summary>Where the second run starts across from the origin; every other run starts in the origin's column.</summary>
+        private protected virtual int SecondRunX => 0;
 
-        /// <summary>The vertical offset after <paramref name="run"/>.</summary>
-        private protected virtual int RunY(int run) => 0;
+        /// <summary>The row <paramref name="run"/> starts on, from the origin's.</summary>
+        private protected virtual int RunStartY(int run) => 0;
 
         /// <summary>The terrain at <paramref name="cell"/> of <paramref name="run"/>, both in range.</summary>
         private protected abstract RoomTerrainBlock Block(int run, int cell);
@@ -114,7 +107,7 @@ internal static class StationObjectDraws
         internal override int RunCount => 2;
 
         /// <inheritdoc/>
-        private protected override int FirstRunX => -1;
+        private protected override int SecondRunX => -1;
 
         /// <inheritdoc/>
         private protected override RoomTerrainBlock Block(int run, int cell) =>
@@ -136,7 +129,7 @@ internal static class StationObjectDraws
         internal override int RunCount => 2;
 
         /// <inheritdoc/>
-        private protected override int RunY(int run) => run == 0 ? -1 : 0;
+        private protected override int RunStartY(int run) => -run;
 
         /// <inheritdoc/>
         private protected override RoomTerrainBlock Block(int run, int cell) =>
@@ -157,7 +150,7 @@ internal static class StationObjectDraws
         private protected override int BlocksPerRun => 2;
 
         /// <inheritdoc/>
-        private protected override int RunY(int run) => run < 5 ? -run - 1 : 0;
+        private protected override int RunStartY(int run) => -run;
 
         /// <inheritdoc/>
         private protected override RoomTerrainBlock Block(int run, int cell)
@@ -182,7 +175,7 @@ internal static class StationObjectDraws
         internal override int RunCount => Pose == StationAccessPose.Extended ? 1 : 2;
 
         /// <inheritdoc/>
-        private protected override int FirstRunX => Pose == StationAccessPose.Extended ? 0
+        private protected override int SecondRunX => Pose == StationAccessPose.Extended ? 0
             : Side == HorizontalDirection.Left ? 3 : -3;
 
         /// <inheritdoc/>

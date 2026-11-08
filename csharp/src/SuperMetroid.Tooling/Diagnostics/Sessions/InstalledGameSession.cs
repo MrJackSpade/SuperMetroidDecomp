@@ -63,7 +63,7 @@ internal sealed class InstalledGameSession : IDisposable
             ? installation.LoadAudioClips()
             : InstalledAudioClips.Load(audioDirectory);
         ContentIdentity = SuperMetroid.AssetExtraction.Installation.GameContentIdentity.Create(
-            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadStandardObjects(), installation.LoadRoomPalettes(), installation.LoadGameplayBasePalettes()));
+            assets, maps, projectiles, SuperMetroid.AssetExtraction.Installation.InstalledArtworkIdentity.Create(artwork, enemyArtwork, installation.LoadStandardObjects()));
         Console.WriteLine(
             $"Installed content: {ContentIdentity.CompositeSha256}; " +
             $"definitions={ContentIdentity.CompiledDefinitionsBuildId:D}, " +

@@ -13,6 +13,7 @@ namespace SuperMetroid.Verification.Runtime;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Checks installed gameplay CGRAM base colors and room-entry sprite restoration.</summary>
 internal static class GameplayBasePalettesVerification
@@ -20,7 +21,8 @@ internal static class GameplayBasePalettesVerification
     /// <summary>Compares cartridge colors and exercises ROM-free runtime construction.</summary>
     internal static void VerifyGameplayBasePalettes(string sourceRom)
     {
-        string installed = RepositoryInstallation.Installation.GameplayBasePaletteDirectory;
+        // Only the import reads the base palette (#1544); the check reads it where the import does.
+        string installed = Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName);
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         GameplayBasePalette baseline = GameplayBasePaletteFiles.Load(installed);
         // The starting image holds the background colours, then the sprite colours, in the cartridge's order.

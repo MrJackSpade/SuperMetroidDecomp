@@ -81,10 +81,10 @@ internal static class RoomCharacterInstallationVerification
         AssertTrue(nativeGhostVram.ImageEquals(installedGhostVram),
             "installed statue-ghost library upload matches the native one apart from the characters only the ghost would draw");
 
-        AssertTrue(File.Exists(Path.Combine(installed.RoomPaletteDirectory,
-                RoomStaticPaletteArtworkFiles.ManifestFileName)),
+        string roomPalettes = Path.Combine(installed.ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
+        AssertTrue(File.Exists(Path.Combine(roomPalettes, RoomStaticPaletteArtworkFiles.ManifestFileName)),
             "room-palette stock manifest is installed");
-        _ = installed.LoadRoomPalettes();
+        _ = RoomStaticPaletteArtworkFiles.Load(roomPalettes);
 
         AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
                 RoomMetatileArtworkFiles.ManifestFileName)),

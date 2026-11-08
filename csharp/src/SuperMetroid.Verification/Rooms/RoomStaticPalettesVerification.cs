@@ -40,13 +40,22 @@ internal static class RoomStaticPalettesVerification
             var expected = new SnesCgram();
             var actual = new SnesCgram();
             expected.LoadBytes(native.AsSpan(0, RoomStaticPaletteFormat.ByteCount));
-            new CgramPalettes(actual).Background.LoadPortBytes(RoomStaticPaletteImage.PackedColours(palette));
+            new CgramPalettes(actual).Background.LoadPortBytes(Packed(RoomStaticPaletteImage.Colours(palette)));
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 $"graphics-set palette ${source:X6} keeps all 128 native CGRAM colors");
             compiled.Add(source, palette);
         }
         AssertEqual(compiled.Count, files.Count,
             "one extracted room palette per distinct graphics-set color source");
+
+        // `colours` packed as little-endian colour words, two bytes each, as the cartridge's room load transfers them.
+        static byte[] Packed(RgbColor[] colours)
+        {
+            var packed = new byte[colours.Length * ColourWordCodec.ByteCount];
+            for (int index = 0; index < colours.Length; index++)
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(packed.AsSpan(index * ColourWordCodec.ByteCount), colours[index].ToWord());
+            return packed;
+        }
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             SelectedRoom header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);

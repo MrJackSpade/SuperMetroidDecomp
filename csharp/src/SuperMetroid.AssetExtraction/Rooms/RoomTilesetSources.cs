@@ -38,11 +38,6 @@ internal static class RoomTilesetSources
         return new(characters.ToFrozenDictionary(), blocks.ToFrozenDictionary(), palettes.ToFrozenDictionary());
     }
 
-    /// <summary>The installed content identity of the selected room palettes.</summary>
-    internal static string PaletteIdentity(RoomStaticPalettes catalog) => SelectedPresentationHash.FromNamedTransfers(
-        nameof(RoomStaticPalettes), catalog.byRoomPaletteSet.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
-        palette => RoomStaticPaletteImage.PackedColours(palette));
-
     /// <summary>The long pointer <paramref name="offset"/> bytes into the tileset entry at <paramref name="entry"/>.</summary>
     private static SnesAddress Source(IImportCartridgeSource cartridge, SnesAddress entry, int offset) =>
         SnesAddress.FromBusAddress(RomDataReader.ReadLongFixedBank(cartridge, entry.AddWithinBank(offset)));

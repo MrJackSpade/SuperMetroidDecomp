@@ -67,11 +67,6 @@ public sealed record GameInstallation(string Root)
     public InstalledClipAudioLibrary LoadAudioClips() => InstalledAudioClips.Load(AudioDirectory);
     /// <summary>Installed area-map artwork, exploration masks and menu presentation, which the player edits in place.</summary>
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
-    /// <summary>Installed starting CGRAM and room-entry sprite palettes, which the player edits in place.</summary>
-    public string GameplayBasePaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.GameplayBasePaletteDirectoryName);
-    /// <summary>Loads the installed initial CGRAM and room-entry sprite colors.</summary>
-    public GameplayBasePalette LoadGameplayBasePalettes() =>
-        GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory);
     /// <summary>Stock decoded results of Samus's glitch reads, which are not presentation the player edits.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
@@ -122,11 +117,6 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the installed ending scene backdrops.</summary>
     public EndingBackdrops LoadEndingBackdrops() =>
         EndingBackdropFiles.Load(EndingBackdropDirectory);
-    /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
-    public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
-    /// <summary>Loads each installed room palette as the player left it, keyed by its source identity.</summary>
-    public RoomStaticPalettes LoadRoomPalettes() =>
-        RoomStaticPaletteArtworkFiles.Load(RoomPaletteDirectory);
     /// <summary>Stock pre-coloured room block sheets under the replaceable content tree.</summary>
     public string RoomBlockSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBlockSheetDirectoryName);
     /// <summary>Loads every tileset's installed pre-coloured block sheet as the player left it (#1392).</summary>

@@ -10,8 +10,16 @@ internal static class RoomLevelPlaneAccess
     {
         /// <summary>
         /// What each block shows, row by row, as the cells a frame draws name it: its block and mirroring, or where a
-        /// collectible's picture lies, that picture's number unmirrored.
+        /// collectible's picture lies, that picture's number unmirrored. Each read builds the whole plane's list, so a check
+        /// reading one block at a time reads <see cref="BlockAt"/> instead.
         /// </summary>
         internal RoomBlockAppearance[] Blocks => [.. self.Cells.Cells.Select(cell => new RoomBlockAppearance(cell.Definition, cell.Flips))];
+
+        /// <summary>What block <paramref name="blockIndex"/> shows, as <see cref="Blocks"/> names it.</summary>
+        internal RoomBlockAppearance BlockAt(int blockIndex)
+        {
+            RoomBlockCell cell = self.Cells.Cells[blockIndex];
+            return new RoomBlockAppearance(cell.Definition, cell.Flips);
+        }
     }
 }

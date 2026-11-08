@@ -27,7 +27,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// <summary>Checks stock room characters, palettes, blocks, backgrounds, and sky artwork.</summary>
 internal static class RoomCharacterInstallationVerification
 {
-    /// <summary>Stock import contract for room art, in a writable installation whose background manifest is briefly altered.</summary>
+    /// <summary>Stock import contract for room art in the shared installation, with a private copy of its background directory whose manifest is altered.</summary>
     internal static void VerifyRoomArtworkInstallation(GameInstallation installed, CartridgeImportAddressSpace bus, SelectedRoom landing)
     {
         AssertTrue(File.Exists(Path.Combine(installed.RoomCharacterDirectory,
@@ -62,7 +62,9 @@ internal static class RoomCharacterInstallationVerification
             ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
         AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
             "installed statue-ghost PNG preserves every native character byte");
-        LibraryBackgroundNativeOperand ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
+        // The cartridge's library background transfers, scanned once for the statue ghost's and Ceres's.
+        IReadOnlyList<LibraryBackgroundNativeOperand> libraryTransfers = LibraryBackgroundSourceInventory.Scan(bus);
+        LibraryBackgroundNativeOperand ghostTransfer = libraryTransfers
             .Single(entry => entry.SourceAddress == ghostSource);
         AssertEqual(LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount,
             (ghostTransfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires ghostTransfer.TransferByteCount.")), "statue-ghost library upload length");
@@ -103,10 +105,13 @@ internal static class RoomCharacterInstallationVerification
                 RoomBackgroundTilemapArtworkFiles.ManifestFileName)),
             "room-background stock manifest is installed");
         RoomBackgroundTilemaps stockBackgrounds = installed.LoadRoomBackgroundTilemaps();
-        string backgroundManifestPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
-            RoomBackgroundTilemapArtworkFiles.ManifestFileName);
+        // A manifest entry that names no background tilemap (#1414) is rejected. The installation is shared and never
+        // changes, so the altered manifest is written over a private copy of the installed background directory.
+        using var backgroundScratch = new TestScratchDirectory("room-background-manifest-rejection");
+        foreach (string file in Directory.GetFiles(installed.RoomBackgroundTilemapDirectory))
+            File.Copy(file, Path.Combine(backgroundScratch.Root, Path.GetFileName(file)));
+        string backgroundManifestPath = Path.Combine(backgroundScratch.Root, RoomBackgroundTilemapArtworkFiles.ManifestFileName);
         byte[] originalBackgroundManifest = File.ReadAllBytes(backgroundManifestPath);
-        // A manifest entry that names no background tilemap (#1414) is rejected.
         const string substitutedTilemap = "NotABackgroundTilemap";
         AssertTrue(!Enum.TryParse(substitutedTilemap, out RoomBackgroundTilemap _),
             "manifest substitution fixture names no background tilemap");
@@ -119,25 +124,21 @@ internal static class RoomCharacterInstallationVerification
         alteredEntry["tilemap"] = substitutedTilemap;
         manifestEntries.Remove(stockName);
         manifestEntries[substitutedName] = alteredEntry;
+        File.WriteAllText(backgroundManifestPath, alteredManifest.ToJsonString());
         try
         {
-            File.WriteAllText(backgroundManifestPath, alteredManifest.ToJsonString());
-            try
-            {
-                _ = installed.LoadRoomBackgroundTilemaps();
-                throw new InvalidOperationException(
-                    "Substituted background tilemap was accepted by the installation loader.");
-            }
-            catch (InvalidDataException error)
-            {
-                AssertTrue(error.Message.Contains("invalid tilemap entry",
-                        StringComparison.Ordinal),
-                    "substituted background tilemap fails the named identity check");
-            }
+            _ = RoomBackgroundTilemapArtworkFiles.Load(backgroundScratch.Root);
+            throw new InvalidOperationException(
+                "Substituted background tilemap was accepted by the installation loader.");
         }
-        finally { File.WriteAllBytes(backgroundManifestPath, originalBackgroundManifest); }
+        catch (InvalidDataException error)
+        {
+            AssertTrue(error.Message.Contains("invalid tilemap entry",
+                    StringComparison.Ordinal),
+                "substituted background tilemap fails the named identity check");
+        }
         SelectedRoom ceres = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xdf8d);
-        int backgroundSource = LibraryBackgroundSourceInventory.Scan(bus)
+        int backgroundSource = libraryTransfers
             .Single(source => source.ListPointer == ceres.State.BackgroundDataPointer &&
                 source.Command == LibraryBackgroundCommand.Decompress).SourceAddress;
         string backgroundName = RoomBackgroundTilemapArtworkFiles.FileName(
@@ -180,18 +181,17 @@ internal static class RoomCharacterInstallationVerification
     }
 
     /// <summary>
-    /// Runs the room-art installation contract, each part timed on its own, in one writable copy of the repository
-    /// installation, as the parts write into installed files.
+    /// Runs the room-art installation contract, each part timed on its own, over the shared repository installation: the
+    /// parts only read it, and the one that alters a manifest does so in its own copy of that directory.
     /// </summary>
     [VerificationCommand("--room-artwork-installation")]
     internal static int RoomArtworkInstallationCommand()
     {
         string roomArtworkRom = RepositoryRomPath;
-        using var rootScratch = new TestScratchDirectory("room-artwork-installation");
-        GameInstallation installed = InstallationCopyVerification.CopyRepositoryInstallation(rootScratch.Root);
+        GameInstallation installed = RepositoryInstallation.Installation;
         CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(roomArtworkRom);
         SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        Suite(nameof(VerifyRoomArtworkRenderParity), () => VerifyRoomArtworkRenderParity(installed, roomArtworkRom));
+        Suite(nameof(VerifyRoomArtworkRenderParity), () => VerifyRoomArtworkRenderParity(installed, bus));
         Suite(nameof(VerifyRoomVisualLayouts), () => VerifyRoomVisualLayouts(installed, bus, landing));
         Suite(nameof(VerifyXrayRevealVisualInstallation), () => VerifyXrayRevealVisualInstallation(installed));
         Suite(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(installed, bus, landing));

@@ -1,5 +1,7 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
@@ -21,8 +23,11 @@ internal static class RoomArtworkRenderParityVerification
     /// real door-selected sky page and ordinary room-art upload in one frame.
     /// </summary>
     internal static void VerifyRoomArtworkRenderParity(
-        GameInstallation installation, string sourceRom)
+        GameInstallation installation, CartridgeImportAddressSpace bus)
     {
+        // The installed artwork is loaded once and bound by each installed-art runtime, which only reads it.
+        RoomCharacterAtlases installedCharacters = installation.LoadRoomCharacters();
+        InstalledRoomArtwork installedBlockSheets = installation.LoadRoomBlockSheets();
         foreach ((string name, RoomHeaderDefinition expectedRoom, bool useRealLandingDoor) in new[]
         {
             new VerifyRoomArtworkRenderParityCase("Ceres elevator overlap", RoomHeaderDefinitions.CeresElev, false),
@@ -58,13 +63,11 @@ internal static class RoomArtworkRenderParityVerification
 
             SuperMetroidRuntime LoadRoom(bool installedArt)
             {
-                var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
                 var runtime = CreateRetailRuntimeFixture();
                 if (installedArt)
                 {
-                    runtime.Artwork.RoomCharacterArt = installation.LoadRoomCharacters();
-
-                    runtime.Artwork.RoomBlockSheets = installation.LoadRoomBlockSheets();
+                    runtime.Artwork.RoomCharacterArt = installedCharacters;
+                    runtime.Artwork.RoomBlockSheets = installedBlockSheets;
                 }
                 runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);

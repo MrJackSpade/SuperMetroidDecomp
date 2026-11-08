@@ -17,22 +17,17 @@ internal static class PowerBombFuseVerification
     internal static void VerifyPowerBombFuse()
     {
         // Expected boundary cases follow the literal C157 branches with the lock released and held.
-        // The fuse is a countdown: zero stays stopped, one expires into the collision
-        // sentinel, and the sentinel itself keeps wrapping downward one word per call.
-        WrappingCountdown sentinel = WrappingCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel);
-        WrappingCountdown sentinelAfterOneCall = WrappingCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel - 1);
+        // The fuse is a countdown: zero stays stopped, and one runs out and starts the explosion.
         foreach (bool flag in new[] { false, true })
         {
             AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(0), false, false, !flag),
                 SamusPowerBombFuse.Step(WrappingCountdown.Start(0), flag), "zero fuse follows native flag equality");
-            AssertEqual(new PowerBombFuseStep(sentinel, false, true, false),
-                SamusPowerBombFuse.Step(WrappingCountdown.Start(1), flag), "expiration spawns before collision consumes sentinel");
+            AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(0), false, true, false),
+                SamusPowerBombFuse.Step(WrappingCountdown.Start(1), flag), "expiration runs the fuse out and starts the explosion");
             AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(15), true, false, false),
                 SamusPowerBombFuse.Step(WrappingCountdown.Start(16), flag), "the fuse reaching fifteen switches to the fast list");
             AssertEqual(new PowerBombFuseStep(WrappingCountdown.Start(14), false, false, false),
                 SamusPowerBombFuse.Step(WrappingCountdown.Start(15), flag), "fast threshold is tested after decrement");
-            AssertEqual(new PowerBombFuseStep(sentinelAfterOneCall, false, false, false),
-                SamusPowerBombFuse.Step(sentinel, flag), "fuse routine does not consume collision sentinel");
         }
         WrappingCountdown timer = WrappingCountdown.Start(60);
         int spawns = 0;

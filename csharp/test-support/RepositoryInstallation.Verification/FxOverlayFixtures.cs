@@ -80,7 +80,7 @@ internal static class FxOverlayFixtures
             throw new ArgumentException($"An overlay fixture lays whole rows of {columns} words.", nameof(words));
         int rows = words.Length / columns;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * TilePixels, checked((ushort)(rows * TilePixels))));
-        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         for (int cell = 0; cell < words.Length; cell++)
         {
@@ -98,7 +98,7 @@ internal static class FxOverlayFixtures
             ["overlay"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.FxOverlayAndHud),
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
-        SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "overlay-fixture",
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "overlay-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
         return sheet.Frame("overlay");
     }

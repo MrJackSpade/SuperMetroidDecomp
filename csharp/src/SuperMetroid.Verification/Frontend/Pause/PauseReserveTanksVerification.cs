@@ -63,7 +63,8 @@ internal static class PauseReserveTanksVerification
                 var nativeColours = new SnesCgram();
                 CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
                 foreach (ImageSpriteDraw draw in capture.SpriteDraws.OfType<ImageSpriteDraw>().Where(draw => draw.Shading == PictureShading.Standard))
-                    AssertTrue(PictureShading.Standard.InkColours(draw.Image.Sheet).SequenceEqual(nativeColours.Colors[SpriteImage.SpriteColourCount..].ToArray()),
+                    AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(draw.Image.Sheet,
+                            PictureShading.Standard.InkColours(draw.Image.Sheet), nativeColours.Colors),
                         $"pause sprite {draw.Image.Sheet.Name} shows the cartridge's pause sprite colours {capacity}/{supply}");
                 var expected = DisplayRendering.Render(capture.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection));
                 // This rectangle encloses the tank strip and end-cap, but not the

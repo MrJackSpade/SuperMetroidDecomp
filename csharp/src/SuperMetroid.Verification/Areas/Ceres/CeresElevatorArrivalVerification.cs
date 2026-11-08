@@ -93,8 +93,11 @@ internal static class CeresElevatorArrivalVerification
         VerificationAssertions.AssertTrue(frame.Draws.Length > 0, "the arrival draws while it runs");
         foreach (SpriteDraw draw in frame.Draws)
         {
-            ShadeInks inks = ((ImageSpriteDraw)draw).Image.Sheet.Shade(CeresElevatorShades.ConcealerCleared);
-            VerificationAssertions.AssertTrue(inks.Inks.SequenceEqual([spriteColour]) && inks.Colours.SequenceEqual([RgbColor.Black]),
+            SpriteImage sheet = ((ImageSpriteDraw)draw).Image.Sheet;
+            ShadeInks inks = sheet.Shade(CeresElevatorShades.ConcealerCleared);
+            // The shade names the sheet's own colours; the import composed each as a palette index (#1544).
+            VerificationAssertions.AssertTrue(inks.Inks.Select(ink => SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedIndexOf(sheet, ink))
+                    .SequenceEqual([spriteColour]) && inks.Colours.SequenceEqual([RgbColor.Black]),
                 "the concealer's shade shows the cartridge's cleared sprite colour black");
         }
     }

@@ -57,9 +57,9 @@ internal sealed class SheetPictureColouring
         Ensure.NotNull(document);
         if (document.Palette != SpriteImageColours.Sprite || document.BackgroundSets is not null)
             throw new InvalidDataException($"A {document.Palette} sheet's colouring is not a sprite sheet's.");
-        if (document.Colours.Length != SpriteImage.SpriteColourCount)
-            throw new InvalidDataException($"A sprite sheet names {document.Colours.Length} standard colours, not {SpriteImage.SpriteColourCount}.");
-        var colours = new RgbColor[SpriteImage.SpriteColourCount];
+        if (document.Colours.Length != ImageColourGroup.HalfColours)
+            throw new InvalidDataException($"A sprite sheet names {document.Colours.Length} standard colours, not {ImageColourGroup.HalfColours}.");
+        var colours = new RgbColor[ImageColourGroup.HalfColours];
         for (int ink = 0; ink < colours.Length; ink++)
         {
             if (Covers(groups, ink))
@@ -74,8 +74,8 @@ internal sealed class SheetPictureColouring
             for (int entry = 0; entry < shade.Inks.Length; entry++)
             {
                 int ink = shade.Inks[entry];
-                if (ink is < 0 or >= SpriteImage.SpriteColourCount)
-                    throw new InvalidDataException($"Shade {key} recolours ink {ink}, past a sprite sheet's {SpriteImage.SpriteColourCount}.");
+                if (ink is < 0 or >= ImageColourGroup.HalfColours)
+                    throw new InvalidDataException($"Shade {key} recolours ink {ink}, past a sprite sheet's {ImageColourGroup.HalfColours}.");
                 if (Covers(groups, ink))
                     shown.Add(ink, RgbColor.FromWord(shade.Colours[entry]));
             }

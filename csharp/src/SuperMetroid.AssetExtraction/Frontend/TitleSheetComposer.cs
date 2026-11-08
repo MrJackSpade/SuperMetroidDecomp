@@ -61,7 +61,7 @@ internal static class TitleSheetComposer
             }
         }
         // The title's colours run in cartridge order: its background colours, then its sprite colours.
-        RgbColor[] sprites = palette.Colours.AsSpan()[SpriteImage.SpriteColourCount..].ToArray();
+        RgbColor[] sprites = palette.Colours.AsSpan()[ImageColourGroup.HalfColours..].ToArray();
         // Each colouring's drawn shade shows its own set's colours over its own set's inks, carrying whether its draws
         // take part in colour math.
         var shades = new List<SheetShade>();

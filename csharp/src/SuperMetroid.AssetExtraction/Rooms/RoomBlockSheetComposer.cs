@@ -24,6 +24,12 @@ internal static class RoomBlockSheetComposer
     /// <summary>Pictures across one row of a sheet.</summary>
     private const int SheetColumns = 32;
 
+    /// <summary>
+    /// The palette index of the colour a tileset's rooms show where nothing is drawn: the background half's first, which
+    /// the room's colour effects change as they change its tiles' colours (#1544).
+    /// </summary>
+    private const int RoomBackdropIndex = 0;
+
     /// <summary>Composes every tileset's sheet.</summary>
     internal static RoomSheetComposition Compose(RoomBlockSheetInputs inputs)
     {
@@ -222,7 +228,10 @@ internal static class RoomBlockSheetComposer
             });
             index++;
         }
-        return new ComposedBlocks(canvas.ToRoomSheet(colours, frames), new RoomBlockAppearances(tilesetInputs, spriteInputs), cells);
+        ComposedSpriteSheet sheet = canvas.ToRoomSheet(colours, frames);
+        // The tileset's rooms show its first background colour where nothing is drawn (#1544).
+        return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = RoomBackdropIndex } },
+            new RoomBlockAppearances(tilesetInputs, spriteInputs), cells);
 
         // Adds a picture of block `block` over `artwork` for each assignment of values to the inputs `candidates` give the
         // runs of characters `runs` it reads, over what `over` shows where an input shows the load; returns those inputs. A

@@ -47,19 +47,12 @@ internal static class SamusBodyWholeFigureVerification
     /// <summary>The fewest opaque pixels a group needs to count as a figure rather than a stray spark.</summary>
     private const int MeaningfulPixels = 16;
 
-    /// <summary>The distinct inks a pixel's palette-index byte can hold.</summary>
-    private const int InkValues = byte.MaxValue + 1;
-
     /// <summary>Checks every installed Samus body sheet frame against the whole-Samus rule.</summary>
     internal static void VerifySamusBodyWholeFigures()
     {
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
         SpriteImage image = sheet.Image;
-        byte[] inks = SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image);
-        var colourZero = new bool[InkValues];
-        for (int ink = 0; ink < InkValues; ink++)
-            colourZero[ink] = image.IsColourZero(new SpriteImageInk(ink, frontTile: false));
-        var opaque = new OpaquePixels(inks, image.Size.X, colourZero);
+        var opaque = new OpaquePixels(SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image), image.Size.X);
 
         InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
         SamusSpritemapSources spritemaps = body.Spritemaps.Source;
@@ -142,15 +135,14 @@ internal static class SamusBodyWholeFigureVerification
         return 0;
     }
 
-    /// <summary>Which pixels of the body sheet's image ink a colour other than colour zero.</summary>
+    /// <summary>Which pixels of the body sheet's image are not clear.</summary>
     /// <param name="inks">The ink of each pixel of the image, row by row from the top.</param>
     /// <param name="width">The image's width.</param>
-    /// <param name="colourZero">Whether each ink is a colour zero, which draws nothing.</param>
-    private sealed class OpaquePixels(byte[] inks, int width, bool[] colourZero)
+    private sealed class OpaquePixels(SpriteImageInk[] inks, int width)
     {
         /// <summary>Whether the frame-local pixel at (<paramref name="x"/>, <paramref name="y"/>) of <paramref name="frame"/> is opaque.</summary>
         private bool IsOpaque(SpriteSheetFrame frame, int x, int y) =>
-            !colourZero[inks[(frame.Corner.Y + y) * width + frame.Corner.X + x]];
+            !inks[(frame.Corner.Y + y) * width + frame.Corner.X + x].Clear;
 
         /// <summary>
         /// Whether <paramref name="frame"/> inks a pixel inside any part of <paramref name="composition"/>, placed from the

@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicPaintDefinitions;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;

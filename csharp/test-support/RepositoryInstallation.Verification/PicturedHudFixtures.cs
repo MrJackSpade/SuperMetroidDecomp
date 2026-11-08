@@ -26,7 +26,7 @@ internal static class PicturedHudFixtures
         const int tile = GameplayHudDefinitions.CellPixels, characterWords = 8;
         const int columns = GameplayHudDefinitions.Width, rows = GameplayHudDefinitions.Rows;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * tile, rows * tile));
-        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         for (int cell = 0; cell < columns * rows; cell++)
         {
@@ -45,7 +45,7 @@ internal static class PicturedHudFixtures
             ["hud"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.FxOverlayAndHud),
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
-        SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "hud-fixture",
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "hud-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
         // The fixture's HUD shows the colours it was composed in, in gameplay and frontend frames alike (#1512).
         return new PicturedHud([new PlacedHudPicture(sheet.Frame("hud"), Position16<ScreenPixels>.Zero, PictureShading.Standard)]);

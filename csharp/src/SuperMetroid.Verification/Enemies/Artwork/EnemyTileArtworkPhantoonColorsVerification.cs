@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.EyeState.FadeNumerator = 13;
         bool complete = PhantoonDeath.AdvanceWreckedShipPowerPalette(state, state.EyeState);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
-        SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses, new RgbColor[SpriteImage.SpriteColourCount])
+        SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses, new RgbColor[ImageColourGroup.HalfColours])
             .Single(shade => shade.Shade == PhantoonShades.PowerOn(13));
         for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
             AssertEqual(colors.ResolvePowerOnAtNative(color),
@@ -152,8 +152,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     {
         var frame = new GameplayShadingBuilder();
         state.Colours.ShadeGameplay(frame);
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [0],
-            new SpriteImagePalette(SpriteImageColours.Background, [.. new RgbColor[SpriteImage.SpriteColourCount]]), [0]))
+        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [SpriteImageInk.Transparent(frontTile: false)],
+            new PictureColours([RgbColor.Black]) { Backdrop = 0 }))
             .Of(GameplayPictures.BossBody).Shades.Single();
     }
 

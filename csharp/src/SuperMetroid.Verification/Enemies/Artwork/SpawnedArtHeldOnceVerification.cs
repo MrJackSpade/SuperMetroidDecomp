@@ -16,21 +16,17 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// explosion, a drop or a projectile, is pictured once in each colouring it is drawn in, and every graphics set that draws
 /// it reads that one picture.
 /// <para>
-/// A frame's picture is compared by everything a draw of it shows: its name, rectangle size, origin, depth and colour
-/// groups, each pixel's colour, ink and front-tile mark, the sheet's palette bits, and its colouring. Its colouring is the
-/// sheet's standard colours and shades restricted to the colour rows the picture uses (the rows its pixels ink and the
-/// colour groups it names): a sheet's manifest stores all 128 colours and every shade, so two sheets differ in rows a
-/// picture never shows, and those rows say nothing about the picture. A shade counts when it recolours an ink of those
-/// rows or blends the whole draw.
+/// A frame's picture is compared by everything a draw of it shows: its name, rectangle size, origin and depth, each
+/// pixel's colour and ink marks, and its colouring (#1544). Its colouring is the colours of the sheet's own the picture's
+/// pixels show, in the order the picture first shows them, each pixel naming its colour by that order, and what each
+/// shade shows of them: a sheet's colours and shades also cover its other pictures, and those say nothing about this one.
+/// A shade counts when it recolours one of those colours or blends the whole draw.
 /// </para>
-/// Each sheet's image and palette-index planes are read from its installed files and dropped after its frames are
-/// fingerprinted, in parallel across sheets.
+/// Each sheet's image and palette map are read from its installed files and dropped after its frames are fingerprinted,
+/// in parallel across sheets.
 /// </summary>
 internal static class SpawnedArtHeldOnceVerification
 {
-    /// <summary>Colours in one sprite colour row.</summary>
-    private const int RowColours = ImageColourGroup.Colours;
-
     /// <summary>Fails, naming every frame two or more installed spawned-object sheets hold alike, with the sheets holding it.</summary>
     internal static void VerifySpawnedArtHeldOnce()
     {
@@ -61,30 +57,28 @@ internal static class SpawnedArtHeldOnceVerification
     private static SpriteSheet[] SheetsOf(SpawnedObjectSheet spawned) => [.. spawned.Sheets];
 
     /// <summary>Each pictured frame of <paramref name="sheet"/> with the fingerprint of everything a draw of it shows.</summary>
-    /// <exception cref="InvalidDataException">An installed plane is malformed or not the sheet's size, or a pixel inks past the sheet's rows.</exception>
+    /// <exception cref="InvalidDataException">An installed plane is malformed or not the sheet's size.</exception>
     private static HeldPicture[] Pictures(string directory, SpriteSheet sheet)
     {
         SpriteImage image = sheet.Image;
         RgbaPixel[] pixels = Plane(directory, SpriteSheetStore.ImageFile(image.Name), image);
-        RgbaPixel[] inks = Plane(directory, SpriteSheetStore.PaletteFile(image.Name), image);
-        int paletteBits = InstalledPictureColours.PaletteBitsOf(image);
+        SpriteImageInk[] inks = Array.ConvertAll(Plane(directory, SpriteSheetStore.PaletteFile(image.Name), image), InstalledSheetColouring.InkOf);
         KeyValuePair<PictureShade, ShadeInks>[] shades = [.. image.Shades.OrderBy(shade => shade.Key.Key, StringComparer.Ordinal)];
         return [.. sheet.frames.OrderBy(frame => frame.Key, StringComparer.Ordinal).Select(frame =>
-            new HeldPicture(frame.Key, image.Name, Fingerprint(frame.Key, frame.Value, image, pixels, inks, paletteBits, shades)))];
+            new HeldPicture(frame.Key, image.Name, Fingerprint(frame.Key, frame.Value, image, pixels, inks, shades)))];
     }
 
     /// <summary>
-    /// The fingerprint of frame <paramref name="name"/> as a draw shows it: its rectangle's pixels, inks and front-tile marks,
-    /// size, origin, depth and colour groups, the sheet's palette bits, and the sheet's colours and shades over the rows the
-    /// frame uses.
+    /// The fingerprint of frame <paramref name="name"/> as a draw shows it: its rectangle's size, origin and depth, each
+    /// pixel's colour and ink marks, the colours of the sheet's own its pixels show, each pixel naming its colour by the
+    /// order the frame first shows them, and what each shade shows of those colours.
     /// </summary>
-    /// <exception cref="InvalidDataException">A pixel inks a row past the sheet's colour groups.</exception>
-    private static string Fingerprint(string name, SpriteSheetFrame frame, SpriteImage image, RgbaPixel[] pixels, RgbaPixel[] inks, int paletteBits,
+    private static string Fingerprint(string name, SpriteSheetFrame frame, SpriteImage image, RgbaPixel[] pixels, SpriteImageInk[] inks,
         KeyValuePair<PictureShade, ShadeInks>[] shades)
     {
-        var rows = new bool[ImageColourGroup.Count];
-        foreach (ImageColourGroup group in ImageColourGroup.Every.Where(group => frame.ColourGroups.Contains(group)))
-            rows[group.Number] = true;
+        // The sheet's colours the frame shows, by their order in the frame.
+        var shownColours = new List<int>();
+        var orderOf = new Dictionary<int, int>();
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
@@ -94,8 +88,6 @@ internal static class SpawnedArtHeldOnceVerification
             writer.Write(frame.Origin.X);
             writer.Write(frame.Origin.Y);
             writer.Write(frame.Depth?.ToString() ?? "none");
-            writer.Write(frame.ColourGroups.ManifestMembers);
-            writer.Write(paletteBits);
             int width = image.Size.X;
             for (int row = 0; row < frame.Size.Y; row++)
             {
@@ -103,32 +95,34 @@ internal static class SpawnedArtHeldOnceVerification
                 {
                     int at = (frame.Corner.Y + row) * width + frame.Corner.X + column;
                     RgbaPixel pixel = pixels[at];
-                    RgbaPixel ink = inks[at];
+                    SpriteImageInk ink = inks[at];
                     writer.Write(pixel.R);
                     writer.Write(pixel.G);
                     writer.Write(pixel.B);
                     writer.Write(pixel.A);
-                    writer.Write(ink.R);
-                    writer.Write(ink.G);
-                    if (image.IsColourZero(new SpriteImageInk(ink.R, frontTile: false)))
+                    writer.Write(ink.Clear);
+                    writer.Write(ink.Blends);
+                    writer.Write(ink.FrontTile);
+                    if (ink.Colour is not int colour)
+                    {
+                        writer.Write(-1);
                         continue;
-                    if (ink.R / RowColours >= rows.Length)
-                        throw new InvalidDataException($"{image} frame {name} inks colour {ink.R}, past its {rows.Length} colour rows.");
-                    rows[ink.R / RowColours] = true;
+                    }
+                    if (!orderOf.TryGetValue(colour, out int order))
+                    {
+                        orderOf.Add(colour, order = shownColours.Count);
+                        shownColours.Add(colour);
+                    }
+                    writer.Write(order);
                 }
             }
             ReadOnlySpan<RgbColor> colours = image.StandardColours;
-            for (int row = 0; row < rows.Length; row++)
-            {
-                if (!rows[row])
-                    continue;
-                writer.Write(row);
-                for (int colour = 0; colour < RowColours; colour++)
-                    WriteColour(writer, colours[row * RowColours + colour]);
-            }
+            foreach (int colour in shownColours)
+                WriteColour(writer, colours[colour]);
             foreach ((PictureShade shade, ShadeInks shown) in shades)
             {
-                int[] entries = [.. Enumerable.Range(0, shown.Inks.Length).Where(entry => shown.Inks[entry] / RowColours < rows.Length && rows[shown.Inks[entry] / RowColours])];
+                int[] entries = [.. Enumerable.Range(0, shown.Inks.Length).Where(entry => orderOf.ContainsKey(shown.Inks[entry]))
+                    .OrderBy(entry => orderOf[shown.Inks[entry]])];
                 if (entries.Length == 0 && !shown.Blends)
                     continue;
                 writer.Write(shade.Key);
@@ -136,7 +130,7 @@ internal static class SpawnedArtHeldOnceVerification
                 writer.Write(entries.Length);
                 foreach (int entry in entries)
                 {
-                    writer.Write(shown.Inks[entry]);
+                    writer.Write(orderOf[shown.Inks[entry]]);
                     WriteColour(writer, shown.Colours[entry]);
                 }
             }

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 

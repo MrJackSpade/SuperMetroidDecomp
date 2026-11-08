@@ -30,6 +30,10 @@ internal static class WrittenPictureSheetComposer
     /// <summary>Tiles across the tilemaps pictures are written into.</summary>
     private const int SheetTiles = 32;
 
+    /// <summary>How the pictures of <paramref name="layer"/> are composed: the effect overlay's from colour sets of four.</summary>
+    private static SpriteImageColours ColoursOf(WrittenPictureLayer layer) =>
+        layer == WrittenPictureLayer.FxOverlayAndHud ? SpriteImageColours.TwoBppBackground : SpriteImageColours.Background;
+
     /// <summary>
     /// Tiles across the widest sheet the installation can hold, which pictures are packed into: a BG3 sheet pictures each
     /// room effect's whole page again for each frame its effects animate, more than a page-wide sheet could hold.
@@ -194,7 +198,7 @@ internal static class WrittenPictureSheetComposer
             Position16<TilemapCells> corner = partCorners[frame.Part] + (frame.Cell - Position16<TilemapCells>.Zero);
             frames.Add(frame.Name, Frame(canvas, HudImageSheet.Pixels(corner), HudImageSheet.Pixels(frame.Size), layer));
         }
-        return new ComposedWrittenPictureSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, WrittenPictureSheet.ColoursOf(layer)), inputsOf);
+        return new ComposedWrittenPictureSheet(layer, tileset, canvas.ToRoomSheet(colours, frames, ColoursOf(layer)), inputsOf);
 
         // `subject`'s words as they show while `depends` take `values`, named `name`, laid from its top-left written cell;
         // null where a word's character shows nothing for them.

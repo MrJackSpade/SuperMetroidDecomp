@@ -4,7 +4,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>One frame in a sprite sheet manifest.</summary>
+/// <summary>One frame in a sprite sheet manifest as the import composes it; the installed manifest keeps it as an <see cref="InstalledSheetFrameDocument"/> (#1544).</summary>
 public sealed record SpriteSheetFrameDocument
 {
     /// <summary>The frame rectangle's top-left pixel on the sheet.</summary>
@@ -16,7 +16,7 @@ public sealed record SpriteSheetFrameDocument
     /// <summary>The frame's origin, from the rectangle's top-left pixel.</summary>
     public required Offset16<ImagePixels> Origin { get; init; }
 
-    /// <summary>The image's colour groups the frame was coloured from, as the manifest stores them: a bit per group's place.</summary>
+    /// <summary>The colour groups the frame was composed from, as the composed manifest stores them: a bit per group's place.</summary>
     public required int ColourGroups { get; init; }
 
     /// <summary>

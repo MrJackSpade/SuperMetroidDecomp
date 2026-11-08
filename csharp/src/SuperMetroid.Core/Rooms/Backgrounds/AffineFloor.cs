@@ -15,9 +15,9 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     public const int SidePixels = 1024;
 
     /// <summary>Holds a floor's image and the pictures drawn over it.</summary>
-    /// <param name="image">The whole floor, <see cref="SidePixels"/> square, coloured from the full palette.</param>
+    /// <param name="image">The whole floor, <see cref="SidePixels"/> square.</param>
     /// <param name="drawnOver">The pictures of the floor's states drawn over it, in drawing order; each lies on the floor.</param>
-    /// <exception cref="InvalidDataException">The image is not the whole floor or not coloured from the full palette, or a picture leaves the floor.</exception>
+    /// <exception cref="InvalidDataException">The image is not the whole floor, or a picture leaves the floor.</exception>
     public AffineFloor(SpriteSheetFrame image, ImmutableArray<SpriteSheetFrame> drawnOver = default)
     {
         Image = Ensure.NotNull(image);
@@ -31,11 +31,6 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
                 throw new InvalidDataException($"A {picture.Size.X}x{picture.Size.Y} picture placed at ({-picture.Origin.X}, {-picture.Origin.Y}) leaves the floor.");
         }
         Pictures = [.. new[] { image }.Concat(DrawnOver).Distinct()];
-        foreach (SpriteSheetFrame picture in Pictures)
-        {
-            if (picture.Sheet.Colours != SpriteImageColours.FullPalette)
-                throw new InvalidDataException("A floor's pictures are coloured from the full palette.");
-        }
     }
 
     /// <summary>The whole floor's image.</summary>

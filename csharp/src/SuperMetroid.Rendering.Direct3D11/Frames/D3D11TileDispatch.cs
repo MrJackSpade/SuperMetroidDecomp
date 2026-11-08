@@ -19,7 +19,7 @@ internal sealed record D3D11TileDispatch
     /// </summary>
     public uint DrawnPart { get; init; } = 0;
 
-    /// <summary>Transparent zero.</summary>
+    /// <summary>Whether a layer pass leaves its pictures' clear pixels showing what lies behind (#1544).</summary>
     public uint TransparentZero { get; init; } = 1;
 
     /// <summary>Level.</summary>

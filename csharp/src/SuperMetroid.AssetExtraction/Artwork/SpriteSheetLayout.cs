@@ -166,7 +166,7 @@ internal sealed class SpriteSheetLayout
             colours[ink] = spriteColours[DrawnColourOf(ink)].ToWord();
         return new SpriteSheetDocument
         {
-            Version = SpriteSheetFile.Version, Palette = SpriteImageColours.Sprite, Colours = colours, PaletteBits = sources.PaletteBits,
+            Palette = SpriteImageColours.Sprite, Colours = colours, PaletteBits = sources.PaletteBits,
             Frames = manifest,
             Shades = SheetShade.Documents([.. (sources.Shades ?? []).Select(InkShade), .. RowShades()]),
             Blank = sources.Blank is { Count: > 0 } blank ? [.. blank] : null,

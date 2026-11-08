@@ -304,7 +304,7 @@ internal static class RoomBackgroundsFixtures
     {
         bool twoBpp = kind == SpriteImageColours.TwoBppBackground;
         bool fullPalette = kind == SpriteImageColours.FullPalette;
-        var standard = new ushort[SpriteImage.ColourCountOf(kind)];
+        var standard = new ushort[ImageColourGroup.ColourCountOf(kind)];
         for (int colour = 0; colour < standard.Length; colour++)
             standard[colour] = colour / 16 % 2 == 0 ? scene[colour].ToWord() : (ushort)random.Next(32768);
         int pixels = size.X * size.Y;
@@ -347,15 +347,16 @@ internal static class RoomBackgroundsFixtures
         }
         var document = new SpriteSheetDocument
         {
-            Version = SpriteSheetFile.Version,
             Palette = kind,
             Colours = standard,
             // A room's seeded sheets are gameplay background images, whose groups the import pipeline names in the
             // cartridge's set order.
             BackgroundSets = [.. InstalledPictureColours.CartridgeOrderSets],
+            // A seeded block sheet stands for a room's tileset, which names its scene's backdrop (#1544).
+            Backdrop = 0,
             Frames = frames,
         };
-        return SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(document), writable: false), name, size, image,
+        return SpriteSheetFileConstants.Load(document, name, size, image,
             indices, priorities);
     }
 

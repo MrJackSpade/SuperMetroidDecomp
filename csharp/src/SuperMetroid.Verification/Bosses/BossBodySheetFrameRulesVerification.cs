@@ -8,8 +8,8 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>
-/// Holds every installed boss body sheet to the sheet pixel rules (#1513): no frame is empty and none inks an empty
-/// colour row, as <see cref="SheetInkRules"/> defines them.
+/// Holds every installed boss body sheet to the sheet pixel rule (#1513): no frame is empty, as
+/// <see cref="SheetInkRules"/> defines it.
 /// </summary>
 internal static class BossBodySheetFrameRulesVerification
 {

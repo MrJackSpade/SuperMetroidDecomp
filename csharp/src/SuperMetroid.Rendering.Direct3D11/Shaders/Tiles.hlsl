@@ -69,11 +69,11 @@ static const uint RevealColumns = 17, RevealRows = 16;
 // A picture (a block, or a background image): its colour slot, its place in the image texture and its width and height,
 // x below y.
 static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord = 2;
-// The installed images (D3D11ImageAtlas), each texel the image's pre-coloured pixel, then its ink word: the ink, above
-// it whether the pixel lies in one of its layer's front tiles (#1514), and above that whether it is colour zero and
-// whether it keeps its group.
+// The installed images (D3D11ImageAtlas), each texel the image's pre-coloured pixel, then its ink word: the place of its
+// colour among its image's own colours (#1544), above it whether the pixel lies in one of its layer's front tiles (#1514),
+// and above that whether it is clear and whether it has a colour of its own.
 Texture2D<uint2> Images : register(t4);
-static const uint InkFrontTile = 256, InkColourZero = 65536, InkKeepsGroup = 131072;
+static const uint InkFrontTile = 256, InkClear = 65536, InkColoured = 131072;
 // The perspective floor's image (D3D11FloorImage): the 1024-pixel floor with its states' pictures laid over it. Each
 // texel's ink word keeps the index of the floor picture it comes from.
 Texture2D<uint2> Floor : register(t5);
@@ -292,20 +292,19 @@ uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha 
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
-// The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512): whether it shows a
-// colour other than colour zero (`index`), whether it lies in a front tile (#1514), and its ink's colour under the slot's
-// shading. A colour-zero pixel shows nothing, or, where it keeps its group, that group's colour zero when its layer
-// shows it.
+// The colour an image texel shows when its image is coloured from colour slot `slot` (#1408, #1512): whether it is opaque
+// rather than clear (`index`), whether it lies in a front tile (#1514), and its colour under the slot's shading. A clear
+// pixel shows nothing, or, where it has a colour of its own (#1544), that colour when its layer is drawn opaque.
 uint TexelColour(uint2 texel, uint slot, out uint index, out bool front)
 {
     uint meta = texel.y;
     uint ink = meta & 255;
     front = (meta & InkFrontTile) != 0;
     uint table = Colours[1 + slot];
-    if ((meta & InkColourZero) != 0)
+    if ((meta & InkClear) != 0)
     {
         index = 0;
-        return (meta & InkKeepsGroup) != 0 ? Colours[table + ink] : 0;
+        return (meta & InkColoured) != 0 ? Colours[table + ink] : 0;
     }
     index = 1;
     return Colours[table + ink];
@@ -471,7 +470,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpXrayRoom) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpMessageText)
     {
-        // The message's image (#1392) from its top scanline, in the message's text colours (#1408): colour zero shows
+        // The message's image (#1392) from its top scanline, in the message's text colours (#1408): a clear pixel shows
         // nothing.
         uint picture = RoomLevels[RoomMessagePictureWord];
         uint height = RoomLevels[picture + PictureSizeWord] >> 16;
@@ -639,7 +638,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (picture == 0) return;
     uint color;
     bool front;
-    // A block picture keeps no row for its transparent pixels; room planes show colour zero as transparent.
+    // Room planes show a clear pixel as transparent; a layer drawn opaque shows a clear pixel's own colour (#1544).
     uint sampled = PicturePixel(picture, within, color, front);
     // A room layer's back tiles and its front tiles are drawn as layers of their own (#1514).
     if (DrawnPart != 0 && (front ? 1u : 0u) != DrawnPart - 1) return;

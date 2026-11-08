@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -28,11 +29,17 @@ internal static class MagdolliteShadeContentVerification
         int row = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Magdollite);
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.Magdollite).Image;
         int first = row * LoadedSetColours.RowColours;
+        // The sheet's own colours, laid out by the palette index each was composed as (#1544); a colour of the row none of
+        // its pixels shows is not one of its colours, and nothing shows it.
+        RgbColor[] standard = InstalledPictureColoursConstants.ComposedColours(image);
         for (int frame = 0; frame < MagdollitePaletteDefinitions.FrameCount; frame++)
         {
-            RgbColor[] inks = PictureShading.Shaded(MagdolliteShades.Glow(frame)).InkColours(image);
+            RgbColor[] inks = InstalledPictureColoursConstants.ByComposedIndex(image,
+                PictureShading.Shaded(MagdolliteShades.Glow(frame)).InkColours(image));
             for (int color = 0; color < LoadedSetColours.RowColours; color++)
             {
+                if (InstalledPictureColoursConstants.ColourComposedAs(image, first + color) is null)
+                    continue;
                 int glow = color - MagdollitePaletteCycle.FirstAnimatedColor;
                 if (glow is >= 0 and < MagdollitePaletteCycle.AnimatedColorCount)
                 {
@@ -44,7 +51,7 @@ internal static class MagdolliteShadeContentVerification
                 }
                 else
                 {
-                    AssertEqual(image.StandardColours[first + color], inks[first + color],
+                    AssertEqual(standard[first + color], inks[first + color],
                         $"{set.Name} Magdollite glow frame {frame} leaves ink {color} its standard colour");
                 }
             }

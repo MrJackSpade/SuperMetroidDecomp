@@ -45,7 +45,7 @@ internal static class EnemySheetPicturesHeldOnceVerification
     private static ImagePictures Pictures(string directory, LabelledSheet[] users)
     {
         SpriteImage image = users[0].Sheet.Image;
-        byte[] inks = SheetInkRules.InkPlane(directory, image);
+        SpriteImageInk[] inks = SheetInkRules.InkPlane(directory, image);
         string owner = users.Length == 1 ? users[0].Label : $"{users[0].Label} and {users.Length - 1} more";
         // Each rectangle the image's frames name, with the frames naming it.
         var rectangles = new Dictionary<SheetRectangle, SortedSet<string>>();
@@ -78,14 +78,14 @@ internal static class EnemySheetPicturesHeldOnceVerification
     }
 
     /// <summary>The picture a rectangle holds, spelled for telling pictures apart: its size and the ink of each of its pixels.</summary>
-    private static string Picture(byte[] inks, int width, SheetRectangle rectangle)
+    private static string Picture(SpriteImageInk[] inks, int width, SheetRectangle rectangle)
     {
         Position16<ImagePixels> corner = rectangle.Corner;
         Extent16<ImagePixels> size = rectangle.Size;
-        var pixels = new byte[size.X * size.Y];
+        var pixels = new SpriteImageInk[size.X * size.Y];
         for (int row = 0; row < size.Y; row++)
             inks.AsSpan((corner.Y + row) * width + corner.X, size.X).CopyTo(pixels.AsSpan(row * size.X));
-        return $"{size.X}x{size.Y} {Convert.ToBase64String(pixels)}";
+        return $"{size.X}x{size.Y} {Convert.ToBase64String(SheetInkRules.MapBytes(pixels))}";
     }
 
     /// <summary>A rectangle of a sheet image that frames name.</summary>

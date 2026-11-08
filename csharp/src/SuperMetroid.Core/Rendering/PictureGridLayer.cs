@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// A frontend screen's layer showing a picture grid (#1467): the backend draws each cell's picture, scrolled and wrapping at
-/// the grid's edges, at the layer's place in its scene's order (#1514), colour zero showing what lies behind.
+/// the grid's edges, at the layer's place in its scene's order (#1514), clear pixels showing what lies behind.
 /// </summary>
 /// <param name="Grid">The grid.</param>
 /// <param name="Scroll">The grid pixel shown at the screen's top-left corner.</param>

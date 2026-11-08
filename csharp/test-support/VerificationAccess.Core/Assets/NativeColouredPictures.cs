@@ -34,18 +34,16 @@ internal static class NativeColouredPictures
         ReadOnlySpan<RgbaPixel> pixels = picture.Pixels;
         ReadOnlySpan<SpriteImageInk> inks = picture.Inks;
         var shown = new RgbaPixel[pixels.Length];
-        var indices = new byte[pixels.Length];
-        var frontTiles = new byte[pixels.Length];
         for (int pixel = 0; pixel < pixels.Length; pixel++)
         {
-            SpriteImageInk ink = inks[pixel];
-            // A transparent pixel stays transparent; every other pixel shows its ink's native colour.
-            shown[pixel] = pixels[pixel].A == 0 ? pixels[pixel] : standard[ink.PaletteIndex].ToRgbaPixel() with { A = pixels[pixel].A };
-            indices[pixel] = checked((byte)ink.PaletteIndex);
-            frontTiles[pixel] = ink.FrontTile ? (byte)1 : (byte)0;
+            // A transparent pixel stays transparent; every other pixel shows its colour's native colour.
+            shown[pixel] = pixels[pixel].A == 0 || inks[pixel].Colour is not int colour ? pixels[pixel]
+                : standard[colour].ToRgbaPixel() with { A = pixels[pixel].A };
         }
-        return SpriteImageFixtures.Copied(picture.Name, picture.Size, shown, indices,
-            new SpriteImagePalette(picture.Colours, [.. standard]), frontTiles);
+        SpriteImage copy = SpriteImageFixtures.Copied(picture.Name, picture.Size, shown, inks,
+            new PictureColours([.. standard]) { Backdrop = picture.Backdrop });
+        InstalledPictureColoursConstants.RecordAs(copy, picture);
+        return copy;
     }
 
     /// <summary>The sprite row <paramref name="draw"/>'s colouring ORs into its parts, or zero for a draw in no frontend colouring.</summary>
@@ -56,7 +54,7 @@ internal static class NativeColouredPictures
     /// the frontend colouring the shading names for a sprite picture, zero for any other.
     /// </summary>
     internal static int DrawRow(SpriteImage picture, PictureShading? shading) =>
-        Ensure.NotNull(picture).Colours == SpriteImageColours.Sprite
+        InstalledPictureColours.SetsOf(Ensure.NotNull(picture)).Palette == SpriteImageColours.Sprite
             ? SuperMetroid.TestSupport.RepositoryInstallation.Verification.DrawnShadeRows.RowOf(shading) ?? 0
             : 0;
 
@@ -65,12 +63,12 @@ internal static class NativeColouredPictures
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(picture);
-        return new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin, frame.ColourGroups) { Depth = frame.Depth };
+        return new SpriteSheetFrame(picture, frame.Corner, frame.Size, frame.Origin) { Depth = frame.Depth };
     }
 
     /// <summary>
-    /// The native 256-colour image <paramref name="picture"/> shows under <paramref name="shading"/>: each ink's colour
-    /// under the shading at the place the import says the ink was coloured from; the places no ink names stay black.
+    /// The native 256-colour image <paramref name="picture"/> shows under <paramref name="shading"/>: each of its colours
+    /// under the shading at the place the import says it was coloured from; the places no colour names stay black.
     /// </summary>
     internal static RgbColor[] ShownIn(SpriteImage picture, PictureShading shading)
     {

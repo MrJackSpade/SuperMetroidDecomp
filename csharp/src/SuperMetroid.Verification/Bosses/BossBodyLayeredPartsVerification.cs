@@ -229,7 +229,7 @@ internal static class BossBodyLayeredPartsVerification
             throw new InvalidOperationException($"Pixel ({x}, {y}) lies off a {picture.Size.X}x{picture.Size.Y} picture.");
         SpriteImage image = picture.Sheet;
         SpriteImageInk ink = image.Inks[(picture.Corner.Y + y) * image.Size.X + picture.Corner.X + x];
-        return image.IsColourZero(ink) ? null : ink;
+        return ink.Clear ? null : ink;
     }
 
     /// <summary>The frames <paramref name="frames"/> compose <paramref name="owner"/>'s sheet from, by name.</summary>

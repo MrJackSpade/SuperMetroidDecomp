@@ -41,7 +41,7 @@ internal static class RoomBlockFixtures
         int count = definitions.Length / BlockTiles;
         int rows = (count + columns - 1) / columns;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(columns * side, checked((ushort)(rows * side))));
-        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int block = 0; block < count; block++)
@@ -68,7 +68,7 @@ internal static class RoomBlockFixtures
             });
         }
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
-        SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "blocks-fixture",
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest with { Backdrop = 0 }, "blocks-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
         return new RoomBlockPictureTable(new RoomBlockSheet(default(TilesetDefinition), sheet, Appearances(count)),
             [.. Enumerable.Range(0, count).Select(block => (SpriteSheetFrame?)sheet.Frame($"{block}"))]);
@@ -85,7 +85,7 @@ internal static class RoomBlockFixtures
     {
         const int tile = 8, characterWords = 16, pageWords = RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels));
-        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var character = new byte[characterWords * sizeof(ushort)];
         var words = new ushort[RoomBackgroundImageGeometry.Words];
         ImageColourGroups coloured = ImageColourGroups.None;
@@ -115,7 +115,7 @@ internal static class RoomBlockFixtures
             },
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames);
-        SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), "loaded-background-fixture",
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "loaded-background-fixture",
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
         var background = new RoomBackgroundImage("loaded-background-fixture", sheet, []);
         return new RoomBackgroundImagePlane(background, new SpriteSheetFrame?[background.CellCount],

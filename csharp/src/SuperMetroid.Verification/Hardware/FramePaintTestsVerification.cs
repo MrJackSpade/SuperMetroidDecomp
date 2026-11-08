@@ -17,14 +17,15 @@ internal static class FramePaintTestsVerification
         var sprites = new SpriteFrameBuffer();
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             cgram.SetColor(index, RgbColor.FromWord((ushort)(index * 97)));
-        var image = SpriteImageFixtures.Copied("Fixture", new(8, 8), new RgbaPixel[64], new byte[64],
-            new SpriteImagePalette(SpriteImageColours.Sprite, [.. new RgbColor[SpriteImage.SpriteColourCount]]), new byte[64]);
-        // The fixture picture is kept as an installed sprite sheet's would be, with no palette bits, so a capture colours
-        // its inks from the cartridge colours as the loader's pictures are (#1512).
-        SuperMetroid.AssetExtraction.Artwork.InstalledPictureColours.Record(image, [], paletteBits: 0);
+        // A fixture picture whose pixels show every colour of the sprite half but the first, transparent one, installed as an
+        // installed sprite sheet's would be, with no palette bits, so a capture colours its colours from the cartridge
+        // colours as the loader's pictures are (#1512, #1544).
+        byte[] indices = [.. Enumerable.Range(0, ImageColourGroup.HalfColours).Select(index => (byte)index)];
+        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), new RgbaPixel[indices.Length], indices, new byte[indices.Length],
+            SpriteImageColours.Sprite, new RgbColor[ImageColourGroup.HalfColours]);
         sprites.BeginFrame();
-        sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(8, 8), default,
-            ImageColourGroups.None), new(10, 20), SpriteMirror.None));
+        sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(16, 8), default),
+            new(10, 20), SpriteMirror.None));
         sprites.FinalizeFrame();
         // The frame's own draws, which draw the recorded fixture picture; a capture's draws draw native-coloured copies of it,
         // which no sheet loader recorded, so a repaint starts from these.
@@ -56,10 +57,10 @@ internal static class FramePaintTestsVerification
         Console.WriteLine("Frame paint: CGRAM parity, draw retention, ownership and size checks passed.");
 
         // A native frame shows native colour 0 as its backdrop and draws each picture as a copy coloured from the native
-        // image (#1512): the fixture's sprite picture takes the sprite half.
+        // image (#1512): the fixture's sprite picture takes the sprite half but its transparent first colour.
         static RgbColor[] Shown(FramePaint paint) =>
             [paint.Backdrop, .. paint.SpriteDraws.Cast<ImageSpriteDraw>().SelectMany(draw => draw.Image.Sheet.StandardColours.ToArray())];
-        static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2)];
+        static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2 + 1)];
 
         // A native-coloured frame draws a copy of each picture (#1512), so a draw is known by its source and where, in order.
         static IEnumerable<(SpriteSource Source, Position16<ScreenPixels> Origin)> Order(ImmutableArray<SpriteDraw> draws) =>

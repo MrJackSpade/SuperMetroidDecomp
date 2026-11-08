@@ -3,8 +3,8 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// What one installed shade shows (#1512): the picture's inks it recolours and the colour each shows under it. Inks it
-/// leaves out keep what lies under the shade.
+/// What one installed shade shows (#1512): the picture's own colours it recolours, each named by its place among the
+/// picture's colours (#1544), and the colour each shows under it. Colours it leaves out keep what lies under the shade.
 /// </summary>
 public sealed record ShadeInks
 {

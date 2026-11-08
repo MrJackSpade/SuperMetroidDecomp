@@ -154,7 +154,6 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
         SpriteImageColours kind, InstalledBackgroundSet[]? backgroundSets) =>
         new(Size, Pixels, PaletteIndices, FrontTiles, new SpriteSheetDocument
         {
-            Version = SpriteSheetFile.Version,
             Palette = kind,
             Colours = [.. colours.Select(colour => colour.ToWord())],
             BackgroundSets = backgroundSets,

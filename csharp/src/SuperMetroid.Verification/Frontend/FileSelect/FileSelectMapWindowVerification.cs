@@ -142,9 +142,11 @@ internal static class FileSelectMapWindowVerification
             var areaId = SuperMetroid.Core.Progression.AreaIds.At(area);
             SpriteImage foreground = MenuSheetFixtures.For(maps).Get(SuperMetroid.Core.Frontend.Artwork.ScreenTileSheetDefinitions.AreaMapForegrounds[areaId])
                 .Frame(SuperMetroid.Core.Frontend.Map.AreaMapPictures.WorldForegroundFrame).Sheet;
-            AssertEqual(activeColors[area], foreground.StandardColours[indices[area]], $"area {area} active map color");
+            // The sheet's colours laid out by the palette index each was composed as (#1544).
+            RgbColor[] standard = SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ComposedColours(foreground);
+            AssertEqual(activeColors[area], standard[indices[area]], $"area {area} active map color");
             if (area != 0)
-                AssertEqual(0x4a52, foreground.StandardColours[86], "another area's sheet shows Crateria inactive");
+                AssertEqual(0x4a52, standard[86], "another area's sheet shows Crateria inactive");
             AssertEqual(InstalledAreaMapPresentation.PalettesOf(maps).World(areaId)[0], graphics.screen.Backdrop, $"area {area} shows its world-map backdrop");
             // The selected area's image is built once and every tilemap byte read from it.
             var shownArea = MenuScreenFixtures.Vram(graphics, maps);

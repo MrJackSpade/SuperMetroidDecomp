@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// Reads what a gameplay colour owner lays over the gameplay pictures (#1512): the shading its
-/// <see cref="IGameplayShadingSource.ShadeGameplay"/> gives each group, built over a one-pixel room picture whose colours
-/// stay black under every shade the room can be given.
+/// <see cref="IGameplayShadingSource.ShadeGameplay"/> gives each group, built over a one-pixel room picture whose one
+/// colour, its backdrop, stays black under every shade the room can be given.
 /// </summary>
 internal static class GameplayShadingProbe
 {
@@ -20,10 +20,12 @@ internal static class GameplayShadingProbe
         ArgumentNullException.ThrowIfNull(roomShades);
         var frame = new GameplayShadingBuilder();
         source.ShadeGameplay(frame);
-        var palette = new SpriteImagePalette(SpriteImageColours.Background, [.. new RgbColor[SpriteImage.SpriteColourCount]])
+        var colours = new PictureColours([RgbColor.Black])
         {
+            Backdrop = 0,
             Shades = roomShades.Distinct().ToImmutableDictionary(shade => shade, _ => new ShadeInks([], [])),
         };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [0], palette, [0])).Of(pictures);
+        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default], [SpriteImageInk.Transparent(frontTile: false)], colours))
+            .Of(pictures);
     }
 }

@@ -107,6 +107,8 @@ service only when it has its own timing contract; coherent responsibilities shar
 statues is the game's own work, and the compatibility behaviour it carries, its place in the random sequence, is
 `EffectPhaseRandomOrder`'s. Its documentation states its frame point and evidence.
 
+`WreckedShipGhostFade` (Enemies, #1512, #1544) is the Wrecked Ship ghost's own colour value rather than a service of this module, because its colours are the ghost's and the import pre-colours its shades by running it: its brightening raises all three channels of each colour in one addition, so a channel passing full carries into the next, and its fades step all sixteen of the ghost's colours, colour zero too, which no picture draws; when each ends decides when the ghost's AI moves on. Its documentation states the behaviour, the phases that consult it and the evidence.
+
 The Samus over-read services are decoded by the import pipeline (`SamusOverreadFiles`) and reach the session with the
 installed content as `SamusOverreadServices`; the gameplay runtime hands each to the owner that consults it as it builds
 that owner (the projectile system, every Samus, the actor drawing, the opening cinematic's flashbacks).

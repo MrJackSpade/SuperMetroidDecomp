@@ -1,17 +1,18 @@
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>Appearance geometry, palette colours and visibility timing for Wrecked Ship ghost appearances.</summary>
+/// <summary>Appearance geometry, colours and visibility timing for Wrecked Ship ghost appearances.</summary>
 public static class WreckedShipGhostAppearanceDefinitions
 {
     /// <summary>
-    /// The ghost's palette. Slot 0 is the transparent backdrop blue that the ghost's fades copy and fade. Slots 1..8
-    /// are olive paint whose red and green share a categorical level, with a blue seven lower except the highlight in
-    /// slot 1 and the middle tint in slot 6. Slots 9..15 are warm paint: orange, three pure reds, ochre with its faint
-    /// blue, and two brown bug shades whose green is three below their red. These are chosen artwork content, retained
-    /// as authored; unused sprite slots are still copied and faded as target data.
+    /// The ghost's sixteen colours, which its materializing fade moves toward (#1544). Colour 0, a blue, is never drawn,
+    /// but the fade moves it with the others, so it takes part in deciding when the fade ends (WreckedShipGhostFade).
+    /// Colours 1..8 are olive paint whose red and green share a categorical level, with a blue seven lower except the
+    /// highlight in colour 1 and the middle tint in colour 6. Colours 9..15 are warm paint: orange, three pure reds, ochre
+    /// with its faint blue, and two brown bug shades whose green is three below their red. These are chosen artwork
+    /// content, retained as authored; colours no picture draws are still faded toward.
     /// </summary>
-    internal static readonly RgbColor[] CovenColors =
+    internal static readonly RgbColor[] OwnColours =
     [
         new(0, 0, 14),
         new(31, 31, 21), new(23, 23, 16), new(9, 9, 2), new(5, 5, 0),

@@ -3,13 +3,13 @@ using static SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostAppearanceDef
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>A Wrecked Ship ghost appearance's palette colour, spawn position and flicker interval.</summary>
+/// <summary>A Wrecked Ship ghost appearance's colours, spawn position and flicker interval.</summary>
 public static class WreckedShipGhostAppearance
 {
-    /// <summary>One of the sixteen colours of the Wrecked Ship ghosts' palette.</summary>
+    /// <summary>One of the sixteen colours the Wrecked Ship ghosts' fades move toward as they materialize.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the sixteen colours.</exception>
-    public static RgbColor PaletteColor(int index) =>
-        (uint)index < (uint)CovenColors.Length ? CovenColors[index] : throw new ArgumentOutOfRangeException(nameof(index));
+    public static RgbColor Colour(int index) =>
+        (uint)index < (uint)OwnColours.Length ? OwnColours[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>The spawn offset of grid position <paramref name="index"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the nine positions.</exception>

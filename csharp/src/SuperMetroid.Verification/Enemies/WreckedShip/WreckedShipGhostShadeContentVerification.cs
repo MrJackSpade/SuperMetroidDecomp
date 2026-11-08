@@ -27,7 +27,7 @@ internal static class WreckedShipGhostShadeContentVerification
         fade.BeginMaterializing();
         for (int moved = 1; moved != 0;)
             moved = fade.StepTowardTarget();
-        AssertEqual(WreckedShipGhostAppearance.PaletteColor(0), fade.Shown[0], "the materialized ghost shows its own colour zero");
+        AssertEqual(WreckedShipGhostAppearance.Colour(0), fade.Shown[0], "the materialized ghost shows its own colour zero");
         for (int step = 0; step < 17; step++)
             fade.Brighten();
         AssertEqual(new RgbColor(17, 17, 31), fade.Shown[0], "seventeen brightenings fill colour zero's blue");

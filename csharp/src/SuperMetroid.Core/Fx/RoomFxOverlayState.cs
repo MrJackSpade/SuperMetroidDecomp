@@ -258,11 +258,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         else if (Type == RoomFxType.Rain)
         {
-            // Rain masks the random word with six *after* shifting it once,
-            // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
-            // element index that is bits two and three of the original random word.
             rainWindVelocity = new Offset16<OverlaySubpixels>(
-                AtmosphereDrift.RainHorizontalVelocity((source.RandomNumber >> 2) & 3), 0);
+                AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(source.RandomNumber)), 0);
         }
     }
 

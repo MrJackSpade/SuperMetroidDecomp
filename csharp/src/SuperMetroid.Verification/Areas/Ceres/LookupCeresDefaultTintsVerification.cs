@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 

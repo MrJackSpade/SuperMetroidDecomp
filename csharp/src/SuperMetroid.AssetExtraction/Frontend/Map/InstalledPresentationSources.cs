@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;

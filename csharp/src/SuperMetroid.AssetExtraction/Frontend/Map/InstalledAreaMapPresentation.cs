@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
@@ -8,10 +7,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
-using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
-using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

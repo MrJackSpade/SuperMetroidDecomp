@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 

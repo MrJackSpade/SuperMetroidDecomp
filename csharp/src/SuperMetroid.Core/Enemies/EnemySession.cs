@@ -1,7 +1,5 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Enemies;
 

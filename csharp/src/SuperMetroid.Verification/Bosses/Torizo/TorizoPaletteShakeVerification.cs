@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;

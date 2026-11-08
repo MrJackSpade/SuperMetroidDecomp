@@ -146,11 +146,15 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
 
         // Native palette writes from $AA:D7C8, $86:B88E and $87:837F, read from the cartridge independently of the installed
-        // catalog: the colours shown at the written places are the written words.
+        // catalog: the colours shown at the written places are the written words. A sprite colour set's colour zero is
+        // transparent, so no picture holds a colour there (#1544) and the write to it shows nothing.
         void AssertNativeWrites(RgbColor[] shown, int source, int destination, int count, string context)
         {
             for (int color = 0; color < count; color++)
             {
+                int place = destination + color;
+                if (place >= SnesCgram.ColorCount / 2 && place % 16 == 0)
+                    continue;
                 ushort word = ReadReferenceWord(source + color * 2);
                 AssertEqual(new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31), shown[destination + color],
                     $"{context}: colour {destination + color}");

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
 /// The cartridge-ordered 256-colour image the pause screen's pictures show (#1512): the pause colours the import read,
-/// with the highlight shade the map's highlighted sprites name once the cycle has applied a frame, and the reserve arrow's
+/// with the highlight shade the map's highlighted sprites name once the cycle has applied a frame while they are drawn, and the reserve arrow's
 /// shade, laid over the inks the import pre-colours them on. The screen keeps no such image; verification composes it from the shadings the screen publishes
 /// and the colours the import installs for them, to compare against native colour memory.
 /// </summary>
@@ -28,7 +28,10 @@ internal static class PauseShownColours
         Ensure.NotNull(pause);
         AreaMapPresentation maps = pause.screen.Artwork;
         RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(maps).Pause.ToArray();
-        if (pause.paletteAnimation.ShownFrame is int frame)
+        // Only the map's highlighted sprites show the cycle (#1544): the equipment page's selector and reserve strip,
+        // which the cartridge draws in the same colour group, show their own colours.
+        if (pause.paletteAnimation.ShownFrame is int frame && pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
+                .Any(draw => draw.Shading.Shades.Contains(MapSpriteShades.Highlight(frame))))
             InstalledAreaMapPresentation.HighlightColoursOf(maps).Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
         PictureShading arrow = pause.ReserveArrowShading;
         if (!arrow.IsStandard)

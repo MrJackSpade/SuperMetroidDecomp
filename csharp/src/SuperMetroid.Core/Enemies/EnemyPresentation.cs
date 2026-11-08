@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Corpses;

@@ -4,13 +4,10 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// What the gameplay display currently shows: the elevator shaft's transform, the latched scene and whether the room
-/// animates Samus's visor.
+/// What the gameplay display currently shows: the elevator shaft's transform and the latched scene.
 /// </summary>
 internal sealed class GameplayDisplayState
 {
-
-
     /// <summary>
     /// The Ceres elevator shaft's current turning floor. The shaft room main publishes it after the
     /// drawing pass, and sprite producers use it only while calculating their temporary

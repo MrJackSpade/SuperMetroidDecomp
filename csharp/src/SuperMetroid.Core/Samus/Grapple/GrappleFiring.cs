@@ -50,7 +50,7 @@ internal static class GrappleFiring
             SamusProjectileDirection.UpFacingLeft => 8,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {direction}."),
         };
-        return new(new EightEightVector<RoomPixels>(x, y), RotationAngle.HalfTurn.AddRaw(RotationAngle.QuarterTurn.RawValue / 2 * octant));
+        return new(new EightEightVector<RoomPixels>(x, y), RotationAngle.HalfTurn.AddTableUnits(RotationAngle.TableUnitsPerTurn / 8 * octant));
     }
 
     /// <summary>X and Y hand anchors selected by firing pose.

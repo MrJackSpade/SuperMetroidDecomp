@@ -139,8 +139,8 @@ public sealed class SamusPowerBombExplosionState
         IsArmed = false;
         Position = position;
         IsActive = true;
-        PreExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
-        ExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
+        PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
+        ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
         RadiusSpeed = PowerBombRadius.Zero;
         Shape = null;
         RenderedShape = null;
@@ -172,8 +172,8 @@ public sealed class SamusPowerBombExplosionState
         switch (Phase)
         {
             case PowerBombExplosionPhase.PendingPreExplosionSetup:
-                PreExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
-                RadiusSpeed = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialPreExplosionSpeed);
+                PreExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
+                RadiusSpeed = PowerBombExplosionDefinitions.InitialPreExplosionSpeed;
                 Phase = PowerBombExplosionPhase.PreExplosionWhite;
                 RenderedPhase = PowerBombExplosionPhase.Inactive;
                 return false;
@@ -247,7 +247,7 @@ public sealed class SamusPowerBombExplosionState
         // The white pre-explosion uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below 37376.
         PreExplosionRadius = AdvanceRadiusWrapping(PreExplosionRadius);
-        if (PreExplosionRadius.RawValue < PowerBombExplosionDefinitions.PreExplosionWhiteLimit.RawValue)
+        if (PreExplosionRadius < PowerBombExplosionDefinitions.PreExplosionWhiteLimit)
         {
             RadiusSpeed = RadiusSpeed.WrappingSubtract(PowerBombExplosionDefinitions.PreExplosionAcceleration);
             return;
@@ -311,7 +311,7 @@ public sealed class SamusPowerBombExplosionState
 
         // CallFar initializes the actual damaging radius before the next frame's
         // ExplosionYellow pre-instruction. PreExplosionRadius keeps its own value.
-        ExplosionRadius = PowerBombRadius.FromRaw(PowerBombExplosionDefinitions.InitialRadius);
+        ExplosionRadius = PowerBombExplosionDefinitions.InitialRadius;
         RadiusSpeed = PowerBombRadius.Zero;
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
@@ -325,7 +325,7 @@ public sealed class SamusPowerBombExplosionState
             ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
-        if (ExplosionRadius.RawValue < PowerBombExplosionDefinitions.ExplosionYellowLimit.RawValue)
+        if (ExplosionRadius < PowerBombExplosionDefinitions.ExplosionYellowLimit)
         {
             RadiusSpeed = RadiusSpeed.WrappingAdd(PowerBombExplosionDefinitions.ExplosionAcceleration);
             return;
@@ -416,7 +416,7 @@ public sealed class SamusPowerBombExplosionState
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
         _afterglowTimer = WrappingCountdown.Start(0);
         _crystalFlashAfterglowStepsRemaining =
-            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(Ensure.BetweenInclusive(0, ushort.MaxValue, RenderedExplosionRadius.RawValue));
+            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(RenderedExplosionRadius.RawValue);
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 

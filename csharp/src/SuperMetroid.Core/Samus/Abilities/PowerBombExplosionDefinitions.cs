@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Power Bomb/Crystal Flash blast radii, the ovals their shape streams walk, and phase boundaries.</summary>
 public static class PowerBombExplosionDefinitions
 {
-    /// <summary>Initial unsigned 8.8 radius.</summary>
-    public const int InitialRadius = 1024;
-    /// <summary>Initial pre-explosion unsigned 8.8 radial velocity.</summary>
-    public const int InitialPreExplosionSpeed = 12288;
+    /// <summary>Initial radius: four pixels.</summary>
+    public static readonly PowerBombRadius InitialRadius = PowerBombRadius.FromWholePixels(4);
+    /// <summary>Initial pre-explosion radial speed: forty-eight pixels per update.</summary>
+    public static readonly PowerBombRadius InitialPreExplosionSpeed = PowerBombRadius.FromWholePixels(48);
     /// <summary>Pre-explosion unsigned 8.8 acceleration.</summary>
     public const int PreExplosionAcceleration = 128;
     /// <summary>Explosion unsigned 8.8 acceleration.</summary>

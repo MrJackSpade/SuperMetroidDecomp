@@ -43,10 +43,20 @@ internal static class EndingPlanetBoundaryVerification
             for (int i = 0; i < native.Length; i++) native[i] = new(bgra[i * 4 + 2], bgra[i * 4 + 1], bgra[i * 4]);
             var actual = DisplayRendering.Render(capture.Snapshots[frame]);
             int differences = actual.Zip(native, (first, second) => first != second).Count(differs => differs);
+            byte[] dump = File.ReadAllBytes(prefix + ".ppu");
+            int oamAt = SnesVram.ByteCount + SnesCgram.ColorCount * 2;
+            bool[] overflowing = NativeSpriteLineLimits.Overflowing(dump.AsSpan(oamAt, SnesPpuLayoutConstants.OamUploadByteCount),
+                dump[oamAt + SnesPpuLayoutConstants.OamUploadByteCount]);
+            int onOverflowing = Enumerable.Range(0, actual.Length).Count(index => actual[index] != native[index] && overflowing[index / 256]);
+            string rows = string.Join(",", Enumerable.Range(0, 224).Where(row => Enumerable.Range(0, 256).Any(x => actual[row * 256 + x] != native[row * 256 + x])));
+            foreach (int index in Enumerable.Range(0, actual.Length).Where(index => actual[index] != native[index]).Where((_, at) => at % 70 == 0))
+                Console.WriteLine($"  differs at ({index % 256},{index / 256}): live {actual[index]}, native {native[index]}; {SpriteInkTrace(capture.Snapshots[frame], index % 256, index / 256)}; native {NativeSpritePixelTrace.Trace(dump.AsSpan(0, SnesVram.ByteCount), dump.AsSpan(oamAt, SnesPpuLayoutConstants.OamUploadByteCount), dump[oamAt + SnesPpuLayoutConstants.OamUploadByteCount], index % 256, index / 256)}");
+            Console.WriteLine($"Native PPU finale frame {frame}: {onOverflowing} of the differing pixels lie on lines past the sprite line limit; differing rows {rows}; overflowing rows {string.Join(",", Enumerable.Range(0, 224).Where(row => overflowing[row]))}.");
             Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
             int first = differences == 0 ? -1 : Enumerable.Range(0, actual.Length).First(index => actual[index] != native[index]);
             AssertEqual(0, differences, $"finale frame {frame} matches pinned native PPU with cartridge register setup" + (first < 0 ? ""
-                : $" (first at ({first % 256},{first / 256}): live {actual[first]}, native {native[first]}; sprites {SpriteInkTrace(capture.Snapshots[frame], first % 256, first / 256)})"));
+                : $" (first at ({first % 256},{first / 256}): live {actual[first]}, native {native[first]}; sprites {SpriteInkTrace(capture.Snapshots[frame], first % 256, first / 256)};"
+                    + $" screen shades {capture.Shown[frame].Shades}; dumped sprite group 7 {string.Join(" ", capture.Shown[frame].Colours[240..])})"));
         }
     }
 
@@ -91,7 +101,16 @@ internal static class EndingPlanetBoundaryVerification
     /// Planet-explosion frames to dump for the native PPU comparison, into a caller-owned scratch directory, with the
     /// capture each dump was written from.
     /// </summary>
-    internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames, Dictionary<int, LayeredScene> Snapshots);
+    internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames, Dictionary<int, LayeredScene> Snapshots)
+    {
+        /// <summary>Each captured frame's screen shades, in the order shown, and the colours the dump holds, for a failure's message.</summary>
+        internal Dictionary<int, CapturedColours> Shown { get; } = [];
+    }
+
+    /// <summary>A captured frame's screen shades, in the order shown, and the colours its dump holds.</summary>
+    /// <param name="Shades">The screen shades' keys, in the order shown.</param>
+    /// <param name="Colours">The 256 colours the frame's dump holds.</param>
+    internal sealed record CapturedColours(string Shades, RgbColor[] Colours);
 
     /// <summary>
     /// The probe's input (csharp/test-fixtures/ending-native-ppu/probe.c): VRAM, CGRAM as little-endian words, the
@@ -226,6 +245,7 @@ internal static class EndingPlanetBoundaryVerification
                 LayeredScene sample = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
                 capture.Snapshots[frame] = sample;
                 var shownEnding = ending.ShownVram();
+                capture.Shown[frame] = new CapturedColours(string.Join(" ", ending.screen.Colours.Shading.Shades.Select(shade => shade.Key)), EndingShownColours.Of(ending));
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Stage.Phase}.ppu"),
                     NativeProbeInput(sample, EndingShownColours.Of(ending), shownEnding, ScreenSpritesFixtures.ToOam(EndingCreditsPresentation.PrepareSprites(ending, EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))),
                         SuperMetroid.AssetExtraction.Frontend.Ending.EndingSheetObjectSelectionDefinitions.Of(EndingCreditsPresentation.CurrentEscapeObjectSheet(ending))));
@@ -317,7 +337,9 @@ internal static class EndingPlanetBoundaryVerification
                 if (sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.Inks.IndexOf(ink) is var at and >= 0)
                     shown = inks.Colours[at];
             }
-            covering.Add($"#{index} {sheet.Name} colour {ink} {(pixelInk.Clear ? "clear" : shown.ToString())}");
+            covering.Add($"#{index} {sheet.Name} colour {ink} {(pixelInk.Clear ? "clear" : shown.ToString())}"
+                + $" (frame at {draw.Image.Corner.X},{draw.Image.Corner.Y} size {draw.Image.Size.X}x{draw.Image.Size.Y}, drawn at {draw.Corner.X},{draw.Corner.Y},"
+                + $" mirror {draw.Mirror}, {(pixelInk.Blends ? "blending" : "opaque")}, shades [{string.Join(" ", (draw.Shading?.Shades ?? []).Select(shade => shade.Key))}])");
         }
         return covering.Count == 0 ? "no sprite" : string.Join("; ", covering);
     }

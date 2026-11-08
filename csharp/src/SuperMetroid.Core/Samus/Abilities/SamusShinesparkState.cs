@@ -937,7 +937,7 @@ false,             CrashSequenceFinished: true);
         echo.Angle = projectile.EchoAngle.ToAngle();
         if (!StepReleasedCrashEcho(samus, cameraPosition,
             echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(CoordinateAxis.AsSigned(echo.Radius)));
+        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(echo.Radius));
         projectile.Position = projectile.Position.WithWhole(echo.Position);
         return true;
     }

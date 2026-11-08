@@ -715,7 +715,7 @@ public static class SamusGrappleMovement
             return CoordinateAxis.Wrap(current - 12);
         if (displacement < -12)
             return CoordinateAxis.Wrap(current + 12);
-        return Ensure.BetweenInclusive(0, ushort.MaxValue, previous);
+        return previous;
     }
 
     /// <summary>Queues firing cleanup while leaving ordinary Samus movement in control of this update.</summary>

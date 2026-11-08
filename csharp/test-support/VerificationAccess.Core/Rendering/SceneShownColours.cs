@@ -111,8 +111,8 @@ internal static class SceneShownColours
         {
             for (int x = frame.Corner.X; x < frame.Corner.X + frame.Size.X; x++)
             {
-                if (pixels[y * width + x].A != 0)
-                    painted.Add(inks[y * width + x].PaletteIndex);
+                if (pixels[y * width + x].A != 0 && inks[y * width + x].Colour is int colour)
+                    painted.Add(colour);
             }
         }
         return painted;

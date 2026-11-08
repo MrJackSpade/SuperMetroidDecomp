@@ -24,7 +24,7 @@ internal static class SheetPicturesHeldOnceVerification
         foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets)
         {
             SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(id);
-            byte[] inks = SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, sheet.Image);
+            SpriteImageInk[] inks = SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, sheet.Image);
             // One name per rectangle: frames naming one rectangle already share their picture.
             var rectangles = new Dictionary<PictureRectangle, string>();
             foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -47,12 +47,12 @@ internal static class SheetPicturesHeldOnceVerification
     }
 
     /// <summary>The size and inks of <paramref name="rectangle"/> on an ink plane <paramref name="width"/> pixels across, spelled for comparing.</summary>
-    private static string Content(byte[] inks, int width, PictureRectangle rectangle)
+    private static string Content(SpriteImageInk[] inks, int width, PictureRectangle rectangle)
     {
-        var picture = new byte[rectangle.Size.X * rectangle.Size.Y];
+        var picture = new SpriteImageInk[rectangle.Size.X * rectangle.Size.Y];
         for (int row = 0; row < rectangle.Size.Y; row++)
             Array.Copy(inks, (rectangle.Corner.Y + row) * width + rectangle.Corner.X, picture, row * rectangle.Size.X, rectangle.Size.X);
-        return $"{rectangle.Size.X}x{rectangle.Size.Y}:{Convert.ToBase64String(picture)}";
+        return $"{rectangle.Size.X}x{rectangle.Size.Y}:{Convert.ToBase64String(SheetInkRules.MapBytes(picture))}";
     }
 
     /// <summary>One rectangle of a sheet.</summary>

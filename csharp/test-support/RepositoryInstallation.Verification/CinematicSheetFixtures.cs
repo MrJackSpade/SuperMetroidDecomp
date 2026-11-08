@@ -108,7 +108,7 @@ internal static class CinematicSheetFixtures
 
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
-        SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
+        SpriteSheetFileConstants.Load(tiles.Manifest,
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.FrontTiles);
 
     /// <summary>The installed sheets with the intro sheet <paramref name="intro"/> composes.</summary>
@@ -191,7 +191,7 @@ internal static class CinematicSheetFixtures
     internal static SpriteSheet Load(SpriteSheetSources sources, string name)
     {
         ComposedSpriteSheet composed = SpriteSheetComposer.Compose(sources, 0, 0);
-        SpriteSheet sheet = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false), name,
+        SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, name,
             composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
         SheetFrameSources.Register(sheet, sources);
         return sheet;

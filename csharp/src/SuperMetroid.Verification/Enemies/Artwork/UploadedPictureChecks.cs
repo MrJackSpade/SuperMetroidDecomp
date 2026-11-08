@@ -78,7 +78,9 @@ internal static class UploadedPictureChecks
                 else if (entry != 0)
                 {
                     // A sheet's ink is its part's own row and colour; the draw ORs the sheet's palette bits into that row (#1512).
-                    entry = InstalledPictureColoursConstants.CartridgeColourOf(image.Image.Sheet, entry) - GameplayColourPositionDefinitions.SpriteSetsFirst;
+                    entry = InstalledPictureColoursConstants.CartridgeColourOf(image.Image.Sheet,
+                        InstalledPictureColoursConstants.ColourComposedAs(image.Image.Sheet, entry) ?? throw new InvalidDataException(
+                            $"{message}: {image} inks palette index {entry}, none of its sheet's colours.")) - GameplayColourPositionDefinitions.SpriteSetsFirst;
                 }
                 if (entry != 0)
                     Ink(actual, screenX, screenY, entry);

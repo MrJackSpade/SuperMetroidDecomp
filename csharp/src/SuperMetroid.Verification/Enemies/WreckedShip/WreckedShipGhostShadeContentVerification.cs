@@ -43,9 +43,14 @@ internal static class WreckedShipGhostShadeContentVerification
         AssertTrue(steps.Count > 3 * 31, "the ghost's path passes through its brightening and both fades");
         foreach ((PictureShade shade, RgbColor[] colours) in steps)
         {
-            RgbColor[] inks = PictureShading.Shaded(shade).InkColours(image);
+            // The sheet's colours laid out by the palette index each was composed as (#1544): a colour of the row none of
+            // its pixels shows is not one of its colours, and nothing shows it.
+            RgbColor[] inks = InstalledPictureColoursConstants.ByComposedIndex(image, PictureShading.Shaded(shade).InkColours(image));
             for (int color = 0; color < WreckedShipGhostFade.ColourCount; color++)
-                AssertEqual(colours[color], inks[first + color], $"ghost shade {shade.Key} ink {color} shows the fade's colour");
+            {
+                if (InstalledPictureColoursConstants.ColourComposedAs(image, first + color) is not null)
+                    AssertEqual(colours[color], inks[first + color], $"ghost shade {shade.Key} ink {color} shows the fade's colour");
+            }
         }
         Console.WriteLine($"Wrecked Ship ghost shade content: the brightening's carry and {steps.Count} installed fade shades in {set.Name} match the fade.");
     }

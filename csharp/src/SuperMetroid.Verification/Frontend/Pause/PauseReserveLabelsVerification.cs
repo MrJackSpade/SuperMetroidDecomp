@@ -69,7 +69,8 @@ internal static class PauseReserveLabelsVerification
             CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
             foreach (PlacedPlanePicture placed in snapshot.Layers.ToArray().OfType<PicturedPlaneLayer>().SelectMany(layer => layer.Plane.Pictures)
                 .Where(placed => placed.Shading == PictureShading.Standard))
-                AssertTrue(PictureShading.Standard.InkColours(placed.Picture.Sheet).SequenceEqual(nativeColours.Colors[..SpriteImage.SpriteColourCount].ToArray()),
+                AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(placed.Picture.Sheet,
+                        PictureShading.Standard.InkColours(placed.Picture.Sheet), nativeColours.Colors),
                     $"pause picture {placed.Picture.Sheet.Name} shows the cartridge's pause colours ({capacity}/{mode})");
             var expectedPixels = DisplayRendering.Render(snapshot.WithNativeColours(PauseShownColours.Of(pause)));
             var actualPixels = pause.Render();

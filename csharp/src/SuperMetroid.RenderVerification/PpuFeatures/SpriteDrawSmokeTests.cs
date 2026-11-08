@@ -53,10 +53,8 @@ internal static class SpriteDrawSmokeTests
                 indices[pixel] = (byte)(frame * 16 + 1);
                 sheetPixels[pixel] = palette[128 + indices[pixel]].ToRgbaPixel();
             }
-            var sheet = SpriteImageFixtures.Copied("Ordering", size, sheetPixels, indices,
-                new SpriteImagePalette(SpriteImageColours.Sprite, [.. palette[128..]]), frontTiles);
-            SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default,
-                ImageColourGroups.Of(ImageColourGroup.Numbered(frame)));
+            SpriteImage sheet = ComposedPictures.Install("Ordering", size, sheetPixels, indices, frontTiles, SpriteImageColours.Sprite, palette[128..]);
+            SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default);
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
             ImmutableArray<SpriteDraw> draws =
             [
@@ -97,7 +95,7 @@ internal static class SpriteDrawSmokeTests
             // colours differ from the scene's, as under a palette effect, so frames whose rows differ show the live
             // colours through their palette indices.
             bool effect = random.Next(2) == 0;
-            var standard = new RgbColor[SpriteImage.SpriteColourCount];
+            var standard = new RgbColor[ImageColourGroup.HalfColours];
             for (int colour = 0; colour < standard.Length; colour++)
                 standard[colour] = effect ? RgbColor.FromWord((ushort)random.Next(32768)) : palette[128 + colour];
             var sheetPixels = new RgbaPixel[64 * 48];
@@ -110,14 +108,12 @@ internal static class SpriteDrawSmokeTests
                 sheetIndices[pixel] = (byte)(random.Next(8) * 16 + random.Next(1, 16));
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgbaPixel();
             }
-            var sheet = SpriteImageFixtures.Copied("Seeded", new(64, 48), sheetPixels, sheetIndices, new SpriteImagePalette(SpriteImageColours.Sprite, [.. standard]),
-                sheetFrontTiles);
+            SpriteImage sheet = ComposedPictures.Install("Seeded", new(64, 48), sheetPixels, sheetIndices, sheetFrontTiles, SpriteImageColours.Sprite, standard);
             for (int index = random.Next(1, 6); index > 0; index--)
             {
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));
                 var corner = new Position16<ImagePixels>((ushort)random.Next(0, 64 - size.X + 1), (ushort)random.Next(0, 48 - size.Y + 1));
-                var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)),
-                    ImageColourGroup.Every.Where(_ => random.Next(2) == 0).Aggregate(ImageColourGroups.None, (groups, group) => groups.With(group)));
+                var image = new SpriteSheetFrame(sheet, corner, size, new((short)random.Next(-8, 40), (short)random.Next(-8, 40)));
                 var origin = new Position16<ScreenPixels>(unchecked((ushort)random.Next(-60, 300)), unchecked((ushort)random.Next(-60, 270)));
                 draws.Insert(random.Next(draws.Count + 1), new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer, 100 + index), image, origin,
                     (SpriteMirror)random.Next(4)));

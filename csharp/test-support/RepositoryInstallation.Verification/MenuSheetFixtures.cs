@@ -200,7 +200,7 @@ internal static class MenuSheetFixtures
 
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
-        SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
+        SpriteSheetFileConstants.Load(tiles.Manifest,
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.FrontTiles);
 
     /// <summary>File-select map sheets already composed, by presentation.</summary>
@@ -268,7 +268,7 @@ internal static class MenuSheetFixtures
     {
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
         // A name of its own keeps its frames apart from the installed sheet's in the frame-source registry.
-        SpriteSheet loaded = SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
+        SpriteSheet loaded = SpriteSheetFileConstants.Load(sheet.Manifest,
             $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.FrontTiles);
         SheetFrameSources.Register(loaded, sources);
         return loaded;

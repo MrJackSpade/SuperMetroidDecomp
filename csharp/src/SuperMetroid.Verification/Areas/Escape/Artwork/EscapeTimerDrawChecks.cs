@@ -28,7 +28,7 @@ internal static class EscapeTimerDrawChecks
     internal static SpriteSheet Sheet(ISnesAddressSpace bus)
     {
         ComposedSpriteSheet composed = EscapeTimerSheetComposer.Compose(bus);
-        return SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(composed.Manifest), writable: false),
+        return SpriteSheetFileConstants.Load(composed.Manifest,
             SpriteSheetDefinitions.FileNames[SpriteSheetId.EscapeTimer], composed.Size, composed.Pixels, composed.PaletteIndices, composed.FrontTiles);
     }
 

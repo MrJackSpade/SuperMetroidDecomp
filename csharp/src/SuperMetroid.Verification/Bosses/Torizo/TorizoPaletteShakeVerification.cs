@@ -151,7 +151,7 @@ internal static class TorizoPaletteShakeVerification
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.BombTorizo));
         SpriteImage image = InstalledFixtures.EnemySheets.For(set, EnemyDefinitionId.BombTorizo).Image;
-        int[] rows = [.. image.Inks.ToArray().Select(ink => ink.PaletteIndex).Where(ink => ink != 0).Select(ink => ink / 16).Distinct().Order()];
+        int[] rows = [.. image.Inks.ToArray().Where(ink => !ink.IsTransparent).Select(ink => InstalledPictureColoursConstants.ComposedIndexOf(image, ink) / 16).Distinct().Order()];
         AssertTrue(rows.Length > 0 && rows.All(row => row is 1 or 2 or 5), "Bomb Torizo's sheet is coloured in the rows his parts name");
         AssertEqual(0, image.Shade(SuperMetroid.Core.Enemies.Drawing.EnemyShades.HitFlash).Inks.Length, "The hurt flash recolours none of Bomb Torizo's inks");
     }

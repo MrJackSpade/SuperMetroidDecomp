@@ -258,14 +258,18 @@ internal static class EndingPlanetBoundaryVerification
                 localY = draw.Image.Size.Y - 1 - localY;
             SpriteImage sheet = draw.Image.Sheet;
             SpriteImageInk pixelInk = sheet.Inks[(draw.Image.Corner.Y + localY) * sheet.Size.X + draw.Image.Corner.X + localX];
-            int ink = pixelInk.PaletteIndex;
+            if (pixelInk.Colour is not int ink)
+            {
+                covering.Add($"#{index} {sheet.Name} clear");
+                continue;
+            }
             RgbColor shown = sheet.StandardColours[ink];
             foreach (PictureShade shade in draw.Shading?.Shades ?? [])
             {
                 if (sheet.Shades.TryGetValue(shade, out ShadeInks? inks) && inks.Inks.IndexOf(ink) is var at and >= 0)
                     shown = inks.Colours[at];
             }
-            covering.Add($"#{index} {sheet.Name} ink {ink} {(sheet.IsColourZero(pixelInk) ? "clear" : shown.ToString())}");
+            covering.Add($"#{index} {sheet.Name} colour {ink} {(pixelInk.Clear ? "clear" : shown.ToString())}");
         }
         return covering.Count == 0 ? "no sprite" : string.Join("; ", covering);
     }

@@ -209,7 +209,7 @@ internal static class SamusBodySheetFixtures
     private static SpriteSheet Load(SpriteSheetId id, SpriteSheetLayout layout, string suffix)
     {
         ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(layout);
-        return SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(sheet.Manifest), writable: false),
+        return SpriteSheetFileConstants.Load(sheet.Manifest,
             $"{SpriteSheetDefinitions.FileNames[id]}-{suffix}", sheet.Size, sheet.Pixels, sheet.PaletteIndices, sheet.FrontTiles);
     }
 }

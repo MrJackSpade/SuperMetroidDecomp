@@ -8,8 +8,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>
 /// Holds every installed spawned-object sheet (enemy projectiles, room sprite objects and the frames encounters draw
-/// themselves) to the sheet pixel rules (#1513): no frame is empty and none inks an empty colour row, as
-/// <see cref="SheetInkRules"/> defines them. Each sheet's frame set is the one its spawners' tables name, which loading
+/// themselves) to the sheet pixel rule (#1513): no frame is empty, as <see cref="SheetInkRules"/> defines it. Each sheet's frame set is the one its spawners' tables name, which loading
 /// the installation already requires.
 /// </summary>
 internal static class SpawnedObjectSheetFrameRulesVerification

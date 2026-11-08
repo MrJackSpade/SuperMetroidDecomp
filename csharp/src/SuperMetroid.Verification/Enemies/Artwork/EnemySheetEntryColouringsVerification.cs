@@ -59,7 +59,7 @@ internal static class EnemySheetEntryColouringsVerification
     }
 
     /// <summary>Every colour the frames of <paramref name="sheet"/> ink on <paramref name="image"/>, from its ink plane <paramref name="inks"/>.</summary>
-    private static HashSet<int> InkedColours(byte[] inks, SpriteImage image, SpriteSheet sheet)
+    private static HashSet<int> InkedColours(SpriteImageInk[] inks, SpriteImage image, SpriteSheet sheet)
     {
         var inked = new HashSet<int>();
         foreach (SpriteSheetFrame frame in sheet.frames.Values)
@@ -68,9 +68,9 @@ internal static class EnemySheetEntryColouringsVerification
             {
                 for (int column = 0; column < frame.Size.X; column++)
                 {
-                    int ink = inks[(frame.Corner.Y + row) * image.Size.X + frame.Corner.X + column];
-                    if (!image.IsColourZero(new SpriteImageInk(ink, frontTile: false)))
-                        inked.Add(ink);
+                    SpriteImageInk ink = inks[(frame.Corner.Y + row) * image.Size.X + frame.Corner.X + column];
+                    if (!ink.Clear && ink.Colour is int colour)
+                        inked.Add(colour);
                 }
             }
         }

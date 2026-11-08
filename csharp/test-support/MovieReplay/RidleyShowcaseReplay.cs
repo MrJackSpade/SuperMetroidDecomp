@@ -111,7 +111,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // The final scrolling IRQ publishes the visor before the deferred
             // loading owners reach their shared completion boundary. Check it there.
             RgbColor[] shown = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
-            foreach (int color in GameplayShownColours.Compared)
+            foreach (int color in GameplayShownColours.ComparedIn(runtime))
                 if (color != XrayScopeDefinitionsPaletteConstants.VisorCgramIndex)
                     words.Add(shown[color].ToWord());
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
@@ -456,7 +456,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
             // Gameplay holds no colour image (#1512): its pictures show the import's colours under the shadings it publishes.
             ReadOnlySpan<RgbColor> comparedPalette = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
-            IEnumerable<int> comparedColours = GameplayShownColours.Compared;
+            IEnumerable<int> comparedColours = GameplayShownColours.ComparedIn(runtime);
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {

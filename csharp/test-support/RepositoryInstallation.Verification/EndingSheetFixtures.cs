@@ -103,7 +103,7 @@ internal static class EndingSheetFixtures
 
     /// <summary>Loads composed tile sheet <paramref name="tiles"/> as sheet <paramref name="sheet"/>, named by <paramref name="tag"/>.</summary>
     private static SpriteSheet Loaded(SpriteSheetId sheet, ComposedSpriteSheet tiles, string tag) =>
-        SpriteSheetFileConstants.Load(new MemoryStream(SpriteSheetManifestWriter.Write(tiles.Manifest), writable: false),
+        SpriteSheetFileConstants.Load(tiles.Manifest,
             $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{tag}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.FrontTiles);
 
     /// <summary>The installed sheets with the ending Mode 7 sheets edited <paramref name="mode7"/> art composes (#1392).</summary>

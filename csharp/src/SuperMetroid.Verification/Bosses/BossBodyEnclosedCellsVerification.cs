@@ -30,10 +30,7 @@ internal static class BossBodyEnclosedCellsVerification
         {
             SpriteSheet sheet = InstalledFixtures.BossBodySheets.Of(owner).Sheet;
             SpriteImage image = sheet.Image;
-            byte[] inks = SheetInkRules.InkPlane(directory, image);
-            var clear = new bool[inks.Length];
-            for (int pixel = 0; pixel < inks.Length; pixel++)
-                clear[pixel] = image.IsColourZero(new SpriteImageInk(inks[pixel], frontTile: false));
+            bool[] clear = Array.ConvertAll(SheetInkRules.InkPlane(directory, image), ink => ink.Clear);
             foreach ((string name, SpriteSheetFrame frame) in sheet.frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 pictures++;

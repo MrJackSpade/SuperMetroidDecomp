@@ -42,22 +42,17 @@ public static class SamusGrappleMovement
 
         bool movingHeld = samus.Pose is SamusPoseId.DraygonGrabbedMovingLeftPose or
             SamusPoseId.DraygonGrabbedMovingRightPose;
-        int direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : SamusPoseMetadata.ReadShotDirection(samus);
-        if (direction >= 16)
+        SamusProjectileDirection? aim = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : SamusPoseMetadata.ReadAimDirection(samus);
+        if (aim is not { } direction)
         {
-            // Firing treats the sentinel directions as ordinary cancellation,
+            // A pose that aims nowhere (turning, or shooting disabled) cancels the grapple,
             // including a shot arriving while a permitted posture is transitioning.
             grapple.Phase = GrapplePhase.CancelPending;
             return;
         }
-        if (direction >= 10)
-        {
-            throw new InvalidOperationException(
-                $"Pose {samus.Pose} has no fireable grapple direction (${direction:X2}).");
-        }
 
         grapple.Phase = GrapplePhase.Firing;
-        grapple.FireDirection = SamusProjectileDirectionCodec.FromAimIndex(direction);
+        grapple.FireDirection = direction;
         grapple.PoseChangeAutoFireTimer = GrappleBeamDefinitions.Firing.PoseChangeAutoFireFrames;
         var launch = GrappleFiring.Launch(direction);
         grapple.ExtensionVelocity = launch.Velocity;
@@ -648,12 +643,10 @@ public static class SamusGrappleMovement
         if (samus.Pose == SamusPoseId.GrappleSwingLeftPose)
             return SamusPoseId.FacingLeftNormalPose;
 
-        int shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
-        bool ordinaryDirection = shotDirection < 10;
-        if (!ordinaryDirection)
+        if (SamusPoseMetadata.ReadAimDirection(samus) is not { } shotDirection)
         {
-            // The drop functions use the pose direction when the direction byte is a command
-            // sentinel. Standing selects the normal standing poses; compact bodies select crouching.
+            // The drop functions use the pose's facing when the pose aims nowhere.
+            // Standing selects the normal standing poses; compact bodies select crouching.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
             return samus.Kinematics.Radius.Y >= 17
                 ? facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose
@@ -1094,8 +1087,8 @@ public static class SamusGrappleMovement
             // Special pose command 10 runs the locked placement. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
-            var origin = GrappleFiring.Origin(grapple.FireDirection.ToAimIndex(), running: false);
-            var flare = ReadFlareOrigin(grapple, grapple.FireDirection.ToAimIndex(), running: false);
+            var origin = GrappleFiring.Origin(grapple.FireDirection, running: false);
+            var flare = ReadFlareOrigin(grapple, grapple.FireDirection, running: false);
             samus.Position = samus.Position.WithWhole(grapple.RopeStart - new Offset16<RoomPixels>(origin.X, origin.Y));
             grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
             grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -1127,9 +1120,8 @@ public static class SamusGrappleMovement
         if (absoluteX == 0 && absoluteY == 0)
             return RotationAngle.Zero;
 
-        // The assembly advances its pointer byte offset by four for negative X and two
-        // for negative Y, then indexes a word table. Converted to a zero-based entry index,
-        // those are bit one for X and bit zero for Y—not the more tempting reverse order.
+        // The quadrant counts negative X as two and negative Y as one, not the more tempting
+        // reverse order.
         int quadrant = (xNegative ? 2 : 0) | (yNegative ? 1 : 0);
         if (absoluteY < absoluteX)
         {
@@ -1154,11 +1146,11 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
-    internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, int direction, bool running)
+    internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, SamusProjectileDirection direction, bool running)
     {
         var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
             "Grapple flare requires installed placement definitions."))
-            .Resolve(running, direction);
+            .Resolve(running, direction.ToAimIndex());
         return new Offset16<RoomPixels>(offset.X, offset.Y);
     }
 
@@ -1219,7 +1211,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Held moving poses aim away from Draygon; Down wins over Up.</summary>
-    private static int ReadDraygonHeldDirection(SamusPoseId pose, ControllerButton input)
+    private static SamusProjectileDirection ReadDraygonHeldDirection(SamusPoseId pose, ControllerButton input)
     {
         bool left = pose == SamusPoseId.DraygonGrabbedMovingLeftPose;
         bool outward = (input & (left ? ControllerButton.Left : ControllerButton.Right)) != ControllerButton.None;
@@ -1228,7 +1220,7 @@ public static class SamusGrappleMovement
             direction = left ? SamusProjectileDirection.DownLeft : SamusProjectileDirection.DownRight;
         else if (outward && (input & ControllerButton.Up) != ControllerButton.None)
             direction = left ? SamusProjectileDirection.UpLeft : SamusProjectileDirection.UpRight;
-        return direction.ToAimIndex();
+        return direction;
     }
 
     /// <summary>Firing branch of the grapple handler, before the selected grapple function runs.</summary>
@@ -1237,11 +1229,11 @@ public static class SamusGrappleMovement
     {
         var grapple = samus.Grapple;
         grapple.PoseChangeAutoFireTimer = Math.Max(0, grapple.PoseChangeAutoFireTimer - 1);
-        int direction = SamusPoseMetadata.ReadShotDirection(samus);
+        SamusProjectileDirection? direction = SamusPoseMetadata.ReadAimDirection(samus);
         bool banned = GrappleConnections.CancelsFiring(SamusPoseMetadata.ReadMovementType(samus));
-        if (!banned && direction < 16)
+        if (!banned && direction is not null)
         {
-            if (direction == grapple.FireDirection.ToAimIndex()) return null;
+            if (direction == grapple.FireDirection) return null;
             if (grapple.PoseChangeAutoFireTimer != 0)
             {
                 // The game changes the function pointer before dispatch: restart from

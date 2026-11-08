@@ -665,8 +665,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
             samus, grappleFlareOamFrame, cameraPosition: new(100, 50), InstalledFixtures.ProjectileArtwork()),
         "connected grapple flare passes unsigned screen-Y gate");
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
-    AssertEqual(1, samus.Grapple.FlareCounter,
-        "grapple flare counter increments only in post-Samus tile pass");
+    AssertEqual(GrappleFlareStage.JustFired, samus.Grapple.FlareStage,
+        "grapple flare moves on only in post-Samus tile pass");
     AssertEqual(16, samus.Grapple.FlareAnimationFrame,
         "first grapple flare selects shared main frame sixteen");
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
@@ -700,8 +700,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "grapple selects the native angle-selected segment tiles");
     AssertTrue(grappleOamFrame.Draws.All(draw => ReferenceEquals(InstalledFixtures.GrappleSheet.Image, ((ImageSpriteDraw)draw).Image.Sheet)),
         "grapple draws show frames of the grapple sheet");
-    AssertEqual(2, samus.Grapple.FlareCounter,
-        "post-Samus grapple tile pass increments flare counter");
+    AssertEqual(GrappleFlareStage.Shown, samus.Grapple.FlareStage,
+        "post-Samus grapple tile pass moves the flare on");
 
     // Fifty pixels yields six body pieces because $94:AFBA uses (length / 8) before drawing
     // the endpoint. Instruction slots descend 15..10, so GrappleFunc_AF87's phases are
@@ -735,7 +735,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         Phase = GrapplePhase.Firing,
         RopeLength = 0,
         Angle = samus.Grapple.Angle,
-        FlareCounter = 1,
+        FlareStage = GrappleFlareStage.JustFired,
     };
     var zeroLengthOamFrame = new SpriteFrameBuffer();
     zeroLengthOamFrame.BeginFrame();
@@ -745,8 +745,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
         cameraPosition: new(100, 50),
         InstalledFixtures.GrappleSheet);
     OamBuffer zeroLengthOam = zeroLengthOamFrame.FinalizeAsOam();
-    AssertEqual(2, zeroLengthGrapple.FlareCounter,
-        "zero-length grapple still advances flare counter");
+    AssertEqual(GrappleFlareStage.Shown, zeroLengthGrapple.FlareStage,
+        "zero-length grapple still moves the flare on");
     AssertEqual(0, (zeroLengthOam.LastFinalizedSpriteCount * 4),
         "zero-length grapple emits no rope or endpoint OAM");
 
@@ -770,8 +770,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
         "nonnegative angular velocity selects left-facing release pose $52");
     AssertEqual(0, samus.Kinematics.YSpeed.Whole, "release pose preserves whole Y velocity");
     AssertEqual(0x0c90, samus.Kinematics.YSpeed.Fraction, "release pose preserves fractional Y velocity");
-    AssertEqual(0, samus.Grapple.FlareCounter,
-        "completed grapple release clears shared flare counter");
+    AssertEqual(GrappleFlareStage.None, samus.Grapple.FlareStage,
+        "completed grapple release clears the flare");
     AssertEqual(0, samus.Grapple.FlareAnimationFrame,
         "completed grapple release clears flare frame");
     AssertEqual(0, samus.Grapple.FlareAnimationTimer.RawValue,

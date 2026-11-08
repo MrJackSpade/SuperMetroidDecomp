@@ -7,60 +7,54 @@ using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>
-/// Checks the grapple quantities stored as ordinary integers: the flare counter's saturation through the production
-/// beam draw matches the cartridge's signed word test, and each quantity rejects values outside its stated range.
+/// Checks the grapple quantities: each connected-beam draw moves the flare on a stage, and the rope length and endpoint
+/// frame reject values outside their stated ranges.
 /// </summary>
 internal static class GrappleQuantityRangesVerification
 {
     /// <summary>
-    /// Drives the production beam draw from flare counters around the saturation point and compares each result
-    /// with the cartridge's word arithmetic: increment while the signed difference from 120 is negative.
+    /// Drives the production beam draw from each flare stage: no flare arms as just fired, and a just-fired or shown
+    /// flare is shown.
     /// </summary>
-    internal static void VerifyGrappleFlareCounterSaturation()
+    internal static void VerifyGrappleFlareStageAdvance()
     {
-        foreach (int start in new[] { 0, 1, 118, 119, 120 })
+        foreach (GrappleFlareStage start in Enum.GetValues<GrappleFlareStage>())
         {
+            GrappleFlareStage expected = start == GrappleFlareStage.None ? GrappleFlareStage.JustFired : GrappleFlareStage.Shown;
             var grapple = new SamusGrappleState
             {
                 Phase = GrapplePhase.Firing,
                 RopeLength = 0,
-                FlareCounter = start,
+                FlareStage = start,
                 PointAnimationTimer = WrappingCountdown.Start(5),
             };
             SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, new SpriteFrameBuffer(), new(0, 0),
                 InstalledFixtures.GrappleSheet);
-            ushort word = (ushort)start;
-            if (unchecked((short)(word - 120)) < 0)
-                word = unchecked((ushort)(word + 1));
-            AssertEqual(word, grapple.FlareCounter, $"grapple flare counter from {start} saturates as the native word does");
+            AssertEqual(expected, grapple.FlareStage, $"grapple flare from {start} moves on");
         }
-        Console.WriteLine("Grapple flare counter: production saturation at 120 matches the native signed word test.");
+        Console.WriteLine("Grapple flare stage: each connected-beam draw moves the flare on.");
     }
 
-    /// <summary>Checks that rope length, flare counter and endpoint frame accept their range limits and reject the values beyond them.</summary>
+    /// <summary>Checks that rope length and endpoint frame accept their range limits and reject the values beyond them.</summary>
     internal static void VerifyGrappleQuantityRanges()
     {
-        var grapple = new SamusGrappleState { RopeLength = short.MaxValue, FlareCounter = short.MaxValue, PointAnimationFrame = byte.MaxValue };
+        var grapple = new SamusGrappleState { RopeLength = short.MaxValue, PointAnimationFrame = byte.MaxValue };
         AssertEqual(short.MaxValue, grapple.RopeLength, "rope length accepts its largest stated value");
-        AssertEqual(short.MaxValue, grapple.FlareCounter, "flare counter accepts its largest stated value");
         AssertEqual(byte.MaxValue, grapple.PointAnimationFrame, "endpoint frame accepts its largest restored value");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = -1; }, "rope length rejects a negative length");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = short.MaxValue + 1; },
             "rope length rejects a length whose signed test would differ");
-        AssertThrows<ArgumentOutOfRangeException>(() => { grapple.FlareCounter = -1; }, "flare counter rejects a negative count");
-        AssertThrows<ArgumentOutOfRangeException>(() => { grapple.FlareCounter = short.MaxValue + 1; },
-            "flare counter rejects a count whose signed test would differ");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.PointAnimationFrame = -1; }, "endpoint frame rejects a negative frame");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.PointAnimationFrame = byte.MaxValue + 1; },
             "endpoint frame rejects a frame no restored state holds");
-        Console.WriteLine("Grapple quantity ranges: rope length, flare counter and endpoint frame keep their stated ranges.");
+        Console.WriteLine("Grapple quantity ranges: rope length and endpoint frame keep their stated ranges.");
     }
 
-    /// <summary>Runs the grapple quantity saturation and range checks.</summary>
+    /// <summary>Runs the grapple flare stage and quantity range checks.</summary>
     [VerificationCommand("--grapple-quantity-ranges")]
     internal static int GrappleQuantityRangesCommand()
     {
-        Suite(nameof(VerifyGrappleFlareCounterSaturation), VerifyGrappleFlareCounterSaturation);
+        Suite(nameof(VerifyGrappleFlareStageAdvance), VerifyGrappleFlareStageAdvance);
         Suite(nameof(VerifyGrappleQuantityRanges), VerifyGrappleQuantityRanges);
         return 0;
     }

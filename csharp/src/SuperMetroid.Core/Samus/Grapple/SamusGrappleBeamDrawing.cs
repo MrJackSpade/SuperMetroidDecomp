@@ -49,7 +49,7 @@ public static class SamusGrappleBeamDrawing
         Ensure.NotNull(sprites);
 
         SamusGrappleState grapple = samus.Grapple;
-        if (!UsesBeamSpecificDrawingPath(grapple.Phase) || grapple.FlareCounter == 0)
+        if (!UsesBeamSpecificDrawingPath(grapple.Phase) || grapple.FlareStage == GrappleFlareStage.None)
             return false;
 
         // While firing, the grapple draw handler recomputes the hand origins immediately before the flare. Grapple
@@ -59,10 +59,9 @@ public static class SamusGrappleBeamDrawing
         if (grapple.Phase == GrapplePhase.Firing)
             RefreshFiringDrawOrigins(samus, grapple);
 
-        // Counter one is a sentinel, not merely the first ordinary animation tick. The game
-        // code force-selects main-flare frame 16 and timer three on every such call, then
+        // A just-fired flare restarts on its opening frame and delay on every such call, then
         // performs the usual decrement and negative test. The first visible frame therefore stores two.
-        if (grapple.FlareCounter == 1)
+        if (grapple.FlareStage == GrappleFlareStage.JustFired)
         {
             grapple.FlareAnimationFrame = ChargeFlareAnimationDefinitions.GrappleInitialFrame;
             grapple.FlareAnimationTimer = WrappingCountdown.Start(ChargeFlareAnimationDefinitions.GrappleInitialDelay);
@@ -109,10 +108,10 @@ public static class SamusGrappleBeamDrawing
     /// <summary>Seeds the first flare and point frames and all sixteen independently timed rope segment slots.</summary>
     internal static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
-        // Firing installs counter one after initializing the rope animation slots.
+        // Firing marks the flare just fired after initializing the rope animation slots.
         // A beam that starts already connected has no preceding firing history, so it
         // begins at the same first flare state rather than inventing a static flare.
-        grapple.FlareCounter = 1;
+        grapple.FlareStage = GrappleFlareStage.JustFired;
         grapple.FlareAnimationFrame = 0;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
         grapple.PointAnimationTimer = WrappingCountdown.Start(GrapplePointAnimationDefinitions.Delay);
@@ -136,8 +135,8 @@ public static class SamusGrappleBeamDrawing
         SamusGrappleState grapple)
     {
         bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
-        var origin = GrappleFiring.Origin(grapple.FireDirection.ToAimIndex(), useRunOffsets);
-        var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection.ToAimIndex(), useRunOffsets);
+        var origin = GrappleFiring.Origin(grapple.FireDirection, useRunOffsets);
+        var flare = SamusGrappleMovement.ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
         int physicalYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
 
@@ -182,12 +181,15 @@ public static class SamusGrappleBeamDrawing
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =
             SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientations.For(grapple.Angle);
 
-        // The rope tile selection increments the shared flare counter after both tile records, saturating
-        // at 120 by a signed comparison. It happens even at zero rope length; only the
-        // rope renderer below is conditional. This is why a newly fired beam can animate
-        // its muzzle flare before its first eight-pixel body segment exists.
-        if (grapple.FlareCounter < 120)
-            grapple.FlareCounter++;
+        // The rope tile selection moves the flare on a stage after both tile records. It happens even
+        // at zero rope length; only the rope renderer below is conditional. This is why a newly fired
+        // beam can animate its muzzle flare before its first eight-pixel body segment exists.
+        grapple.FlareStage = grapple.FlareStage switch
+        {
+            GrappleFlareStage.None => GrappleFlareStage.JustFired,
+            GrappleFlareStage.JustFired or GrappleFlareStage.Shown => GrappleFlareStage.Shown,
+            _ => throw new InvalidOperationException($"Undefined {nameof(GrappleFlareStage)} {grapple.FlareStage}."),
+        };
         if (grapple.RopeLength <= 0)
             return;
 
@@ -280,7 +282,7 @@ public static class SamusGrappleBeamDrawing
     {
         // Every grapple teardown clears these same shared charge/grapple
         // words before restoring the ordinary draw handler and projectile palette.
-        grapple.FlareCounter = 0;
+        grapple.FlareStage = GrappleFlareStage.None;
         grapple.FlareAnimationFrame = 0;
         grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
     }

@@ -10,6 +10,7 @@ using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -201,7 +202,7 @@ internal static class GrappleFiringDefinitionsVerification
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
             true, origin => origin.Y, "running Y"));
 
-    /// <summary>Compares one origin component with native words and rejects unsupported directions.</summary>
+    /// <summary>Compares one origin component with native words for every direction.</summary>
     private static void VerifyGrappleOriginField(SuperMetroidAddressSpace rom, int address,
         bool running, Func<Offset16<RoomPixels>, short> select, string label)
     {
@@ -209,12 +210,9 @@ internal static class GrappleFiringDefinitionsVerification
         {
             int source = address + 2 * direction;
             short expected = unchecked((short)(LittleEndianBytes.Word(GrappleOriginFieldRomByte(rom, source), GrappleOriginFieldRomByte(rom, source + 1))));
-            AssertEqual(expected, select(GrappleFiring.Origin(direction, running)),
+            AssertEqual(expected, select(GrappleFiring.Origin(SamusProjectileDirectionCodec.FromAimIndex(direction), running)),
                 $"Grapple origin {label} direction {direction}");
         }
-        foreach (byte direction in new byte[] { 10, byte.MaxValue })
-            AssertThrows<InvalidDataException>(() => GrappleFiring.Origin(direction, running),
-                $"Grapple origin {label} bounds");
     }
 
     /// <summary>Reads a native Grapple origin byte for the comparison oracle.</summary>
@@ -222,19 +220,19 @@ internal static class GrappleFiringDefinitionsVerification
     /// <summary>Checks launch X velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
-            direction => GrappleFiring.Launch(direction).Velocity.X.RawValue, "X velocity"));
+            direction => GrappleFiring.Launch(SamusProjectileDirectionCodec.FromAimIndex(direction)).Velocity.X.RawValue, "X velocity"));
 
     /// <summary>Checks launch Y velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
-            direction => GrappleFiring.Launch(direction).Velocity.Y.RawValue, "Y velocity"));
+            direction => GrappleFiring.Launch(SamusProjectileDirectionCodec.FromAimIndex(direction)).Velocity.Y.RawValue, "Y velocity"));
 
     /// <summary>Checks initial Grapple angle for every direction.</summary>
     internal static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
-            direction => GrappleFiring.Launch(direction).Angle.RawValue, "angle"));
+            direction => GrappleFiring.Launch(SamusProjectileDirectionCodec.FromAimIndex(direction)).Angle.RawValue, "angle"));
 
-    /// <summary>Compares one launch field with all native table entries and checks selector bounds.</summary>
+    /// <summary>Compares one launch field with all native table entries.</summary>
     private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,
         Func<byte, ushort> select, string label)
     {
@@ -244,8 +242,6 @@ internal static class GrappleFiringDefinitionsVerification
             ushort original = LittleEndianBytes.Word(GrappleLaunchFieldRomByte(rom, address), GrappleLaunchFieldRomByte(rom, address + 1));
             AssertEqual(original, select(direction), $"Original grapple {label}, direction {direction}");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
     }
 
     /// <summary>Reads a native Grapple launch byte for the comparison oracle.</summary>

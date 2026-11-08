@@ -40,7 +40,7 @@ internal static class GrappleFlarePresentationVerification
         int cases = 0;
         foreach (GrapplePhase phase in Enum.GetValues<GrapplePhase>())
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose, SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
-        foreach (ushort counter in new ushort[] { 0, 1, 2 })
+        foreach (GrappleFlareStage stage in Enum.GetValues<GrappleFlareStage>())
         foreach (ushort coordinate in new ushort[] { 0, 1, 100, 255, 256, 511, 32768, 65535 })
         {
             SamusState native = Seed(), actual = Seed();
@@ -52,7 +52,7 @@ internal static class GrappleFlarePresentationVerification
                 samus.Grapple.FireDirection = pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose
                     ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
                     : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
-                samus.Grapple.FlareCounter = counter;
+                samus.Grapple.FlareStage = stage;
                 samus.Grapple.FlareAnimationFrame = 29;
                 samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
                 samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(coordinate); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(coordinate);
@@ -69,7 +69,7 @@ internal static class GrappleFlarePresentationVerification
             native.Grapple.FireDirection = pose == SamusPoseId.MovingLeftNormalPose
                 ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
                 : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
-            native.Grapple.FlareCounter = 1;
+            native.Grapple.FlareStage = GrappleFlareStage.JustFired;
             var actual = Clone(native);
             for (int tick = 0; tick < 512; tick++)
             {
@@ -77,8 +77,8 @@ internal static class GrappleFlarePresentationVerification
                 actual.Position = actual.Position.WithWholeX(tickX);
                 native.Position = native.Position.WithWholeX(tickX);
                 Check(native, actual, wholeState: tick == 0);
-                // Native post-Samus tile upload owns this counter, not the flare.
-                native.Grapple.FlareCounter = actual.Grapple.FlareCounter = (ushort)Math.Min(120, native.Grapple.FlareCounter + 1);
+                // The post-Samus tile pass moves the flare on a stage, not the flare draw.
+                native.Grapple.FlareStage = actual.Grapple.FlareStage = GrappleFlareStage.Shown;
             }
         }
         // Exercise negative timers across the complete authored main-flare frame domain
@@ -88,7 +88,7 @@ internal static class GrappleFlarePresentationVerification
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
-            samus.Grapple.FlareCounter = 2;
+            samus.Grapple.FlareStage = GrappleFlareStage.Shown;
             samus.Grapple.FlareAnimationFrame = frame;
             samus.Grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(timer);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
@@ -108,9 +108,9 @@ internal static class GrappleFlarePresentationVerification
             }
             int expectedFrame = native.Grapple.FlareAnimationFrame;
             ushort expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
-            if (SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareCounter != 0)
+            if (SamusGrappleBeamDrawing.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareStage != GrappleFlareStage.None)
             {
-                if (native.Grapple.FlareCounter == 1) { expectedFrame = 16; expectedTimer = 3; }
+                if (native.Grapple.FlareStage == GrappleFlareStage.JustFired) { expectedFrame = 16; expectedTimer = 3; }
                 CountdownStep expectedStep = WrappingCounter.Decrement(expectedTimer);
                 expectedTimer = expectedStep.Value;
                 if (expectedStep.IsNegative)
@@ -143,10 +143,10 @@ internal static class GrappleFlarePresentationVerification
     }
 
     /// <summary>The grapple state a flare draw writes.</summary>
-    private readonly record struct FlareState(int Counter, int Frame, ushort Timer, Position16<RoomPixels> RopeStart, Position16<RoomPixels> BeamStart)
+    private readonly record struct FlareState(GrappleFlareStage Stage, int Frame, ushort Timer, Position16<RoomPixels> RopeStart, Position16<RoomPixels> BeamStart)
     {
         /// <summary>The flare state <paramref name="grapple"/> holds.</summary>
-        internal static FlareState Of(SamusGrappleState grapple) => new(grapple.FlareCounter, grapple.FlareAnimationFrame,
+        internal static FlareState Of(SamusGrappleState grapple) => new(grapple.FlareStage, grapple.FlareAnimationFrame,
             grapple.FlareAnimationTimer.RawValue, grapple.RopeStart, grapple.BeamStart);
     }
 
@@ -170,13 +170,13 @@ internal static class GrappleFlarePresentationVerification
         SamusPresentation.InitializeAnimation(samus); samus.Presentation.PrimeGraphics(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
-        samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(100);
+        samus.Grapple.FlareStage = GrappleFlareStage.Shown; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(100);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         byte[] original = Draw(runtime);
-        samus.Grapple.FlareCounter = 0;
+        samus.Grapple.FlareStage = GrappleFlareStage.None;
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real actor fixture reaches Grapple flare path");
-        samus.Grapple.FlareCounter = 2;
+        samus.Grapple.FlareStage = GrappleFlareStage.Shown;
         InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
         game.BindArtwork(game.Artwork with { SpriteSheets = rebound });
         AssertTrue(original.SequenceEqual(Draw(runtime)), "Real Grapple actor draws the same flare from rebound sheets");

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -124,6 +125,13 @@ internal static class SamusPoseMetadata
     {
         return ReadShotDirection(samus.Pose);
     }
+
+    /// <summary>
+    /// The direction Samus's pose aims her arm cannon, or none for a pose that restricts or forbids firing (turning,
+    /// shooting disabled, and the poses past the authored ones).
+    /// </summary>
+    public static SamusProjectileDirection? ReadAimDirection(SamusState samus) =>
+        SamusProjectileDirectionCodec.TryFromAimIndex(ReadShotDirection(samus.Pose));
 
     /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
     public static int ReadShotDirection(SamusPoseId pose)

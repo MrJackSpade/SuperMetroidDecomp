@@ -405,9 +405,11 @@ internal sealed class IntroCeresFlightState
                 $"Ceres front stars name invalid pre-instruction " +
                 $"{stars.FrameBehavior}.");
         }
-        stars.GeneralTimer = SignedEightEight.Wrapped(stars.GeneralTimer +
-            CeresFlightActorDefinitions.FrontStarAcceleration).RawValue;
-        var velocity = new SignedEightEight(stars.GeneralTimer);
+        // The stars' timer holds their speed. The rush lasts while the zoom falls from 512 by 16 an update, about 32
+        // updates, so the speed rises from four pixels an update one way to at most twelve the other.
+        SignedEightEight velocity = new SignedEightEight(stars.GeneralTimer) +
+            SignedEightEight.FromSignedRaw(CeresFlightActorDefinitions.FrontStarAcceleration);
+        stars.GeneralTimer = velocity.RawValue;
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));

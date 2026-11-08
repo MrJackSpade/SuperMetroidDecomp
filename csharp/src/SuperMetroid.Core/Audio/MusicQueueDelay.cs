@@ -8,13 +8,15 @@ namespace SuperMetroid.Core.Audio;
 public readonly record struct MusicQueueDelay
 {
     /// <summary>A delay of <paramref name="updates"/> music-handler updates, already lengthened to the shortest one.</summary>
-    /// <param name="updates">Music-handler updates, 0 through 65,535; zero is an empty queue position's.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is outside 0 through 65,535.</exception>
-    internal MusicQueueDelay(int updates) => Updates = Ensure.BetweenInclusive(0, ushort.MaxValue, updates);
+    /// <param name="updates">Music-handler updates, zero or more; zero is an empty queue position's.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is negative.</exception>
+    internal MusicQueueDelay(int updates) => Updates = Ensure.AtLeastZero(updates);
 
     /// <summary>
-    /// Music-handler updates the request waits before it plays, 0 through 65,535. The queue's countdown starts at this
-    /// count; zero marks an empty queue position. The countdown is a sixteen-bit word in the original, which bounds it.
+    /// Music-handler updates the request waits before it plays, zero or more. The queue's countdown starts at this count
+    /// and counts down to zero, and one step past zero fetches the next request, so it never wraps; zero marks an empty
+    /// queue position.
+    /// The longest delay the game requests is a fanfare's 365 updates.
     /// </summary>
     public int Updates { get; }
 
@@ -22,10 +24,10 @@ public readonly record struct MusicQueueDelay
     public static MusicQueueDelay Shortest { get; } = new(AudioQueueDefinitions.MinimumMusicDelayFrames);
 
     /// <summary>A delay of <paramref name="requestedUpdates"/> music-handler updates, lengthened to <see cref="Shortest"/> when shorter.</summary>
-    /// <param name="requestedUpdates">The updates asked for, 0 through 65,535.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="requestedUpdates"/> is outside 0 through 65,535.</exception>
+    /// <param name="requestedUpdates">The updates asked for, zero or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="requestedUpdates"/> is negative.</exception>
     public static MusicQueueDelay AtLeastShortest(int requestedUpdates) =>
-        new(Math.Max(Ensure.BetweenInclusive(0, ushort.MaxValue, requestedUpdates), AudioQueueDefinitions.MinimumMusicDelayFrames));
+        new(Math.Max(Ensure.AtLeastZero(requestedUpdates), AudioQueueDefinitions.MinimumMusicDelayFrames));
 
     /// <inheritdoc />
     public override string ToString() => $"{Updates} updates";

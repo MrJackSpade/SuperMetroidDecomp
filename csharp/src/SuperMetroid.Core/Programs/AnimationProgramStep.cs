@@ -79,10 +79,11 @@ internal abstract record AnimationProgramStep<TProgram, TFrame, TCue>
 
     /// <summary>
     /// Shows <paramref name="frame"/> for <paramref name="duration"/> processing updates. A zero duration is the
-    /// game's own: the frame hold wraps, so the frame stays for 65536 updates.
+    /// game's own: the frame hold wraps, so the frame stays for 65536 updates. The duration starts the owner's frame hold,
+    /// so it is at most <see cref="WrappingCountdown.LongestStart"/>.
     /// </summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Show(TFrame frame, int duration) =>
-        new ShowStep(frame, Ensure.BetweenInclusive(0, ushort.MaxValue, duration));
+        new ShowStep(frame, Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, duration));
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Publish(TCue cue) => new CueStep(cue);
@@ -96,13 +97,19 @@ internal abstract record AnimationProgramStep<TProgram, TFrame, TCue>
     /// <summary>Runs on into <paramref name="program"/>, the program authored next.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> FallInto(TProgram program) => new FallIntoStep(program);
 
-    /// <summary>Keeps the current frame for <paramref name="duration"/> updates.</summary>
+    /// <summary>
+    /// Keeps the current frame for <paramref name="duration"/> updates, which start the owner's frame hold and so are at
+    /// most <see cref="WrappingCountdown.LongestStart"/>.
+    /// </summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> Wait(int duration) =>
-        new WaitStep(Ensure.BetweenInclusive(0, ushort.MaxValue, duration));
+        new WaitStep(Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, duration));
 
-    /// <summary>Loads the loop counter with <paramref name="count"/>.</summary>
+    /// <summary>
+    /// Loads the loop counter with <paramref name="count"/>, which starts the owner's loop countdown and so is at most
+    /// <see cref="WrappingCountdown.LongestStart"/>.
+    /// </summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> SetCounter(int count) =>
-        new SetCounterStep(Ensure.BetweenInclusive(0, ushort.MaxValue, count));
+        new SetCounterStep(Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, count));
 
     /// <summary>Counts the loop counter down and repeats <paramref name="program"/> while it is not zero.</summary>
     internal static AnimationProgramStep<TProgram, TFrame, TCue> RepeatWhileCounting(TProgram program) => new RepeatWhileCountingStep(program);

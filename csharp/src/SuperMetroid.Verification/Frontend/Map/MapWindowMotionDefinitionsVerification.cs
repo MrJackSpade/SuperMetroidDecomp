@@ -51,13 +51,13 @@ internal static class MapWindowMotionDefinitionsVerification
 
     /// <summary>Checks one edge's velocity record for each area and exercises area bounds.</summary>
     private static void VerifyMapWindowVelocity(ISnesAddressSpace rom, int edge,
-        Func<FileSelectMapWindowMotion, uint> select)
+        Func<FileSelectMapWindowMotion, SignedSixteenSixteen> select)
     {
         for (int area = 0; area < 6; area++)
         {
             int address = 0x81aa34 + area * 16 + edge * 4;
             uint expected = SixteenSixteen.Compose(ReadVerificationWord(rom, address + 2), ReadVerificationWord(rom, address));
-            AssertEqual(expected, select(FileSelectMapWindowMotions.Get(area)),
+            AssertEqual(unchecked((int)expected), select(FileSelectMapWindowMotions.Get(area)).RawValue,
                 $"map window area {area} edge {edge} signed16.16 velocity");
         }
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
@@ -83,11 +83,11 @@ internal static class MapWindowMotionDefinitionsVerification
     /// <summary>Independent cartridge-data control, deliberately outside the production catalog.</summary>
     internal static FileSelectMapWindowMotion ReadCartridgeMapWindowMotion(ISnesAddressSpace bus, int area)
     {
-        uint ReadVelocity(int edge)
+        SignedSixteenSixteen ReadVelocity(int edge)
         {
             int address = FileSelectMapNativeSources.WindowVelocities + area * FileSelectMapNativeSources.VelocityRecordBytes + edge * 4;
-            return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address) |
-                (SixteenSixteen.FromWhole((uint)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
+            return SignedSixteenSixteen.FromRaw(unchecked((int)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address) |
+                (SixteenSixteen.FromWhole((uint)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2))))));
         }
         return new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapNativeSources.WindowTimers + area * 2),
             ReadVelocity(0), ReadVelocity(1), ReadVelocity(2), ReadVelocity(3));

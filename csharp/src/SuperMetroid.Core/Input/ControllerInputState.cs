@@ -17,16 +17,18 @@ public sealed class ControllerInputState
     }
 
     /// <summary>
-    /// Frames loaded into <see cref="RepeatTimer"/> when input is released or changes, 0 through 65,535: any value the
-    /// repeat countdown can start at. The delay is only ever reloaded, never counted itself; the countdown keeps the wrap.
+    /// Frames loaded into <see cref="RepeatTimer"/> when input is released or changes, up to
+    /// <see cref="WrappingCountdown.LongestStart"/>: any value the repeat countdown can start at. The delay is only ever
+    /// reloaded, never counted itself; the countdown keeps the wrap.
     /// </summary>
-    public int InitialRepeatDelay { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int InitialRepeatDelay { get; set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
 
     /// <summary>
-    /// Frames loaded into <see cref="RepeatTimer"/> after a held-input repeat pulse, 0 through 65,535: any value the
-    /// repeat countdown can start at. The delay is only ever reloaded, never counted itself; the countdown keeps the wrap.
+    /// Frames loaded into <see cref="RepeatTimer"/> after a held-input repeat pulse, up to
+    /// <see cref="WrappingCountdown.LongestStart"/>: any value the repeat countdown can start at. The delay is only ever
+    /// reloaded, never counted itself; the countdown keeps the wrap.
     /// </summary>
-    public int SubsequentRepeatDelay { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int SubsequentRepeatDelay { get; set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
 
     /// <summary>Controller buttons currently down.</summary>
     public ControllerButton Current { get; private set; }

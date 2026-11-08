@@ -50111,6 +50111,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFollowingExplosionState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFollowingExplosionState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainForcedSamusMovementResult",
       "kind": "record struct",
       "scope": "product",
@@ -53813,6 +53826,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.RestartingFallSpeed",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/RestartingFallSpeed.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyGetawayBoostDelays",
@@ -58513,6 +58539,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/FollowUpAfterStruckPart.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.FollowingExplosionLeftVelocity",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/FollowingExplosionLeftVelocity.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -126443,6 +126482,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.PlasmaRingPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/PlasmaRingPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.PowerBombExplosionPhase",
       "kind": "enum",
       "scope": "product",
@@ -129601,38 +129653,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.SignedSixteenSixteenAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Spatial/SignedSixteenSixteenAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Spatial.SignedSixteenSixteenAccess.extension(SuperMetroid.Core.Spatial.SignedSixteenSixteen)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Spatial/SignedSixteenSixteenAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Spatial.SixteenSixteen",
       "kind": "static class",
       "scope": "product",
@@ -129641,6 +129661,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Spatial/SixteenSixteen.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.SixteenSixteenWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Spatial/SixteenSixteenWords.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -142305,6 +142341,20 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.TestSupport.MovieReplay.SamusProjectileVelocityWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/MovieReplay/SamusProjectileVelocityWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.TestSupport.MovieReplay.SaveStationElectricityNativeListAddresses",
       "kind": "static class",
       "scope": "test",
@@ -149921,6 +149971,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Bosses.RestartingFallSpeedVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/RestartingFallSpeedVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Bosses.Ridley.CeresRidleyBodyPublicationVerification",

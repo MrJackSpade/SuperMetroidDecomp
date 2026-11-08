@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's mouth's own state: its casual flames, the shot pattern, the wave's amplitude and phase step, and the
-/// control of Phantoon's layer.
+/// Phantoon's mouth's own state: its casual flames, the shot pattern, the wave's amplitude and phase step, and whether
+/// his body is shown.
 /// </summary>
 /// <remarks>
 /// Every phase loads the values it reads when it starts. Each count is never negative except the casual-flame count,
@@ -36,12 +36,10 @@ public sealed class PhantoonMouthState
     public int WavyPhaseDelta { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>
-    /// The mouth's control of Phantoon's layer while Phantoon is not semi-transparent. The original game keeps it in the
-    /// mouth's first parameter word and tests only its low byte; every part initialization overwrites the mouth's with
-    /// <see cref="PhantoonLayerControl.Hidden"/> (a zero low byte) before the blending owner reads it, so the spawn
-    /// parameter it replaces is never observed.
+    /// Whether Phantoon's body is shown while he is not translucent. Every part's start sets it to
+    /// <see cref="PhantoonBodyLayer.Hidden"/> before <see cref="PhantoonBodyVisibilityEffect"/> first reads it.
     /// </summary>
-    public PhantoonLayerControl LayerControl { get; internal set; } = PhantoonLayerControl.Hidden;
+    public PhantoonBodyLayer BodyLayer { get; internal set; } = PhantoonBodyLayer.Hidden;
 
     /// <summary>The mouth's shot pattern, 0 through 7, drawn when a vulnerable shot lands; the death sequence writes one.</summary>
     public int ShotPattern { get; internal set => field = Ensure.AtLeastZero(value); }

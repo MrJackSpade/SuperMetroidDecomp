@@ -46,7 +46,7 @@ internal static class PhantoonWaveMathVerification
         for (int phase = 0; phase < 512; phase += 2)
         foreach (int amplitude in WordBoundarySamples())
         {
-            ScrollWave wave = BossLineScrolls.Of(PhantoonWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(phase, amplitude, 0)));
+            ScrollWave wave = BossLineScrolls.Of(PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(phase, amplitude, 0)));
             if (ScrollShapeLines.WaveDisplacement(wave, 0) != NativeDisplacement(samples[phase], (ushort)amplitude))
                 throw new InvalidDataException($"Phantoon byte product differs: phase={phase}, amplitude={amplitude}.");
         }
@@ -65,7 +65,7 @@ internal static class PhantoonWaveMathVerification
                 // The cartridge builds one cycle, its second half the first's mirror, and repeats it from the top line.
                 int half = length == PhantoonWaveLength.Long ? 64 : 32;
                 int step = 512 / (half * 2);
-                ScrollWave wave = BossLineScrolls.Of(PhantoonWaveEffect.Describe(length, new PhantoonWaveShape(phase, amplitude, scroll)));
+                ScrollWave wave = BossLineScrolls.Of(PhantoonBodyWaveEffect.Describe(length, new PhantoonWaveShape(phase, amplitude, scroll)));
                 for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
                 {
                     int index = line % (half * 2);
@@ -77,10 +77,10 @@ internal static class PhantoonWaveMathVerification
                 Interlocked.Increment(ref cycles);
             }
         });
-        AssertEqual(64, PhantoonWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(0, 0, 0)).Period, "the short wave's period");
-        AssertEqual(128, PhantoonWaveEffect.Describe(PhantoonWaveLength.Long, new PhantoonWaveShape(0, 0, 0)).Period, "the long wave's period");
-        AssertEqual(PhantoonWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(510, 0, 0)).Phase,
-            PhantoonWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(511, 0, 0)).Phase, "an odd phase shows the even phase's angle below it");
+        AssertEqual(64, PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(0, 0, 0)).Period, "the short wave's period");
+        AssertEqual(128, PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Long, new PhantoonWaveShape(0, 0, 0)).Period, "the long wave's period");
+        AssertEqual(PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(510, 0, 0)).Phase,
+            PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(511, 0, 0)).Phase, "an odd phase shows the even phase's angle below it");
         Console.WriteLine($"Phantoon wave math: every even phase's byte products, {cycles} described waves giving every screen line the cartridge's mirrored, repeated cycle, and each wave length's period match.");
     }
 }

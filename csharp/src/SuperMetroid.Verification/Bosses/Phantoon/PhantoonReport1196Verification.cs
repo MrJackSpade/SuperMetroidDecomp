@@ -56,7 +56,7 @@ internal static class PhantoonReport1196Verification
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).BodyLayerPlacement = boss.BodyLayerPlacement.WithX(9);
         boss.MouthState.WaveAmplitude = 3072;
         boss.MouthState.WavyPhaseDelta = 8;
-        var wave = boss.Wave;
+        var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         wave.Step(boss);
         wave.Step(boss);

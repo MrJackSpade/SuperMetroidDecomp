@@ -273,7 +273,7 @@ internal sealed class PhantoonPatterns
         SamusState samus)
     {
         PointPhantoonEyeAtSamus(body, state, samus);
-        state.SemiTransparent = false;
+        state.Translucent = false;
         BeginPhantoonSwoop(state);
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
     }
@@ -290,7 +290,7 @@ internal sealed class PhantoonPatterns
             return;
 
         state.BodyState.Function = PhantoonAiFunction.FadeOutWhileSwooping;
-        state.SemiTransparent = true;
+        state.Translucent = true;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         RoomEnemySlot eye = state.Eye;
         PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
@@ -365,7 +365,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         state.EyeState.FadeComplete = false;
-        state.SemiTransparent = false;
+        state.Translucent = false;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeballCentered);
         state.BodyState.Function = PhantoonAiFunction.FadeInDuringFlameRain;
@@ -407,7 +407,7 @@ internal sealed class PhantoonPatterns
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeClose);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        state.SemiTransparent = true;
+        state.Translucent = true;
     }
 
     /// <summary>Hides the body after the vulnerable rain interval.</summary>

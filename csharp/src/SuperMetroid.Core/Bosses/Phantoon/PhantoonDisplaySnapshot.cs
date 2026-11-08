@@ -1,24 +1,22 @@
-using SuperMetroid.Core.Fx;
-
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's presentation as the display latch captured it: the wave on his body layer (#1353, #1468), the blend
-/// configuration, and the body layer's mosaic size. Later passes cannot change them. His fades show through the body
-/// palette the frame's colour snapshot carries, which is exact palette state.
+/// Phantoon's presentation as the display latch captured it: the wave of his body (#1353, #1468), whether his body
+/// shows, hidden or translucent (#1545), and his body's pixelation. Later passes cannot change them. His fades show
+/// through the body palette the frame's colour snapshot carries, which is exact palette state.
 /// </summary>
-/// <param name="Wave">The active wave rippling the background, or null when the wave channel is inactive.</param>
-/// <param name="Configuration">Latched blend configuration: the room default, the background hidden, or the background semitransparent.</param>
-/// <param name="MosaicBlockSize">Background mosaic block size in screen pixels latched for display, 1..16; one means no quantization.</param>
+/// <param name="Wave">The active wave rippling his body, or null when no wave is active.</param>
+/// <param name="BodyVisibility">Whether his body shows as the room shows it, hidden or translucent.</param>
+/// <param name="MosaicBlockSize">His body's pixelation block size in screen pixels latched for display, 1..16; one means none.</param>
 public sealed record PhantoonDisplaySnapshot(
     PhantoonWave? Wave,
-    LayerBlendingConfiguration Configuration,
+    PhantoonBodyVisibility BodyVisibility,
     int MosaicBlockSize)
 {
-    /// <summary>Copies the boss's display-latched wave and blend state.</summary>
+    /// <summary>Copies the boss's display-latched wave, visibility and pixelation.</summary>
     public static PhantoonDisplaySnapshot Capture(PhantoonEnemyState phantoon)
     {
         Ensure.NotNull(phantoon);
-        return new(phantoon.Wave.DisplayedWave, phantoon.Blending.DisplayedConfiguration, phantoon.Blending.DisplayedMosaicBlockSize);
+        return new(phantoon.BodyWave.DisplayedWave, phantoon.BodyVisibility.DisplayedVisibility, phantoon.BodyVisibility.DisplayedMosaicBlockSize);
     }
 }

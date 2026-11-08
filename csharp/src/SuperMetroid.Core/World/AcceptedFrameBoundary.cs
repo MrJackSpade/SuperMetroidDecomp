@@ -130,9 +130,9 @@ internal sealed class AcceptedFrameBoundary
             // Before the first room no enemy earthquake shakes the room.
             _room.Enemies?.Earthquake.LastRoomShake ?? default);
         RoomFxOverlayRenderSnapshot? roomFxOverlay = _room.FxOverlay?.CaptureForDisplay();
-        Displays?.Phantoon?.Wave.LatchDisplay();
+        Displays?.Phantoon?.BodyWave.LatchDisplay();
         if (Displays?.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
+            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _room.TourianStatues?.LatchDisplay();
         GameplayLatchedScene scene = CaptureScene();
         XrayRevealedBlocks? reveal = CaptureXrayReveal(scene);

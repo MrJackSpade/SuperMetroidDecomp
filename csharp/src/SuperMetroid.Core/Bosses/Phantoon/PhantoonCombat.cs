@@ -344,7 +344,7 @@ internal sealed class PhantoonCombat
         RoomEnemySlot eye = state.Eye;
         state.TentaclesState.SwoopRequested = false;
         state.TentaclesState.RoundDamage = 0;
-        state.SemiTransparent = true;
+        state.Translucent = true;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -363,8 +363,8 @@ internal sealed class PhantoonCombat
                 : PhantoonAiFunction.DyingFadeInOut;
         state.EyeState.FigureEightReversed = false;
         state.EyeState.FadeComplete = false;
-        state.Wave.InitializeDeathScroll(state.BodyLayerPlacement.X);
-        state.SemiTransparent = true;
+        state.BodyWave.InitializeDeathScroll(state.BodyLayerPlacement.X);
+        state.Translucent = true;
         state.MouthState.ShotPattern = 1;
     }
 

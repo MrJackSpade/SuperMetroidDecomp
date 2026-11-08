@@ -28,7 +28,7 @@ public static class GameplayDisplayCapture
         bool doorOwnsDisplay = live.DoorTransitionShownLayers is not null;
         if (!doorOwnsDisplay && CaptureXray(frame, basis) is { } xray) return xray;
         if (!doorOwnsDisplay && latched.Phantoon is { } phantoon)
-            layers[0] = CapturePhantoonBlending(phantoon, basis);
+            layers[0] = CapturePhantoonBody(phantoon, basis);
         if (!doorOwnsDisplay && latched.Scene.FxType == RoomFxType.Fireflea)
             layers[0] = CaptureFirefleaDarkness(latched.FixedColors.Shared, basis);
         if (!doorOwnsDisplay)
@@ -234,18 +234,28 @@ public static class GameplayDisplayCapture
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 
-    /// <summary>Removes the background when Phantoon is hidden, or adds it when the body is semitransparent.</summary>
-    private static DisplayLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
+    /// <summary>
+    /// Phantoon's body as it shows (#1545): as the room shows it, removed when he is hidden, or lying translucent behind
+    /// the room. His room shows his body on its background.
+    /// </summary>
+    private static DisplayLayer CapturePhantoonBody(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
     {
         var ordinary = (GameplaySceneLayer)basis.Layers[0];
-        var mode = phantoon.Configuration;
-        if (mode is not (LayerBlendingConfiguration.PhantoonHidden or LayerBlendingConfiguration.PhantoonSemiTransparent))
-            return ordinary;
+        switch (phantoon.BodyVisibility)
+        {
+            case PhantoonBodyVisibility.Shown:
+                return ordinary;
+            case PhantoonBodyVisibility.Hidden:
+            case PhantoonBodyVisibility.Translucent:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined Phantoon body visibility {phantoon.BodyVisibility}.");
+        }
         var gameplay = new GameplaySceneLayer(ordinary.View with
         {
             ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background,
         }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
-        if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
+        if (phantoon.BodyVisibility == PhantoonBodyVisibility.Hidden) return gameplay;
         // Phantoon's translucent body is the background lying behind the room: it brightens the foreground, the actors taking
         // part in blends and the backdrop wherever it shows, without ever covering the foreground (#1514).
         return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new GameplayBlend

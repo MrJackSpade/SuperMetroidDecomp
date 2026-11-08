@@ -82,10 +82,10 @@ public sealed class PhantoonEnemyState
     public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
     /// <summary>
-    /// Whether Phantoon draws translucent: the layer-blending bit, the only bit Phantoon sets or
-    /// clears; the blending update tests it to select the translucent blending configuration.
+    /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever his
+    /// mouth's <see cref="PhantoonMouthState.BodyLayer"/> asks.
     /// </summary>
-    public bool SemiTransparent { get; internal set; }
+    public bool Translucent { get; internal set; }
 
 
     /// <summary>The eight requested/allocated starting flames are counted independently.</summary>
@@ -103,7 +103,7 @@ public sealed class PhantoonEnemyState
     /// <summary>Gets the number of death-explosion requests that allocated a physical effect actor.</summary>
     public int DeathExplosionsSpawned { get; internal set; }
     /// <summary>
-    /// Gets the live background mosaic block size in screen pixels before display latching: one (no quantization) until
+    /// Gets the live pixelation block size of his body in screen pixels before display latching: one (no quantization) until
     /// the dying fade grows it one pixel every sixteenth frame up to sixteen, and one again once the body is cleared.
     /// </summary>
     public int MosaicBlockSize { get; internal set; } = 1;
@@ -121,9 +121,9 @@ public sealed class PhantoonEnemyState
     /// </summary>
     public RoomObjectHeaderId? BossDoorObjectRequest { get; internal set; }
 
-    /// <summary>Gets the encounter's lazily created wave effect, which advances the per-line ripple separately from display latching.</summary>
-    public PhantoonWaveEffect Wave => field ??= new();
+    /// <summary>Gets the encounter's lazily created wave of his body, which advances separately from display latching.</summary>
+    public PhantoonBodyWaveEffect BodyWave => field ??= new();
 
-    /// <summary>Gets the encounter's lazily created blending owner, retaining live transparency control and separately latched blending/mosaic display state.</summary>
-    public PhantoonBlendingState Blending => field ??= new();
+    /// <summary>Gets the encounter's lazily created visibility effect: whether his body shows, hidden or translucent, live and as the display latched it with his body's pixelation.</summary>
+    public PhantoonBodyVisibilityEffect BodyVisibility => field ??= new();
 }

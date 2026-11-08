@@ -108,6 +108,14 @@ service only when it has its own timing contract; coherent responsibilities shar
 statues is the game's own work, and the compatibility behaviour it carries, its place in the random sequence, is
 `EffectPhaseRandomOrder`'s. Its documentation states its frame point and evidence.
 
+The two wall actors Ceres Ridley's retreat spawns (`CeresRidleyFlight.SpawnCeresRidleyGetawayWalls`, Bosses, #1545) are
+kept as gameplay, not a service. The getaway scene shows the chamber's walls itself, as scenery behind its turning
+floor (`CeresRidleyGetaway.ChamberWalls`); the original drew them as sprites because its turning view had no other
+background, and that presentation is deleted. The actors draw nothing, but each takes the first free enemy place and
+extends the room's filled places, and on the update after the retreat they are touchable, before their first animation
+step makes them ignore Samus and her weapons. Evidence: the retreat spawns the two door-family enemies, whose
+instruction lists start with the intangibility instruction.
+
 `WreckedShipGhostFade` (Enemies, #1512, #1544) is the Wrecked Ship ghost's own colour value rather than a service of this module, because its colours are the ghost's and the import pre-colours its shades by running it: its brightening raises all three channels of each colour in one addition, so a channel passing full carries into the next, and its fades step all sixteen of the ghost's colours, colour zero too, which no picture draws; when each ends decides when the ghost's AI moves on. Its documentation states the behaviour, the phases that consult it and the evidence.
 
 The game's colours are plain colours (`RgbColor`, #1544). Every fade, flash, glow, ramp and pre-coloured faded shade is authored animation on the game's fade scale (`FadeLevelColour`, thirty-two levels a channel): it computes its steps on those levels exactly as the game's level arithmetic does and shows the plain colour of the level it reaches, so every colour between equals the game's step and every colour shown lies on the scale. That is presentation, not a compatibility service. Gameplay reads a step-wise colour change back only in these values, which own those changes:

@@ -371,16 +371,14 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary>Ridley Ceres behaviour: real retreat, write palettes Spawn walls.</summary>
+    /// <summary>Ends the retreat's delay: places the two wall actors, stops Ridley and recolours the chamber.</summary>
     internal void TickCeresRidleyRetreatDelay(RidleyEnemyState state)
     {
         if (--state.FunctionTimer >= 0)
             return;
 
-        // The retreat spawns the two chamber-wall actors before the following
-        // dispatcher switches to the rotating view. They are not decorative bookkeeping:
-        // the rotating view has no second background, so these sprite strips are what keep the chamber
-        // visible around the rotating Ridley/Baby image.
+        // The retreat places the two wall actors before the getaway begins. The getaway scene shows the chamber's walls
+        // itself (#1545); the actors draw nothing, but they take two enemy places (SpawnCeresRidleyGetawayWalls).
         SpawnCeresRidleyGetawayWalls();
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         state.TailFunctionIndex = RidleyTailFunction.None;
@@ -572,18 +570,20 @@ internal sealed class CeresRidleyFlight
         state.WingFrame = (state.WingFrame + 1) % 10;
     }
 
-    /// <summary>Allocates two real enemy records for the sprite wall strips shown while the floor turns.</summary>
+    /// <summary>
+    /// Places the getaway's two wall actors at the chamber's walls (#1545). They draw nothing: the getaway scene shows the
+    /// walls (<see cref="CeresRidleyGetaway.ChamberWalls"/>). They are kept because gameplay can observe them: each takes
+    /// the first free enemy place and extends the room's filled places, and on the update after this one they are
+    /// touchable, before their first animation step makes them ignore Samus and her weapons. Evidence: the original's
+    /// retreat spawns the two door-family enemies, whose instruction lists start with the intangibility instruction.
+    /// </summary>
     private void SpawnCeresRidleyGetawayWalls()
     {
-        // SpawnEnemy consumes the first two free slots and initializes the literal
-        // population records embedded. Keeping these as real slots makes
-        // their enemy-layer sprite order, off-screen processing, and visibility dispatcher
-        // flow through the same scheduler as the original game instead of painting host panels.
-        SpawnCeresRidleyGetawayWall(new(8, 127), CeresDoorVariant.RidleyEscapeFloorLeftWall);
-        SpawnCeresRidleyGetawayWall(new(248, 127), CeresDoorVariant.RidleyEscapeFloorRightWall);
+        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.LeftWall, CeresDoorVariant.RidleyEscapeFloorLeftWall);
+        SpawnCeresRidleyGetawayWall(CeresGetawayChamberWallDefinitions.RightWall, CeresDoorVariant.RidleyEscapeFloorRightWall);
     }
 
-    /// <summary>Initializes one wall at its authored position and variant.</summary>
+    /// <summary>Initializes one wall actor at its place and variant, drawing nothing.</summary>
     private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, CeresDoorVariant variant)
     {
         RoomEnemySlot wall = _slotTable.FindFreeSlot() ??
@@ -595,7 +595,8 @@ internal sealed class CeresRidleyFlight
             Position: position,
             Properties:
                 EnemyProperties.RunsAnimationScript |
-                EnemyProperties.ProcessOffScreen,
+                EnemyProperties.ProcessOffScreen |
+                EnemyProperties.Invisible,
             ExtraProperties: EnemyExtraProperties.None,
             SpawnSettings: new CeresDoorSpawnSettings(variant));
         _dispatch.InitializeSlotFromDefinition(wall, population, definition);

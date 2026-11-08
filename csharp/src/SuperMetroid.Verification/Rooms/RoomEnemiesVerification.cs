@@ -1120,8 +1120,9 @@ internal static void VerifyCeresRidleyRoomEntry()
         .Where(slot => slot.DefinitionId == ceresDoorDefinitionPointer &&
             slot.SpawnSettings<CeresDoorSpawnSettings>().Variant is CeresDoorVariant.RidleyEscapeFloorLeftWall or CeresDoorVariant.RidleyEscapeFloorRightWall)
         .ToArray();
+    AssertTrue(mode7Walls.All(wall => wall.Properties.HasAny(EnemyProperties.Invisible)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
     AssertEqual(2, mode7Walls.Length,
-        "Ceres Ridley spawns both native Mode-7 wall actors");
+        "Ceres Ridley's retreat places both getaway wall actors, which hold their enemy places");
     AssertEqual((RgbColor?)RgbColor.FromWord(0x6100), retreatBackgroundColor,
         "Ceres Ridley retreat copies BG palette-five colors");
     AssertEqual(0x6200, Shown()[0x21],

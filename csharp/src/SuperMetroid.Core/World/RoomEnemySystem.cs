@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
@@ -532,6 +534,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     PhantoonEnemyState? IEnemyDisplaySources.Phantoon => PhantoonBehavior.Combat.Phantoon;
     /// <inheritdoc/>
     RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;
+    /// <inheritdoc/>
+    ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresRidleyBehavior.Getaway.ChamberWalls();
     /// <inheritdoc/>
     BossBodyLayer? IEnemyDisplaySources.BossBody => KraidBehavior.BodyLayer.CaptureBodyLayer()
         ?? (Presentation.BossBody is { IsShown: true } body ? body.Publish() : null);

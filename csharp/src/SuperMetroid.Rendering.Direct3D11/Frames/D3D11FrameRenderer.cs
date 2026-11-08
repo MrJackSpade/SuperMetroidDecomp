@@ -433,15 +433,23 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Composes a room with a perspective floor below the HUD's lines (#1514): the floor with the actors over it, and on the
-    /// band below it the background's layers and the actors in <see cref="GameplaySceneLayer.Order"/>. The HUD is its own
-    /// layer (#1466).
+    /// Composes a room with a perspective floor below the HUD's lines (#1514): the room's scenery behind everything (#1545),
+    /// the floor with the actors over it, and on the band below it the background's layers and the actors in
+    /// <see cref="GameplaySceneLayer.Order"/>. The HUD is its own layer (#1466).
     /// </summary>
     private void DispatchFloorRoom(TurningRoomLayer layer)
     {
         // Clipping is in screen lines. Never move the floor's origin to the start of the band: the transform is the
         // whole screen's.
         int floorStart = layer.Floor?.FirstLine ?? 224;
+        // The pictures fixed in the room lie behind the floor, the actors and the band's background, every pixel of each;
+        // the floor's and the background's clear pixels show them.
+        if (layer.Scenery is { } scenery)
+            DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
+            {
+                Map = roomLevels.PlaneTable(scenery.Plane), Scroll = scenery.Scroll, RoomSource = D3D11RoomSource.PicturedPlane,
+                FirstScanline = (uint)layer.HudLines,
+            });
         DispatchFloor(layer.Transform, layer.HudLines, floorStart);
         DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart });
         if (layer.Floor is not { } floor)
@@ -582,10 +590,11 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>The pictured planes a layer draws (#1467): its own and, for a glow, the plane it glows over.</summary>
+    /// <summary>The pictured planes a layer draws (#1467): its own, a turning room's scenery (#1545) and, for a glow, the plane it glows over.</summary>
     private static IEnumerable<PicturedPlane> PicturedPlanes(DisplayLayer layer) => layer switch
     {
         PicturedPlaneLayer bg => [bg.Plane],
+        TurningRoomLayer { Scenery: { } scenery } => [scenery.Plane],
         AddedPicturedPlaneLayer { GlowsOver: { } covered } glow => [glow.Plane, covered.Plane],
         AddedPicturedPlaneLayer glow => [glow.Plane],
         _ => [],

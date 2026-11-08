@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -5,6 +6,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.World;
 
@@ -25,6 +27,9 @@ internal interface IEnemyDisplaySources
 
     /// <summary>Ceres Ridley, if loaded.</summary>
     RidleyEnemyState? CeresRidley { get; }
+
+    /// <summary>The chamber's walls Ceres Ridley's getaway shows around its turning floor (#1545), in the room's loaded artwork.</summary>
+    ImmutableArray<PerspectiveFloorScenery> CeresGetawayChamberWalls { get; }
 
     /// <summary>
     /// The body a boss shows (#1352, #1353, #1466, #1515): Kraid's while he owns it, otherwise the one a boss attached

@@ -184,15 +184,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
                 return;
 
             case CeresDoorFunction.RidleyEscapeFloorWall:
-                // Ridley's room overlay begins hidden. Ridley's escape reveals it in the doors' escaping colours
-                // (#1512); the actor remains present so later turning-floor drawing
-                // can retain the priority relationship with Samus and Ridley.
-                slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-                if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
-                {
-                    slot.Shading = CeresDoorShades.InEscapingColours;
-                    slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-                }
+                // A getaway wall actor only holds its place: the getaway scene shows the chamber's walls (#1545).
                 return;
 
             case CeresDoorFunction.RotatingElevatorRoomDefault:

@@ -51,8 +51,9 @@ internal static class CeresRidleyBodyPublicationVerification
             previousAngle = ridley.FloorAngle;
             PerspectiveFloor floor = runtime.Display.Latched.PerspectiveFloor
                 ?? throw new InvalidOperationException("Ridley's getaway publishes his floor.");
-            AssertEqual(CeresPerspectiveFloors.RidleyGetaway(CeresRidleyGetaway.FloorTransform(ridley)
-                ?? throw new InvalidOperationException("Ridley flies his getaway.")), floor, $"angle {ridley.FloorAngle} publishes Ridley's floor");
+            AssertEqual(CeresRidleyGetaway.FloorTransform(ridley)
+                ?? throw new InvalidOperationException("Ridley flies his getaway."), floor.Transform, $"angle {ridley.FloorAngle} publishes Ridley's floor");
+            AssertEqual(BelowPerspectiveFloor.RoomBackground, floor.Below, "the getaway shows the room's background below its floor");
             AffineFloor map = runtime.Display.Latched.Rooms?.Floor
                 ?? throw new InvalidOperationException("The arena publishes its floor.");
             RoomFloorSheet sheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("The arena shows a floor.")).Sheet;
@@ -60,8 +61,28 @@ internal static class CeresRidleyBodyPublicationVerification
                 $"angle {ridley.FloorAngle} publishes his {wings} body frame");
             var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
             AssertTrue(mode7.Map.Equals(map), $"angle {ridley.FloorAngle} draws his published body");
+            VerifyChamberWalls(mode7, runtime.Display.Latched.Scrolls.ForegroundPosition);
         }
         Console.WriteLine("  Ceres Ridley body: two getaway rotations publish his transform and body frames on the Mode 7 layer.");
+    }
+
+    /// <summary>
+    /// The getaway shows the chamber's two walls behind its turning floor (#1545), each picture's origin on its wall's room
+    /// point, on a plane scrolled with the camera the actors are drawn against.
+    /// </summary>
+    private static void VerifyChamberWalls(TurningRoomLayer mode7, Position16<RoomPixels> camera)
+    {
+        TurningRoomScenery walls = mode7.Scenery ?? throw new InvalidOperationException("The getaway shows the chamber's walls.");
+        Position16<RoomPixels>[] points = [CeresGetawayChamberWallDefinitions.LeftWall, CeresGetawayChamberWallDefinitions.RightWall];
+        AssertEqual(points.Length, walls.Plane.Pictures.Length, "the getaway shows the chamber's two walls");
+        int side = walls.Plane.Size.X * ScreenGeometry.BackgroundTileSizePixels;
+        for (int wall = 0; wall < points.Length; wall++)
+        {
+            PlacedPlanePicture placed = walls.Plane.Pictures[wall];
+            AssertEqual(new Position16<PlanePixels>((points[wall].X - placed.Picture.Origin.X + side) % side, (points[wall].Y - placed.Picture.Origin.Y + side) % side),
+                placed.Corner, $"wall {wall}'s picture places its origin on the wall's room point");
+        }
+        AssertEqual(camera.AsPlaneScroll(), walls.Scroll, "the walls scroll with the actors' camera");
     }
 
     /// <summary>Runs the Ceres Ridley body publication check.</summary>

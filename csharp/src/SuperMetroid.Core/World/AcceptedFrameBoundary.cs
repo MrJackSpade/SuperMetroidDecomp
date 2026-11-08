@@ -178,12 +178,13 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The Ceres perspective floor this frame shows: the floor Ceres Ridley's getaway flies over while he flies it (his
-    /// room main computes it), otherwise the elevator shaft's while the shaft has its transform. The
+    /// room main computes it), with the chamber's walls around it (#1545), otherwise the elevator shaft's while the shaft has its transform. The
     /// shaft's transform exists exactly while the room was entered through the shaft's door.
     /// </summary>
     /// <param name="foregroundScroll">The foreground's scroll this frame shows, which scrolls the shaft's floor.</param>
     private PerspectiveFloor? CapturePerspectiveFloor(Position16<RoomPixels> foregroundScroll) =>
-        CeresRidleyGetaway.FloorTransform(Displays?.CeresRidley) is { } ridley ? CeresPerspectiveFloors.RidleyGetaway(ridley)
+        Displays is { } displays && CeresRidleyGetaway.FloorTransform(displays.CeresRidley) is { } ridley
+            ? CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls)
         : _display.ActiveTurningFloor is { } shaft ? CeresPerspectiveFloors.ElevatorShaft(shaft, foregroundScroll)
         : null;
 

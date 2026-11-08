@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <summary>Shared four-phase pulse for pause and file-select map markers.</summary>
 internal static class PauseMapIndicatorAnimation
 {
-    /// <summary>The pulse wraps at byte offset8: four word-indexed phases.</summary>
+    /// <summary>The pulse has four phases; after the fourth it starts again from the first.</summary>
     public const int FrameCount = 4;
 
     /// <summary>Calculates the triangular sprite pulse, phase0..3.</summary>

@@ -79,9 +79,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RightXVelocity = rightX;
         state.RightYVelocity = rightY;
 
-        state.ForwardFacing = CalculateSbugFacing(state.InitialAngle);
-        state.LeftFacing = CalculateSbugFacing(leftAngle);
-        state.RightFacing = CalculateSbugFacing(rightAngle);
+        state.ForwardFacing = SbugMovement.FacingOf(state.InitialAngle);
+        state.LeftFacing = SbugMovement.FacingOf(leftAngle);
+        state.RightFacing = SbugMovement.FacingOf(rightAngle);
         SetSbugFacing(slot, state, state.ForwardFacing);
     }
 
@@ -298,11 +298,11 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             out SignedSixteenSixteen customY);
         state.CustomXVelocity = customX;
         state.CustomYVelocity = customY;
-        state.CustomFacing = CalculateSbugFacing(state.CustomHeading);
+        state.CustomFacing = SbugMovement.FacingOf(state.CustomHeading);
         SetSbugFacing(slot, state, state.CustomFacing);
     }
 
-    /// <summary>Preserves the independent word negation and odd animation-index mask on reversal.</summary>
+    /// <summary>Preserves the independent word negation and the folded facing on reversal.</summary>
     private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The original negates pixel and subpixel words separately. For a nonzero low word
@@ -311,10 +311,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CustomXVelocity = NegateSbugWordsIndependently(state.CustomXVelocity);
         state.CustomYVelocity = NegateSbugWordsIndependently(state.CustomYVelocity);
 
-        // The reversal advances the facing table's byte offset by four and masks it with 7
-        // rather than the expected 14. Preserve that oddity: the facing advances by two
-        // and folds into the first four facings.
-        state.CustomFacing = (state.CustomFacing + SbugDefinitions.ReversalFacingStep) % SbugDefinitions.FoldedFacingCount;
+        // The reversal does not show the opposite facing: as the game does, it turns the facing a quarter turn
+        // counter-clockwise and folds it into the four facings from right to up-left.
+        state.CustomFacing = SbugMovement.ReversedFacing(state.CustomFacing);
         SetSbugFacing(slot, state, state.CustomFacing);
     }
 
@@ -392,15 +391,11 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         return tableAngle.IsInSecondHalf ? product.NegatedWordsSeparately() : product;
     }
 
-    /// <summary>Quantizes a heading to one of the eight facing loops, after rotating it back by the game's quantization offset.</summary>
-    private static int CalculateSbugFacing(RotationAngle heading) =>
-        heading.AddTableUnits(-SbugDefinitions.FacingQuantizationOffset).TableIndex / SbugDefinitions.TableUnitsPerFacing;
-
     /// <summary>Restarts the selected animation only when its facing list differs from the installed one.</summary>
     private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,
-        int facing)
+        SbugFacing facing)
     {
         state.RequestedProgram = SbugMovement.FacingProgram(facing);
         if (state.RequestedProgram == state.InstalledProgram)

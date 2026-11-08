@@ -30,7 +30,8 @@ internal static class SbugMovementDefinitionsVerification
         {
             int address = instructionTable + facing * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, SbugMovement.FacingProgram(facing)),
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries,
+                    SbugMovement.FacingProgram(SbugMovementDefinitions.FacingsCounterClockwise.At(facing))),
                 $"compiled Sbug facing selector {facing}");
         }
 
@@ -57,9 +58,9 @@ internal static class SbugMovementDefinitionsVerification
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            AssertEqual(selector, state.ForwardFacing,
+            AssertEqual(SbugMovementDefinitions.FacingsCounterClockwise.At(selector), state.ForwardFacing,
                 $"Sbug production facing {selector}");
-            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(selector)), state.Program,
+            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(state.ForwardFacing)), state.Program,
                 $"Sbug production facing animation {selector}");
             AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Program.Program),
                 $"Sbug production facing list {selector}");
@@ -87,12 +88,6 @@ internal static class SbugMovementDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => SbugMovement.FacingProgram(8),
-            "Sbug facing selector beyond authored table");
-        AssertThrows<InvalidDataException>(
-            () => SbugMovement.FacingProgram(-1),
-            "Sbug facing selector below the authored table");
-        AssertThrows<InvalidDataException>(
             () => SbugMovement.ActivationFunction((SbugActivationBehavior)7),
             "Sbug activation selector beyond authored table");
 
@@ -104,7 +99,8 @@ internal static class SbugMovementDefinitionsVerification
     /// <summary>
     /// The production random-direction chooser adds an unsigned byte turn to the custom heading: from heading 240,
     /// random 96 turns by 32, so the heading wraps around the turn to 16, facing down-right. A later reversal, with Samus at least six blocks away on
-    /// both axes, advances that facing by two and folds it into the first four facings: down-right becomes up-right.
+    /// both axes, turns that facing a quarter turn counter-clockwise and folds it into the four facings from right to
+    /// up-left: down-right becomes up-right.
     /// </summary>
     internal static void VerifySbugCustomHeadingCarriesAndFolds()
     {
@@ -123,15 +119,31 @@ internal static class SbugMovementDefinitionsVerification
 
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(RotationAngle.FromTableIndex(16), state.CustomHeading, "the turn wraps the heading around the turn");
-        AssertEqual(7, state.CustomFacing, "heading 16 faces down-right");
+        AssertEqual(SbugFacing.DownRight, state.CustomFacing, "heading 16 faces down-right");
         AssertEqual(SbugEnemyFunction.MoveStraightAndReverseWhenFar, state.Function, "the chooser starts a reversal-aware leg");
 
         state.StraightMovementTimer = WrappingCountdown.Start(512);
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
-        AssertEqual(1, state.CustomFacing, "the reversal folds facing 7 into facing 1");
-        AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(1)), state.Program,
+        AssertEqual(SbugFacing.UpRight, state.CustomFacing, "the reversal folds down-right into up-right");
+        AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovement.FacingProgram(SbugFacing.UpRight)), state.Program,
             "the folded facing installs its loop");
         Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");
+    }
+
+    /// <summary>
+    /// Each facing's reversal is the facing two eighths of a turn counter-clockwise, folded into the four facings from
+    /// right to up-left: the game advances the facing's place in the counter-clockwise order by two and keeps its
+    /// place within the first four.
+    /// </summary>
+    internal static void VerifySbugReversedFacings()
+    {
+        for (int place = 0; place < 8; place++)
+        {
+            SbugFacing facing = SbugMovementDefinitions.FacingsCounterClockwise.At(place);
+            AssertEqual(SbugMovementDefinitions.FacingsCounterClockwise.At((place + 2) % 4), SbugMovement.ReversedFacing(facing),
+                $"Sbug reversal of {facing}");
+        }
+        Console.WriteLine("  Sbug reversed facings: all eight fold as the game's reversal does.");
     }
 
 
@@ -146,6 +158,7 @@ internal static class SbugMovementDefinitionsVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(rom));
         Suite(nameof(VerifySbugCustomHeadingCarriesAndFolds), () => VerifySbugCustomHeadingCarriesAndFolds());
+        Suite(nameof(VerifySbugReversedFacings), VerifySbugReversedFacings);
         Suite(nameof(SbugAnimationsVerification.VerifySbugAnimations), () => SbugAnimationsVerification.VerifySbugAnimations(rom));
         return 0;
     }

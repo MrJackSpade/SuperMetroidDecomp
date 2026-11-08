@@ -3,12 +3,42 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// <summary>Facing-program and activation-function selection for Sbug movement.</summary>
 internal static class SbugMovementDefinitions
 {
-    /// <summary>The eight directional loops, by facing counter-clockwise from right.</summary>
-    internal static readonly SbugProgram[] FacingPrograms =
-    [
-        SbugProgram.Right, SbugProgram.UpRight, SbugProgram.Up, SbugProgram.UpLeft,
-        SbugProgram.Left, SbugProgram.DownLeft, SbugProgram.Down, SbugProgram.DownRight,
-    ];
+    /// <summary>
+    /// The eight facings counter-clockwise from right, one per eighth of a turn: a heading shows the facing whose eighth
+    /// of the turn, counted on from <see cref="SbugDefinitions.FirstFacingStart"/>, contains it.
+    /// </summary>
+    internal static readonly IdentitySequence<SbugFacing> FacingsCounterClockwise = new(
+        SbugFacing.Right, SbugFacing.UpRight, SbugFacing.Up, SbugFacing.UpLeft,
+        SbugFacing.Left, SbugFacing.DownLeft, SbugFacing.Down, SbugFacing.DownRight);
+
+    /// <summary>The directional loop each facing shows.</summary>
+    internal static readonly Dictionary<SbugFacing, SbugProgram> FacingPrograms = new()
+    {
+        [SbugFacing.Right] = SbugProgram.Right,
+        [SbugFacing.UpRight] = SbugProgram.UpRight,
+        [SbugFacing.Up] = SbugProgram.Up,
+        [SbugFacing.UpLeft] = SbugProgram.UpLeft,
+        [SbugFacing.Left] = SbugProgram.Left,
+        [SbugFacing.DownLeft] = SbugProgram.DownLeft,
+        [SbugFacing.Down] = SbugProgram.Down,
+        [SbugFacing.DownRight] = SbugProgram.DownRight,
+    };
+
+    /// <summary>
+    /// The facing a reversal of the custom heading shows: not the opposite facing, but the facing a quarter turn
+    /// counter-clockwise, folded into the four facings from right to up-left, as the game does.
+    /// </summary>
+    internal static readonly Dictionary<SbugFacing, SbugFacing> ReversedFacings = new()
+    {
+        [SbugFacing.Right] = SbugFacing.Up,
+        [SbugFacing.UpRight] = SbugFacing.UpLeft,
+        [SbugFacing.Up] = SbugFacing.Right,
+        [SbugFacing.UpLeft] = SbugFacing.UpRight,
+        [SbugFacing.Left] = SbugFacing.Up,
+        [SbugFacing.DownLeft] = SbugFacing.UpLeft,
+        [SbugFacing.Down] = SbugFacing.Right,
+        [SbugFacing.DownRight] = SbugFacing.UpRight,
+    };
 
     /// <summary>The function each of the seven population-selected activation behaviors starts.</summary>
     internal static readonly Dictionary<SbugActivationBehavior, SbugEnemyFunction> ActivationFunctions = new()

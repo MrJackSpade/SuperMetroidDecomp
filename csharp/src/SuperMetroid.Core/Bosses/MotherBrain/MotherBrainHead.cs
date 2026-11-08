@@ -55,12 +55,7 @@ internal sealed class MotherBrainHead
     internal void InitializeMotherBrainHead(RoomEnemySlot head)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
-            throw new InvalidDataException("Mother Brain's head appeared before its body record.");
-        if (head.SlotIndex != 1)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain's head requires the second enemy slot, not slot {head.SlotIndex}.");
-        }
+            throw new InvalidDataException("Mother Brain's head appeared before her body.");
 
         head.Health = 3000;
         // The brain initializer gives the head enemy the dummy program for life (the encounter state's

@@ -184,13 +184,11 @@ internal sealed class EnemyRoomEffects
             if (death.ZebesTimebombEventRequested)
                 _system.SetEvent(EventNumber.ZebesTimebombSet);
         }
-        if (requests.MotherBrainFxEntry > 0)
+        if (requests.MotherBrainAcidChange is { } acidChange)
         {
-            // The pending LoadFxEntry call is applied once, on the pass that requested it. Reapplying it
-            // each frame would reset its delay and prevent the acid from moving.
-            RoomFxHeader fx = _room.LoadedRoom.State.Fx
-                ?? throw new InvalidOperationException("Mother Brain requested an FX entry in a room without FX.");
-            _display.LayerBlendingDefaultConfig = roomFxOverlay.ApplyEntry(fx.Records[requests.MotherBrainFxEntry]);
+            // The acid change is applied once, on the pass that requested it. Reapplying it each frame would reset
+            // its delay and prevent the acid from moving.
+            _display.LayerBlendingDefaultConfig = roomFxOverlay.ApplyEntry(acidChange);
         }
         if (requests.MotherBrainObjects.Count == 0)
             return;

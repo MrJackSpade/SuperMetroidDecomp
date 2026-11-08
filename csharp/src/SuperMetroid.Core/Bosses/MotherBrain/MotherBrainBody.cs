@@ -93,12 +93,6 @@ internal sealed class MotherBrainBody
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
     internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
-        if (body.SlotIndex != 0)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain's body requires the first enemy slot, not slot {body.SlotIndex}.");
-        }
-
         body.FrameHold = WrappingCountdown.Start(1);
         body.Properties = body.Properties.With(
             EnemyProperties.BlocksPlasmaBeam |
@@ -121,8 +115,8 @@ internal sealed class MotherBrainBody
         // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
         // ranges used by glass shards and tube projectiles.
         _motherBrainEncounter.Colours.Sprites.Lay(MotherBrainShades.RoomEntry);
-        // The first LoadFxEntry, which the room loader applies after enemy initialization.
-        _frameResults.MotherBrainFxEntry = 1;
+        // Her room's acid rises, which the room loader applies after enemy initialization.
+        _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidRises;
         SpawnMotherBrainInitialTurrets();
     }
 

@@ -13,13 +13,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public sealed class MotherBrainEnemyState
 {
-    /// <summary>Starts the shared encounter state with the physical body slot before the head is attached.</summary>
+    /// <summary>Starts the shared encounter state with her body before her head is attached.</summary>
     internal MotherBrainEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>Physical slot zero, the body's enemy definition.</summary>
+    /// <summary>Her body, which owns the encounter and runs first.</summary>
     public RoomEnemySlot Body { get; }
 
-    /// <summary>Physical slot one, the brain's enemy definition.</summary>
+    /// <summary>Her head, the brain, attached by its initializer.</summary>
     public RoomEnemySlot Head { get => field ?? throw new InvalidOperationException("Mother Brain's head slot is not attached; head initialization attaches it."); internal set; }
 
     /// <summary>The encounter stage that shot, bomb and footstep handling branch on; the glass phase at room entry.</summary>

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -17,7 +18,7 @@ namespace SuperMetroid.Core.Bosses;
 /// <param name="CrocomireObjects">Crocomire's arena mutations.</param>
 /// <param name="KraidObjects">Kraid's ceiling and platform mutations.</param>
 /// <param name="MotherBrainDeathStep">Mother Brain's death-sequence step and its palette, timer, boss-bit and event requests.</param>
-/// <param name="MotherBrainFxEntry">Mother Brain's pending room FX entry index (one or two), or zero for none.</param>
+/// <param name="MotherBrainAcidChange">The change Mother Brain's fight makes to her room's acid (<see cref="MotherBrainRoomFxDefinitions"/>), or null for none.</param>
 /// <param name="MotherBrainObjects">Mother Brain's room mutations.</param>
 /// <param name="ShitroidObjects">The Shitroid's wall mutations.</param>
 /// <param name="TorizoBellyGlow">The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</param>
@@ -27,7 +28,7 @@ public readonly record struct EnemyRoomEffectRequests(
     IReadOnlyList<RoomObjectSpawnRequest<CrocomireArenaMutation>> CrocomireObjects,
     IReadOnlyList<RoomObjectSpawnRequest<KraidRoomMutation>> KraidObjects,
     MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep,
-    int MotherBrainFxEntry,
+    RoomFxRecordDefinition? MotherBrainAcidChange,
     IReadOnlyList<RoomObjectSpawnRequest<MotherBrainRoomMutation>> MotherBrainObjects,
     IReadOnlyList<RoomObjectSpawnRequest<ShitroidWallMutation>> ShitroidObjects,
     PaletteFxObject? TorizoBellyGlow)
@@ -37,11 +38,11 @@ public readonly record struct EnemyRoomEffectRequests(
     public bool Equals(EnemyRoomEffectRequests other) =>
         BotwoonWall == other.BotwoonWall && SporeSpawnCeiling == other.SporeSpawnCeiling &&
         CrocomireObjects.SequenceEqual(other.CrocomireObjects) && KraidObjects.SequenceEqual(other.KraidObjects) &&
-        MotherBrainDeathStep == other.MotherBrainDeathStep && MotherBrainFxEntry == other.MotherBrainFxEntry &&
+        MotherBrainDeathStep == other.MotherBrainDeathStep && MotherBrainAcidChange == other.MotherBrainAcidChange &&
         MotherBrainObjects.SequenceEqual(other.MotherBrainObjects) && ShitroidObjects.SequenceEqual(other.ShitroidObjects) &&
         TorizoBellyGlow == other.TorizoBellyGlow;
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(BotwoonWall, SporeSpawnCeiling, CrocomireObjects.Count, KraidObjects.Count,
-        HashCode.Combine(MotherBrainDeathStep, MotherBrainFxEntry, MotherBrainObjects.Count, ShitroidObjects.Count, TorizoBellyGlow));
+        HashCode.Combine(MotherBrainDeathStep, MotherBrainAcidChange, MotherBrainObjects.Count, ShitroidObjects.Count, TorizoBellyGlow));
 }

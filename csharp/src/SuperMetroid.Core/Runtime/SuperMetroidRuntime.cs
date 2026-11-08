@@ -540,8 +540,8 @@ internal sealed class SuperMetroidRuntime
         // from advancing behind a station or item message.
         if (Room.LoadedScope.Enemies.DisplaySources.Phantoon is { } waveBoss)
         {
-            waveBoss.Wave.Step(waveBoss);
-            waveBoss.Blending.Step(waveBoss);
+            waveBoss.BodyWave.Step(waveBoss);
+            waveBoss.BodyVisibility.Step(waveBoss);
         }
         if (Room.Camera is not null)
         {

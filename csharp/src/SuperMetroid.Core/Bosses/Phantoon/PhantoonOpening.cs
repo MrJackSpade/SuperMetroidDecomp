@@ -66,16 +66,16 @@ internal sealed class PhantoonOpening
             return;
 
         state.BodyState.StartingFlamesActive = false;
-        state.SemiTransparent = true;
+        state.Translucent = true;
         state.BodyState.Function = PhantoonAiFunction.WavyFadeIn;
-        state.MouthState.LayerControl = PhantoonLayerControl.RoomDefault;
+        state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
         state.BodyState.FunctionTimer = 120;
         state.MouthState.WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
         state.MouthState.WaveAmplitudeShrinking = false;
         state.EyeState.FadeComplete = false;
         _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(5));
         state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
-        state.Wave.Begin(PhantoonWaveDefinitions.IntroLength);
+        state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
     }
 
     /// <summary>Raises intro wave amplitude and reveals the body palette.</summary>
@@ -90,7 +90,7 @@ internal sealed class PhantoonOpening
                 PhantoonBehavior.PhantoonIntroMaximumAmplitude))
         {
             state.BodyState.Function = PhantoonAiFunction.PickFirstRoundPattern;
-            state.MouthState.LayerControl = PhantoonLayerControl.RoomDefault;
+            state.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
             state.BodyState.FunctionTimer = 30;
             return;
         }

@@ -24,7 +24,7 @@ internal static class PhantoonDefinitionMigrationVerification
 
         // The wave: the seed two before the cycle's start leaves every first remainder the cartridge's $FFFE seed does.
         for (int step = 0; step <= ushort.MaxValue / 2; step++)
-            AssertEqual((0xfffe + 2 * step) & 0x1ff, PhantoonWaveEffect.PhaseInCycle(PhantoonWaveDefinitions.InitialPhase + 2 * step),
+            AssertEqual((0xfffe + 2 * step) & 0x1ff, PhantoonBodyWaveEffect.PhaseInCycle(PhantoonWaveDefinitions.InitialPhase + 2 * step),
                 $"wave seed's first remainder after a step of {step}");
         // The cartridge's intro mode word 2 and death mode word 1 select the wave's length by bit zero.
         AssertEqual(PhantoonWaveLength.Short, PhantoonWaveDefinitions.IntroLength, "intro wave is the 64-line wave");

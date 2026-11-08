@@ -118,7 +118,7 @@ internal sealed class PhantoonDeath
         state.MouthState.WaveAmplitude = 0;
         state.MouthState.WaveAmplitudeShrinking = false;
         state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
-        state.Wave.Begin(PhantoonWaveDefinitions.DeathLength);
+        state.BodyWave.Begin(PhantoonWaveDefinitions.DeathLength);
         state.BodyState.Function = PhantoonAiFunction.DyingFadeOut;
         state.EyeState.DeathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
         state.EyeState.DeathMosaicFinished = false;
@@ -175,8 +175,8 @@ internal sealed class PhantoonDeath
     {
         state.MosaicBlockSize = 1;
         state.EyeState.WaveLength = null;
-        state.SemiTransparent = false;
-        state.MouthState.LayerControl = PhantoonLayerControl.Removed;
+        state.Translucent = false;
+        state.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
         state.BodyState.Function = PhantoonAiFunction.Dead;
         state.BodyState.FunctionTimer = 60;
         state.EyeState.FadeComplete = false;

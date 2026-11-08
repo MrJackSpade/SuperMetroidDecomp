@@ -58,13 +58,13 @@ internal static class PhantoonBodyPublicationVerification
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(40, 0);
         state.MouthState.WaveAmplitude = 3072;
         state.MouthState.WavyPhaseDelta = 8;
-        state.Wave.Begin(PhantoonWaveDefinitions.IntroLength);
-        state.Wave.Step(state);
-        state.Wave.Step(state);
+        state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
+        state.BodyWave.Step(state);
+        state.BodyWave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingIn = runtime.Display.Latched.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
-        AssertEqual(new PhantoonWave(40, 3072, new ByteAngle((byte)(state.Wave.Phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
+        AssertEqual(new PhantoonWave(40, 3072, new ByteAngle((byte)(state.BodyWave.Phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
             fadingIn.Wave, "the wavy fade-in publishes the wave's base scroll, amplitude, phase's angle and its mode's period");
         BossBodyLayer image = runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException("Phantoon publishes his body layer.");
@@ -75,7 +75,7 @@ internal static class PhantoonBodyPublicationVerification
 
         // Swooping fade-out: the wave channel is deleted, the body stays.
         state.EyeState.WaveLength = null;
-        state.Wave.Step(state);
+        state.BodyWave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingOut = runtime.Display.Latched.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");

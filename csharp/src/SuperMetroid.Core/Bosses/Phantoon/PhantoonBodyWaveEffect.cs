@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's wave: the screen effect that ripples his room's second background layer sideways line by line. It runs in
-/// the per-line effect phase; a requested wave starts on the next update of that phase, which only sets it up, and
-/// ripples from the update after (compatibility behaviour: setup writes the eye's wave length, which Phantoon's AI reads).
+/// The wavy distortion of Phantoon's body: his body ripples sideways down the screen. It runs with the room's effects
+/// each update; a requested wave starts on the next update, which only sets it up, and ripples from the update after
+/// (gameplay reads it: setup writes the eye's wave length, which Phantoon's AI reads).
 /// </summary>
-public sealed class PhantoonWaveEffect
+public sealed class PhantoonBodyWaveEffect
 {
     /// <summary>Whether a requested wave still needs its setup-only first update.</summary>
     private bool _pendingSetup;
@@ -21,26 +21,24 @@ public sealed class PhantoonWaveEffect
     /// <summary>Whether a setup has run and the wave has not since observed eye parameter one equal to zero; requesting it with Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
-    /// Sine-table byte phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's
+    /// The wave's phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's
     /// start), then each active call adds twice the mouth's phase step and keeps the remainder within one cycle, so the
-    /// phase is that seed or 0..511. The original game seeds its sixteen-bit counter two below a whole number of cycles,
-    /// so its first remainder equals this one.
+    /// phase is that seed or 0..511. Seeding two before a whole number of cycles gives the same first remainder.
     /// </summary>
     public int Phase { get; private set; }
     /// <summary>The wave the last display latch observed (#1353, #1468); null when it observed no active wave.</summary>
     public PhantoonWave? DisplayedWave { get; private set; }
 
     /// <summary>
-    /// The wave as it now stands (#1468), or null before any setup: the second background layer at the base scroll the
-    /// wave last held, rippled down the whole screen by its amplitude at its phase's angle, over its length's period.
+    /// The wave as it now stands (#1468), or null before any setup: his body at the base scroll the wave last held,
+    /// rippled down the whole screen by its amplitude at its phase's angle, over its length's period.
     /// </summary>
     internal PhantoonWave? CurrentWave => _setupLength is { } length ? Describe(length, _built) : null;
 
     /// <summary>
     /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body layer at the shape's base scroll,
-    /// rippled down the whole screen by its amplitude from its phase's angle, over the length's period. The
-    /// original table of one cycle repeats down the screen from its first line and mirrors its first half, which is
-    /// this one sine wave.
+    /// rippled down the whole screen by its amplitude from its phase's angle, over the length's period: one
+    /// sine wave, repeating down the screen from its first line.
     /// </summary>
     /// <param name="length">The wave's length.</param>
     /// <param name="shape">The phase, 0 through 511, amplitude and base scroll the wave was built from.</param>
@@ -61,10 +59,10 @@ public sealed class PhantoonWaveEffect
     /// A fatal hit flattens the wave: every line shows the base scroll, a wave of
     /// zero amplitude, without advancing setup or changing the latched display.
     /// </summary>
-    /// <param name="backgroundHorizontalScroll">The second background layer's base horizontal scroll in whole pixels, which every line shows.</param>
-    public void InitializeDeathScroll(int backgroundHorizontalScroll) => _built = new(_built.Phase, 0, backgroundHorizontalScroll);
+    /// <param name="bodyHorizontalScroll">His body's base horizontal scroll in whole pixels, which every line shows.</param>
+    public void InitializeDeathScroll(int bodyHorizontalScroll) => _built = new(_built.Phase, 0, bodyHorizontalScroll);
 
-    /// <summary>Requests a new wave; its setup runs at the next update of the per-line effect phase.</summary>
+    /// <summary>Requests a new wave; its setup runs at the next update.</summary>
     /// <param name="length">The new wave's length. A new request replaces any pending length.</param>
     public void Begin(PhantoonWaveLength length)
     {
@@ -73,7 +71,7 @@ public sealed class PhantoonWaveEffect
     }
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once the eye's length is cleared or advance its phase and rebuild its shape.</summary>
-    /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and base background scroll remain boss-owned inputs.</param>
+    /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and his body's base scroll remain boss-owned inputs.</param>
     /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {

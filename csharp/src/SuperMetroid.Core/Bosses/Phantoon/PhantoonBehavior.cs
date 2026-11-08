@@ -134,12 +134,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Every part's setup, the body's included, hides Phantoon's layer and empties the casual-flame schedule on the
+    /// Every part's setup, the body's included, hides Phantoon's body and empties the casual-flame schedule on the
     /// mouth's state, which owns the casual-flame schedule used much later in the fight.
     /// </summary>
     private static void ResetPhantoonMouthControls(PhantoonEnemyState state)
     {
-        state.MouthState.LayerControl = PhantoonLayerControl.Hidden;
+        state.MouthState.BodyLayer = PhantoonBodyLayer.Hidden;
         state.MouthState.CasualFlameCount = PhantoonCasualFlameDefinitions.NoActiveSchedule;
     }
 

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -28,7 +29,7 @@ public static class GameplayDisplayCapture
         bool doorOwnsDisplay = live.DoorTransitionShownLayers is not null;
         if (!doorOwnsDisplay && CaptureXray(frame, basis) is { } xray) return xray;
         if (!doorOwnsDisplay && latched.Phantoon is { } phantoon)
-            layers[0] = CapturePhantoonBlending(phantoon, basis);
+            layers[0] = CapturePhantoonBody(phantoon, basis);
         if (!doorOwnsDisplay && latched.Scene.FxType == RoomFxType.Fireflea)
             layers[0] = CaptureFirefleaDarkness(FirefleaTint(latched), basis);
         if (!doorOwnsDisplay)
@@ -211,7 +212,10 @@ public static class GameplayDisplayCapture
         });
     }
 
-    /// <summary>Captures the latched perspective floor and the HUD's layer, adding the background band below the floor during Ridley's getaway.</summary>
+    /// <summary>
+    /// Captures the latched perspective floor and the HUD's layer, adding the background band below the floor and the chamber's
+    /// walls behind it during Ridley's getaway (#1545).
+    /// </summary>
     private static LayeredScene CapturePerspectiveFloorBase(GameplayDisplayFrame frame)
     {
         GameplayDisplayLatch latched = frame.Latched;
@@ -231,22 +235,62 @@ public static class GameplayDisplayCapture
                 latched.Rooms?.Background ?? throw new InvalidOperationException("Ceres Ridley's room shows its background plane below the turning floor."))
             : null;
         var layer = new TurningRoomLayer(transform, (latched.Rooms?.Floor
-                ?? throw new InvalidOperationException("A turning-floor gameplay frame shows a Ceres room's floor.")), ScreenGeometry.GameplayHudHeightPixels, floor);
+                ?? throw new InvalidOperationException("A turning-floor gameplay frame shows a Ceres room's floor.")), ScreenGeometry.GameplayHudHeightPixels, floor)
+        {
+            Scenery = Scenery(perspective.Scenery, scrolls.ForegroundPosition),
+        };
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 
-    /// <summary>Removes the background when Phantoon is hidden, or adds it when the body is semitransparent.</summary>
-    private static DisplayLayer CapturePhantoonBlending(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
+    /// <summary>The cells along each side of the plane a turning room's scenery lies on: wider and taller than the screen, so the plane never shows a repeat.</summary>
+    private const int SceneryPlaneCells = 64;
+
+    /// <summary>
+    /// The pictures fixed in the room around a turning floor (#1545), each placed so its origin lands on its room point,
+    /// on a plane scrolled with <paramref name="camera"/> as the actors are drawn; null when there are none.
+    /// </summary>
+    /// <param name="scenery">The pictures and their room points.</param>
+    /// <param name="camera">The camera the frame's actors were drawn against.</param>
+    private static TurningRoomScenery? Scenery(ImmutableArray<PerspectiveFloorScenery> scenery, Position16<RoomPixels> camera)
+    {
+        if (scenery.IsDefaultOrEmpty) return null;
+        var size = new Extent16<TilemapCells>(SceneryPlaneCells, SceneryPlaneCells);
+        ImmutableArray<PlacedPlanePicture> placed = [.. scenery.Select(picture => new PlacedPlanePicture(picture.Picture,
+            new Position16<PlanePixels>(OnSceneryPlane(picture.Point.X - picture.Picture.Origin.X),
+                OnSceneryPlane(picture.Point.Y - picture.Picture.Origin.Y)),
+            picture.Shading))];
+        return new(new PicturedPlane(size, placed), camera.AsPlaneScroll());
+    }
+
+    /// <summary>Where room coordinate <paramref name="coordinate"/> lies on the scenery's repeating plane, 0 up to its side in pixels.</summary>
+    private static int OnSceneryPlane(int coordinate)
+    {
+        const int side = SceneryPlaneCells * ScreenGeometry.BackgroundTileSizePixels;
+        return ((coordinate % side) + side) % side;
+    }
+
+    /// <summary>
+    /// Phantoon's body as it shows (#1545): as the room shows it, removed when he is hidden, or lying translucent behind
+    /// the room. His room shows his body on its background.
+    /// </summary>
+    private static DisplayLayer CapturePhantoonBody(PhantoonDisplaySnapshot phantoon, LayeredScene basis)
     {
         var ordinary = (GameplaySceneLayer)basis.Layers[0];
-        var mode = phantoon.Configuration;
-        if (mode == PhantoonBodyBlend.Room)
-            return ordinary;
+        switch (phantoon.BodyVisibility)
+        {
+            case PhantoonBodyVisibility.Shown:
+                return ordinary;
+            case PhantoonBodyVisibility.Hidden:
+            case PhantoonBodyVisibility.Translucent:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined Phantoon body visibility {phantoon.BodyVisibility}.");
+        }
         var gameplay = new GameplaySceneLayer(ordinary.View with
         {
             ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.Background,
         }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
-        if (mode == PhantoonBodyBlend.Hidden) return gameplay;
+        if (phantoon.BodyVisibility == PhantoonBodyVisibility.Hidden) return gameplay;
         // Phantoon's translucent body is the background lying behind the room: it brightens the foreground, the actors taking
         // part in blends and the backdrop wherever it shows, without ever covering the foreground (#1514).
         return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new GameplayBlend

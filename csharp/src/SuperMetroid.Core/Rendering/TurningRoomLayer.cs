@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// A gameplay room shown as a turning floor: the floor viewport below the lines the HUD covers, and an optional bottom band
-/// of the background and sprites. The HUD is its own layer (#1466).
+/// of the background and sprites, with the pictures fixed in the room behind the floor (#1545). The HUD is its own layer (#1466).
 /// </summary>
 /// <remarks>Band boundaries are screen lines; the floor's turning is measured from the top of the screen, never from a band's start.</remarks>
 public sealed record TurningRoomLayer : DisplayLayer
@@ -17,6 +17,8 @@ public sealed record TurningRoomLayer : DisplayLayer
     public int HudLines { get; }
     /// <summary>The optional band of background and sprites at the bottom of the screen; null lets the floor and sprites continue to the bottom.</summary>
     public TurningRoomLowerBand? Floor { get; }
+    /// <summary>The pictures fixed in the room behind the floor (#1545), such as the getaway chamber's walls; null for none.</summary>
+    public TurningRoomScenery? Scenery { get; init; }
 
     /// <summary>Describes a room shown as a turning floor below the HUD's lines, with an optional bottom band.</summary>
     /// <param name="transform">How the floor appears on the screen.</param>

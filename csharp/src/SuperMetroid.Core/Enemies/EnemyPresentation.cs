@@ -166,6 +166,15 @@ internal sealed class EnemyPresentation
         Position16<ScreenPixels> origin, PictureShading shading, CorpseRotRows? rows = null) =>
         PublishSpawnedFrame(sprites, source, EnemySheetDefinitions.EncounterFrameName(frame), origin, SpriteGraphics.SharedIn(shading), rows);
 
+    /// <summary>
+    /// The installed picture of <paramref name="enemy"/>'s <paramref name="frame"/> in the sheet the room's graphics set
+    /// names (#1545), for a scene that shows it as scenery of its own rather than as the enemy's draw.
+    /// </summary>
+    /// <param name="enemy">The enemy whose sheet holds the picture.</param>
+    /// <param name="frame">The frame pictured.</param>
+    internal SpriteSheetFrame SheetPicture(EnemyDefinitionId enemy, EnemyFrameId frame) =>
+        Sheets.For(LoadedSet, enemy).Frame(EnemySheetDefinitions.FrameName(frame));
+
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _room.Session.Sheets ?? throw new InvalidOperationException(
         "Enemy drawing requires the installed enemy sheets.");

@@ -1,5 +1,8 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
@@ -44,6 +47,21 @@ internal sealed class CeresRidleyGetaway
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
     }
+
+    /// <summary>
+    /// The chamber's walls the getaway scene shows around its turning floor (#1545): the Ceres door's pictures of the
+    /// chamber's left and right walls, standing at their room points in the doors' escaping colours, behind the floor
+    /// and the actors.
+    /// </summary>
+    internal ImmutableArray<PerspectiveFloorScenery> ChamberWalls() =>
+    [
+        ChamberWall(EnemyFrameId.CeresDoorTurningFloorLeftWall, CeresGetawayChamberWallDefinitions.LeftWall),
+        ChamberWall(EnemyFrameId.CeresDoorTurningFloorRightWall, CeresGetawayChamberWallDefinitions.RightWall),
+    ];
+
+    /// <summary>The chamber wall <paramref name="frame"/> pictures, standing at <paramref name="point"/>.</summary>
+    private PerspectiveFloorScenery ChamberWall(EnemyFrameId frame, Position16<RoomPixels> point) =>
+        new(_presentation.SheetPicture(EnemyDefinitionId.CeresDoor, frame), point, CeresDoorShades.InEscapingColours);
 
     /// <summary>Sets up the getaway floor: its angle, scroll, zoom and centre before the first getaway-table entry.</summary>
     internal static void SetupCeresRidleyGetawayFloor(RidleyEnemyState state)

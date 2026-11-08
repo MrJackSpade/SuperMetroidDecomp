@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -16,7 +17,9 @@ internal static class CeresPerspectiveFloors
         new FloorView(shaft.Angle, FloorView.OwnSize, shaft.Center.AsFloorWord(), foregroundScroll.AsFloorWord()),
         BelowPerspectiveFloor.Nothing);
 
-    /// <summary>The floor Ceres Ridley's getaway flies over, with the room's background below it.</summary>
+    /// <summary>The floor Ceres Ridley's getaway flies over, with the room's background below it and the chamber's walls around it (#1545).</summary>
     /// <param name="ridley">How the getaway's floor appears as its room main last turned and moved it (<see cref="CeresRidleyGetaway.FloorTransform"/>).</param>
-    internal static PerspectiveFloor RidleyGetaway(FloorView ridley) => new(ridley, BelowPerspectiveFloor.RoomBackground);
+    /// <param name="chamberWalls">The chamber's walls, which stand behind the floor (<see cref="CeresRidleyGetaway.ChamberWalls"/>).</param>
+    internal static PerspectiveFloor RidleyGetaway(FloorView ridley, ImmutableArray<PerspectiveFloorScenery> chamberWalls) =>
+        new(ridley, BelowPerspectiveFloor.RoomBackground, chamberWalls);
 }

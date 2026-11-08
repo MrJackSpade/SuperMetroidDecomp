@@ -10,7 +10,7 @@ using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks Phantoon's wave effect, palette fade, and blending state across display latches.</summary>
+/// <summary>Checks the wave of Phantoon's body, his palette fade, and his body's visibility across display latches.</summary>
 internal static class PhantoonWaveVerification
 {
     /// <summary>Checks setup cadence, native scroll progression, deletion, and debugger state restoration.</summary>
@@ -22,7 +22,7 @@ internal static class PhantoonWaveVerification
         };
         boss.MouthState.WaveAmplitude = 3072;
         boss.MouthState.WavyPhaseDelta = 8;
-        var wave = boss.Wave;
+        var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         AssertTrue(!wave.Active, "a requested wave waits for its setup update");
         wave.Step(boss);
@@ -49,7 +49,7 @@ internal static class PhantoonWaveVerification
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, wave);
         stream.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonWaveEffect>(stream);
+        var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBodyWaveEffect>(stream);
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertEqual(wave.CurrentWave, restored.CurrentWave, "wave data survives exact debugger state");
         AssertEqual(savedDisplay, restored.DisplayedWave, "latched wave survives debugger state");
@@ -59,7 +59,7 @@ internal static class PhantoonWaveVerification
         AssertTrue(!wave.Active && retained == wave.CurrentWave, "native deletion retains data");
         wave.LatchDisplay();
         AssertTrue(wave.DisplayedWave is null, "deleted wave stops on next display latch");
-        Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));
+        Suite(nameof(VerifyPhantoonBodyVisibilityLifecycle), () => VerifyPhantoonBodyVisibilityLifecycle(boss));
         Suite(nameof(VerifyPhantoonFadeColors), () => VerifyPhantoonFadeColors());
         Suite(nameof(VerifyPhantoonDeathMosaicSizes), () => VerifyPhantoonDeathMosaicSizes());
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch and debugger round-trip agree.");
@@ -97,44 +97,43 @@ internal static class PhantoonWaveVerification
             "fast fade reaches target on first interpolated update");
     }
 
-    /// <summary>Checks transparency priority, hidden state, NMI latch timing, and deletion persistence.</summary>
-    private static void VerifyPhantoonBlendingLifecycle(PhantoonEnemyState boss)
+    /// <summary>Checks translucency's precedence, the hidden body, display latch timing, and the effect's end persisting.</summary>
+    private static void VerifyPhantoonBodyVisibilityLifecycle(PhantoonEnemyState boss)
     {
-        var blend = boss.Blending;
-        boss.SemiTransparent = true;
-        boss.MouthState.LayerControl = PhantoonLayerControl.Removed;
-        for (int i = 0; i < PhantoonBlendingState.SetupCalls; i++)
+        var visibility = boss.BodyVisibility;
+        boss.Translucent = true;
+        boss.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
+        for (int i = 0; i < PhantoonBodyVisibilityEffect.SetupCalls; i++)
         {
-            blend.Step(boss);
-            AssertEqual(PhantoonBodyBlend.Room, blend.Configuration, "blend setup does not run pre-instruction");
+            visibility.Step(boss);
+            AssertEqual(PhantoonBodyVisibility.Shown, visibility.Visibility, "the effect's setup updates show the body as the room does");
         }
-        blend.Step(boss);
-        AssertEqual(PhantoonBodyBlend.Translucent, blend.Configuration, "flag takes priority over delete control");
-        blend.LatchDisplay(mosaicBlockSize: 5);
+        visibility.Step(boss);
+        AssertEqual(PhantoonBodyVisibility.Translucent, visibility.Visibility, "translucency takes priority over a cleared body");
+        visibility.LatchDisplay(mosaicBlockSize: 5);
         boss.MosaicBlockSize = 6;
-        boss.SemiTransparent = false;
-        // The fade-in's control (the cartridge's word $8001, low byte one) is the room-default state.
-        boss.MouthState.LayerControl = PhantoonLayerControl.RoomDefault;
-        blend.Step(boss);
-        AssertEqual(PhantoonBodyBlend.Room, blend.Configuration, "the room-default control retains the current room default, not the previous blend");
-        AssertEqual(PhantoonBodyBlend.Translucent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
-        AssertEqual(5, blend.DisplayedMosaicBlockSize, "live mosaic size change waits for next accepted NMI");
-        boss.MouthState.LayerControl = PhantoonLayerControl.Hidden;
-        blend.Step(boss);
-        AssertEqual(PhantoonBodyBlend.Hidden, blend.Configuration, "the hidden control hides the body");
-        boss.MouthState.LayerControl = PhantoonLayerControl.Removed;
-        blend.Step(boss);
-        AssertEqual(PhantoonBodyBlend.Hidden, blend.Configuration, "delete call still publishes hidden configuration");
-        boss.SemiTransparent = true;
-        blend.Step(boss);
-        AssertEqual(PhantoonBodyBlend.Room, blend.Configuration, "deleted owner no longer overrides room");
+        boss.Translucent = false;
+        boss.MouthState.BodyLayer = PhantoonBodyLayer.Shown;
+        visibility.Step(boss);
+        AssertEqual(PhantoonBodyVisibility.Shown, visibility.Visibility, "a shown body shows as the room does, not as the previous update showed it");
+        AssertEqual(PhantoonBodyVisibility.Translucent, visibility.DisplayedVisibility, "a live change cannot change the latched visibility");
+        AssertEqual(5, visibility.DisplayedMosaicBlockSize, "a live pixelation change waits for the next display latch");
+        boss.MouthState.BodyLayer = PhantoonBodyLayer.Hidden;
+        visibility.Step(boss);
+        AssertEqual(PhantoonBodyVisibility.Hidden, visibility.Visibility, "a hidden body is hidden");
+        boss.MouthState.BodyLayer = PhantoonBodyLayer.Cleared;
+        visibility.Step(boss);
+        AssertEqual(PhantoonBodyVisibility.Hidden, visibility.Visibility, "the update that clears the body still hides it");
+        boss.Translucent = true;
+        visibility.Step(boss);
+        AssertEqual(PhantoonBodyVisibility.Shown, visibility.Visibility, "an ended effect shows the body as the room does");
         using var stream = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(stream, blend);
+        DebuggerObjectGraphSerializer.Serialize(stream, visibility);
         stream.Position = 0;
-        var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBlendingState>(stream);
+        var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBodyVisibilityEffect>(stream);
         restored.Step(boss);
-        AssertEqual(blend.Configuration, restored.Configuration, "deleted blend owner survives debugger roundtrip");
-        AssertEqual(5, restored.DisplayedMosaicBlockSize, "display mosaic size survives debugger roundtrip");
+        AssertEqual(visibility.Visibility, restored.Visibility, "the ended effect survives a debugger roundtrip");
+        AssertEqual(5, restored.DisplayedMosaicBlockSize, "the displayed pixelation survives a debugger roundtrip");
     }
 
     /// <summary>Runs only the Phantoon wave lifecycle check.</summary>

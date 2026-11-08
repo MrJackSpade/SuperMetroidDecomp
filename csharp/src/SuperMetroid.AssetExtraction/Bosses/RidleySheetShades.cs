@@ -14,8 +14,8 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <summary>
 /// The shades of the Ridley encounters (#1512), which the import pre-colours their sprite sheets and their rooms'
 /// pictures in, from each encounter's installed colours over the rows and colour groups its loads write: the door's,
-/// container's and Baby's rows, Ridley's own row, and the room's tile groups the alarm, warning, retreat, floor zoom and
-/// Norfair's reveal recolour.
+/// container's and Baby's rows, Ridley's own row, and the room's tile groups the retreat, floor zoom and Norfair's reveal
+/// recolour; and the colours and alarm of the self-destruct warning's own written pictures (#1544).
 /// </summary>
 internal static class RidleySheetShades
 {
@@ -46,8 +46,11 @@ internal static class RidleySheetShades
     /// <summary>The first ink of a room picture's fifth tile group.</summary>
     private const int TilesFifth = 6 * Group;
 
-    /// <summary>The first ink of the HUD's effect colours, which the warning copies from with the HUD's own.</summary>
+    /// <summary>The first ink of the HUD's effect colours, which the warning's typed text shows two of.</summary>
     private const int HudEffects = 1 * Group;
+
+    /// <summary>The colours of a tile group the warning's pictures show from the HUD's: its first and third.</summary>
+    private static readonly int[] WarningColoursFromHud = [1, 3];
 
     /// <summary>The shades of both encounters' sprite sheets and the objects they spawn.</summary>
     /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
@@ -57,14 +60,48 @@ internal static class RidleySheetShades
         return [.. CeresSprites(ceres ?? throw Missing("Ceres Ridley")), .. NorfairSprites(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
     }
 
-    /// <summary>The shades of both encounters' rooms' pictures, whose standard colours are <paramref name="standard"/>.</summary>
+    /// <summary>The shades of both encounters' rooms' pictures.</summary>
     /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps, BossSourceArtwork bosses, ReadOnlySpan<RgbColor> standard)
+    internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
-        return [.. CeresRoom(ImportAreaMapPresentation.CeresRidleyColorsOf(maps), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps), standard),
+        return [.. CeresRoom(ImportAreaMapPresentation.CeresRidleyColorsOf(maps), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps)),
             .. NorfairRoom(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
+    }
+
+    /// <summary>
+    /// The colours the self-destruct warning's written pictures show (#1544), whose room's standard colours are
+    /// <paramref name="standard"/>: its own, the room's standard colours except where its typed text shows the HUD's
+    /// effect colours one and three and its EMERGENCY title the HUD's own colours one and three, as the cartridge copied
+    /// them before writing the warning. No other picture shows them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The standard colours are not a whole colour table.</exception>
+    internal static RgbColor[] CeresWarningColours(ReadOnlySpan<RgbColor> standard)
+    {
+        if (standard.Length <= TilesFifth + Group - 1)
+            throw new InvalidDataException($"The Ceres warning is coloured over a whole room colour table, not {standard.Length} colours.");
+        RgbColor[] colours = standard.ToArray();
+        foreach (int colour in WarningColoursFromHud)
+        {
+            colours[TilesFourth + colour] = standard[HudEffects + colour];
+            colours[TilesFifth + colour] = standard[colour];
+        }
+        return colours;
+    }
+
+    /// <summary>The shades of the self-destruct warning's written pictures: its EMERGENCY title at each alarm step.</summary>
+    internal static IReadOnlyList<SheetShade> CeresWarning(CeresRidleyColorCatalog ceres)
+    {
+        Ensure.NotNull(ceres);
+        var shades = new List<SheetShade>();
+        for (int step = 0; step < CeresRidleyColorFormat.AlarmStepCount; step++)
+        {
+            int shown = step;
+            shades.Add(SheetShade.Run(RidleyShades.Alarm(shown), TilesFifth + 1,
+                Colours(CeresRidleyColorFormat.AlarmColorCount, colour => ceres.selection.Alarm.Resolve(shown, colour))));
+        }
+        return shades;
     }
 
     /// <summary>
@@ -112,11 +149,8 @@ internal static class RidleySheetShades
             SheetShade.Run(RidleyShades.NorfairHidden, OwnRow + 1, new RgbColor[Group - 1])];
     }
 
-    /// <summary>
-    /// The shades of Ceres Ridley's room, whose standard colours are <paramref name="standard"/>: his retreat, the
-    /// self-destruct warning and alarm, and the getaway floor's zoom.
-    /// </summary>
-    internal static IReadOnlyList<SheetShade> CeresRoom(CeresRidleyColorCatalog ceres, CeresRidleyFloorColorCatalog floor, ReadOnlySpan<RgbColor> standard)
+    /// <summary>The shades of Ceres Ridley's room: his retreat and the getaway floor's zoom.</summary>
+    internal static IReadOnlyList<SheetShade> CeresRoom(CeresRidleyColorCatalog ceres, CeresRidleyFloorColorCatalog floor)
     {
         Ensure.NotNull(ceres);
         Ensure.NotNull(floor);
@@ -124,17 +158,7 @@ internal static class RidleySheetShades
         {
             SheetShade.Run(RidleyShades.RetreatRoom, TilesFourth + 1, Colours(CeresRidleyColorFormat.RetreatBgColorCount, ceres.ResolveRetreatBg)),
             SheetShade.Run(RidleyShades.RetreatShared, TilesFirst + 1, Colours(CeresRidleyColorFormat.RetreatSharedColorCount, ceres.ResolveRetreatShared)),
-            // The warning copies the HUD's effect colours one and three over the fourth tile group's and the HUD's own
-            // over the fifth's.
-            new(RidleyShades.Warning, [TilesFourth + 1, TilesFourth + 3, TilesFifth + 1, TilesFifth + 3],
-                [standard[HudEffects + 1], standard[HudEffects + 3], standard[1], standard[3]]),
         };
-        for (int step = 0; step < CeresRidleyColorFormat.AlarmStepCount; step++)
-        {
-            int shown = step;
-            shades.Add(SheetShade.Run(RidleyShades.Alarm(shown), TilesFifth + 1,
-                Colours(CeresRidleyColorFormat.AlarmColorCount, colour => ceres.selection.Alarm.Resolve(shown, colour))));
-        }
         for (int step = 0; step < CeresRidleyPaletteDefinitions.GetawayZoomStepCount; step++)
         {
             int shown = step;

@@ -47,7 +47,7 @@ internal static class CinematicSheetFixtures
         ArgumentNullException.ThrowIfNull(flight);
         return Identity(flight) == Identity(InstalledFixtures.IntroArtwork.CeresFlight)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.CeresFlightSprites)
-            : flights.GetOrAdd(Identity(flight), _ => Load(IntroSpriteSheetComposer.CeresFlightSources(flight),
+            : flights.GetOrAdd(Identity(flight), _ => Load(IntroSpriteSheetComposer.CeresFlightSources(flight, ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).FlightPalette),
                 $"ceres-flight-fixture-{RuntimeHelpers.GetHashCode(flight):X8}"));
     }
 
@@ -88,7 +88,8 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
                     CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
-                    FrontendFloorSheetComposer.Ceres(key, IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).CeresDestructionMaps, InstalledFixtures.Maps.RoomPaletteFx), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
+                    FrontendFloorSheetComposer.Ceres(key, IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).CeresDestructionMaps,
+                        ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).FlightPalette, InstalledFixtures.Maps.RoomPaletteFx), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }
@@ -179,7 +180,7 @@ internal static class CinematicSheetFixtures
             return IntroSpriteSheetComposer.Sources([frames], intro);
         }
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection);
-        RgbColor[] sprites = [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours];
+        RgbColor[] sprites = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.SpriteColours];
         return new SpriteSheetSources([.. IntroSpriteSheetComposer.Frames([frames], IntroObjectPage.Of(intro), sizes, (_, _) => FixtureSet)], sprites, sizes,
             PartsKeepOwnRows: true) { Shades = IntroSheetShades.Sprites(sprites) };
     }

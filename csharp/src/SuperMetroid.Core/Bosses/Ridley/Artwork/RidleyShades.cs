@@ -5,8 +5,9 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
 /// The shades the import pre-colours the Ridleys' sheets and rooms in (#1512): the colours each encounter loads for its
-/// door, container and Baby, the eye and body fades, health bands, the retreat, the self-destruct alarm and warning, the
-/// getaway floor's zoom, and Norfair Ridley's blacked-out arrival and his arena's reveal.
+/// door, container and Baby, the eye and body fades, health bands, the retreat, the getaway floor's zoom, Norfair Ridley's
+/// blacked-out arrival and his arena's reveal, and the self-destruct warning's alarm, which only the warning's own written
+/// pictures show (#1544).
 /// </summary>
 public static class RidleyShades
 {
@@ -34,11 +35,8 @@ public static class RidleyShades
     /// <summary>The Baby's and its container's <paramref name="shade"/>.</summary>
     public static PictureShade Baby(CeresBabyShade shade) => new($"ridley-baby-{shade}", 0);
 
-    /// <summary>The EMERGENCY text at self-destruct alarm step <paramref name="step"/>, zero through fifteen.</summary>
+    /// <summary>The warning's EMERGENCY title at self-destruct alarm step <paramref name="step"/>, zero through fifteen.</summary>
     public static PictureShade Alarm(int step) => new("ridley-alarm", step);
-
-    /// <summary>The HUD's colours the self-destruct warning copies over the room's tiles before its graphics replace them.</summary>
-    public static PictureShade Warning { get; } = new("ridley-warning", 0);
 
     /// <summary>The getaway floor at zoom step <paramref name="step"/>, zero through eight.</summary>
     public static PictureShade FloorZoom(int step) => new("ridley-floor-zoom", step);

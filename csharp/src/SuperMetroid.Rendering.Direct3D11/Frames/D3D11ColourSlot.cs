@@ -9,6 +9,8 @@ internal enum D3D11PictureColouring
     OwnShading,
     /// <summary>In the shading of the gameplay room's pictures.</summary>
     Room,
+    /// <summary>In the shading of the pictures written over the room's layers.</summary>
+    WrittenOverRoom,
     /// <summary>In the shading of the room a door leaves.</summary>
     DoorSourceRoom,
     /// <summary>In the shading of the HUD's pictures.</summary>
@@ -39,6 +41,7 @@ internal readonly record struct D3D11ColourSlot(SpriteImage Sheet, D3D11PictureC
     {
         D3D11PictureColouring.OwnShading => null,
         D3D11PictureColouring.Room => GameplayPictures.Room,
+        D3D11PictureColouring.WrittenOverRoom => GameplayPictures.WrittenOverRoom,
         D3D11PictureColouring.DoorSourceRoom => GameplayPictures.DoorSourceRoom,
         D3D11PictureColouring.Hud => GameplayPictures.Hud,
         D3D11PictureColouring.FxOverlay => GameplayPictures.FxOverlay,

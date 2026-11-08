@@ -46,9 +46,30 @@ internal static class RoomSheetShades
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.MotherBrainBody)))
             shades.AddRange(MotherBrainSheetShades.Room(inputs.Maps));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley)))
-            shades.AddRange(RidleySheetShades.Room(inputs.Maps, inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
+            shades.AddRange(RidleySheetShades.Room(inputs.Maps, inputs.Bosses));
         return shades;
     }
+
+    /// <summary>
+    /// The shades of the pictures <paramref name="writers"/> write over a room (#1544): each writer's own effects alone,
+    /// the self-destruct warning's alarm; no colour effect of the room recolours them.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A writer is undefined, or the Ceres colours are not installed.</exception>
+    internal static IReadOnlyList<SheetShade> Written(RoomBlockSheetInputs inputs, IEnumerable<TileWordWriter> writers)
+    {
+        Ensure.NotNull(inputs);
+        return [.. Ensure.NotNull(writers).Order().SelectMany(writer => WrittenBy(inputs, writer))];
+    }
+
+    /// <summary>The shades of the pictures <paramref name="writer"/> writes.</summary>
+    /// <exception cref="InvalidDataException">The writer is undefined, or the Ceres colours are not installed.</exception>
+    private static IReadOnlyList<SheetShade> WrittenBy(RoomBlockSheetInputs inputs, TileWordWriter writer) => writer switch
+    {
+        TileWordWriter.ZebesEscapeText => [],
+        TileWordWriter.CeresEscapeText => RidleySheetShades.CeresWarning(
+            SuperMetroid.AssetExtraction.Frontend.Map.ImportAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps)),
+        _ => throw new InvalidDataException($"Undefined tile word writer {writer}."),
+    };
 
     /// <summary>Whether any of <paramref name="rooms"/> places <paramref name="enemy"/>.</summary>
     private static bool Places(IEnumerable<SelectedRoom> rooms, EnemyDefinitionId enemy) =>

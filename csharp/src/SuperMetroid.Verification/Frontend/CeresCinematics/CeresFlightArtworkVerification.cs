@@ -15,6 +15,8 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 
 /// <summary>Checks installed Ceres flight Mode 7, sprite, actor, and palette art against retail sources.</summary>
@@ -24,7 +26,8 @@ internal static class CeresFlightArtworkVerification
     internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        CeresFlightArtwork stock = installation.LoadIntroCinematicArt().CeresFlight;
+        ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory);
+        CeresFlightArtwork stock = intro.CeresFlight;
         AssertTrue(stock.FloorCharacters.Span.SequenceEqual(RomDataReader.Decompress(bus,
                 CeresCinematicSourceDefinitions.FlightFloorCharacters,
                 maximumOutputBytes: CeresFlightArtworkFileFormat.FloorByteCount)),
@@ -41,8 +44,8 @@ internal static class CeresFlightArtworkVerification
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         // The installed colours in the cartridge's colour order, compared with the native palette colour by colour.
-        byte[] installedWords = ScreenColourImage.Words(CeresFlightCharacters.Of(stock).Palette.BackgroundColours.AsSpan(),
-            CeresFlightCharacters.Of(stock).Palette.SpriteColours.AsSpan());
+        byte[] installedWords = ScreenColourImage.Words(intro.FlightPalette.BackgroundColours.AsSpan(),
+            intro.FlightPalette.SpriteColours.AsSpan());
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))),
                 System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(installedWords.AsSpan(index * sizeof(ushort))),
@@ -57,7 +60,7 @@ internal static class CeresFlightArtworkVerification
         using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
         CeresFlightCharacters reference = CeresFlightCharacters.Read(
-            referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette),
+            referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette).Backdrop,
             referenceSprites, referenceActors);
         var native = new IntroCeresFlightState(new AudioQueues(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
         var installed = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));

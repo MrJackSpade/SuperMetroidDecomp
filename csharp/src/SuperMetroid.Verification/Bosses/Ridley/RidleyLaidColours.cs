@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 
@@ -22,14 +23,14 @@ internal static class RidleyLaidColours
         Over(state, sprites, room, BossShadeColours.Filled(under));
 
     /// <summary>
-    /// <paramref name="colours"/> with the shades <paramref name="state"/>'s encounter laid over its room, from
-    /// <paramref name="room"/>, then over its sprites, from <paramref name="sprites"/>, laid over them.
+    /// <paramref name="colours"/> with the shades <paramref name="state"/>'s encounter laid over its room and then its
+    /// self-destruct warning, both from <paramref name="room"/>, then over its sprites, from <paramref name="sprites"/>, laid over them.
     /// </summary>
     internal static ushort[] Over(RidleyEnemyState state, IReadOnlyList<SheetShade> sprites, IReadOnlyList<SheetShade> room, ushort[] colours)
     {
         ArgumentNullException.ThrowIfNull(state);
         ArgumentNullException.ThrowIfNull(colours);
-        foreach (PictureShade shade in state.Colours.Room.Laid)
+        foreach (PictureShade shade in state.Colours.Room.Laid.Concat(state.Colours.Warning.Laid))
             BossShadeColours.Lay(colours, room, shade, BossShadeColours.Room);
         foreach (PictureShade shade in state.Colours.Sprites.Laid)
             BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
@@ -43,8 +44,9 @@ internal static class RidleyLaidColours
     internal static RgbColor[] Ceres(RidleyEnemyState state, AreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        return [.. Of(state, RidleySheetShades.CeresSprites(ImportAreaMapPresentation.CeresRidleyColorsOf(maps)),
-            RidleySheetShades.CeresRoom(ImportAreaMapPresentation.CeresRidleyColorsOf(maps), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps), new RgbColor[BossShadeColours.Sprites]), 0)
+        CeresRidleyColorCatalog ceres = ImportAreaMapPresentation.CeresRidleyColorsOf(maps);
+        return [.. Of(state, RidleySheetShades.CeresSprites(ceres),
+            [.. RidleySheetShades.CeresRoom(ceres, ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps)), .. RidleySheetShades.CeresWarning(ceres)], 0)
             .Select(RgbColor.FromWord)];
     }
 }

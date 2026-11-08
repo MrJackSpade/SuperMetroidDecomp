@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -16,5 +17,15 @@ public static class EndingFloorDefinitions
         [EndingFloorShot.PlanetExplosion] = SpriteSheetId.EndingPlanetExplosionFloor,
         [EndingFloorShot.Flyaway] = SpriteSheetId.EndingFlyawayFloor,
         [EndingFloorShot.RewardIcon] = SpriteSheetId.EndingRewardIconFloor,
+    };
+
+    /// <summary>The scenery each shot's floor is, which names the colour effects it shows (#1544).</summary>
+    public static IReadOnlyDictionary<EndingFloorShot, EndingScenery> Scenery { get; } = new Dictionary<EndingFloorShot, EndingScenery>
+    {
+        [EndingFloorShot.EscapeA] = EndingScenery.EscapeSceneAFloor,
+        [EndingFloorShot.EscapeB] = EndingScenery.EscapeSceneBFloor,
+        [EndingFloorShot.PlanetExplosion] = EndingScenery.PlanetExplosionFloor,
+        [EndingFloorShot.Flyaway] = EndingScenery.FlyawayFloor,
+        [EndingFloorShot.RewardIcon] = EndingScenery.PostCreditsShotFloor,
     };
 }

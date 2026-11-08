@@ -189,9 +189,6 @@ internal sealed class CeresRidleyGetaway
         switch (state.CeresSelfDestructPhase)
         {
             case CeresSelfDestructPhase.Start:
-                // The warning setup copies four already-live colors before the warning graphics
-                // replace their tiles. These are palette indices, not byte offsets.
-                state.Colours.Room.Lay(RidleyShades.Warning);
                 state.CeresEscapeReadying = CeresEscapeReadying.Warning;
                 state.CeresSelfDestructPhase = CeresSelfDestructPhase.ReadyingWarning;
                 goto case CeresSelfDestructPhase.ReadyingWarning;
@@ -330,13 +327,13 @@ internal sealed class CeresRidleyGetaway
         return completed;
     }
 
-    /// <summary>Ports the three-color alarm palette cycle.</summary>
+    /// <summary>Steps the three-colour alarm cycle of the warning's EMERGENCY title every fourth frame.</summary>
     internal static void UpdateCeresSelfDestructPalette(RidleyEnemyState state, int frameCounter)
     {
         if ((frameCounter & 3) != 0)
             return;
 
         state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
-        state.Colours.Room.Lay(RidleyShades.Alarm(state.CeresEscapePaletteFrame));
+        state.Colours.Warning.Lay(RidleyShades.Alarm(state.CeresEscapePaletteFrame));
     }
 }

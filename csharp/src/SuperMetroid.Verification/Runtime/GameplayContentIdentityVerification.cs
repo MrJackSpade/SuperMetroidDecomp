@@ -15,7 +15,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
 
-/// <summary>Checks canonical hashes for shared gameplay palettes, sprite pixels, and X-ray visuals.</summary>
+/// <summary>Checks canonical hashes for shared sprite pixels and X-ray visuals.</summary>
 internal static class GameplayContentIdentityVerification
 {
     /// <summary>The fixture's first room overlay.</summary>
@@ -23,11 +23,6 @@ internal static class GameplayContentIdentityVerification
 
     /// <summary>The fixture's second room overlay.</summary>
     private static readonly XrayRoomOverlayDefinition SecondFixtureOverlay = new("fixture overlay two");
-
-    /// <summary>JSON options: Unindented output.</summary>
-    private static readonly JsonSerializerOptions CompactJson = new() { WriteIndented = false };
-    /// <summary>JSON options: Indented output.</summary>
-    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
 
     /// <summary>Known shared-presentation domains only; no ROM or gameplay path discovery.</summary>
     internal static void VerifyGameplayContentIdentity()
@@ -38,8 +33,6 @@ internal static class GameplayContentIdentityVerification
             AssertEqual(digest, reordered[component], component + " canonical record order");
         foreach ((string edit, string component) in new[]
         {
-            new VerifyGameplayContentIdentityCase("initial", GameInstallationLayout.GameplayBasePaletteDirectoryName),
-            new VerifyGameplayContentIdentityCase("common", GameInstallationLayout.GameplayBasePaletteDirectoryName),
             new VerifyGameplayContentIdentityCase("sprite-pixel", GameInstallationLayout.StandardObjectDirectoryName),
             new VerifyGameplayContentIdentityCase("xray-top-left", GameInstallationLayout.XrayRevealVisualDirectoryName),
             new VerifyGameplayContentIdentityCase("xray-top-right", GameInstallationLayout.XrayRevealVisualDirectoryName),
@@ -65,15 +58,11 @@ internal static class GameplayContentIdentityVerification
                 .Contains(component, StringComparison.Ordinal), edit + " gives a specific compatibility warning");
         }
 
-        // Fingerprint decoded selections, not cosmetic file formatting/palette colors. A tile sheet
-        // contributes palette indices; the independently installed CGRAM catalog supplies the colors.
+        // Fingerprint decoded selections, not cosmetic file formatting: a tile sheet contributes palette indices.
         AssertEqual(baseline[GameInstallationLayout.StandardObjectDirectoryName],
             CreateGameplayIdentityFixture("png-colors")[GameInstallationLayout.StandardObjectDirectoryName],
             "PNG display colors do not change decoded tile indices");
-        AssertEqual(baseline[GameInstallationLayout.GameplayBasePaletteDirectoryName],
-            CreateGameplayIdentityFixture("json-indent")[GameInstallationLayout.GameplayBasePaletteDirectoryName],
-            "JSON whitespace does not change decoded colors");
-        Console.WriteLine("  Shared gameplay content: colors, sprite pixels, all X-ray operands, items, " +
+        Console.WriteLine("  Shared gameplay content: sprite pixels, all X-ray operands, items, " +
             "room overlay positions/order, canonical records and host warnings pass without a ROM.");
     }
 
@@ -81,14 +70,6 @@ internal static class GameplayContentIdentityVerification
     private static IReadOnlyDictionary<string, string> CreateGameplayIdentityFixture(
         string? edit = null, bool reverse = false)
     {
-        PaletteRgb5[] Colors(int count, bool changed) => Enumerable.Range(0, count)
-            .Select(index => new PaletteRgb5 { Red = changed && index == count - 1 ? 1 : 0, Green = 0, Blue = 0 }).ToArray();
-        var paletteDocument = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
-            Colors(SnesCgram.ColorCount, edit == "initial"),
-            Colors(GameplayBasePaletteFormat.SpriteColorCount, edit == "common"));
-        GameplayBasePalette palettes = GameplayBasePaletteFiles.Read(new MemoryStream(
-            JsonSerializer.SerializeToUtf8Bytes(paletteDocument,
-                (edit == "json-indent" ? IndentedJson : CompactJson))));
         using var png = new MemoryStream();
         var pixels = new byte[64];
         if (edit == "sprite-pixel") pixels[^1] = 1;
@@ -132,7 +113,7 @@ internal static class GameplayContentIdentityVerification
             [new(FirstFixtureOverlay, tiles), new(SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), RoomBlockAppearance.Of(10)) })];
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new InstalledXrayReveals(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
-        return GameplayPresentationIdentity.Create(palettes, sprites, xray);
+        return GameplayPresentationIdentity.Create(sprites, xray);
     }
 
     /// <summary>Runs the shared gameplay content identity checks.</summary>

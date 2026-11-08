@@ -24,7 +24,7 @@ internal static class RoomContentIdentityVerification
         RoomIdentityFixture baseline = CreateRoomIdentityFixture();
         IReadOnlyDictionary<string, string> hashes = baseline.Identity;
         RoomIdentityFixture reordered = CreateRoomIdentityFixture(reverse: true);
-        AssertEqual(2, hashes.Count, "two independent room-art identities");
+        AssertEqual(1, hashes.Count, "one room-art identity: the visual layouts; the room colours are the import's alone (#1544)");
         foreach ((string name, string digest) in hashes)
             AssertEqual(digest, reordered.Identity[name], $"{name} identity ignores insertion order");
 
@@ -59,7 +59,7 @@ internal static class RoomContentIdentityVerification
             .Contains(first, StringComparison.Ordinal), "room-art drift is explained by its domain");
         Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
-        Console.WriteLine("  Selected room content: two domains, CRE, block inputs, canonical ordering, isolated edits, " +
+        Console.WriteLine("  Selected room content: one domain, CRE, block inputs, canonical ordering, isolated edits, " +
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
     }
 
@@ -88,23 +88,14 @@ internal static class RoomContentIdentityVerification
             png.Position = 0;
             return RoomCharacterAtlasPng.Read(png, RoomCharacterAtlasFormat.BytesPerTile);
         }
-        RoomStaticPalette Palette(bool change) => RoomStaticPaletteFile.Read(Json(new RoomStaticPaletteDocument
-        {
-            Version = RoomStaticPaletteFormat.Version,
-            Colors = Enumerable.Range(0, RoomStaticPaletteFormat.ColorCount).Select(index =>
-                new PaletteRgb5 { Red = change && index == 0 ? 1 : 0, Green = 0, Blue = 0 }).ToArray(),
-        }));
         RoomCharacterAtlas character = Characters(edited == GameInstallationLayout.RoomCharacterDirectoryName);
-        RoomStaticPalette palette = Palette(edited == GameInstallationLayout.RoomPaletteDirectoryName);
         var chars = new Dictionary<int, RoomCharacterAtlas>();
-        var colors = new Dictionary<int, RoomStaticPalette>();
         IEnumerable<int> sets = Enumerable.Range(0, RoomTilesetDefinitions.Count);
         if (reverse) sets = sets.Reverse();
         foreach (int set in sets)
         {
             var definition = RoomTilesets.Get((byte)set);
             chars[definition.CharacterAddress] = character;
-            colors[definition.PaletteAddress] = palette;
         }
         bool editLayout = edited == GameInstallationLayout.RoomVisualLayoutDirectoryName;
         RoomLevelId firstLevel = new("FixtureLevelA"), secondLevel = new("FixtureLevelB");
@@ -116,23 +107,17 @@ internal static class RoomContentIdentityVerification
         if (reverse) layouts = layouts.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value);
         return new RoomIdentityFixture(
             new RoomCharacterAtlases(Characters(edited == "cre-characters"), chars.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.CharacterSetAt(pair.Key), pair => pair.Value)),
-            new RoomStaticPalettes(colors.ToDictionary(pair => SuperMetroid.Core.Rooms.RoomTilesetNative.PaletteSetAt(pair.Key), pair => pair.Value)),
             RoomLevelArtworks.FromLayoutsForVerification(layouts));
-
-        static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
     /// <summary>
-    /// Room presentation catalogs used to measure selected-content identity: the palettes and layouts a host records, and
-    /// the characters the import pipeline composes pictures from, which only fingerprint themselves (#1466).
+    /// Room presentation catalogs used to measure selected-content identity: the layouts a host records, and the
+    /// characters the import pipeline composes pictures from, which only fingerprint themselves (#1466).
     /// </summary>
-    internal sealed record RoomIdentityFixture(RoomCharacterAtlases Characters,
-        RoomStaticPalettes Palettes,
-        RoomLevelArtworks Layouts)
+    internal sealed record RoomIdentityFixture(RoomCharacterAtlases Characters, RoomLevelArtworks Layouts)
     {
         /// <summary>Per-domain hashes for the fixture's selected room artwork.</summary>
-        public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(
-            Palettes, Layouts);
+        public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(Layouts);
     }
 
     /// <summary>Runs ROM-free room-art identity and aggregate compatibility checks.</summary>

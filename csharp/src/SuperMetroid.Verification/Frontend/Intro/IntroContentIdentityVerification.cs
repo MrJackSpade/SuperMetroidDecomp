@@ -36,8 +36,8 @@ internal static class IntroContentIdentityVerification
             "background", "intro-objects", "cinematic-objects", "page-0", "page-1", "page-2", "page-3",
             "page-order", "portrait", "narration-map", "divider", "eye-0", "eye-1", "eye-2", "eye-3",
             "caret-sprites", "mother-brain-sprites", "mb-explosion-sprites", "rinka-sprites", "egg-sprites",
-            "discovery-sprites", "scientist-sprites", "intro-palette", "flight-mode7", "flight-objects",
-            "flight-front-map", "flight-rear-map", "flight-palette", "flight-sprites",
+            "discovery-sprites", "scientist-sprites", "opening-backdrop", "flight-mode7", "flight-objects",
+            "flight-front-map", "flight-rear-map", "flight-backdrop", "flight-sprites",
             "destruction-map-0", "destruction-map-1", "destruction-map-2", "destruction-map-order",
             "zebes-map", "zebes-characters", "destruction-sprites",
         };
@@ -128,11 +128,8 @@ internal static class IntroContentIdentityVerification
         // Load a generated page through the production background-tilemap codec.
         RoomBackgroundTilemapAtlas Map(string name, int seed = 0) => RoomBackgroundTilemapAtlas.Load(
             MapJson(name, seed), RoomBackgroundTilemapFormat.BytesPerPage);
-        // Build a full black CGRAM image with an optional last-color red-channel edit.
-        PaletteRgb5[] Colors(string name) => Enumerable.Range(0, SnesCgram.ColorCount).Select(index =>
-            new PaletteRgb5 { Red = index == SnesCgram.ColorCount - 1 && edit == name ? 1 : 0, Green = 0, Blue = 0 }).ToArray();
-        // Encode a complete editable palette document for one opening asset family.
-        MemoryStream PaletteJson(string name) => Json(new { Version = 1, Colors = Colors(name) });
+        // A black backdrop with an optional red-channel edit; the colours behind the backdrops are the import's alone (#1544).
+        RgbColor Backdrop(string name) => new(edit == name ? 1 : 0, 0, 0);
 
         // Build semantic sprite frames, optionally reversing key insertion.
         MemoryStream Sprites(string family, IEnumerable<string> sourceNames, int version = 1)
@@ -171,7 +168,7 @@ internal static class IntroContentIdentityVerification
                 FrontTiles = FlightMap("flight-front-map"), RearTiles = FlightMap("flight-rear-map"),
             }),
             Png("flight-objects", CeresFlightArtworkFileFormat.ObjectWidth, CeresFlightArtworkFileFormat.ObjectHeight, 16),
-            CeresFlightPaletteFile.Read(PaletteJson("flight-palette")),
+            Backdrop("flight-backdrop"),
             Sprites("flight", CeresFlightSpriteDefinitions.Frames.Select(frame => frame.Name)),
             Json(new CeresFlightActorLayoutDocument { Version = CeresFlightActorLayoutFormat.Version, Actors = flightActors }));
 
@@ -219,7 +216,7 @@ internal static class IntroContentIdentityVerification
                 {
                     Id = IntroEyeTilemapFormat.FrameId(index), Cells = Cells("eye-" + index, IntroEyeTilemapFormat.CellsPerFrame),
                 }).ToArray(),
-            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name))), Palette = IntroCinematicPaletteFile.Read(PaletteJson("intro-palette")), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionMaps = destructionMaps, ZebesReveal = zebesReveal, CeresDestructionSprites = CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name))) });
+            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Name), IntroCaretSpriteVersion.Current.Revision)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.Select(frame => frame.Name))), Backdrop = Backdrop("opening-backdrop"), CeresFlight = flight, CeresDestruction = destruction, CeresDestructionMaps = destructionMaps, ZebesReveal = zebesReveal, CeresDestructionSprites = CeresDestructionSpritePresentation.Load(Sprites("destruction", CeresDestructionSpriteFrameDefinitions.Frames.Select(frame => frame.Name))) });
     }
 
     /// <summary>Runs selected-content identity checks for opening and Ceres assets.</summary>

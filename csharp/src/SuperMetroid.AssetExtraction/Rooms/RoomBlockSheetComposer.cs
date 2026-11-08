@@ -38,7 +38,7 @@ internal static class RoomBlockSheetComposer
         IReadOnlyDictionary<RoomBlockSet, RoomBlockComposition> blocks = RoomBlockComposition.Of(inputs, tilesets);
         // Each tileset's pictures compose on their own (#1530), and are gathered in tileset order, so what is written and
         // its order stay the same on every install. Every room picture of a tileset is pre-coloured in the shades its rooms'
-        // colour effects show (#1512).
+        // colour effects show (#1512), except the pictures written over its rooms, which show their writers' own (#1544).
         KeyValuePair<TilesetDefinition, RoomBlockUploads.TilesetUploads>[] order = [.. tilesets];
         var composedTilesets = new TilesetPictures[order.Length];
         Parallel.For(0, order.Length, index =>
@@ -52,7 +52,8 @@ internal static class RoomBlockSheetComposer
                 [.. uploads.Backgrounds.Select(background => KeyValuePair.Create(background.Name, RoomSheetShades.With(
                     ComposeBackground(inputs, tileset, background, composed.Cells[background.Name]), shades)))],
                 uploads.WordContent is { } content
-                    ? RoomSheetShades.With(WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content), shades)
+                    ? RoomSheetShades.With(WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content),
+                        RoomSheetShades.Written(inputs, uploads.Writers))
                     : null,
                 RoomSheetShades.With(WrittenPictureSheetComposer.ComposeBg3(inputs, tileset, uploads), RoomSheetShades.Layer3(inputs, tileset)),
                 MessageBoxSheetComposer.Compose(inputs, tileset),

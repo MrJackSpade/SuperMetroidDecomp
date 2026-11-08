@@ -38,7 +38,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         string map = Path.Combine(content, GameInstallationLayout.MapDirectoryName);
         InstalledProjectilePresentation projectiles = ProjectilePresentationFiles.Load(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName));
         GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName));
-        IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName));
+        ImportIntroCinematicArtwork intro = IntroCinematicArtworkFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName));
         // Her colour tables are the ones the map presentation was read with, edits included.
         AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map);
         SamusMapColourTables tables = ImportAreaMapPresentation.SamusColoursOf(maps);
@@ -46,8 +46,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(overreads);
         var sources = new SamusShadeSources(
             palettes.Starting,
-            [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
-            [.. IntroCinematicSourceArtwork.Of(intro).Palette.SpriteColours.AsSpan(SamusSheetInks.Beams, SamusSheetInks.GroupColours)],
+            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
+            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Beams, SamusSheetInks.GroupColours)],
             tables.Suits,
             tables.Charge,
             tables.HyperBeam,

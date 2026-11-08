@@ -29,7 +29,7 @@ internal static class IntroScenePictureSheetComposer
     {
         Ensure.NotNull(intro);
         byte[] characters = IntroCinematicSourceArtwork.Of(intro).BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes].ToArray();
-        RgbColor[] colours = [.. IntroCinematicSourceArtwork.Of(intro).Palette.BackgroundColours];
+        RgbColor[] colours = [.. ImportIntroCinematicArtwork.Imported(intro).Palette.BackgroundColours];
         int cells = IntroScenePictures.PlaneCells;
         int planeCells = cells * cells;
         IntroScenePage[] pages = Enum.GetValues<IntroScenePage>();

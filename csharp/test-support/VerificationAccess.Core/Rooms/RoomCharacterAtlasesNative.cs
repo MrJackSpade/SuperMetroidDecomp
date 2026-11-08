@@ -13,9 +13,19 @@ internal static class RoomCharacterAtlasesNative
         /// <summary>The installed entry stored at <paramref name="address"/> on the cartridge.</summary>
         internal RoomCharacterAtlas GetAt(int address) => catalog.Get(RoomTilesetNative.CharacterSetAt(address));
 
-        /// <summary>The content identity the installation records for the catalog.</summary>
-        internal string ContentIdentity => SelectedPresentationHash.FromNamedTransfers(
-            nameof(RoomCharacterAtlases), catalog.Sheets.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value),
-            atlas => atlas.Characters, catalog.Cre.Characters);
+        /// <summary>
+        /// The content identity of the catalog: the shared characters, then each sheet's characters by its name in ordinal
+        /// order.
+        /// </summary>
+        internal string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomCharacterAtlases), content =>
+        {
+            content.Append("shared", catalog.Cre.Characters.Span);
+            foreach ((string source, RoomCharacterAtlas selected) in catalog.Sheets.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value)
+                .OrderBy(pair => pair.Key, StringComparer.Ordinal))
+            {
+                content.Append("source", System.Text.Encoding.UTF8.GetBytes(source));
+                content.Append("transfer", selected.Characters.Span);
+            }
+        });
     }
 }

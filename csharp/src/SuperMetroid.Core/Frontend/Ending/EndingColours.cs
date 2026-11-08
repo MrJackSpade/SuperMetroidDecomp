@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// What the running ending scene's colours show (#1512, #1544): the scene's own colours, then each colour load, fade level,
 /// flash, logo crossfade step and palette-effect record the scene has shown since, in the order shown. A scene's colours
 /// are its own: a scene starts in its whole screen of colours, and nothing an earlier scene showed shows in it; a palette
-/// effect's records stop showing when the effects are cleared. Every picture and floor the ending draws is shaded in
-/// them; an actor's pictures only in those authored for it (#1544), under its colouring. Which colours each covers is the
-/// import's.
+/// effect's records stop showing when the effects are cleared. Each background picture and floor the ending draws is
+/// shaded in those authored for it, and an actor's pictures in those authored for it under its colouring (#1544). Which
+/// colours each covers is the import's.
 /// </summary>
 internal sealed class EndingColours
 {
     /// <summary>The shades the running scene shows, least recently shown first; each family keeps only its last.</summary>
-    private readonly List<PictureShade> shown = [];
+    internal readonly List<PictureShade> shown = [];
 
     /// <summary>The colour groups whose palette-effect records <see cref="shown"/> holds.</summary>
     private readonly List<string> paletteFxEffects = [];
@@ -73,8 +73,22 @@ internal sealed class EndingColours
         paletteFxEffects.Clear();
     }
 
-    /// <summary>The shading every ending picture and floor shows: each shade shown, in order.</summary>
-    internal PictureShading Shading => new([.. shown], []);
+    /// <summary>
+    /// The shading <paramref name="scenery"/>, a background picture or floor, shows (#1544): each shade shown that is
+    /// authored for it (<see cref="EndingColourOwners"/>), in order. A shade authored for an actor or for other scenery is
+    /// not shown on it, even where the two share a colour group.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A shade shown is of no colour effect the ending shows.</exception>
+    internal PictureShading SceneryShading(EndingScenery scenery)
+    {
+        ImmutableArray<PictureShade>.Builder shades = ImmutableArray.CreateBuilder<PictureShade>(shown.Count);
+        foreach (PictureShade screen in shown)
+        {
+            if (EndingColourOwners.Shows(scenery, screen))
+                shades.Add(screen);
+        }
+        return new PictureShading(shades.ToImmutable(), []);
+    }
 
     /// <summary>
     /// The shading an actor's frame shows when it draws in the colouring whose drawn shade is <paramref name="drawn"/>

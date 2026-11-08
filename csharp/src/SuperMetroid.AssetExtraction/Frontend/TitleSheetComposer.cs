@@ -22,7 +22,7 @@ internal static class TitleSheetComposer
 
     /// <summary>What the title sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
-        Sources(Ensure.NotNull(maps).TitleGraphics, InstalledAreaMapPresentation.TitlePaletteOf(maps));
+        Sources(Ensure.NotNull(maps).TitleGraphics, ImportAreaMapPresentation.TitlePaletteOf(maps));
 
     /// <summary>What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>.</summary>
     internal static SpriteSheetSources Sources(TitleGraphicsPresentation graphics, TitlePalettePresentation palette)

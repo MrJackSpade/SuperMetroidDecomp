@@ -56,7 +56,7 @@ internal static class FileSelectSheetComposer
             frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowPartDefinitions.Parts(shape)
                 .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
-        RgbColor[] sprites = InstalledAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
+        RgbColor[] sprites = ImportAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
         return new SpriteSheetSources(frames, sprites, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
         {
             Shades = [.. CopyArrowShades(sprites)],

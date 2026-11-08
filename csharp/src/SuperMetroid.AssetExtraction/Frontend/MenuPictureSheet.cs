@@ -38,7 +38,7 @@ internal static class MenuPictureSheet
 
     /// <summary>Composes the sheet.</summary>
     internal static ComposedSpriteSheet Compose(AreaMapPresentation maps) =>
-        ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), InstalledAreaMapPresentation.PalettesOf(maps).FileSelect);
+        ScreenPictureSheetComposer.Compose(Subjects(maps), Characters(maps), ImportAreaMapPresentation.PalettesOf(maps).FileSelect);
 
     /// <summary>The frames the sheet must hold: one per picture.</summary>
     internal static IEnumerable<string> FrameNames(AreaMapPresentation maps) => Subjects(maps).Select(subject => subject.Name);

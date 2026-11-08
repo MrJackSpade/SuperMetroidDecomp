@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
@@ -183,7 +184,7 @@ internal static class TorizoPaletteShakeVerification
         colours.ShowBelly(shown);
         AssertEqual(PaletteFxShades.Of(PaletteFxColours.TorizoBelly, shown), colours.Shading.Shades[^1], "The glow's record lies over the statue's colouring");
         colours.FadeToward(new TorizoLook(TorizoLookKind.Black));
-        var counter = new GradualColorChangeCounter();
+        var counter = new SharedFadeStepCount();
         counter.Advance();
         colours.Step(counter);
         PictureShade fading = TorizoShades.BellyFading(shown, new TorizoLook(TorizoLookKind.Black), 1, 1);

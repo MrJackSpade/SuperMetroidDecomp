@@ -188,8 +188,8 @@ internal sealed class KraidRise
                 state.BodyState.Function = KraidAiFunction.GrowFadeInRoomBackground;
                 // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
                 state.BodyState.FunctionTimer = 0;
-                // DrawKraidsRoomBackground zeroes the shared numerator.
-                _presentation.GradualColorChange.Reset();
+                // DrawKraidsRoomBackground restarts the shared fade step count.
+                _presentation.FadeStepCount.Reset();
                 // The background redraw queues this character upload on the same frame that it
                 // initializes palette-six fading. Without it, the foreground's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,

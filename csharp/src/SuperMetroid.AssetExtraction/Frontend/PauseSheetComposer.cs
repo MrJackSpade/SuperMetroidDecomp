@@ -46,7 +46,7 @@ internal static class PauseSheetComposer
             string name = PauseReserveTankParts.SheetFrameName(frame.Name);
             return new SheetFrameSource(name, tankSource.ToFrame(frame.Id, name), page, tankSource.SpriteSet);
         }));
-        return new SpriteSheetSources(frames, InstalledAreaMapPresentation.PalettesOf(maps).Pause[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
+        return new SpriteSheetSources(frames, ImportAreaMapPresentation.PalettesOf(maps).Pause[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(PauseSheetDefinitions.ObjectSelection),
             PartsKeepOwnRows: true);
     }
 

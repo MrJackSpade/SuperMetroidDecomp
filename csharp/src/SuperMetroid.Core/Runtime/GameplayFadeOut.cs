@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -24,7 +25,7 @@ internal sealed class GameplayFadeOut : IGameplayShadingSource
     /// <param name="denominator">The fade's length.</param>
     /// <param name="counter">The shared step counter the fade reads and advances.</param>
     /// <param name="spares">What the fade leaves in its own colours: Samus for the death fade, nothing for the whiteout.</param>
-    internal void Begin(RgbColor colour, int denominator, GradualColorChangeCounter counter, GameplayFadeSpares spares)
+    internal void Begin(RgbColor colour, int denominator, SharedFadeStepCount counter, GameplayFadeSpares spares)
     {
         steps = new GradualFadeSteps(denominator, counter);
         toward = colour;

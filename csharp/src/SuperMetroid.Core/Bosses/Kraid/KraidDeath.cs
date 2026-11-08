@@ -274,8 +274,8 @@ internal sealed class KraidDeath
             yBase: 352,
             yMask: 63);
         state.DeathDropRequestCount = 16;
-        // The death continues into DrawKraidsRoomBackground, which zeroes the shared numerator.
-        _presentation.GradualColorChange.Reset();
+        // The death continues into DrawKraidsRoomBackground, which restarts the shared fade step count.
+        _presentation.FadeStepCount.Reset();
     }
 
     /// <summary>Consumes sink-table entries as the body descends.</summary>

@@ -42,7 +42,7 @@ public sealed record BossSourceArtwork : BossArtworkCatalog
         }
     }
 
-    /// <summary>Editable Mother Brain death-fade and exploded-door colours, which the import pre-colours her sheets in (#1512).</summary>
+    /// <summary>Editable Mother Brain death-fade colours, which the import pre-colours her sheets in (#1512).</summary>
     public MotherBrainDeathColorCatalog? MotherBrainDeathColors { get; init; }
 
     /// <summary>Editable initial and fade-to-black colours of the Mother Brain cutscene Baby, which the import pre-colours its sheet in (#1512).</summary>

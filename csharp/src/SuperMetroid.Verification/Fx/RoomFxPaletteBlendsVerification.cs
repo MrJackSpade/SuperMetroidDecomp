@@ -21,8 +21,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
-/// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and the Ceres haze tints.</summary>
+/// <summary>Checks extracted room-FX blend colors, installed CGRAM writes, and the installed Ceres haze tints.</summary>
 internal static class RoomFxPaletteBlendsVerification
 {
     /// <summary>The colour a Ceres haze layer adds at the start of screen line 120, drawn over black by the display renderer.</summary>
@@ -40,9 +41,11 @@ internal static class RoomFxPaletteBlendsVerification
         Suite(nameof(VerifyFxBlendSourceAddresses), () => VerifyFxBlendSourceAddresses(rom));
         RoomFxBlendInks catalog = RoomFxPaletteBlendFile.Read(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(NewBlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
-        Suite(nameof(VerifyCeresDefaultRed), () => VerifyCeresDefaultRed(rom, catalog));
-        Suite(nameof(VerifyCeresDefaultGreen), () => VerifyCeresDefaultGreen(rom, catalog));
-        Suite(nameof(VerifyCeresDefaultBlue), () => VerifyCeresDefaultBlue(rom, catalog));
+        // The Ceres haze's tints are scene colours the import installs (#1544).
+        CeresHazeTints haze = RetailPresentationFixtureVerification.RetailPresentationFixture().CeresHaze;
+        Suite(nameof(VerifyCeresDefaultRed), () => VerifyCeresDefaultRed(rom, haze));
+        Suite(nameof(VerifyCeresDefaultGreen), () => VerifyCeresDefaultGreen(rom, haze));
+        Suite(nameof(VerifyCeresDefaultBlue), () => VerifyCeresDefaultBlue(rom, haze));
         Suite(nameof(VerifyCeresDefaultTintStructure), () => VerifyCeresDefaultTintStructure(rom));
         Suite(nameof(VerifyFxBlendBlackRed), () => VerifyFxBlendBlackRed(rom, catalog));
         Suite(nameof(VerifyFxBlendBlackGreen), () => VerifyFxBlendBlackGreen(rom, catalog));
@@ -84,31 +87,33 @@ internal static class RoomFxPaletteBlendsVerification
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(
             new MemoryStream(System.Text.Encoding.UTF8.GetBytes(duplicate))),
             "duplicate room-FX blend property fails loudly");
-        Suite(nameof(VerifyCeresHazeTint), () => VerifyCeresHazeTint(rom));
+        Suite(nameof(VerifyCeresHazeTint), VerifyCeresHazeTint);
         Console.WriteLine("  Room-FX blend palettes: all 24 native words and guarded load/reload paths pass.");
     }
 
-    /// <summary>Checks the extracted Ceres haze tints, their native scanline colours, and the tint codec's channel bound.</summary>
-    private static void VerifyCeresHazeTint(ISnesAddressSpace rom)
+    /// <summary>
+    /// Checks the installed Ceres haze tints, which the import records in the scene colours (#1544), their native scanline
+    /// colours, and the scene colour reader's channel bound.
+    /// </summary>
+    private static void VerifyCeresHazeTint()
     {
-        RoomFxPaletteBlendDocument stock = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
-            RoomFxPaletteBlendExtractor.Extract(rom), ArtworkJson.Options)
-            ?? throw new InvalidDataException("Stock room-FX color document is null.");
-        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue), stock.CeresHazeBlue,
-            "extractor names the stock Ceres blue tint");
-        AssertEqual(PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeRed), stock.CeresHazeRed,
-            "extractor names the stock Ceres escape tint");
+        SceneColourDocument stock = JsonSerializer.Deserialize<SceneColourDocument>(
+            File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.MapDirectory, SceneColourFiles.FileName)),
+            ArtworkJson.Options)
+            ?? throw new InvalidDataException("Installed scene colour document is null.");
+        AssertEqual(PaletteRgb5.From(SceneColourFiles.StockCeresHazeBlue), stock.CeresHazeWhileRidleyLives,
+            "the import records the stock Ceres blue tint");
+        AssertEqual(PaletteRgb5.From(SceneColourFiles.StockCeresHazeRed), stock.CeresHazeAfterRidleyDies,
+            "the import records the stock Ceres escape tint");
         // Each haze over a black screen, as the display renderer draws its line 120 (#1468).
         RgbaPixel stockLine = HazeLine(GameplayEffectCapture.CaptureCeresHaze(false));
         AssertEqual(new RgbaPixel(0, 0, 66, 255), stockLine,
             "stock Ceres blue haze retains its native scanline-eight fixed color");
         AssertEqual(new RgbaPixel(66, 0, 0, 255), HazeLine(GameplayEffectCapture.CaptureCeresHaze(true)),
             "stock Ceres escape haze retains the matching red fixed color");
-        AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(
-            stock with
-            {
-                CeresHazeBlue = (stock.CeresHazeBlue ?? throw new InvalidOperationException("The extractor writes the Ceres blue tint.")) with { Green = 32 },
-            }), writable: false)), "reading an invalid Ceres tint component fails loudly");
+        AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
+            stock with { CeresHazeWhileRidleyLives = stock.CeresHazeWhileRidleyLives with { Green = 32 } }, ArtworkJson.Options),
+            writable: false)), "reading an invalid Ceres tint component fails loudly");
     }
 
     /// <summary>Checks that the room-FX blend codec rejects out-of-range colours.</summary>

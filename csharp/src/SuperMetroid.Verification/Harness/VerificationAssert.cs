@@ -421,17 +421,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks Mother Brain room fade colors used after the exploded door.</summary>
-    [VerificationCommand("--lookup-stream3-exploded-door-paints")]
-    internal static int LookupStream3ExplodedDoorPaintsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Exploded door palette oracle revision");
-        Suite(nameof(VerifyStream3MotherBrainFades), () => VerifyStream3MotherBrainFades(rom));
-        Console.WriteLine("Exploded door:14 native colors,no stock array,the hash and bounds pass; other death fades preserved.");
-        return 0;
-    }
 
     /// <summary>Checks auxiliary Mother Brain colors and Baby Metroid pulse output.</summary>
     [VerificationCommand("--lookup-stream3-auxiliary-complete")]

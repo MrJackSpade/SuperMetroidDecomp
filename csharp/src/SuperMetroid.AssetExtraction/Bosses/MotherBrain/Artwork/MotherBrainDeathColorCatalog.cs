@@ -2,14 +2,14 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
-/// <summary>Editable Mother Brain death-fade and exploded-door RGB5 images.</summary>
+/// <summary>Editable Mother Brain death-fade RGB5 images, which the import pre-colours her body layer and corpse from.</summary>
 public sealed class MotherBrainDeathColorCatalog
 {
-    /// <summary>The selected body, leg and corpse fades and exploded door.</summary>
+    /// <summary>The selected body, leg and corpse fades.</summary>
     internal readonly MotherBrainDeathColorSelection selection;
 
-    /// <summary>Keeps the fades as calculated stages and independently edited frames, and the door's edits.</summary>
-    /// <param name="selection">The fades and door the import selected.</param>
+    /// <summary>Keeps the fades as calculated stages and independently edited frames.</summary>
+    /// <param name="selection">The fades the import selected.</param>
     internal MotherBrainDeathColorCatalog(MotherBrainDeathColorSelection selection) => this.selection = selection;
 
     /// <summary>Returns one body-fade color from the first segment of the death-fade images, applied to both colours 65..78 and 145..158 during the death fade.</summary>
@@ -35,10 +35,4 @@ public sealed class MotherBrainDeathColorCatalog
     /// <exception cref="ArgumentOutOfRangeException">The stage or color index is outside the authored images.</exception>
     public RgbColor CorpseColor(int frame, int color) =>
         selection.CorpseFade.Checked(frame, color, nameof(CorpseColor));
-
-    /// <summary>Returns a color exploded escape-door palette, installed at colours 145..158 when the escape sequence opens the door.</summary>
-    /// <param name="color">Zero-based palette color 0..13, corresponding to sprite-palette-one colors 1..14.</param>
-    /// <returns>Packed RGB5 color from the selected fourteen-color image.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The color index is outside 0..13.</exception>
-    public RgbColor ExplodedDoorColor(int color) => MotherBrainDeathColors.ExplodedDoorColor(selection.ExplodedDoor, color);
 }

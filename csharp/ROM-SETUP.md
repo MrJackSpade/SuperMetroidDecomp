@@ -423,11 +423,17 @@ color math keeps the effect behind BG1 terrain and excludes OBJ palettes
 zero through three; it never tints the HUD or enables liquid physics.
 Malformed FX artwork/tilemap/palette files fail with the exact path.
 
-`game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors and the
-`ceresHazeBlue`/`ceresHazeRed` RGB5 tints. Edit it in place to recolor
-the Ceres haze before or after Ridley's defeat. The tint affects both software
-and hardware rendering; haze activation, scanline bands, and fade timing remain
-compiled. Each channel must be 0–31.
+`game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors, which the
+import pre-colours the effect overlay pictures in; edit it and reinstall to recolor them.
+
+`game/maps/scene-colours.json` holds the colours the game shows that no picture
+holds: the title's backdrop, the pause, file-select and each Zebes area's world-map
+backdrop, and the Ceres haze's `ceresHazeWhileRidleyLives`/`ceresHazeAfterRidleyDies`
+RGB5 tints. The game reads these colours and no palette document. Edit it in place to
+change a backdrop or recolor the Ceres haze before or after Ridley's defeat; haze
+activation, scanline bands, and fade timing remain compiled. Each channel must be 0–31.
+The title, map and menu palette documents are read only by the import, which
+pre-colours the screens' sheets from them.
 
 `game/maps/power-bomb-fixed-colors.json` contains the 16 pre-explosion and
 32 explosion RGB5 rows used by Power Bombs, Crystal Flash and the Ceres
@@ -547,8 +553,8 @@ its timing; this JSON contains only the colors.
 Botwoon's eight health-band sprite palettes are in
 `game/enemy-tiles/botwoon-colors.json`. The initial enemy palette remains in the ordinary
 enemy color sheet; health thresholds and band progression stay compiled.
-Mother Brain's sixteen paired body/leg death-fade frames, eight corpse-head
-fade frames, and exploded-door palette are in
+Mother Brain's sixteen paired body/leg death-fade frames and eight corpse-head
+fade frames are in
 `game/enemy-tiles/mother-brain-death-colors.json`; death-phase timing, counter selection, and collision
 remain compiled behavior.
 Zebetite's eight-frame, two-color Tourian pulse is in

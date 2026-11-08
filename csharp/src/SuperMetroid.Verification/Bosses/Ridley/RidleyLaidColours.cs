@@ -43,8 +43,8 @@ internal static class RidleyLaidColours
     internal static RgbColor[] Ceres(RidleyEnemyState state, AreaMapPresentation maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
-        return [.. Of(state, RidleySheetShades.CeresSprites(InstalledAreaMapPresentation.CeresRidleyColorsOf(maps)),
-            RidleySheetShades.CeresRoom(InstalledAreaMapPresentation.CeresRidleyColorsOf(maps), InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(maps), new RgbColor[BossShadeColours.Sprites]), 0)
+        return [.. Of(state, RidleySheetShades.CeresSprites(ImportAreaMapPresentation.CeresRidleyColorsOf(maps)),
+            RidleySheetShades.CeresRoom(ImportAreaMapPresentation.CeresRidleyColorsOf(maps), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps), new RgbColor[BossShadeColours.Sprites]), 0)
             .Select(RgbColor.FromWord)];
     }
 }

@@ -40,6 +40,6 @@ internal static class GameOptionsSheetComposer
             string name = GameOptionsNames.CursorSpriteName(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
-        return new SpriteSheetSources(frames, InstalledAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
+        return new SpriteSheetSources(frames, ImportAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray(), ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true);
     }
 }

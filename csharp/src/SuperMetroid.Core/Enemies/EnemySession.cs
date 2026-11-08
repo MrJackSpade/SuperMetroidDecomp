@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -26,10 +27,10 @@ public sealed class EnemySession
     internal ElevatorJourneyState Elevator { get; } = new();
 
     /// <summary>
-    /// The shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
-    /// fades advance this one counter, as the game's fades all advance one shared counter.
+    /// The shared fade step count, a compatibility service (#1544): enemies' fades and the runtime's door, death and time-up
+    /// fades all count their steps on it, so a fade left part-way shortens the next. It outlives every room.
     /// </summary>
-    public GradualColorChangeCounter GradualColorChange { get; } = new();
+    public SharedFadeStepCount FadeStepCount { get; } = new();
 
     /// <summary>
     /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load

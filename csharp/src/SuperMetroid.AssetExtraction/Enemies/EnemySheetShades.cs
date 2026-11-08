@@ -267,7 +267,7 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or EnemyDefinitionId.CeresDoor:
                 // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites((inputs.Maps is null ? null : InstalledAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps)), inputs.Bosses));
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites((inputs.Maps is null ? null : ImportAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps)), inputs.Bosses));
                 break;
             case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
                 // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
@@ -433,7 +433,7 @@ internal sealed class EnemySheetShades
 
     /// <summary>The Ridley encounters' sprite colours.</summary>
     private IReadOnlyList<SheetShade> RidleySprites() =>
-        SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps is null ? null : InstalledAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps), inputs.Bosses);
+        SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps is null ? null : ImportAreaMapPresentation.CeresRidleyColorsOf(inputs.Maps), inputs.Bosses);
 
     /// <summary>The enemy projectiles' colour the Ceres elevator concealer's solid pixels show.</summary>
     private const int CeresConcealerColour = 15;

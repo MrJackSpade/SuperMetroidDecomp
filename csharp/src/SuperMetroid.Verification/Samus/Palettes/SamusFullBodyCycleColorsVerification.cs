@@ -291,7 +291,7 @@ internal static class SamusFullBodyCycleColorsVerification
             File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)),
             ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock full-body cycle color JSON is null.");
-        var installedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = InstalledAreaMapPresentation.SamusColoursOf(original).FullBodyCycles };
+        var installedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = ImportAreaMapPresentation.SamusColoursOf(original).FullBodyCycles };
         var guard = NewFullBodyColorReadGuard(rom);
         SamusEquipmentFlags[] equipment = [0, SamusEquipmentFlags.VariaSuit,
             SamusEquipmentFlags.GravitySuit];
@@ -374,7 +374,7 @@ internal static class SamusFullBodyCycleColorsVerification
         {
             ushort pointer = SamusFullBodyCycleColorFormat.Pointer(family, suit, shade);
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
-                AssertEqual(InstalledAreaMapPresentation.SamusColoursOf(original).FullBodyCycles.Resolve(pointer, color),
+                AssertEqual(ImportAreaMapPresentation.SamusColoursOf(original).FullBodyCycles.Resolve(pointer, color),
                     cgram.ShownSuit(installedSources)[color],
                     $"{family} suit {suit}, shade {shade}, color {color} reaches live CGRAM");
         }

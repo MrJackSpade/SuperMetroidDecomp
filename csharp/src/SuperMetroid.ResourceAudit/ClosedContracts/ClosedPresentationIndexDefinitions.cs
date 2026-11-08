@@ -64,7 +64,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("MotherBrainRainbowPalettePresentation", "BeamColor", "index") => new(0,
             MotherBrainRainbowPaletteGeometry.BeamCycleColorCount),
         ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "frame") => new(0, MotherBrainDeathColorFile.BodyFadeFrameCount),
-        ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor" or "ExplodedDoorColor", "color") => new(0, MotherBrainDeathColorFormat.BodyColorCount),
+        ("MotherBrainDeathColorCatalog", "BodyColor" or "LegColor", "color") => new(0, MotherBrainDeathColorFormat.BodyColorCount),
         ("MotherBrainDeathColorCatalog", "CorpseColor", "frame") => new(0, MotherBrainDeathColorFile.CorpseFadeFrameCount),
         ("MotherBrainDeathColorCatalog", "CorpseColor", "color") => new(0, MotherBrainDeathColorFormat.CorpseColorCount),
         ("InstalledSamusDeathPalettes", "SuitedColor", "suit") => new(0, InstalledSamusDeathPalettes.SuitCount),

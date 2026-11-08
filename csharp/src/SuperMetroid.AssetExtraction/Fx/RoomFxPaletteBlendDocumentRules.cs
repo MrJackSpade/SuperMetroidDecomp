@@ -1,28 +1,14 @@
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
 /// The installed room-FX blend document's rules (<see cref="RoomFxPaletteBlendDefinitions"/>): the eight retail blends in
-/// document order, each blend's document key, and the stock Ceres haze tints the document records.
+/// document order and each blend's document key.
 /// </summary>
 public static class RoomFxPaletteBlendDocumentRules
 {
-    /// <summary>Stock blue-channel fixed-color amplitude for Ceres haze.</summary>
-    public static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
-
-    /// <summary>Stock red-channel fixed-color amplitude after Ceres Ridley.</summary>
-    public static RgbColor StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
-
-    /// <summary>
-    /// The Ceres haze selects a blue or red tint; it stops fading in at counter16,
-    /// after counter15 was the final written amplitude. Calculate that selected RGB
-    /// axis directly instead of retaining two default tint records.
-    /// </summary>
-    public static RgbColor StockCeresHaze(CeresHazeColor color) => CeresHazeTints.Stock.For(color == CeresHazeColor.Red);
-
     /// <summary>The eight named retail blend resources in document order, without stored identities.</summary>
     public static IEnumerable<RoomFxPaletteBlend> Ids
     {

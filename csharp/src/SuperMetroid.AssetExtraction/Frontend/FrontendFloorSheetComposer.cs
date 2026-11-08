@@ -52,7 +52,7 @@ internal static class FrontendFloorSheetComposer
     private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
         new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
         {
-            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, InstalledAreaMapPresentation.TitlePaletteOf(sources.Maps)),
+            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, ImportAreaMapPresentation.TitlePaletteOf(sources.Maps)),
             [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
             [SpriteSheetId.EndingEscapeAFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape), sources),
             [SpriteSheetId.EndingEscapeBFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape), sources),

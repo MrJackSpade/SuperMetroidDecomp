@@ -34,7 +34,7 @@ internal static class GameOverSheetComposer
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
         for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
             frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
-        RgbColor[] colours = InstalledAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
+        RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(maps).FileSelect[SpriteColours..].ToArray();
         int babyInk = gameOver.BabyPaletteIndex * GroupColours;
         gameOver.BabyPaint.Colours(GameOverBabyPalette.Idle).CopyTo(colours.AsSpan(babyInk, GroupColours));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)

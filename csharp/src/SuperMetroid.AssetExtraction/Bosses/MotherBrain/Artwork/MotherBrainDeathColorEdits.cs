@@ -3,18 +3,17 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// Compares Mother Brain's supplied death fades and exploded door with their calculated paint: a fade that follows the
-/// stock interpolation keeps only its endpoints, and a door matching the reviewed paint keeps nothing.
+/// Compares Mother Brain's supplied death fades with their calculated paint: a fade that follows the stock interpolation
+/// keeps only its endpoints.
 /// </summary>
 internal static class MotherBrainDeathColorEdits
 {
-    /// <summary>Selects the body, leg and corpse fades and the exploded door's edits.</summary>
+    /// <summary>Selects the body, leg and corpse fades.</summary>
     internal static MotherBrainDeathColorSelection Select(RgbColor[][] bodyFade, RgbColor[][] legFade,
-        RgbColor[][] corpseFade, RgbColor[] explodedDoor) =>
+        RgbColor[][] corpseFade) =>
         new(Fade(bodyFade, last: null, MotherBrainPalettePart.Body),
             Fade(legFade, last: null, MotherBrainPalettePart.BackLeg),
-            Fade(corpseFade, MotherBrainRainbowPaletteRecognition.Drained(corpseFade[^1]), MotherBrainPalettePart.Body),
-            MatchesDoorPaint(explodedDoor) ? null : explodedDoor);
+            Fade(corpseFade, MotherBrainRainbowPaletteRecognition.Drained(corpseFade[^1]), MotherBrainPalettePart.Body));
 
     /// <summary>
     /// Keeps a fade as its edited starting colours and endpoint when every stage follows the calculated interpolation,
@@ -34,13 +33,5 @@ internal static class MotherBrainDeathColorEdits
             if (frames[frame][color] != calculated.Resolve(frame, color))
                 return new MotherBrainDeathFade(first, last, frames, frames.Length, colorCount, part);
         return calculated;
-    }
-
-    /// <summary>Whether every supplied opaque door colour matches the reviewed paint calculation.</summary>
-    private static bool MatchesDoorPaint(RgbColor[] colors)
-    {
-        for (int color = 0; color < MotherBrainExplodedDoorPaintDefinitions.ColorCount; color++)
-            if (colors[color] != MotherBrainExplodedDoorPaint.Color(color)) return false;
-        return true;
     }
 }

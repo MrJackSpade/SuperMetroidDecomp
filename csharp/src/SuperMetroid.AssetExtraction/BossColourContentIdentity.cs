@@ -115,13 +115,10 @@ internal static class BossColourContentIdentity
     /// <summary>The installed content identity of a <see cref="MotherBrainDeathColorCatalog"/>.</summary>
     extension(MotherBrainDeathColorCatalog colors)
     {
-        /// <summary>Hashes the exploded door, then the body, leg and corpse fades.</summary>
+        /// <summary>Hashes the body, leg and corpse fades.</summary>
         public string ContentIdentity =>
-            SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
+            SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v2", content =>
             {
-                Span<RgbColor> door = stackalloc RgbColor[MotherBrainExplodedDoorPaintDefinitions.ColorCount];
-                for (int color = 0; color < door.Length; color++) door[color] = colors.ExplodedDoorColor(color);
-                content.AppendColors("explodedDoor", door);
                 colors.selection.BodyFade.AppendIdentity(content, "bodyFade");
                 colors.selection.LegFade.AppendIdentity(content, "legFade");
                 colors.selection.CorpseFade.AppendIdentity(content, "corpseFade");

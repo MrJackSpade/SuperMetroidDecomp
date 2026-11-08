@@ -36,9 +36,9 @@ internal static class MotherBrainRoomColorsVerification
             new MemoryStream(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom),
                 writable: false));
         // The installed colours' shades are the cartridge's.
-        AssertSameShades(MotherBrainSheetShades.RoomSprites(extracted), MotherBrainSheetShades.RoomSprites(InstalledAreaMapPresentation.MotherBrainRoomColorsOf(original)),
+        AssertSameShades(MotherBrainSheetShades.RoomSprites(extracted), MotherBrainSheetShades.RoomSprites(ImportAreaMapPresentation.MotherBrainRoomColorsOf(original)),
             "installed Mother Brain room-entry and phase-two sprite colours match the cartridge's");
-        AssertSameShades(MotherBrainSheetShades.RoomBackground(extracted), MotherBrainSheetShades.RoomBackground(InstalledAreaMapPresentation.MotherBrainRoomColorsOf(original)),
+        AssertSameShades(MotherBrainSheetShades.RoomBackground(extracted), MotherBrainSheetShades.RoomBackground(ImportAreaMapPresentation.MotherBrainRoomColorsOf(original)),
             "installed Mother Brain flash, grey and recovery-light colours match the cartridge's");
 
         RoomEnemySystem enemies = CreateEnemy();

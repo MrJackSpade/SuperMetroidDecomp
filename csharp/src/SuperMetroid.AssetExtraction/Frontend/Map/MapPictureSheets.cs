@@ -72,7 +72,7 @@ internal static class MapPictureSheets
     /// </summary>
     internal static ComposedSpriteSheet ComposeRoomMap(AreaMapPresentation maps)
     {
-        ReadOnlySpan<RgbColor> palette = InstalledAreaMapPresentation.PalettesOf(maps).FileSelect;
+        ReadOnlySpan<RgbColor> palette = ImportAreaMapPresentation.PalettesOf(maps).FileSelect;
         RequireCellsPicturedOnce(maps, palette);
         return ScreenPictureSheetComposer.ComposeHoldingBlanks([.. RoomMapSubjects(maps)], MapCharacters(maps), palette);
     }
@@ -95,7 +95,7 @@ internal static class MapPictureSheets
             [ScreenPictureSubject.Page(AreaMapPictures.WorldForegroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldForeground),
                 MapScreenDefinitions.PageColumns)],
             new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters()),
-            InstalledAreaMapPresentation.PalettesOf(maps).World(area));
+            ImportAreaMapPresentation.PalettesOf(maps).World(area));
 
     /// <summary><paramref name="area"/>'s world-map background sheet under its world-map palette: its background page.</summary>
     internal static ComposedSpriteSheet ComposeWorldBackground(AreaMapPresentation maps, AreaId area) =>
@@ -103,7 +103,7 @@ internal static class MapPictureSheets
             [ScreenPictureSubject.Page(AreaMapPictures.WorldBackgroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldBackground(area)),
                 MapScreenDefinitions.PageColumns)],
             new ScreenCharacters(TileInkDepth.FourColours).Place(0, WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters()),
-            InstalledAreaMapPresentation.PalettesOf(maps).World(area));
+            ImportAreaMapPresentation.PalettesOf(maps).World(area));
 
     /// <summary>The frames a room-map sheet must hold.</summary>
     internal static IEnumerable<string> RoomMapFrameNames(AreaMapPresentation maps) => RoomMapSubjects(maps).Select(subject => subject.Name);

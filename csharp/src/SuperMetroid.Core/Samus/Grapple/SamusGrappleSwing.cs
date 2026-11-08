@@ -56,8 +56,9 @@ public static class SamusGrappleSwing
         int cosine = ReadSignedSine(
             (grapple.Angle + RotationAngle.QuarterTurn).TableIndex);
 
-        uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
-        samus.Kinematics.YSpeed = UnsignedSixteenSixteen.FromRaw(verticalFixed);
+        // The swing speed is a short angular velocity doubled and the component at most one, so each product stays
+        // below 2^24 65536ths of a pixel and never wraps.
+        samus.Kinematics.YSpeed = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(Math.Abs(cosine), doubledVelocity);
 
         // The release selects Y direction from both angular-velocity sign and cosine sign.
         // Keeping that branch literal avoids deriving a screen-coordinate convention.
@@ -68,8 +69,7 @@ public static class SamusGrappleSwing
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);
         int horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
         int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));
-        uint horizontalFixed = unchecked((uint)(horizontalSine * doubledVelocity));
-        samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.FromRaw(horizontalFixed);
+        samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(horizontalSine, doubledVelocity);
     }
 
 
@@ -222,8 +222,9 @@ public static class SamusGrappleSwing
     {
         // Swing gravity is deliberately quadrant-based rather than trigonometric. The four
         // magnitudes are 1/4, full, full, and 1/4 gravity as angle crosses quarter-turn boundaries.
-        int angle = grapple.Angle.RawValue;
-        if ((angle & 3 << 14) == 3 << 14)
+        // The quadrant is read from the angle's top two bits, so each test is the angle at or past a quarter-turn mark.
+        RotationAngle angle = grapple.Angle;
+        if (angle >= RotationAngle.ThreeQuarterTurn)
         {
             grapple.VelocityCorrection = -(
                 GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude >> 2);
@@ -231,7 +232,7 @@ public static class SamusGrappleSwing
                 ? -(GrappleBeamDefinitions.Physics.GravityMagnitude >> 3)
                 : -(GrappleBeamDefinitions.Physics.GravityMagnitude >> 2);
         }
-        else if ((angle & 1 << 15) != 0)
+        else if (angle >= RotationAngle.HalfTurn)
         {
             // The hang test compares only the high byte: all of 32768-33023 hangs straight down.
             if (HangsStraightDown(grapple))
@@ -250,7 +251,7 @@ public static class SamusGrappleSwing
                     : -GrappleBeamDefinitions.Physics.GravityMagnitude;
             }
         }
-        else if ((angle & 1 << 14) != 0)
+        else if (angle >= RotationAngle.QuarterTurn)
         {
             grapple.VelocityCorrection =
                 GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;

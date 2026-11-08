@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <param name="Displacement">The displacement.</param>
 /// <param name="Collided">The collided.</param>
 [IndependentFlag("whether the slope stopped the move, a fact of the block and the displacement")]
-public readonly record struct SlopeClip(int Displacement, bool Collided);
+public readonly record struct SlopeClip(SignedSixteenSixteen Displacement, bool Collided);

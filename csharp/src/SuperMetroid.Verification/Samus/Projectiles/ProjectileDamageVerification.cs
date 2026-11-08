@@ -208,7 +208,7 @@ internal static class ProjectileDamageVerification
             if (beam == 1)
                 continue;
             SamusProjectileSlot first = projectiles.Slots[0];
-            ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
+            int amplitude = beam == 2 ? 32 : first.ComboOrbitRadius;
             Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(first.ComboAngle, amplitude);
             if (beam == 2)
                 projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);

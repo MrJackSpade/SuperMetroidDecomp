@@ -78,13 +78,13 @@ public static class SamusBlockCollision
             storedDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
             throw new ArgumentOutOfRangeException(nameof(move.CollisionMovementDirection));
 
-        int acceptedDisplacement = move.Displacement.RawValue;
+        SignedSixteenSixteen acceptedDisplacement = move.Displacement;
         bool collided = false;
         SolidEnemyCollisionResult? enemyCollision = null;
         RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
 
-        if ((acceptedDisplacement != 0 || move.CollisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
+        if ((!acceptedDisplacement.IsZero || move.CollisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
         {
             // Presents enemy collision with an unsigned magnitude even though the
             // managed block mover receives signed 16.16 displacement. Preserve both halves:
@@ -107,8 +107,9 @@ public static class SamusBlockCollision
             if (probe.Collided)
             {
                 // On enemy collision the wrapper skips block detection and
-                // invokes the corresponding no-collision position adder with the clipped whole distance.
-                int clippedMagnitude = SixteenSixteen.FromWhole(probe.Distance);
+                // invokes the corresponding no-collision position adder with the clipped whole distance. An accepted
+                // gap is 0 through 32767 pixels: the probe skips any whose sign bit is set.
+                SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
                 acceptedDisplacement = entersLeft
                     ? -clippedMagnitude
                     : clippedMagnitude;
@@ -117,14 +118,13 @@ public static class SamusBlockCollision
             }
         }
 
-        if (!collided && acceptedDisplacement != 0)
+        if (!collided && !acceptedDisplacement.IsZero)
         {
             // The target center and leading boundary are calculated once, before a slope
             // handler is allowed to scale ci_r18_r20. This slightly surprising ordering is
             // exactly how the horizontal block collision initializes its collision-info scratch words.
-            int targetCenter = CoordinateAxis.Wrap(
-                SixteenSixteen.WholeOf(state.Position.X.RawValue + (uint)acceptedDisplacement));
-            int leadingBoundary = acceptedDisplacement >= 0
+            int targetCenter = state.Position.X.MovedBy(acceptedDisplacement).Whole;
+            int leadingBoundary = !acceptedDisplacement.IsNegative
                 ? CoordinateAxis.Wrap(state.Radius.X + targetCenter - 1)
                 : CoordinateAxis.Wrap(targetCenter - state.Radius.X);
 
@@ -153,7 +153,7 @@ public static class SamusBlockCollision
                                 leadingBoundary,
                                 remainingRows: verticalSpan - rowOffset,
                                 totalRows: verticalSpan,
-                                out int clippedDisplacement);
+                                out SignedSixteenSixteen clippedDisplacement);
                             if (squareCollision)
                             {
                                 acceptedDisplacement = clippedDisplacement;
@@ -164,9 +164,9 @@ public static class SamusBlockCollision
                         }
 
                         acceptedDisplacement = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(
-                            block.Behavior.Value,
+                            block.Behavior,
                             acceptedDisplacement,
-                            state.VerticalSpeedFixed);
+                            state.YSpeed);
                         break;
 
                     case RoomCollisionType.SolidBlock:
@@ -284,7 +284,7 @@ public static class SamusBlockCollision
                                  block.Behavior,
                                  state.CollisionPose.ForRoomCollision(),
                                  Axis.Horizontal,
-                                 movingPositive: acceptedDisplacement > 0,
+                                 movingPositive: acceptedDisplacement.IsPositive,
                                  roomWidthInBlocks: terrain.Level.Size.X)))
                         {
                             throw new InvalidOperationException(
@@ -347,7 +347,7 @@ public static class SamusBlockCollision
             }
         }
 
-        state.Position = state.Position.AdvanceX(SignedSixteenSixteen.FromRaw(acceptedDisplacement));
+        state.Position = state.Position.AdvanceX(acceptedDisplacement);
 
         // Only the live movement wrapper publishes inheritance. Copies used
         // for prospective poses and wall probes must not replace the preceding move.
@@ -356,7 +356,7 @@ public static class SamusBlockCollision
             move.AlignToSlopeAfterMovement)
             mover.ProjectileInheritance.Record(
                 move.Displacement.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right,
-                SignedSixteenSixteen.FromRaw(acceptedDisplacement));
+                acceptedDisplacement);
 
         // Align Y to whole pixels after both collision and non-collision paths.
         // Direct callers (notably the prospective-running-pose probe)
@@ -389,7 +389,7 @@ public static class SamusBlockCollision
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
-        int acceptedDisplacement = move.Displacement.RawValue;
+        SignedSixteenSixteen acceptedDisplacement = move.Displacement;
         bool collided = false;
         bool sandContact = false;
         SolidEnemyCollisionResult? enemyCollision = null;
@@ -422,9 +422,10 @@ public static class SamusBlockCollision
             {
                 // Solid-enemy success bypasses the block dispatcher and moves only to the
                 // current enemy boundary. This is also how the game's vertical-collision flags
-                // distinguish an enemy stop from an unobstructed terrain move.
-                int clippedMagnitude = SixteenSixteen.FromWhole(probe.Distance);
-                acceptedDisplacement = acceptedDisplacement < 0
+                // distinguish an enemy stop from an unobstructed terrain move. An accepted gap is 0 through 32767
+                // pixels: the probe skips any whose sign bit is set.
+                SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
+                acceptedDisplacement = acceptedDisplacement.IsNegative
                     ? -clippedMagnitude
                     : clippedMagnitude;
                 collided = true;
@@ -432,7 +433,7 @@ public static class SamusBlockCollision
             }
         }
 
-        if (!collided && acceptedDisplacement != 0)
+        if (!collided && !acceptedDisplacement.IsZero)
         {
             // Only the nonzero terrain entry clears this latch. A solid-enemy
             // stop bypasses that entry, and a zero movement does not clear it either.
@@ -443,12 +444,12 @@ public static class SamusBlockCollision
             sandContact = scan.SandContact;
         }
 
-        state.Position = state.Position.AdvanceY(SignedSixteenSixteen.FromRaw(acceptedDisplacement));
+        state.Position = state.Position.AdvanceY(acceptedDisplacement);
         if (owner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe)
             mover.ProjectileInheritance.Record(
                 move.Displacement.IsNegative ? VerticalDirection.Up : VerticalDirection.Down,
-                SignedSixteenSixteen.FromRaw(acceptedDisplacement));
+                acceptedDisplacement);
         // Publishes sand contact after either signed movement direction.
         // Pose probes instead consume only the block handler's carry result.
         if (move.PublishQuicksandGrounding && sandContact)
@@ -461,7 +462,7 @@ public static class SamusBlockCollision
 
     /// <summary>Vertical scan result including sand contact, which can affect motion without blocking travel.</summary>
     [IndependentFlag("independent scan facts: a collision, and sand contact")]
-    private readonly record struct VerticalTerrainScan(int AcceptedDisplacement, bool Collided, bool SandContact);
+    private readonly record struct VerticalTerrainScan(SignedSixteenSixteen AcceptedDisplacement, bool Collided, bool SandContact);
 
     /// <summary>
     /// The vertical block scans (left to right) and the mirrored scan
@@ -470,12 +471,11 @@ public static class SamusBlockCollision
     /// </summary>
     private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, VerticalTerrainProbe move)
     {
-        int acceptedDisplacement = move.Displacement;
+        SignedSixteenSixteen acceptedDisplacement = move.Displacement;
         bool collided = false;
         bool sandContact = false;
-        int targetCenter = CoordinateAxis.Wrap(
-            SixteenSixteen.WholeOf(state.Position.Y.RawValue + (uint)acceptedDisplacement));
-        int leadingBoundary = acceptedDisplacement >= 0
+        int targetCenter = state.Position.Y.MovedBy(acceptedDisplacement).Whole;
+        int leadingBoundary = !acceptedDisplacement.IsNegative
             ? CoordinateAxis.Wrap(state.Radius.Y + targetCenter - 1)
             : CoordinateAxis.Wrap(targetCenter - state.Radius.Y);
         int blockY = leadingBoundary >> 4;
@@ -512,7 +512,7 @@ public static class SamusBlockCollision
                                 ? horizontalSpan - offset
                                 : offset,
                             totalColumns: horizontalSpan,
-                            out int clippedDisplacement);
+                            out SignedSixteenSixteen clippedDisplacement);
                         if (squareCollision)
                         {
                             acceptedDisplacement = clippedDisplacement;
@@ -535,7 +535,7 @@ public static class SamusBlockCollision
                         reactsDownward: move.BlockReactionDirection is { } reactionDirection
                             ? reactionDirection is SamusCollisionDirection.Right or SamusCollisionDirection.Down or
                                 SamusCollisionDirection.NonDirectionalProbe
-                            : acceptedDisplacement >= 0);
+                            : !acceptedDisplacement.IsNegative);
                     break;
 
                 case RoomCollisionType.SolidBlock:
@@ -626,7 +626,7 @@ public static class SamusBlockCollision
                     // even an admitted morph contact is clipped by this same scan.
                     if (owner is { } chozoSamus)
                         terrain.RoomObjects?.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level, block, chozoSamus,
-                            state.CollisionPose, movingDown: acceptedDisplacement > 0 &&
+                            state.CollisionPose, movingDown: acceptedDisplacement.IsPositive &&
                                 (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
                     // The vertical special-solid dispatcher shares the speed-block setup
                     // with horizontal collision. Accepted boost contact becomes air
@@ -643,7 +643,7 @@ public static class SamusBlockCollision
                     }
                     if (!block.Behavior.UsesAreaReactionTable &&
                         block.Behavior.IsNormalReactionIndex(8) &&
-                        acceptedDisplacement > 0 &&
+                        acceptedDisplacement.IsPositive &&
                         // CE37 checks the direction nibble, not the sign of
                         // the tested clearance. Pose probes use F and delete the PLM.
                         (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down)
@@ -674,7 +674,7 @@ public static class SamusBlockCollision
                              block.Behavior,
                              state.CollisionPose.ForRoomCollision(),
                              Axis.Vertical,
-                             movingPositive: acceptedDisplacement > 0,
+                             movingPositive: acceptedDisplacement.IsPositive,
                              roomWidthInBlocks: terrain.Level.Size.X)))
                     {
                         throw new InvalidOperationException(
@@ -749,7 +749,7 @@ public static class SamusBlockCollision
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
-        int displacement,
+        SignedSixteenSixteen displacement,
         bool scanLeftToRight,
         ISamusRoomObjects? roomObjects)
     {
@@ -757,7 +757,7 @@ public static class SamusBlockCollision
         Ensure.NotNull(level);
         Ensure.NotNull(state);
         VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, owner, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
-        state.Position = state.Position.AdvanceY(SignedSixteenSixteen.FromRaw(scan.AcceptedDisplacement));
+        state.Position = state.Position.AdvanceY(scan.AcceptedDisplacement);
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }
 
@@ -809,7 +809,7 @@ public static class SamusBlockCollision
         SamusKinematicsState state,
         RoomCollisionBlock block,
         int blockX,
-        int displacement,
+        SignedSixteenSixteen displacement,
         int targetCenter,
         bool reactsDownward)
     {
@@ -831,10 +831,7 @@ public static class SamusBlockCollision
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
-            int whole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement)) + correction;
-            if (whole < 0)
-                whole = 0;
-            return new SlopeClip(SixteenSixteen.FromWhole(whole), true);
+            return new SlopeClip(ClippedToSlope(displacement, correction), true);
         }
         else
         {
@@ -847,11 +844,13 @@ public static class SamusBlockCollision
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
-            int whole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement)) + correction;
-            if (whole < 0)
-                whole = 0;
-            return new SlopeClip(SixteenSixteen.FromWhole(whole), true);
+            return new SlopeClip(ClippedToSlope(displacement, correction), true);
         }
+
+        // The clipped travel is the displacement's whole pixels moved back by the slope's correction, never below
+        // zero, the fraction dropped. The correction is zero or negative, so the result lies within 0 through 32767.
+        static SignedSixteenSixteen ClippedToSlope(SignedSixteenSixteen displacement, int correction) =>
+            SignedSixteenSixteen.FromWholePixels(Math.Max(0, displacement.WholePixels + correction));
     }
 
     /// <summary>
@@ -860,11 +859,11 @@ public static class SamusBlockCollision
     private static bool ReactHorizontalSquareSlope(
         SamusKinematicsState state,
         RoomCollisionBlock block,
-        int displacement,
+        SignedSixteenSixteen displacement,
         int leadingBoundary,
         int remainingRows,
         int totalRows,
-        out int clippedDisplacement)
+        out SignedSixteenSixteen clippedDisplacement)
     {
         // The leading X boundary's eight-pixel half selects the column; the scan starts in the top row and then
         // tests the row below it.
@@ -922,11 +921,11 @@ public static class SamusBlockCollision
     private static bool ReactVerticalSquareSlope(
         SamusKinematicsState state,
         RoomCollisionBlock block,
-        int displacement,
+        SignedSixteenSixteen displacement,
         int leadingBoundary,
         int blocksLeftToCheck,
         int totalColumns,
-        out int clippedDisplacement)
+        out SignedSixteenSixteen clippedDisplacement)
     {
         // Vertical collision takes the row from the leading Y boundary's eight-pixel half. The horizontal counter is
         // the number of physical blocks left: left-to-right counts span..0 while right-to-left counts 0..span.
@@ -976,23 +975,23 @@ public static class SamusBlockCollision
         // Publishes support on a downward square-slope hit. Without this
         // latch, fast running probes farther than the eight-pixel floor thickness
         // on the next frame and can embed Samus below its surface.
-        if (displacement >= 0) state.PositionAdjustedBySlope = true;
+        if (!displacement.IsNegative) state.PositionAdjustedBySlope = true;
         return true;
     }
 
     /// <summary>Clips horizontal travel at a solid block and writes the X fraction for the hit side.</summary>
-    private static int ClipHorizontalToSolid(
+    private static SignedSixteenSixteen ClipHorizontalToSolid(
         SamusKinematicsState state,
-        int displacement,
+        SignedSixteenSixteen displacement,
         int leadingBoundary)
     {
-        if (displacement < 0)
+        if (displacement.IsNegative)
         {
             int whole = CoordinateAxis.AsSigned(state.Radius.X + (leadingBoundary | 15) + 1 - state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(0);
-            return SixteenSixteen.FromWhole(whole);
+            return SignedSixteenSixteen.FromWholePixels(whole);
         }
         else
         {
@@ -1000,24 +999,24 @@ public static class SamusBlockCollision
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(ushort.MaxValue);
-            return SixteenSixteen.FromWhole(whole);
+            return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
 
     /// <summary>Clips horizontal travel at the occupied half of a square slope tile.</summary>
-    private static int ClipHorizontalToSquareSlope(
+    private static SignedSixteenSixteen ClipHorizontalToSquareSlope(
         SamusKinematicsState state,
-        int displacement,
+        SignedSixteenSixteen displacement,
         int leadingBoundary)
     {
-        if (displacement < 0)
+        if (displacement.IsNegative)
         {
             int whole = CoordinateAxis.AsSigned(
                 state.Radius.X + (leadingBoundary | 7) + 1 - state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(0);
-            return SixteenSixteen.FromWhole(whole);
+            return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
         int rightWhole = CoordinateAxis.Difference(
@@ -1025,22 +1024,22 @@ public static class SamusBlockCollision
         if (rightWhole < 0)
             rightWhole = 0;
         state.Position = state.Position.WithFractionX(ushort.MaxValue);
-        return SixteenSixteen.FromWhole(rightWhole);
+        return SignedSixteenSixteen.FromWholePixels(rightWhole);
     }
 
     /// <summary>Clips vertical travel at a solid block and writes the Y fraction for the hit side.</summary>
-    private static int ClipVerticalToSolid(
+    private static SignedSixteenSixteen ClipVerticalToSolid(
         SamusKinematicsState state,
-        int displacement,
+        SignedSixteenSixteen displacement,
         int leadingBoundary)
     {
-        if (displacement < 0)
+        if (displacement.IsNegative)
         {
             int whole = CoordinateAxis.AsSigned(state.Radius.Y + (leadingBoundary | 15) + 1 - state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(0);
-            return SixteenSixteen.FromWhole(whole);
+            return SignedSixteenSixteen.FromWholePixels(whole);
         }
         else
         {
@@ -1048,24 +1047,24 @@ public static class SamusBlockCollision
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(ushort.MaxValue);
-            return SixteenSixteen.FromWhole(whole);
+            return SignedSixteenSixteen.FromWholePixels(whole);
         }
     }
 
     /// <summary>Clips vertical travel against a square slope, marking support on downward contact.</summary>
-    private static int ClipVerticalToSquareSlope(
+    private static SignedSixteenSixteen ClipVerticalToSquareSlope(
         SamusKinematicsState state,
-        int displacement,
+        SignedSixteenSixteen displacement,
         int leadingBoundary)
     {
-        if (displacement < 0)
+        if (displacement.IsNegative)
         {
             int whole = CoordinateAxis.AsSigned(
                 state.Radius.Y + (leadingBoundary | 7) + 1 - state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(0);
-            return SixteenSixteen.FromWhole(whole);
+            return SignedSixteenSixteen.FromWholePixels(whole);
         }
 
         int downWhole = CoordinateAxis.Difference(
@@ -1077,7 +1076,7 @@ public static class SamusBlockCollision
         // Only the downward square-slope clip writes this flag. The no-speed vertical move consumes it to use
         // a one-pixel grounding probe instead of total-horizontal-speed-plus-one.
         state.PositionAdjustedBySlope = true;
-        return SixteenSixteen.FromWhole(downWhole);
+        return SignedSixteenSixteen.FromWholePixels(downWhole);
     }
 
     /// <summary>Counts tile rows touched by Samus's current vertical collision extent.</summary>

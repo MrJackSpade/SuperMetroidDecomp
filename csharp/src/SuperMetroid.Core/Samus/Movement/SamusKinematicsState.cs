@@ -135,9 +135,6 @@ public sealed class SamusKinematicsState
     /// <summary>Flag set when square collision or non-square alignment changes Y.</summary>
     public bool PositionAdjustedBySlope { get; set; }
 
-    /// <summary>Current vertical speed as an unsigned high/low pair.</summary>
-    public uint VerticalSpeedFixed => YSpeed.RawValue;
-
     /// <summary>
     /// Top-centre point of the collision box: Samus's whole X and her whole-pixel top
     /// boundary, wrapping in room space. Liquid code deliberately samples this separately

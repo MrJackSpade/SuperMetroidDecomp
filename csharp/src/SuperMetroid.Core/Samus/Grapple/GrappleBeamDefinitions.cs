@@ -34,6 +34,15 @@ public static class GrappleBeamDefinitions
     {
         /// <summary>Firing handler's accepted-connection tail: automatically retract eight pixels per frame after the connection helper clears its delta.</summary>
         public const int InitialConnectionRetraction = -8;
+        /// <summary>How far the rope grows each update while the beam is fired.</summary>
+        public const int FiringExtension = 12;
+        /// <summary>The rope length at which a fired beam that has met nothing is cancelled.</summary>
+        public const int FiringCancelLength = 128;
+        /// <summary>
+        /// The longest the rope becomes: firing extends a rope shorter than <see cref="FiringCancelLength"/> by
+        /// <see cref="FiringExtension"/> and then cancels it, and connected motion keeps it shorter still.
+        /// </summary>
+        public const int LongestRopeLength = FiringCancelLength - 1 + FiringExtension;
         /// <summary>Per-frame downward angular acceleration.</summary>
         public const int GravityMagnitude = 24;
         /// <summary>Per-frame angular acceleration contributed by directional input.</summary>

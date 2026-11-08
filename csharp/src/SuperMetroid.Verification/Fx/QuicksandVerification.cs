@@ -37,12 +37,12 @@ internal static class QuicksandVerification
             AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraDisplacement.Y.RawValue, "quicksand per-direction/suit displacement");
             AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
-                body.VerticalSpeedFixed, "quicksand speed cancellation and jump cap");
+                body.YSpeed.RawValue, "quicksand speed cancellation and jump cap");
             AssertEqual(0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
             var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(0x28000), ScanLeftToRight = true });
-            AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement, "surface probe accepts native sinking distance");
+            AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement.RawValue, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.Position = body.Position.WithWholeY(24);
             var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(0x28000), ScanLeftToRight = true, PublishQuicksandGrounding = false });
@@ -115,6 +115,7 @@ internal static class QuicksandVerification
             }
         }
         VerifyQuicksandUpwardLimitComparesMiddleWords(level);
+        VerifyQuicksandStationaryProbeLimitsNearReading();
 
         for (byte index = 0; index < 16; index++)
         {
@@ -125,7 +126,7 @@ internal static class QuicksandVerification
                 YSpeed = new UnsignedSixteenSixteen(4, 0),
                 YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00),
             };
-            int displacement = 0x28000;
+            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(0x28000);
             bool collided = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
                 new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), new RoomBlockBehavior(0x80 + index)),
@@ -226,6 +227,37 @@ internal static class QuicksandVerification
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
         AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
             "quicksand upward cap ignores the speed's lowest fraction byte");
+    }
+
+    /// <summary>
+    /// A stationary Samus's downward probe into a quicksand surface is compared with the limit and limited to it in its
+    /// near reading alone: its whole pixels below 256 above its fraction's 256ths. The probe's whole pixels from 256 up,
+    /// its sign and its finest fraction byte are kept, so the cases cross 256 pixels, a negative probe and a set low byte.
+    /// The expected value is the cartridge's mask-and-merge of the probe's three bytes, written out here.
+    /// </summary>
+    private static void VerifyQuicksandStationaryProbeLimitsNearReading()
+    {
+        int[] probes = [0x012880ab, -0x28000, 0x2f00, 0x3000, 0x30ff, 0x3100, 0x01000000, 0x0100ffff];
+        foreach (int probe in probes)
+        {
+            int middle = (int)((uint)probe >> 8) & 0xffff;
+            int expected = middle > 0x30 ? (probe & unchecked((int)0xff0000ff)) | 0x3000 : probe;
+            var body = new SamusKinematicsState
+            {
+                SandCollisionArea = AreaId.Maridia,
+                YDirection = SamusVerticalDirection.None,
+            };
+            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(probe);
+            SamusInsideBlockReactions.ReactCollision(
+                new(body, body.CollisionContactDamageIndex(null)),
+                new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), new RoomBlockBehavior(0x80)),
+                axis: Axis.Vertical,
+                ref displacement,
+                out bool surfaceContact,
+                SamusCollisionDirection.Down);
+            AssertEqual(true, surfaceContact, $"stationary probe {probe:X8} touches the surface");
+            AssertEqual(expected, displacement.RawValue, $"stationary probe {probe:X8} is limited in its near reading alone");
+        }
     }
 
     /// <summary>Checks the special-air inside-reaction header for each area and BTS index.</summary>

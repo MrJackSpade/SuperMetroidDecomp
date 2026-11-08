@@ -19,37 +19,24 @@ public static class SamusSlopePhysics
     /// <param name="behavior">
     /// The slope block's behaviour. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
     /// </param>
-    /// <param name="displacement">Signed 16.16 horizontal displacement.</param>
-    /// <param name="verticalSpeed">
-    /// Unsigned high/low pair of <c>samus_y_speed</c>/<c>samus_y_subspeed</c>. Any nonzero
-    /// value suppresses grounded slope scaling exactly as the routine does.
-    /// </param>
-    public static int ScaleGroundedHorizontalDisplacement(
-        int behavior,
-        int displacement,
-        uint verticalSpeed)
-        => ScaleGroundedHorizontalDisplacement(
-            new RoomBlockBehavior(behavior),
-            displacement,
-            verticalSpeed);
-
-    /// <summary>Typed behaviour overload used by live room collision.</summary>
-    public static int ScaleGroundedHorizontalDisplacement(
+    /// <param name="displacement">The horizontal displacement.</param>
+    /// <param name="verticalSpeed">Samus's vertical speed. Any motion suppresses grounded slope scaling exactly as the routine does.</param>
+    public static SignedSixteenSixteen ScaleGroundedHorizontalDisplacement(
         RoomBlockBehavior behavior,
-        int displacement,
-        uint verticalSpeed)
+        SignedSixteenSixteen displacement,
+        UnsignedSixteenSixteen verticalSpeed)
     {
 
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
         // the routine's complete early-return condition, not a host-side policy choice.
-        if (behavior.SlopeFlipsVertically || verticalSpeed != 0)
+        if (behavior.SlopeFlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
         int multiplier = SlopeSpeeds.HorizontalMultiplier(behavior.SlopeShape);
 
         // The lowest eight fractional bits are discarded before scaling, rounding toward negative
         // infinity, so a leftward displacement scales by the same rule as a rightward one.
-        return checked(EightEight.WholeOf(displacement) * multiplier);
+        return displacement.ScaledByTwoFiftySixths(multiplier);
     }
 
     /// <summary>Typed behaviour overload used by live room collision.</summary>

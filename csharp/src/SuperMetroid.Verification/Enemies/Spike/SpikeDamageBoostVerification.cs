@@ -189,14 +189,14 @@ internal static class SpikeDamageBoostVerification
         runtime.Controller1.Latch((ControllerButton.Left | ControllerButton.A));
         runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0063c000u, 0x00edffffu, 0x0000a000u),
-            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
+            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.YSpeed.RawValue),
             "underwater turn floor contact preserves native accumulated speed");
         AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
         AssertEqual(false, (runtime.Player.LastAerialSamusMovement ?? throw new InvalidOperationException("Verification requires runtime.Player.LastAerialSamusMovement.")).Landed,
             "turn suppresses collision-owned landing presentation");
         runtime.StepFrame((ControllerButton.Left | ControllerButton.A));
         AssertEqual(new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(0x0062c000u, 0x00ebffffu, 0u),
-            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
+            new SpikeDamageBoostVerifyMorphedSpikeReleaseCase(samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.YSpeed.RawValue),
             "following normal fall performs actual landing");
         AssertEqual(SamusPoseId.NormalLandingLeftPose, samus.Pose, "next frame selects normal landing");
     }

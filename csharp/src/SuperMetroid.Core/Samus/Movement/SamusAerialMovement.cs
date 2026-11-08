@@ -750,7 +750,7 @@ public static class SamusAerialMovement
 
         // The accepted whole travel is a signed word, so its magnitude is at most 32768 and the
         // distance holds the exact value the unsigned word would.
-        int distance = Math.Abs(SixteenSixteen.WholeOf(probe.AcceptedDisplacement));
+        int distance = Math.Abs(probe.AcceptedDisplacement.WholePixels);
         int firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? 27
             : 11;

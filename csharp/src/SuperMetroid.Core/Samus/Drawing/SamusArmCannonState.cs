@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
@@ -85,7 +86,7 @@ public sealed class SamusArmCannonState
         if (IsTransitioning || TryStartTransition(samus.SelectedHudItem))
             AdvanceFrame();
 
-        DrawOrder = DrawOrderOf(Placement(samus.Pose).DrawingMode);
+        DrawOrder = Placement(samus.Pose).DrawOrder;
         return new SamusArmCannonUpdateResult();
     }
 
@@ -108,9 +109,7 @@ public sealed class SamusArmCannonState
             return new SamusArmCannonDrawResult();
 
         SamusArmCannonPlacement placement = Placement(samus.Pose);
-        int selector = placement.Direction(samus.AnimationFrame);
-        if (selector >= SamusDrawingDefinitions.ArmCannon.DirectionCount)
-            throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
+        int selector = placement.Direction(samus.AnimationFrame).ToAimIndex();
 
         Offset16<RoomPixels> offset = placement.Offset(samus.AnimationFrame);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);

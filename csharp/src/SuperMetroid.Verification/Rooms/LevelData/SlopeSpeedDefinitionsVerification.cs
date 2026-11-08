@@ -35,6 +35,11 @@ internal static class SlopeSpeedDefinitionsVerification
         // under 256 pixels an update either way; beyond that the word wrap is not part of the slope rule (#1565).
         static long PlainScale(int displacement, ushort multiplier) => (long)(displacement >> 8) * multiplier;
 
+        // The production rule takes a typed behaviour, displacement and speed; the cases are stated as raw words.
+        static int Scale(int behavior, int displacement, uint verticalSpeed) =>
+            SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(new RoomBlockBehavior(behavior),
+                SignedSixteenSixteen.FromRaw(displacement), UnsignedSixteenSixteen.FromRaw(verticalSpeed)).RawValue;
+
         int cases = 0;
         uint[] highBytes = [0, 0xff000000];
         for (int shape = 0; shape < 32; shape++)
@@ -49,7 +54,7 @@ internal static class SlopeSpeedDefinitionsVerification
                 continue;
             int native = NativeScale(displacement, multipliers[shape]);
             AssertEqual(native, PlainScale(displacement, multipliers[shape]), "Native word arithmetic is plain scaling within a word");
-            AssertEqual(native, SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)shape, displacement, 0),
+            AssertEqual(native, Scale(shape, displacement, 0),
                 "Native byte truncation, sign and multiplier through real slope movement");
             cases++;
         }
@@ -65,11 +70,11 @@ internal static class SlopeSpeedDefinitionsVerification
                 ? displacement : PlainScale(displacement, multipliers[raw & 31]);
             if (expected is < int.MinValue or > int.MaxValue)
             {
-                AssertThrows<OverflowException>(() => { _ = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)raw, displacement, vertical); },
+                AssertThrows<OverflowException>(() => { _ = Scale(raw, displacement, vertical); },
                     "A displacement whose scaled amount does not fit fails loudly");
                 continue;
             }
-            AssertEqual(expected, SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)raw, displacement, vertical),
+            AssertEqual(expected, Scale(raw, displacement, vertical),
                 "Every BTS orientation and whole/fractional airborne early return");
         }
         AssertEqual(4194272, cases, "Exhaustive slope multiplier operand coverage");

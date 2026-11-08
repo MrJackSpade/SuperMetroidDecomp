@@ -93,6 +93,38 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>Whether the displacement is no movement at all: zero whole pixels and zero fraction.</summary>
     public bool IsZero => RawValue == 0;
 
+    /// <summary>Whether the displacement points forward along its axis: it is neither backward nor zero.</summary>
+    public bool IsPositive => RawValue > 0;
+
+    /// <summary>
+    /// The displacement counted in 256ths of a pixel, the finer part of the fraction dropped toward negative infinity:
+    /// the precision at which the game compares Samus's speed with the quicksand surface's upward cap.
+    /// </summary>
+    public int InTwoFiftySixths => RawValue >> 8;
+
+    /// <summary>
+    /// The displacement scaled by <paramref name="twoFiftySixths"/>/256, as grounded slope movement scales Samus's
+    /// horizontal travel: the displacement is first counted in 256ths of a pixel (<see cref="InTwoFiftySixths"/>), then
+    /// multiplied. The product must fit the type; a displacement whose scaled amount does not fails loudly.
+    /// </summary>
+    /// <exception cref="OverflowException">The scaled displacement lies outside the type's range.</exception>
+    public SignedSixteenSixteen ScaledByTwoFiftySixths(int twoFiftySixths) => new(checked(InTwoFiftySixths * twoFiftySixths));
+
+    /// <summary>
+    /// The displacement's near reading in 256ths of a pixel, 0 through 65535, as a quicksand surface measures a stationary
+    /// Samus's probe: its whole pixels below 256 above its fraction's 256ths. Whole pixels of 256 or more, the sign and
+    /// the fraction's finest part do not take part.
+    /// </summary>
+    public int NearTwoFiftySixths => unchecked((ushort)(RawValue >> 8));
+
+    /// <summary>
+    /// The displacement with its near reading in 256ths of a pixel (<see cref="NearTwoFiftySixths"/>) replaced by
+    /// <paramref name="nearTwoFiftySixths"/>, 0 through 65535, its whole pixels from 256 upward, its sign and its
+    /// fraction's finest part kept, as a quicksand surface limits a stationary Samus's probe.
+    /// </summary>
+    public SignedSixteenSixteen WithNearTwoFiftySixths(int nearTwoFiftySixths) =>
+        new((RawValue & ~0x00FFFF00) | (Ensure.BetweenInclusive(0, ushort.MaxValue, nearTwoFiftySixths) << 8));
+
     /// <summary>
     /// The displacement with its whole pixels clamped to <paramref name="minimumWhole"/> through
     /// <paramref name="maximumWhole"/>, keeping its fraction, as the game clamps only the whole word of a move.

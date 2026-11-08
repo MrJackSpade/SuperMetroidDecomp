@@ -17,6 +17,18 @@ public readonly record struct PowerBombRadius
     /// <summary>The whole pixels of the value, 0 through 255; the fraction is dropped.</summary>
     public int WholePixels => UnsignedEightEight.Whole(Ensure.BetweenInclusive(0, ushort.MaxValue, RawValue));
 
+    /// <summary>Whether <paramref name="left"/> is the smaller radius or speed.</summary>
+    public static bool operator <(PowerBombRadius left, PowerBombRadius right) => left.RawValue < right.RawValue;
+
+    /// <summary>Whether <paramref name="left"/> is the larger radius or speed.</summary>
+    public static bool operator >(PowerBombRadius left, PowerBombRadius right) => left.RawValue > right.RawValue;
+
+    /// <summary>Whether <paramref name="left"/> is no larger than <paramref name="right"/>.</summary>
+    public static bool operator <=(PowerBombRadius left, PowerBombRadius right) => left.RawValue <= right.RawValue;
+
+    /// <summary>Whether <paramref name="left"/> is no smaller than <paramref name="right"/>.</summary>
+    public static bool operator >=(PowerBombRadius left, PowerBombRadius right) => left.RawValue >= right.RawValue;
+
     /// <summary>A zero radius or a stationary speed.</summary>
     public static PowerBombRadius Zero => default;
 

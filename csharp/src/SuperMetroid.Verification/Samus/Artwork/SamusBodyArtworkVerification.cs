@@ -408,9 +408,13 @@ internal static class SamusBodyArtworkVerification
             bool frameDependent = (direction & 0x80) != 0;
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             SamusArmCannonPlacement placement = body.ArmCannon.Placement(SamusPoseNumbering.FromNumber(pose));
-            AssertEqual(bus.ReadCartridgeByte(descriptor + 1), placement.DrawingMode, $"arm-cannon pose {pose:X2} drawing mode");
-            AssertEqual(direction & 0x7f, placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");
-            AssertEqual(frameDependent ? bus.ReadCartridgeByte(descriptor + 2) & 0x7f : null, placement.LaterDirection,
+            AssertEqual(SuperMetroid.Core.Samus.Drawing.SamusArmCannonState.DrawOrderOf(bus.ReadCartridgeByte(descriptor + 1)),
+                placement.DrawOrder, $"arm-cannon pose {pose:X2} drawing mode");
+            AssertEqual(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(direction & 0x7f),
+                placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");
+            AssertEqual(frameDependent
+                    ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(bus.ReadCartridgeByte(descriptor + 2) & 0x7f)
+                    : (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection?)null, placement.LaterDirection,
                 $"arm-cannon pose {pose:X2} later direction");
             int displacements = descriptor + (frameDependent ? 4 : 2);
             AssertEqual((drawingWindowEnd - displacements) / 2, placement.FrameCount, $"arm-cannon pose {pose:X2} placed frames");

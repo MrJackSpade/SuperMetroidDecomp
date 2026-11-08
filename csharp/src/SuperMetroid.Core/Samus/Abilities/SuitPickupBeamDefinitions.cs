@@ -7,14 +7,14 @@ public static class SuitPickupBeamDefinitions
     public static readonly SuitPickupBeamEdges NarrowBeamEdges = SuitPickupBeamEdges.Columns(120, 120);
     /// <summary>Edges spanning the whole 256-pixel screen line.</summary>
     public static readonly SuitPickupBeamEdges FullScreenWindow = SuitPickupBeamEdges.Columns(0, 255);
-    /// <summary>Initial unsigned 8.8 widening speed.</summary>
-    public const int InitialWideningSpeed = 256;
-    /// <summary>Per-frame unsigned 8.8 widening acceleration.</summary>
-    public const int WideningAcceleration = 96;
-    /// <summary>Per-frame unsigned 8.8 shrinking deceleration.</summary>
-    public const int ShrinkingDeceleration = 32;
-    /// <summary>Minimum unsigned 8.8 shrinking speed.</summary>
-    public const int MinimumShrinkingSpeed = 256;
+    /// <summary>Initial widening speed: one pixel per update.</summary>
+    public static readonly SignedEightEight InitialWideningSpeed = SignedEightEight.FromSignedRaw(256);
+    /// <summary>Per-update widening acceleration: 96/256 of a pixel per update.</summary>
+    public static readonly SignedEightEight WideningAcceleration = SignedEightEight.FromSignedRaw(96);
+    /// <summary>Per-update shrinking deceleration: 32/256 of a pixel per update.</summary>
+    public static readonly SignedEightEight ShrinkingDeceleration = SignedEightEight.FromSignedRaw(32);
+    /// <summary>Minimum shrinking speed: one pixel per update.</summary>
+    public static readonly SignedEightEight MinimumShrinkingSpeed = SignedEightEight.FromSignedRaw(256);
     /// <summary>Stage-two initial asymmetric edge pair.</summary>
     public static readonly SuitPickupBeamEdges CurvedWideningStart = SuitPickupBeamEdges.Columns(108, 132);
     /// <summary>Stage-five starting edge pair, whose left edge wraps to the screen's left on the first narrowing.</summary>

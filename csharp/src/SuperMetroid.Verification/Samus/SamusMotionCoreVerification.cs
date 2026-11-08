@@ -496,9 +496,9 @@ internal static void VerifySamusExtraDisplacement()
         standing,
         frameCounter: 0,
         controllerInput: 0);
-    AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement,
+    AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement.RawValue,
         "standing external +X bypasses zero base speed");
-    AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement,
+    AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement.RawValue,
         "positive no-speed external Y gains one whole pixel");
     AssertEqual(1, standing.Kinematics.ExtraDisplacement.X.WholePixels,
         "movement does not consume persistent external X producer word");
@@ -518,7 +518,7 @@ internal static void VerifySamusExtraDisplacement()
         negative,
         frameCounter: 1,
         controllerInput: 0);
-    AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement,
+    AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement.RawValue,
         "negative no-speed external Y has no downward bias");
 
     var transition = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -579,7 +579,7 @@ internal static void VerifySamusExtraDisplacement()
         bouncingBall,
         controllerInput: 0,
         frameCounter: 0);
-    AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement,
+    AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement.RawValue,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
     AssertEqual(0, bouncingBall.Kinematics.YSpeed.Whole,
         "external Morph Ball bounce override clears whole rebound speed");

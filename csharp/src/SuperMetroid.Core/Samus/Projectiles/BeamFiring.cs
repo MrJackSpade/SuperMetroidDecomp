@@ -255,9 +255,11 @@ internal sealed class BeamFiring
         // muzzle check's -1 speed can carry back into the same whole pixel.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
 
-        int direction = samus.PendingTransitionShot?.Direction ?? SamusPoseMetadata.ReadShotDirection(samus);
+        SamusProjectileDirection? direction = samus.PendingTransitionShot is { } transitionShot
+            ? transitionShot.Aim
+            : SamusPoseMetadata.ReadAimDirection(samus);
 
-        if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
+        if (direction is not { } aim)
         {
             // A pose that cannot shoot fires nothing. A transition shot is never refused by the game, which would fire it
             // with its low nibble as the aim and its muzzle read past the origin tables, but no retail transition hands one
@@ -265,7 +267,7 @@ internal sealed class BeamFiring
             // moonwalk pose's shot direction is one of the ten aims (#1506).
             if (samus.PendingTransitionShot is not null)
                 throw new InvalidOperationException(
-                    $"A transition shot in direction {direction} names no aim; no retail transition hands one over.");
+                    "A transition shot names no aim; no retail transition hands one over.");
             _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
@@ -471,7 +473,7 @@ internal sealed class BeamFiring
         // The producer first calls the generic velocity initializer with base speed zero.
         // Ignition replaces that zero with one pixel per update during this same frame's alpha pass;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
-        InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
+        InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: SignedEightEight.Zero);
 
         // The selected HUD item chose the missile family above; the family selects the header.
         SamusProjectileHeader header = SamusProjectileSelection.NonBeam(slot.Type.Family);
@@ -533,8 +535,9 @@ internal sealed class BeamFiring
         int direction = slot.Direction.ToAimIndex();
         bool diagonal = direction is 1 or 3 or 6 or 8;
         SamusBeamCombination beams = slot.Type.BeamCombination;
-        int authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
-        int speed = beams.IsRetail ? authoredSpeed : unauthoredFiring.Speed(beams, diagonal);
+        SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
+        // An unauthored combination's speed is its table's 8.8 word, which the launch adds as a wrapping velocity.
+        SignedEightEight speed = beams.IsRetail ? authoredSpeed : SignedEightEight.Wrapped(unauthoredFiring.Speed(beams, diagonal));
 
         InitializeDirectionalVelocity(inheritance, slot, speed);
     }
@@ -543,7 +546,7 @@ internal sealed class BeamFiring
     internal static void InitializeDirectionalVelocity(
         ProjectileLaunchInheritance inheritance,
         SamusProjectileSlot slot,
-        int baseSpeed)
+        SignedEightEight baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.Velocity = LaunchVelocity(inheritance, slot.Direction, baseSpeed);
@@ -557,30 +560,32 @@ internal sealed class BeamFiring
     internal static EightEightVector<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,
         SamusProjectileDirection direction,
-        int baseSpeed)
+        SignedEightEight baseSpeed)
     {
         Ensure.NotNull(inheritance);
-        int x = direction switch
+        SignedEightEight x = direction switch
         {
             SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight =>
-                baseSpeed + inheritance.InheritedVelocity(HorizontalDirection.Right).SignedRawValue,
+                inheritance.InheritedVelocity(HorizontalDirection.Right) + baseSpeed,
             SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft =>
-                -baseSpeed + inheritance.InheritedVelocity(HorizontalDirection.Left).SignedRawValue,
+                inheritance.InheritedVelocity(HorizontalDirection.Left) - baseSpeed,
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => 0,
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => SignedEightEight.Zero,
             _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
         };
-        int y = direction switch
+        SignedEightEight y = direction switch
         {
+            // The rising share is a signed count of 256ths; it and the base speed combine as wrapping velocities.
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
-                SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft => -baseSpeed + inheritance.RisingLaunchShare(),
+                SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft =>
+                SignedEightEight.Wrapped(inheritance.RisingLaunchShare()) - baseSpeed,
             SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight or
                 SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft =>
-                baseSpeed + inheritance.InheritedVelocity(VerticalDirection.Down).SignedRawValue,
-            SamusProjectileDirection.Right or SamusProjectileDirection.Left => 0,
+                inheritance.InheritedVelocity(VerticalDirection.Down) + baseSpeed,
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left => SignedEightEight.Zero,
             _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
         };
-        return new(SignedEightEight.Wrapped(x), SignedEightEight.Wrapped(y));
+        return new(x, y);
     }
 
     /// <summary>

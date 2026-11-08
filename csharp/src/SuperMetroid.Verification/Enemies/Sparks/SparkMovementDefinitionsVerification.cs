@@ -77,7 +77,7 @@ internal static class SparkMovementDefinitionsVerification
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
         slot.FrameHold = WrappingCountdown.Start(1);
-        slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(intangible ? (ushort)EnemyProperties.IgnoreSamusCollision : (ushort)0);
+        slot.Properties = intangible ? EnemyProperties.IgnoreSamusCollision : EnemyProperties.None;
         return new SparkMovementDefinitionsStartResult(enemies, slot, state);
     }
 

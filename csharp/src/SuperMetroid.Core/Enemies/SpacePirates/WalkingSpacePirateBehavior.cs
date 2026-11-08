@@ -528,9 +528,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         {
             // The extended walker marks a non-plasma projectile as having entered an extended hitbox before the
             // selected callback runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
-            // rejected and reflected hits return before that shared host path. Enemy property bit 0x1000 also forces
-            // the mark in code, but its broader meaning is not yet proven, so it deliberately remains a
-            // documented raw bit rather than a prematurely named enum member.
+            // rejected and reflected hits return before that shared host path. The plasma-blocking enemy property also
+            // forces the mark.
             c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)

@@ -114,8 +114,8 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.DecodeExtra((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0)));
+            Actor.ExtraProperties = EnemyExtraProperties.UsesExtendedSpritemap |
+                (fresh ? EnemyExtraProperties.NewInstructionFrame : EnemyExtraProperties.None);
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>

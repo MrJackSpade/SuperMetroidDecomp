@@ -94,7 +94,7 @@ internal sealed class EnemyCollision
             if (contactDamageIndex != SamusContactDamageIndex.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
 
-            // Touch collision does not interpret property 0x0100 as a collision bit;
+            // Touch collision does not interpret the invisible property as a collision flag;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // slot remains invisible while its instruction stream moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
@@ -177,7 +177,7 @@ internal sealed class EnemyCollision
                 continue;
 
             // The shot pass likewise admits visually invisible actors, but rejects the
-            // engine's explicit empty frame and property 0x0400. Keeping
+            // engine's explicit empty frame and the ignore-Samus-collision property. Keeping
             // these meanings separate mirrors the list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
@@ -846,7 +846,7 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Identifies actors whose ordinary projectile collision actually enters
-    /// the extended-frame shot walker. Extra-property bit 0x0004 alone is not
+    /// the extended-frame shot walker. <see cref="EnemyExtraProperties.UsesExtendedSpritemap"/> alone is not
     /// sufficient: Mother Brain and several custom-drawn actors set it for scheduling or
     /// rendering while their shot paths use a header radius or encounter-specific geometry.
     /// Keeping this predicate beside the dispatcher gives data-backed probes the same boundary

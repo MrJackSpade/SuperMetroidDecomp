@@ -37,12 +37,11 @@ internal static class ZoaSpeedDefinitionsVerification
         {
             int magnitude = Record(stage);
             state.ShotSpeedStage = stage;
-            for (ushort direction = 0; direction <= 2; direction += 2)
+            foreach (ZoaAnimationSelector direction in new[] { ZoaAnimationSelector.None, ZoaAnimationSelector.FacingRight })
             {
                 // Keep the same animation installed: this exercises movement without an art-data bus.
-                state.AnimationScriptTableIndex = state.PreviousAnimationScriptTableIndex =
-                    (ZoaAnimationSelector)direction;
-                int displacement = direction == 0 ? -magnitude : magnitude;
+                state.AnimationScriptTableIndex = state.PreviousAnimationScriptTableIndex = direction;
+                int displacement = direction == ZoaAnimationSelector.None ? -magnitude : magnitude;
                 for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
                 {
                     actor.Position = new(new(128, (ushort)fraction), new(128, 123));

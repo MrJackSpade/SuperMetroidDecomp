@@ -13,11 +13,11 @@ public enum MotherBrainHitboxParts
     None = 0,
 
     /// <summary>The body's contact rectangles, tested first.</summary>
-    Body = 1,
+    Body = 1 << 0,
 
     /// <summary>The brain's contact rectangles, tested second.</summary>
-    Brain = 2,
+    Brain = 1 << 1,
 
     /// <summary>The three middle neck joints' rectangles, tested last.</summary>
-    Neck = 4,
+    Neck = 1 << 2,
 }

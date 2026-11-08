@@ -466,8 +466,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             foreach (bool intangible in new[] { false, true })
             foreach (ushort initial in new ushort[] { 0, 1, 2, 10, ushort.MaxValue })
             {
-                ripper.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode((ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
-                    (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties))));
+                ripper.Properties = EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
+                    (intangible ? EnemyProperties.IgnoreSamusCollision : EnemyProperties.None);
                 ripper.InvincibilityTimer = initial;
                 ripper.FlashTimer = 16;
                 ripper.FrozenTimer = 400;

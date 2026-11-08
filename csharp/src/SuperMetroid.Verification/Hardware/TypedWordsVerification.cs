@@ -47,6 +47,12 @@ internal static void VerifyTypedNativeWords()
         "every recorded item bit round-trips through the codec");
     AssertThrows<InvalidDataException>(() => SamusEquipmentWordCodec.FromEquipmentWord(0x0080),
         "an equipment word bit that records no item is rejected");
+    AssertEqual(SamusBeamFlags.Charge | SamusBeamFlags.Plasma | SamusBeamFlags.Wave, SamusEquipmentWordCodec.FromBeamWord(0x1009),
+        "beam word decodes to its beams");
+    AssertEqual((ushort)0x100f, SamusEquipmentWordCodec.FromBeamWord(0x100f).ToEquipmentWord(),
+        "every recorded beam bit round-trips through the codec");
+    AssertThrows<InvalidDataException>(() => SamusEquipmentWordCodec.FromBeamWord(0x0010),
+        "a beam word bit that records no beam is rejected");
 
     // #1456: a checksum-valid save slot may set bits that record nothing, which the cartridge never reads. The save
     // boundary keeps exactly the items and beams the words record, and re-encoding writes the other bits as zero.

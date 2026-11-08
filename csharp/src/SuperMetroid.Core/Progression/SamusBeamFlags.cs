@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Independent beam-equipment bits. Low-nibble beam bits may
-/// be combined; Charge occupies bit twelve of the saved equipment word.
+/// Samus's independent beam components and the Charge Beam upgrade, one flag each; they combine freely. The values are
+/// arbitrary and nothing reads them: the save slot and work-memory beam word is the import's SamusEquipmentWordCodec's.
 /// </summary>
 [Flags]
 public enum SamusBeamFlags
@@ -23,5 +23,5 @@ public enum SamusBeamFlags
     Plasma = 1 << 3,
 
     /// <summary>Allows the fire button to charge the equipped beam combination.</summary>
-    Charge = 1 << 12,
+    Charge = 1 << 4,
 }

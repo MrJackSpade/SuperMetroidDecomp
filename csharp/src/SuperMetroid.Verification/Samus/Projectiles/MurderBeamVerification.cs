@@ -41,8 +41,8 @@ internal static class MurderBeamVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
-            CollectedBeams = (SamusBeamFlags)0x100f,
-            EquippedBeams = (SamusBeamFlags)0x1007,
+            CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
+            EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
             SelectedHudItem = HudItem.Beam,
         };
         var projectiles = CreateProjectileFixture();
@@ -189,13 +189,13 @@ internal static class MurderBeamVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = (SamusBeamFlags)0x1007,
+            EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
             SelectedHudItem = HudItem.Beam,
         };
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
         HoldCharge(level, samus, projectiles, shared);
-        samus.EquippedBeams = (SamusBeamFlags)0x100f;
+        samus.EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma;
         AssertThrows<NotSupportedException>(() =>
         {
             shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
@@ -211,7 +211,7 @@ internal static class MurderBeamVerification
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = (SamusBeamFlags)0x100f,
+            EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             Missiles = 5,
         };
         var projectiles = CreateProjectileFixture();
@@ -253,7 +253,7 @@ internal static class MurderBeamVerification
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = (SamusBeamFlags)0x100f,
+            EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
         };
         AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");

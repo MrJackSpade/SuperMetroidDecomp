@@ -99,7 +99,16 @@ public static class SamusEquipmentWordCodec
     /// </summary>
     /// <param name="word">A save slot's sixteen-bit beam word.</param>
     /// <returns>The beams whose bits are set.</returns>
-    public static SamusBeamFlags FromSavedBeamWord(ushort word)
+    public static SamusBeamFlags FromSavedBeamWord(ushort word) => FromBeamWord((ushort)(word & BeamWordBits));
+
+    /// <summary>The bits of a beam word that record a beam.</summary>
+    private static readonly ushort BeamWordBits = BeamBits.Aggregate((ushort)0, (bits, entry) => (ushort)(bits | entry.Bit));
+
+    /// <summary>The beams a beam word records.</summary>
+    /// <param name="word">A sixteen-bit beam word.</param>
+    /// <returns>The beams whose bits are set.</returns>
+    /// <exception cref="InvalidDataException">The word sets a bit that records no beam.</exception>
+    public static SamusBeamFlags FromBeamWord(ushort word)
     {
         SamusBeamFlags beams = SamusBeamFlags.None;
         foreach (BeamBit entry in BeamBits)
@@ -107,6 +116,8 @@ public static class SamusEquipmentWordCodec
             if ((word & entry.Bit) != 0)
                 beams |= entry.Beam;
         }
+        if ((word & ~BeamWordBits) != 0)
+            throw new InvalidDataException($"Beam word ${word:X4} sets bits ${word & ~BeamWordBits:X4}, which record no beam.");
         return beams;
     }
 

@@ -54,7 +54,8 @@ internal static class WrapShotWidthsVerification
             var level = CreateRoom(new(checked((ushort)width), checked((ushort)height)), words, bts);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
-                EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9)) };
+                EquippedBeams = beam == 0 ? SamusBeamFlags.None : beam == 1 ? SamusBeamFlags.Wave
+                    : left ? SamusBeamFlags.Wave | SamusBeamFlags.Spazer : SamusBeamFlags.Wave | SamusBeamFlags.Plasma };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             var roomObjects = RoomObjectFixtures.Unbound();

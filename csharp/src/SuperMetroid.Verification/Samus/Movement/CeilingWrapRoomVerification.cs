@@ -36,7 +36,7 @@ internal static class CeilingWrapRoomVerification
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.Position = samus.Position.WithWhole(new(1237, 139));
-        samus.EquippedBeams = (SamusBeamFlags)beams; samus.EquippedItems = 0;
+        samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beams); samus.EquippedItems = 0;
         // The room loaded the entering beam's graphics; the trace starts with these beams, so load theirs as a beam change does.
         runtime.Artwork.UpdateBeamTilesAndPalette(runtime.Player.Colours, samus.EquippedBeams);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -65,7 +65,7 @@ internal static class CeilingWrapRoomVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.FrogSpeedway);
         var level = runtime.Room.LoadedLevelData;
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
-            PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = (SamusBeamFlags)5 };
+            PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer };
         samus.Kinematics.Radius = new(5, 21);
         var roomObjects = runtime.RoomObjects;
         var shots = CreateProjectileFixture();

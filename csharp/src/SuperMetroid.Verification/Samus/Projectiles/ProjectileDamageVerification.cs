@@ -53,7 +53,7 @@ internal static class ProjectileDamageVerification
         foreach (bool charged in new[] { false, true })
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
-            var samus = Samus(); samus.EquippedBeams = (SamusBeamFlags)beam;
+            var samus = Samus(); samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam);
             system.Firing.TryFireBeam(room, samus, ControllerButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
             int table = charged ? SamusProjectileBeamTables.ChargedDataPointers : SamusProjectileBeamTables.UnchargedDataPointers;
@@ -82,7 +82,7 @@ internal static class ProjectileDamageVerification
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads); var samus = Samus();
-            samus.EquippedBeams = (SamusBeamFlags)beam; samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
+            samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam); samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
             AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
             foreach (var slot in system.Slots.Take(4))
                 AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "SBA/ordinary Ice/Spazer trail damage");
@@ -189,7 +189,7 @@ internal static class ProjectileDamageVerification
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = (SamusBeamFlags)beam,
+                EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam),
                 SelectedHudItem = HudItem.PowerBomb,
                 PowerBombs = 10,
             };

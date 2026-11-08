@@ -22,8 +22,8 @@ public static class SamusAerialMovement
 {
     /// <summary>
     /// Starts a jump through every environment/equipment path.
-    /// Air/water/lava select word offsets zero/two/four in the normal or
-    /// Hi-Jump tables; Gravity Suit forces offset zero before that equipment choice.
+    /// Air, water and lava each select their jump speed from the normal or
+    /// Hi-Jump speeds; Gravity Suit selects the air speed before that equipment choice.
     /// </summary>
     public static void InitializeJump(SamusState samus)
     {

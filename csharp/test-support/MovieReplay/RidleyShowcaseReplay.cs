@@ -771,7 +771,15 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={projectile.MissileIgnition}/{projectile.SuperMissileLinkSlot}");
                 }
                 Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
-                Check(owner + " AuxiliaryPhase", unchecked((ushort)projectile.AuxiliaryPhase), NativeSnapshotMemory.ProjectileAuxiliaryPhase + index);
+                // The native phase word holds each Spazer phase's doubled position in its jump table.
+                ushort nativePhase = projectile.AuxiliaryPhase switch
+                {
+                    SpazerComboPhase.Circling => 0,
+                    SpazerComboPhase.FlyingUpTowardsPoint => 2,
+                    SpazerComboPhase.FlyingUpAwayFromPoint => 4,
+                    _ => throw new InvalidDataException($"Undefined {nameof(SpazerComboPhase)} {projectile.AuxiliaryPhase}."),
+                };
+                Check(owner + " AuxiliaryPhase", nativePhase, NativeSnapshotMemory.ProjectileAuxiliaryPhase + index);
                 Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)

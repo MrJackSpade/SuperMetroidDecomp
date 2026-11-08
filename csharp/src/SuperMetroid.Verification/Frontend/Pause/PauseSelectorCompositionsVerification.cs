@@ -45,7 +45,7 @@ internal static class PauseSelectorCompositionsVerification
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 SpriteSheet sheet = MenuSheetFixtures.PauseSprites(selector);
-                selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase, PictureShading.Standard);
+                selector.Draw(actual, sheet, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "native selector composition, attributes and order");

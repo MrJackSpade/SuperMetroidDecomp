@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// The map highlight cycle shared by the pause and file-select maps (#1512): its frame and hold, and the shade the
 /// highlighted sprites show, which the import pre-colours the map sprite sheet in. Until the cycle first applies a frame
 /// the highlighted sprites show the screen's own colours, as the game's highlight colours are the screen's own ones
-/// until its first step shows a frame over them.
+/// until its first step shows a frame over them. Only the highlighted sprites show the cycle (#1544): the pause screen's
+/// other sprites show their own colours.
 /// </summary>
 public sealed class MapPaletteAnimation
 {
@@ -45,15 +46,6 @@ public sealed class MapPaletteAnimation
     public PictureShading Shading => PictureShading.Shaded(ShownFrame is int frame
         ? MapSpriteShades.Highlight(frame)
         : MapSpriteShades.Drawn(screen, MapSpriteColouring.Highlighted));
-
-    /// <summary>
-    /// The shading the pause sprites drawn in the row the cycle recolours show (#1512), the item selector and the reserve
-    /// strip among them: the screen's own colours, which that row holds until the cycle's first applied frame, then the
-    /// highlight shade of the frame last applied.
-    /// </summary>
-    public PictureShading CycleShading => ShownFrame is int frame
-        ? PictureShading.Shaded(MapSpriteShades.Highlight(frame))
-        : PictureShading.Standard;
 
     /// <summary>Advances to the next highlight frame when its hold ends; true requests library-three MapPaletteLoop.</summary>
     /// <exception cref="InvalidOperationException">The installed cycle is not bound.</exception>

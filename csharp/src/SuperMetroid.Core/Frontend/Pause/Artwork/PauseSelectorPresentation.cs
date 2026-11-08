@@ -42,10 +42,10 @@ public abstract class PauseSelectorPresentation
             ? duration : MenuSelectorTiming.Duration(normalized);
     }
     /// <summary>
-    /// Draws the selected category's normalized selector frame of the pause sheet at the item's anchor, under
-    /// <paramref name="shading"/>: the pause highlight cycle's, as the selector is drawn in the row it recolours.
+    /// Draws the selected category's normalized selector frame of the pause sheet at the item's anchor, in the selector's
+    /// own colours (#1544).
     /// </summary>
-    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseEquipmentCategory category, int item, int phase, PictureShading shading)
+    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseEquipmentCategory category, int item, int phase)
     {
         var point = Anchor(category, item);
         int normalized = NormalizePhase(phase);
@@ -56,7 +56,7 @@ public abstract class PauseSelectorPresentation
             PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => equipment,
             _ => throw new InvalidOperationException($"Undefined PauseEquipmentCategory {category}."),
         }).Get(normalized);
-        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point, shading: Ensure.NotNull(shading));
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point, PictureShading.Standard);
     }
     /// <summary>The stock selector has zero sprite offsets in every phase: each category
     /// holds its base frame. Only explicitly authored phase differences are retained.</summary>

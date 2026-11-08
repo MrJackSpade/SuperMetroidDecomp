@@ -22,7 +22,8 @@ internal sealed class RoomFxPairColor
     {
         this.selection = selection;
         this.isPrimary = member == RoomFxPairMember.Primary;
-        int red = color.FadeLevels.Red, green = color.FadeLevels.Green, blue = color.FadeLevels.Blue;
+        FadeLevelColour levels = color.FadeLevels;
+        int red = levels.Red, green = levels.Green, blue = levels.Blue;
         redOverride = RoomFxPaletteBlendRules.CalculatedPairRed(selection, member == RoomFxPairMember.Primary) == red ? null : red;
         greenOverride = RoomFxPaletteBlendRules.CalculatedPairGreen(selection, red, member == RoomFxPairMember.Primary) == green ? null : green;
         blueOverride = RoomFxPaletteBlendRules.CalculatedPairBlue(selection, red, green, member == RoomFxPairMember.Primary) == blue ? null : blue;

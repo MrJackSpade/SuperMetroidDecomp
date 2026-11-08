@@ -15,10 +15,11 @@ public sealed record PaletteRgb5
     /// <summary>The plain colour of these levels; each must be 0-31.</summary>
     public RgbColor ToRgbColor() => new FadeLevelColour(Red, Green, Blue).ToColour();
 
-    /// <summary>The JSON levels of <paramref name="color"/>: its own, or its nearest for a colour a plain blend made (<see cref="FadeLevelColour.Nearest"/>).</summary>
+    /// <summary>The JSON levels of <paramref name="color"/>, which lies on the fade scale as every colour the game shows does.</summary>
+    /// <exception cref="ArgumentException"><paramref name="color"/> is off the fade scale (<see cref="FadeLevelColour.Of"/>).</exception>
     public static PaletteRgb5 From(RgbColor color)
     {
-        FadeLevelColour levels = FadeLevelColour.Nearest(color);
+        FadeLevelColour levels = color.FadeLevels;
         return new() { Red = levels.Red, Green = levels.Green, Blue = levels.Blue };
     }
 }

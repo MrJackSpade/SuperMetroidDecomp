@@ -66,8 +66,8 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   (the floor shows over sprites drawn behind the room; a sprite that does not blend is left as it is), or subtract the
   sprite layer's colour from the floor.
 - **Add colour.** Adds a fixed colour to every pixel, in the colour's thirty-two levels a channel, clamped. The display
-  model describes colours as plain colours (`RgbColor`, 0-255 a channel); a colour reaches the tile shaders' colour maths
-  as its nearest levels (`FadeLevelColour.Nearest`, #1544), exactly its own for every colour the game authored.
+  model describes colours as plain colours (`RgbColor`, 0-255 a channel), each on the game's fade scale; a colour reaches
+  the tile shaders' colour maths as its own levels (`FadeLevelColour`, #1544), and one off the scale is rejected.
 - **Line colour add.** Adds each line's colour within that line's window.
 - **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own scroll, eight bits a
   channel, clamped. The overlay is a rectangle of its picture placed in an area that repeats across and down

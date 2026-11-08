@@ -128,9 +128,10 @@ internal static class LoadingPaletteColors
     {
         if ((uint)shade >= 2) throw new ArgumentOutOfRangeException(nameof(shade));
         if ((uint)greenPeak > 31) throw new ArgumentOutOfRangeException(nameof(greenPeak));
-        int green = Math.Min(31, dim.FadeLevels.Green + Math.Max(0, greenPeak - 10 * shade));
-        int blue = Math.Min(31, dim.FadeLevels.Blue + (bluePlateau ? 10 : 10 - 5 * shade));
-        return new FadeLevelColour(dim.FadeLevels.Red, green, blue).ToColour();
+        FadeLevelColour dimLevels = dim.FadeLevels;
+        int green = Math.Min(31, dimLevels.Green + Math.Max(0, greenPeak - 10 * shade));
+        int blue = Math.Min(31, dimLevels.Blue + (bluePlateau ? 10 : 10 - 5 * shade));
+        return new FadeLevelColour(dimLevels.Red, green, blue).ToColour();
     }
 
     /// <summary>Applies Varia's blue-dominant loading tint to one colour.</summary>
@@ -142,9 +143,10 @@ internal static class LoadingPaletteColors
     internal static RgbColor VariaTintColor(RgbColor original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
-        int green = Math.Min(31, original.FadeLevels.Green + Math.Max(0, 5 - 5 * shade));
-        int blue = Math.Min(31, original.FadeLevels.Blue + 30 - 10 * shade);
-        return new FadeLevelColour(original.FadeLevels.Red, green, blue).ToColour();
+        FadeLevelColour originalLevels = original.FadeLevels;
+        int green = Math.Min(31, originalLevels.Green + Math.Max(0, 5 - 5 * shade));
+        int blue = Math.Min(31, originalLevels.Blue + 30 - 10 * shade);
+        return new FadeLevelColour(originalLevels.Red, green, blue).ToColour();
     }
 
     /// <summary>The loading color <paramref name="slot"/> names.</summary>
@@ -181,9 +183,10 @@ internal static class LoadingPaletteColors
     internal static RgbColor TintColor(RgbColor original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
-        int green = Math.Min(31, original.FadeLevels.Green + Math.Max(0, 15 - 10 * shade));
-        int blue = Math.Min(31, original.FadeLevels.Blue + Math.Min(20, 30 - 10 * shade));
-        return new FadeLevelColour(original.FadeLevels.Red, green, blue).ToColour();
+        FadeLevelColour originalLevels = original.FadeLevels;
+        int green = Math.Min(31, originalLevels.Green + Math.Max(0, 15 - 10 * shade));
+        int blue = Math.Min(31, originalLevels.Blue + Math.Min(20, 30 - 10 * shade));
+        return new FadeLevelColour(originalLevels.Red, green, blue).ToColour();
     }
 
     /// <summary>Chooses the independent suit ink or its identical Power counterpart; Varia normal slot zero aliases Power bright black rather than Power normal's payload.</summary>

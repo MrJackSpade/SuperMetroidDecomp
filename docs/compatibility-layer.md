@@ -110,7 +110,7 @@ statues is the game's own work, and the compatibility behaviour it carries, its 
 
 `WreckedShipGhostFade` (Enemies, #1512, #1544) is the Wrecked Ship ghost's own colour value rather than a service of this module, because its colours are the ghost's and the import pre-colours its shades by running it: its brightening raises all three channels of each colour in one addition, so a channel passing full carries into the next, and its fades step all sixteen of the ghost's colours, colour zero too, which no picture draws; when each ends decides when the ghost's AI moves on. Its documentation states the behaviour, the phases that consult it and the evidence.
 
-The game's colours are plain colours (`RgbColor`, #1544); the levels the game authored them in (`FadeLevelColour`, thirty-two a channel) survive only where a step-wise colour change is read back by gameplay, and in the values that own those changes:
+The game's colours are plain colours (`RgbColor`, #1544). Every fade, flash, glow, ramp and pre-coloured faded shade is authored animation on the game's fade scale (`FadeLevelColour`, thirty-two levels a channel): it computes its steps on those levels exactly as the game's level arithmetic does and shows the plain colour of the level it reaches, so every colour between equals the game's step and every colour shown lies on the scale. That is presentation, not a compatibility service. Gameplay reads a step-wise colour change back only in these values, which own those changes:
 
 | Value | Gameplay behaviour reproduced | Consulted |
 | --- | --- | --- |

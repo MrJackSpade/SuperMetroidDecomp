@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A colour counted in the levels the game's authored colours, ramps and step-wise fades move through (#1544): red, green
-/// and blue, each from zero to <see cref="FullLevel"/>, the thirty-two levels spread evenly over a plain colour's channel
-/// with both ends included. Every colour the game ships was authored on this scale, so each colour the import supplies
-/// is exactly one of these levels. The sites that compute a colour from authored levels (a palette animation's ramp, a
-/// glow, a level-by-level fade) count in it, as do the few whose timing depends on when a level-by-level change ends; a
-/// plain colour operation (<see cref="RgbColor.Blend"/>, <see cref="RgbColor.Scaled"/>) needs no levels.
+/// A colour counted on the game's fade scale (#1544): red, green and blue, each from zero to <see cref="FullLevel"/>, the
+/// thirty-two levels spread evenly over a plain colour's channel with both ends included. Every colour the game ships was
+/// authored on this scale, and every fade, flash, glow, ramp and pre-coloured faded shade the game shows steps through it:
+/// each computes its steps on these levels, exactly as the game's level arithmetic does, and shows the plain colour of the
+/// level it reaches (<see cref="ToColour"/>). Every colour the game shows therefore lies on the scale, and a colour off it
+/// is rejected wherever its levels are read (<see cref="Of"/>).
 /// </summary>
 public readonly record struct FadeLevelColour
 {
@@ -21,6 +21,15 @@ public readonly record struct FadeLevelColour
     /// gains one for each of this many levels below it.
     /// </summary>
     private const int LevelsPerSpread = (FullLevel + 1) / ChannelValuesPerLevel;
+
+    /// <summary>What <see cref="LevelByChannel"/> holds for a plain channel value that is no level's.</summary>
+    private const int NotALevel = -1;
+
+    /// <summary>
+    /// The level whose plain value each channel value 0-<see cref="RgbColor.FullChannel"/> is, or <see cref="NotALevel"/>,
+    /// so reading a colour's levels costs a look-up a channel.
+    /// </summary>
+    private static readonly int[] LevelByChannel = LevelsByChannel();
 
     /// <summary>Makes a colour from its three levels, each 0-<see cref="FullLevel"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">A level is outside 0-<see cref="FullLevel"/>.</exception>
@@ -50,29 +59,13 @@ public readonly record struct FadeLevelColour
         _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "Undefined color channel."),
     };
 
-    /// <summary>The levels of <paramref name="colour"/>, which must lie on the scale.</summary>
+    /// <summary>The levels of <paramref name="colour"/>, which must lie on the scale, as every colour the game shows does.</summary>
     /// <exception cref="ArgumentException">A channel of <paramref name="colour"/> is not one of the thirty-two levels.</exception>
     public static FadeLevelColour Of(RgbColor colour) =>
         new(LevelOf(colour.Red, colour), LevelOf(colour.Green, colour), LevelOf(colour.Blue, colour));
 
-    /// <summary>
-    /// The levels nearest <paramref name="colour"/>'s channels, a channel halfway between two levels taking the lower: the
-    /// colour's own levels when it lies on the scale, as every authored colour does, and the closest the scale comes to a
-    /// colour a plain blend or scale made.
-    /// </summary>
-    public static FadeLevelColour Nearest(RgbColor colour) =>
-        new(NearestLevel(colour.Red), NearestLevel(colour.Green), NearestLevel(colour.Blue));
-
-    /// <summary>The plain channel value <paramref name="level"/> shows: the levels spread evenly from none to full.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="level"/> is outside 0-<see cref="FullLevel"/>.</exception>
-    public static int ChannelOf(int level)
-    {
-        _ = Level(level, nameof(level));
-        return level * ChannelValuesPerLevel + level / LevelsPerSpread;
-    }
-
-    /// <summary>The plain colour these levels show.</summary>
-    public RgbColor ToColour() => new(ChannelOf(Red), ChannelOf(Green), ChannelOf(Blue));
+    /// <summary>The plain colour these levels show: the levels spread evenly over each channel from none to full.</summary>
+    public RgbColor ToColour() => new(Shown(Red), Shown(Green), Shown(Blue));
 
     /// <summary>These levels with one channel's replaced.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="channel"/> is not a defined channel.</exception>
@@ -111,25 +104,27 @@ public readonly record struct FadeLevelColour
     /// <inheritdoc />
     public override string ToString() => $"Levels(r{Red}, g{Green}, b{Blue})";
 
-    /// <summary>The level whose plain value is <paramref name="channel"/>.</summary>
+    /// <summary>The level whose plain value is <paramref name="channel"/>, one of <paramref name="colour"/>'s channels.</summary>
     /// <exception cref="ArgumentException"><paramref name="channel"/> is not the plain value of a level.</exception>
     private static int LevelOf(int channel, RgbColor colour)
     {
-        int level = channel / ChannelValuesPerLevel;
-        return ChannelOf(level) == channel
+        int level = LevelByChannel[channel];
+        return level != NotALevel
             ? level
             : throw new ArgumentException($"{colour} is not a colour of thirty-two levels a channel.", nameof(colour));
     }
 
-    /// <summary>The level whose plain value lies nearest <paramref name="channel"/>, the lower of two equally near.</summary>
-    private static int NearestLevel(int channel)
+    /// <summary>The plain channel value of a level already known to lie in 0-<see cref="FullLevel"/>.</summary>
+    private static int Shown(int level) => level * ChannelValuesPerLevel + level / LevelsPerSpread;
+
+    /// <summary>Builds <see cref="LevelByChannel"/>: each level at its plain value, every other channel value no level's.</summary>
+    private static int[] LevelsByChannel()
     {
-        int below = Math.Min(FullLevel, channel / ChannelValuesPerLevel);
-        if (ChannelOf(below) > channel)
-            below--;
-        if (below == FullLevel)
-            return below;
-        return channel - ChannelOf(below) <= ChannelOf(below + 1) - channel ? below : below + 1;
+        var levels = new int[RgbColor.FullChannel + 1];
+        Array.Fill(levels, NotALevel);
+        for (int level = 0; level <= FullLevel; level++)
+            levels[Shown(level)] = level;
+        return levels;
     }
 
     /// <summary>Rejects a level outside 0-<see cref="FullLevel"/>.</summary>

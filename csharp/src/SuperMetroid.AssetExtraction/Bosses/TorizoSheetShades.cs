@@ -138,10 +138,10 @@ internal static class TorizoSheetShades
         var faded = new RgbColor[start.Length];
         for (int ink = 0; ink < faded.Length; ink++)
         {
-            RgbColor current = start[ink];
+            FadeLevelColour current = start[ink].FadeLevels, toward = goal[ink].FadeLevels;
             for (int step = first; step <= last; step++)
-                current = GradualColourFade.Step(step, current, goal[ink], TorizoPaletteDefinitions.FadeDenominator);
-            faded[ink] = current;
+                current = GradualColourFade.Step(step, current, toward, TorizoPaletteDefinitions.FadeDenominator);
+            faded[ink] = current.ToColour();
         }
         return faded;
     }

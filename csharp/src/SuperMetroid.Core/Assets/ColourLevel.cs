@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A colour shown at a level between black and itself (#1512): at level <see cref="Level"/> of <see cref="Levels"/>,
-/// the colour is scaled to that fraction of its strength (<see cref="RgbColor.Scaled"/>), as the opening's cross-fader
-/// shows each colour's fade.
+/// A colour shown at a level between black and itself (#1512, #1544): at level <see cref="Level"/> of <see cref="Levels"/>,
+/// each of the colour's fade levels (<see cref="FadeLevelColour"/>) is scaled by that fraction and rounded down, as the
+/// opening's cross-fader shows each colour's fade, and the colour shown is that of the levels it reaches.
 /// </summary>
 public sealed record ColourLevel : ColourEffect
 {
@@ -23,5 +23,12 @@ public sealed record ColourLevel : ColourEffect
     public int Levels { get; }
 
     /// <inheritdoc />
-    public override RgbColor Apply(RgbColor shown) => shown.Scaled(Level, Levels);
+    public override RgbColor Apply(RgbColor shown)
+    {
+        FadeLevelColour levels = shown.FadeLevels;
+        return new FadeLevelColour(Scaled(levels.Red), Scaled(levels.Green), Scaled(levels.Blue)).ToColour();
+    }
+
+    /// <summary>One fade level scaled to <see cref="Level"/> of <see cref="Levels"/>, rounded down.</summary>
+    private int Scaled(int level) => level * Level / Levels;
 }

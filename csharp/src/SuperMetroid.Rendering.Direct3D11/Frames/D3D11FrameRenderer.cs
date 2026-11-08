@@ -1000,10 +1000,10 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>
     /// The levels the tile shaders' colour maths takes a described colour in (#1544): the shaders add, blend and halve
-    /// colours on thirty-two levels a channel, so a colour reaches them as its nearest levels, exactly its own for every
-    /// colour the game authored.
+    /// colours on the game's fade scale, thirty-two levels a channel, on which every colour the game shows lies, so a colour
+    /// reaches them as its own levels; a colour off the scale is rejected.
     /// </summary>
-    private static FadeLevelColour ShaderLevels(RgbColor colour) => FadeLevelColour.Nearest(colour);
+    private static FadeLevelColour ShaderLevels(RgbColor colour) => colour.FadeLevels;
 
     /// <summary>A sprite tint's levels packed into one shader word, five bits a channel, red lowest, as the sprite pass unpacks it.</summary>
     private static uint PackedShaderLevels(RgbColor colour)

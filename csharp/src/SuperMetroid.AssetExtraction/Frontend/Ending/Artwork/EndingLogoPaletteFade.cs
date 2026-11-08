@@ -56,9 +56,10 @@ internal sealed class EndingLogoPaletteFade
         };
         // The background brightens over the steps; the sprites darken over them.
         int remaining = layer == EndingLogoLayer.Background ? step : BackgroundEndpointStep - step;
-        int red = ((endpoint.FadeLevels.Red) * remaining + 1) / 15;
-        int green = ((endpoint.FadeLevels.Green) * remaining + 1) / 15;
-        int blue = ((endpoint.FadeLevels.Blue) * remaining + 1) / 15;
+        FadeLevelColour levels = endpoint.FadeLevels;
+        int red = (levels.Red * remaining + 1) / 15;
+        int green = (levels.Green * remaining + 1) / 15;
+        int blue = (levels.Blue * remaining + 1) / 15;
         return new FadeLevelColour(red, green, blue).ToColour();
     }
 

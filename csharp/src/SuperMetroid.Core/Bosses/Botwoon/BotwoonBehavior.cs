@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -30,8 +31,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns the wall-phase explosion sprites.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Locates the head in physical enemy slot zero for body flashing.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Runs common touch behavior before Botwoon's special death tail.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Spawns the sixteen special drops from the chance table.</summary>
@@ -47,7 +46,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _spriteObjects = dependencies.SpriteObjects;
-        _slotTable = dependencies.SlotTable;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _audio = dependencies.Audio;
@@ -57,7 +55,17 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BotwoonSpecialDropCount = 16;
 
     /// <summary>Per-room movement, head-animation, body, and wall-collapse state.</summary>
-    internal BotwoonEnemyState? BotwoonState { get; set; }
+    internal BotwoonEnemyState? BotwoonState { get; private set; }
+
+    /// <summary>Botwoon's head, the enemy that owns <see cref="BotwoonState"/>; null until it initializes.</summary>
+    private RoomEnemySlot? _head;
+
+    /// <summary>Attaches <paramref name="state"/> as the state of Botwoon, whose head is <paramref name="head"/>.</summary>
+    internal void AttachBotwoon(RoomEnemySlot head, BotwoonEnemyState state)
+    {
+        _head = Ensure.NotNull(head);
+        BotwoonState = Ensure.NotNull(state);
+    }
 
     /// <summary>The value the pre-fall death count starts from once the tail completes its hole transition.</summary>
     private const int BotwoonDeathDelayStart = 240;
@@ -76,7 +84,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeBotwoon(RoomEnemySlot head)
     {
         var state = new BotwoonEnemyState();
-        BotwoonState = state;
+        AttachBotwoon(head, state);
         head.SetSpeciesState(state, state.ClearWithRecord);
         // The initializer installs the hidden program: the head starts hidden in its hole.
         state.HeadProgram = BotwoonHeadProgram.Hidden;
@@ -792,9 +800,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         head.Position = head.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
     }
 
-    /// <summary>Requires the initialized Botwoon head in physical slot zero.</summary>
+    /// <summary>Requires the state of the initialized Botwoon whose head is <paramref name="head"/>.</summary>
     internal BotwoonEnemyState RequireBotwoonState(RoomEnemySlot head) =>
-        BotwoonState is not null && head.SlotIndex == 0
+        BotwoonState is not null && ReferenceEquals(head, _head)
             ? BotwoonState
             : throw new InvalidOperationException(
                 $"Enemy slot {head.SlotIndex} has no initialized Botwoon state.");
@@ -927,9 +935,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BotwoonBodyFunction.BeginDying:
-                // The delay follows the segment's projectile slot, not its place in the body.
-                segment.StateOf<BotwoonSegmentState>().DeathDelay =
-                    BotwoonSegmentState.FirstDeathDelay + BotwoonSegmentState.DeathDelayPerSlot * segment.SlotIndex;
+                // The delay follows the segment's projectile place, not its place in the body.
+                segment.StateOf<BotwoonSegmentState>().DeathDelay = BotwoonSegmentFallDelay.Start(segment.SlotIndex);
                 state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.DyingDelay;
                 goto case BotwoonBodyFunction.DyingDelay;
 
@@ -974,7 +981,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
-        RoomEnemySlot head = _slotTable.Slots[0];
+        RoomEnemySlot head = _head ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.");
         segment.Graphics = segment.Graphics.In(head.FlashTimer != 0 && (randomEnemyCounter & 2) != 0
             ? EnemyShades.HitFlashed
             : (BotwoonState ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.")).BodyShading);

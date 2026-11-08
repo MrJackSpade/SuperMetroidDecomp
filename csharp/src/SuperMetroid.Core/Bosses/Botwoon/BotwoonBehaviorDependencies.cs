@@ -19,9 +19,6 @@ internal sealed record BotwoonBehaviorDependencies
     /// <summary>Sprite objects.</summary>
     public required RoomSpriteObjectPool SpriteObjects { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
-
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }
 

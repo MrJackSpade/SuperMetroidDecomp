@@ -1120,7 +1120,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // knockback and Ceres ejection were intercepted above; this branch
         // is their authentic one-frame normal-dispatch tail before 
         // installs the input/no-input target chosen during alpha.
-        int groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
+        SignedSixteenSixteen groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
         BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
 
@@ -1132,7 +1132,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // The normal knockback entry still publishes collision result one when its
         // downward probe hits the floor. Reuse the ordinary landing seam
         // for presentation, pose selection and command-five speed cleanup.
-        if (grounding.Collided && groundingDisplacement >= 0)
+        if (grounding.Collided && !groundingDisplacement.IsNegative)
             _player.LastAerialSamusMovement = new AerialMovementResult(Landed: true, HitCeiling: false);
     }
 

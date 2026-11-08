@@ -13,5 +13,5 @@ public static class BeamChargeDefinitions
     /// The flare counter a Hyper Beam shot stores: past every charge threshold, so the Hyper Beam always reads as fully
     /// charged and never advances it; the largest value the counter holds.
     /// </summary>
-    public const int HyperBeamFlareCounter = 32768;
+    public const int HyperBeamFlareCounter = 1 << 15;
 }

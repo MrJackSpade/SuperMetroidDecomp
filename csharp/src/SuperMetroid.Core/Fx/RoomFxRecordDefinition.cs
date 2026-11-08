@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>Its header (<see cref="RoomFxHeader"/>) names the entry door that selects it, or holds it as its default (#1546).
 /// <c>BaseYPosition</c> is the liquid surface's starting height,
-/// or null when the record names none and the surface sits below every room; <c>TargetYPosition</c> is the height the
+/// or null when the record names none and the liquid has no surface; <c>TargetYPosition</c> is the height the
 /// surface moves to, or null when the record names none and the surface never moves; <c>YVelocity</c> is the signed
 /// speed it moves at. <c>PaletteEffects</c> and <c>AnimatedTiles</c> are the effects the record starts, in the order
 /// they start. <c>VisorAnimation</c> says whether the room animates Samus's visor, and <c>EffectBlend</c> how the effect's

@@ -38,9 +38,9 @@ internal static class RoomFxSnapshotTestsVerification
         foreach ((RoomFxType type, RoomEffectBlend blend) in configurations)
         foreach (short surface in new short[] { -20, 0, 32, 100, 223, 300 })
         foreach (int phase in new[] { 0, 7, 15 })
-        foreach (ushort currentY in new ushort[] { 400, ushort.MaxValue })
+        foreach (int? currentY in new int?[] { 400, null })
         {
-            var fx = new RoomFxOverlayRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
+            var fx = new RoomFxOverlayRenderSnapshot(type, blend, new Position16<OverlayPixels>(65530, 511), currentY,
                 WaterOverlayWavePhase: phase, WaterSurfaceScreenY: surface);
             OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(fx, plane);
             samples++;
@@ -48,7 +48,7 @@ internal static class RoomFxSnapshotTestsVerification
                 new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, 15));
             RgbaPixel[] actual = DisplayRendering.Render(packet);
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
-                $"room FX {type}/{blend.Operation} at {surface}, phase {phase}, Y {currentY} preserves HUD band");
+                $"room FX {type}/{blend.Operation} at {surface}, phase {phase}, Y {currentY?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none"} preserves HUD band");
         }
         var owned = new OverlayBlendLayer(null, 32, BlendOperation.Add, ScrollBands.Uniform(0), ScrollBands.Uniform(0));
         AssertThrows<ArgumentNullException>(() => new OverlayBlendLayer(null, 32,

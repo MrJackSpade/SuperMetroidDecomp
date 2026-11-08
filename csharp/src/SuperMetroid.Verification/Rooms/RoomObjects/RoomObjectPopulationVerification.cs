@@ -600,11 +600,13 @@ internal static class RoomObjectPopulationVerification
             new RoomTerrainBlock[width * height],
             new RoomBlockBehavior[width * height]);
 
-        RoomFxOverlayState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
+        RoomFxOverlayState CreateFx(ushort baseY, int? targetY, ushort velocity, byte timer)
         {
             var fxSession = new RoomFxSession();
             var fx = new RoomFxOverlayState(fxSession);
             fx.SetLiquidMotion(baseY, targetY, velocity, timer);
+            if (targetY is null)
+                fx.RemoveLiquidTarget();
             return fx;
         }
 
@@ -648,8 +650,8 @@ internal static class RoomObjectPopulationVerification
         unequipped.Step(unequippedLevel);
         AssertEqual(0, unequipped.SlotTable.ActiveCount,
             "missing Speed Booster deletes the resident controller");
-        AssertEqual(ushort.MaxValue, unequippedFx.TargetSurface.Y,
-            "missing Speed Booster disables the FX target");
+        AssertTrue(unequippedFx.TargetSurface is null,
+            "missing Speed Booster removes the FX target");
         AssertEqual(0, unequippedFx.YVelocity.RawValue,
             "missing Speed Booster clears packed FX velocity");
         AssertEqual(0, unequippedFx.Timer.RawValue,
@@ -666,7 +668,7 @@ internal static class RoomObjectPopulationVerification
         RoomObjectSystem disabled = Load(
             disabledSystem,
             disabledSamus,
-            CreateFx(0x0300, ushort.MaxValue, 0, 0),
+            CreateFx(0x0300, null, 0, 0),
             disabledLevel,
             _ => { });
         disabled.Step(disabledLevel);
@@ -703,21 +705,21 @@ internal static class RoomObjectPopulationVerification
 
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072c);
         active.Step(activeLevel);
-        AssertEqual(0x0300, activeFx.BaseY.Whole,
+        AssertEqual(0x0300, activeFx.NamedBaseY.Whole,
             "first lava stage waits while Samus remains right of its threshold");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072b);
         active.Step(activeLevel);
-        AssertEqual(0x01bf, activeFx.BaseY.Whole,
+        AssertEqual(0x01bf, activeFx.NamedBaseY.Whole,
             "first lava stage clamps maximum FX Y");
         AssertEqual(0xff50, activeFx.YVelocity.RawValue,
             "first lava stage installs ROM velocity");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x050a);
         active.Step(activeLevel);
-        AssertEqual(0x0167, activeFx.BaseY.Whole,
+        AssertEqual(0x0167, activeFx.NamedBaseY.Whole,
             "second lava stage clamps maximum FX Y");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x0244);
         active.Step(activeLevel);
-        AssertEqual(0x0100, activeFx.BaseY.Whole,
+        AssertEqual(0x0100, activeFx.NamedBaseY.Whole,
             "third lava stage clamps maximum FX Y");
         active.Step(activeLevel);
         AssertTrue(activeSystem.HasEvent(EventNumber.OutranSpeedBoosterLavaquake),

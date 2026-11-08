@@ -29,15 +29,17 @@ public static class GameplayEffectCapture
     /// <summary>
     /// Describes water's optional background wave (#1468): below the surface, background's horizontal scroll follows
     /// the water waveform one sample a line, counted from the line below the surface and advanced by the wave's phase and
-    /// The background's fine vertical scroll; the lines above keep background's own scroll. Null without the wave.
+    /// The background's fine vertical scroll; the lines above keep background's own scroll. Null without the wave, or while
+    /// the frame places no water surface.
     /// </summary>
     public static SampledScrollWave? BuildWaterBackgroundHorizontalScrolls(
         RoomFxOverlayRenderSnapshot fx,
         Position16<BackgroundPixels> backgroundScroll)
     {
-        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None)
+        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.BackgroundWave) == RoomLiquidOptions.None ||
+            fx.WaterSurfaceScreenY is not int surfaceLine)
             return null;
-        int belowSurface = fx.WaterSurfaceScreenY + 1;
+        int belowSurface = surfaceLine + 1;
         return new SampledScrollWave(backgroundScroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
             SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + (backgroundScroll.Y & 15), belowSurface, LiquidEffects.WaterWaveform.Length),
             Math.Clamp(belowSurface, HudHeight, Height), Height);
@@ -148,7 +150,8 @@ public static class GameplayEffectCapture
 
     /// <summary>
     /// Resolves the room effect's blend, its liquid's visibility and its wave's phase into the effect overlay's blend: what
-    /// the overlay shows of the effect's <paramref name="page"/>, its line scrolls and how it combines.
+    /// the overlay shows of the effect's <paramref name="page"/>, its line scrolls and how it combines. A liquid shows
+    /// nothing while it has no surface, its surface lies above the room, or the frame has not placed it on the screen.
     /// </summary>
     /// <exception cref="InvalidDataException">The effect shows a page but describes no blend.</exception>
     public static OverlayBlendLayer? CaptureRoomFxOverlay(RoomFxOverlayRenderSnapshot fx, FxOverlayPage page)
@@ -158,20 +161,22 @@ public static class GameplayEffectCapture
         RoomEffectBlend blend = fx.Blend
             ?? throw new InvalidDataException($"Room FX type {fx.Type} shows a page but describes no blend.");
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
-        if (liquid && CoordinateAxis.AsSigned(fx.Surface.Y) < 0) return null;
-        bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
+        if (!liquid)
+            return new(OverlayOf(Ensure.NotNull(page), atmosphere: true), HudHeight, blend.Operation,
+                ScrollBands.Uniform(fx.Scroll.X), ScrollBands.Uniform(fx.Scroll.Y));
+        if (fx.Surface is not >= 0 || fx.WaterSurfaceScreenY is not int surfaceLine) return null;
         // Below a water surface the overlay moves sideways with the water waveform, one sample a line counted from the line
         // below the surface and drawn back by the wave's phase (#1468).
-        int belowSurface = fx.WaterSurfaceScreenY + 1;
+        int belowSurface = surfaceLine + 1;
         LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
             ? new SampledScrollWave(fx.Scroll.X, LiquidEffects.WaterWaveform, OnePixelPerSample,
                 SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, LiquidEffects.WaterWaveform.Length),
                 Math.Clamp(belowSurface, HudHeight, Height), Height)
             : ScrollBands.Uniform(fx.Scroll.X);
         // A liquid's lines above the tile row holding its surface show the overlay's top, above the page, where nothing shows.
-        int firstSurfaceLine = fx.WaterSurfaceScreenY - (ScreenGeometry.BackgroundTileSizePixels - 1);
-        LineScroll vertical = liquid ? ScrollBands.Split(0, firstSurfaceLine, fx.Scroll.Y) : ScrollBands.Uniform(fx.Scroll.Y);
-        return new(OverlayOf(Ensure.NotNull(page), atmosphere), HudHeight, blend.Operation, horizontal, vertical);
+        int firstSurfaceLine = surfaceLine - (ScreenGeometry.BackgroundTileSizePixels - 1);
+        LineScroll vertical = ScrollBands.Split(0, firstSurfaceLine, fx.Scroll.Y);
+        return new(OverlayOf(Ensure.NotNull(page), atmosphere: false), HudHeight, blend.Operation, horizontal, vertical);
     }
 
     /// <summary>

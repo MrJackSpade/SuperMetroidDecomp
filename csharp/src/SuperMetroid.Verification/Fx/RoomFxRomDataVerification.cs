@@ -266,14 +266,16 @@ internal static class RoomFxRomDataVerification
             AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
                 $"{type} anchors BG3 row zero immediately below surface Y 100");
 
-            // Negative liquid positions are the cartridge's deliberate "no visible
-            // surface" sentinel: the capture shows no BG3 liquid plane at all.
+            // A liquid with no surface, or one above the room's top, shows no BG3 liquid plane at all (#1546).
             AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with
                 {
-                    Surface = new(0, ushort.MaxValue),
-                    WaterSurfaceScreenY = -1,
+                    Surface = null,
+                    WaterSurfaceScreenY = null,
                 }, RoomBackgroundsFixtures.BlankFxOverlay()) is null,
-                $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
+                $"{type} without a surface shows no BG3 liquid plane");
+            AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with { Surface = -1 },
+                    RoomBackgroundsFixtures.BlankFxOverlay()) is null,
+                $"{type} surface above the room's top shows no BG3 liquid plane");
 
             // The described BG2 wave (#1468), evaluated on each gameplay line.
             ushort[] backgroundScroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water

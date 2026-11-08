@@ -52,8 +52,8 @@ internal static class RoomFxRecordDefinitionsVerification
         compiledFx = RoomFxOverlayState.ForRoom(compiledFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
-        AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");
-        AssertEqual(nativeFx.TargetSurface.Y, compiledFx.TargetSurface.Y, "Ceres compiled FX target Y");
+        AssertEqual(nativeFx.BaseY?.Whole, compiledFx.BaseY?.Whole, "Ceres compiled FX base Y");
+        AssertEqual(nativeFx.TargetSurface, compiledFx.TargetSurface, "Ceres compiled FX target Y");
         AssertEqual(nativeFx.YVelocity.RawValue, compiledFx.YVelocity.RawValue,
             "Ceres compiled FX velocity");
         AssertEqual(nativeFx.Timer.RawValue, compiledFx.Timer.RawValue, "Ceres compiled FX timer");

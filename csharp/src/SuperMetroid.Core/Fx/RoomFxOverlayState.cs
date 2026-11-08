@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -66,11 +67,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>How many tide-phase units make one full turn of the negative-cosine lookup.</summary>
     private const int TidePhasePeriod = 65536;
 
-    /// <summary>
-    /// The surface height a record that names none holds: below every room, so a base there shows no liquid and a target
-    /// there disables the motion.
-    /// </summary>
-    private const int UnnamedSurfaceY = ushort.MaxValue;
+    /// <summary>The fraction a room load starts the liquid's surface at: half a pixel, centring the liquid on its whole line.</summary>
+    private const int LoadedSurfaceFraction = 1 << 15;
     /// <summary>
     /// Negative-cosine lookup phase for the liquid tide, 0 through 65535: its whole 1/256 turns select the sample, and
     /// it returns to zero after a full turn through <see cref="AdvanceTidePhase"/>.
@@ -93,9 +91,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private int waterBackgroundWavePhase;
     /// <summary>
     /// Liquid surface relative to the camera, used to clip the effect plane: the signed word of the wrapped difference, or
-    /// the largest signed word when no surface is shown.
+    /// null while the liquid has no surface or none has been placed on the screen yet.
     /// </summary>
-    private int waterSurfaceScreenY;
+    private int? waterSurfaceScreenY;
     /// <summary>Countdown for lava or acid's optional background wave.</summary>
     private int lavaAcidBackgroundWaveTimer;
     /// <summary>Selected lava or acid background wave displacement frame.</summary>
@@ -128,16 +126,17 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     public RoomFxType Type { get; internal set; }
 
     /// <summary>
-    /// The liquid surface before tide displacement, a room Y with subpixels: the FX record's base whole pixels (a room
-    /// load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by <see cref="YVelocity"/>.
+    /// The liquid surface before tide displacement, a room Y with subpixels from 0 through 32767: the FX record's base
+    /// whole pixels (a room load starts the fraction at half a pixel), moved toward <see cref="TargetSurface"/> by
+    /// <see cref="YVelocity"/>; null when the record names no surface (#1546).
     /// </summary>
-    public FixedCoordinate BaseY { get; internal set; }
+    public FixedCoordinate? BaseY { get; internal set; }
 
     /// <summary>
-    /// Where a rising or falling liquid stops, at X zero. A Y from 32768 up disables the motion, as the game's
-    /// sign test does.
+    /// The room line from 0 through 32767 a rising or falling liquid stops at, or null when nothing names one and the
+    /// liquid never moves (#1546).
     /// </summary>
-    public Position16<RoomPixels> TargetSurface { get; private set; }
+    public int? TargetSurface { get; private set; }
 
     /// <summary>The liquid's signed 8.8 vertical velocity in room pixels per update while it moves toward its target.</summary>
     public SignedEightEight YVelocity { get; private set; }
@@ -160,13 +159,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
 
     /// <summary>
-    /// The live liquid surface after rising and tide processing, at X zero. A Y from 32768 up (65535 with no liquid)
-    /// lies above the room, as the game's sign test reads it.
+    /// The live liquid surface's room line after rising and tide processing, or null while the liquid has no surface
+    /// (#1546). A tide can carry the surface above the room's top, to a negative line, which every reader treats as no
+    /// surface, as the game's sign test does.
     /// </summary>
-    public Position16<RoomPixels> Surface { get; internal set; } = NoSurface;
-
-    /// <summary>The surface published while no liquid is loaded.</summary>
-    internal static Position16<RoomPixels> NoSurface { get; } = new(0, ushort.MaxValue);
+    public int? Surface { get; internal set; }
 
     /// <summary>The liquid options the FX record selected, as PLMs have since changed them.</summary>
     public RoomLiquidOptions LiquidOptions { get; internal set; }
@@ -218,12 +215,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
-        BaseY = BaseY.WithWhole(definition.BaseYPosition ?? UnnamedSurfaceY);
-        TargetSurface = new(0, definition.TargetYPosition ?? UnnamedSurfaceY);
+        LoadSurfaceAndTarget(definition);
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
-        Surface = new(0, BaseY.Whole);
+        Surface = BaseLine;
 
         Type = definition.Type;
         Blend = definition.EffectBlend;
@@ -271,6 +267,26 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Type is RoomFxType.Lava or RoomFxType.Acid || RoomFxTypes.UsesWater(Type);
 
     /// <summary>
+    /// Loads the record's surface and target: a named surface keeps the fraction the surface had, or a room load's half
+    /// pixel when it had none.
+    /// </summary>
+    private void LoadSurfaceAndTarget(RoomFxRecordDefinition definition)
+    {
+        BaseY = definition.BaseYPosition is int baseY ? SurfaceAt(baseY) : null;
+        TargetSurface = definition.TargetYPosition is int targetY ? SurfaceLine(targetY) : null;
+    }
+
+    /// <summary>The base surface at whole line <paramref name="line"/>, keeping the current fraction or a room load's.</summary>
+    private FixedCoordinate SurfaceAt(int line) =>
+        (BaseY ?? new FixedCoordinate(0, LoadedSurfaceFraction)).WithWhole(SurfaceLine(line));
+
+    /// <summary>Accepts a named surface or target line, which lies from the room's top to the deepest line a room can reach.</summary>
+    private static int SurfaceLine(int line) => Ensure.BetweenInclusive(0, short.MaxValue, line);
+
+    /// <summary>The base surface's whole line, or null without a surface.</summary>
+    private int? BaseLine => BaseY is { } baseY ? baseY.Whole : null;
+
+    /// <summary>
     /// Runs liquid motion and shared-state writes for lava, acid and water before
     /// main-loop random-number generation. Their setup installs the callback on the
     /// first per-line effect pass; lava/acid's callback then swaps the shared random bytes on
@@ -315,7 +331,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     private void QueueLavaAmbientSound(int random)
     {
-        if (Type != RoomFxType.Lava || CoordinateAxis.AsSigned(Surface.Y) < 0)
+        if (Type != RoomFxType.Lava || Surface is not >= 0)
             return;
         if (--lavaSoundTimer != 0)
             return;
@@ -397,10 +413,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         if (Type is not (RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid))
             return;
-        Surface = new(0, BaseY.Whole);
-        waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
-        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
+        Surface = BaseLine;
+        waterSurfaceScreenY = SurfaceScreenLine(camera);
+        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
     }
+
+    /// <summary>The surface's screen line below <paramref name="camera"/>'s top, or null without a surface.</summary>
+    private int? SurfaceScreenLine(Position16<RoomPixels> camera) =>
+        Surface is int line ? CoordinateAxis.Difference(CoordinateAxis.Wrap(line), camera.Y) : null;
 
     /// <summary>Captures values visible alongside the current frame boundary's sprite frame.</summary>
     public RoomFxOverlayRenderSnapshot? CaptureForDisplay() => IsRenderable
@@ -431,16 +451,19 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         int? packedYVelocity = null,
         int? timer = null)
     {
-        // Each value is a word the writer copies; the checked conversions reject anything wider.
+        // Each value is a line or word the writer copies; the checks reject anything outside a room's lines or wider.
         if (baseYPosition is int baseY)
-            BaseY = BaseY.WithWhole(baseY);
+            BaseY = SurfaceAt(baseY);
         if (targetYPosition is int targetY)
-            TargetSurface = new(0, targetY);
+            TargetSurface = SurfaceLine(targetY);
         if (packedYVelocity is int velocity)
             YVelocity = new(velocity);
         if (timer is int newTimer)
             Timer = WrappingCountdown.FromRaw(newTimer);
     }
+
+    /// <summary>Removes the liquid's target, as the Speed Booster escape does when Samus has no Speed Booster: the liquid stops.</summary>
+    internal void RemoveLiquidTarget() => TargetSurface = null;
 
     /// <summary>
     /// LoadFxEntry reloads motion, blending and three colors, but does not restart
@@ -449,8 +472,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal void ApplyEntry(RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
-        BaseY = BaseY.WithWhole(definition.BaseYPosition ?? UnnamedSurfaceY);
-        TargetSurface = new(0, definition.TargetYPosition ?? UnnamedSurfaceY);
+        LoadSurfaceAndTarget(definition);
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
@@ -498,8 +520,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
-        waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
-        Scroll = (camera.AsOverlayScroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
+        waterSurfaceScreenY = SurfaceScreenLine(camera);
+        Scroll = (camera.AsOverlayScroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
 
         if (--waterOverlayWaveTimer == 0)
         {
@@ -528,7 +550,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         StepLiquidRise(randomNumber, earthquakeSoundDelay);
         StepLiquidTide();
-        Surface = new(0, ComputeTidalYPosition());
+        Surface = ComputeTidalYPosition();
     }
 
     /// <summary>
@@ -544,11 +566,11 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
-        waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
+        waterSurfaceScreenY = SurfaceScreenLine(camera);
         // Lava/acid uses the same surface-relative vertical scroll equation as water.
         // Zeroing it anchored the animated characters to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
-        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
+        Scroll = camera.AsOverlayScroll().WithY(ComputeLiquidVerticalScroll(Surface, camera.Y));
 
         if (!UsesLavaAcidVerticalWave && !UsesLavaAcidHorizontalWave)
             return;
@@ -577,9 +599,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             case LiquidRisePhase.Dormant:
             {
                 int velocity = YVelocity.SignedRawValue;
+                // A missing surface or target lies below every line (AbsentLiquidSurfaceDepth).
+                int surface = AbsentLiquidSurfaceDepth.Of(BaseLine);
+                int target = AbsentLiquidSurfaceDepth.Of(TargetSurface);
                 bool movesTowardTarget = velocity > 0
-                    ? TargetSurface.Y > BaseY.Whole
-                    : velocity < 0 && TargetSurface.Y < BaseY.Whole;
+                    ? target > surface
+                    : velocity < 0 && target < surface;
                 if (movesTowardTarget)
                     liquidRisePhase = LiquidRisePhase.Waiting;
                 return;
@@ -665,37 +690,34 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal void PublishStatueEarthquakeSound(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay) =>
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
 
-    /// <summary>Runs <c>RaiseOrLowerFx</c> for the shared liquid words.</summary>
+    /// <summary>
+    /// Runs <c>RaiseOrLowerFx</c> for the shared liquid words: moves the surface one step toward its target and reports
+    /// whether it reached it. A liquid with no target stops at once; one with no surface moves from below every line
+    /// (<see cref="AbsentLiquidSurfaceDepth"/>).
+    /// </summary>
     private bool AdvanceBaseYToTarget()
     {
-        if (CoordinateAxis.AsSigned(TargetSurface.Y) < 0)
+        if (TargetSurface is not int target)
             return true;
 
         int velocity = YVelocity.SignedRawValue;
         int delta = SixteenSixteen.FromEightEight(velocity);
-        BaseY = BaseY.MovedBy(SignedSixteenSixteen.FromRaw(delta));
-        int candidate = BaseY.Whole;
+        FixedCoordinate moved = (BaseY ?? new FixedCoordinate(AbsentLiquidSurfaceDepth.Of(null), LoadedSurfaceFraction))
+            .MovedBy(SignedSixteenSixteen.FromRaw(delta));
+        int candidate = moved.Whole;
 
-        // A surface moved past the top of the room reads as above it: rising, it stops at the room's last row;
-        // falling, at its first.
-        if (velocity >= 0)
+        // Moving down, the surface reaches the target once it passes it, or passes the deepest line a surface can hold;
+        // moving up, once it reaches it or rises past the room's top.
+        bool reached = velocity >= 0
+            ? candidate > target
+            : CoordinateAxis.AsSigned(candidate) < 0 || candidate <= target;
+        if (!reached)
         {
-            if (CoordinateAxis.AsSigned(candidate) < 0)
-                candidate = ushort.MaxValue;
-            BaseY = BaseY.WithWhole(candidate);
-            if (candidate <= TargetSurface.Y)
-                return false;
-        }
-        else
-        {
-            if (CoordinateAxis.AsSigned(candidate) < 0)
-                candidate = 0;
-            BaseY = BaseY.WithWhole(candidate);
-            if (candidate > TargetSurface.Y)
-                return false;
+            BaseY = moved;
+            return false;
         }
 
-        BaseY = new FixedCoordinate(TargetSurface.Y, 0);
+        BaseY = new FixedCoordinate(target, 0);
         return true;
     }
 
@@ -736,10 +758,18 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Moves the tide phase on by <paramref name="delta"/> units, returning to zero after a full turn.</summary>
     private void AdvanceTidePhase(int delta) => TidePhase = (TidePhase + delta) % TidePhasePeriod;
 
-    /// <summary>Adds signed fixed-point tide displacement to the base liquid surface.</summary>
-    private int ComputeTidalYPosition()
+    /// <summary>
+    /// Adds signed fixed-point tide displacement to the base liquid surface, giving its signed line; a liquid with no
+    /// surface has none, and no retail record gives one a tide.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">A liquid with no surface has a tide.</exception>
+    private int? ComputeTidalYPosition()
     {
-        return BaseY.MovedBy(SignedSixteenSixteen.FromRaw(TideFixedOffset)).Whole;
+        if (BaseY is { } baseY)
+            return CoordinateAxis.AsSigned(baseY.MovedBy(SignedSixteenSixteen.FromRaw(TideFixedOffset)).Whole);
+        return TideFixedOffset == 0
+            ? null
+            : throw new InvalidOperationException("A room liquid with no surface has a tide.");
     }
 
     /// <summary>Whether the FX options select vertical background displacement for lava or acid.</summary>
@@ -750,12 +780,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private bool UsesLavaAcidHorizontalWave =>
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
-    /// <summary>Computes effect overlay vertical scroll from the liquid surface relative to camera Y.</summary>
-    private static int ComputeLiquidVerticalScroll(int surfaceY, int cameraY)
+    /// <summary>Computes effect overlay vertical scroll from the liquid surface relative to camera Y; none shows nothing.</summary>
+    private static int ComputeLiquidVerticalScroll(int? surfaceY, int cameraY)
     {
-        if (CoordinateAxis.AsSigned(surfaceY) < 0)
+        if (surfaceY is not int line || line < 0)
             return 0;
-        int relative = CoordinateAxis.Difference(surfaceY, cameraY);
+        int relative = CoordinateAxis.Difference(line, cameraY);
         if (relative <= 0)
             return ((relative ^ 31) & 31) | 256;
         // A surface below the camera's top scrolls the overlay up from the last line of its 256-line band.
@@ -770,7 +800,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     {
         _session = Ensure.NotNull(session);
         Type = RoomFxType.None;
-        TargetSurface = Position16<RoomPixels>.Zero;
+        TargetSurface = 0;
         YVelocity = default;
         Timer = WrappingCountdown.Start(0);
         Blend = null;
@@ -778,17 +808,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         drift = Offset16<OverlaySubpixels>.Zero;
         rainWindVelocity = Offset16<OverlaySubpixels>.Zero;
         previousCamera = Position16<RoomPixels>.Zero;
-        // Half a pixel: the liquid starts centred on its whole position.
-        BaseY = new FixedCoordinate(0, 1 << 15);
+        BaseY = new FixedCoordinate(0, LoadedSurfaceFraction);
         TidePhase = 0;
         TideFixedOffset = 0;
-        Surface = NoSurface;
+        Surface = null;
         LiquidOptions = RoomLiquidOptions.None;
         waterDrift = Offset16<OverlaySubpixels>.Zero;
         waterBackgroundWaveTimer = 0;
         waterOverlayWaveTimer = 0;
         waterOverlayWavePhase = waterBackgroundWavePhase = 0;
-        waterSurfaceScreenY = short.MaxValue;
+        waterSurfaceScreenY = null;
         lavaAcidBackgroundWaveTimer = 0;
         lavaAcidBackgroundWavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;

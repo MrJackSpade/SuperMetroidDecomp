@@ -60,12 +60,10 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// The room effect's liquid surface as Samus's physics sees it: none when the effect shows no liquid. The effect
-    /// publishes a surface from 32768 up (65535 when it names none) above the room, where the game's sign test finds no
-    /// surface.
+    /// The room effect's liquid surface as Samus's physics sees it: none when the effect has no surface, or when a tide
+    /// carries it above the room, where the game's sign test finds no surface.
     /// </summary>
-    private static int? LiveSurface(RoomFxOverlayState fx) =>
-        CoordinateAxis.AsSigned(fx.Surface.Y) >= 0 ? fx.Surface.Y : null;
+    private static int? LiveSurface(RoomFxOverlayState fx) => fx.Surface is >= 0 ? fx.Surface : null;
 
     /// <summary>32770: a negative atmospheric timer, so the slot neither moves nor draws while it holds.</summary>
     private const int BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;

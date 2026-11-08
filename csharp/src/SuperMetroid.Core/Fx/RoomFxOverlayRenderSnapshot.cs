@@ -2,17 +2,18 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// Immutable gameplay effect overlay values published by one frame boundary, with how the effect's overlay blends with the
-/// room (#1545), or null when the effect describes no blend.
+/// room (#1545), or null when the effect describes no blend. <c>Surface</c> is the liquid surface's room line, or null with
+/// no surface; <c>WaterSurfaceScreenY</c> its screen line, or null while no surface is placed on the screen (#1546).
 /// </summary>
 public readonly record struct RoomFxOverlayRenderSnapshot(
     RoomFxType Type,
     RoomEffectBlend? Blend,
     Position16<OverlayPixels> Scroll,
-    Position16<RoomPixels> Surface,
+    int? Surface,
     RoomLiquidOptions LiquidOptions = RoomLiquidOptions.None,
     int WaterOverlayWavePhase = 0,
     int WaterBackgroundWavePhase = 0,
-    int WaterSurfaceScreenY = short.MaxValue)
+    int? WaterSurfaceScreenY = null)
 {
     /// <summary>
     /// Effective circular phase of the lava/acid background per-line table. Zero is the first table

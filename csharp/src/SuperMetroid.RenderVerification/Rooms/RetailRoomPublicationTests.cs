@@ -52,7 +52,7 @@ internal static class RetailRoomPublicationTests
                     break;
                 case PublishedFx.Heat:
                     if (runtime.Display.DisplayedRoomFxOverlay is not { Type: RoomFxType.Lava } lava ||
-                        lava.Surface.Y != RoomPublicationFixtureDefinitions.BusinessCenterSurface)
+                        lava.Surface != RoomPublicationFixtureDefinitions.BusinessCenterSurface)
                         throw new InvalidOperationException("Retail heat fixture did not publish its authored lava surface.");
                     break;
                 default:

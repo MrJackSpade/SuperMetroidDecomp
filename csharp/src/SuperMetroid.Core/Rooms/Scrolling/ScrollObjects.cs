@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// <summary>Scroll PLMs: setup, stepping and the scroll-cell mutation they apply when Samus touches them.</summary>
 internal sealed class ScrollObjects : IRoomObjectFamilySource
 {
-    /// <summary>The first program byte that ends a scroll program instead of naming a scroll cell: 128 and above.</summary>
-    private const int ProgramEndFrom = 128;
-
     /// <summary>Registers the Scroll family's step.</summary>
     public void AddObjectFamilies(RoomObjectFamilyTable table)
     {
@@ -70,40 +67,20 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
         if (scrolls is null)
             throw new InvalidOperationException("A triggered scroll PLM requires the active scroll grid.");
 
-        // A retail trigger runs its program's ordered writes; a constructed one its validated pairs.
+        // A constructed trigger runs its validated writes, a retail one its program's ordered writes; either program
+        // ends after its last write.
         if (scroll.Program is null)
         {
             RoomObjectScrollPrograms.Apply(scroll.CompiledProgram ?? throw new InvalidOperationException(
-                "A scroll trigger has neither a retail program nor constructed pairs."), scrolls.SetStorage);
-            FinishScrollMutation(level, slot);
-            return true;
+                "A scroll trigger has neither a retail program nor constructed writes."), scrolls.SetStorage);
         }
-        ReadOnlyMemory<byte> program = scroll.Program;
-        for (int pairIndex = 0; pairIndex < RoomScrollGrid.StorageByteCount; pairIndex++)
+        else
         {
-            int offset = pairIndex * 2;
-            if (offset >= program.Length)
-                throw new InvalidDataException(
-                    $"Scroll PLM program at block {slot.BlockIndex} ended without a terminator.");
-            int scrollIndex = program.Span[offset];
-            if (scrollIndex >= ProgramEndFrom)
-            {
-                FinishScrollMutation(level, slot);
-                return true;
-            }
-
-            if (offset + 1 >= program.Length)
-                throw new InvalidDataException(
-                    $"Scroll PLM program at block {slot.BlockIndex} lacks a state byte.");
-            scrolls.SetStorage(
-                scrollIndex,
-                RoomScrollStates.FromAuthoredByte(
-                    program.Span[offset + 1],
-                    $"scroll PLM program at block {slot.BlockIndex} pair {pairIndex}"));
+            foreach (RoomScrollWrite write in scroll.Program)
+                scrolls.SetStorage(write.Index, write.State);
         }
-
-        throw new InvalidDataException(
-            $"Scroll PLM data at block {slot.BlockIndex} has no negative terminator.");
+        FinishScrollMutation(level, slot);
+        return true;
     }
 
     /// <summary>Restores the special-air trigger and rearms its waiting program.</summary>
@@ -120,7 +97,7 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
 
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
     internal static void SetupScrollSlot(RoomLevelData level, RoomObjectSlot slot,
-        RoomObjectHeaderId header, ReadOnlySpan<byte> program, RoomScrollProgram? compiledProgram)
+        RoomObjectHeaderId header, IReadOnlyList<RoomScrollWrite>? program, RoomScrollProgram? compiledProgram)
     {
         if (header != RoomObjectHeaderId.ScrollTrigger)
         {
@@ -423,7 +400,8 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
 
         slot.Family = new ScrollObjectState
         {
-            Program = compiledProgram.HasValue ? null : program.ToArray(),
+            Program = compiledProgram.HasValue ? null : program?.ToArray() ?? throw new InvalidOperationException(
+                "A scroll trigger has neither a retail program nor constructed writes."),
             CompiledProgram = compiledProgram,
         };
         level.SetTerrain(
@@ -442,7 +420,7 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
         public bool Triggered { get; set; }
         /// <summary>The retail program the trigger runs; independent of later room-argument edits.</summary>
         public RoomScrollProgram? CompiledProgram { get; set; }
-        /// <summary>Validated constructed pairs. Null runs the retail program.</summary>
-        public byte[]? Program { get; set; }
+        /// <summary>Validated constructed writes, in order. Null runs the retail program.</summary>
+        public RoomScrollWrite[]? Program { get; set; }
     }
 }

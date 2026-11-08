@@ -46,8 +46,8 @@ public sealed class RoomObjectPopulation
         Ensure.NotNull(placement);
         if (placement.Header.Header == RoomObjectHeaderId.None)
             throw new InvalidDataException("A decoded PLM placement cannot be an empty placement.");
-        byte[] program = placement.ScrollProgram.ToArray();
-        RoomScrollProgram? compiledProgram = program.Length == 0 ? placement.CompiledScrollProgram : null;
+        RoomScrollWrite[]? program = placement.ScrollProgram?.ToArray();
+        RoomScrollProgram? compiledProgram = program is null ? placement.CompiledScrollProgram : null;
         if (compiledProgram is not null)
         {
             if (placement.Header.Header != RoomObjectHeaderId.ScrollTrigger)
@@ -55,18 +55,16 @@ public sealed class RoomObjectPopulation
         }
         else if (placement.Header.Header == RoomObjectHeaderId.ScrollTrigger)
         {
-            if (program.Length is < 1 or > 2 * RoomScrollGrid.StorageByteCount - 1 ||
-                program.Length % 2 == 0 || program[^1] < RoomObjectScrollProgramDefinitions.FirstEndMarker)
-                throw new InvalidDataException("A decoded scroll PLM needs a bounded, terminated pair program.");
-            for (int offset = 0; offset < program.Length - 1; offset += 2)
+            if (program is null || program.Length >= RoomScrollGrid.StorageByteCount)
+                throw new InvalidDataException("A decoded scroll PLM needs a bounded write program.");
+            foreach (RoomScrollWrite write in program)
             {
-                if (program[offset] >= RoomScrollGrid.StorageByteCount ||
-                    !RoomScrollStates.IsAuthoredByte(program[offset + 1]))
-                    throw new InvalidDataException("A decoded scroll PLM contains an invalid index/state pair.");
+                if (write.Index is < 0 or >= RoomScrollGrid.StorageByteCount || !Enum.IsDefined(write.State))
+                    throw new InvalidDataException("A decoded scroll PLM contains an invalid scroll write.");
             }
         }
-        else if (program.Length != 0)
-            throw new InvalidDataException("Only a resident scroll PLM may own scroll pairs.");
+        else if (program is not null)
+            throw new InvalidDataException("Only a resident scroll PLM may own scroll writes.");
         return placement with { ScrollProgram = program, CompiledScrollProgram = compiledProgram };
     }
 }

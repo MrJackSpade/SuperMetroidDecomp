@@ -28,14 +28,14 @@ internal static class LookupScrollProgramsVerification
             var compiled = RoomObjectPopulationDefinitions.Get(0x8230);
             RoomScrollProgram retail = RoomObjectScrollProgramDefinitions.ProgramAt(0x94fa);
             AssertEqual(retail, compiled.Placements.Span[0].CompiledScrollProgram,"Retail scroll binds identity");
-            AssertTrue(compiled.Placements.Span[0].ScrollProgram.IsEmpty,"Retail scroll carries no regenerated pair table");
+            AssertEqual(null, compiled.Placements.Span[0].ScrollProgram,"Retail scroll carries no regenerated write list");
             var rebound = new RoomObjectPopulation($"$8F:{0x8230:X4}",
                 [compiled.Placements.Span[0] with { Argument = new StationArgument(ushort.MaxValue) }]);
             AssertEqual(retail, rebound.Placements.Span[0].CompiledScrollProgram,"Copied placement preserves its bound program independently of argument");
             var customized = new RoomObjectPopulation($"$8F:{0x8230:X4}",
-                [compiled.Placements.Span[0] with { ScrollProgram = new byte[] {1,2,0x80} }]);
-            AssertEqual(null, customized.Placements.Span[0].CompiledScrollProgram,"Explicit custom pairs replace the retail program");
-            AssertTrue(customized.Placements.Span[0].ScrollProgram.Span.SequenceEqual(new byte[] {1,2,0x80}),"Explicit custom pairs survive placement copy");
+                [compiled.Placements.Span[0] with { ScrollProgram = [new(1, RoomScrollState.Green)] }]);
+            AssertEqual(null, customized.Placements.Span[0].CompiledScrollProgram,"Explicit custom writes replace the retail program");
+            AssertTrue(customized.Placements.Span[0].ScrollProgram!.SequenceEqual([new RoomScrollWrite(1, RoomScrollState.Green)]),"Explicit custom writes survive placement copy");
             AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
                 [new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.ScrollTrigger),new(0, 0),null)]),
                 "Constructed scroll still requires decoded program");

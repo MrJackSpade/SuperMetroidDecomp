@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The Fireflea room effect's state: the flash clock its setup initializes and its per-frame behaviour steps, and
-/// the darkness level the dying Firefleas advance, and the shade it publishes (<see cref="Tint"/>), which a Fireflea
+/// the darkness step the dying Firefleas advance, and the shade it publishes (<see cref="Tint"/>), which a Fireflea
 /// room's load restarts from its first flash. The game keeps these for the session;
 /// the room FX state owns them for the session, so a room load does not reset them.
 /// </summary>
@@ -18,12 +18,15 @@ public sealed class FirefleaFxState
     /// <summary>The current flashing-table element index, 0 through 11.</summary>
     public int Index { get; private set; }
 
-    /// <summary>The darkness level published from the enemy-owned death counter, an even darkness-table byte offset 0 through 12.</summary>
-    public int Darkness { get; private set; }
+    /// <summary>
+    /// The darkness step published from the enemies' death count: one step per Fireflea killed, from none through
+    /// the sixth step (<see cref="FirefleaFxDefinitions.DarknessLevels"/>).
+    /// </summary>
+    public int DarknessStep { get; private set; }
 
     /// <summary>
     /// The shade Fireflea darkness subtracts from the room, grey on the game's fade scale: the flashing shade plus the
-    /// darkness level, as the last unfrozen step chose it. A frozen step keeps it.
+    /// darkness step's level, as the last unfrozen step chose it. A frozen step keeps it.
     /// </summary>
     public RgbColor Tint { get; private set; } = Shade(0, 0);
 
@@ -32,17 +35,17 @@ public sealed class FirefleaFxState
     {
         Timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
         Index = 0;
-        Darkness = 0;
-        Tint = Shade(Index, Darkness);
+        DarknessStep = 0;
+        Tint = Shade(Index, DarknessStep);
     }
 
     /// <summary>
-    /// Samples enemy-owned darkness, and unless frozen advances the flash clock and chooses the room's
-    /// <see cref="Tint"/> from the flashing shade and the darkness level, including the level past the ramp.
+    /// Samples the enemies' darkness step, and unless frozen advances the flash clock and chooses the room's
+    /// <see cref="Tint"/> from the flashing shade and the darkness step's level.
     /// </summary>
-    internal void Step(bool frozen, int darkness)
+    internal void Step(bool frozen, int darknessStep)
     {
-        Darkness = darkness;
+        DarknessStep = darknessStep;
         if (frozen) return;
         CountdownStep step = Timer.Decrement();
         WrappingCountdown timer = step.Remaining;
@@ -50,7 +53,7 @@ public sealed class FirefleaFxState
         if (step.IsZero)
         {
             timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
-            if (darkness < FirefleaFxDefinitions.SteadyDarknessThreshold)
+            if (darknessStep < FirefleaFxDefinitions.SteadyDarknessStep)
             {
                 index++;
                 if (index >= FirefleaFxDefinitions.FlashCount) index = 0;
@@ -60,16 +63,16 @@ public sealed class FirefleaFxState
         }
         Timer = timer;
 
-        Tint = Shade(index, darkness);
+        Tint = Shade(index, darknessStep);
     }
 
     /// <summary>
-    /// The grey of the flashing shade at <paramref name="index"/> deepened by the darkness at <paramref name="darkness"/>:
+    /// The grey of the flashing shade at <paramref name="index"/> deepened by darkness step <paramref name="darknessStep"/>:
     /// the two fade levels add, and their sum never passes the scale's full level.
     /// </summary>
-    private static RgbColor Shade(int index, int darkness)
+    private static RgbColor Shade(int index, int darknessStep)
     {
-        int level = FirefleaShades.FlashingShade(index) + FirefleaShades.DarknessShade(darkness);
+        int level = FirefleaShades.FlashingShade(index) + FirefleaShades.DarknessShade(darknessStep);
         return new FadeLevelColour(level, level, level).ToColour();
     }
 }

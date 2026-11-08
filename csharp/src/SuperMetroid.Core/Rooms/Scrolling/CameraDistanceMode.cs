@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 public enum CameraDistanceMode
 {
     /// <summary>Normal tracking, restored by the camera reset and boss completion routines.</summary>
-    NormalTracking = 0,
+    NormalTracking,
     /// <summary>Boss tracking, selected by Kraid and Crocomire.</summary>
-    BossTracking = 2,
+    BossTracking,
     /// <summary>Samus 32 pixels from the left edge. Nothing in the game selects it.</summary>
-    LeftEdge = 4,
+    LeftEdge,
     /// <summary>Samus 32 pixels from the right edge; Crocomire selects this target mode.</summary>
-    RightEdge = 6,
+    RightEdge,
 }

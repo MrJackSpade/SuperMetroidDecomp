@@ -552,11 +552,9 @@ internal sealed class EnemyProjectileEngine
         // Resolve type-$5/$D behaviour links before dispatching the final block family, just as
         // the projectile collision loop does. Type zero is air; type nine is a door
         // and remains a wall to an enemy projectile.
-        int blockIndex = EnemyTerrain.ResolveEnemyCollisionBlockIndex(level, block);
-        if (blockIndex < 0)
+        if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } collisionBlock)
             return true;
 
-        RoomCollisionBlock collisionBlock = level.GetCollisionBlockByIndex(blockIndex);
         RoomCollisionType type = collisionBlock.CollisionType;
         if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.IsNonSquareSlope)
         {

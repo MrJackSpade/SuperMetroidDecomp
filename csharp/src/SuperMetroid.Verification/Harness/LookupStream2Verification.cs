@@ -919,7 +919,16 @@ internal static class LookupStream2Verification
                 reversal == 2 ? SamusMovementType.Moonwalking : 0,
                 reversal == 3 ? SamusAccelerationMode.Turning : SamusAccelerationMode.Accelerating, facing, mode);
             bool right = reversal == 0 ? facing != 4 : facing == 4;
-            ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + (int)mode);
+            // The original's target tables keep one word per mode, in this order.
+            int nativeEntry = mode switch
+            {
+                CameraDistanceMode.NormalTracking => 0,
+                CameraDistanceMode.BossTracking => 1,
+                CameraDistanceMode.LeftEdge => 2,
+                CameraDistanceMode.RightEdge => 3,
+                _ => throw new InvalidOperationException($"Undefined {nameof(CameraDistanceMode)} {mode}."),
+            };
+            ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + nativeEntry * 2);
             AssertEqual(nativeOffset, HorizontalCameraTargets.Offset(mode, right), "Native mode/facing target offset");
             var camera = new ScrollBoundaryCamera(grid);
             camera.SetPosition(new Position16<RoomPixels>(100, 0));
@@ -931,7 +940,7 @@ internal static class LookupStream2Verification
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
             FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0),
-            new(false, 0, 0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
+            new(false, 0, 0, 8, (CameraDistanceMode)(-1))), "An undefined camera distance is rejected before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
 

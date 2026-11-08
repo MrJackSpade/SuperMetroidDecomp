@@ -169,8 +169,8 @@ public sealed class ScrollBoundaryCamera
         HorizontalCameraContext context,
         bool timeIsFrozen = false)
     {
-        if (!Enum.IsDefined(context.CameraDistanceIndex))
-            throw new ArgumentOutOfRangeException(nameof(context), "Camera distance index must be byte offset 0, 2, 4, or 6.");
+        if (!Enum.IsDefined(context.CameraDistance))
+            throw new ArgumentOutOfRangeException(nameof(context), $"Undefined camera distance {context.CameraDistance}.");
 
         Speed = Speed.WithX(CalculateDistanceMovedPlusOne(previous.X, current.X));
 
@@ -190,7 +190,7 @@ public sealed class ScrollBoundaryCamera
             || context.MovementType == SamusMovementType.Moonwalking
             || context.TurningAgainstMomentum;
         bool useFacingRightTarget = backwards ^ !context.FacesLeft;
-        int targetOffset = HorizontalCameraTargets.Offset(context.CameraDistanceIndex, useFacingRightTarget);
+        int targetOffset = HorizontalCameraTargets.Offset(context.CameraDistance, useFacingRightTarget);
         IdealPosition = IdealPosition.WithX(CoordinateAxis.Wrap(current.X.Whole - targetOffset));
 
         if (IdealPosition.X == Position.X.Whole)

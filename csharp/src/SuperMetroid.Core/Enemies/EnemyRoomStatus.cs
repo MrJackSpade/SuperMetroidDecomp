@@ -36,14 +36,14 @@ internal sealed class EnemyRoomStatus
     /// </summary>
     public AreaBoss? Boss { get; internal set; }
     /// <summary>
-    /// Fireflea darkness progression, 0 through <see cref="MaximumFirefleaDarknessLevel"/>: reset on room load and
-    /// advanced by two per Fireflea death, where the advance rejects the step to 14. No producer wraps it, so the
-    /// setter rejects any value outside that range.
+    /// Fireflea darkness progression, 0 through <see cref="MaximumFirefleaDarknessStep"/>: reset on room load and
+    /// advanced by one step per Fireflea death until it reaches the last step, where further deaths leave it. No
+    /// producer wraps it, so the setter rejects any value outside that range.
     /// </summary>
-    public int FirefleaDarknessLevel { get; internal set => field = Ensure.BetweenInclusive(0, MaximumFirefleaDarknessLevel, value); }
+    public int FirefleaDarknessStep { get; internal set => field = Ensure.BetweenInclusive(0, MaximumFirefleaDarknessStep, value); }
 
-    /// <summary>The darkest level a Fireflea death can reach; the next step to 14 is rejected.</summary>
-    public const int MaximumFirefleaDarknessLevel = 12;
+    /// <summary>The last darkness step Fireflea deaths reach: six deaths; a seventh leaves it.</summary>
+    public const int MaximumFirefleaDarknessStep = 6;
 
     /// <summary>Counts one more enemy death in the room's kill count, which wraps from 65535 to zero.</summary>
     internal void RecordKill() => EnemiesKilled = (EnemiesKilled + 1) % KillCountPeriod;

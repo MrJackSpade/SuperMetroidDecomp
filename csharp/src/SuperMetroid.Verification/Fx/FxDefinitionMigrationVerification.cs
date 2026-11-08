@@ -40,8 +40,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
         // The Fireflea shades are fade levels: the high bytes of the former shade words, below their channel bits.
-        AssertEqual(2, FirefleaShades.DarknessShade(12), "darkness level past the ramp");
-        AssertEqual(25, FirefleaShades.DarknessShade(10), "last ramp darkness level");
+        AssertEqual(2, FirefleaShades.DarknessShade(6), "the sixth death's faint darkness level");
+        AssertEqual(25, FirefleaShades.DarknessShade(5), "deepest darkness level");
         AssertEqual(6, FirefleaShades.FlashingShade(6), "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.
@@ -73,8 +73,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x70, LavaAcidWaveDefinitions.AmbientSoundPeriod, "lava sound period");
         AssertEqual(288, LiquidTideDefinitions.SmallTidePositivePhaseDelta, "small tide rising phase step");
         AssertEqual(0x0600, AtmosphereDriftDefinitions.RainVerticalVelocity, "rain fall");
-        AssertEqual(-6 * 256, AtmosphereDrift.RainHorizontalVelocity(0), "rain drift selection 0: six pixels left, in 1/256 pixel");
-        AssertEqual(4 * 256, AtmosphereDrift.RainHorizontalVelocity(3), "rain drift selection 3: four pixels right, in 1/256 pixel");
+        AssertEqual(-6 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.StrongLeft), "strong left rain wind: six pixels left, in 1/256 pixel");
+        AssertEqual(4 * 256, AtmosphereDrift.RainHorizontalVelocity(RainWind.GentleRight), "gentle right rain wind: four pixels right, in 1/256 pixel");
         AssertEqual(0x0040, AtmosphereDriftDefinitions.SporesVerticalVelocity, "spore rise");
         AssertEqual(0x0050, AtmosphereDriftDefinitions.FogHorizontalVelocity, "fog drift");
 

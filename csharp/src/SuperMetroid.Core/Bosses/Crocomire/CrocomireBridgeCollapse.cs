@@ -314,7 +314,7 @@ internal sealed class CrocomireBridgeCollapse
         if (state.Tongue is { } tongue)
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(78, 3), CrocomireArenaMutation.ClearInvisibleWall);
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
+        _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
         _access.RequireCrocomireDeath().SkeletonBaringElapsed = 0;
     }
 

@@ -545,7 +545,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
+            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
             if (Room.LoadedScope.FxOverlay.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
@@ -814,7 +814,7 @@ internal sealed class SuperMetroidRuntime
                         MovementType: SamusPoseMetadata.ReadMovementType(samus),
                         XAccelerationMode: samus.HorizontalSpeed.AccelerationMode,
                         PoseXDirection: SamusPoseMetadata.ReadPoseXDirection(samus),
-                        CameraDistanceIndex: Room.LoadedScope.Enemies.RoomMainHooks.ZebetiteCameraDistanceIndex),
+                        CameraDistance: Room.LoadedScope.Enemies.RoomMainHooks.ZebetiteCameraDistance),
                     Freeze.TimeIsFrozen);
                 camera.TrackMovedSamusVertically(
                     previousCameraPoint,

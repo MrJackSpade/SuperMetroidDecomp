@@ -21,11 +21,10 @@ public sealed record RoomFxOverlayFrame
     public int RandomNumber { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
-    /// The room's Fireflea darkness level this frame (0, then +2 per Fireflea killed, at most 12), copied from the
-    /// enemies' room status for the darkness effect, which already takes it as a number; values outside the
-    /// sixteen-bit range (0 through 65535) are rejected.
+    /// The room's Fireflea darkness step this frame (none, then one more per Fireflea killed, at most six), copied from
+    /// the enemies' room status for the darkness effect; a step the darkness has no level for is rejected.
     /// </summary>
-    public int FirefleaDarknessLevel { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    public int FirefleaDarknessStep { get; init => field = Ensure.BetweenInclusive(0, FirefleaFxDefinitions.DarknessLevels.Length - 1, value); }
 
     /// <summary>Power bomb.</summary>
     public IActivePowerBomb? PowerBomb { get; init; } = null;

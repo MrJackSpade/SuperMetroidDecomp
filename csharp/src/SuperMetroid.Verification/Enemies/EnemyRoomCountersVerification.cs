@@ -15,12 +15,12 @@ internal static class EnemyRoomCountersVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
 
-        enemies.RoomStatus.FirefleaDarknessLevel = EnemyRoomStatus.MaximumFirefleaDarknessLevel;
-        AssertEqual(12, enemies.RoomStatus.FirefleaDarknessLevel, "darkness reaches its deepest accepted level");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessLevel = 14,
+        enemies.RoomStatus.FirefleaDarknessStep = EnemyRoomStatus.MaximumFirefleaDarknessStep;
+        AssertEqual(6, enemies.RoomStatus.FirefleaDarknessStep, "darkness reaches its last step");
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessStep = 7,
             "darkness rejects the step the Fireflea advance never takes");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessLevel = -1,
-            "darkness rejects a negative level");
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessStep = -1,
+            "darkness rejects a negative step");
 
         enemies.SlotTable.EnemyCount = EnemySlotOrder.Capacity;
         AssertEqual(32, enemies.SlotTable.EnemyCount, "a full population fills every slot");

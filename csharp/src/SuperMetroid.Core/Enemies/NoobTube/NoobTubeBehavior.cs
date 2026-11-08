@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 [RoomLifetime]
 internal sealed class NoobTubeBehavior
 {
-    /// <summary>The program each even shard spawn parameter (0-18) selects, by parameter / 2.</summary>
+    /// <summary>The program each shard of the burst runs, in burst order.</summary>
     private static readonly NoobTubeProjectileProgram[] ShardPrograms =
     [
         NoobTubeProjectileProgram.Shard0, NoobTubeProjectileProgram.Shard1, NoobTubeProjectileProgram.Shard2,
@@ -70,8 +70,8 @@ internal sealed class NoobTubeBehavior
         switch (kind)
         {
             case RoomEnemyProjectileKind.NoobTubeCrack:
-                if (request.Parameter != 0)
-                    throw new InvalidDataException("N00b-tube crack parameter must be zero.");
+                if (request.Piece is not null)
+                    throw new InvalidDataException("The n00b tube has one crack; a crack names no piece.");
                 projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
                     blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset), CoordinateAxis.Wrap(
                     blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset)));
@@ -80,8 +80,8 @@ internal sealed class NoobTubeBehavior
 
             case RoomEnemyProjectileKind.NoobTubeShard:
             {
-                int index = ValidateEvenNoobTubeParameter(
-                    request.Parameter,
+                int index = RequireNoobTubePiece(
+                    request.Piece,
                     NoobTubeDebrisDefinitions.ShardOffsets.Length,
                     "shard");
                 projectile.State = new NoobTubeDebrisState(
@@ -97,8 +97,8 @@ internal sealed class NoobTubeBehavior
 
             case RoomEnemyProjectileKind.NoobTubeReleasedAirBubble:
             {
-                int index = ValidateEvenNoobTubeParameter(
-                    request.Parameter,
+                int index = RequireNoobTubePiece(
+                    request.Piece,
                     NoobTubeDebrisDefinitions.BubbleOffsets.Length,
                     "released-air bubble");
                 projectile.State = new NoobTubeDebrisState(
@@ -236,18 +236,18 @@ internal sealed class NoobTubeBehavior
         }
     }
 
-    /// <summary>Converts an even-byte table offset to a shard or bubble entry index, rejecting odd and out-of-range operands.</summary>
-    private static int ValidateEvenNoobTubeParameter(
-        int parameter,
-        int entryCount,
+    /// <summary>Requires the shard or bubble a request names to be one of the <paramref name="pieceCount"/> the burst has.</summary>
+    private static int RequireNoobTubePiece(
+        int? piece,
+        int pieceCount,
         string family)
     {
-        if ((parameter & 1) != 0 || parameter / 2 >= entryCount)
+        if (piece is not { } named || named < 0 || named >= pieceCount)
         {
             throw new InvalidDataException(
-                $"N00b-tube {family} parameter ${parameter:X4} is outside its even table.");
+                $"N00b-tube {family} piece '{piece}' is not one of the burst's {pieceCount}.");
         }
-        return parameter / 2;
+        return named;
     }
 
     /// <summary>Flickers the crack: alternate updates park it off to the side and return it to its shown column.</summary>

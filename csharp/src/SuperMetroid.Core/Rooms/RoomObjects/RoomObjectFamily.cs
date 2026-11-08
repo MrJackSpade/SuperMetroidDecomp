@@ -29,4 +29,7 @@ internal enum RoomObjectFamily
 
     /// <summary>A door-spawned Wrecked Ship treadmill.</summary>
     WreckedShipTreadmill,
+
+    /// <summary>The Speed Booster escape's lavaquake controller.</summary>
+    SpeedBoosterEscape,
 }

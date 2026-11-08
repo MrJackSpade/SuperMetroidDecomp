@@ -33,8 +33,7 @@ internal sealed class RoomObjectSlot
     public int HitCounter { get; set; }
     /// <summary>
     /// The slot's loop countdown, distinct from the instruction countdown: a counted program loop repeats until it
-    /// reaches zero. A downward gate keeps its trigger in it (nonzero once shot), and the Speed Booster escape keeps the
-    /// lavaquake stage it has reached, each stepped by its own owner.
+    /// reaches zero. A downward gate keeps its trigger in it (nonzero once shot), stepped by the gate's owner.
     /// </summary>
     public WrappingCountdown LoopTimer { get; set; }
     /// <summary>

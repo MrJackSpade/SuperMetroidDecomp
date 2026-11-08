@@ -406,19 +406,20 @@ internal sealed class EnemyTerrain
     /// A guard converts corrupt cyclic room data into a useful exception instead of a host
     /// stack overflow; valid chains always terminate well before the room allocation size.
     /// </summary>
-    internal static int ResolveEnemyCollisionBlockIndex(
+    /// <returns>The block the chain ends on, or null when the start or a link lies outside the room's grid.</returns>
+    internal static RoomCollisionBlock? ResolveEnemyCollisionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> start)
     {
         if (!level.Size.Contains(start))
-            return -1;
+            return null;
 
         int blockIndex = level.Size.RowMajorIndex(start);
         int maximumLinks = level.Size.X * level.Size.Y;
         for (int link = 0; link <= maximumLinks; link++)
         {
             if ((uint)blockIndex >= (uint)maximumLinks)
-                return -1;
+                return null;
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             int offset = block.CollisionType switch
             {
@@ -437,7 +438,7 @@ internal sealed class EnemyTerrain
                 _ => throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}."),
             };
             if (offset == 0)
-                return blockIndex;
+                return block;
             blockIndex += offset;
         }
 

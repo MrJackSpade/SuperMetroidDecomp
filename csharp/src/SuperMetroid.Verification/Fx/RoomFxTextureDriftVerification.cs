@@ -47,7 +47,7 @@ internal static class RoomFxTextureDriftVerification
                 rain.Step(new ArtworkFrameSelections(), Frame());
                 AssertEqual(new Position16<OverlayPixels>(WholePixels(expectedX), WholePixels(expectedY)), rain.Scroll,
                     $"rain wind {selection} frame {frame}");
-                expectedX = unchecked((ushort)(expectedX + AtmosphereDrift.RainHorizontalVelocity(selection)));
+                expectedX = unchecked((ushort)(expectedX + AtmosphereDrift.RainHorizontalVelocity(AtmosphereDrift.RainWindChosenBy(selection * 4))));
                 expectedY = unchecked((ushort)(expectedY - AtmosphereDriftDefinitions.RainVerticalVelocity));
             }
         }

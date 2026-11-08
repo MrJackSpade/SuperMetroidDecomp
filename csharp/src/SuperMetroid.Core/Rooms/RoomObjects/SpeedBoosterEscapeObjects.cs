@@ -4,8 +4,15 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The Speed Booster escape PLMs: rising lava/acid FX and the earthquake the escape triggers.</summary>
 [RoomLifetime]
-internal sealed class SpeedBoosterEscapeObjects
+internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
 {
+    /// <summary>Registers the SpeedBoosterEscape family, which has no step of its own: its slot takes the shared path.</summary>
+    public void AddObjectFamilies(RoomObjectFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Add(RoomObjectFamily.SpeedBoosterEscape, static (_, _) => RoomObjectStepOutcome.Shared);
+    }
+
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The game's event flags.</summary>
@@ -26,7 +33,7 @@ internal sealed class SpeedBoosterEscapeObjects
 
     /// <summary>
     /// Sets up the Speed Booster escape PLM. Event 21 suppresses this actor on subsequent room loads; an
-    /// unset event leaves the preallocated slot and its first script untouched.
+    /// unset event starts the escape's program, before its first lava rise.
     /// </summary>
     internal void SetupSpeedBoosterEscapeSlot(RoomObjectSlot slot)
     {
@@ -39,7 +46,10 @@ internal sealed class SpeedBoosterEscapeObjects
         if (_events.Has(EventNumber.OutranSpeedBoosterLavaquake))
             slot.Clear();
         else
+        {
             slot.StartAnimation(new SpeedBoosterEscapeObjectAnimation());
+            slot.Family = new SpeedBoosterEscapeObjectState();
+        }
     }
 
     /// <summary>Dispatches the exact callback pointer installed by the original game list.</summary>
@@ -112,9 +122,9 @@ internal sealed class SpeedBoosterEscapeObjects
         IRoomSamus samus,
         IRoomFxMotion fx)
     {
-        SpeedBoosterEscapeStageDefinition? stage =
-            SpeedBoosterEscapeStages.Resolve(slot.LoopTimer.RemainingFrames);
-        if (stage is null)
+        SpeedBoosterEscapeObjectState escape = slot.Family as SpeedBoosterEscapeObjectState
+            ?? throw new InvalidOperationException("The Speed Booster escape advanced its lava without its escape state.");
+        if (escape.IsEscaped)
         {
             (_events ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its event writer.")).Set(
@@ -122,26 +132,22 @@ internal sealed class SpeedBoosterEscapeObjects
             return;
         }
 
-        // BCC returns while Samus remains left-to-right beyond this stage.
-        if (stage.Value.TargetSamusX < samus.Position.X.Whole)
+        // The rise waits while Samus remains right of its threshold.
+        SpeedBoosterEscapeStageDefinition stage = escape.NextRise;
+        if (stage.TargetSamusX < samus.Position.X.Whole)
             return;
 
         fx.SetLiquidMotion(
-            baseYPosition: stage.Value.MaximumFxY < fx.BaseY.Whole
-                ? stage.Value.MaximumFxY
+            baseYPosition: stage.MaximumFxY < fx.BaseY.Whole
+                ? stage.MaximumFxY
                 : null,
-            packedYVelocity: stage.Value.YVelocity.RawValue);
-        slot.LoopTimer = slot.LoopTimer.AddFrames(SpeedBoosterEscapeStageDefinitions.RecordByteCount);
+            packedYVelocity: stage.YVelocity.RawValue);
+        escape.PassRise();
     }
 
     /// <summary>
-    /// Both wake steps set frame hold one, advance past the sleeping step, and
-    /// clear the shot trigger. The ordinary handler then consumes the next install/sleep pair in
-    /// the same frame, preserving the coroutine cadence.
+    /// Both wake steps set frame hold one and advance past the sleeping step. The ordinary handler then consumes the
+    /// next install/sleep pair in the same frame, preserving the coroutine cadence.
     /// </summary>
-    private static void WakeAtNextInstruction(RoomObjectSlot slot)
-    {
-        slot.WakePastSleep();
-        slot.LoopTimer = WrappingCountdown.Start(0);
-    }
+    private static void WakeAtNextInstruction(RoomObjectSlot slot) => slot.WakePastSleep();
 }

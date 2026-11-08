@@ -457,11 +457,9 @@ internal sealed class EyeDoorBehavior
             }
             int blockX = tested == 0 ? (edge == Axis.Vertical ? startBlock : fixedBlock) : linear % width;
             int blockY = tested == 0 ? (edge == Axis.Vertical ? fixedBlock : startBlock) : linear / width;
-            int blockIndex = EnemyTerrain.ResolveEnemyCollisionBlockIndex(level, new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
-            if (blockIndex < 0)
+            if (EnemyTerrain.ResolveEnemyCollisionBlock(level, new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY))) is not { } block)
                 return true;
 
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             if (block.CollisionType is not (
                 RoomCollisionType.Air or
                 RoomCollisionType.SpikeAir or

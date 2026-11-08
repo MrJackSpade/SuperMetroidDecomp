@@ -18,10 +18,10 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => Conditions(ushort.MaxValue + 1), "palette-FX Samus Y above the word");
         AssertThrows<ArgumentOutOfRangeException>(() => Conditions(-1), "negative palette-FX Samus Y");
 
-        AssertEqual(ushort.MaxValue, Frame(ushort.MaxValue).FirefleaDarknessLevel, "Fireflea darkness keeps the largest word");
-        AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None }.FirefleaDarknessLevel,
+        AssertEqual(6, Frame(6).FirefleaDarknessStep, "Fireflea darkness keeps its last step");
+        AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None }.FirefleaDarknessStep,
             "Fireflea darkness defaults to none");
-        AssertThrows<ArgumentOutOfRangeException>(() => Frame(ushort.MaxValue + 1), "Fireflea darkness above the word");
+        AssertThrows<ArgumentOutOfRangeException>(() => Frame(7), "Fireflea darkness past its last step");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(-1), "negative Fireflea darkness");
 
         AssertEqual(ushort.MaxValue, LoadSource(ushort.MaxValue).RandomNumber, "room-FX load random number keeps the largest word");
@@ -49,7 +49,7 @@ internal static class RoomFxWidenedInputsVerification
         static PaletteFxConditions Conditions(int samusY) =>
             new() { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, FirefleaDarknessLevel = darkness };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, FirefleaDarknessStep = darkness };
         static RoomFxOverlayFrame FrameRandom(int randomNumber) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, RandomNumber = randomNumber };
         static RoomFxLoadSource LoadSource(int randomNumber) =>

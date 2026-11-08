@@ -39,6 +39,7 @@ using static SuperMetroid.Verification.Samus.Abilities.BoostFloorAuditVerificati
 using static SuperMetroid.Verification.Samus.Abilities.BoostFloorScrollVerification;
 using static SuperMetroid.Verification.Bosses.BossMapMarkersVerification;
 using static SuperMetroid.Verification.Bosses.BossResetOnLoadVerification;
+using static SuperMetroid.Verification.Bosses.RestartingFallSpeedVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonObjectIdentityVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonPositionHistoryVerification;
 using static SuperMetroid.Verification.Bosses.Botwoon.BotwoonWallObjectsVerification;
@@ -798,6 +799,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFileSelectMapWindow), () => VerifyFileSelectMapWindow()),
         new(nameof(VerifySavedGameLoadAppearance), () => VerifySavedGameLoadAppearance()),
         new(nameof(VerifyBossResetOnLoad), () => VerifyBossResetOnLoad()),
+        new(nameof(VerifyRestartingFallSpeed), () => VerifyRestartingFallSpeed()),
         new(nameof(VerifyIntroCinematicRomData), () => VerifyIntroCinematicRomData()),
         .. IntroCinematicArtworkSuites(),
         new(nameof(VerifyIntroGameplayFlashbackVerticalScroll), () => VerifyIntroGameplayFlashbackVerticalScroll()),

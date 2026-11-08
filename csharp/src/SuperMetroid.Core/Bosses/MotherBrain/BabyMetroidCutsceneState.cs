@@ -405,7 +405,7 @@ public sealed class BabyMetroidCutsceneState
                 // only the low twelve bits and succeeds for 4000 through 4095 (96 of 4096 seeds).
                 CrySoundEnabled = false;
                 HealthBasedPaletteEnabled = true;
-                ambientCrySoundQueued = (randomNumber & 4095) >= 4000;
+                ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCryRoll.Of(randomNumber) >= 4000;
 
                 // The route is eight overlapping records. The fixed targets, divisors, and callback identities are
                 // compiled mechanics definitions; sprite/instruction presentation remains separately backed.

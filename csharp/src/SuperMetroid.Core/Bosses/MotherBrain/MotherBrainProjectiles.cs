@@ -430,9 +430,9 @@ internal sealed class MotherBrainProjectiles
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.
         shard.Position = shard.Position.WithWrappedWholeX(
-            shard.Position.X.Whole + (_room.Random.Generate() % 16) - 8);
+            shard.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - 8);
         shard.Position = shard.Position.WithWrappedWholeY(
-            shard.Position.Y.Whole + (_room.Random.Generate() % 16) - 8);
+            shard.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.ShardJitter) - 8);
     }
 
     /// <summary>Runs the glass shard's frame behaviour.</summary>
@@ -452,10 +452,11 @@ internal sealed class MotherBrainProjectiles
         // pixels an update above its launch speed.
         shard.Velocity = shard.Velocity.WithY(shard.Velocity.Y + SignedEightEight.FromSignedRaw(32));
 
-        // The masked test succeeds for 1/16 of samples. The condition itself consumes one
-        // random value every live shard frame; a successful sparkle consumes two more below.
-        // Bits 5 and 10 of the random word both clear: one sample in four.
-        if ((_room.Random.Generate() & 1056) == 0)
+        // The condition itself consumes one random value every live shard frame; a successful
+        // sparkle consumes two more below. Bits 5 and 10 of the sample both clear: one sample in four.
+        int sparkleSample = _room.Random.Generate();
+        if (!MotherBrainGlassShardDefinitions.SparkleCheckLowBit.IsSetIn(sparkleSample) &&
+            !MotherBrainGlassShardDefinitions.SparkleCheckHighBit.IsSetIn(sparkleSample))
             SpawnMotherBrainGlassSparkle(shard);
     }
 
@@ -472,8 +473,8 @@ internal sealed class MotherBrainProjectiles
             graphics: default);
         sparkle.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassProgram.Sparkle));
         sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
-            source.Position.X.Whole + (_room.Random.Generate() % 32) - 16), CoordinateAxis.Wrap(
-            source.Position.Y.Whole + (_room.Random.Generate() % 32) - 16)));
+            source.Position.X.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16), CoordinateAxis.Wrap(
+            source.Position.Y.Whole + _room.Random.Next(MotherBrainGlassShardDefinitions.SparkleOffset) - 16)));
         sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
     }
 
@@ -504,8 +505,7 @@ internal sealed class MotherBrainProjectiles
         int angleRandom = _room.Random.Generate();
         ByteAngle scatterAngle = new ByteAngle(state.HandBeamNextAngle).AddTableUnits(SharedRandomState.LowerByte(angleRandom));
         int speedRandom = _room.Random.Generate();
-        // Three bits of the sample's upper random byte: a whole speed of zero to seven.
-        int scatterSpeed = UnsignedEightEight.FromParts(whole: SharedRandomState.UpperByte(speedRandom) & 7, fraction: 0);
+        int scatterSpeed = UnsignedEightEight.FromParts(whole: MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom), fraction: 0);
         beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
         beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
             scatterSpeed,

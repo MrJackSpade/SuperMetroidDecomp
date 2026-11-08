@@ -41,7 +41,7 @@ public static class KraidMovementChoices
     {
         // The movement record search ends on the starting row for every unlisted position.
         Destination row = Destination.Records.FirstOrDefault(record => record.X == position) ?? Destination.Starting;
-        int choice = Math.Min((random & 28) >> 2, 4);
+        int choice = Math.Min(KraidRandomDefinitions.MovementChoice.Of(random), 4);
         Destination target = choice switch
         {
             0 => row == Destination.Left ? Destination.Rightmost : Destination.Left,

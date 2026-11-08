@@ -46,7 +46,7 @@ internal sealed class DraygonTurrets
         int random)
     {
         DraygonCannonTarget target = DraygonCannonData.FiringTarget(
-            DraygonCannonData.FiringOrder[random & 3]);
+            DraygonCannonData.FiringOrder[DraygonRandomDefinitions.TurretChoice.Of(random)]);
         if (state.DisabledCannons.Contains(target.Cannon))
             return;
 

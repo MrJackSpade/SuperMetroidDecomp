@@ -219,14 +219,14 @@ internal sealed class TorizoAttacks
         {
             // The drool's initializer chains the carry: it adds Y and the lift, then the Y velocity's
             // addition adds that second addition's carry, which is set whenever the lift does not wrap.
-            int jitteredY = (random & 3) + torizo.Position.Y.Whole;
+            int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
             int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWrappedWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
             // The jitter is five bits, so the fall speed lies between 48 and 80 256ths of a pixel.
             projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry));
             // A jitter that carries the drool past the last pixel of the coordinate space moves
             // its side offset one pixel further right. Every branch stores a zero X velocity.
-            int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
+            int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
             int pastLastPixel = jitteredX > ushort.MaxValue ? 1 : 0;
             projectile.Position = projectile.Position.WithWholeX(_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
                 ? CoordinateAxis.Wrap(jitteredX)
@@ -266,7 +266,7 @@ internal sealed class TorizoAttacks
     /// whose entries repeat the no-delay, two-frame and four-frame lists.
     /// </summary>
     internal static TorizoProjectileProgram SelectLowHealthDroolProgram(int random) =>
-        (((random >> 2) & 7) % 3) switch
+        (TorizoRandomDefinitions.LowHealthDroolDelay.Of(random) % 3) switch
         {
             0 => TorizoProjectileProgram.DroolNoDelay,
             1 => TorizoProjectileProgram.DroolTwoFrameDelay,
@@ -371,7 +371,7 @@ internal sealed class TorizoAttacks
             SpriteGraphics.SpawnedBy(torizo));
 
         projectile.Position = projectile.Position.WithWrappedWholeY(
-            torizo.Position.Y.Whole + ((_room.Random.Generate() & 1) != 0 ? -12 : 20));
+            torizo.Position.Y.Whole + (TorizoRandomDefinitions.SonicBoomHigh.IsSetIn(_room.Random.Generate()) ? -12 : 20));
         if (_access.FacesRight(torizo))
         {
             projectile.Position = projectile.Position.WithWrappedWholeX(torizo.Position.X.Whole + 32);

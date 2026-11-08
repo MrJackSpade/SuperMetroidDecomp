@@ -242,7 +242,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.IdealInterSegmentTailAngle = 11;
                 state.TailExtensionSpeed = 384;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
-                state.FunctionTimer = _room.Random.Read() % 32 + 32;
+                state.FunctionTimer = RidleyRandomDefinitions.PogoDescentTimer.Of(_room.Random.Read()) + 32;
                 Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
                 return;
 
@@ -417,7 +417,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             situation = slot.Health < 9000 ? RidleyAttackSituation.AboveHalfHealth : RidleyAttackSituation.BelowHalfHealth;
         }
 
-        int choice = _room.Random.Generate() & 7;
+        int choice = _room.Random.Next(RidleyRandomDefinitions.AttackChoice);
         state.Function = RidleyAttackChoices.Resolve(situation, choice);
 
         // The selector tail-calls the chosen routine. Retain that same-frame setup

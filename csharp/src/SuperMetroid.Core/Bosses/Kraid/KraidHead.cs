@@ -277,7 +277,7 @@ internal sealed class KraidHead
     internal int ReadKraidThinkingTimer()
     {
         int random = _room.Random.Read();
-        int value = random & 7;
+        int value = KraidRandomDefinitions.ThinkingDelaySteps.Of(random);
         if (value == 0)
             value = 2;
         return value << 6;

@@ -283,7 +283,7 @@ internal sealed class KraidProjectiles
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
 
-        if ((random & 1) == 0 || siblingPart.AlternateSpawn)
+        if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) || siblingPart.AlternateSpawn)
         {
             part.AlternateSpawn = false;
             RoomEnemySlot body = _parts.Body;

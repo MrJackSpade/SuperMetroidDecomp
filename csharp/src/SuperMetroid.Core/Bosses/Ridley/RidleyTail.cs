@@ -366,7 +366,7 @@ internal sealed class RidleyTail
         int random = _room.Random.Read();
         if (SharedRandomState.UpperByte(random) != byte.MaxValue)
             return;
-        state.IdealInterSegmentTailAngle = random % 16 + 7 + 1;
+        state.IdealInterSegmentTailAngle = RidleyRandomDefinitions.TailCurliness.Of(random) + 7 + 1;
     }
 
     /// <summary>Applies tail-tip contact damage after joint positions are solved, unless Ridley carries Samus or collision is disabled.</summary>

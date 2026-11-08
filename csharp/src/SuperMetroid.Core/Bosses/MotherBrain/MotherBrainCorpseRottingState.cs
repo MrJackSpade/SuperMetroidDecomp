@@ -52,7 +52,7 @@ public sealed class MotherBrainCorpseRottingState
                 FinishedEntryCount++;
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
                     Position: brainPosition + new Offset16<RoomPixels>(
-                        randomNumberSeed.LowBits(5) - 16,
+                        randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset) - 16,
                         16),
                     Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,

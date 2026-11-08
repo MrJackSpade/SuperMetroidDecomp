@@ -272,7 +272,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementFunction = BotwoonMovementFunction.LoadAuthoredPath;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
 
-        state.InsideHole = !state.PendingDeath && (_room.Random.Generate() & 1) != 0;
+        state.InsideHole = !state.PendingDeath && BotwoonNavigationDefinitions.StartsInsideHole.IsSetIn(_room.Random.Generate());
         state.PreviousInsideHole = state.InsideHole;
         if (!state.InsideHole)
         {
@@ -710,8 +710,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int random = _room.Random.Generate();
             var position = new Position16<RoomPixels>(
-                (random & 127) + 64,
-                (SharedRandomState.UpperByte(random) & 63) + 128);
+                BotwoonDeathDefinitions.DropX.Of(random) + 64,
+                BotwoonDeathDefinitions.DropY.Of(random) + 128);
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 position,
                 head.Definition.DropChances);
@@ -744,7 +744,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.LargeExplosionTimer = 12;
                 _spriteObjects.SpawnRoomSpriteObject(
-                    new((_room.Random.Generate() & 31) + 232, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
+                    new(_room.Random.Next(BotwoonDeathDefinitions.LargeExplosionX) + 232, state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - 8),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
                     graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
@@ -756,7 +756,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     _spriteObjects.SpawnRoomSpriteObject(
-                        new((_room.Random.Generate() & 63) + 224, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
+                        new(_room.Random.Next(BotwoonDeathDefinitions.SmallExplosionX) + 224, state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - 8),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
                         graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }

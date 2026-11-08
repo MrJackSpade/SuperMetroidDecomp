@@ -217,7 +217,9 @@ internal sealed class CeresRidleyFlight
     {
         // The attack choice reads RandomNumberSeed without generating a number.
         int random = _room.Random.Read();
-        int jitter = BossRandomRolls.InLowerHalf(random) ? random & 7 : -(random & 7);
+        int jitter = BossRandomRolls.InLowerHalf(random)
+            ? RidleyRandomDefinitions.FireballJitter.Of(random)
+            : -RidleyRandomDefinitions.FireballJitter.Of(random);
         Position16<RoomPixels> target = JitteredFireballTarget(state.FireballBasePosition, jitter);
         AccelerateRidleyToward(slot, state, target, 16);
         if (--state.FunctionTimer < 0)

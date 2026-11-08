@@ -270,7 +270,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.FunctionTimer = _room.Random.Read() % 64 + 128;
+        state.FunctionTimer = RidleyRandomDefinitions.FireballAttackTimer.Of(_room.Random.Read()) + 128;
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
@@ -355,7 +355,7 @@ internal sealed class NorfairRidleyCombat
     internal void InitializeNorfairRidleyPogoVelocity(RidleyEnemyState state)
     {
         // The routine samples the current word; it does not advance shared RNG.
-        int randomIndex = _room.Random.Read() & 3;
+        int randomIndex = RidleyRandomDefinitions.PogoChoice.Of(_room.Random.Read());
         var definition = RidleyPogo.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;

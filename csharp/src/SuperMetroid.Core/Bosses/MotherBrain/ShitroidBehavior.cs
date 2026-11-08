@@ -447,7 +447,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.HoverTimer--;
             return followed;
         }
-        if ((_room.Random.Read() & 4095) >= 4064)
+        if (MotherBrainRandomDefinitions.ShitroidHoverRoll.Of(_room.Random.Read()) >= 4064)
             state.HoverTimer = 32;
         return followed.WithY(80);
     }

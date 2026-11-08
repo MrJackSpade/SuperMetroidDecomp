@@ -315,9 +315,9 @@ internal sealed class PhantoonCombat
 
             if (vulnerableWindow)
             {
-                int random = _room.Random.Generate() & 7;
-                state.EyeState.ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[random];
-                state.MouthState.ShotPattern = random;
+                int shotPattern = _room.Random.Next(PhantoonRandomDefinitions.ShotPattern);
+                state.EyeState.ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[shotPattern];
+                state.MouthState.ShotPattern = shotPattern;
                 state.TentaclesState.RearmHurtFlash();
                 if (!state.TentaclesState.SwoopRequested)
                 {

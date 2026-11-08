@@ -128,7 +128,7 @@ internal sealed class DraygonDeath
             return;
 
         int random = _room.Random.Generate();
-        Position16<RoomPixels> smoke = new((random & 127) + 192, (SharedRandomState.UpperByte(random) & 63) + 400);
+        Position16<RoomPixels> smoke = new(DraygonRandomDefinitions.DeathSmokeX.Of(random) + 192, DraygonRandomDefinitions.DeathSmokeY.Of(random) + 400);
         if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default) is not null)
             state.DeathSmokeObjectsSpawned++;
     }

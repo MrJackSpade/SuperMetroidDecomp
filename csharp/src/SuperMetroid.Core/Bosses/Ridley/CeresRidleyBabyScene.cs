@@ -255,7 +255,7 @@ internal sealed class CeresRidleyBabyScene
                 // While the baby is falling (its falling flag set) it always cries and
                 // continues. Otherwise it samples the live RNG word's low bit without
                 // calling GenerateRandomNumber; a set bit jumps silently.
-                if (state.BabyVerticalVelocity.IsZero && (_room.Random.Read() & 1) != 0)
+                if (state.BabyVerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsSetIn(_room.Random.Read()))
                     return cryOrGoTo.Target;
                 _audio.QueueEnemySound(Library3Sound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;

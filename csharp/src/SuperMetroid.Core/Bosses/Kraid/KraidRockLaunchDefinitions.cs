@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The horizontal launch speeds of rocks spat by Kraid.</summary>
@@ -21,7 +23,7 @@ public static class KraidRockLaunchDefinitions
     /// sample or chronological random-number generator. Preserve the original
     /// branch assignment even though each speed has the same one-quarter weight.
     /// </remarks>
-    public static SignedEightEight FromRandom(int random) => Speeds[random & ChoiceMask];
+    public static SignedEightEight FromRandom(int random) => Speeds[LaunchChoice.Of(random)];
 
     /// <summary>
     /// The gravity on a spat or rising rock, in 256ths of a pixel an update, each update. A rock is removed when its
@@ -46,19 +48,19 @@ public static class KraidRockLaunchDefinitions
     /// </summary>
     internal static SignedEightEight RockDriftRestart { get; } = SignedEightEight.FromSignedRaw(256);
 
-    /// <summary>Keeps RNG bits 1..3, the eight even launch choices.</summary>
-    private const int ChoiceMask = 0b1110;
+    /// <summary>The launch choice, one of eight: the sample's bits 1-3.</summary>
+    private static readonly RandomSampleField LaunchChoice = new(1, 3);
 
-    /// <summary>The launch speed of each of the eight even RNG choices.</summary>
-    private static readonly Dictionary<int, SignedEightEight> Speeds = new()
-    {
-        [0] = NormalLeft,
-        [2] = SlowLeft,
-        [4] = FastestLeft,
-        [6] = FastLeft,
-        [8] = FastestLeft,
-        [10] = NormalLeft,
-        [12] = FastLeft,
-        [14] = SlowLeft,
-    };
+    /// <summary>The launch speed of each of the eight <see cref="LaunchChoice"/> values, in order.</summary>
+    private static readonly ImmutableArray<SignedEightEight> Speeds =
+    [
+        NormalLeft,
+        SlowLeft,
+        FastestLeft,
+        FastLeft,
+        FastestLeft,
+        NormalLeft,
+        FastLeft,
+        SlowLeft,
+    ];
 }

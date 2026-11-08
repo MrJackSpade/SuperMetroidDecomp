@@ -278,7 +278,7 @@ internal sealed class CrocomireFight
                 }
                 int random = _access.ReadCrocomireRandom();
                 int baseOffset = BossRandomRolls.InHalfFrom(random, threshold: 2048) ? -32 : 32;
-                _access.SpawnCrocomireDust(state, baseOffset + (random & 15));
+                _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
             case CrocomireBodyCueKind.MoveRightIfOnScreen:
                 RequireCrocomireLevel(level);
@@ -565,7 +565,7 @@ internal sealed class CrocomireFight
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)
     {
         int random = _access.ReadCrocomireRandom();
-        int offset = random & 31;
+        int offset = CrocomireRandomDefinitions.FootDustOffset.Of(random);
         if (BossRandomRolls.InHalfFrom(random, threshold: 4096))
             offset = -offset;
         _access.SpawnCrocomireDust(state, offset);

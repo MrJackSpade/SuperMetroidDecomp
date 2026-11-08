@@ -85,7 +85,7 @@ internal sealed class MotherBrainThirdPhaseFight
                     return false;
 
                 Phase3TargetXPosition = _state.Body.Position.X + 1;
-                int forwardDelay = (randomNumberSeed.HasBit(1) ? 2 : 0) + 4;
+                int forwardDelay = (randomNumberSeed.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay) ? 2 : 0) + 4;
 
                 // MakeMotherBrainWalkForwards reports carry only for a strictly overshot
                 // target or the independent X 128 limit. Equality still requests a walk.

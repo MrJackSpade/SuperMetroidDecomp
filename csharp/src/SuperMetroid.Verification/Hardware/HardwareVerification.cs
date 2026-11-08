@@ -171,7 +171,7 @@ internal static void VerifyBossBitfield()
         () => state.SetBossBits(0, ~BossBitMasks.AllKnown),
         "unnamed boss bit rejected by typed API");
     AssertThrows<InvalidDataException>(
-        () => ProgressionTableCodec.DecodeBossMask(0x80, "constructed selector"),
+        () => BossMaskCodec.Decode(0x80, "constructed selector"),
         "unnamed cartridge boss mask rejected");
     Console.WriteLine("  Boss state: all seven areas keep independent flags.");
 }

@@ -221,23 +221,6 @@ public static class ProgressionTableCodec
         return bosses;
     }
 
-    /// <summary>
-    /// The bosses a boss mask names: the operand by which a room-state selector, a room object or an animated-tile list
-    /// tests or sets an area's boss byte. Unlike a stored byte, a mask names only bosses the game tests.
-    /// </summary>
-    /// <param name="value">The mask byte.</param>
-    /// <param name="context">The mask's owner, named in the error.</param>
-    /// <exception cref="InvalidDataException">The mask sets a bit that names no boss, or is not a byte.</exception>
-    public static BossBits DecodeBossMask(int value, string context)
-    {
-        if (value is < 0 or > byte.MaxValue)
-            throw new InvalidDataException($"{context}: boss mask {value} is not a byte.");
-        int unnamed = value & ~((1 << BossFlagBits.Length) - 1);
-        if (unnamed != 0)
-            throw new InvalidDataException($"{context}: boss mask ${value:X2} sets bits ${unnamed:X2}, which name no boss.");
-        return StoredBosses(value);
-    }
-
     /// <summary>The boss byte that records <paramref name="bosses"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="bosses"/> holds a value that names no boss.</exception>
     public static byte EncodeBossMask(BossBits bosses)

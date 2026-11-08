@@ -240,14 +240,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
     {
-        int xDisplacement = EnemyMath.CosineIsNegative(state.DeathAngle.ToByteAngle())
-            ? -state.DeathVelocityMagnitude.X.RawValue
-            : state.DeathVelocityMagnitude.X.RawValue;
-        int yDisplacement = EnemyMath.SineIsNegative(state.DeathAngle.ToByteAngle())
-            ? -state.DeathVelocityMagnitude.Y.RawValue
-            : state.DeathVelocityMagnitude.Y.RawValue;
-        body.Position = body.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
-        body.Position = body.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
+        SignedSixteenSixteen xDisplacement = EnemyMath.CosineIsNegative(state.DeathAngle.ToByteAngle())
+            ? SignedSixteenSixteen.Zero - state.DeathVelocityMagnitude.X
+            : state.DeathVelocityMagnitude.X;
+        SignedSixteenSixteen yDisplacement = EnemyMath.SineIsNegative(state.DeathAngle.ToByteAngle())
+            ? SignedSixteenSixteen.Zero - state.DeathVelocityMagnitude.Y
+            : state.DeathVelocityMagnitude.Y;
+        body.Position = body.Position.AdvanceX(xDisplacement);
+        body.Position = body.Position.AdvanceY(yDisplacement);
 
         if (CoordinateAxis.Distance(body.Position.X.Whole, SporeSpawnDeathCenterX) < 8 &&
             CoordinateAxis.Distance(body.Position.Y.Whole, SporeSpawnDeathCenterY) < 8)

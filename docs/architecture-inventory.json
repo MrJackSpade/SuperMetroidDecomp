@@ -19444,7 +19444,8 @@
       "disposition": "record",
       "flags": [
         "context-bag"
-      ]
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCinematicPaint",
@@ -21494,7 +21495,8 @@
       "disposition": "record",
       "flags": [
         "context-bag"
-      ]
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.AssetExtraction.Frontend.Map.MapArrowExtractor",
@@ -39987,6 +39989,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.PerspectiveFloorScenery",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/PerspectiveFloorScenery.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Assets.PictureColours",
@@ -102051,19 +102066,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Gameplay.PerspectiveFloorScenery",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/PerspectiveFloorScenery.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Gameplay.RoomBackgrounds",

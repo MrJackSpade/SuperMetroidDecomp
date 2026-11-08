@@ -30,19 +30,18 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues library-two footstep and walking sounds from instructions.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Exposes slot zero for the singleton statue's cross-slot writes.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Receives statue-authored effect overlay motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
+    /// <summary>The room's Chozo statue, which its hand trigger wakes; null until the statue is placed.</summary>
+    private RoomEnemySlot? _statue;
 
     /// <summary>Binds statue behavior to room, movement, FX, sound and projectile owners.</summary>
-    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyRoomFx roomFx)
+    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyRoomFx roomFx)
     {
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
         _audio = audio;
-        _slotTable = slotTable;
         _roomFx = roomFx;
     }
 
@@ -115,11 +114,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             HandTriggered = false,
         };
         statue.SetSpeciesState(state, state.ClearWithRecord);
+        _statue = statue;
 
-        // The initializer writes enemy_data[0].layer regardless of cur_enemy_index.
-        // Every retail population places this singleton in slot zero, but preserve the alias
-        // explicitly so malformed/debug populations expose the same cross-slot behavior.
-        _slotTable.Slots[0].Layer = EnemyDrawLayer.Of(0);
+        // The statue draws on the lowest layer, as every retail room shows it.
+        statue.Layer = EnemyDrawLayer.Of(0);
 
         if (state.IsWreckedShip)
         {
@@ -143,9 +141,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Ensure.NotNull(level);
         _room.EnsureLoaded();
-        RoomEnemySlot statue = _slotTable.Slots[0];
+        RoomEnemySlot statue = _statue ?? throw new InvalidOperationException("Chozo hand trigger requires a placed Chozo statue.");
         if (statue.DefinitionId != EnemyDefinitionId.Chozo)
-            throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in enemy slot zero.");
+            throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in its place.");
 
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         int triggerBlockX = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.X : ChozoStatueRoomDefinitions.LowerNorfairTriggerX;

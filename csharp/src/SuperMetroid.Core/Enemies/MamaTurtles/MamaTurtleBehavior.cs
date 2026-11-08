@@ -131,7 +131,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // current enemy's, and every baby's parent is the first enemy. The one retail Mama Turtle population places
         // Mama in that slot, so they are her own; anywhere else she would take another enemy's speed and bounds, which
         // no retail room reaches.
-        if (!_slotTable.IsListedFirst(slot))
+        if (!slot.IsListedFirst())
         {
             throw new InvalidDataException(
                 $"Mama Turtle occupies enemy slot {slot.SlotIndex}; her fall and contact box read the first slot, " +

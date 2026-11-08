@@ -2,28 +2,25 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The enemy a death explosion or its drop came from, and whether that enemy respawns from its snapshot when the
-/// explosion's respawn cue runs (#1412). A cleared projectile holds the first slot, not respawning.
+/// explosion's respawn cue runs (#1412). The enemy is its place, so the respawn rebuilds whatever the place's snapshot
+/// holds (#1542). A cleared projectile names no enemy and does not respawn.
 /// </summary>
 public readonly record struct KilledEnemy
 {
-    /// <summary>Keeps the slot and whether it respawns.</summary>
-    private KilledEnemy(int slotIndex, bool respawns)
-    {
-        SlotIndex = slotIndex;
-        Respawns = respawns;
-    }
-
     /// <summary>No killed enemy: a drop spawned directly rather than from a death.</summary>
-    public static KilledEnemy None { get; } = new(-1, respawns: false);
+    public static KilledEnemy None { get; } = new() { IsDirectDrop = true };
 
     /// <summary>The enemy in <paramref name="slot"/>, which respawns when the explosion ends if <paramref name="respawns"/>.</summary>
-    /// <param name="slot">The killed enemy's slot.</param>
+    /// <param name="slot">The killed enemy's place.</param>
     /// <param name="respawns">Whether the explosion's respawn cue rebuilds the enemy from its snapshot.</param>
-    public static KilledEnemy Of(RoomEnemySlot slot, bool respawns) => new(Ensure.NotNull(slot).SlotIndex, respawns);
+    public static KilledEnemy Of(RoomEnemySlot slot, bool respawns) => new() { Enemy = Ensure.NotNull(slot), Respawns = respawns };
 
-    /// <summary>The killed enemy's slot, or -1 for <see cref="None"/>.</summary>
-    public int SlotIndex { get; }
+    /// <summary>The killed enemy's place; null for <see cref="None"/> and for a cleared projectile.</summary>
+    public RoomEnemySlot? Enemy { get; private init; }
 
     /// <summary>Whether the explosion's respawn cue rebuilds the enemy from its snapshot.</summary>
-    public bool Respawns { get; }
+    public bool Respawns { get; private init; }
+
+    /// <summary>Whether this is <see cref="None"/>: the drop was spawned directly rather than from a death.</summary>
+    public bool IsDirectDrop { get; private init; }
 }

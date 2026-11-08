@@ -627,7 +627,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         DeadMonsters = new DeadMonsterFrame(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room, SlotTable);
-        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch, compatibility.PowerBombRadius, Audio);
+        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Dispatch, compatibility.PowerBombRadius, Audio);
         Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
@@ -706,7 +706,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         DachoraBehavior = new DachoraBehavior(Terrain, SlotTable, Audio);
         CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus  });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
-        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, SlotTable, RoomFx);
+        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
         ChootBehavior = new ChootBehavior();
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter });

@@ -66,7 +66,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot? owner = definition.OwnerSlotDistance == 0
             ? slot
             : _slotTable.ListedBeforeOrNone(slot, definition.OwnerSlotDistance);
-        if (owner is null || !_slotTable.IsListedFirst(owner))
+        if (owner is null || !owner.IsListedFirst())
         {
             throw new InvalidDataException(
                 $"Shaktool's chain starts in enemy slot {slot.SlotIndex - definition.OwnerSlotDistance}; its death deletes the first seven slots, " +

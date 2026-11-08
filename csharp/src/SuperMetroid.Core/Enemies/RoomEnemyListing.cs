@@ -74,13 +74,32 @@ internal static class RoomEnemyListing
         return place < 0 ? null : enemies.Slots[place];
     }
 
+    /// <summary>
+    /// Whether <paramref name="place"/> lies among the places the room's population, or a spawn since, has filled
+    /// (<see cref="EnemySlotTable.EnemyCount"/>).
+    /// </summary>
+    /// <param name="enemies">The room's enemy places.</param>
+    /// <param name="place">The place in question.</param>
+    internal static bool IsFilled(this EnemySlotTable enemies, RoomEnemySlot place) =>
+        Ensure.NotNull(place).SlotIndex < Ensure.NotNull(enemies).EnemyCount;
+
     /// <summary>The first place the population lists, which a room's lead enemy such as its statue or ship takes.</summary>
     /// <param name="enemies">The room's enemy places.</param>
     internal static RoomEnemySlot ListedFirst(this EnemySlotTable enemies) => Ensure.NotNull(enemies).Slots[0];
 
-    /// <summary>Whether <paramref name="part"/> is the first place the population lists.</summary>
-    /// <param name="enemies">The room's enemy places.</param>
+    /// <summary>
+    /// Whether <paramref name="part"/> is the first place the population lists, which an enemy whose original reads
+    /// assume that place requires.
+    /// </summary>
     /// <param name="part">The place in question.</param>
-    internal static bool IsListedFirst(this EnemySlotTable enemies, RoomEnemySlot part) =>
-        ReferenceEquals(enemies.ListedFirst(), Ensure.NotNull(part));
+    internal static bool IsListedFirst(this RoomEnemySlot part) => part.IsListedAt(0);
+
+    /// <summary>
+    /// Whether the population lists <paramref name="part"/> at <paramref name="place"/>, counted from zero, which an
+    /// enemy whose original reads assume a fixed place requires.
+    /// </summary>
+    /// <param name="part">The place in question.</param>
+    /// <param name="place">The zero-based place the enemy's reads assume.</param>
+    internal static bool IsListedAt(this RoomEnemySlot part, int place) =>
+        Ensure.NotNull(part).SlotIndex == Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, place);
 }

@@ -27,6 +27,8 @@ internal static class GunshipMotionDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
+            // The top hull finds the bottom hull and pad listed after it as production places it.
+            enemies.GunshipBehavior.InitializeGunshipTop(top);
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);
@@ -56,6 +58,8 @@ internal static class GunshipMotionDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
             var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
+            // The top hull finds the bottom hull and pad listed after it as production places it.
+            enemies.GunshipBehavior.InitializeGunshipTop(top);
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);
             part.BobPhase = phase;

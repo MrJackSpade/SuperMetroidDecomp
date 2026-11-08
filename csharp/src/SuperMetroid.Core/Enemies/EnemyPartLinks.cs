@@ -26,7 +26,4 @@ internal sealed class EnemyPartLinks<TLinks> where TLinks : class
             ? links
             : throw new InvalidOperationException(
                 $"Enemy {part.SlotIndex} ({part.DefinitionId}) reached its partners before it was placed as a part that has them.");
-
-    /// <summary>The partners <paramref name="part"/> found when it was placed, or null when it has not been placed this room.</summary>
-    internal TLinks? OfOrNone(RoomEnemySlot part) => _links.GetValueOrDefault(Ensure.NotNull(part));
 }

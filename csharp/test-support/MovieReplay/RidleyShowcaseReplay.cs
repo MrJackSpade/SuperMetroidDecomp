@@ -972,10 +972,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     // again. Their retained per-slot word is not a live source identity.
                     if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
                         Check(owner + " source enemy header", SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(projectile.DropDefinitionId), NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
-                    // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none.
+                    // The native word holds the killed slot's table offset, bit 15 for a respawn, $FFFF for none; a
+                    // cleared projectile's names the first slot.
                     KilledEnemy killed = projectile.KilledEnemy;
-                    Check(owner + " killed enemy index", killed.SlotIndex < 0 ? 0xffff
-                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.SlotIndex) | (killed.Respawns ? 0x8000 : 0),
+                    Check(owner + " killed enemy index", killed.IsDirectDrop ? 0xffff
+                        : SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(killed.Enemy?.SlotIndex ?? 0) | (killed.Respawns ? 0x8000 : 0),
                         NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);

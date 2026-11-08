@@ -40,7 +40,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // Its tracking routine contains several absolute-Samus reads indexed by the
         // enemy's slot; a nonzero slot would deliberately alias unrelated memory. Enforce the
         // authored layout rather than silently pretending that retail bug has generic rules.
-        if (slot.SlotIndex != 0)
+        if (!slot.IsListedFirst())
         {
             throw new InvalidDataException(
                 "Wrecked Ship ghost requires retail physical slot zero for indexed Samus reads.");

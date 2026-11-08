@@ -20,8 +20,6 @@ internal sealed class EnemyDeathsAndDrops
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies RNG and enemy header definitions for drop selection.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Finds a retained enemy slot when a death actor executes respawn.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Receives the pickup and death sounds, published at the end of the following enemy pass.</summary>
@@ -29,13 +27,12 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
     internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room,
-        EnemySlotTable slotTable, IEnemyDispatch dispatch, PowerBombRadiusAfterKill powerBombRadius, EnemyAudioQueue audio)
+        IEnemyDispatch dispatch, PowerBombRadiusAfterKill powerBombRadius, EnemyAudioQueue audio)
     {
         _audio = audio;
         _roomStatus = roomStatus;
         _projectiles = projectiles;
         _room = room;
-        _slotTable = slotTable;
         _dispatch = dispatch;
         _powerBombRadius = powerBombRadius;
     }
@@ -246,13 +243,13 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Converts a completed enemy-death explosion in place and returns the program it continues at: its drop's, or the
-    /// respawn tail's. Keeping the actor in its existing slot preserves both the slot-zero bug and the retained respawn
-    /// index: the become-pickup cue branches on the restored projectile index, so slot zero never converts.
+    /// respawn tail's. Keeping the actor in its existing place keeps both its retained killed enemy and whether it drops
+    /// at all: an explosion in the first place never converts (<see cref="FirstPlaceExplosionLeavesNoPickup"/>).
     /// </summary>
     internal EnemyDeathProjectileProgram ConvertEnemyDeathExplosionToPickup(RoomEnemyProjectileSlot projectile)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(projectile);
-        return projectile.SlotIndex == 0 || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
+        return !FirstPlaceExplosionLeavesNoPickup.BecomesPickup(projectile.SlotIndex) || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(projectile)
             : ConfigurePickup(projectile, kind);
     }
@@ -562,14 +559,13 @@ internal sealed class EnemyDeathsAndDrops
     /// The method is deliberately population/snapshot based so later respawning families can
     /// share it without acquiring a Rinka-specific reconstruction path.
     /// </summary>
-    internal void RespawnEnemyFromSnapshot(int slotIndex)
+    internal void RespawnEnemyFromSnapshot(RoomEnemySlot slot)
     {
-        RoomEnemySlot slot = _slotTable.Slots[slotIndex];
         RoomEnemySpawnSnapshot spawn = slot.Spawn;
         if (spawn.Population.DefinitionId == EnemyDefinitionId.None)
         {
             throw new InvalidDataException(
-                $"Enemy slot {slotIndex} has no surviving population snapshot to respawn.");
+                $"Enemy slot {slot.SlotIndex} has no surviving population snapshot to respawn.");
         }
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
@@ -631,7 +627,7 @@ internal sealed class EnemyDeathsAndDrops
                 return ConvertEnemyDeathExplosionToPickup(projectile);
             case EnemyDeathProjectileCueKind.HandleRespawningEnemy:
                 if (projectile.KilledEnemy.Respawns)
-                    RespawnEnemyFromSnapshot(projectile.KilledEnemy.SlotIndex);
+                    RespawnEnemyFromSnapshot(projectile.KilledEnemy.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyDeathProjectileCueKind)} {cue.Kind}.");

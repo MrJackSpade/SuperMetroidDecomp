@@ -41,8 +41,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int MochtroidAttachmentDamagePeriod = 80;
     /// <summary>Whole-pixel speed cap for proportional free flight.</summary>
     private const int MochtroidMaximumVelocity = 3;
-    /// <summary>Signed 16.16 speed of one pixel per attached-flight axis step.</summary>
-    private const int MochtroidAttachedVelocity = 1 << 16;
+    /// <summary>Speed of one pixel per attached-flight axis step.</summary>
+    private static readonly SignedSixteenSixteen MochtroidAttachedVelocity = SignedSixteenSixteen.FromWholePixels(1);
 
     /// <summary>Initializes the Mochtroid.</summary>
     internal static void InitializeMochtroid(RoomEnemySlot slot)
@@ -106,27 +106,25 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
         int yDifference = CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole);
-        int yVelocity = unchecked(state.Velocity.Y.RawValue - EightEight.FromWhole(yDifference >> 2));
-        yVelocity = ClampMochtroidVelocity(yVelocity);
+        SignedSixteenSixteen yVelocity = ClampMochtroidVelocity(state.Velocity.Y - EnemyMath.HomingPull(yDifference));
         StoreMochtroidYVelocity(state, yVelocity);
         if (_terrain.MoveEnemyVertically(level, slot, yVelocity))
-            StoreMochtroidYVelocity(state, 0);
+            StoreMochtroidYVelocity(state, SignedSixteenSixteen.Zero);
 
         // Y is intentionally resolved first. Horizontal collision therefore sees the
         // vertically adjusted position, matching the game's vertical then horizontal collision.
         int xDifference = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
-        int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
-        xVelocity = ClampMochtroidVelocity(xVelocity);
+        SignedSixteenSixteen xVelocity = ClampMochtroidVelocity(state.Velocity.X - EnemyMath.HomingPull(xDifference));
         StoreMochtroidXVelocity(state, xVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
-            StoreMochtroidXVelocity(state, 0);
+            StoreMochtroidXVelocity(state, SignedSixteenSixteen.Zero);
 
         SetMochtroidProgram(
             slot, state, MochtroidProgram.FreeFlight);
     }
 
     /// <summary>Caps a signed 16.16 velocity by its whole-pixel component at three pixels.</summary>
-    private static int ClampMochtroidVelocity(int velocity) => EnemyMath.ClampWholeVelocity(velocity, MochtroidMaximumVelocity);
+    private static SignedSixteenSixteen ClampMochtroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MochtroidMaximumVelocity);
 
     /// <summary>Moves one pixel per axis toward Samus, resolving X before Y while attached.</summary>
     private void RunMochtroidAttachedFlight(
@@ -137,16 +135,16 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Attached mode discards proportional acceleration. It moves exactly one pixel per
         // axis toward Samus, with X collision resolved before Y and ignored return values.
-        int xVelocity = slot.Position.X.Whole == samus.Position.X.Whole
-            ? 0
+        SignedSixteenSixteen xVelocity = slot.Position.X.Whole == samus.Position.X.Whole
+            ? SignedSixteenSixteen.Zero
             : CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) > 0
                 ? -MochtroidAttachedVelocity
                 : MochtroidAttachedVelocity;
         StoreMochtroidXVelocity(state, xVelocity);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity);
 
-        int yVelocity = slot.Position.Y.Whole == samus.Position.Y.Whole
-            ? 0
+        SignedSixteenSixteen yVelocity = slot.Position.Y.Whole == samus.Position.Y.Whole
+            ? SignedSixteenSixteen.Zero
             : CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) > 0
                 ? -MochtroidAttachedVelocity
                 : MochtroidAttachedVelocity;
@@ -160,24 +158,24 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // This third dispatch entry is unused by retail callers but present in the shipped
         // table. The low two even bits select right/up/left/down, then the timer counts down.
         slot.Position += MochtroidShake.Offset(state.ShakeTimer);
-        StoreMochtroidXVelocity(state, 0);
-        StoreMochtroidYVelocity(state, 0);
+        StoreMochtroidXVelocity(state, SignedSixteenSixteen.Zero);
+        StoreMochtroidYVelocity(state, SignedSixteenSixteen.Zero);
         if (--state.ShakeTimer == 0)
             state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         SetMochtroidProgram(
             slot, state, MochtroidProgram.FreeFlight);
     }
 
-    /// <summary>Stores the current raw 16.16 horizontal velocity in the species state.</summary>
-    private static void StoreMochtroidXVelocity(MochtroidEnemyState state, int velocity)
+    /// <summary>Stores the current horizontal velocity in the species state.</summary>
+    private static void StoreMochtroidXVelocity(MochtroidEnemyState state, SignedSixteenSixteen velocity)
     {
-        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromRaw(velocity));
+        state.Velocity = state.Velocity.WithX(velocity);
     }
 
-    /// <summary>Stores the current raw 16.16 vertical velocity in the species state.</summary>
-    private static void StoreMochtroidYVelocity(MochtroidEnemyState state, int velocity)
+    /// <summary>Stores the current vertical velocity in the species state.</summary>
+    private static void StoreMochtroidYVelocity(MochtroidEnemyState state, SignedSixteenSixteen velocity)
     {
-        state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromRaw(velocity));
+        state.Velocity = state.Velocity.WithY(velocity);
     }
 
     /// <summary>Installs a changed flight or attachment animation and restarts its instruction timers.</summary>

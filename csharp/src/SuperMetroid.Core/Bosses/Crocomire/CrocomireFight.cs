@@ -559,7 +559,7 @@ internal sealed class CrocomireFight
         // The instruction callbacks pass a whole ±4 pixels in 16.16 into the ordinary ignore-slopes
         // enemy mover; retaining 16.16 here preserves collision-edge alignment.
         slot.DefinitionId == EnemyDefinitionId.Crocomire &&
-        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SixteenSixteen.FromWhole(pixels));
+        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SignedSixteenSixteen.FromWholePixels(pixels));
 
     /// <summary>Chooses a foot-dust offset from room RNG and spawns the matching effect.</summary>
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)

@@ -33,8 +33,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>8.8 velocity increment applied after each moving frame.</summary>
     private static readonly SignedEightEight NorfairLavaJumpingEnemyGravity = SignedEightEight.FromSignedRaw(56);
-    /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
-    private static readonly int NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024).RawValue;
+    /// <summary>The rising velocity at and above which, while still rising, the jumper switches to the visible jump list.</summary>
+    private static readonly SignedEightEight NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024);
 
     /// <summary>Initializes the Norfair lava jumper.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
@@ -94,9 +94,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
                 state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
 
-                // The comparison is unsigned. Starting jump velocities are near -2048; the
-                // test becomes true while still negative at -1024, before the arc apex.
-                if (state.YVelocity.RawValue >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
+                // The game compares the velocity word unsigned, which holds only for a rising velocity of -1024 or
+                // slower: starting jump velocities are near -2048, so the switch comes before the arc apex.
+                if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
                 {
                     InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Jump);
                     state.Function = NorfairLavaJumpingEnemyFunction.MoveUntilAnimationSignal;
@@ -170,7 +170,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         follower.FrozenTimer = parent.FrozenTimer;
         NorfairLavaJumpingEnemyState parentState = parent.SpeciesState<NorfairLavaJumpingEnemyState>() ??
             throw new InvalidDataException($"The Norfair lava-jumping follower in slot {follower.SlotIndex} has no parent state.");
-        if (parent.FrozenTimer != 0 || parentState.YVelocity.SignedRawValue >= 0)
+        if (parent.FrozenTimer != 0 || !parentState.YVelocity.IsNegative)
         {
             // The second half appears only while the parent is travelling upward. At the
             // apex and during descent, the parent animation alone owns the visible shape.

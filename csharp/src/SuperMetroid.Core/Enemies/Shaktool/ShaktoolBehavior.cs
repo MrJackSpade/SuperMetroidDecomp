@@ -203,7 +203,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // The helper restores only whole-pixel words before collision. Subpositions
         // remain those produced by DC2A, a subtle asymmetry that affects wall alignment.
         slot.Position = slot.Position.WithWhole(previous);
-        int xDisplacement = SixteenSixteen.FromWhole(step.X);
+        SignedSixteenSixteen xDisplacement = SignedSixteenSixteen.FromWholePixels(step.X);
         bool collided = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
@@ -211,7 +211,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!collided)
         {
             slot.Position = slot.Position.WithWholeY(previous.Y);
-            int yDisplacement = SixteenSixteen.FromWhole(step.Y);
+            SignedSixteenSixteen yDisplacement = SignedSixteenSixteen.FromWholePixels(step.Y);
             collided = _terrain.MoveEnemyVertically(level, slot, yDisplacement);
         }
 
@@ -465,14 +465,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // 256-word table. Convert those full-view indices explicitly: X reads
         // full[angle+64], while Y reads full[angle]. A naïve +64 on the authored table rotates
         // both components by a quarter turn.
-        int xVelocity = ReadShaktoolCommonSineSample(angle.RawValue + 64);
-        int yVelocity = ReadShaktoolCommonSineSample(angle.RawValue);
-        slot.Position = slot.Position.Advance(new(new SignedEightEight(xVelocity).ToSixteenSixteenDelta(), new SignedEightEight(yVelocity).ToSixteenSixteenDelta()));
+        SignedEightEight xVelocity = ReadShaktoolCommonSineSample(angle.RawValue + 64);
+        SignedEightEight yVelocity = ReadShaktoolCommonSineSample(angle.RawValue);
+        slot.Position = slot.Position.Advance(new(xVelocity.ToSixteenSixteenDelta(), yVelocity.ToSixteenSixteenDelta()));
     }
 
     /// <summary>Maps the Shaktool orbit index into the shared signed enemy sine table.</summary>
-    internal static int ReadShaktoolCommonSineSample(int fullTableIndex) =>
-        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(ByteAngle.Wrapped(fullTableIndex - 64))).RawValue;
+    internal static SignedEightEight ReadShaktoolCommonSineSample(int fullTableIndex) =>
+        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(ByteAngle.Wrapped(fullTableIndex - 64)));
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the seven enemies from the room's

@@ -48,7 +48,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Horizontal range that lets Samus trigger the long demonstration run.</summary>
     private const int EtecoonLongRunTriggerDistance = 48;
     /// <summary>Fixed-point lookahead distance for the right wall probe.</summary>
-    private const int EtecoonRightWallProbe = 32 << 16;
+    private static readonly SignedSixteenSixteen EtecoonRightWallProbe = SignedSixteenSixteen.FromWholePixels(32);
     /// <summary>Room X where the left teaching route stops and begins hopping.</summary>
     private const int EtecoonFirstTeachingX = 537;
     /// <summary>Room X where the right teaching route begins a jump or return.</summary>
@@ -661,7 +661,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
-            state.Velocity.X.RawValue);
+            state.Velocity.X);
 
     /// <summary>Moves an Etecoon vertically, including its five-pixel gravity cap.</summary>
     private bool MoveEtecoonVertically(
@@ -670,7 +670,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        int displacement = state.Velocity.Y.RawValue;
+        SignedSixteenSixteen displacement = state.Velocity.Y;
         if (state.Velocity.Y.WholePixels < 5)
         {
             AddEtecoonFixed(

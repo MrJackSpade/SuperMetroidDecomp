@@ -245,13 +245,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomLevelData? level)
     {
         bool beforeTerrainBoundary = CoordinateAxis.Difference(slot.Position.X.Whole, 544) < 0;
-        int horizontalDisplacement = SixteenSixteen.FromEightEight(state.Velocity.X.SignedRawValue);
+        SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (beforeTerrainBoundary)
         {
             MoveDeadSidehopperAxisDirect(
                 slot,
                 axis: Axis.Horizontal,
-                state.Velocity.X.RawValue);
+                state.Velocity.X);
         }
         else
         {
@@ -270,11 +270,11 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             MoveDeadSidehopperAxisDirect(
                 slot,
                 axis: Axis.Vertical,
-                state.Velocity.Y.RawValue);
+                state.Velocity.Y);
             return CoordinateAxis.Difference(slot.Position.Y.Whole, 184) >= 0;
         }
 
-        int verticalDisplacement = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+        SignedSixteenSixteen verticalDisplacement = state.Velocity.Y.ToSixteenSixteenDelta();
         return _terrain.MoveEnemyVertically(
             RequireDeadSidehopperLevel(level),
             slot,
@@ -285,10 +285,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private static void MoveDeadSidehopperAxisDirect(
         RoomEnemySlot slot,
         Axis axis,
-        int velocity)
+        SignedEightEight velocity)
     {
         FixedCoordinate current = axis == Axis.Horizontal ? slot.Position.X : slot.Position.Y;
-        FixedCoordinate moved = current.MovedBy(new SignedEightEight(velocity));
+        FixedCoordinate moved = current.MovedBy(velocity);
         if (axis == Axis.Horizontal)
         {
             slot.Position = slot.Position.WithX(moved);

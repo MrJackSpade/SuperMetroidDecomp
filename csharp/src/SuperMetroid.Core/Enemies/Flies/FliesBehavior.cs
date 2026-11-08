@@ -124,7 +124,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         MoveFlyAccordingToVelocities(slot, state);
         state.RetreatTimer++;
 
-        bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
+        bool crossedTarget = state.Velocity.Y.IsNegative
             ? slot.Position.Y.Whole < state.TargetHeight.Y
             : slot.Position.Y.Whole >= state.TargetHeight.Y;
         if (!crossedTarget)

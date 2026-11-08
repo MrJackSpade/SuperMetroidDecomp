@@ -364,7 +364,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(state.QuadraticSpeedRow).Toward(state.QuadraticSpeedSign));
+        state.Extension += EnemyQuadraticSpeeds.Row(state.QuadraticSpeedRow).Toward(state.QuadraticSpeedSign);
         state.QuadraticSpeedRow++;
     }
 

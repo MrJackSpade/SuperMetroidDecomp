@@ -147,18 +147,16 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         int yDifference = CoordinateAxis.Difference(slot.Position.Y.Whole, targetY);
-        int yVelocity = unchecked(state.Velocity.Y.RawValue - EightEight.FromWhole(yDifference >> 2));
-        yVelocity = ClampMetroidVelocity(yVelocity);
+        SignedSixteenSixteen yVelocity = ClampMetroidVelocity(state.Velocity.Y - EnemyMath.HomingPull(yDifference));
         StoreMetroidYVelocity(state, yVelocity);
         if (_terrain.MoveEnemyVertically(level, slot, yVelocity))
-            StoreMetroidYVelocity(state, 0);
+            StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
         int xDifference = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
-        int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
-        xVelocity = ClampMetroidVelocity(xVelocity);
+        SignedSixteenSixteen xVelocity = ClampMetroidVelocity(state.Velocity.X - EnemyMath.HomingPull(xDifference));
         StoreMetroidXVelocity(state, xVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
-            StoreMetroidXVelocity(state, 0);
+            StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
     }
 
     /// <summary>Runs the Metroid's byte-oriented fixed-speed seek as it closes on Samus.</summary>
@@ -173,15 +171,17 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // shifts it right three, sign-extends bit twelve, then clamps the whole result.
         // This is observably not a clean full-word delta: crossing a 256-pixel boundary can
         // reverse the short route. Preserve the byte arithmetic instead of “fixing” it.
-        int yVelocity = CalculateMetroidClosingVelocity(targetY, slot.Position.Y.Whole);
-        StoreMetroidYVelocity(state, SixteenSixteen.FromWhole(yVelocity));
-        if (_terrain.MoveEnemyVertically(level, slot, SixteenSixteen.FromWhole(yVelocity)))
-            StoreMetroidYVelocity(state, 0);
+        SignedSixteenSixteen yVelocity = SignedSixteenSixteen.FromWholePixels(
+            CalculateMetroidClosingVelocity(targetY, slot.Position.Y.Whole));
+        StoreMetroidYVelocity(state, yVelocity);
+        if (_terrain.MoveEnemyVertically(level, slot, yVelocity))
+            StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
-        int xVelocity = CalculateMetroidClosingVelocity(samus.Position.X.Whole, slot.Position.X.Whole);
-        StoreMetroidXVelocity(state, SixteenSixteen.FromWhole(xVelocity));
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SixteenSixteen.FromWhole(xVelocity)))
-            StoreMetroidXVelocity(state, 0);
+        SignedSixteenSixteen xVelocity = SignedSixteenSixteen.FromWholePixels(
+            CalculateMetroidClosingVelocity(samus.Position.X.Whole, slot.Position.X.Whole));
+        StoreMetroidXVelocity(state, xVelocity);
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
+            StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
     }
 
     /// <summary>The span within which a Metroid measures its distance to its target.</summary>
@@ -209,16 +209,16 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY)
     {
         slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, targetY));
-        StoreMetroidXVelocity(state, 0);
-        StoreMetroidYVelocity(state, 0);
+        StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
+        StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
     }
 
     /// <summary>Runs the Metroid's escape from a power bomb, including post-decrement timer semantics.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
         slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer);
-        StoreMetroidXVelocity(state, 0);
-        StoreMetroidYVelocity(state, 0);
+        StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
+        StoreMetroidYVelocity(state, SignedSixteenSixteen.Zero);
 
         if (--state.EscapeTimer != 0)
             return;
@@ -268,10 +268,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Overlapping byte writes produce delta/4 in signed 16.16 form.
                 StoreMetroidXVelocity(
                     state,
-                    CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) << 14);
+                    SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole)));
                 StoreMetroidYVelocity(
                     state,
-                    CoordinateAxis.Difference(slot.Position.Y.Whole, targetY) << 14);
+                    SignedSixteenSixteen.FromSixteenthsOfPixel(4 * CoordinateAxis.Difference(slot.Position.Y.Whole, targetY)));
                 state.Function = MetroidAiFunction.Homing;
                 SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
             }
@@ -340,10 +340,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // collision slot. The overlapping byte stores encode delta/8 as signed 16.16.
         StoreMetroidXVelocity(
             state,
-            CoordinateAxis.Difference(slot.Position.X.Whole, recoilOrigin.X) << 13);
+            SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.X.Whole, recoilOrigin.X)));
         StoreMetroidYVelocity(
             state,
-            CoordinateAxis.Difference(slot.Position.Y.Whole, recoilOrigin.Y) << 13);
+            SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.Y.Whole, recoilOrigin.Y)));
         state.Function = MetroidAiFunction.Homing;
         SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
 
@@ -406,15 +406,15 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Clamps the signed whole word of homing speed to three pixels while retaining in-range fractions.</summary>
-    private static int ClampMetroidVelocity(int velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidMaximumVelocity);
+    private static SignedSixteenSixteen ClampMetroidVelocity(SignedSixteenSixteen velocity) => EnemyMath.ClampWholeVelocity(velocity, MetroidMaximumVelocity);
 
-    /// <summary>Stores the raw signed 16.16 recoil or homing X speed.</summary>
-    private static void StoreMetroidXVelocity(MetroidEnemyState state, int velocity) =>
-        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromRaw(velocity));
+    /// <summary>Stores the recoil or homing X speed.</summary>
+    private static void StoreMetroidXVelocity(MetroidEnemyState state, SignedSixteenSixteen velocity) =>
+        state.Velocity = state.Velocity.WithX(velocity);
 
-    /// <summary>Stores the raw signed 16.16 recoil or homing Y speed.</summary>
-    private static void StoreMetroidYVelocity(MetroidEnemyState state, int velocity) =>
-        state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromRaw(velocity));
+    /// <summary>Stores the recoil or homing Y speed.</summary>
+    private static void StoreMetroidYVelocity(MetroidEnemyState state, SignedSixteenSixteen velocity) =>
+        state.Velocity = state.Velocity.WithY(velocity);
 
     /// <summary>Moves an outer-body sprite to the Metroid's position and enables its selected graphics.</summary>
     private static void PositionMetroidOuterBody(

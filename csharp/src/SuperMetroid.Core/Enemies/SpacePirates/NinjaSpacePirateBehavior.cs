@@ -378,7 +378,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction,
         VerticalDirection vertical)
     {
-        int xPixels = EightEight.WholeOf(state.Speed.RawValue);
+        int xPixels = state.Speed.WholeByte;
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels));
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole +
             (vertical == VerticalDirection.Up ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels));
@@ -399,7 +399,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
 
         state.ChangeSpeed(-32);
-        if (state.Speed.RawValue != 0)
+        if (state.Speed != new SignedEightEight(0))
             return;
 
         state.Function = NinjaSpacePirateFunction.NoOperation;
@@ -426,9 +426,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed.RawValue)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - state.Speed.WholeByte);
         state.ChangeSpeed(-64);
-        if (state.Speed.SignedRawValue >= 0)
+        if (!state.Speed.IsNegative)
             return;
 
         state.Function = direction == HorizontalDirection.Right
@@ -463,12 +463,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // the low byte as only the low eight bits of the fractional word. This odd packing is
         // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
         // different from the game's own speed arithmetic.
-        int displacement = (SixteenSixteen.FromWhole(EightEight.WholeOf(state.Speed.RawValue))) | (EightEight.FractionOf(state.Speed.RawValue));
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(state.Speed.WholeByte, state.Speed.FractionByte);
         bool landed = _terrain.MoveEnemyVertically(level, slot, displacement);
         if (!landed)
         {
             state.ChangeSpeed(-64);
-            landed = state.Speed.SignedRawValue < 0 || UnsignedEightEight.Whole(state.Speed.RawValue) == 0;
+            landed = state.Speed.IsNegative || state.Speed.WholeByte == 0;
         }
         if (!landed)
             return;

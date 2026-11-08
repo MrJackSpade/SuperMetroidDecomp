@@ -273,7 +273,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int packed = Hop(state).YIndexDelta;
-        int displacement = SixteenSixteen.FromEightEight(packed);
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(packed);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
@@ -308,7 +308,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);
         EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(cappedIndex));
-        int verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
+        SignedSixteenSixteen verticalDisplacement = speedRow.Toward(state.Falling ? EnemySpeedSign.Positive : EnemySpeedSign.Negative);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
         {
@@ -346,7 +346,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int whole = EightEight.WholeOf(xSpeed);
         if (state.Direction == PuyoDirection.Left)
             whole = -whole;
-        int horizontalDisplacement = SixteenSixteen.FromWhole(whole);
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(whole);
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,

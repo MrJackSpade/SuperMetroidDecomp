@@ -21,8 +21,9 @@ public static class EnemyQuadraticSpeeds
     private static EnemyQuadraticSpeedRow Build(int row)
     {
         int triangle = row * (row + 1) / 2;
-        int speed = SixteenSixteen.FromWhole(EightEight.WholeOf(triangle)) |
-            SixteenSixteen.FractionOf(EightEight.FractionOf(triangle) * FractionMultiplier);
+        SignedSixteenSixteen speed = SignedSixteenSixteen.FromParts(
+            EightEight.WholeOf(triangle),
+            SixteenSixteen.FractionOf(EightEight.FractionOf(triangle) * FractionMultiplier));
         return new EnemyQuadraticSpeedRow(speed, -speed);
     }
 }

@@ -27,7 +27,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Initial whole-pixel vertical speed of the visible bobbing cycle.</summary>
     private static readonly SignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
     /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
-    private const int WreckedShipGhostVerticalAccelerationFraction = 6144;
+    private static readonly SignedSixteenSixteen WreckedShipGhostVerticalAcceleration = SignedSixteenSixteen.FromParts(0, 6144);
     /// <summary>The movement class, horizontal or vertical, of Samus holding still on that axis: the middle of three.</summary>
     private const int WreckedShipGhostStationaryClass = 1;
     /// <summary>The three movement classes on each axis: moving toward smaller coordinates, still, or toward larger ones.</summary>
@@ -283,10 +283,10 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         slot.Position = slot.Position.AdvanceY(state.VerticalVelocity);
 
-        int acceleration = (slot.Position.Whole - state.BobbingOrigin).Y < 0
-            ? WreckedShipGhostVerticalAccelerationFraction
-            : -WreckedShipGhostVerticalAccelerationFraction;
-        state.VerticalVelocity += SignedSixteenSixteen.FromRaw(acceleration);
+        SignedSixteenSixteen acceleration = (slot.Position.Whole - state.BobbingOrigin).Y < 0
+            ? WreckedShipGhostVerticalAcceleration
+            : -WreckedShipGhostVerticalAcceleration;
+        state.VerticalVelocity += acceleration;
 
         if (--state.PhaseTimer != 0)
             return;

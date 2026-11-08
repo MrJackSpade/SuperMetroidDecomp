@@ -216,7 +216,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 "Wall Space Pirate climbing requires room collision data.");
         }
 
-        int displacement = SixteenSixteen.FromWhole(downwardPixels);
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(downwardPixels);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return null;
 

@@ -308,7 +308,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             ? CoordinateAxis.Wrap(mama.Position.X.Whole + 1)
             : CoordinateAxis.Wrap(mama.Position.X.Whole - 1));
 
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, 1 << 16))
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, SignedSixteenSixteen.FromWholePixels(1)))
             return;
 
         InstallTurtleInstruction(
@@ -345,7 +345,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if (_terrain.MoveEnemyVertically(level, mama, -1 << 16))
+        if (_terrain.MoveEnemyVertically(level, mama, SignedSixteenSixteen.FromWholePixels(-1)))
             return;
 
         if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
@@ -358,8 +358,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The two adjacent acceleration records accelerate toward Samus's side by a sixteenth of a pixel per update.
         state.XAcceleration = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) < 0
-            ? SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 16)
-            : SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromWhole(1) / 16);
+            ? SignedSixteenSixteen.FromSixteenthsOfPixel(1)
+            : SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
         state.Function = MamaTurtleAiFunction.Hovering;
     }
@@ -372,7 +372,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X.RawValue))
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X))
         {
             ReverseMamaTurtleAtWall(state);
             _earthquake.EarthquakeType = 0;
@@ -491,7 +491,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Only the whole word is passed to MoveEnemyDown; the fraction influences later
         // whole-speed carries but is not itself part of this frame's displacement.
-        if (!_terrain.MoveEnemyVertically(level, mama, SixteenSixteen.FromWhole(state.Velocity.Y.WholePixels)))
+        if (!_terrain.MoveEnemyVertically(level, mama, state.Velocity.Y.WithoutFraction()))
             return;
 
         InstallTurtleInstruction(
@@ -598,12 +598,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                level, baby, SixteenSixteen.FromWhole(state.Velocity.X)))
+                level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X)))
         {
             state.Velocity = state.Velocity.WithX(-state.Velocity.X);
             return;
         }
-        _terrain.MoveEnemyVertically(level, baby, SixteenSixteen.FromWhole(state.Velocity.Y));
+        _terrain.MoveEnemyVertically(level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.Y));
     }
 
     /// <summary>Animation cue: crawl across the sleeping parent contour.</summary>
@@ -628,7 +628,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int previousY = baby.Position.Y.Whole;
         baby.Position = baby.Position.WithWholeY(state.SpawnTopCenter.Y);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level, baby, SixteenSixteen.FromWhole(state.Velocity.X));
+            level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
 
         RoomEnemySlot parentSlot = RoomMama();
         MamaTurtleEnemyState parent = parentSlot.RequireSpeciesState<MamaTurtleEnemyState>();
@@ -640,7 +640,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? 1
             : MamaTurtleShell.GetOffset(signedDifference);
-        _terrain.MoveEnemyVertically(level, baby, SixteenSixteen.FromWhole(contourOffset));
+        _terrain.MoveEnemyVertically(level, baby, SignedSixteenSixteen.FromWholePixels(contourOffset));
 
         if (carryingSamus)
         {
@@ -757,7 +757,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : CoordinateAxis.Wrap(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X));
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level, baby, SixteenSixteen.FromWhole(state.Velocity.X));
+            level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
         WakeMamaTurtle();
     }
 

@@ -61,15 +61,15 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>Fixed-point downward displacement used for the ground probe.</summary>
-    private const int WalkingPirateOnePixelDown = 1 << 16;
+    private static readonly SignedSixteenSixteen WalkingPirateOnePixelDown = SignedSixteenSixteen.FromWholePixels(1);
     /// <summary>Left patrol edge is probed one pixel farther than the right edge.</summary>
     private const int WalkingPirateLeftLedgeProbePixels = 17;
     /// <summary>Right patrol ledge probe distance in room pixels.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
-    /// <summary>Signed fixed-point displacement for a left patrol step.</summary>
-    private const int WalkingPirateLeftStepDisplacement = -14337;
-    /// <summary>Signed fixed-point displacement for a right patrol step.</summary>
-    private const int WalkingPirateRightStepDisplacement = 14336;
+    /// <summary>The left patrol step: the right step mirrored one 65536th of a pixel further left.</summary>
+    private static readonly SignedSixteenSixteen WalkingPirateLeftStepDisplacement = SignedSixteenSixteen.FromParts(-1, 51199);
+    /// <summary>The right patrol step, seven thirty-seconds of a pixel.</summary>
+    private static readonly SignedSixteenSixteen WalkingPirateRightStepDisplacement = SignedSixteenSixteen.FromParts(0, 14336);
     /// <summary>Maximum vertical separation for choosing the laser attack.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
     /// <summary>Horizontal collision window used by the pirate's projectile flinch path.</summary>

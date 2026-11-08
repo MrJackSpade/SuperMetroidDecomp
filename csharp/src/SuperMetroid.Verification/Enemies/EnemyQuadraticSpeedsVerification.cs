@@ -35,7 +35,7 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
         foreach (EnemySpeedSign sign in signs)
         {
-            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index).Toward(sign);
+            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index).Toward(sign).RawValue;
             uint expected = unchecked(origin + (uint)speed);
             rock.Position = rock.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
             addRock(rock, index, sign);
@@ -78,7 +78,7 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int row = 0; row < EnemyQuadraticSpeedDefinitions.RowCount; row++)
         foreach (EnemySpeedSign sign in signs)
         {
-            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row).Toward(sign);
+            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row).Toward(sign).RawValue;
             maw.Extension = SignedSixteenSixteen.FromRaw(unchecked((int)start));
             maw.QuadraticSpeedRow = row;
             maw.QuadraticSpeedSign = sign;

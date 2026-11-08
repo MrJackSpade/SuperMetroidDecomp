@@ -20,8 +20,18 @@ public readonly record struct SignedSixteenSixteen
         new(unchecked((Ensure.BetweenInclusive(short.MinValue, short.MaxValue, wholePixels) << 16) |
             Ensure.BetweenInclusive(0, ushort.MaxValue, fraction)));
 
+    /// <summary>A displacement of <paramref name="wholePixels"/> whole pixels, -32768 through 32767, with no fraction.</summary>
+    public static SignedSixteenSixteen FromWholePixels(int wholePixels) => FromParts(wholePixels, 0);
+
     /// <summary>A displacement of <paramref name="sixteenths"/> sixteenths of a pixel.</summary>
     public static SignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => new(checked(sixteenths * 4096));
+
+    /// <summary>
+    /// A displacement of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel, the precision of an 8.8 speed: the
+    /// whole pixels above eight fraction bits, the fraction's low byte zero.
+    /// </summary>
+    public static SignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
+        new(checked(twoHundredFiftySixths * 256));
 
     /// <summary>The zero displacement.</summary>
     public static SignedSixteenSixteen Zero => default;
@@ -66,6 +76,13 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>Subtracts two displacements, borrowing from the whole word and wrapping at 32 bits.</summary>
     public static SignedSixteenSixteen operator -(SignedSixteenSixteen left, SignedSixteenSixteen right) =>
         new(unchecked(left.RawValue - right.RawValue));
+
+    /// <summary>
+    /// The displacement scaled by a whole factor, carrying the fraction and wrapping at 32 bits as the repeated
+    /// doublings or additions the game scales a displacement with do.
+    /// </summary>
+    public static SignedSixteenSixteen operator *(SignedSixteenSixteen value, int factor) =>
+        new(unchecked(value.RawValue * factor));
 
     /// <summary>The displacement reversed: whole and fraction negated together, wrapping at 32 bits.</summary>
     public static SignedSixteenSixteen operator -(SignedSixteenSixteen value) => new(unchecked(-value.RawValue));

@@ -304,7 +304,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             bool slopeAdjusted = EnemyTerrain.AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
             HandleYardTurnTransitionDisabling(state, slopeAdjusted);
-            int tangent = SixteenSixteen.FromEightEight(state.CrawlingVelocity.Y.SignedRawValue);
+            SignedSixteenSixteen tangent = state.CrawlingVelocity.Y.ToSixteenSixteenDelta();
             if (_terrain.MoveEnemyVertically(level, slot, tangent))
             {
                 state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
@@ -316,7 +316,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int horizontalTangent = CrawlersBehavior.GetSurfaceSlopeAdjustedHorizontalDisplacement(
+        SignedSixteenSixteen horizontalTangent = CrawlersBehavior.GetSurfaceSlopeAdjustedHorizontalDisplacement(
             slot,
             state.CrawlingVelocity,
             level);
@@ -387,7 +387,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.Behavior != YardBehavior.Dropped)
         {
-            if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, state.AirborneVelocity.X.RawValue))
+            if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, state.AirborneVelocity.X))
             {
                 // The game negates each word separately. This is intentionally one
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
@@ -401,15 +401,15 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 // word unconditionally but declines to replace the high word when ADC makes
                 // it exactly zero; preserve that observable arithmetic quirk.
                 SignedSixteenSixteen velocity = state.AirborneVelocity.X;
-                SignedSixteenSixteen decelerated = velocity + SignedSixteenSixteen.FromRaw(
-                    velocity.WholePixels < 0 ? 4096 : -4096);
+                SignedSixteenSixteen decelerated = velocity + SignedSixteenSixteen.FromSixteenthsOfPixel(
+                    velocity.WholePixels < 0 ? 1 : -1);
                 state.AirborneVelocity = state.AirborneVelocity.WithX(decelerated.WholePixels != 0
                     ? decelerated
                     : velocity.WithFraction(decelerated.Fraction));
             }
         }
 
-        if (_terrain.MoveEnemyVertically(level, slot, state.AirborneVelocity.Y.RawValue))
+        if (_terrain.MoveEnemyVertically(level, slot, state.AirborneVelocity.Y))
         {
             int wholeY = state.AirborneVelocity.Y.WholePixels;
             if (wholeY is >= 0 and < 3)

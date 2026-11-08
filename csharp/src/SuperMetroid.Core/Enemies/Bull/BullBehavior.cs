@@ -184,7 +184,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // A displacement with no fraction reverses one subpixel further than its true reversal.
             displacement = SignedSixteenSixteen.Zero - displacement -
-                SignedSixteenSixteen.FromRaw(displacement.Fraction == 0 ? 1 : 0);
+                (displacement.Fraction == 0 ? SignedSixteenSixteen.FromParts(0, 1) : SignedSixteenSixteen.Zero);
         }
 
         // The displacement moves the position as one 16.16 value: a fraction that passes a whole pixel moves the whole

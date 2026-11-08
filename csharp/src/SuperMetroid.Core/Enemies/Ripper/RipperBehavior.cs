@@ -58,7 +58,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData? level)
     {
         RequireRipperTerrain(level, "GRipper");
-        int displacement = state.XVelocity.RawValue;
+        SignedSixteenSixteen displacement = state.XVelocity;
         bool reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
@@ -99,7 +99,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunRipper2Main(RoomEnemySlot slot, RipperEnemyState state, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
-        int displacement = state.XVelocity.RawValue;
+        SignedSixteenSixteen displacement = state.XVelocity;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -133,7 +133,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // mover aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
-        int displacement = state.XVelocity.RawValue;
+        SignedSixteenSixteen displacement = state.XVelocity;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 

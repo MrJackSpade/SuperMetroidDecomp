@@ -100,8 +100,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Choot applies the table's separately stored negative pair, including its fractional
         // negation bug, without consulting room collision during this authored leap.
-        int upwardDisplacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative;
-        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(upwardDisplacement)));
+        SignedSixteenSixteen upwardDisplacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative;
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(upwardDisplacement));
 
         state.YSpeedTableIndex -= 2;
         if (state.YSpeedTableIndex >= 0)
@@ -157,7 +157,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             tableIndex += 2;
             accumulatedDistance = accumulatedDistance.MovedBy(
-                SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(tableIndex).Positive));
+                EnemyQuadraticSpeeds.Row(tableIndex).Positive);
             int wholeDistance = accumulatedDistance.Whole;
             if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
                 return tableIndex;

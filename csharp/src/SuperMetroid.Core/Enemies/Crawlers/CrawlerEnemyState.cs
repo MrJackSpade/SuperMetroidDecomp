@@ -45,7 +45,7 @@ public sealed class CrawlerEnemyState
     internal void ApplyFallingGravity()
     {
         if (FallingYVelocity.WholePixels < 4)
-            FallingYVelocity += SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 2);
+            FallingYVelocity += SignedSixteenSixteen.FromParts(0, 32768);
     }
     /// <summary>Attached AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer.</summary>
     public CrawlerEnemyFunction? NonFallingFunction { get; internal set; }

@@ -97,7 +97,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the three independent random-table selections.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
-        int xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
+        SignedEightEight xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
 
         int initialYSpeed = PolypLaunches.InitialYIndex(_room.Random.Generate());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
@@ -152,7 +152,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnPolypRock(
         RoomEnemySlot source,
         int initialYSpeed,
-        int xVelocity)
+        SignedEightEight xVelocity)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -165,7 +165,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.FrameBehavior = PolypRockFrameBehavior;
         projectile.State = new PolypRockState(initialYSpeed);
-        projectile.Velocity = new(new SignedEightEight(xVelocity), new SignedEightEight(0));
+        projectile.Velocity = new(xVelocity, new SignedEightEight(0));
         projectile.Position = source.Position;
     }
 
@@ -236,8 +236,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemySpeedSign sign)
     {
         // A fraction past a whole pixel carries into the whole pixels, and the whole pixels wrap around the room.
-        int speed = EnemyQuadraticSpeeds.Row(tableIndex).Toward(sign);
-        projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(speed)));
+        SignedSixteenSixteen speed = EnemyQuadraticSpeeds.Row(tableIndex).Toward(sign);
+        projectile.Position = projectile.Position.WithY(projectile.Position.Y.MovedBy(speed));
     }
 
     /// <summary>Moves the rock with the game's split signed-8.8 horizontal addition.</summary>

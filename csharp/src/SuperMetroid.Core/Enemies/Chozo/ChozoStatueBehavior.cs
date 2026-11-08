@@ -300,11 +300,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _ = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             statue,
-            SixteenSixteen.FromEightEight(signedVelocity));
+            SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(signedVelocity));
         _ = _terrain.MoveEnemyVertically(
             level,
             statue,
-            SixteenSixteen.FromEightEight(Math.Abs(signedVelocity)));
+            SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Math.Abs(signedVelocity)));
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
         // The two 32-word tables are joint offsets indexed by the same record.

@@ -40,7 +40,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Lava Y threshold tested by both families' acid-height branch instructions.</summary>
     private const int EscapeAnimalLavaBranchY = 206;
     /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
-    private const int EscapeEtecoonGravity = 1 << 16;
+    private static readonly SignedSixteenSixteen EscapeEtecoonGravity = SignedSixteenSixteen.FromWholePixels(1);
     /// <summary>Signed 16.16 horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
     private static readonly SignedSixteenSixteen EscapeEtecoonUncollidedExitSpeed = SignedSixteenSixteen.FromParts(3, 32768);
 
@@ -144,14 +144,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The stored speed is signed 8.8; the slope-ignoring horizontal mover receives signed
         // 16.16, hence the exact eight-bit shift. The event test is inside the collision
         // branch in the retail routine and must not turn an animal around in open space.
-        int horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta().RawValue;
+        SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             slot.FrameHold = WrappingCountdown.Start(1);
             state.Velocity = state.Velocity.ReversedX();
             state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(HasCrittersEscaped()
                 ? EscapeEtecoonProgram.RunningForEscape
-                : state.Velocity.X.SignedRawValue < 0
+                : state.Velocity.X.IsNegative
                     ? EscapeEtecoonProgram.RunningLeftLowTide
                     : EscapeEtecoonProgram.RunningRightLowTide);
         }

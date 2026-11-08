@@ -153,7 +153,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Platform X movement {state.XMovement} exceeds its two-entry table."),
         };
-        int displacement = (movingLeft ? state.LeftSpeed : state.RightSpeed).RawValue;
+        SignedSixteenSixteen displacement = movingLeft ? state.LeftSpeed : state.RightSpeed;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -210,7 +210,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         SetPlatformVerticallyMovingInstruction(slot, state);
         IncrementAndClampPlatformYSpeed(state);
-        int displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative;
+        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Negative;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
@@ -241,7 +241,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xDelta), 0);
 
         int preVerticalY = slot.Position.Y.Whole;
-        int displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive;
+        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             state.YSpeedTableIndex = 0;

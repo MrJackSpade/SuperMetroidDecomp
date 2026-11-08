@@ -204,7 +204,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y.RawValue))
+                state.Velocity.Y))
         {
             state.Velocity = state.Velocity.WithWholeY(-state.Velocity.Y.WholePixels);
         }
@@ -220,7 +220,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                state.Velocity.X.RawValue))
+                state.Velocity.X))
         {
             state.Velocity = state.Velocity.WithWholeX(-state.Velocity.X.WholePixels);
             SetKiHunterPairFacing(body, state.Velocity.X.WholePixels >= 0);
@@ -271,7 +271,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         RoomLevelData level)
     {
-        bool leftArc = state.AngularAcceleration.RawValue < 0;
+        bool leftArc = state.AngularAcceleration.IsNegative;
         bool beforeAnimationChange = leftArc
             ? state.SwoopAngle >= state.AnimationChangeAngle
             : state.SwoopAngle < state.AnimationChangeAngle;
@@ -306,7 +306,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetX = CoordinateAxis.Wrap(
             state.SwoopTarget.X +
             EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X));
-        int horizontalDisplacement = SixteenSixteen.FromWhole(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
+        SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
             state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(leftArc ? 1 : -1, 0));
@@ -318,7 +318,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY = CoordinateAxis.Wrap(
             state.SwoopOrigin.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(tableAngle, state.SwoopRadius.Y));
-        int verticalDisplacement = SixteenSixteen.FromWhole(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
+        SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
     }
@@ -339,7 +339,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                state.Velocity.X.RawValue))
+                state.Velocity.X))
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
             return;
@@ -349,7 +349,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y.RawValue) ||
+                state.Velocity.Y) ||
             CoordinateAxis.Difference(body.Position.Y.Whole, state.SpawnPosition.Y) < 0)
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
@@ -365,7 +365,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y.RawValue))
+                state.Velocity.Y))
         {
             state.Function = KiHunterEnemyFunction.StartGroundJump;
             return;
@@ -403,7 +403,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y.RawValue))
+                state.Velocity.Y))
         {
             if (state.Velocity.Y.WholePixels < 0)
             {
@@ -427,7 +427,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                state.Velocity.X.RawValue))
+                state.Velocity.X))
         {
             state.Velocity = state.Velocity.WithWholeX(-state.Velocity.X.WholePixels);
             return;
@@ -531,7 +531,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 wings,
-                SixteenSixteen.FromWhole(CoordinateAxis.Difference(desiredY, wings.Position.Y.Whole))))
+                SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(desiredY, wings.Position.Y.Whole))))
         {
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
             wings.Position = wings.Position.WithWhole(state.SavedWingPosition);
@@ -667,7 +667,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// the angle plus a quarter turn, which switches the wing from its orbit to its falling arc and back.
     /// </summary>
     private static bool LiesWithinMiddleHalfTurn(RotationAngle angle) =>
-        angle.AddRaw(RotationAngle.QuarterTurn.RawValue).CompareTo(RotationAngle.HalfTurn) >= 0;
+        angle + RotationAngle.QuarterTurn >= RotationAngle.HalfTurn;
 
     /// <summary>Animation cue: return to steady art and sync attached wings.</summary>
     private KiHunterProgram ReturnKiHunterToSteadyInstruction(RoomEnemySlot body)
@@ -903,7 +903,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>8.8 downward speed added to each active acid frame.</summary>
     private static readonly SignedEightEight KiHunterAcidGravity = SignedEightEight.FromSignedRaw(16);
     /// <summary>Maximum 8.8 downward speed for a falling acid projectile.</summary>
-    private const int KiHunterAcidTerminalYSpeed = 512;
+    private static readonly SignedEightEight KiHunterAcidTerminalYSpeed = SignedEightEight.FromSignedRaw(512);
 
     /// <summary>
     /// Spawns an acid spit from its definition and initializer.
@@ -966,8 +966,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         SignedEightEight accelerated = projectile.Velocity.Y + KiHunterAcidGravity;
-        projectile.Velocity = projectile.Velocity.WithY(accelerated.SignedRawValue >= KiHunterAcidTerminalYSpeed
-            ? new SignedEightEight(KiHunterAcidTerminalYSpeed)
+        projectile.Velocity = projectile.Velocity.WithY(accelerated >= KiHunterAcidTerminalYSpeed
+            ? KiHunterAcidTerminalYSpeed
             : accelerated);
     }
 }

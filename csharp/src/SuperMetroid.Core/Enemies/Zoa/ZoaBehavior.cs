@@ -40,10 +40,10 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Samus must be within 128 horizontal pixels before a hidden Zoa rises.</summary>
     private const int ZoaActivationColumnDistance = 128;
-    /// <summary>An eighth of a pixel, in the 16.16 units a displacement is added in.</summary>
-    private const int EighthPixel = 8192;
+    /// <summary>The sixteenths of a pixel in an eighth of a pixel.</summary>
+    private const int SixteenthsPerEighth = 2;
     /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
-    private const int ZoaRisingSubpixelSpeed = 32768;
+    private static readonly SignedSixteenSixteen ZoaRisingSpeed = SignedSixteenSixteen.FromParts(0, 32768);
 
     /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
     internal static void InitializeZoa(RoomEnemySlot slot)
@@ -125,7 +125,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
             // this project targets the Japan/USA retail release and reads NTSC data.
-            slot.Position = slot.Position.AdvanceY(SignedSixteenSixteen.FromRaw(-ZoaRisingSubpixelSpeed));
+            slot.Position = slot.Position.AdvanceY(-ZoaRisingSpeed);
             return;
         }
 
@@ -140,14 +140,15 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         Position16<RoomPixels> camera)
     {
-        int unsignedDisplacement = ZoaSpeedDefinitions.StageSpeedEighths[state.ShotSpeedStage] * EighthPixel;
+        SignedSixteenSixteen speed = SignedSixteenSixteen.FromSixteenthsOfPixel(
+            ZoaSpeedDefinitions.StageSpeedEighths[state.ShotSpeedStage] * SixteenthsPerEighth);
 
         // Shooting list zero travels left by subtraction; list two travels right by
         // addition. The instruction bytecode changes speed at 64-, 8-, and 48-frame marks.
-        int xDisplacement = state.AnimationScriptTableIndex == ZoaAnimationSelector.None
-            ? -unsignedDisplacement
-            : unsignedDisplacement;
-        slot.Position = slot.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
+        SignedSixteenSixteen xDisplacement = state.AnimationScriptTableIndex == ZoaAnimationSelector.None
+            ? -speed
+            : speed;
+        slot.Position = slot.Position.AdvanceX(xDisplacement);
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
         {
             SetZoaProgram(slot, state);

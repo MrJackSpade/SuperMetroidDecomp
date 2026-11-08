@@ -58,7 +58,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
-    private const int StokeFloorProbeDisplacement = 2 << 16;
+    private static readonly SignedSixteenSixteen StokeFloorProbeDisplacement = SignedSixteenSixteen.FromWholePixels(2);
 
     /// <summary>Initializes the Stoke.</summary>
     internal static void InitializeStoke(RoomEnemySlot slot)
@@ -106,7 +106,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     level,
-                    left ? state.LeftVelocity.RawValue : state.RightVelocity.RawValue,
+                    left ? state.LeftVelocity : state.RightVelocity,
                     left ? StokeProgram.AttackingLeft : StokeProgram.AttackingRight);
                 return;
 
@@ -121,7 +121,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         StokeEnemyState state,
         RoomLevelData level,
-        int horizontalDisplacement,
+        SignedSixteenSixteen horizontalDisplacement,
         StokeProgram attackingProgram)
     {
         MoveStokeAndTurnAtTerrain(slot, state, level, horizontalDisplacement);
@@ -144,7 +144,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         StokeEnemyState state,
         RoomLevelData level,
-        int horizontalDisplacement)
+        SignedSixteenSixteen horizontalDisplacement)
     {
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {

@@ -639,16 +639,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void AddPipeBugDisplacement(
         RoomEnemySlot slot,
         Axis axis,
-        int displacement)
+        SignedSixteenSixteen displacement)
     {
-        SignedSixteenSixteen moved = SignedSixteenSixteen.FromRaw(displacement);
         if (axis == Axis.Horizontal)
         {
-            slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(moved));
+            slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(displacement));
         }
         else
         {
-            slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(moved));
+            slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(displacement));
         }
     }
 

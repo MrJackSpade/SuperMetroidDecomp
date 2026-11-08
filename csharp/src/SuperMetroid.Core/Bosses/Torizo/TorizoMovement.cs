@@ -184,7 +184,7 @@ internal sealed class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        int displacement = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+        SignedSixteenSixteen displacement = state.Velocity.Y.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyVertically(level, torizo, displacement))
         {
             int velocity = state.Velocity.Y.SignedRawValue;
@@ -209,13 +209,13 @@ internal sealed class TorizoMovement
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             torizo,
-            SixteenSixteen.FromEightEight(state.Velocity.X.SignedRawValue));
+            state.Velocity.X.ToSixteenSixteenDelta());
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
 
         if (_terrain.MoveEnemyVertically(
                 level,
                 torizo,
-                SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue)))
+                state.Velocity.Y.ToSixteenSixteenDelta()))
         {
             TorizoBody.StartTorizoBodyProgram(torizo, state, state.ReturnCursor);
             state.Velocity = state.Velocity.WithY(new SignedEightEight(256));
@@ -250,7 +250,7 @@ internal sealed class TorizoMovement
         }
 
         int fallingSpeed = Math.Min(Math.Abs(state.Velocity.X.SignedRawValue) + 1, 15);
-        if (!_terrain.MoveEnemyVertically(level, torizo, SixteenSixteen.FromWhole(fallingSpeed)))
+        if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(fallingSpeed)))
         {
             // Bomb Torizo's fall swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
@@ -283,7 +283,7 @@ internal sealed class TorizoMovement
         int fallingSpeed = Math.Min(
             Math.Abs(state.Velocity.X.SignedRawValue) + 1,
             15);
-        if (!_terrain.MoveEnemyVertically(level, torizo, SixteenSixteen.FromWhole(fallingSpeed)))
+        if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(fallingSpeed)))
         {
             TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0

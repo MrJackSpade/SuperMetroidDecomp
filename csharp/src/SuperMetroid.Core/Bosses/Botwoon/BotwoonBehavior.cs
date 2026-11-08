@@ -679,8 +679,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep)).Positive;
-        head.Position = head.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
+        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep)).Positive;
+        head.Position = head.Position.AdvanceY(displacement);
         if (CoordinateAxis.Difference(head.Position.Y.Whole, 200) < 0)
         {
             state.DeathFallAccumulator += BotwoonDeathFallAcceleration;
@@ -993,8 +993,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         int randomEnemyCounter)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(segment.Velocity.Y.SignedRawValue)).Positive;
-        segment.Position = segment.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
+        SignedSixteenSixteen displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(segment.Velocity.Y.SignedRawValue)).Positive;
+        segment.Position = segment.Position.AdvanceY(displacement);
         if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {
             // The fall speed selects a row of the quadratic speeds, which rejects a speed past its rows long before the

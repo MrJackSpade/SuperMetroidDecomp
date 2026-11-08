@@ -1,5 +1,4 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Bosses.Ridley;

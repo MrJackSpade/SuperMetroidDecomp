@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>Compiled fixed geometry and path metadata for Botwoon's room navigation.</summary>

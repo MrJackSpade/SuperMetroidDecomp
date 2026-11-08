@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// A selection a random sample makes (#1461): the bits of the sample one choice reads, by their position and width.
@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Shift">The position of the field's lowest bit in the sample.</param>
 /// <param name="Width">How many bits the field holds, 1 through 16.</param>
 [EncodingOwner("random sample bit fields")]
+[CompatibilityService("which bits of the shared random sample each choice reads, exactly as the original masked and shifted its random word")]
 public readonly record struct RandomSampleField(int Shift, int Width)
 {
     /// <summary>The field's value in <paramref name="sample"/>, 0 through <see cref="Outcomes"/> minus one.</summary>

@@ -19,11 +19,12 @@ internal sealed class RoomFxThirdColor
     public RoomFxThirdColor(RoomFxPaletteBlend selection, RgbColor color)
     {
         this.selection = selection;
-        red = color.FadeLevels.Red;
-        int green = color.FadeLevels.Green;
+        FadeLevelColour levels = color.FadeLevels;
+        red = levels.Red;
+        int green = levels.Green;
         greenOverride = RoomFxPaletteBlendRules.CalculatedThirdGreen(selection) == green ? null : green;
-        int blue = color.FadeLevels.Blue;
-        blueOverride = RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, color.FadeLevels.Red) == blue ? null : blue;
+        int blue = levels.Blue;
+        blueOverride = RoomFxPaletteBlendRules.CalculatedThirdBlue(selection, levels.Red) == blue ? null : blue;
     }
 
     /// <summary>Combines the retained red channel with edited or calculated weather channels.</summary>

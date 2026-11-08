@@ -275,9 +275,10 @@ public sealed class InstalledSamusDeathPalettes
     /// Inputs are RGB5 words; signed intermediate green spans-31..62.</remarks>
     internal static bool TrySuitlessTintEndpoint(RgbColor bright, RgbColor dark, out RgbColor value)
     {
-        int green = (dark.FadeLevels.Blue) + (bright.FadeLevels.Green) - (bright.FadeLevels.Blue);
+        FadeLevelColour darkLevels = dark.FadeLevels, brightLevels = bright.FadeLevels;
+        int green = darkLevels.Blue + brightLevels.Green - brightLevels.Blue;
         if ((uint)green > 31) { value = RgbColor.Black; return false; }
-        value = dark.FadeLevels.WithGreen(green).ToColour();
+        value = darkLevels.WithGreen(green).ToColour();
         return true;
     }
     /// <summary>Calculates the central suitless tint between its neighboring shades.</summary>
@@ -289,9 +290,10 @@ public sealed class InstalledSamusDeathPalettes
     /// the middle intensity input, not the remaining endpoint choices.</remarks>
     internal static RgbColor SuitlessTintMidpoint(RgbColor first, RgbColor last)
     {
-        int red = ((first.FadeLevels.Red) + (last.FadeLevels.Red)) / 2;
-        int green = ((first.FadeLevels.Green) + (last.FadeLevels.Green)) / 2;
-        int blue = ((first.FadeLevels.Blue) + (last.FadeLevels.Blue)) / 2;
+        FadeLevelColour firstLevels = first.FadeLevels, lastLevels = last.FadeLevels;
+        int red = (firstLevels.Red + lastLevels.Red) / 2;
+        int green = (firstLevels.Green + lastLevels.Green) / 2;
+        int blue = (firstLevels.Blue + lastLevels.Blue) / 2;
         return new FadeLevelColour(red, green, blue).ToColour();
     }
     /// <summary>Interpolates tint balance while preserving a supplied middle-shade intensity.</summary>
@@ -311,10 +313,11 @@ public sealed class InstalledSamusDeathPalettes
         if ((uint)blue > 31) throw new ArgumentOutOfRangeException(nameof(blue));
         if (color is < 7 or > 9) throw new ArgumentOutOfRangeException(nameof(color));
         int weight = color - 6;
-        int interpolatedBlue = ((first.FadeLevels.Blue) * (4 - weight) + (last.FadeLevels.Blue) * weight) / 4;
+        FadeLevelColour firstLevels = first.FadeLevels, lastLevels = last.FadeLevels;
+        int interpolatedBlue = (firstLevels.Blue * (4 - weight) + lastLevels.Blue * weight) / 4;
         int shift = blue - interpolatedBlue;
-        int red = ((first.FadeLevels.Red) * (4 - weight) + (last.FadeLevels.Red) * weight) / 4 + shift;
-        int green = ((first.FadeLevels.Green) * (4 - weight) + (last.FadeLevels.Green) * weight) / 4 + shift;
+        int red = (firstLevels.Red * (4 - weight) + lastLevels.Red * weight) / 4 + shift;
+        int green = (firstLevels.Green * (4 - weight) + lastLevels.Green * weight) / 4 + shift;
         if ((uint)red > 31 || (uint)green > 31) { value = RgbColor.Black; return false; }
         value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
@@ -339,9 +342,10 @@ public sealed class InstalledSamusDeathPalettes
     {
         if (color is not (2 or 3)) throw new ArgumentOutOfRangeException(nameof(color));
         int weight = color - 1;
-        int red = ((first.FadeLevels.Red) * (3 - weight) + (last.FadeLevels.Red) * weight) / 3;
-        int green = ((first.FadeLevels.Green) * (3 - weight) + (last.FadeLevels.Green) * weight) / 3;
-        int blue = ((first.FadeLevels.Blue) * (3 - weight) + (last.FadeLevels.Blue) * weight) / 3;
+        FadeLevelColour firstLevels = first.FadeLevels, lastLevels = last.FadeLevels;
+        int red = (firstLevels.Red * (3 - weight) + lastLevels.Red * weight) / 3;
+        int green = (firstLevels.Green * (3 - weight) + lastLevels.Green * weight) / 3;
+        int blue = (firstLevels.Blue * (3 - weight) + lastLevels.Blue * weight) / 3;
         return new FadeLevelColour(red, green, blue).ToColour();
     }
     /// <summary>Returns a suitless gray ink's evenly spaced intensity toward black.</summary>

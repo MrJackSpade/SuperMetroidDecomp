@@ -13,9 +13,10 @@ internal static class SamusPaletteFade
     internal static RgbColor EighthTowardWhite(RgbColor basis, int shade)
     {
         if ((uint)shade >= 8) throw new ArgumentOutOfRangeException(nameof(shade));
-        int red = ((basis.FadeLevels.Red) * (8 - shade) + 31 * shade) / 8;
-        int green = ((basis.FadeLevels.Green) * (8 - shade) + 31 * shade) / 8;
-        int blue = ((basis.FadeLevels.Blue) * (8 - shade) + 31 * shade) / 8;
+        FadeLevelColour levels = basis.FadeLevels;
+        int red = (levels.Red * (8 - shade) + 31 * shade) / 8;
+        int green = (levels.Green * (8 - shade) + 31 * shade) / 8;
+        int blue = (levels.Blue * (8 - shade) + 31 * shade) / 8;
         return new FadeLevelColour(red, green, blue).ToColour();
     }
 }

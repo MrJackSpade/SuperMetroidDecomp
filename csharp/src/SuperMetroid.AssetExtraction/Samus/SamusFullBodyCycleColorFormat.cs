@@ -31,8 +31,10 @@ public static class SamusFullBodyCycleColorFormat
     {
         value = RgbColor.Black;
         if (palette is < 29 or > 31 || color != 2) return false;
-        int red = palette == 29 ? basis.FadeLevels.Red : palette == 31 ? bright.FadeLevels.Red : ((basis.FadeLevels.Red) + (bright.FadeLevels.Red) + 1) / 2;
-        value = new FadeLevelColour(red, Math.Min(31, basis.FadeLevels.Green + 5), basis.FadeLevels.Blue).ToColour();
+        FadeLevelColour basisLevels = basis.FadeLevels;
+        int brightRed = bright.FadeLevels.Red;
+        int red = palette == 29 ? basisLevels.Red : palette == 31 ? brightRed : (basisLevels.Red + brightRed + 1) / 2;
+        value = new FadeLevelColour(red, Math.Min(31, basisLevels.Green + 5), basisLevels.Blue).ToColour();
         return true;
     }
 
@@ -56,9 +58,10 @@ public static class SamusFullBodyCycleColorFormat
         value = RgbColor.Black;
         if (palette is < 13 or > 15 || color is not (2 or 12)) return false;
         int shade = palette - 12;
-        int red = color == 2 ? Math.Max(0, (basis.FadeLevels.Red) - 5 * shade) : speedDim.FadeLevels.Red;
-        int green = Math.Min(31, (color == 2 ? basis : speedDim).FadeLevels.Green + (color == 2 ? 5 : 10) * shade);
-        int blue = Math.Min(31, (basis.FadeLevels.Blue) + (color == 12 && shade == 3 ? 10 : 0));
+        FadeLevelColour basisLevels = basis.FadeLevels, dimLevels = speedDim.FadeLevels;
+        int red = color == 2 ? Math.Max(0, basisLevels.Red - 5 * shade) : dimLevels.Red;
+        int green = Math.Min(31, (color == 2 ? basisLevels : dimLevels).Green + (color == 2 ? 5 : 10) * shade);
+        int blue = Math.Min(31, basisLevels.Blue + (color == 12 && shade == 3 ? 10 : 0));
         value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
@@ -83,10 +86,11 @@ public static class SamusFullBodyCycleColorFormat
         bool slow = suit == 0 ? color is 1 or 10 or 11 :
             suit == 1 && color is 10 or 11 or 12;
         if (!fast && !slow) return false;
-        int green = Math.Min(31, (basis.FadeLevels.Green) + (fast ? 10 : 5) * shade);
+        FadeLevelColour basisLevels = basis.FadeLevels;
+        int green = Math.Min(31, basisLevels.Green + (fast ? 10 : 5) * shade);
         int blueAdd = suit == 0 && color == 4 ? 10 >> (3 - shade) : fast && shade == 3 ? 10 : 0;
-        int blue = Math.Min(31, (basis.FadeLevels.Blue) + blueAdd);
-        value = new FadeLevelColour(basis.FadeLevels.Red, green, blue).ToColour();
+        int blue = Math.Min(31, basisLevels.Blue + blueAdd);
+        value = new FadeLevelColour(basisLevels.Red, green, blue).ToColour();
         return true;
     }
 
@@ -109,8 +113,9 @@ public static class SamusFullBodyCycleColorFormat
         int step = suit == 0 && color == 10 ? 3 :
             (suit is 0 or 1 && color == 2) || (suit == 1 && color is 1 or 10 or 11 or 12) ? 5 : 0;
         if (step == 0) return false;
-        value = new FadeLevelColour(Math.Min(31, basis.FadeLevels.Red + (suit == 1 && color == 10 ? 0 : step * shade)),
-            Math.Min(31, basis.FadeLevels.Green + step * shade), basis.FadeLevels.Blue).ToColour();
+        FadeLevelColour basisLevels = basis.FadeLevels;
+        value = new FadeLevelColour(Math.Min(31, basisLevels.Red + (suit == 1 && color == 10 ? 0 : step * shade)),
+            Math.Min(31, basisLevels.Green + step * shade), basisLevels.Blue).ToColour();
         return true;
     }
 
@@ -143,9 +148,10 @@ public static class SamusFullBodyCycleColorFormat
             3 => new ShineTint(26, 10),
             _ => throw new ArgumentOutOfRangeException(nameof(shade)),
         };
-        return new FadeLevelColour(Math.Min(31, basis.FadeLevels.Red + warm),
-            Math.Min(31, basis.FadeLevels.Green + warm),
-            Math.Min(31, basis.FadeLevels.Blue + blue)).ToColour();
+        FadeLevelColour basisLevels = basis.FadeLevels;
+        return new FadeLevelColour(Math.Min(31, basisLevels.Red + warm),
+            Math.Min(31, basisLevels.Green + warm),
+            Math.Min(31, basisLevels.Blue + blue)).ToColour();
     }
 
     /// <summary>Returns a shared Speed Booster channel source, or -1 outside the five-word mapping.</summary>
@@ -230,9 +236,10 @@ public static class SamusFullBodyCycleColorFormat
     internal static RgbColor StoredShineColor(RgbColor basis, int shade)
     {
         if ((uint)shade >= 4) throw new ArgumentOutOfRangeException(nameof(shade));
-        int red = ((4 - shade) * (basis.FadeLevels.Red) + 31 * shade) / 4;
-        int green = ((4 - shade) * (basis.FadeLevels.Green) + 31 * shade) / 4;
-        int blue = ((4 - shade) * (basis.FadeLevels.Blue) + 31 * shade) / 4;
+        FadeLevelColour basisLevels = basis.FadeLevels;
+        int red = ((4 - shade) * basisLevels.Red + 31 * shade) / 4;
+        int green = ((4 - shade) * basisLevels.Green + 31 * shade) / 4;
+        int blue = ((4 - shade) * basisLevels.Blue + 31 * shade) / 4;
         return new FadeLevelColour(red, green, blue).ToColour();
     }
 

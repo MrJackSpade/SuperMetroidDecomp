@@ -75,7 +75,7 @@ internal static class BotwoonAttackCooldownVerification
             SegmentSpacingEntries = 3,
             Speed = 0,
         };
-        enemies.BotwoonBehavior.BotwoonState = state;
+        enemies.BotwoonBehavior.AttachBotwoon(head, state);
         for (int segmentIndex = state.BodySegments.Length - 1; segmentIndex >= 0; segmentIndex--)
             enemies.BotwoonBehavior.SpawnBotwoonBodySegment(head, state, segmentIndex);
         return new NewBotwoonHeadResult(enemies, head, state);

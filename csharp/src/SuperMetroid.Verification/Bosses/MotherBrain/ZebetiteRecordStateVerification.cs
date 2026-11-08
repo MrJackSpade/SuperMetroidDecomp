@@ -21,11 +21,13 @@ internal static class ZebetiteRecordStateVerification
         state.Function = Enum.GetValues<ZebetiteAiFunction>()[^1];
         state.Generation = 1;
         state.GenerationFlags = Enum.GetValues<ZebetiteGenerationFlags>()[^1];
+        state.LinkedHalf = enemies.SlotTable.Slots[3];
 
         slot.Clear();
         AssertEqual<ZebetiteAiFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.Generation, "a kill empties Generation");
         AssertEqual<ZebetiteGenerationFlags>(default(ZebetiteGenerationFlags), state.GenerationFlags, "a kill empties GenerationFlags");
+        AssertTrue(state.LinkedHalf is null, "a kill empties the linked half");
         Console.WriteLine("Zebetite record state: a kill empties every value the record holds.");
     }
 

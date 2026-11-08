@@ -77,65 +77,73 @@ internal static class NativeEnemyFamilyStateImport
     internal static void Import(RoomEnemySystem enemies, RoomEnemySlot slot, NativeEnemyRecordWords words)
     {
         int index = slot.SlotIndex;
-        if (slot.SpeciesState<PhantoonPartState>() is { } phantoonPartRecord)
+        // The cartridge gives each record word a meaning per part (#1476); each part's own state says which.
+        if (slot.SpeciesState<PhantoonEyeState>() is { } phantoonEye)
         {
-            // The cartridge gives each record word a meaning per part (#1476); the part's identity says which.
-            if (slot.DefinitionId == EnemyDefinitionId.PhantoonEye)
-            {
-                phantoonPartRecord.ClosedTimer = CoordinateAxis.AsSigned(words.A);
-                phantoonPartRecord.ShotMarker = words.B;
-                phantoonPartRecord.FigureEightReversed = words.C != 0;
-                phantoonPartRecord.DyingFadeCycles = words.C;
-                phantoonPartRecord.FadeDenominator = words.D;
-                phantoonPartRecord.FadeNumerator = words.E;
-                phantoonPartRecord.FadeComplete = words.F != 0;
-                phantoonPartRecord.RageWaveCount = words.F;
-                PhantoonNativeWords.ImportDeathMosaic(phantoonPartRecord, words.C);
-            }
-            else if (slot.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
-            {
-                phantoonPartRecord.SwoopRequested = words.A != 0;
-                phantoonPartRecord.RoundDamage = words.B;
-                phantoonPartRecord.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
-                PhantoonNativeWords.ImportSwoopTarget(phantoonPartRecord, words.E);
-                phantoonPartRecord.ExplosionIndex = words.F;
-            }
-            else if (slot.DefinitionId == EnemyDefinitionId.PhantoonMouth)
-            {
-                phantoonPartRecord.CasualFlamePattern = words.A;
-                phantoonPartRecord.CasualFlameHold = CoordinateAxis.AsSigned(words.B);
-                phantoonPartRecord.CasualFlameCount = unchecked((short)words.C);
-                phantoonPartRecord.WaveAmplitude = words.D;
-                phantoonPartRecord.WaveAmplitudeShrinking = words.E != 0;
-                phantoonPartRecord.WavyPhaseDelta = words.F;
-            }
-            else
-            {
-                phantoonPartRecord.StartingFlameIndex = words.A;
-                phantoonPartRecord.PathCursor = words.A;
-                phantoonPartRecord.ExplosionPass = words.A;
-                phantoonPartRecord.StartingFlamesActive = words.B != 0;
-                phantoonPartRecord.FigureEightSpeed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
-                phantoonPartRecord.SpeedPhase = words.D;
-                phantoonPartRecord.FunctionTimer = CoordinateAxis.AsSigned(words.E);
-                if (words.F != 0)
-                    phantoonPartRecord.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
-            }
+            phantoonEye.ClosedTimer = CoordinateAxis.AsSigned(words.A);
+            phantoonEye.ShotMarker = words.B;
+            phantoonEye.FigureEightReversed = words.C != 0;
+            phantoonEye.DyingFadeCycles = words.C;
+            phantoonEye.FadeDenominator = words.D;
+            phantoonEye.FadeNumerator = words.E;
+            phantoonEye.FadeComplete = words.F != 0;
+            phantoonEye.RageWaveCount = words.F;
+            PhantoonNativeWords.ImportDeathMosaic(phantoonEye, words.C);
+        }
+        if (slot.SpeciesState<PhantoonTentaclesState>() is { } phantoonTentacles)
+        {
+            phantoonTentacles.SwoopRequested = words.A != 0;
+            phantoonTentacles.RoundDamage = words.B;
+            phantoonTentacles.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
+            PhantoonNativeWords.ImportSwoopTarget(phantoonTentacles, words.E);
+            phantoonTentacles.ExplosionIndex = words.F;
+        }
+        if (slot.SpeciesState<PhantoonMouthState>() is { } phantoonMouth)
+        {
+            phantoonMouth.CasualFlamePattern = words.A;
+            phantoonMouth.CasualFlameHold = CoordinateAxis.AsSigned(words.B);
+            phantoonMouth.CasualFlameCount = unchecked((short)words.C);
+            phantoonMouth.WaveAmplitude = words.D;
+            phantoonMouth.WaveAmplitudeShrinking = words.E != 0;
+            phantoonMouth.WavyPhaseDelta = words.F;
+        }
+        if (slot.SpeciesState<PhantoonBodyState>() is { } phantoonBody)
+        {
+            phantoonBody.StartingFlameIndex = words.A;
+            phantoonBody.PathCursor = words.A;
+            phantoonBody.ExplosionPass = words.A;
+            phantoonBody.StartingFlamesActive = words.B != 0;
+            phantoonBody.FigureEightSpeed = SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(words.C), words.B);
+            phantoonBody.SpeedPhase = words.D;
+            phantoonBody.FunctionTimer = CoordinateAxis.AsSigned(words.E);
+            if (words.F != 0)
+                phantoonBody.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
             kraidPartRecord.Function = (KraidAiFunction)words.A;
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
-            // each part reads only its own, so each is imported from the words.
-            kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
-            kraidPartRecord.HeadTimer = words.C;
-            kraidPartRecord.LintXOffset = CoordinateAxis.AsSigned(words.C);
-            kraidPartRecord.LintTravel = words.B;
+            // each part's own state takes its own.
+            if (kraidPartRecord is KraidNailState kraidNail)
+                kraidNail.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
+            if (kraidPartRecord is KraidLintState kraidLint)
+            {
+                kraidLint.LintXOffset = CoordinateAxis.AsSigned(words.C);
+                kraidLint.LintTravel = words.B;
+            }
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
-            if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
-                kraidPartRecord.CeilingRock = words.F / sizeof(ushort);
+            if (kraidPartRecord is KraidBodyState kraidBody)
+            {
+                kraidBody.HeadTimer = words.C;
+                if (kraidBody.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
+                    kraidBody.CeilingRock = words.F / sizeof(ushort);
+                else
+                    kraidBody.FunctionTimer = words.F;
+            }
             else
+            {
                 kraidPartRecord.FunctionTimer = words.F;
+            }
         }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {
@@ -301,7 +309,7 @@ internal static class NativeEnemyFamilyStateImport
             zebetiteRecord.Generation = words.D;
             zebetiteRecord.GenerationFlags = MotherBrainNativeWords.DecodeGenerationFlags(words.F);
         }
-        // Slot zero's word C is the Zebetites' shared palette counter whichever enemy occupies the slot.
+        // The native snapshot keeps the Zebetites' shared pulse counter in slot zero's word C, whichever enemy occupies the slot.
         if (slot.SlotIndex == 0)
             enemies.ZebetiteBehavior.SharedPaletteCycle = words.C;
         if (slot.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)

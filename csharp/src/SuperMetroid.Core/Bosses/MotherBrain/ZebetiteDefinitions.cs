@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Fixed generation, health-tier, and respawn definitions for Tourian's Zebetites.</summary>
 internal static class ZebetiteDefinitions
 {
-    /// <summary>The steps of the shared pulse cycle physical enemy slot zero counts through before it restarts.</summary>
+    /// <summary>The steps of the Zebetites' shared pulse cycle before it restarts.</summary>
     public const int PaletteCycleLength = 8;
 
     /// <summary>Embedded primary spawn record.</summary>

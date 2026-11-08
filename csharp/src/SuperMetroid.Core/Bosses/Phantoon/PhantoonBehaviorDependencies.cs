@@ -22,9 +22,6 @@ internal sealed record PhantoonBehaviorDependencies
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
-
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }
 

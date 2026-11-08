@@ -60,7 +60,7 @@ internal static class KraidHeadInstructionsVerification
                     ? record
                     : native.RecordAt(native.CursorAt(unchecked((ushort)(record.Pointer + 2))));
                 AssertEqual(KraidHeadProgramResult.PoseShown, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
-                AssertEqual(displayed.Opcode, state.Part(KraidPart.Kraid).HeadTimer, $"Kraid command ${record.Pointer:X4} installs duration");
+                AssertEqual(displayed.Opcode, state.BodyState.HeadTimer, $"Kraid command ${record.Pointer:X4} installs duration");
                 KraidHeadFrame shown = state.DisplayedHeadFrame
                     ?? throw new InvalidOperationException("Verification requires a displayed Kraid head pose.");
                 AssertEqual(displayed.Tilemap, KraidHeadFrameDefinitions.PresentationKey(shown),
@@ -96,37 +96,37 @@ internal static class KraidHeadInstructionsVerification
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            state.Part(KraidPart.Kraid).Function = KraidAiFunction.MainloopThinking;
+            state.BodyState.Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = raw;
-            state.Part(KraidPart.Kraid).HeadTimer = 999;
+            state.BodyState.HeadTimer = 999;
             combat(body, state, 0);
             AssertEqual(raw == 1
                     ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,
-                state.Part(KraidPart.Kraid).HeadTimer, "Roar timer loads only on thinker expiry");
+                state.BodyState.HeadTimer, "Roar timer loads only on thinker expiry");
 
-            state.Part(KraidPart.Kraid).Function = KraidAiFunction.SecondPhaseThinking;
+            state.BodyState.Function = KraidAiFunction.SecondPhaseThinking;
             state.ThinkingTimer = raw;
-            state.Part(KraidPart.Kraid).HeadTimer = 999;
+            state.BodyState.HeadTimer = 999;
             combat(body, state, 0);
             AssertEqual(raw == 1
                     ? (ushort)KraidHeadAnimations.RoarEntryDuration
                     : (ushort)999,
-                state.Part(KraidPart.Kraid).HeadTimer, "Second-phase roar timer loads only on thinker expiry");
+                state.BodyState.HeadTimer, "Second-phase roar timer loads only on thinker expiry");
         }
 
         glow(body, state);
         AssertEqual(
             unchecked(KraidHeadAnimations.EyeGlowEntryDuration - 1),
-            state.Part(KraidPart.Kraid).HeadTimer, "Eye glow consumes one timer tick on initialization");
+            state.BodyState.HeadTimer, "Eye glow consumes one timer tick on initialization");
         state.HurtFrame = 1;
-        state.Part(KraidPart.Kraid).HeadTimer = 999;
+        state.BodyState.HeadTimer = 999;
         death(body, state);
-        AssertEqual(999, state.Part(KraidPart.Kraid).HeadTimer,
+        AssertEqual(999, state.BodyState.HeadTimer,
             "Active hurt frame delays death timer setup");
         state.HurtFrame = 0;
         death(body, state);
-        AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.Part(KraidPart.Kraid).HeadTimer,
+        AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.BodyState.HeadTimer,
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");

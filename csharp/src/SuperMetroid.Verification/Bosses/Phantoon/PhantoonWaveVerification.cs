@@ -20,13 +20,13 @@ internal static class PhantoonWaveVerification
         {
             Eye = new RoomEnemySlot(1, EnemySlotFixtures.Registry), Mouth = new RoomEnemySlot(3, EnemySlotFixtures.Registry),
         };
-        boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
-        boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
+        boss.MouthState.WaveAmplitude = 3072;
+        boss.MouthState.WavyPhaseDelta = 8;
         var wave = boss.Wave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         AssertTrue(!wave.Active, "a requested wave waits for its setup update");
         wave.Step(boss);
-        AssertEqual<PhantoonWaveLength?>(PhantoonWaveLength.Short, boss.Parts[boss.Eye.SlotIndex].WaveLength, "the wave's setup copies the pending length to the eye");
+        AssertEqual<PhantoonWaveLength?>(PhantoonWaveLength.Short, boss.EyeState.WaveLength, "the wave's setup copies the pending length to the eye");
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
         // The setup does not run the scroll pre-instruction: the wave is flat at the scroll it was last built from.
         AssertEqual(new PhantoonWave(0, 0, new ByteAngle(0), PhantoonWaveDefinitions.ShortPeriod),
@@ -53,7 +53,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertEqual(wave.CurrentWave, restored.CurrentWave, "wave data survives exact debugger state");
         AssertEqual(savedDisplay, restored.DisplayedWave, "latched wave survives debugger state");
-        boss.Parts[boss.Eye.SlotIndex].WaveLength = null;
+        boss.EyeState.WaveLength = null;
         PhantoonWave? retained = wave.CurrentWave;
         wave.Step(boss);
         AssertTrue(!wave.Active && retained == wave.CurrentWave, "native deletion retains data");
@@ -102,7 +102,7 @@ internal static class PhantoonWaveVerification
     {
         var blend = boss.Blending;
         boss.SemiTransparent = true;
-        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Removed;
+        boss.MouthState.LayerControl = PhantoonLayerControl.Removed;
         for (int i = 0; i < PhantoonBlendingState.SetupCalls; i++)
         {
             blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
@@ -114,15 +114,15 @@ internal static class PhantoonWaveVerification
         boss.MosaicBlockSize = 6;
         boss.SemiTransparent = false;
         // The fade-in's control (the cartridge's word $8001, low byte one) is the room-default state.
-        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
+        boss.MouthState.LayerControl = PhantoonLayerControl.RoomDefault;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "the room-default control retains the current room default, not the previous blend");
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
         AssertEqual(5, blend.DisplayedMosaicBlockSize, "live mosaic size change waits for next accepted NMI");
-        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Hidden;
+        boss.MouthState.LayerControl = PhantoonLayerControl.Hidden;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "the hidden control hides the body");
-        boss.Parts[boss.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Removed;
+        boss.MouthState.LayerControl = PhantoonLayerControl.Removed;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "delete call still publishes hidden configuration");
         boss.SemiTransparent = true;

@@ -36,25 +36,25 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
         RoomEnemySlot eye = state.Eye;
-        state.Parts[eye.SlotIndex].WaveLength = null;
-        state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-        state.Parts[body.SlotIndex].SpeedPhase = 0;
+        state.EyeState.WaveLength = null;
+        state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
+        state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
+        state.BodyState.SpeedPhase = 0;
         if ((_room.Random.Generate() & 1) != 0)
         {
-            state.Parts[body.SlotIndex].FigureEightSpeed = SignedSixteenSixteen.Zero;
-            state.Parts[eye.SlotIndex].FigureEightReversed = true;
-            state.Parts[body.SlotIndex].PathCursor = 533;
+            state.BodyState.FigureEightSpeed = SignedSixteenSixteen.Zero;
+            state.EyeState.FigureEightReversed = true;
+            state.BodyState.PathCursor = 533;
         }
         else
         {
-            state.Parts[body.SlotIndex].FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
-            state.Parts[eye.SlotIndex].FigureEightReversed = false;
-            state.Parts[body.SlotIndex].PathCursor = 0;
+            state.BodyState.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
+            state.EyeState.FigureEightReversed = false;
+            state.BodyState.PathCursor = 0;
         }
     }
 
@@ -63,22 +63,22 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        StepPhantoonFigureEight(body, state.Parts[body.SlotIndex], state.Parts[state.Eye.SlotIndex]);
+        StepPhantoonFigureEight(body, state.BodyState, state.EyeState);
         StepPhantoonCasualFlameSchedule(state);
 
         // Both reaching zero and running past it expire the timer. A timer started at zero
         // expires on its first step, one movement/flame frame before the eye-opening handoff.
-        if (--state.Parts[state.Eye.SlotIndex].ClosedTimer > 0)
+        if (--state.EyeState.ClosedTimer > 0)
             return;
 
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.NoOperation;
+        state.BodyState.Function = PhantoonAiFunction.NoOperation;
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeOpen);
-        state.Parts[body.SlotIndex].FlameRainRequested = false;
+        state.BodyState.FlameRainRequested = false;
         SpawnPhantoonSpiralFlames(body);
     }
 
     /// <summary>Advances the body and eye on their figure-eight path.</summary>
-    internal static void StepPhantoonFigureEight(RoomEnemySlot body, PhantoonPartState bodyPart, PhantoonPartState eyePart)
+    internal static void StepPhantoonFigureEight(RoomEnemySlot body, PhantoonBodyState bodyPart, PhantoonEyeState eyePart)
     {
         if (eyePart.FigureEightReversed)
             AdjustPhantoonReverseFigureEightSpeed(bodyPart);
@@ -105,7 +105,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Changes horizontal velocity over the forward half of a figure-eight.</summary>
-    internal static void AdjustPhantoonForwardFigureEightSpeed(PhantoonPartState body)
+    internal static void AdjustPhantoonForwardFigureEightSpeed(PhantoonBodyState body)
     {
         if (body.SpeedPhase == 0)
         {
@@ -148,7 +148,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Changes horizontal velocity over the returning half of a figure-eight.</summary>
-    internal static void AdjustPhantoonReverseFigureEightSpeed(PhantoonPartState body)
+    internal static void AdjustPhantoonReverseFigureEightSpeed(PhantoonBodyState body)
     {
         if (body.SpeedPhase == 0)
         {
@@ -193,7 +193,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Adds a 16.16 speed change to the body's figure-eight speed, or subtracts it when slowing.</summary>
-    private static void ChangePhantoonSpeed(PhantoonPartState body, int low, int high, PhantoonSpeedChange direction)
+    private static void ChangePhantoonSpeed(PhantoonBodyState body, int low, int high, PhantoonSpeedChange direction)
     {
         SignedSixteenSixteen change = SignedSixteenSixteen.FromParts(high, low);
         body.FigureEightSpeed = direction == PhantoonSpeedChange.Decelerate
@@ -205,25 +205,25 @@ internal sealed class PhantoonPatterns
     internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
     {
         RoomEnemySlot mouth = state.Mouth;
-        if (--state.Parts[mouth.SlotIndex].CasualFlameHold > 0)
+        if (--state.MouthState.CasualFlameHold > 0)
             return;
 
-        if (state.Parts[mouth.SlotIndex].CasualFlameCount >= 0)
+        if (state.MouthState.CasualFlameCount >= 0)
         {
-            int remaining = state.Parts[mouth.SlotIndex].CasualFlameCount - 1;
+            int remaining = state.MouthState.CasualFlameCount - 1;
             // Zero and negative remaining counts both end the burst and start its cooldown.
             bool exhausted = remaining <= 0;
-            PhantoonCasualFlameSchedule schedule = PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern);
-            state.Parts[mouth.SlotIndex].CasualFlameCount = exhausted ? PhantoonCasualFlameDefinitions.NoActiveSchedule : remaining;
-            state.Parts[mouth.SlotIndex].CasualFlameHold = exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining);
+            PhantoonCasualFlameSchedule schedule = PhantoonCasualFlames.Pattern(state.MouthState.CasualFlamePattern);
+            state.MouthState.CasualFlameCount = exhausted ? PhantoonCasualFlameDefinitions.NoActiveSchedule : remaining;
+            state.MouthState.CasualFlameHold = exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining);
             PhantoonPresentation.InstallPhantoonProgram(state, mouth, PhantoonPartProgram.MouthSpawnFlame);
             return;
         }
 
-        state.Parts[mouth.SlotIndex].CasualFlamePattern = _room.Random.Generate() & 3;
-        PhantoonCasualFlameSchedule pattern = PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern);
-        state.Parts[mouth.SlotIndex].CasualFlameCount = pattern.FlameCount;
-        state.Parts[mouth.SlotIndex].CasualFlameHold = pattern.IntervalBefore(pattern.FlameCount);
+        state.MouthState.CasualFlamePattern = _room.Random.Generate() & 3;
+        PhantoonCasualFlameSchedule pattern = PhantoonCasualFlames.Pattern(state.MouthState.CasualFlamePattern);
+        state.MouthState.CasualFlameCount = pattern.FlameCount;
+        state.MouthState.CasualFlameHold = pattern.IntervalBefore(pattern.FlameCount);
     }
 
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
@@ -242,27 +242,27 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         SamusState samus)
     {
-        if (PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
         {
             // Variable B in the tentacle record is the damage accumulated during this
             // opening. Clears it before deciding whether a shot requested a swoop.
-            state.Parts[state.Tentacles.SlotIndex].RoundDamage = 0;
-            if (!state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
+            state.TentaclesState.RoundDamage = 0;
+            if (!state.TentaclesState.SwoopRequested)
             {
-                state.Parts[body.SlotIndex].Function = PhantoonAiFunction.NoOperation;
+                state.BodyState.Function = PhantoonAiFunction.NoOperation;
                 PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
                 PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeCloseAndPickNewPattern);
                 body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
                 // This flag makes PickNewPhantoonPattern choose the initial flame-rain
                 // branch after the eye-close list invokes its flame-rain callback.
-                state.Parts[body.SlotIndex].FlameRainRequested = true;
+                state.BodyState.FlameRainRequested = true;
                 return;
             }
 
-            state.Parts[state.Tentacles.SlotIndex].SwoopRequested = false;
-            state.Parts[body.SlotIndex].FunctionTimer = 60;
-            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BecomeSolidAndSwoop;
+            state.TentaclesState.SwoopRequested = false;
+            state.BodyState.FunctionTimer = 60;
+            state.BodyState.Function = PhantoonAiFunction.BecomeSolidAndSwoop;
         }
 
         PointPhantoonEyeAtSamus(body, state, samus);
@@ -288,17 +288,17 @@ internal sealed class PhantoonPatterns
     {
         PointPhantoonEyeAtSamus(body, state, samus);
         MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeOutWhileSwooping;
+        state.BodyState.Function = PhantoonAiFunction.FadeOutWhileSwooping;
         state.SemiTransparent = true;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         RoomEnemySlot eye = state.Eye;
         PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        state.Parts[eye.SlotIndex].FadeComplete = false;
-        state.Parts[state.Tentacles.SlotIndex].RoundDamage = 0;
+        state.EyeState.FadeComplete = false;
+        state.TentaclesState.RoundDamage = 0;
     }
 
     /// <summary>Fades the body while continuing its swoop across the room.</summary>
@@ -309,15 +309,15 @@ internal sealed class PhantoonPatterns
     {
         MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
         AdvancePhantoonFadeOut(state, denominator: 12);
-        if (!state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if (!state.EyeState.FadeComplete)
             return;
 
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WaitAfterFadeOut;
-        state.Parts[body.SlotIndex].FunctionTimer = 120;
+        state.BodyState.Function = PhantoonAiFunction.WaitAfterFadeOut;
+        state.BodyState.FunctionTimer = 120;
     }
 
     /// <summary>Counts the hidden interval before reappearing.</summary>
-    internal static void RunPhantoonHiddenWait(PhantoonPartState body)
+    internal static void RunPhantoonHiddenWait(PhantoonBodyState body)
     {
         if (PhantoonPresentation.TickPhantoonFunctionTimer(body))
             body.Function = PhantoonAiFunction.PickNextAppearance;
@@ -330,25 +330,25 @@ internal sealed class PhantoonPatterns
     {
         if ((_room.Random.Generate() & 1) != 0)
         {
-            state.Parts[body.SlotIndex].PathCursor = 136;
+            state.BodyState.PathCursor = 136;
             body.Position = body.Position.WithWholeX(208);
         }
         else
         {
-            state.Parts[body.SlotIndex].PathCursor = 399;
+            state.BodyState.PathCursor = 399;
             body.Position = body.Position.WithWholeX(48);
         }
         body.Position = body.Position.WithWholeY(96);
-        state.Parts[state.Eye.SlotIndex].FigureEightReversed = false;
-        state.Parts[body.SlotIndex].FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
-        state.Parts[body.SlotIndex].FlameRainRequested = false;
+        state.EyeState.FigureEightReversed = false;
+        state.BodyState.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
+        state.BodyState.FlameRainRequested = false;
 
         // The call deliberately installs a pattern function which is immediately
         // overwritten with the fade-in function. Its timer, direction, and movement-side
         // effects remain live, so call the shared callback implementation in full.
         PickPhantoonSecondRoundPattern(state);
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeInBeforeFigureEight;
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.BodyState.Function = PhantoonAiFunction.FadeInBeforeFigureEight;
+        state.EyeState.FadeComplete = false;
     }
 
     /// <summary>Reveals Phantoon before the next figure-eight pass.</summary>
@@ -357,8 +357,8 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
-        if (state.Parts[state.Eye.SlotIndex].FadeComplete)
-            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
+        if (state.EyeState.FadeComplete)
+            state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
     }
 
     /// <summary>Ports the visible setup for every flame-rain window.</summary>
@@ -366,11 +366,11 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.EyeState.FadeComplete = false;
         state.SemiTransparent = false;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeballCentered);
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeInDuringFlameRain;
+        state.BodyState.Function = PhantoonAiFunction.FadeInDuringFlameRain;
     }
 
     /// <summary>Reveals the body while preparing the flame-rain attack.</summary>
@@ -379,12 +379,12 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 1);
-        if (!state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if (!state.EyeState.FadeComplete)
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.TrackSamusDuringFlameRain;
-        state.Parts[body.SlotIndex].FunctionTimer = 90;
+        state.BodyState.Function = PhantoonAiFunction.TrackSamusDuringFlameRain;
+        state.BodyState.FunctionTimer = 90;
     }
 
     /// <summary>Counts the open-eye interval during flame rain.</summary>
@@ -392,20 +392,20 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        state.Parts[state.Tentacles.SlotIndex].RoundDamage = 0;
-        if (state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
+        state.TentaclesState.RoundDamage = 0;
+        if (state.TentaclesState.SwoopRequested)
         {
-            state.Parts[state.Tentacles.SlotIndex].SwoopRequested = false;
-            state.Parts[body.SlotIndex].FlameRainRequested = true;
+            state.TentaclesState.SwoopRequested = false;
+            state.BodyState.FlameRainRequested = true;
             BeginPhantoonSwoop(body, state);
             return;
         }
 
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeOutDuringFlameRain;
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.BodyState.Function = PhantoonAiFunction.FadeOutDuringFlameRain;
+        state.EyeState.FadeComplete = false;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeClose);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -418,11 +418,11 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
-        if (!state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if (!state.EyeState.FadeComplete)
             return;
 
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.SpawnFlameRain;
-        state.Parts[body.SlotIndex].FunctionTimer = PhantoonTimerDefinitions.RainHiding[_room.Random.Generate() & 7];
+        state.BodyState.Function = PhantoonAiFunction.SpawnFlameRain;
+        state.BodyState.FunctionTimer = PhantoonTimerDefinitions.RainHiding[_room.Random.Generate() & 7];
     }
 
     /// <summary>Emits the scheduled rain pattern while Phantoon is hidden.</summary>
@@ -430,15 +430,15 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
         int pattern = _room.Random.Generate() & 7;
         var placement = PhantoonFlameRain.RainPlacement(pattern);
-        state.Parts[body.SlotIndex].PathCursor = placement.Cursor;
+        state.BodyState.PathCursor = placement.Cursor;
         body.Position = body.Position.WithWhole(placement.Position);
-        state.Parts[state.Eye.SlotIndex].FigureEightReversed = false;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BecomeSolidAfterFlameRain;
+        state.EyeState.FigureEightReversed = false;
+        state.BodyState.Function = PhantoonAiFunction.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, pattern);
     }
 
@@ -449,14 +449,14 @@ internal sealed class PhantoonPatterns
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
         RoomEnemySlot eye = state.Eye;
-        StepPhantoonFigureEight(body, state.Parts[body.SlotIndex], state.Parts[eye.SlotIndex]);
+        StepPhantoonFigureEight(body, state.BodyState, state.EyeState);
         StepPhantoonCasualFlameSchedule(state);
         // Reaching zero expires the timer, as does running past it.
-        if (--state.Parts[eye.SlotIndex].ClosedTimer > 0)
+        if (--state.EyeState.ClosedTimer > 0)
             return;
 
-        state.Parts[state.Tentacles.SlotIndex].SwoopRequested = false;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BecomeSolidAfterFlameRain;
+        state.TentaclesState.SwoopRequested = false;
+        state.BodyState.Function = PhantoonAiFunction.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128 ? 0 : 2);
     }
 
@@ -466,10 +466,10 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
-        if (!state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if (!state.EyeState.FadeComplete)
             return;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveToTopCenterForRage;
-        state.Parts[body.SlotIndex].FunctionTimer = 120;
+        state.BodyState.Function = PhantoonAiFunction.MoveToTopCenterForRage;
+        state.BodyState.FunctionTimer = 120;
     }
 
     /// <summary>Holds the hidden rage phase until its timer expires.</summary>
@@ -477,11 +477,11 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeInForRage;
+        state.BodyState.Function = PhantoonAiFunction.FadeInForRage;
         body.Position = body.Position.WithWhole(new(128, 32));
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.EyeState.FadeComplete = false;
     }
 
     /// <summary>Reveals the body at the start of the enraged swoop.</summary>
@@ -490,20 +490,20 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
-        if (!state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if (!state.EyeState.FadeComplete)
             return;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.Enraged;
-        state.Parts[body.SlotIndex].FunctionTimer = 4;
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.BodyState.Function = PhantoonAiFunction.Enraged;
+        state.BodyState.FunctionTimer = 4;
+        state.EyeState.FadeComplete = false;
     }
 
     /// <summary>Ports all eight alternating radial flame waves.</summary>
     internal void RunPhantoonRage(RoomEnemySlot body, PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        if ((state.Parts[state.Eye.SlotIndex].RageWaveCount & 1) == 0)
+        if ((state.EyeState.RageWaveCount & 1) == 0)
         {
             for (int direction = PhantoonRageDefinitions.EvenWaveFirstDirection; direction >= 0; direction--)
                 SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, direction);
@@ -517,16 +517,16 @@ internal sealed class PhantoonPatterns
         }
 
         _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundPriority);
-        state.Parts[state.Eye.SlotIndex].RageWaveCount = WrappingCounter.IncrementWord(state.Parts[state.Eye.SlotIndex].RageWaveCount);
-        if (state.Parts[state.Eye.SlotIndex].RageWaveCount < PhantoonRageDefinitions.WaveCount)
+        state.EyeState.RageWaveCount = WrappingCounter.IncrementWord(state.EyeState.RageWaveCount);
+        if (state.EyeState.RageWaveCount < PhantoonRageDefinitions.WaveCount)
         {
-            state.Parts[body.SlotIndex].FunctionTimer = PhantoonRageDefinitions.WaveInterval;
+            state.BodyState.FunctionTimer = PhantoonRageDefinitions.WaveInterval;
             return;
         }
 
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeClose);
-        state.Parts[state.Eye.SlotIndex].RageWaveCount = 0;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeOutAfterRage;
+        state.EyeState.RageWaveCount = 0;
+        state.BodyState.Function = PhantoonAiFunction.FadeOutAfterRage;
     }
 
     /// <summary>Hides the body after the enraged swoop.</summary>
@@ -535,10 +535,10 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         AdvancePhantoonFadeOut(state, denominator: 12);
-        if (!state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if (!state.EyeState.FadeComplete)
             return;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WaitAfterFadeOut;
-        state.Parts[body.SlotIndex].FunctionTimer = 120;
+        state.BodyState.Function = PhantoonAiFunction.WaitAfterFadeOut;
+        state.BodyState.FunctionTimer = 120;
     }
 
     /// <summary>Seeds swoop speed and direction from Samus's current position.</summary>
@@ -547,11 +547,11 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         RoomEnemySlot tentacles = state.Tentacles;
-        state.Parts[tentacles.SlotIndex].SwoopVelocity = new(new SignedEightEight(1024), new SignedEightEight(1024));
-        state.Parts[tentacles.SlotIndex].SwoopTargetX = 0;
-        state.Parts[tentacles.SlotIndex].SwoopReturning = false;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.Swooping;
-        state.Parts[body.SlotIndex].FunctionTimer = 360;
+        state.TentaclesState.SwoopVelocity = new(new SignedEightEight(1024), new SignedEightEight(1024));
+        state.TentaclesState.SwoopTargetX = 0;
+        state.TentaclesState.SwoopReturning = false;
+        state.BodyState.Function = PhantoonAiFunction.Swooping;
+        state.BodyState.FunctionTimer = 360;
     }
 
     /// <summary>
@@ -566,7 +566,7 @@ internal sealed class PhantoonPatterns
         PhantoonSwoopTarget target)
     {
         RoomEnemySlot tentacles = state.Tentacles;
-        PhantoonPartState tentaclePart = state.Parts[tentacles.SlotIndex];
+        PhantoonTentaclesState tentaclePart = state.TentaclesState;
         // The target sweeps two pixels an update out to its turn and back to zero, where it starts out again.
         if (tentaclePart.SwoopReturning)
         {
@@ -646,23 +646,23 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state,
         int denominator)
     {
-        if ((_frameContext.FrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if ((_frameContext.FrameCounter & 1) != 0 || state.EyeState.FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;
-        state.Parts[eye.SlotIndex].FadeDenominator = denominator;
-        int numerator = state.Parts[eye.SlotIndex].FadeNumerator;
+        state.EyeState.FadeDenominator = denominator;
+        int numerator = state.EyeState.FadeNumerator;
         if (denominator + 1 < numerator)
         {
-            state.Parts[eye.SlotIndex].FadeNumerator = 0;
-            state.Parts[eye.SlotIndex].FadeComplete = true;
+            state.EyeState.FadeNumerator = 0;
+            state.EyeState.FadeComplete = true;
             state.Colours.CompleteFade();
             return;
         }
 
         // The fade's step is the import's shade of it, toward his faded-out colours (#1512).
         state.Colours.Fade(PhantoonBodyLook.FadedOut, denominator, numerator);
-        state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
+        state.EyeState.FadeNumerator = numerator + 1;
     }
 
     /// <summary>Places eight delayed rain flames in rotating room columns, each falling eight updates after the last.</summary>
@@ -686,30 +686,30 @@ internal sealed class PhantoonPatterns
     {
         RoomEnemySlot body = state.Body;
         RoomEnemySlot eye = state.Eye;
-        state.Parts[body.SlotIndex].FunctionTimer = 60;
-        state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Generate() & 7];
+        state.BodyState.FunctionTimer = 60;
+        state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Generate() & 7];
         if ((_frameContext.FrameCounter & 1) != 0)
         {
-            if (!state.Parts[eye.SlotIndex].FigureEightReversed)
-                state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor == 0 ? 533 : state.Parts[body.SlotIndex].PathCursor - 1;
-            state.Parts[body.SlotIndex].FigureEightSpeed = SignedSixteenSixteen.Zero;
-            state.Parts[body.SlotIndex].SpeedPhase = 0;
-            state.Parts[eye.SlotIndex].FigureEightReversed = true;
+            if (!state.EyeState.FigureEightReversed)
+                state.BodyState.PathCursor = state.BodyState.PathCursor == 0 ? 533 : state.BodyState.PathCursor - 1;
+            state.BodyState.FigureEightSpeed = SignedSixteenSixteen.Zero;
+            state.BodyState.SpeedPhase = 0;
+            state.EyeState.FigureEightReversed = true;
         }
         else
         {
-            if (state.Parts[eye.SlotIndex].FigureEightReversed)
-                state.Parts[body.SlotIndex].PathCursor = state.Parts[body.SlotIndex].PathCursor >= 533 ? 0 : state.Parts[body.SlotIndex].PathCursor + 1;
-            state.Parts[body.SlotIndex].FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
-            state.Parts[body.SlotIndex].SpeedPhase = 0;
-            state.Parts[eye.SlotIndex].FigureEightReversed = false;
+            if (state.EyeState.FigureEightReversed)
+                state.BodyState.PathCursor = state.BodyState.PathCursor >= 533 ? 0 : state.BodyState.PathCursor + 1;
+            state.BodyState.FigureEightSpeed = SignedSixteenSixteen.FromParts(1, 0);
+            state.BodyState.SpeedPhase = 0;
+            state.EyeState.FigureEightReversed = false;
         }
 
-        state.Parts[body.SlotIndex].Function = state.Parts[body.SlotIndex].FlameRainRequested
+        state.BodyState.Function = state.BodyState.FlameRainRequested
             ? PhantoonAiFunction.FadeOutBeforeFirstFlameRain
             : PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-        if (state.Parts[body.SlotIndex].FlameRainRequested)
-            state.Parts[eye.SlotIndex].FadeComplete = false;
+        if (state.BodyState.FlameRainRequested)
+            state.EyeState.FadeComplete = false;
     }
 
     /// <summary>

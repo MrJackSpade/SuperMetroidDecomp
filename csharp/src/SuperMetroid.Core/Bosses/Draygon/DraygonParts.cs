@@ -51,9 +51,6 @@ internal sealed class DraygonParts
     /// <summary>Sets Draygon's body up when the room spawns it.</summary>
     internal void InitializeDraygonBody(RoomEnemySlot body)
     {
-        if (body.SlotIndex != 0)
-            throw new InvalidDataException("Draygon's body must own the first enemy slot.");
-
         // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
 
         // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first.
@@ -77,14 +74,12 @@ internal sealed class DraygonParts
     internal void InitializeDraygonPart(RoomEnemySlot part)
     {
         DraygonEnemyState state = Draygon ??
-            throw new InvalidDataException("Draygon part appeared before the body record.");
+            throw new InvalidDataException("Draygon part appeared before his body.");
 
         part.FrameHold = WrappingCountdown.Start(1);
         switch (DraygonPartDefinitions.Parts[part.DefinitionId])
         {
             case DraygonPart.Eye:
-                if (part.SlotIndex != 1)
-                    throw new InvalidDataException("Draygon's eye must own the second enemy slot.");
                 // Inert until the body publishes facing AI.
                 var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.Inert };
                 part.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
@@ -93,16 +88,12 @@ internal sealed class DraygonParts
                 return;
 
             case DraygonPart.Tail:
-                if (part.SlotIndex != 2)
-                    throw new InvalidDataException("Draygon's tail must own the third enemy slot.");
                 state.Tail = part;
                 part.Shading = state.Colours.Sprites;
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
                 return;
 
             case DraygonPart.Arms:
-                if (part.SlotIndex != 3)
-                    throw new InvalidDataException("Draygon's arms must own the fourth enemy slot.");
                 // Body init briefly writes a body function before this record exists. Retail part init
                 // clears that lost write and installs the ordinary idle loop.
                 part.Shading = state.Colours.Sprites;

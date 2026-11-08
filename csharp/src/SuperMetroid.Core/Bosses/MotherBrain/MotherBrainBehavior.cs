@@ -305,11 +305,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
 
-                // The fake-death flash starts the looping room flash, selects FX entry two,
+                // The fake-death flash starts the looping room flash, drains the room's acid,
                 // arms the head's independent tube sequence, and clears both fade words.
                 state.RoomFlashFrame = 0;
                 state.RoomFlashTimer = 1;
-                _frameResults.MotherBrainFxEntry = 2;
+                _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;
                 state.TubeCollapseTimer = 0;
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;

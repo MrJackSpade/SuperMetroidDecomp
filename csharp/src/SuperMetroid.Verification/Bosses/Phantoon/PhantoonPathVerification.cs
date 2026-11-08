@@ -20,9 +20,9 @@ internal static class PhantoonPathVerification
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = enemies.SlotTable.Slots[0];
         var eye = enemies.SlotTable.Slots[1];
-        Action<RoomEnemySlot, PhantoonPartState, PhantoonPartState> step = PhantoonPatterns.StepPhantoonFigureEight;
-        var bodyWords = new PhantoonPartState();
-        var eyeWords = new PhantoonPartState();
+        Action<RoomEnemySlot, PhantoonBodyState, PhantoonEyeState> step = PhantoonPatterns.StepPhantoonFigureEight;
+        var bodyWords = new PhantoonBodyState();
+        var eyeWords = new PhantoonEyeState();
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool reverse in new[] { false, true })
         for (int speed = 0; speed < 8; speed++)

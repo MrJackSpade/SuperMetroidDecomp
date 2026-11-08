@@ -75,8 +75,23 @@ internal sealed class KraidParts
         : ReferenceEquals(slot, SecondNail) ? KraidPart.NailBad
         : throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's parts.");
 
-    /// <summary>The workspace <paramref name="state"/> keeps for whichever of Kraid's parts <paramref name="slot"/> is.</summary>
+    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's parts <paramref name="slot"/> is.</summary>
     internal KraidPartState StateOf(KraidEnemyState state, RoomEnemySlot slot) => state.Part(PartAt(slot));
+
+    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's lints <paramref name="slot"/> is.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="slot"/> is not one of his lints.</exception>
+    internal KraidLintState LintStateOf(KraidEnemyState state, RoomEnemySlot slot) =>
+        ReferenceEquals(slot, TopLint) ? state.TopLintState
+        : ReferenceEquals(slot, MiddleLint) ? state.MiddleLintState
+        : ReferenceEquals(slot, BottomLint) ? state.BottomLintState
+        : throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's lints.");
+
+    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's fingernails <paramref name="slot"/> is.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="slot"/> is not one of his fingernails.</exception>
+    internal KraidNailState NailStateOf(KraidEnemyState state, RoomEnemySlot slot) =>
+        ReferenceEquals(slot, FirstNail) ? state.FirstNailState
+        : ReferenceEquals(slot, SecondNail) ? state.SecondNailState
+        : throw new InvalidOperationException($"Enemy {slot.SlotIndex} is not one of Kraid's fingernails.");
 
     /// <summary>His lint part <paramref name="part"/>.</summary>
     internal RoomEnemySlot Lint(KraidLintPart part) => part switch

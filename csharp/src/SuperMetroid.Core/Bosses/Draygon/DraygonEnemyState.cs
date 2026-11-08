@@ -45,7 +45,7 @@ public sealed class DraygonEnemyState
         }
     }
 
-    /// <summary>The first enemy slot, which owns encounter movement, health, and the body-function dispatcher.</summary>
+    /// <summary>His body, which owns encounter movement, health, and the body-function dispatcher, and runs first.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>Where each part's typed program resumes, keyed by the part's record; it replaces the instruction pointers.</summary>
     private readonly Dictionary<RoomEnemySlot, AnimationProgramCursor<DraygonProgram>> _cursors = new(ReferenceEqualityComparer.Instance);
@@ -59,11 +59,11 @@ public sealed class DraygonEnemyState
     /// <summary>Sets where <paramref name="part"/>'s program resumes.</summary>
     internal void SetCursor(RoomEnemySlot part, AnimationProgramCursor<DraygonProgram> cursor) => _cursors[Ensure.NotNull(part)] = cursor;
 
-    /// <summary>The second enemy slot, installed by the eye initializer; tracks Samus using coordinates copied from the body.</summary>
+    /// <summary>His eye, attached by its initializer; tracks Samus using coordinates copied from the body.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>The third enemy slot, installed by the tail initializer; its animation scripts drive whips and the final release handshake.</summary>
+    /// <summary>His tail, attached by its initializer; its animation scripts drive whips and the final release handshake.</summary>
     public RoomEnemySlot Tail { get => field ?? throw new InvalidOperationException("Draygon's tail part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>The fourth enemy slot, installed by the arms initializer; its animation follows the body's authoritative coordinates.</summary>
+    /// <summary>His arms, attached by their initializer; their animation follows the body's authoritative coordinates.</summary>
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
 
@@ -96,6 +96,12 @@ public sealed class DraygonEnemyState
     /// not reached the delay.
     /// </summary>
     public int IntroDanceStep { get; internal set; }
+
+    /// <summary>The Evirs the intro spawned for its dance, in the order they spawned, each with its own start delay.</summary>
+    internal List<DraygonIntroDancer> IntroDancers { get; } = [];
+
+    /// <summary>The Evirs his death spawned to bury him, in the order they spawned, each with its own burial entry.</summary>
+    internal List<DraygonBurialEvir> BurialEvirs { get; } = [];
 
     /// <summary>
     /// Signed pixel offset written by the tail-whip step and added to the body's

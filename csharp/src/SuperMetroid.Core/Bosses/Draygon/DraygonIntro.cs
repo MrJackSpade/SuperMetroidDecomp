@@ -32,16 +32,17 @@ internal sealed class DraygonIntro
         {
             if (state.IntroFrames == 0)
             {
-                // Each spawn takes the next slot in processing order, so these become the first four slots in
-                // processing order, the exact four the dance later moves.
-                for (int actor = 0; actor < DraygonIntroDanceDefinitions.EvirCount; actor++)
+                // Each Evir the dance spawns carries its own start delay, by the order it spawned in; the dance moves
+                // exactly these.
+                for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
                 {
                     if (_spriteObjects.SpawnRoomSpriteObject(
                             new(16, 384),
                             RoomSpriteObjectKind.DraygonIntroEvir,
-                            SpriteGraphics.SharedIn(state.Colours.Sprites)) is not null)
+                            SpriteGraphics.SharedIn(state.Colours.Sprites)) is { } sprite)
                     {
                         state.IntroEvirsSpawned++;
+                        state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));
                     }
                 }
             }
@@ -71,10 +72,11 @@ internal sealed class DraygonIntro
             return;
         }
 
-        // The dance moves only the first four slots in processing order, each once it has waited out its start delay.
-        foreach (RoomSpriteObjectSlot sprite in _spriteObjects.InProcessingOrder.Take(DraygonIntroDanceDefinitions.EvirCount))
+        // The dance moves the Evirs it spawned, in the order they spawned, each once it has waited out its start delay.
+        foreach (DraygonIntroDancer dancer in state.IntroDancers)
         {
-            int step = state.IntroDanceStep - DraygonIntroDance.StartDelayForSlot(sprite.SlotIndex);
+            RoomSpriteObjectSlot sprite = dancer.Sprite;
+            int step = state.IntroDanceStep - dancer.StartDelay;
             if (step < 0 || !sprite.IsActive)
                 continue;
 

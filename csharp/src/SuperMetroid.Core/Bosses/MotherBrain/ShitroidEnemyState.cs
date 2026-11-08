@@ -71,7 +71,7 @@ public sealed class ShitroidEnemyState
     public int CryCounter { get; internal set; }
 
     /// <summary>
-    /// Diagnostic mirror of word 08 in physical slot one. Shitroid writes the actual dead-sidehopper palette
+    /// Diagnostic mirror of its victim's palette stage. Shitroid writes the actual dead-sidehopper palette
     /// stage through <c>ActivateDeadSidehopperVictim</c>; retaining this value on the boss state makes that cross-slot
     /// side effect directly auditable.
     /// </summary>

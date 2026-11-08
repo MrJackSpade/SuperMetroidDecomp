@@ -46,7 +46,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             Cycle(installed);
             AssertEqual((call + 1) % ZebetiteDefinitions.PaletteCycleLength,
                 Counter(installed),
-                "Installed Zebetite pulse retains physical-slot-zero counter and wrap");
+                "Installed Zebetite pulse retains the shared counter and wrap");
             AssertEqual(nativeCounter, Counter(installed),
                 "Installed Zebetite pulse keeps native frame selection");
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(Shown(installed, stock))),

@@ -52,7 +52,7 @@ internal sealed class PhantoonDeath
         PhantoonPatterns.PointPhantoonEyeAtSamus(body, state, samus);
         PhantoonPatterns.MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.DeathHeight);
         if (body.Position.X.Whole is >= 96 and < 160)
-            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeInOut;
+            state.BodyState.Function = PhantoonAiFunction.DyingFadeInOut;
     }
 
     /// <summary>Alternates five fade-outs and five fade-ins.</summary>
@@ -61,22 +61,22 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         RoomEnemySlot eye = state.Eye;
-        if ((state.Parts[eye.SlotIndex].DyingFadeCycles & 1) != 0)
+        if ((state.EyeState.DyingFadeCycles & 1) != 0)
             _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
         else
             _patterns.AdvancePhantoonFadeOut(state, denominator: 12);
 
-        if (!state.Parts[eye.SlotIndex].FadeComplete)
+        if (!state.EyeState.FadeComplete)
             return;
-        state.Parts[eye.SlotIndex].FadeComplete = false;
-        state.Parts[eye.SlotIndex].DyingFadeCycles = WrappingCounter.IncrementWord(state.Parts[eye.SlotIndex].DyingFadeCycles);
-        if (state.Parts[eye.SlotIndex].DyingFadeCycles < 10)
+        state.EyeState.FadeComplete = false;
+        state.EyeState.DyingFadeCycles = WrappingCounter.IncrementWord(state.EyeState.DyingFadeCycles);
+        if (state.EyeState.DyingFadeCycles < 10)
             return;
 
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingExplosions;
-        state.Parts[body.SlotIndex].FunctionTimer = 15;
-        state.Parts[state.Tentacles.SlotIndex].ExplosionIndex = 0;
-        state.Parts[body.SlotIndex].ExplosionPass = 0;
+        state.BodyState.Function = PhantoonAiFunction.DyingExplosions;
+        state.BodyState.FunctionTimer = 15;
+        state.TentaclesState.ExplosionIndex = 0;
+        state.BodyState.ExplosionPass = 0;
     }
 
     /// <summary>Runs the literal 13-entry-then-5..12-twice explosion schedule.</summary>
@@ -84,12 +84,12 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
+        if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
         RoomEnemySlot tentacles = state.Tentacles;
-        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.Parts[tentacles.SlotIndex].ExplosionIndex);
-        state.Parts[body.SlotIndex].FunctionTimer = explosion.Delay;
+        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.TentaclesState.ExplosionIndex);
+        state.BodyState.FunctionTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         int before = _projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
@@ -101,14 +101,14 @@ internal sealed class PhantoonDeath
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);
 
-        state.Parts[tentacles.SlotIndex].ExplosionIndex = WrappingCounter.IncrementWord(state.Parts[tentacles.SlotIndex].ExplosionIndex);
-        if (state.Parts[tentacles.SlotIndex].ExplosionIndex < PhantoonDeathExplosionDefinitions.Count)
+        state.TentaclesState.ExplosionIndex = WrappingCounter.IncrementWord(state.TentaclesState.ExplosionIndex);
+        if (state.TentaclesState.ExplosionIndex < PhantoonDeathExplosionDefinitions.Count)
             return;
 
-        state.Parts[tentacles.SlotIndex].ExplosionIndex = PhantoonDeathExplosionDefinitions.RepeatStart;
-        state.Parts[body.SlotIndex].ExplosionPass = WrappingCounter.IncrementWord(state.Parts[body.SlotIndex].ExplosionPass);
-        if (state.Parts[body.SlotIndex].ExplosionPass >= PhantoonDeathExplosionDefinitions.PassCount)
-            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BeginFinalWavyDeath;
+        state.TentaclesState.ExplosionIndex = PhantoonDeathExplosionDefinitions.RepeatStart;
+        state.BodyState.ExplosionPass = WrappingCounter.IncrementWord(state.BodyState.ExplosionPass);
+        if (state.BodyState.ExplosionPass >= PhantoonDeathExplosionDefinitions.PassCount)
+            state.BodyState.Function = PhantoonAiFunction.BeginFinalWavyDeath;
     }
 
     /// <summary>Starts the distorted background and mosaic stages after the fatal swoop.</summary>
@@ -117,13 +117,13 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         RoomEnemySlot mouth = state.Mouth;
-        state.Parts[mouth.SlotIndex].WaveAmplitude = 0;
-        state.Parts[mouth.SlotIndex].WaveAmplitudeShrinking = false;
-        state.Parts[mouth.SlotIndex].WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
+        state.MouthState.WaveAmplitude = 0;
+        state.MouthState.WaveAmplitudeShrinking = false;
+        state.MouthState.WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
         state.Wave.Begin(PhantoonWaveDefinitions.DeathLength);
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeOut;
-        state.Parts[state.Eye.SlotIndex].DeathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
-        state.Parts[state.Eye.SlotIndex].DeathMosaicFinished = false;
+        state.BodyState.Function = PhantoonAiFunction.DyingFadeOut;
+        state.EyeState.DeathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
+        state.EyeState.DeathMosaicFinished = false;
         state.MosaicBlockSize = PhantoonDeathDefinitions.InitialMosaicSize;
 
         // The body remains the background producer. Eye/tentacle/mouth become invisible and ignore
@@ -143,12 +143,12 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         PhantoonPresentation.AdvancePhantoonWaveAmplitude(
-            state.Parts[state.Mouth.SlotIndex],
+            state.MouthState,
             PhantoonBehavior.PhantoonDeathWaveDelta,
             PhantoonBehavior.PhantoonDeathWaveMaximum);
 
         RoomEnemySlot eye = state.Eye;
-        PhantoonPartState eyePart = state.Parts[eye.SlotIndex];
+        PhantoonEyeState eyePart = state.EyeState;
         if (!eyePart.DeathMosaicFinished)
         {
             if (_frameContext.FrameCounter % PhantoonDeathDefinitions.MosaicGrowthInterval != 0)
@@ -167,8 +167,8 @@ internal sealed class PhantoonDeath
         }
 
         _patterns.AdvancePhantoonFadeOut(state, denominator: 12);
-        if (state.Parts[eye.SlotIndex].FadeComplete)
-            state.Parts[body.SlotIndex].Function = PhantoonAiFunction.AlmostDead;
+        if (state.EyeState.FadeComplete)
+            state.BodyState.Function = PhantoonAiFunction.AlmostDead;
     }
 
 
@@ -178,12 +178,12 @@ internal sealed class PhantoonDeath
         PhantoonEnemyState state)
     {
         state.MosaicBlockSize = 1;
-        state.Parts[state.Eye.SlotIndex].WaveLength = null;
+        state.EyeState.WaveLength = null;
         state.SemiTransparent = false;
-        state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Removed;
-        state.Parts[body.SlotIndex].Function = PhantoonAiFunction.Dead;
-        state.Parts[body.SlotIndex].FunctionTimer = 60;
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.MouthState.LayerControl = PhantoonLayerControl.Removed;
+        state.BodyState.Function = PhantoonAiFunction.Dead;
+        state.BodyState.FunctionTimer = 60;
+        state.EyeState.FadeComplete = false;
         body.Position = body.Position.WithWhole(new(384, 128));
 
         _presentation.RequireBossBody().Clear();
@@ -194,16 +194,16 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (state.Parts[body.SlotIndex].FunctionTimer != 0)
+        if (state.BodyState.FunctionTimer != 0)
         {
-            state.Parts[body.SlotIndex].FunctionTimer--;
+            state.BodyState.FunctionTimer--;
             return;
         }
         if ((_frameContext.FrameCounter & 3) != 0)
             return;
 
-        state.Parts[state.Eye.SlotIndex].FadeDenominator = 12;
-        if (!AdvanceWreckedShipPowerPalette(state, state.Parts[state.Eye.SlotIndex]))
+        state.EyeState.FadeDenominator = 12;
+        if (!AdvanceWreckedShipPowerPalette(state, state.EyeState))
             return;
 
         // The death drops scatter sixteen room-graphics pickups over the visible boss arena.
@@ -236,7 +236,7 @@ internal sealed class PhantoonDeath
     /// toward its powered colour, which the room shows as the import's shade of each step.
     /// </summary>
     /// <returns>Whether the power had finished coming on.</returns>
-    internal static bool AdvanceWreckedShipPowerPalette(PhantoonEnemyState state, PhantoonPartState eye)
+    internal static bool AdvanceWreckedShipPowerPalette(PhantoonEnemyState state, PhantoonEyeState eye)
     {
         int denominator = eye.FadeDenominator;
         int numerator = eye.FadeNumerator;

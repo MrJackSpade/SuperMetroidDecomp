@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// State shared by Phantoon's four consecutive enemy records: body, eye, tentacles and mouth.
-/// Most gameplay values remain on those records, because the parts' behaviour reads one
-/// another's records, and keeping the values per part keeps those relationships visible.
+/// State shared by Phantoon's four parts: body, eye, tentacles and mouth. Each part is its own enemy, attached by
+/// reference when it initializes, and keeps its own typed state here, because the parts' behaviour reads one another's
+/// values, and keeping the values per part keeps those relationships visible.
 /// </summary>
 public sealed class PhantoonEnemyState
 {
@@ -16,32 +16,63 @@ public sealed class PhantoonEnemyState
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();
 
-    /// <summary>Gets the body, the first of the four records and owner of function dispatch, health, motion, and shared encounter values.</summary>
+    /// <summary>Gets the body, owner of function dispatch, health, motion, and shared encounter values; it runs first.</summary>
     public RoomEnemySlot Body { get; }
 
-    /// <summary>The record values of the body, eye, tentacles and mouth, in slot order.</summary>
-    public PhantoonPartState[] Parts { get; } = [new(), new(), new(), new()];
-    /// <summary>Gets the eye, the second record, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
-    public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Gets the tentacles, the third record, attached by part initialization and positioned from the body after its AI pass.</summary>
-    public RoomEnemySlot Tentacles { get => field ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Gets the mouth, the fourth record, attached by part initialization and also retaining the wave/blending controls.</summary>
-    public RoomEnemySlot Mouth { get => field ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set; }
+    /// <summary>The body's own state.</summary>
+    public PhantoonBodyState BodyState { get; } = new();
 
-    /// <summary>Each part's typed program cursor (#641), by its slot offset from the body: body, eye, tentacles, mouth.</summary>
-    internal AnimationProgramCursor<PhantoonPartProgram>[] PartPrograms { get; } = new AnimationProgramCursor<PhantoonPartProgram>[PartCount];
+    /// <summary>The eye's own state.</summary>
+    public PhantoonEyeState EyeState { get; } = new();
 
-    /// <summary>Phantoon's four consecutive physical records.</summary>
-    private const int PartCount = 4;
+    /// <summary>The tentacles' own state.</summary>
+    public PhantoonTentaclesState TentaclesState { get; } = new();
 
-    /// <summary>The program cursor of <paramref name="part"/>, one of Phantoon's four consecutive records.</summary>
+    /// <summary>The mouth's own state, which every part's initialization also writes.</summary>
+    public PhantoonMouthState MouthState { get; } = new();
+
+    /// <summary>The eye, once attached (<see cref="Eye"/>).</summary>
+    private RoomEnemySlot? _eye;
+
+    /// <summary>The tentacles, once attached (<see cref="Tentacles"/>).</summary>
+    private RoomEnemySlot? _tentacles;
+
+    /// <summary>The mouth, once attached (<see cref="Mouth"/>).</summary>
+    private RoomEnemySlot? _mouth;
+
+    /// <summary>Gets the eye, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
+    public RoomEnemySlot Eye { get => _eye ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set => _eye = value; }
+    /// <summary>Gets the tentacles, attached by part initialization and positioned from the body after its AI pass.</summary>
+    public RoomEnemySlot Tentacles { get => _tentacles ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set => _tentacles = value; }
+    /// <summary>Gets the mouth, attached by part initialization and also retaining the wave/blending controls.</summary>
+    public RoomEnemySlot Mouth { get => _mouth ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set => _mouth = value; }
+
+    /// <summary>The body's typed program cursor (#641).</summary>
+    private AnimationProgramCursor<PhantoonPartProgram> _bodyProgram;
+
+    /// <summary>The eye's typed program cursor.</summary>
+    private AnimationProgramCursor<PhantoonPartProgram> _eyeProgram;
+
+    /// <summary>The tentacles' typed program cursor.</summary>
+    private AnimationProgramCursor<PhantoonPartProgram> _tentaclesProgram;
+
+    /// <summary>The mouth's typed program cursor.</summary>
+    private AnimationProgramCursor<PhantoonPartProgram> _mouthProgram;
+
+    /// <summary>The program cursor of <paramref name="part"/>, which is Phantoon's body or one of his attached parts.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
     internal ref AnimationProgramCursor<PhantoonPartProgram> PartProgram(RoomEnemySlot part)
     {
         Ensure.NotNull(part);
-        int offset = part.SlotIndex - Body.SlotIndex;
-        if ((uint)offset >= PartCount)
-            throw new InvalidOperationException($"Enemy slot {part.SlotIndex} is not one of Phantoon's four records.");
-        return ref PartPrograms[offset];
+        if (ReferenceEquals(part, Body))
+            return ref _bodyProgram;
+        if (ReferenceEquals(part, _eye))
+            return ref _eyeProgram;
+        if (ReferenceEquals(part, _tentacles))
+            return ref _tentaclesProgram;
+        if (ReferenceEquals(part, _mouth))
+            return ref _mouthProgram;
+        throw new InvalidOperationException($"Enemy {part.DefinitionId} in slot {part.SlotIndex} is not one of Phantoon's parts.");
     }
 
     /// <summary>

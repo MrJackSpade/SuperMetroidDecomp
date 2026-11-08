@@ -99,7 +99,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(
             CoordinateAxis.Wrap(camera.X - body.Position.X.Whole + body.Radius.X),
             CoordinateAxis.Wrap(camera.Y - body.Position.Y.Whole + 152));
-        KraidAiFunction function = Parts.StateOf(state, body).Function;
+        KraidAiFunction function = state.BodyState.Function;
         if (KraidFunctionGroups.Rise.Contains(function))
         {
             Rise.RunKraidRiseFunction(body, state, samus);
@@ -139,16 +139,19 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The counter-indexed shot view both passes use. The original game starts at the count
-    /// itself, not count - 1, and does not inspect active-slot sentinels; count five
-    /// therefore includes the first physical bomb.
+    /// The counter-indexed shot view both of Kraid's shot passes use, a compatibility rule of his fight: the passes count
+    /// from Samus's shot count itself, not one below it, and do not skip free shots, so with five shots counted they also
+    /// test Samus's first bomb (<see cref="SamusBombProjectileSystem.FirstBomb"/>). A bomb can hit Kraid's mouth or body
+    /// through it, and its collision is marked. The passes consult it during his body's update, before his palette
+    /// handling; the original game's shot loops read the projectile table from the count down, where the entry past the
+    /// five shots is the first bomb.
     /// </summary>
     [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
     internal readonly struct KraidShotSlots
     {
         /// <summary>Five physical Samus shot slots indexed by the shot counter.</summary>
         private readonly SamusProjectileSystem _projectiles;
-        /// <summary>Shared bomb slot reached when the count includes a sixth projectile.</summary>
+        /// <summary>Samus's bombs, whose first is reached when the count includes a sixth projectile.</summary>
         private readonly SamusBombProjectileSystem _sharedProjectiles;
 
         /// <summary>Captures the shot count and validates its bounded slot domain.</summary>
@@ -172,7 +175,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 SamusProjectileSlot shot = _projectiles.Slots[index];
                 return new(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false);
             }
-            SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
+            SamusBombProjectileSlot bomb = _sharedProjectiles.FirstBomb;
             return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage, IsPlacedBomb: !bomb.IsBombSpread);
         }
 
@@ -186,7 +189,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else
             {
-                SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
+                SamusBombProjectileSlot bomb = _sharedProjectiles.FirstBomb;
                 bomb.IsSpent = true;
             }
         }
@@ -207,14 +210,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         KraidEnemyState state,
         int cameraX)
     {
-        switch (Parts.StateOf(state, body).Function)
+        switch (state.BodyState.Function)
         {
             case KraidAiFunction.MainloopThinking:
                 if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
                 {
-                    Parts.StateOf(state, body).Function = KraidAiFunction.MainAttackWithMouthOpen;
+                    state.BodyState.Function = KraidAiFunction.MainAttackWithMouthOpen;
                     state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-                    Parts.StateOf(state, body).HeadTimer = KraidHeadAnimations.RoarEntryDuration;
+                    state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
                 }
                 return;
 
@@ -239,12 +242,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.HandleFunctionTimer:
-                KraidEncounterAccess.TickKraidFunctionTimer(state.Part(KraidPart.Kraid));
+                KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 
             case KraidAiFunction.ProcessHeadInstructionAndTimer:
                 _ = Head.ProcessKraidHeadInstruction(body, state);
-                KraidEncounterAccess.TickKraidFunctionTimer(state.Part(KraidPart.Kraid));
+                KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 
             case KraidAiFunction.GrowReleaseCamera:
@@ -305,7 +308,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function {Parts.StateOf(state, body).Function} is not translated.");
+                    $"Kraid body function {state.BodyState.Function} is not translated.");
         }
     }
 }

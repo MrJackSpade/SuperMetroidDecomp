@@ -24,28 +24,28 @@ internal sealed class PhantoonPresentation
         PhantoonEnemyState state,
         int denominator)
     {
-        if ((_frameContext.FrameCounter & 1) != 0 || state.Parts[state.Eye.SlotIndex].FadeComplete)
+        if ((_frameContext.FrameCounter & 1) != 0 || state.EyeState.FadeComplete)
             return;
 
         RoomEnemySlot eye = state.Eye;
-        state.Parts[eye.SlotIndex].FadeDenominator = denominator;
-        int numerator = state.Parts[eye.SlotIndex].FadeNumerator;
+        state.EyeState.FadeDenominator = denominator;
+        int numerator = state.EyeState.FadeNumerator;
         if (denominator + 1 < numerator)
         {
-            state.Parts[eye.SlotIndex].FadeNumerator = 0;
-            state.Parts[eye.SlotIndex].FadeComplete = true;
+            state.EyeState.FadeNumerator = 0;
+            state.EyeState.FadeComplete = true;
             state.Colours.CompleteFade();
             return;
         }
 
         // The fade's step is the import's shade of it, toward his health band's colours (#1512).
         state.Colours.Fade(PhantoonBodyLook.Health(HealthBand(body)), denominator, numerator);
-        state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
+        state.EyeState.FadeNumerator = numerator + 1;
     }
 
     /// <summary>Changes the background wave's amplitude toward its current phase target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
-        PhantoonPartState mouth,
+        PhantoonMouthState mouth,
         int delta,
         int maximum)
     {
@@ -67,7 +67,7 @@ internal sealed class PhantoonPresentation
     }
 
     /// <summary>Counts the body function timer down and reports its expiry: reaching zero or running past it.</summary>
-    internal static bool TickPhantoonFunctionTimer(PhantoonPartState body) => --body.FunctionTimer <= 0;
+    internal static bool TickPhantoonFunctionTimer(PhantoonBodyState body) => --body.FunctionTimer <= 0;
 
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));

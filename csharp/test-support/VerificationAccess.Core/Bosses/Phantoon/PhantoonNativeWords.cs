@@ -56,14 +56,14 @@ internal static class PhantoonNativeWords
     internal static ushort DeathMosaicWord(int size) => (ushort)((size - 1) * 16 | 0x02);
 
     /// <summary>Imports the tentacles' swoop target from their recorded word E.</summary>
-    internal static void ImportSwoopTarget(PhantoonPartState part, ushort wordE)
+    internal static void ImportSwoopTarget(PhantoonTentaclesState part, ushort wordE)
     {
         part.SwoopTargetX = wordE & ~SwoopReturningBit;
         part.SwoopReturning = (wordE & SwoopReturningBit) != 0;
     }
 
     /// <summary>Imports the eye's death mosaic from its recorded word C, when it holds a mosaic word.</summary>
-    internal static void ImportDeathMosaic(PhantoonPartState part, ushort wordC)
+    internal static void ImportDeathMosaic(PhantoonEyeState part, ushort wordC)
     {
         part.DeathMosaicFinished = wordC == DeathMosaicFinished;
         for (int size = PhantoonDeathDefinitions.InitialMosaicSize; size <= PhantoonDeathDefinitions.FinalMosaicSize; size++)

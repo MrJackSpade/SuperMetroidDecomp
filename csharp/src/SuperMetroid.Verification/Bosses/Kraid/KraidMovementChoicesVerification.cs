@@ -78,13 +78,13 @@ internal static class KraidMovementChoicesVerification
         var body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         var foot = enemies.SlotTable.Slots[5];
-        var part = new KraidPartState();
+        var part = new KraidFootState();
         enemies.KraidBehavior.Access.Kraid = state;
         ushort rng = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return rng; };
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Movement choice must not advance RNG.");
-        Action<RoomEnemySlot, RoomEnemySlot, KraidPartState> think = enemies.KraidBehavior.Limbs.RunKraidSecondPhaseThinking;
+        Action<RoomEnemySlot, RoomEnemySlot, KraidFootState> think = enemies.KraidBehavior.Limbs.RunKraidSecondPhaseThinking;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             body.Position = body.Position.WithWholeX((ushort)raw);
@@ -99,10 +99,10 @@ internal static class KraidMovementChoicesVerification
                 bool right = unchecked((short)(expected.TargetX - raw)) >= 0;
                 AssertEqual(expected.TargetX, state.WalkTarget.X, "Actual target includes fallback row");
                 AssertEqual(expected.ThinkTimer, part.ThinkTimer, "Actual thinking delay includes weighted final choice");
-                AssertEqual((right ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft), state.Part(KraidPart.Foot).Function, "Native signed walking direction");
+                AssertEqual((right ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft), state.FootState.Function, "Native signed walking direction");
                 AssertEqual(
                     AnimationProgramCursor<KraidPartProgram>.Start(right ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward),
-                    enemies.KraidBehavior.Parts.StateOf(state, foot).Cursor,
+                    state.FootState.Cursor,
                     "Chosen direction starts matching animation");
                 AssertEqual((ushort)1, foot.FrameHold.RawValue, "Choice restarts animation timer");
                 AssertEqual(1, reads, "Choice reads current RNG once");

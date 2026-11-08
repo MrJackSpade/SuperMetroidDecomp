@@ -13,6 +13,8 @@ using static SuperMetroid.Verification.Runtime.Attract.AttractDemoControllerVeri
 using static SuperMetroid.Verification.Runtime.Attract.AttractDemoSceneVerification;
 using static SuperMetroid.Verification.Audio.AudioVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidDeathExplosionSoundVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVictimVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.ZebetiteShotShareVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidInheritedFractionsVerification;
@@ -841,6 +843,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFirefleaDoubleDeath), () => VerifyFirefleaDoubleDeath()),
         new(nameof(VerifyShutterScrewContact), () => VerifyShutterScrewContact()),
         new(nameof(VerifyFollowUpAfterStruckPart), () => VerifyFollowUpAfterStruckPart()),
+        new(nameof(VerifyBabyMetroidVictim), () => VerifyBabyMetroidVictim()),
+        new(nameof(VerifyZebetiteShotShare), () => VerifyZebetiteShotShare()),
         new(nameof(VerifyJumpNoXMovement), () => VerifyJumpNoXMovement()),
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
         new(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze()),

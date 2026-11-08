@@ -20,7 +20,7 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var state = enemies.PhantoonBehavior.Combat.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Parts[state.Body.SlotIndex].FunctionTimer = 1;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).BodyState.FunctionTimer = 1;
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         enemies.PublishEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
@@ -54,14 +54,14 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var boss = enemies.PhantoonBehavior.Combat.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).BodyLayerPlacement = boss.BodyLayerPlacement.WithX(9);
-        boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
-        boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
+        boss.MouthState.WaveAmplitude = 3072;
+        boss.MouthState.WavyPhaseDelta = 8;
         var wave = boss.Wave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         wave.Step(boss);
         wave.Step(boss);
         AssertTrue(wave.CurrentWave is { Amplitude: 3072 }, "fixture retains a used introductory wave");
-        boss.Parts[boss.Eye.SlotIndex].WaveLength = null;
+        boss.EyeState.WaveLength = null;
         wave.Step(boss);
         boss.BodyLayerPlacement = boss.BodyLayerPlacement.WithX(13);
         boss.Body.Health = 0;
@@ -75,7 +75,7 @@ internal static class PhantoonReport1196Verification
         PhantoonWave displayed = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
         AssertEqual(13, displayed.BaseScroll, "every first-frame death scroll starts at native BG2 X");
         AssertEqual(0, displayed.Amplitude, "every first-frame death scroll equals native BG2 X");
-        boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
+        boss.MouthState.WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.CurrentWave is { BaseScroll: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new ByteAngle(7),

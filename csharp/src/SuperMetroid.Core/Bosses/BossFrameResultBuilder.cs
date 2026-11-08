@@ -3,6 +3,7 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -45,10 +46,10 @@ internal sealed class BossFrameResultBuilder
     internal MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep { get; set; }
 
     /// <summary>
-    /// Mother Brain's pending room FX entry index, or zero for none: its initialization requests entry one and its
-    /// tube collapse entry two, and the pass reset clears it.
+    /// The change Mother Brain's fight makes to her room's acid, or null for none: her initialization requests the acid
+    /// rising and her fake death its draining (<see cref="MotherBrainRoomFxDefinitions"/>), and the pass reset clears it.
     /// </summary>
-    internal int MotherBrainFxEntry { get; set; }
+    internal RoomFxRecordDefinition? MotherBrainAcidChange { get; set; }
 
     /// <summary>Mother Brain's room mutations, in publication order.</summary>
     internal List<RoomObjectSpawnRequest<MotherBrainRoomMutation>> MotherBrainObjects { get; } = [];
@@ -69,7 +70,7 @@ internal sealed class BossFrameResultBuilder
         CrocomireObjects.Clear();
         KraidObjects.Clear();
         MotherBrainDeathStep = null;
-        MotherBrainFxEntry = 0;
+        MotherBrainAcidChange = null;
         MotherBrainObjects.Clear();
         ShitroidObjects.Clear();
     }
@@ -77,5 +78,5 @@ internal sealed class BossFrameResultBuilder
     /// <summary>The room effects the bosses requested so far.</summary>
     internal EnemyRoomEffectRequests RoomEffects() =>
         new(BotwoonWall, SporeSpawnCeiling, [.. CrocomireObjects], [.. KraidObjects], MotherBrainDeathStep,
-            MotherBrainFxEntry, [.. MotherBrainObjects], [.. ShitroidObjects], TorizoBellyGlow);
+            MotherBrainAcidChange, [.. MotherBrainObjects], [.. ShitroidObjects], TorizoBellyGlow);
 }

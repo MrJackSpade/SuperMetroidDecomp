@@ -201,7 +201,7 @@ internal sealed class KraidCombat
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != KraidMouthFlags.None)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
             if (body.Health < 1 &&
-                KraidFunctionGroups.BeforeDeath.Contains(_parts.StateOf(state, body).Function))
+                KraidFunctionGroups.BeforeDeath.Contains(state.BodyState.Function))
                 BeginKraidDeath(body, state);
         }
 
@@ -238,9 +238,9 @@ internal sealed class KraidCombat
             }
         }
 
-        if (bodyHits != 0 && _parts.StateOf(state, body).Function == KraidAiFunction.MainloopThinking)
+        if (bodyHits != 0 && state.BodyState.Function == KraidAiFunction.MainloopThinking)
         {
-            _parts.StateOf(state, body).Function = KraidAiFunction.InitializeEyeGlow;
+            state.BodyState.Function = KraidAiFunction.InitializeEyeGlow;
             if ((state.MouthFlags & KraidMouthFlags.Hit) != KraidMouthFlags.None)
             {
                 state.MouthFlags |= KraidMouthFlags.ReopenArmed;
@@ -285,7 +285,7 @@ internal sealed class KraidCombat
     /// <summary>Switches the body from combat to its scripted death function.</summary>
     private void BeginKraidDeath(RoomEnemySlot body, KraidEnemyState state)
     {
-        _parts.StateOf(state, body).Function = KraidAiFunction.DeathInitialize;
+        state.BodyState.Function = KraidAiFunction.DeathInitialize;
         state.ClearMouthReactions();
         // The intangible property disables the ordinary touch list while the private death state owns body movement
         // and breakup effects. The fingernails are left out: they delete themselves once his health reads zero.
@@ -298,7 +298,7 @@ internal sealed class KraidCombat
     /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
-        if (!KraidFunctionGroups.BeforeDeath.Contains(_parts.StateOf(state, body).Function))
+        if (!KraidFunctionGroups.BeforeDeath.Contains(state.BodyState.Function))
             return;
         int relativeY = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
         if (CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -

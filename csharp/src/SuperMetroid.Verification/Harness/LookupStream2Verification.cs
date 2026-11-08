@@ -1013,12 +1013,12 @@ internal static class LookupStream2Verification
         body.Position = body.Position.WithWhole(new(200, 300));
         KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];
         foreach (KraidLintPart lintPart in lintParts)
-            enemies.KraidBehavior.Parts.StateOf(state, enemies.KraidBehavior.Parts.Lint(lintPart)).LintTravel = 17;
+            enemies.KraidBehavior.Parts.LintStateOf(state, enemies.KraidBehavior.Parts.Lint(lintPart)).LintTravel = 17;
         finish(body, state);
         for (int native = 0; native < lintParts.Length; native++)
         {
             var lint = enemies.KraidBehavior.Parts.Lint(lintParts[native]);
-            KraidPartState lintState = enemies.KraidBehavior.Parts.StateOf(state, lint);
+            KraidLintState lintState = enemies.KraidBehavior.Parts.LintStateOf(state, lint);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + native * 2));
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
             AssertEqual(expected, lintState.FunctionTimer, "Actual post-growth timer write");

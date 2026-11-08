@@ -21,8 +21,6 @@ internal sealed class PhantoonCombat
     private readonly RoomEarthquake _earthquake;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Provides the body, eye, mouth, and tentacle slots.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Resolves Phantoon and flame contact bounds.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
@@ -31,13 +29,12 @@ internal sealed class PhantoonCombat
     internal readonly List<PhantoonFlameDropRequest> PhantoonFlameDropRequests = new();
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
+    internal PhantoonCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
         _audio = audio;
-        _slotTable = slotTable;
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;
     }
@@ -275,7 +272,7 @@ internal sealed class PhantoonCombat
         if (body.Health == 0)
         {
             _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
-            state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
+            state.TentaclesState.RearmHurtFlash();
             body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
             BeginPhantoonDeathSequence(body, state);
             return;
@@ -286,7 +283,7 @@ internal sealed class PhantoonCombat
 
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.ShotCry);
         SamusProjectileFamily family = projectileType.Family;
-        PhantoonAiFunction function = state.Parts[body.SlotIndex].Function;
+        PhantoonAiFunction function = state.BodyState.Function;
         bool vulnerableWindow = function is
             PhantoonAiFunction.EyeTracksSamus or
             PhantoonAiFunction.TrackSamusDuringFlameRain;
@@ -304,36 +301,36 @@ internal sealed class PhantoonCombat
             }
 
             // The round's damage shares its word with other parts' state, so a sum past the word wraps as the game's does.
-            state.Parts[state.Tentacles.SlotIndex].RoundDamage = WrappingCounter.AddWord(
-                state.Parts[state.Tentacles.SlotIndex].RoundDamage, damage);
-            if (state.Parts[state.Tentacles.SlotIndex].RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
+            state.TentaclesState.RoundDamage = WrappingCounter.AddWord(
+                state.TentaclesState.RoundDamage, damage);
+            if (state.TentaclesState.RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
-                    state.Parts[body.SlotIndex].FunctionTimer = 1;
+                    state.BodyState.FunctionTimer = 1;
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutWhileSwooping);
-                state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
+                state.TentaclesState.RearmHurtFlash();
                 return;
             }
 
             if (vulnerableWindow)
             {
                 int random = _room.Random.Generate() & 7;
-                state.Parts[state.Eye.SlotIndex].ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[random];
-                state.Parts[state.Mouth.SlotIndex].ShotPattern = random;
-                state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
-                if (!state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
+                state.EyeState.ShotMarker = PhantoonPatternDefinitions.ShotEyeMarkers[random];
+                state.MouthState.ShotPattern = random;
+                state.TentaclesState.RearmHurtFlash();
+                if (!state.TentaclesState.SwoopRequested)
                 {
-                    state.Parts[state.Tentacles.SlotIndex].SwoopRequested = true;
-                    if (state.Parts[body.SlotIndex].FunctionTimer >= 16)
-                        state.Parts[body.SlotIndex].FunctionTimer = 16;
+                    state.TentaclesState.SwoopRequested = true;
+                    if (state.BodyState.FunctionTimer >= 16)
+                        state.BodyState.FunctionTimer = 16;
                 }
                 return;
             }
         }
 
         // A valid damaging shot outside the three reaction states still re-arms the flash.
-        state.Parts[state.Tentacles.SlotIndex].RearmHurtFlash();
+        state.TentaclesState.RearmHurtFlash();
     }
 
     /// <summary>Closes the eye and ends the vulnerable interval after a damaging hit.</summary>
@@ -342,18 +339,18 @@ internal sealed class PhantoonCombat
         PhantoonEnemyState state,
         PhantoonAiFunction fadeOut)
     {
-        state.Parts[body.SlotIndex].Function = fadeOut;
-        state.Parts[body.SlotIndex].FunctionTimer = 0;
+        state.BodyState.Function = fadeOut;
+        state.BodyState.FunctionTimer = 0;
         RoomEnemySlot tentacles = state.Tentacles;
         RoomEnemySlot eye = state.Eye;
-        state.Parts[tentacles.SlotIndex].SwoopRequested = false;
-        state.Parts[tentacles.SlotIndex].RoundDamage = 0;
+        state.TentaclesState.SwoopRequested = false;
+        state.TentaclesState.RoundDamage = 0;
         state.SemiTransparent = true;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        state.Parts[eye.SlotIndex].FadeComplete = false;
-        state.Parts[tentacles.SlotIndex].RearmHurtFlash();
+        state.EyeState.FadeComplete = false;
+        state.TentaclesState.RearmHurtFlash();
     }
 
     /// <summary>Switches from combat to the fatal swoop and death phases.</summary>
@@ -361,23 +358,23 @@ internal sealed class PhantoonCombat
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        state.Parts[body.SlotIndex].Function = state.Parts[body.SlotIndex].Function is
+        state.BodyState.Function = state.BodyState.Function is
             PhantoonAiFunction.Swooping or
             PhantoonAiFunction.FadeOutWhileSwooping
                 ? PhantoonAiFunction.FinishFatalSwoop
                 : PhantoonAiFunction.DyingFadeInOut;
-        state.Parts[state.Eye.SlotIndex].FigureEightReversed = false;
-        state.Parts[state.Eye.SlotIndex].FadeComplete = false;
+        state.EyeState.FigureEightReversed = false;
+        state.EyeState.FadeComplete = false;
         state.Wave.InitializeDeathScroll(state.BodyLayerPlacement.X);
         state.SemiTransparent = true;
-        state.Parts[state.Mouth.SlotIndex].ShotPattern = 1;
+        state.MouthState.ShotPattern = 1;
     }
 
     /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
     internal void RunPhantoonStartingFlameWaiting(RoomEnemyProjectileSlot flame)
     {
         PhantoonEnemyState? state = Phantoon;
-        if (state is null || !state.Parts[state.Body.SlotIndex].StartingFlamesActive)
+        if (state is null || !state.BodyState.StartingFlamesActive)
             return;
         flame.FrameBehavior = PhantoonBehavior.PhantoonStartingFlameOrbitFrameBehavior;
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
@@ -615,17 +612,17 @@ internal sealed class PhantoonCombat
             eye.DropChances);
     }
 
-    /// <summary>Active four-slot encounter state when retail Phantoon occupies slot zero.</summary>
+    /// <summary>Phantoon's encounter state once his body has initialized in the room.</summary>
     public PhantoonEnemyState? Phantoon { get; internal set; }
 
-    /// <summary>Requires the slot-zero body before handling another Phantoon part.</summary>
+    /// <summary>Requires Phantoon's living body before handling one of his parts.</summary>
     internal PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (Phantoon is null ||
-            _slotTable.Slots[0].DefinitionId != EnemyDefinitionId.PhantoonBody)
+            Phantoon.Body.DefinitionId != EnemyDefinitionId.PhantoonBody)
         {
             throw new InvalidOperationException(
-                $"Enemy {slot.DefinitionId} requires Phantoon's retail body in slot zero.");
+                $"Enemy {slot.DefinitionId} requires Phantoon's body.");
         }
         return Phantoon;
     }
@@ -685,7 +682,4 @@ internal sealed class PhantoonCombat
         return false;
     
     }
-
-    /// <summary>The record values of the Phantoon part in <paramref name="slot"/>.</summary>
-    internal PhantoonPartState Part(RoomEnemySlot slot) => RequirePhantoonState(slot).Parts[slot.SlotIndex];
 }

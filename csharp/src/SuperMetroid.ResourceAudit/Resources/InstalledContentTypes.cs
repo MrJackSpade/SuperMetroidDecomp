@@ -18,8 +18,8 @@ internal static class InstalledContentTypes
     {
         typeof(CeresDestructionArtwork).FullName!,
         typeof(CeresFlightArtwork).FullName!,
+        typeof(EndingBackdrops).FullName!,
         typeof(EndingFloorArtwork).FullName!,
-        typeof(EndingPaletteSet).FullName!,
         typeof(GameOverBabyPaint).FullName!,
         typeof(IntroCinematicArtwork).FullName!,
         typeof(MapSpriteCompositions).FullName!,

@@ -116,30 +116,35 @@ internal sealed class EndingStage
             definition.Program,
             role);
 
-    /// <summary>Scene boundaries clear the slots; the records they showed keep showing until a load covers them (#1512).</summary>
+    /// <summary>
+    /// Scene boundaries clear the palette effects' slots (#1544): the records they showed stop showing, as the effects
+    /// that showed them have ended.
+    /// </summary>
     internal void ResetPaletteFx()
     {
         PaletteFxSystem = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        screen.Colours.EndPaletteFx();
     }
 
     /// <summary>
-    /// Shows the installed colours <paramref name="load"/> (#1512): a load of a whole screen's or its backgrounds' colours
-    /// also shows that screen's backdrop behind every layer.
+    /// Shows the installed colours <paramref name="load"/> (#1512, #1544): a scene's whole screen of colours, or its
+    /// backgrounds' colours restored, also shows that scene's own backdrop behind every layer.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The load is not one the ending makes.</exception>
     internal void LoadColours(EndingColourLoad load) => screen.Colours.Load(load, load switch
     {
-        EndingColourLoad.Escape => Palette(EndingPaletteId.Escape).Backdrop,
-        EndingColourLoad.ExplosionBackgrounds => Palette(EndingPaletteId.Explosion).Backdrop,
-        EndingColourLoad.CreditsBackgrounds => Palette(EndingPaletteId.Credits).Backdrop,
-        EndingColourLoad.ExplosionSprites or EndingColourLoad.FinalGunship or EndingColourLoad.PostCredits or
-            EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
+        EndingColourLoad.Escape => RequireBackdrops().Escape,
+        EndingColourLoad.Explosion or EndingColourLoad.ExplosionBackgrounds => RequireBackdrops().Explosion,
+        EndingColourLoad.Credits => RequireBackdrops().Credits,
+        EndingColourLoad.PostCredits => RequireBackdrops().PostCredits,
+        EndingColourLoad.FinalGunship or EndingColourLoad.RestoredShot or EndingColourLoad.LogoInitial => null,
         _ => throw new ArgumentOutOfRangeException(nameof(load), load, "Undefined ending colour load."),
     });
 
-    /// <summary>The installed ending palette <paramref name="id"/>.</summary>
-    private EndingPalette Palette(EndingPaletteId id) =>
-        (PaletteArtwork ?? throw new InvalidOperationException("Ending palettes require installed artwork."))[id];
+    /// <summary>The installed scene backdrops.</summary>
+    /// <exception cref="InvalidOperationException">The backdrops are not bound.</exception>
+    private EndingBackdrops RequireBackdrops() =>
+        Backdrops ?? throw new InvalidOperationException("Ending scenes require their installed backdrops.");
 
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
     internal void StepEndingSpriteFrameBehavior(EndingSprite wrapper)
@@ -269,8 +274,8 @@ internal sealed class EndingStage
     /// <summary>The ending's installed turning-floor artwork.</summary>
     internal EndingFloorArtwork? FloorArtwork { get; private set; }
 
-    /// <summary>The ending's installed palettes.</summary>
-    internal EndingPaletteSet? PaletteArtwork { get; private set; }
+    /// <summary>The ending scenes' installed backdrops (#1544).</summary>
+    internal EndingBackdrops? Backdrops { get; private set; }
 
     /// <summary>Raises screen brightness one step every two calls until full brightness.</summary>
     internal bool StepFastFadeIn()
@@ -323,6 +328,6 @@ internal sealed class EndingStage
         FloorArtwork = value;
     }
 
-    /// <summary>Selects the palettes later palette loads and target-color reads use.</summary>
-    internal void BindPaletteArtwork(EndingPaletteSet? value) => PaletteArtwork = value;
+    /// <summary>Selects the backdrops later scenes show (#1544).</summary>
+    internal void BindBackdrops(EndingBackdrops? value) => Backdrops = value;
 }

@@ -39,8 +39,8 @@ public static class GameInstallationLayout
     public const string EndingMode7DirectoryName = "ending-mode7";
     /// <summary>Content child directory for ending OBJ artwork.</summary>
     public const string EndingObjectDirectoryName = "ending-objects";
-    /// <summary>Content child directory for ending-scene color palettes.</summary>
-    public const string EndingPaletteDirectoryName = "ending-palettes";
+    /// <summary>Content child directory for the ending scenes' backdrops (#1544).</summary>
+    public const string EndingBackdropDirectoryName = "ending-backdrops";
     /// <summary>Content child directory for stock RGB5 room palettes.</summary>
     public const string RoomPaletteDirectoryName = "room-palettes";
     /// <summary>Content child directory for visual block compositions independent of collision.</summary>
@@ -112,7 +112,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 239;
+    public const int FormatVersion = 240;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

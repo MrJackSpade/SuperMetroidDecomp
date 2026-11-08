@@ -124,7 +124,7 @@ copy, leaving the active file and all other saved data untouched.
 ## Shared palette JSON validation
 
 Room and gameplay base palettes, map palettes and highlight cycles, title/opening/Ceres
-palettes, ending palettes, Mother Brain colors, and room palette effects reject unknown
+palettes, ending backdrops, Mother Brain colors, and room palette effects reject unknown
 fields and duplicate names at every object level. This includes repeated world-map
 selections and RGB components. An invalid file reports an error; it is not silently
 accepted with a field ignored or overwritten.
@@ -364,13 +364,13 @@ The planet-explosion upload still overlays the four fragments after its main she
 then restores the already-installed ending font over the overlapping font region.
 Other sprite placement, animation scripts, palette-FX mechanics and scene timing remain compiled code.
 
-Seven ending color images are installed as native-precision RGB5 JSON under
-`game/ending-palettes/`: escape, explosion, credits, post-credits, final
-gunship, final-logo initial colors, and the logo's sixteen two-palette
-crossfade steps. In `ending-logo-crossfade-palette.json`, colors are ordered
-by step, then OBJ palette, then sixteen colors. Edit a file in place to change it
-without changing the cartridge's partial CGRAM copy ranges, fade cadence, or
-palette-FX programs. A malformed file fails loudly where it is read.
+The ending's colours are pre-coloured into its installed sprite sheets; edit a sheet
+in place to change them. Each ending scene's backdrop, the solid colour it shows
+behind every layer, is installed as native-precision RGB5 JSON in
+`game/ending-backdrops/ending-backdrops.json`: the escape, explosion (which the
+flyaway keeps), credits and post-credits scenes'. Edit it in place to change a
+backdrop without changing the scenes' fade cadence or palette-FX programs. A
+malformed file fails loudly where it is read.
 
 The ending's animated explosion, cloud, gunship and post-credits glare colors
 use the shared `game/maps/room-palette-effects.json` resource. Edit it in place to change those

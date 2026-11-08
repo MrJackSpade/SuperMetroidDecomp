@@ -30,7 +30,7 @@ internal static class EndingSnapshotTestsVerification
         int samples = 0;
         // The shades the import pre-colours the ending's sheets in, which the screen names (#1512), read once for every
         // reward branch.
-        EndingPaletteSet installedPalettes = RepositoryInstallation.Installation.LoadEndingPalettes();
+        EndingPaletteSet installedPalettes = InstalledFixtures.EndingColours;
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, InstalledFixtures.Maps.RoomPaletteFx);
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {

@@ -3,21 +3,21 @@ using SuperMetroid.AssetExtraction.Installation;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
-/// <summary>Selected ending/credits Mode-7, OBJ/BG artwork, compositions and palette animation.</summary>
+/// <summary>Selected ending/credits Mode-7, OBJ/BG artwork, compositions and scene backdrops.</summary>
 public static class EndingPresentationIdentity
 {
-    /// <summary>Captures named identities of the selected ending Mode-7, object, and palette content for installation/replay compatibility metadata.</summary>
+    /// <summary>Captures named identities of the selected ending Mode-7, object, and backdrop content for installation/replay compatibility metadata.</summary>
     /// <param name="mode7">Non-null selected ending Mode-7 artwork catalog.</param>
     /// <param name="objects">Non-null selected ending OBJ/BG character and composition catalog.</param>
-    /// <param name="palettes">Non-null selected ending palette/animation catalog.</param>
+    /// <param name="backdrops">Non-null selected ending scene backdrops (#1544).</param>
     /// <returns>A new ordinal-keyed dictionary mapping the three installation domain names to their decoded-content identity strings.</returns>
     /// <remarks>Uses the supplied catalogs; does not load files, retain catalog references, or conflate raw-file hashes with engine-build/cartridge provenance.</remarks>
     public static IReadOnlyDictionary<string, string> Create(
-        EndingFloorArtwork mode7, EndingObjectArtwork objects, EndingPaletteSet palettes) =>
+        EndingFloorArtwork mode7, EndingObjectArtwork objects, EndingBackdrops backdrops) =>
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             [GameInstallationLayout.EndingMode7DirectoryName] = mode7.ContentIdentity,
             [GameInstallationLayout.EndingObjectDirectoryName] = objects.ContentIdentity,
-            [GameInstallationLayout.EndingPaletteDirectoryName] = palettes.ContentIdentity,
+            [GameInstallationLayout.EndingBackdropDirectoryName] = backdrops.ContentIdentity,
         };
 }

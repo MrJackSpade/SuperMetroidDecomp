@@ -73,7 +73,7 @@ internal sealed class EndingArtwork
         if (creditsColoursShown)
             return;
 
-        _stage.LoadColours(EndingColourLoad.CreditsBackgrounds);
+        _stage.LoadColours(EndingColourLoad.Credits);
         _ = _stage.ResolveEndingFont();
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Post-credits scenes require installed object artwork.");
 
@@ -81,14 +81,12 @@ internal sealed class EndingArtwork
     }
 
     /// <summary>
-    /// Binds authored ending colors when the game is bound to its installed content. The current colour image
-    /// remains live state: overwriting it here would discard a partially
-    /// completed fade or palette-FX step. Future palette loads and
-    /// target-color reads use the newly selected resource.
+    /// Binds the installed scene backdrops when the game is bound to its installed content (#1544). The backdrop shown stays
+    /// until the next scene's colours show, which shows that scene's backdrop from the newly bound ones.
     /// </summary>
-    internal void BindPaletteArtwork(EndingPaletteSet? value)
+    internal void BindBackdrops(EndingBackdrops? value)
     {
-        _stage.BindPaletteArtwork(value);
+        _stage.BindBackdrops(value);
     }
 
     /// <summary>

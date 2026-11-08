@@ -43,9 +43,9 @@ internal static class EndingScreenShades
         var shades = new List<SheetShade>
         {
             Loaded(EndingColourLoad.Escape, escape),
-            Loaded(EndingColourLoad.ExplosionSprites, explosion),
+            Loaded(EndingColourLoad.Explosion, explosion),
             Loaded(EndingColourLoad.ExplosionBackgrounds, explosion),
-            Loaded(EndingColourLoad.CreditsBackgrounds, credits),
+            Loaded(EndingColourLoad.Credits, credits),
             Loaded(EndingColourLoad.PostCredits, postCredits),
             Loaded(EndingColourLoad.RestoredShot, postCredits),
             new(EndingShades.Loaded(EndingColourLoad.FinalGunship), EndingScreenInks.Load(EndingColourLoad.FinalGunship),
@@ -53,9 +53,8 @@ internal static class EndingScreenShades
             new(EndingShades.Loaded(EndingColourLoad.LogoInitial), EndingScreenInks.Load(EndingColourLoad.LogoInitial),
                 Run(palettes[EndingPaletteId.LogoInitial], EndingScreenInks.Load(EndingColourLoad.LogoInitial).Length)),
         };
-        // The explosion's crossfade scales the colours it captured as it began: the escape's far background, which no
-        // effect had recoloured, and the explosion's sprite colours it had just loaded. The post-credits fades scale the
-        // post-credits colours, which nothing recolours before them.
+        // The explosion's crossfade fades the escape's far background out and the explosion's own lava and planet in. The
+        // post-credits fades scale the post-credits colours.
         AddFade(shades, EndingFade.ExplosionBackground, escape);
         AddFade(shades, EndingFade.ExplosionLava, explosion);
         AddFade(shades, EndingFade.ExplodingPlanet, explosion);

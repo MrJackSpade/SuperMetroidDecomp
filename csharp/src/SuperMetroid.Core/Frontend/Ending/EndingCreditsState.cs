@@ -41,8 +41,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
             Stage.BindFloorArtwork(artwork.EndingFloorArt);
         if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
             InstalledArtwork.BindObjectArtwork(artwork.EndingObjectArt);
-        if (!ReferenceEquals(previous.EndingPaletteArt, artwork.EndingPaletteArt))
-            InstalledArtwork.BindPaletteArtwork(artwork.EndingPaletteArt);
+        if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))
+            InstalledArtwork.BindBackdrops(artwork.EndingBackdrops);
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
             InstalledArtwork.BindSpriteSheets(artwork.SpriteSheets);
     }

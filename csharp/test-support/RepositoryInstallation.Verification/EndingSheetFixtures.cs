@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -21,8 +22,8 @@ internal static class EndingSheetFixtures
     /// <summary>The installed ending artwork's identity, whose sheets are the installed ones.</summary>
     private static readonly Lazy<string> stockIdentity = new(() => RepositoryInstallation.Installation.LoadEndingObjectArt().ContentIdentity);
 
-    /// <summary>The installed ending palettes the composed sheets are coloured with.</summary>
-    private static readonly Lazy<EndingPaletteSet> palettes = new(() => RepositoryInstallation.Installation.LoadEndingPalettes());
+    /// <summary>The ending's decoded colours the composed sheets are coloured with (#1544).</summary>
+    private static readonly Lazy<EndingPaletteSet> palettes = new(() => InstalledFixtures.EndingColours);
 
     /// <summary>The ending's background picture sheets its object artwork composes (#1392, #1467).</summary>
     private static readonly SpriteSheetId[] EndingPictureSheets = [SpriteSheetId.EndingPostCreditsPictures,
@@ -38,22 +39,6 @@ internal static class EndingSheetFixtures
         string identity = objects.ContentIdentity;
         return identity == stockIdentity.Value ? InstalledFixtures.SpriteSheets
             : composed.GetOrAdd(identity, key => Compose(objects, palettes.Value, InstalledFixtures.Maps, key[..8], withFloors: false));
-    }
-
-    /// <summary>Installed sheets with the ending sheets composed over edited palettes, by palette set.</summary>
-    private static readonly ConditionalWeakTable<EndingPaletteSet, InstalledSpriteSheets> paletteSheets = new();
-
-    /// <summary>
-    /// The installed sheets with the ending sheets the installed ending artwork composes over <paramref name="colours"/>:
-    /// the ending's sprites, pictures and floors are pre-coloured from its palettes (#1512), so an edited palette shows only
-    /// through them.
-    /// </summary>
-    internal static InstalledSpriteSheets WithEndingPalettes(EndingPaletteSet colours)
-    {
-        ArgumentNullException.ThrowIfNull(colours);
-        return ReferenceEquals(colours, palettes.Value) ? InstalledFixtures.SpriteSheets : paletteSheets.GetValue(colours,
-            key => Compose(RepositoryInstallation.Installation.LoadEndingObjectArt(), key, InstalledFixtures.Maps,
-                $"palettes-{RuntimeHelpers.GetHashCode(key):X8}", withFloors: true));
     }
 
     /// <summary>Installed sheets with the ending sheets composed over edited maps, by map presentation.</summary>

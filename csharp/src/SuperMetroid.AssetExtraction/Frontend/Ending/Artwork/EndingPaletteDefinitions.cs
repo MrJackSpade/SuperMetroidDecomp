@@ -1,20 +1,14 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
-/// <summary>Exact sizes and file identities for ending colors.</summary>
-public static class EndingPaletteDefinitions
+/// <summary>The colour counts of the ending's colour resources the import decodes (#1544).</summary>
+internal static class EndingPaletteDefinitions
 {
-    /// <summary>Revision 1 of the RGB5 palette document, the only revision the reader accepts.</summary>
-    public const int Version = 1;
-    /// <summary>Installation manifest filename identifying the independently selected ending palette files.</summary>
-    public const string ManifestFileName = "ending-palettes-manifest.json";
-
-    /// <summary>Full editable resource sizes, not individual palette load lengths:
-    /// four 256-color allocations, two 16-color palettes, and sixteen pairs
-    /// of 16-color crossfade palettes. The credits' palette loads can select a subset.</summary>
+    /// <summary>Full resource sizes, not individual load lengths:
+    /// four whole screens, two 16-color runs, and sixteen pairs
+    /// of 16-color crossfade layers.</summary>
     internal static readonly IReadOnlyDictionary<EndingPaletteId, int> ColorCounts =
         new Dictionary<EndingPaletteId, int>
         {
@@ -25,19 +19,5 @@ public static class EndingPaletteDefinitions
             [EndingPaletteId.FinalGunship] = 16,
             [EndingPaletteId.LogoInitial] = 16,
             [EndingPaletteId.LogoCrossfade] = EndingLogoDefinitions.PaletteSteps * 2 * 16,
-        };
-
-    /// <summary>Published asset-file identities selected by semantic palette role.
-    /// Explicit cases keep each independently editable installed filename stable.</summary>
-    internal static readonly IReadOnlyDictionary<EndingPaletteId, string> FileNames =
-        new Dictionary<EndingPaletteId, string>
-        {
-            [EndingPaletteId.Escape] = "ending-escape-palette.json",
-            [EndingPaletteId.PostCredits] = "ending-post-credits-palette.json",
-            [EndingPaletteId.Credits] = "ending-credits-palette.json",
-            [EndingPaletteId.Explosion] = "ending-explosion-palette.json",
-            [EndingPaletteId.FinalGunship] = "ending-final-gunship-palette.json",
-            [EndingPaletteId.LogoInitial] = "ending-logo-initial-palette.json",
-            [EndingPaletteId.LogoCrossfade] = "ending-logo-crossfade-palette.json",
         };
 }

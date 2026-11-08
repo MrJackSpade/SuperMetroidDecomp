@@ -1,6 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
-/// <summary>Independent color resources selected by the ending coroutine.</summary>
+/// <summary>The ending's colour resources the import decodes from the cartridge (#1544).</summary>
 public enum EndingPaletteId
 {
     /// <summary>256-color image installed for the initial escape view and its atmospheric cloud sprites.</summary>

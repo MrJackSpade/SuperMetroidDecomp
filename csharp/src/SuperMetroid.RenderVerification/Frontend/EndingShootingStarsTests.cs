@@ -74,7 +74,7 @@ internal static class EndingShootingStarsTests
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(new AudioQueues(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
         scene.InstalledArtwork.BindFixtureObjectArtwork(installed.LoadEndingObjectArt());
-        scene.InstalledArtwork.BindPaletteArtwork(installed.LoadEndingPalettes());
+        scene.InstalledArtwork.BindBackdrops(installed.LoadEndingBackdrops());
         scene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         scene.Stage.BindEndingFont(maps.EndingFont); scene.InstalledArtwork.BindEndingText(maps.EndingText);
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();

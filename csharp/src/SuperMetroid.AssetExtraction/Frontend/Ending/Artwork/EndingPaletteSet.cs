@@ -1,8 +1,9 @@
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
-/// <summary>Independent static and animated color resources used by the ending.</summary>
-[ArchitectureReview("context-bag", "Seven installed ending palettes selected by id; every member is immutable color data, not a service.")]
+/// <summary>The ending's colour resources the import decodes from the cartridge and pre-colours the ending's sheets in (#1544).</summary>
+[ArchitectureReview("context-bag", "Seven decoded ending colour resources selected by id; every member is immutable color data, not a service.")]
 public sealed class EndingPaletteSet
 {
     /// <summary>Escape and cloud-scene color image.</summary>

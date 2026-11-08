@@ -12,12 +12,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// What each installed sprite sheet composes from the stock content installed beside it (#1392), each family's inputs
-/// loaded once when a sheet of it is first composed. The escape timer composes from the cartridge and is not here.
+/// loaded once when a sheet of it is first composed, and from the ending's colours, which the import decodes from the
+/// cartridge (#1544). The escape timer composes from the cartridge and is not here.
 /// </summary>
 internal sealed class SpriteSheetSourceCatalog
 {
@@ -32,21 +35,23 @@ internal sealed class SpriteSheetSourceCatalog
     /// <summary>The ending's sprite artwork.</summary>
     private readonly Lazy<EndingObjectArtwork> ending;
 
-    /// <summary>The ending's palettes.</summary>
-    private readonly Lazy<EndingPaletteSet> endingPalettes;
+    /// <summary>The ending's colours, decoded from the cartridge.</summary>
+    private readonly EndingPaletteSet endingPalettes;
 
     /// <summary>The ending's Mode 7 artwork.</summary>
     private readonly Lazy<EndingFloorArtwork> endingMode7;
 
-    /// <summary>Reads inputs from installed stock content.</summary>
-    internal SpriteSheetSourceCatalog(string content)
+    /// <summary>Reads inputs from installed stock content and the ending's decoded colours.</summary>
+    /// <param name="content">Installed stock content.</param>
+    /// <param name="endingColours">The ending's colours, which the import decodes from the cartridge (#1544).</param>
+    internal SpriteSheetSourceCatalog(string content, EndingPaletteSet endingColours)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        endingPalettes = Ensure.NotNull(endingColours);
         samus = new(() => SamusSheetInputs.Load(content));
         maps = new(() => MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
         intro = new(() => IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName)));
         ending = new(() => EndingObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName)));
-        endingPalettes = new(() => EndingPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingPaletteDirectoryName)));
         endingMode7 = new(() => EndingMode7ArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingMode7DirectoryName)));
     }
 
@@ -71,7 +76,7 @@ internal sealed class SpriteSheetSourceCatalog
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
     private ScreenTileSources ScreenTiles() =>
-        new(() => maps.Value, () => intro.Value, () => ending.Value, () => endingPalettes.Value, () => endingMode7.Value);
+        new(() => maps.Value, () => intro.Value, () => ending.Value, () => endingPalettes, () => endingMode7.Value);
 
     /// <summary>What sheet <paramref name="sheet"/> composes.</summary>
     /// <exception cref="ArgumentOutOfRangeException">
@@ -95,7 +100,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites =>
-            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes.Value, maps.Value.EndingFont, maps.Value.RoomPaletteFx),
+            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes, maps.Value.EndingFont, maps.Value.RoomPaletteFx),
         SpriteSheetId.Grapple or SpriteSheetId.SamusBody or
             SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or SpriteSheetId.SamusDeath or
             SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or

@@ -127,11 +127,11 @@ internal static class TitleSequenceRomDataVerification
             TitleSourceDefinitions.FloorCharacters,
             TitleFloorTileDefinitions.FloorCharacterByteCount,
             0);
-        WriteRepeatedCompressedStream(
-            rom,
-            TitleSourceDefinitions.FloorMap,
-            TitleFloorTileDefinitions.FloorMapByteCount,
-            0);
+        // The floor's first rows name the Baby Metroid's first tile and the rest the blank one: the import cuts the Baby out of
+        // the floor where its map names the Baby's tiles, as the retail map does.
+        byte[] floorMapBlocks = new byte[TitleFloorTileDefinitions.FloorMapByteCount / 0x0400];
+        floorMapBlocks[0] = TitleFloorTileDefinitions.BabyFirstTile;
+        WriteBlockCompressedStream(rom, TitleSourceDefinitions.FloorMap, floorMapBlocks);
         WriteRepeatedCompressedStream(
             rom,
             TitleSourceDefinitions.ObjectCharacters,

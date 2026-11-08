@@ -79,7 +79,8 @@ internal static void VerifyCeresDestructionCinematic()
             Views = Enumerable.Range(0, 3).Select(index => maps.AsSpan(0x600 + index * 0x300, 0x300)
                 .SelectToArray(value => (int)value)).ToArray(),
         });
-    var artwork = IntroCinematicArtworkFiles.Load(introDirectory);
+    // The fixture composes its sheets as the import does, from the import's read, which alone reads the colours (#1544).
+    var artwork = IntroCinematicArtworkFiles.LoadForImport(introDirectory);
     var presentation = RetailPresentationFixture();
     var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         spriteSheets: CinematicSheetFixtures.WithIntro(artwork));
@@ -175,9 +176,19 @@ internal static void WriteRepeatedCompressedStream(
 {
     if (outputLength <= 0 || (outputLength & 0x03ff) != 0)
         throw new ArgumentOutOfRangeException(nameof(outputLength));
+    WriteBlockCompressedStream(rom, snesAddress, [.. Enumerable.Repeat(value, outputLength / 0x0400)]);
+}
 
+/// <summary>
+/// Encodes a compressed stream of $400-byte blocks, block <c>n</c> repeating <paramref name="blockValues"/>[n], for
+/// synthetic artwork.
+/// </summary>
+internal static void WriteBlockCompressedStream(byte[] rom, int snesAddress, byte[] blockValues)
+{
+    if (blockValues.Length == 0)
+        throw new ArgumentOutOfRangeException(nameof(blockValues));
     int address = snesAddress;
-    for (int remaining = outputLength; remaining > 0; remaining -= 0x0400)
+    foreach (byte value in blockValues)
     {
         // Long header E7/FF selects command one and length $400.
         WriteSequentialRomByte(rom, ref address, 0xe7);

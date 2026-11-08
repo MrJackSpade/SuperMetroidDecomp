@@ -26,7 +26,7 @@ internal static class RoomFxRecordDefinitionsVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         RoomFxRecordCatalogSource.RetailRoomFxCapture capture = RoomFxRecordCatalogSource.CaptureRetailRoomFx(bus);
-        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, capture.Records));
+        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, capture.Records, capture.Ends));
         Suite(nameof(VerifyRoomFxListSelection), () => VerifyRoomFxListSelection(bus));
         string generated = RoomFxRecordCatalogSource.RenderRoomFxDefinitions(capture).Replace("\r\n", "\n");
         string checkedIn = File.ReadAllText(RoomFxRecordCatalogSource.GeneratedPath).Replace("\r\n", "\n");

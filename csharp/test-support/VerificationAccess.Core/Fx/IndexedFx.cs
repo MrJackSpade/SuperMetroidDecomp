@@ -1,7 +1,8 @@
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>An FX definition and its index.</summary>
-/// <param name="Fx">The fx.</param>
-/// <param name="Index">The index.</param>
-internal readonly record struct IndexedFx(RoomFxHeader Fx, int Index);
+/// <summary>A compiled FX record, the header that holds it, and the door word its header's selection stores for it.</summary>
+/// <param name="Fx">The header that holds the record.</param>
+/// <param name="Record">The record.</param>
+/// <param name="DoorPointer">The record's native door word: its entry door's pointer, or zero for a default or a Mother Brain record.</param>
+internal readonly record struct IndexedFx(RoomFxHeader Fx, RoomFxRecordDefinition Record, ushort DoorPointer);

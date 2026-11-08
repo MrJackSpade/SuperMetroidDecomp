@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxDispatchVerif
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -89,11 +90,9 @@ internal static class RoomPaletteFxDefinitionsVerification
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
         {
             PaletteFxObject effect = AreaPaletteFxObjects.GetAreaDefinition(area, bit);
-            var definition = RoomFxRecordCodec.Terminator with
-            {
-                Terminates = false,
-                PaletteEffects = [effect],
-            };
+            var definition = new RoomFxRecordDefinition(BaseYPosition: 0, TargetYPosition: 0, YVelocity: default, Timer: 0,
+                Type: RoomFxType.None, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: null, LiquidOptions: RoomLiquidOptions.None,
+                PaletteEffects: [effect], AnimatedTiles: [], PaletteBlend: RoomFxPaletteBlend.None);
             var systemSession = new PaletteFxSessionState();
             var system = RoomPaletteFxSystem.ForDefinition(systemSession, definition,
                 equippedItems: 0, areaMiniBossDefeated: false);

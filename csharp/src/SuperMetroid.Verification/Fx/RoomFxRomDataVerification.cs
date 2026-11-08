@@ -347,15 +347,15 @@ internal static class RoomFxRomDataVerification
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
         ushort Word(int offset) => LittleEndianBytes.Word(Byte(offset), Byte(offset + 1));
-        ushort door = Word(0);
-        if (door == ushort.MaxValue)
-            return RoomFxRecordCodec.Terminator;
+        // A terminator ends a header's list and is no record (#1546).
+        if (Word(0) == ushort.MaxValue)
+            throw new InvalidOperationException($"Synthetic record ${pointer:X4} is a terminator, which holds no record.");
         byte[] native = [.. Enumerable.Range(0, RoomFxToolingRomData.Record.ByteCount).Select(Byte)];
         // The record codec decodes the fixture's bytes as the catalog generator decodes the cartridge's (#1415). The fixtures
         // seed no effect bits and belong to no room, so the area their bits would select from is never consulted (#1526).
         if (native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset] != 0 || native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset] != 0)
             throw new InvalidOperationException($"Synthetic record ${pointer:X4} seeds effect bits, which select from no room's area.");
-        return RoomFxRecordCodec.Decode(door == 0 ? null : DoorDefinitions.Get(door), AreaId.Crateria, native, $"synthetic record ${pointer:X4}");
+        return RoomFxRecordCodec.Decode(AreaId.Crateria, native, $"synthetic record ${pointer:X4}");
     }
 
     /// <summary>Writes one byte field of the synthetic bank-$83 room FX record at <paramref name="record"/>.</summary>

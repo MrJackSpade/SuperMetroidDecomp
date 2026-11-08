@@ -13,7 +13,7 @@ internal static class RoomFxOverlayStateAccess
             return RoomFxOverlayState.ForRecord(session, new RoomFxLoadSource
             {
                 Fx = null,
-                Door = definition.Door,
+                Door = null,
                 RandomNumber = randomNumber,
                 Room = null,
                 SuppliedDefinition = definition,

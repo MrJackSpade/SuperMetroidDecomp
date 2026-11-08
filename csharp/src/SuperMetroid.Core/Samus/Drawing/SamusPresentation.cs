@@ -421,8 +421,8 @@ internal sealed class SamusPresentation
     /// </summary>
     /// <remarks>
     /// This preserves both branches of the echo draw. A
-    /// nonnegative index draws stationary trailing snapshots only at boost stage four.
-    /// Cancellation changes the index to 65535; drawing then advances each body's
+    /// capturing cursor draws stationary trailing snapshots only at boost stage four.
+    /// Cancellation sends the echoes departing; drawing then advances each body's
     /// ±8 X / ±2 Y convergence before deciding whether it crossed the live Samus.
     /// </remarks>
     public void DrawSpeedBoosterEchoes(SamusState samus, 
@@ -491,7 +491,7 @@ internal sealed class SamusPresentation
             return;
         }
 
-        // Slot one precedes slot zero just like the game's X=2,0 loop.
+        // The second echo is drawn before the first, as for the boost's echoes.
         DrawActiveSpeedBoosterEcho(samus, 
             sprites,
             samus.HorizontalSpeed.SecondSpeedEchoPosition,
@@ -536,15 +536,14 @@ internal sealed class SamusPresentation
     private InstalledSpriteSheets BodySheets => BodyFrames.Sheets ?? throw new InvalidOperationException(
         "Samus rendering requires the installed sprite sheets.");
 
-    /// <summary>Draws a populated echo slot with current Samus spritemaps after Y clipping.</summary>
-    private void DrawActiveSpeedBoosterEcho(SamusState samus, 
+    /// <summary>Draws an echo, when its slot holds one, with current Samus spritemaps after Y clipping.</summary>
+    private void DrawActiveSpeedBoosterEcho(SamusState samus,
         SpriteFrameBuffer sprites,
-        Position16<RoomPixels> echo,
+        Position16<RoomPixels>? stored,
         Position16<RoomPixels> cameraPosition,
         int slot)
     {
-        // Zero X is the game's empty-slot sentinel, not merely an off-screen point.
-        if (echo.X == 0)
+        if (stored is not { } echo)
             return;
 
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);

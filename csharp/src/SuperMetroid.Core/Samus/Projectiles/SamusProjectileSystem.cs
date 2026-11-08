@@ -716,7 +716,7 @@ public sealed class SamusProjectileSystem
     {
         if (samus is not null)
         {
-            samus.HorizontalSpeed.ResetSpeedEchoPositionsForRoomTransition();
+            samus.HorizontalSpeed.ClearSpeedEchoes();
             samus.Shinespark.ResetProjectileEchoStorage();
         }
         Combos.ComboState = 0;

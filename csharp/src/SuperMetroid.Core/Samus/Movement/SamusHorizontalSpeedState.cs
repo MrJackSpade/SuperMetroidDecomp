@@ -103,11 +103,11 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
     public bool SpeedEchoesDeparting => SpeedEchoIndex.IsDeparting;
 
-    /// <summary>First captured Speed Booster echo position. X zero marks the slot empty.</summary>
-    public Position16<RoomPixels> FirstSpeedEchoPosition { get; private set; }
+    /// <summary>Where the first Speed Booster echo stands, or none while its slot holds no echo.</summary>
+    public Position16<RoomPixels>? FirstSpeedEchoPosition { get; private set; }
 
-    /// <summary>Second captured Speed Booster echo position. X zero marks the slot empty.</summary>
-    public Position16<RoomPixels> SecondSpeedEchoPosition { get; private set; }
+    /// <summary>Where the second Speed Booster echo stands, or none while its slot holds no echo.</summary>
+    public Position16<RoomPixels>? SecondSpeedEchoPosition { get; private set; }
 
     /// <summary>
     /// Whole-pixel per-frame velocity of departing echo zero; only X moves. Cancellation
@@ -363,7 +363,7 @@ public sealed class SamusHorizontalSpeedState
         {
             if (frame.AnimationFrame == 0)
             {
-                // Resets only the palette-list byte offset. Frame zero retains
+                // Restarts only the colour cycle's step. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw palette.
                 CyclePaletteStep = 0;
                 return paletteCopied;
@@ -486,36 +486,20 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Applies the observable echo-slot clears shared by shinespark windup
-    /// and directional launch setup.
+    /// Removes both echoes, stops their departure and points the next capture at the first slot: a shinespark's
+    /// directional launch and its crash's end do this, and so does a room load.
     /// </summary>
-    /// <remarks>
-    /// The game also clears two later crash-circle velocity bytes. Those bytes are not part
-    /// of the ordinary active-echo model yet; the X position words and alternating index
-    /// below are the exact subset consumed by <see cref="CaptureSpeedEchoPosition"/> and
-    /// the current renderer.
-    /// </remarks>
-    public void ResetSpeedEchoPositionsForShinespark()
+    public void ClearSpeedEchoes()
     {
         SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
         FirstSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
         SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
-        FirstSpeedEchoPosition = FirstSpeedEchoPosition.WithX(0);
-        SecondSpeedEchoPosition = SecondSpeedEchoPosition.WithX(0);
-        // Launch marks slots empty through X alone. The game leaves the old Y words
-        // intact until the next gameplay-clock sample overwrites them.
-    }
-
-    /// <summary>Clears active echo storage during ResetProjectileData.</summary>
-    public void ResetSpeedEchoPositionsForRoomTransition()
-    {
-        ResetSpeedEchoPositionsForShinespark();
-        FirstSpeedEchoPosition = FirstSpeedEchoPosition.WithY(0);
-        SecondSpeedEchoPosition = SecondSpeedEchoPosition.WithY(0);
+        FirstSpeedEchoPosition = null;
+        SecondSpeedEchoPosition = null;
     }
 
     /// <summary>
-    /// Publishes the overloaded echo words owned by the shinespark-crash handler.
+    /// Places the two echoes where the shinespark crash's orbit shows them, with the cursor the crash leaves.
     /// </summary>
     /// <remarks>
     /// The crash shares the ordinary boost-echo cursor for its orbit stage and radius, and reuses the two captured
@@ -547,7 +531,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Cancels the speed boost, including the transition
-    /// from alternating captured positions into the high-bit echo-departure state.
+    /// from alternating captured positions into the echoes' departure.
     /// </summary>
     /// <param name="facing">
     /// Current pose-definition direction. The game treats exactly left (four) as facing left;
@@ -566,7 +550,7 @@ public sealed class SamusHorizontalSpeedState
 
         // This block is intentionally outside the momentum test. Every caller can
         // enter echo-departure mode even when the momentum flag was already clear. Repeated calls while
-        // the echo index is negative must *not* reset the velocities or restart the two bodies.
+        // the echoes are departing must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoIndex = SpeedEchoCursor.Departing;
@@ -601,7 +585,7 @@ public sealed class SamusHorizontalSpeedState
         SpeedBoostCounter = default;
         SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
         FirstSpeedEchoVelocity = SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
-        FirstSpeedEchoPosition = SecondSpeedEchoPosition = Position16<RoomPixels>.Zero;
+        FirstSpeedEchoPosition = SecondSpeedEchoPosition = null;
     }
 
     /// <summary>
@@ -658,7 +642,7 @@ public sealed class SamusHorizontalSpeedState
     /// <remarks>
     /// This side effect really belongs to drawing in the game: Y approaches the live
     /// Samus center by two pixels, X advances by the signed eight-pixel velocity, and the
-    /// position is cleared on the exact frame it crosses Samus. Returning false means the
+    /// echo is gone on the exact frame it crosses Samus. Returning false means the
     /// slot is empty or crossed this frame and therefore must not be drawn.
     /// </remarks>
     public bool AdvanceDepartingSpeedEcho(
@@ -670,13 +654,13 @@ public sealed class SamusHorizontalSpeedState
         if (slot is < 0 or > 1)
             throw new ArgumentOutOfRangeException(nameof(slot));
 
-        Position16<RoomPixels> echo = slot == 0
+        Position16<RoomPixels>? stored = slot == 0
             ? FirstSpeedEchoPosition
             : SecondSpeedEchoPosition;
-        int xPosition = echo.X;
-        if (xPosition == 0)
+        if (stored is not { } echo)
             return false;
 
+        int xPosition = echo.X;
         int yPosition = echo.Y;
         if (yPosition != samusPosition.Y)
         {
@@ -692,26 +676,25 @@ public sealed class SamusHorizontalSpeedState
         bool crossedSamus = velocity.X < 0
             ? CoordinateAxis.Difference(xPosition, samusPosition.X) < 0
             : CoordinateAxis.Difference(xPosition, samusPosition.X) >= 0;
-        if (crossedSamus)
-            xPosition = 0;
+        Position16<RoomPixels>? advanced = crossedSamus ? null : Position16<RoomPixels>.Of(xPosition, yPosition);
 
         if (slot == 0)
-            FirstSpeedEchoPosition = Position16<RoomPixels>.Of(xPosition, yPosition);
+            FirstSpeedEchoPosition = advanced;
         else
-            SecondSpeedEchoPosition = Position16<RoomPixels>.Of(xPosition, yPosition);
+            SecondSpeedEchoPosition = advanced;
 
-        return xPosition != 0;
+        return advanced is not null;
     }
 
     /// <summary>
     /// Clears the departure state after both departure slots have been considered.
-    /// Once neither stored X position remains, the shared index returns to ordinary zero.
+    /// Once neither echo remains, the cursor returns to the first slot.
     /// </summary>
     public void FinishDepartingSpeedEchoFrame()
     {
         if (SpeedEchoesDeparting &&
-            FirstSpeedEchoPosition.X == 0 &&
-            SecondSpeedEchoPosition.X == 0)
+            FirstSpeedEchoPosition is null &&
+            SecondSpeedEchoPosition is null)
         {
             SpeedEchoIndex = SpeedEchoCursor.FirstSlot;
         }

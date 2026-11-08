@@ -258,7 +258,8 @@ public sealed class TourianStatueSequence
     public void StepDescent(RoomObjectSystem roomObjects)
     {
         if (!Enabled) return;
-        _enemies.TourianStatue.WaterSurface = new(0, _roomFxOverlay.Surface.Y);
+        _enemies.TourianStatue.WaterSurface = new(0, CoordinateAxis.Wrap(_roomFxOverlay.Surface
+            ?? throw new InvalidOperationException("The Tourian statues' room effect names no water surface.")));
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {

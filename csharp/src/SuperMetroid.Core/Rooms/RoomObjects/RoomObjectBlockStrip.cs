@@ -2,7 +2,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>One horizontal strip of a PLM block draw: where the next strip starts and the strip's cells.</summary>
-/// <param name="Next">The next strip's offset, in blocks; zero after the last strip.</param>
+/// <summary>
+/// One horizontal strip of a PLM block draw: where the strip starts and its cells. A draw's strips are a list whose end
+/// is its last strip (#1546).
+/// </summary>
+/// <param name="Start">Where the strip's first cell lies, in blocks from the draw's origin; the first strip starts at the origin.</param>
 /// <param name="Cells">The terrain the strip writes, left to right.</param>
-internal readonly record struct RoomObjectBlockStrip(Offset16<RoomBlocks> Next, RoomTerrainBlock[] Cells);
+internal readonly record struct RoomObjectBlockStrip(Offset16<RoomBlocks> Start, RoomTerrainBlock[] Cells);

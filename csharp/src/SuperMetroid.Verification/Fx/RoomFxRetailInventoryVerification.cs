@@ -276,10 +276,11 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(expectedType, actual.Type,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX type");
-        AssertEqual(expectedBase, actual.BaseY.Whole,
+        // The cartridge word of a typed surface or target (#1546): the typed line, or the word a record naming none holds.
+        AssertEqual(expectedBase, RoomFxRecordEncoding.SurfaceWord(actual.BaseY?.Whole),
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX base Y");
-        AssertEqual(expectedTarget, actual.TargetSurface.Y,
+        AssertEqual(expectedTarget, RoomFxRecordEncoding.SurfaceWord(actual.TargetSurface),
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX target Y");
         AssertEqual(expectedVelocity, actual.YVelocity.RawValue,
@@ -305,7 +306,7 @@ internal static class RoomFxRetailInventoryVerification
             expectedType,
             actual.Type,
             expectedBase,
-            actual.BaseY.Whole,
+            RoomFxRecordEncoding.SurfaceWord(actual.BaseY?.Whole),
             expectedTarget,
             expectedVelocity,
             liquidOptions,
@@ -413,7 +414,7 @@ internal static class RoomFxRetailInventoryVerification
         cgram[26] = RgbColor.FromWord(0x03e0);
         cgram[27] = RgbColor.FromWord(0x7c00);
         ushort cameraY = unchecked((ushort)(
-            fx.BaseY.Whole - RetailRoomFxDefinitions.AuditSurfaceScreenY));
+            fx.NamedBaseY.Whole - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         // The lava's frames are selected, and BG3's pictures show the selected frame: the render reads it where the cartridge copies it.
         var lavaFrames = new ArtworkFrameSelections();
@@ -427,19 +428,19 @@ internal static class RoomFxRetailInventoryVerification
         ushort[] plane = EffectPlane(fx);
         RgbaPixel[] first = RenderRoomFx(vram, cgram, firstSnapshot, plane);
         RgbaPixel[] backdrop = RenderRoomFxBackdrop(cgram);
-        int surfaceFirstRow = firstSnapshot.WaterSurfaceScreenY -
+        int surfaceFirstRow = firstSnapshot.NamedSurfaceScreenY -
             (ScreenGeometry.BackgroundTileSizePixels - 1);
         RgbaPixel[] firstSurface = ReadRows(
             first,
             surfaceFirstRow,
-            firstSnapshot.WaterSurfaceScreenY + 1);
-        AssertTrue(!firstSurface.SequenceEqual(ReadRows(backdrop, surfaceFirstRow, firstSnapshot.WaterSurfaceScreenY + 1)),
+            firstSnapshot.NamedSurfaceScreenY + 1);
+        AssertTrue(!firstSurface.SequenceEqual(ReadRows(backdrop, surfaceFirstRow, firstSnapshot.NamedSurfaceScreenY + 1)),
             "room $02/$01 renders the animated lava surface through its production compositor");
         AssertTrue(!ReadRows(
                 first,
-                firstSnapshot.WaterSurfaceScreenY + 1,
-                firstSnapshot.WaterSurfaceScreenY + 9)
-            .SequenceEqual(ReadRows(backdrop, firstSnapshot.WaterSurfaceScreenY + 1, firstSnapshot.WaterSurfaceScreenY + 9)),
+                firstSnapshot.NamedSurfaceScreenY + 1,
+                firstSnapshot.NamedSurfaceScreenY + 9)
+            .SequenceEqual(ReadRows(backdrop, firstSnapshot.NamedSurfaceScreenY + 1, firstSnapshot.NamedSurfaceScreenY + 9)),
             "room $02/$01 renders the lava body below its surface");
 
         for (int frame = 0;
@@ -457,7 +458,7 @@ internal static class RoomFxRetailInventoryVerification
         RgbaPixel[] secondSurface = ReadRows(
             second,
             surfaceFirstRow,
-            firstSnapshot.WaterSurfaceScreenY + 1);
+            firstSnapshot.NamedSurfaceScreenY + 1);
         AssertTrue(!firstSurface.SequenceEqual(secondSurface),
             "room $02/$01 lava surface advances to the next bank-$87 animation frame");
     }
@@ -689,9 +690,9 @@ internal static class RoomFxRetailInventoryVerification
             randomNumber: 0,
             room: room.Definition);
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room} rising FX type");
-        AssertEqual(definition.InitialY, fx.BaseY.Whole,
+        AssertEqual(definition.InitialY, fx.NamedBaseY.Whole,
             $"room {definition.Room} initial lava Y");
-        AssertEqual(definition.TargetY, fx.TargetSurface.Y,
+        AssertEqual(definition.TargetY, fx.NamedTargetSurface,
             $"room {definition.Room} target lava Y");
 
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
@@ -710,7 +711,7 @@ internal static class RoomFxRetailInventoryVerification
         }
         AssertTrue(movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames,
             $"room {definition.Room} lava reaches its cartridge target");
-        AssertEqual(definition.TargetY, fx.BaseY.Whole,
+        AssertEqual(definition.TargetY, fx.NamedBaseY.Whole,
             $"room {definition.Room} lava stops at its cartridge target");
 
         AnimatedTileFrameArtwork.ShowIn(vram, risenFrames, RetailAnimatedTiles(bus), AnimatedTileObject.Lava);
@@ -835,7 +836,7 @@ internal static class RoomFxRetailInventoryVerification
         int firstMovementFrame = -1;
         int targetFrame = -1;
         int lastShakeFrame = 2;
-        ushort initialY = runtime.RoomFxOverlay.BaseY.Whole;
+        ushort initialY = runtime.RoomFxOverlay.NamedBaseY.Whole;
         for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
         {
             StepAndVerifySound(frame);
@@ -845,7 +846,7 @@ internal static class RoomFxRetailInventoryVerification
                 lastShakeFrame = frame;
             }
             emittedSounds += EarthquakeSounds();
-            if (firstMovementFrame < 0 && runtime.RoomFxOverlay.BaseY.Whole != initialY)
+            if (firstMovementFrame < 0 && runtime.RoomFxOverlay.NamedBaseY.Whole != initialY)
                 firstMovementFrame = frame;
             if (targetFrame < 0 && runtime.RoomFxOverlay.YVelocity.RawValue == 0)
                 targetFrame = frame;
@@ -885,7 +886,7 @@ internal static class RoomFxRetailInventoryVerification
             // liquid position, not animation output. The production animated-tile owner
             // still executes and therefore remains covered by fail-loud dispatch.
             fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-            int offset = unchecked((short)(fx.Surface.Y - fx.BaseY.Whole));
+            int offset = unchecked((short)(fx.NamedSurface - fx.NamedBaseY.Whole));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
         }
 

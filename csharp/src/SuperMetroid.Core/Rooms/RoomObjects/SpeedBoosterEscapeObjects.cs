@@ -94,8 +94,8 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
     {
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
+            fx.RemoveLiquidTarget();
             fx.SetLiquidMotion(
-                targetYPosition: ushort.MaxValue,
                 packedYVelocity: 0,
                 timer: 0);
             (_earthquake ?? throw new InvalidOperationException(
@@ -104,8 +104,8 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
             return;
         }
 
-        // The sign test treats any negative target as disabled and deletes the actor.
-        if (CoordinateAxis.AsSigned(fx.TargetSurface.Y) < 0)
+        // A liquid with no target deletes the actor.
+        if (fx.TargetSurface is null)
         {
             slot.Clear();
             return;
@@ -137,8 +137,9 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
         if (stage.TargetSamusX < samus.Position.X.Whole)
             return;
 
+        // A lava with no surface lies below every line, so the stage gives it its highest line.
         fx.SetLiquidMotion(
-            baseYPosition: stage.MaximumFxY < fx.BaseY.Whole
+            baseYPosition: stage.MaximumFxY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole)
                 ? stage.MaximumFxY
                 : null,
             packedYVelocity: stage.YVelocity.RawValue);

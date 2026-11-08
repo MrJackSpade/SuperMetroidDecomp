@@ -11,10 +11,13 @@ namespace SuperMetroid.Core.World;
 internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState?> samus) : IRoomObjectFx
 {
     /// <inheritdoc/>
-    public FixedCoordinate BaseY => fx.BaseY;
+    public FixedCoordinate? BaseY => fx.BaseY;
 
     /// <inheritdoc/>
-    public Position16<RoomPixels> TargetSurface => fx.TargetSurface;
+    public int? TargetSurface => fx.TargetSurface;
+
+    /// <inheritdoc/>
+    public void RemoveLiquidTarget() => fx.RemoveLiquidTarget();
 
     /// <inheritdoc/>
     public void SetLiquidMotion(int? baseYPosition = null, int? targetYPosition = null,

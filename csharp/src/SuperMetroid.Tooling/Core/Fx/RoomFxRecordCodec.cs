@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Fx;
@@ -20,7 +19,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class RoomFxRecordCodec
 {
-    /// <summary>The blend byte that configures nothing, as a terminator and a record of no effect hold it.</summary>
+    /// <summary>The blend byte that configures nothing, as a record of no effect holds it.</summary>
     internal const byte UnconfiguredBlendByte = 0x00;
     /// <summary>The blend byte of ordinary gameplay: no effect overlay blends with the room.</summary>
     internal const byte NormalBlendByte = 0x02;
@@ -44,11 +43,6 @@ internal static class RoomFxRecordCodec
     internal const byte VisorBackdropAlternateBlendByte = 0x2a;
     /// <summary>The effect blend byte of the fog, whose overlay brightens the room.</summary>
     internal const byte FogBlendByte = 0x30;
-
-    /// <summary>The record that ends a list: every field cleared.</summary>
-    internal static RoomFxRecordDefinition Terminator { get; } = new(null, true, 0, 0, default, 0, RoomFxType.None,
-        RoomVisorAnimation.Steady, null, RoomLiquidOptions.None,
-        [], [], RoomFxPaletteBlend.None);
 
     /// <summary>
     /// Whether a room whose record holds default blend byte <paramref name="value"/> animates Samus's visor (#1545): the
@@ -100,15 +94,15 @@ internal static class RoomFxRecordCodec
     };
 
     /// <summary>
-    /// Decodes the sixteen bytes of a record that applies to <paramref name="door"/>, or is its list's default when null,
-    /// in a room of <paramref name="area"/>, whose lists its effect bits select from.
+    /// Decodes the sixteen bytes of a record in a room of <paramref name="area"/>, whose lists its effect bits select from.
+    /// The record's door word is its header's selection (<see cref="RoomFxHeader"/>), which the catalog generator reads.
     /// </summary>
     /// <exception cref="InvalidDataException">A field names no effect, blend or palette blend, or the effect blend is not one the effect shows; the message names <paramref name="context"/>.</exception>
-    internal static RoomFxRecordDefinition Decode(DoorDefinition? door, AreaId area, ReadOnlySpan<byte> native, string context)
+    internal static RoomFxRecordDefinition Decode(AreaId area, ReadOnlySpan<byte> native, string context)
     {
         Ensure.LengthEqual(native, RoomFxToolingRomData.Record.ByteCount);
         RoomFxType type = RoomFxRecordWords.Types.Decode(native[RoomFxRomDataRecordTooling.TypeOffset], $"{context} room-FX type");
-        return new(door, false,
+        return new(
             SurfaceY(Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset)),
             SurfaceY(Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset)),
             new SignedEightEight(Word(native, RoomFxRomDataRecordTooling.YVelocityOffset)),

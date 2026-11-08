@@ -10,7 +10,10 @@ namespace SuperMetroid.Verification.Fx;
 /// <summary>Audits compiled room FX records, their native field layout, and door-list selection.</summary>
 internal static class LookupRoomFxFieldsVerification
 {
-    /// <summary>Independent set of accepted bank-$83 record pointers captured before catalog conversion.</summary>
+    /// <summary>
+    /// Independent set of accepted bank-$83 record pointers captured before catalog conversion, the terminator words that end
+    /// headers without a default record among them; the compiled headers hold no terminator record (#1546).
+    /// </summary>
     private static readonly ushort[] OriginalFxRecordPointers =
     [
         0x8000, 0x8010, 0x8020, 0x8030, 0x8040, 0x8050, 0x8060, 0x8070, 0x8080, 0x8090, 0x80A0, 0x80B0,
@@ -45,9 +48,9 @@ internal static class LookupRoomFxFieldsVerification
 
     /// <summary>Checks all record identities and each field's native offset and width.</summary>
     internal static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
-        SortedDictionary<ushort, RoomFxRecordDefinition> originals)
+        SortedDictionary<ushort, RoomFxRecordDefinition> originals, SortedSet<ushort> originalEnds)
     {
-        Suite(nameof(VerifyRoomFxIdentities), () => VerifyRoomFxIdentities(originals));
+        Suite(nameof(VerifyRoomFxIdentities), () => VerifyRoomFxIdentities(originals, originalEnds));
         Suite(nameof(VerifyRoomFxDoorPointer), () => VerifyRoomFxDoorPointer(rom));
         Suite(nameof(VerifyRoomFxBaseYPosition), () => VerifyRoomFxBaseYPosition(rom));
         Suite(nameof(VerifyRoomFxTargetYPosition), () => VerifyRoomFxTargetYPosition(rom));
@@ -61,24 +64,26 @@ internal static class LookupRoomFxFieldsVerification
         Suite(nameof(VerifyRoomFxPaletteBlend), () => VerifyRoomFxPaletteBlend(rom));
     }
 
-    /// <summary>Checks membership, ordering, unknown pointers, and record byte and word bounds.</summary>
-    private static void VerifyRoomFxIdentities(SortedDictionary<ushort, RoomFxRecordDefinition> originals)
+    /// <summary>Checks membership, ordering, the headers' ends, unknown pointers, and record byte and word bounds.</summary>
+    private static void VerifyRoomFxIdentities(SortedDictionary<ushort, RoomFxRecordDefinition> originals, SortedSet<ushort> originalEnds)
     {
         AssertTrue(new ushort[] { 0xa0b4, 0xa0c4 }.SequenceEqual(MotherBrainFxRecordPointers.DirectRecords),
             "Original Mother Brain direct-record subset and order");
         AssertEqual(295, OriginalFxRecordPointers.Length, "Original FX identity count");
-        AssertTrue(OriginalFxRecordPointers.SequenceEqual(originals.Keys), "Native FX record membership");
-        AssertTrue(OriginalFxRecordPointers.SequenceEqual(RoomFxDefinitions.RecordPointers),
+        AssertTrue(OriginalFxRecordPointers.SequenceEqual(originals.Keys.Concat(originalEnds).Order()),
+            "Native FX record and terminator membership");
+        AssertTrue(OriginalFxRecordPointers.SequenceEqual(RoomFxDefinitions.RecordPointers.Concat(RoomFxDefinitions.EndPointers).Order()),
             "FX enumeration preserves ascending identities");
+        AssertTrue(originalEnds.SetEquals(RoomFxDefinitions.EndPointers), "Compiled headers end where the native terminators lie");
         var identities = OriginalFxRecordPointers.ToHashSet();
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
-            if (identities.Contains(pointer))
+            if (identities.Contains(pointer) && !originalEnds.Contains(pointer))
                 AssertEqual(pointer, RoomFxDefinitions.RecordPointerOf(RoomFxDefinitions.RecordAt(pointer)), "FX selected identity");
             else
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomFxDefinitions.RecordAt(pointer),
-                    "Unknown/interior FX identity rejects");
+                    "Unknown, interior or terminator FX identity rejects");
         }
         foreach (RoomFxRecordDefinition record in RoomFxDefinitions.AllRecords)
         {
@@ -103,20 +108,21 @@ internal static class LookupRoomFxFieldsVerification
     private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => RoomFxRecordEncoding.TypeByte(record.Type));
     /// <summary>
     /// Checks that each record holds the visor animation and the effect blend the import reads from its blend bytes at
-    /// offsets ten and eleven (#1545); the record holds no byte there, as several bytes read alike. A terminator holds a
-    /// steady visor and no blend.
+    /// offsets ten and eleven (#1545); the record holds no byte there, as several bytes read alike. A terminator is no
+    /// record (#1546).
     /// </summary>
     private static void VerifyRoomFxBlends(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalFxRecordPointers)
         {
             int address = 0x830000 | pointer;
+            if (ReadVerificationWord(rom, address) == ushort.MaxValue)
+                continue;
             RoomFxRecordDefinition actual = RoomFxDefinitions.RecordAt(pointer);
-            bool terminator = ReadVerificationWord(rom, address) == ushort.MaxValue;
-            RoomVisorAnimation visor = terminator ? RoomVisorAnimation.Steady
-                : RoomFxRecordCodec.VisorAnimation(RoomFxFieldRomByte(rom, address + BlendOffsets[0]), $"FX {pointer:X4}");
-            RoomEffectBlend? blend = terminator ? null
-                : RoomFxRecordCodec.EffectBlend(actual.Type, RoomFxFieldRomByte(rom, address + BlendOffsets[1]), $"FX {pointer:X4}");
+            RoomVisorAnimation visor =
+                RoomFxRecordCodec.VisorAnimation(RoomFxFieldRomByte(rom, address + BlendOffsets[0]), $"FX {pointer:X4}");
+            RoomEffectBlend? blend =
+                RoomFxRecordCodec.EffectBlend(actual.Type, RoomFxFieldRomByte(rom, address + BlendOffsets[1]), $"FX {pointer:X4}");
             AssertEqual(visor, actual.VisorAnimation, $"FX {pointer:X4} visor animation");
             AssertEqual(blend, actual.EffectBlend, $"FX {pointer:X4} effect blend");
         }
@@ -135,7 +141,7 @@ internal static class LookupRoomFxFieldsVerification
     /// <summary>
     /// Compares a compiled field and overlapping byte and word views with the original record. The typed fields are
     /// encoded back through the record codec (#1415), so each check asserts the import decodes the cartridge byte to the
-    /// typed value.
+    /// typed value. A terminator is no record (#1546), so its word is checked as a header's end instead.
     /// </summary>
     private static void VerifyRoomFxField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<RoomFxRecordDefinition, int> field)
@@ -144,10 +150,9 @@ internal static class LookupRoomFxFieldsVerification
         foreach (ushort pointer in OriginalFxRecordPointers)
         {
             int address = 0x830000 | pointer;
-            bool terminator = ReadVerificationWord(rom, address) == ushort.MaxValue;
-            // The pre-conversion terminator DTO has a zero-filled tail; adjacent native
-            // bytes belong to another record and are not part of that caller-visible view.
-            byte OriginalByte(int index) => terminator && index >= 2 ? (byte)0 : RoomFxFieldRomByte(rom, address + index);
+            if (ReadVerificationWord(rom, address) == ushort.MaxValue)
+                continue;
+            byte OriginalByte(int index) => RoomFxFieldRomByte(rom, address + index);
             int expected = OriginalByte(offset);
             if (width == 2) expected |= LittleEndianBytes.Word(0, OriginalByte(offset + 1));
             RoomFxRecordDefinition actual = RoomFxDefinitions.RecordAt(pointer);

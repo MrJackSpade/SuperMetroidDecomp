@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -9,16 +8,14 @@ namespace SuperMetroid.Core.Fx;
 /// One room-FX record, its fields decoded at import into the effect, its blend, the visor's animation, liquid options, the palette effects and
 /// animated tiles it starts, and the palette blend they select (#1415, #1526).
 /// </summary>
-/// <remarks><c>Door</c> is the door the record applies to, or null for the list's default record or its terminator;
-/// <c>Terminates</c> ends the list without selecting FX. <c>BaseYPosition</c> is the liquid surface's starting height,
-/// or null when the record names none and the surface sits below every room; <c>TargetYPosition</c> is the height the
+/// <remarks>Its header (<see cref="RoomFxHeader"/>) names the entry door that selects it, or holds it as its default (#1546).
+/// <c>BaseYPosition</c> is the liquid surface's starting height,
+/// or null when the record names none and the liquid has no surface; <c>TargetYPosition</c> is the height the
 /// surface moves to, or null when the record names none and the surface never moves; <c>YVelocity</c> is the signed
 /// speed it moves at. <c>PaletteEffects</c> and <c>AnimatedTiles</c> are the effects the record starts, in the order
 /// they start. <c>VisorAnimation</c> says whether the room animates Samus's visor, and <c>EffectBlend</c> how the effect's
 /// overlay blends with the room, or null when the effect shows no overlay (#1545).</remarks>
 public sealed record RoomFxRecordDefinition(
-    DoorDefinition? Door,
-    bool Terminates,
     int? BaseYPosition,
     int? TargetYPosition,
     SignedEightEight YVelocity,

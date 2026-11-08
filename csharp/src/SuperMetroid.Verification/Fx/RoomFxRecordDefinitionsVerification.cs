@@ -26,7 +26,7 @@ internal static class RoomFxRecordDefinitionsVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         RoomFxRecordCatalogSource.RetailRoomFxCapture capture = RoomFxRecordCatalogSource.CaptureRetailRoomFx(bus);
-        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, capture.Records));
+        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, capture.Records, capture.Ends));
         Suite(nameof(VerifyRoomFxListSelection), () => VerifyRoomFxListSelection(bus));
         string generated = RoomFxRecordCatalogSource.RenderRoomFxDefinitions(capture).Replace("\r\n", "\n");
         string checkedIn = File.ReadAllText(RoomFxRecordCatalogSource.GeneratedPath).Replace("\r\n", "\n");
@@ -52,8 +52,8 @@ internal static class RoomFxRecordDefinitionsVerification
         compiledFx = RoomFxOverlayState.ForRoom(compiledFxSession, room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
-        AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");
-        AssertEqual(nativeFx.TargetSurface.Y, compiledFx.TargetSurface.Y, "Ceres compiled FX target Y");
+        AssertEqual(nativeFx.BaseY?.Whole, compiledFx.BaseY?.Whole, "Ceres compiled FX base Y");
+        AssertEqual(nativeFx.TargetSurface, compiledFx.TargetSurface, "Ceres compiled FX target Y");
         AssertEqual(nativeFx.YVelocity.RawValue, compiledFx.YVelocity.RawValue,
             "Ceres compiled FX velocity");
         AssertEqual(nativeFx.Timer.RawValue, compiledFx.Timer.RawValue, "Ceres compiled FX timer");

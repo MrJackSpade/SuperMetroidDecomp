@@ -51,8 +51,8 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         AssertEqual(animatedTileBits, rom.ReadCartridgeByte(0x839e52), "Native fixture animation bitset");
         byte[] native = [.. Enumerable.Range(0, RoomFxToolingRomData.Record.ByteCount)
             .Select(offset => rom.ReadCartridgeByte(0x839e44 + offset))];
-        var fx = new RoomFxHeader($"$83:{fxRecord:X4} in {area}",
-            [RoomFxRecordCodec.Decode(null, area, native, $"room-FX record $83:{fxRecord:X4}")]);
+        var fx = new RoomFxHeader($"$83:{fxRecord:X4} in {area}", [],
+            RoomFxRecordCodec.Decode(area, native, $"room-FX record $83:{fxRecord:X4}"));
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
         var sand = new RoomSandAnimatedTilesState(fx, door: null);
         var treadmills = new RoomTreadmillAnimatedTilesState(fx, door: null);

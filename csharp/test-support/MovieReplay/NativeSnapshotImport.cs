@@ -281,8 +281,10 @@ internal static class NativeSnapshotImport
         runtime.RoomFxOverlay.LiquidMotionStopped = !lavaAcidObjectLive;
         runtime.RoomFxOverlay.TidePhase = W(NativeSnapshotMemory.TidePhase);
         runtime.RoomFxOverlay.TideFixedOffset = unchecked((int)(SixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
-        runtime.RoomFxOverlay.BaseY = runtime.RoomFxOverlay.BaseY.WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
-        runtime.RoomFxOverlay.Surface = new(0, W(NativeSnapshotMemory.AcidSurface));
+        runtime.RoomFxOverlay.BaseY = (runtime.RoomFxOverlay.BaseY
+            ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
+        // The surface word is a signed line: one a tide carries above the room's top is negative.
+        runtime.RoomFxOverlay.Surface = CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));

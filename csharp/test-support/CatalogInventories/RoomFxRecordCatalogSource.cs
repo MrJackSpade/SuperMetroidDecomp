@@ -19,10 +19,22 @@ internal static class RoomFxRecordCatalogSource
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
         "csharp", "src", "SuperMetroid.Core", "Fx", "RoomFxDefinitions.cs"));
 
-    /// <summary>Every captured record by its bank-$83 pointer, and each header's record pointers in native order.</summary>
+    /// <summary>
+    /// Every captured record by its bank-$83 pointer, the entry door of each door record, each header's record pointers in
+    /// native order, and the pointer of every terminator word that ends a header without a default record (#1546).
+    /// </summary>
     internal sealed record RetailRoomFxCapture(
         SortedDictionary<ushort, RoomFxRecordDefinition> Records,
-        SortedDictionary<ushort, ushort[]> Lists);
+        SortedDictionary<ushort, DoorDefinition> Doors,
+        SortedDictionary<ushort, ushort[]> Lists,
+        SortedSet<ushort> Ends);
+
+    /// <summary>The names of the records Mother Brain's fight applies by itself, after her room's default record, by pointer.</summary>
+    private static readonly SortedDictionary<ushort, string> MotherBrainRecordNames = new()
+    {
+        [MotherBrainFxRecordPointers.Initial] = "MotherBrainAcidRises",
+        [MotherBrainFxRecordPointers.FakeDeath] = "MotherBrainAcidDrains",
+    };
 
     /// <summary>
     /// Walks every compiled header's records, plus the Mother Brain records her FX entries index after its default, each
@@ -33,7 +45,9 @@ internal static class RoomFxRecordCatalogSource
     internal static RetailRoomFxCapture CaptureRetailRoomFx(ISnesAddressSpace bus)
     {
         var records = new SortedDictionary<ushort, RoomFxRecordDefinition>();
+        var doors = new SortedDictionary<ushort, DoorDefinition>();
         var lists = new SortedDictionary<ushort, ushort[]>();
+        var ends = new SortedSet<ushort>();
         foreach (ushort header in RoomFxSources.Pointers)
         {
             AreaId area = RoomFxHeaderAreas.Of(RoomFxSources.Fx(header));
@@ -45,10 +59,15 @@ internal static class RoomFxRecordCatalogSource
                     throw new InvalidDataException($"Room FX header $83:{header:X4} does not terminate.");
                 if (pointer < 0x8000)
                     throw new InvalidDataException($"Room FX header $83:{header:X4} crossed below the LoROM window.");
-                ushort door = Capture(bus, records, pointer, area);
-                list.Add(pointer);
+                ushort door = DoorWord(bus, pointer);
                 if (door == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
+                {
+                    // The terminator is the end of the header's list, not a record.
+                    ends.Add(pointer);
                     break;
+                }
+                Capture(bus, records, pointer, area);
+                list.Add(pointer);
                 if (door == 0)
                 {
                     // Mother Brain selects these records by FX index after room load; the ordinary
@@ -62,27 +81,26 @@ internal static class RoomFxRecordCatalogSource
                     }
                     break;
                 }
+                doors.Add(pointer, DoorHeaderSources.Door(door));
                 pointer = unchecked((ushort)(pointer + RoomFxToolingRomData.Record.ByteCount));
             }
             lists.Add(header, list.ToArray());
         }
-        return new RetailRoomFxCapture(records, lists);
+        return new RetailRoomFxCapture(records, doors, lists, ends);
     }
 
-    /// <summary>
-    /// Reads the record at <paramref name="pointer"/>, in a room of <paramref name="area"/>, into <paramref name="records"/>
-    /// and returns its door word.
-    /// </summary>
-    private static ushort Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomFxRecordDefinition> records, ushort pointer,
+    /// <summary>The door word of the record at <paramref name="pointer"/>: a door's pointer, zero for a default, or the terminator.</summary>
+    private static ushort DoorWord(ISnesAddressSpace bus, ushort pointer) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomDataBanksTooling.RoomDefinitions | pointer);
+
+    /// <summary>Reads the record at <paramref name="pointer"/>, in a room of <paramref name="area"/>, into <paramref name="records"/>.</summary>
+    private static void Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomFxRecordDefinition> records, ushort pointer,
         AreaId area)
     {
         int source = RoomFxRomDataBanksTooling.RoomDefinitions | pointer;
-        ushort door = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
-        RoomFxRecordDefinition record = door == RoomFxRomDataRecordTooling.TerminatorDoorPointer
-            ? RoomFxRecordCodec.Terminator
-            : RoomFxRecordCodec.Decode(door == 0 ? null : DoorHeaderSources.Door(door), area,
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, RoomFxToolingRomData.Record.ByteCount),
-                $"room-FX record $83:{pointer:X4}");
+        RoomFxRecordDefinition record = RoomFxRecordCodec.Decode(area,
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, RoomFxToolingRomData.Record.ByteCount),
+            $"room-FX record $83:{pointer:X4}");
         if (records.TryGetValue(pointer, out RoomFxRecordDefinition? existing))
         {
             // The effect lists are arrays, so the record's own equality compares them by reference; compare them in order here.
@@ -92,12 +110,10 @@ internal static class RoomFxRecordCatalogSource
         }
         else
             records.Add(pointer, record);
-        return door;
     }
 
-    /// <summary>Renders a record's door and terminator flag as the generated catalog spells them.</summary>
-    private static string RenderDoor(RoomFxRecordDefinition record) =>
-        record.Terminates ? "null, true" : record.Door is { } door ? $"{DeclaringDoorClass(door.Name)}.{door.Name}, false" : "null, false";
+    /// <summary>Renders an entry door as the generated catalog spells it.</summary>
+    private static string RenderDoor(DoorDefinition door) => $"{DeclaringDoorClass(door.Name)}.{door.Name}";
 
     /// <summary>The door-definition class that names <paramref name="name"/>: its area's, or the shared one for doors no area names.</summary>
     private static string DeclaringDoorClass(string name)
@@ -168,7 +184,20 @@ internal static class RoomFxRecordCatalogSource
     private static string SurfaceY(int? y) =>
         y is int named ? named.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null";
 
-    /// <summary>Renders the named headers for the generated Core catalog.</summary>
+    /// <summary>Renders one record as the generated catalog spells it.</summary>
+    private static string RenderRecord(RoomFxRecordDefinition record) =>
+        $"new({SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
+        $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
+        $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
+        $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
+        $"{Flags(record.LiquidOptions)}, {Effects(record.PaletteEffects)}, " +
+        $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)})";
+
+    /// <summary>
+    /// Renders the named headers for the generated Core catalog, each as its door records and its default record (#1546),
+    /// then the records Mother Brain's fight applies by itself, which follow her room's default record.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A header lists a record after its default that Mother Brain's fight does not apply.</exception>
     internal static string RenderRoomFxDefinitions(RetailRoomFxCapture capture)
     {
         Ensure.NotNull(capture);
@@ -181,7 +210,10 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine();
         source.AppendLine("namespace SuperMetroid.Core.Fx;");
         source.AppendLine();
-        source.AppendLine("/// <summary>The retail room FX headers, each holding its records in the game's order; regenerate with --generate-room-fx-records.</summary>");
+        source.AppendLine("/// <summary>");
+        source.AppendLine("/// The retail room FX headers, each holding its door records in the game's order and its default record, and the records");
+        source.AppendLine("/// Mother Brain's fight applies by itself; regenerate with --generate-room-fx-records.");
+        source.AppendLine("/// </summary>");
         source.AppendLine("public static class RoomFxDefinitions");
         source.AppendLine("{");
         bool first = true;
@@ -191,21 +223,29 @@ internal static class RoomFxRecordCatalogSource
                 source.AppendLine();
             first = false;
             string name = RoomFxSources.Fx(header).Name;
+            ushort[] doorRecords = [.. pointers.TakeWhile(capture.Doors.ContainsKey)];
+            ushort[] rest = [.. pointers.Skip(doorRecords.Length)];
+            if ((rest.Length > 0 && MotherBrainRecordNames.ContainsKey(rest[0])) ||
+                rest.Skip(1).Any(pointer => !MotherBrainRecordNames.ContainsKey(pointer)))
+                throw new InvalidDataException($"Room FX header {name} lists a record after its default that Mother Brain's fight does not apply.");
             source.AppendLine($"    /// <summary>The {name} room FX.</summary>");
-            source.AppendLine($"    public static RoomFxHeader {name} {{ get; }} = new(nameof({name}),");
-            source.AppendLine("    [");
-            foreach (ushort pointer in pointers)
+            if (doorRecords.Length == 0)
+                source.AppendLine($"    public static RoomFxHeader {name} {{ get; }} = new(nameof({name}), [],");
+            else
             {
-                RoomFxRecordDefinition record = capture.Records[pointer];
-                source.AppendLine($"        new({RenderDoor(record)}, " +
-                    $"{SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
-                    $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
-                    $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
-                    $"{Member(record.VisorAnimation)}, {EffectBlend(record.EffectBlend)}, " +
-                    $"{Flags(record.LiquidOptions)}, {Effects(record.PaletteEffects)}, " +
-                    $"{Effects(record.AnimatedTiles)}, {Member(record.PaletteBlend)}),");
+                source.AppendLine($"    public static RoomFxHeader {name} {{ get; }} = new(nameof({name}),");
+                source.AppendLine("    [");
+                foreach (ushort pointer in doorRecords)
+                    source.AppendLine($"        new({RenderDoor(capture.Doors[pointer])}, {RenderRecord(capture.Records[pointer])}),");
+                source.AppendLine("    ],");
             }
-            source.AppendLine("    ]);");
+            source.AppendLine($"        {(rest.Length == 0 ? "null" : RenderRecord(capture.Records[rest[0]]))});");
+        }
+        foreach ((ushort pointer, string name) in MotherBrainRecordNames)
+        {
+            source.AppendLine();
+            source.AppendLine($"    /// <summary>The {name} room FX record, which Mother Brain's fight applies to her room after its default record.</summary>");
+            source.AppendLine($"    public static RoomFxRecordDefinition {name} {{ get; }} = {RenderRecord(capture.Records[pointer])};");
         }
         source.AppendLine("}");
         return source.ToString();

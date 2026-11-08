@@ -44,7 +44,7 @@ internal static class SpeedBoosterPickupVerification
                 "Speed Booster acquired before message continuation");
             AssertEqual((ushort)0, fx.YVelocity.RawValue, "message has not yet armed lava");
             AssertEqual((ushort)0x20, fx.Timer.RawValue, "pickup preserves native liquid delay");
-            AssertEqual((ushort)0xda, fx.BaseY.Whole, "pickup preserves native liquid surface");
+            AssertEqual((ushort)0xda, fx.NamedBaseY.Whole, "pickup preserves native liquid surface");
 
             // Runtime suspends gameplay while the message is active and invokes this
             // continuation when the routine returns, before the next FX pass.
@@ -56,7 +56,7 @@ internal static class SpeedBoosterPickupVerification
             for (int frame = 0; frame < 32; frame++)
             {
                 fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
-                AssertEqual((ushort)0xda, fx.BaseY.Whole, "surface waits throughout native delay");
+                AssertEqual((ushort)0xda, fx.NamedBaseY.Whole, "surface waits throughout native delay");
                 AssertEqual(chozo, fx.EarthquakeRequest.HasValue,
                     "native liquid owner publishes pickup earthquake during delay");
             }
@@ -66,7 +66,7 @@ internal static class SpeedBoosterPickupVerification
             {
                 fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
-                    fx.BaseY.Whole, "lava rises at native subpixel speed after delay");
+                    fx.NamedBaseY.Whole, "lava rises at native subpixel speed after delay");
             }
             fx.SetLiquidMotion(packedYVelocity: 0);
             fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);

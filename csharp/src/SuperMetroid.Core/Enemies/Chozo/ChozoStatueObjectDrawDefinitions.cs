@@ -26,7 +26,7 @@ internal static class ChozoStatueObjectDrawDefinitions
         ],
         [ChozoStatueDraw.ClearSlopeAccess] =
         [
-            new(new(0, 5),
+            new(new(0, 0),
             [
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
@@ -43,7 +43,7 @@ internal static class ChozoStatueObjectDrawDefinitions
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Slope),
             ]),
-            new(new(5, 6),
+            new(new(0, 5),
             [
                 RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
                 RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
@@ -55,23 +55,23 @@ internal static class ChozoStatueObjectDrawDefinitions
                 RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.Air),
                 RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.Slope),
             ]),
-            new(new(5, 7),
+            new(new(5, 6),
             [
                 RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.Air),
                 RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.Air),
             ]),
-            new(new(5, 8),
+            new(new(5, 7),
             [
                 RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.Air),
             ]),
-            new(new(0, 0),
+            new(new(5, 8),
             [
                 RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.Slope),
             ]),
         ],
         [ChozoStatueDraw.BlockSlopeAccess] =
         [
-            new(new(0, 5),
+            new(new(0, 0),
             [
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
@@ -88,7 +88,7 @@ internal static class ChozoStatueObjectDrawDefinitions
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
                 RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ]),
-            new(new(5, 6),
+            new(new(0, 5),
             [
                 RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.SolidBlock),
                 RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -100,16 +100,16 @@ internal static class ChozoStatueObjectDrawDefinitions
                 RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.SolidBlock),
                 RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ]),
-            new(new(5, 7),
+            new(new(5, 6),
             [
                 RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.SolidBlock),
                 RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ]),
-            new(new(5, 8),
+            new(new(5, 7),
             [
                 RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ]),
-            new(new(0, 0),
+            new(new(5, 8),
             [
                 RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ]),

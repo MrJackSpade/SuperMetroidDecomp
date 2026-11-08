@@ -266,14 +266,16 @@ internal static class RoomFxRomDataVerification
             AssertEqual((ushort)0x009b, snapshot.Scroll.Y,
                 $"{type} anchors BG3 row zero immediately below surface Y 100");
 
-            // Negative liquid positions are the cartridge's deliberate "no visible
-            // surface" sentinel: the capture shows no BG3 liquid plane at all.
+            // A liquid with no surface, or one above the room's top, shows no BG3 liquid plane at all (#1546).
             AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with
                 {
-                    Surface = new(0, ushort.MaxValue),
-                    WaterSurfaceScreenY = -1,
+                    Surface = null,
+                    WaterSurfaceScreenY = null,
                 }, RoomBackgroundsFixtures.BlankFxOverlay()) is null,
-                $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
+                $"{type} without a surface shows no BG3 liquid plane");
+            AssertTrue(GameplayEffectCapture.CaptureRoomFxOverlay(snapshot with { Surface = -1 },
+                    RoomBackgroundsFixtures.BlankFxOverlay()) is null,
+                $"{type} surface above the room's top shows no BG3 liquid plane");
 
             // The described BG2 wave (#1468), evaluated on each gameplay line.
             ushort[] backgroundScroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water
@@ -347,15 +349,15 @@ internal static class RoomFxRomDataVerification
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
         ushort Word(int offset) => LittleEndianBytes.Word(Byte(offset), Byte(offset + 1));
-        ushort door = Word(0);
-        if (door == ushort.MaxValue)
-            return RoomFxRecordCodec.Terminator;
+        // A terminator ends a header's list and is no record (#1546).
+        if (Word(0) == ushort.MaxValue)
+            throw new InvalidOperationException($"Synthetic record ${pointer:X4} is a terminator, which holds no record.");
         byte[] native = [.. Enumerable.Range(0, RoomFxToolingRomData.Record.ByteCount).Select(Byte)];
         // The record codec decodes the fixture's bytes as the catalog generator decodes the cartridge's (#1415). The fixtures
         // seed no effect bits and belong to no room, so the area their bits would select from is never consulted (#1526).
         if (native[RoomFxRomDataRecordTooling.PaletteFxBitsetOffset] != 0 || native[RoomFxRomDataRecordTooling.AnimatedTileBitsetOffset] != 0)
             throw new InvalidOperationException($"Synthetic record ${pointer:X4} seeds effect bits, which select from no room's area.");
-        return RoomFxRecordCodec.Decode(door == 0 ? null : DoorDefinitions.Get(door), AreaId.Crateria, native, $"synthetic record ${pointer:X4}");
+        return RoomFxRecordCodec.Decode(AreaId.Crateria, native, $"synthetic record ${pointer:X4}");
     }
 
     /// <summary>Writes one byte field of the synthetic bank-$83 room FX record at <paramref name="record"/>.</summary>

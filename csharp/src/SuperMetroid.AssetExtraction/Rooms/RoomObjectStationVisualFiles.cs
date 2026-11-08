@@ -99,8 +99,7 @@ public static class RoomObjectStationVisualFiles
             list = default;
             return false;
         }
-        list = RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
-            RoomObjectDrawListExport.Horizontal, draw.NextX, draw.NextY);
+        list = RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start);
         return true;
     }
 
@@ -161,8 +160,9 @@ public static class RoomObjectStationVisualFiles
         {
             int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
             var visuals = new List<RoomBlockAppearance[]>();
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            for (int runIndex = 0; runIndex < list.Runs.Length; runIndex++)
             {
+                RoomObjectShotBlockDrawDefinitions.Run run = list.Runs.Span[runIndex];
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != RoomObjectRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Station draw list {list.Draw} differs in source cartridge shape.");
@@ -178,9 +178,9 @@ public static class RoomObjectStationVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != unchecked((byte)run.Next.X) ||
+                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != unchecked((byte)RoomObjectRunContinuationCodec.X(list, runIndex)) ||
                     bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, unchecked((ushort)(cursor + 1)))) !=
-                        unchecked((byte)run.Next.Y))
+                        unchecked((byte)RoomObjectRunContinuationCodec.Y(list, runIndex)))
                     throw new InvalidDataException(
                         $"Station draw list {list.Draw} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));

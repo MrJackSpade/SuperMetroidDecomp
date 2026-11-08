@@ -116,9 +116,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining the draw's collision.</summary>
     public void Draw(RoomLevelData level, int blockIndex, RoomObjectDraw draw)
     {
-        // A draw is a sequence of runs, each a row or a column of blocks, followed by a signed X/Y offset locating the
-        // next run relative to the PLM origin; a zero offset terminates. The 2x2 bomb art is consequently two horizontal
-        // runs: row zero, then {dx=0,dy=1} and row one.
+        // A draw is a list of runs, each a row or a column of blocks starting at its own offset from the PLM origin; the
+        // list ends at its last run. The 2x2 bomb art is consequently two horizontal runs: row zero at the origin, then
+        // row one starting one block below it.
         Position16<RoomBlocks> origin = level.Size.CellAtRowMajorIndex(blockIndex);
         if (BombedRevealObjectDraws.TryGet(draw, out var bombedReveal))
         {
@@ -182,16 +182,16 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 for (int block = 0; block < regularFakeDeath.Count(run); block++)
                 {
                     bool vertical = regularFakeDeath.Vertical(run);
-                    Position16<RoomBlocks> run0 = origin + new Offset16<RoomBlocks>(run == 0 ? 0 : regularFakeDeath.NextX(run - 1), 0);
-                    DrawTerrainAt(level, draw, run0 + new Offset16<RoomBlocks>(vertical ? 0 : block, vertical ? block : 0), regularFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
+                    Position16<RoomBlocks> runStart = origin + regularFakeDeath.Start(run);
+                    DrawTerrainAt(level, draw, runStart + new Offset16<RoomBlocks>(vertical ? 0 : block, vertical ? block : 0), regularFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
                 }
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBoundary(draw, out var boundaryFakeDeath))
         {
-            for (int run = 0; run < 2; run++)
+            for (int run = 0; run < MotherBrainFakeDeathDraws.BoundaryDraw.RunCount; run++)
                 for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(run == 0 ? 0 : boundaryFakeDeath.NextX(0), (run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block), boundaryFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + boundaryFakeDeath.Start(run) + new Offset16<RoomBlocks>(0, block), boundaryFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
             return;
         }
         if (draw is RoomObjectFrameDraw<TourianAccessDraw> { Frame: var tourian })
@@ -211,12 +211,11 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (SamusEaterObjectDraws.TryDescribe(draw, out var samusEater))
         {
-            Position16<RoomBlocks> plant = origin;
-            for (int run = 0; run < 3; run++)
+            for (int run = 0; run < SamusEaterObjectDraws.Draw.RunCount; run++)
             {
+                Position16<RoomBlocks> plant = origin + samusEater.Start(run);
                 for (int block = 0; block < SamusEaterObjectDraws.Draw.Count(run); block++)
                     DrawTerrainAt(level, draw, plant + new Offset16<RoomBlocks>(block, 0), samusEater.BlockAt(run, block), SamusEaterVisuals?.GetAppearance(draw, run, block));
-                plant = origin + new Offset16<RoomBlocks>(SamusEaterObjectDraws.Draw.NextX(run), samusEater.NextY(run));
             }
             return;
         }
@@ -265,9 +264,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
         {
-            Position16<RoomBlocks> glass = origin;
             for (int run = 0; run < motherBrainGlass.RunCount; run++)
             {
+                Position16<RoomBlocks> glass = origin + motherBrainGlass.Start(run);
                 bool vertical = motherBrainGlass.Vertical(run);
                 for (int cell = 0; cell < motherBrainGlass.BlockCount(run); cell++)
                 {
@@ -276,15 +275,14 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                         ?? physical.Appearance;
                     DrawTerrainAt(level, draw, glass + new Offset16<RoomBlocks>(vertical ? 0 : cell, vertical ? cell : 0), physical, visual);
                 }
-                glass = origin + new Offset16<RoomBlocks>(motherBrainGlass.NextX(run), motherBrainGlass.NextY(run));
             }
             return;
         }
         if (NoobTubeObjectDraws.TryDescribe(draw, out var noobTube))
         {
-            Position16<RoomBlocks> tube = origin;
             for (int run = 0; run < noobTube.RunCount; run++)
             {
+                Position16<RoomBlocks> tube = origin + noobTube.Start(run);
                 for (int cell = 0; cell < noobTube.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = noobTube.BlockAt(run, cell);
@@ -292,23 +290,21 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                         ?? physical.Appearance;
                     DrawTerrainAt(level, draw, tube + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
-                tube = origin + new Offset16<RoomBlocks>(0, noobTube.NextY(run));
             }
             return;
         }
         if (StationObjectDraws.TryDescribe(draw, out var station))
         {
-            Position16<RoomBlocks> stationCursor = origin;
             for (int run = 0; run < station.RunCount; run++)
             {
+                Position16<RoomBlocks> stationRun = origin + station.Start(run);
                 for (int cell = 0; cell < station.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = station.BlockAt(run, cell);
                     RoomBlockAppearance visual = StationVisuals?.GetAppearance(draw, run, cell)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, stationCursor + new Offset16<RoomBlocks>(cell, 0), physical, visual);
+                    DrawTerrainAt(level, draw, stationRun + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
-                stationCursor = origin + new Offset16<RoomBlocks>(station.NextX(run), station.NextY(run));
             }
             return;
         }
@@ -329,17 +325,16 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (DownwardGateObjectDraws.TryDescribe(draw, out var gate))
         {
-            Position16<RoomBlocks> gateCursor = origin;
             for (int run = 0; run < gate.RunCount; run++)
             {
+                Position16<RoomBlocks> gateRun = origin + gate.Start(run);
                 for (int word = 0; word < gate.BlockCount(run); word++)
                 {
                     RoomTerrainBlock physical = gate.BlockAt(run, word);
                     RoomBlockAppearance visual = DownwardGateVisuals?.GetAppearance(draw, run, word)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, gateCursor + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), physical, visual);
+                    DrawTerrainAt(level, draw, gateRun + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), physical, visual);
                 }
-                gateCursor = origin + new Offset16<RoomBlocks>(gate.NextX(run), 0);
             }
             return;
         }
@@ -362,15 +357,15 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     RoomTerrainBlock physical = bombTorizoHand.BlockAt(run, word);
                     RoomBlockAppearance visual = BombTorizoHandVisuals?.GetAppearance(draw, run, word)
                         ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(bombTorizoHand.OriginX(run) + word, bombTorizoHand.OriginY(run)), physical, visual);
+                    DrawTerrainAt(level, draw, origin + bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), physical, visual);
                 }
             return;
         }
         if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
         {
-            Position16<RoomBlocks> cannon = origin;
             for (int run = 0; run < draygonCannon.RunCount; run++)
             {
+                Position16<RoomBlocks> cannon = origin + draygonCannon.Start(run);
                 for (int cell = 0; cell < draygonCannon.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = draygonCannon.BlockAt(run, cell);
@@ -378,7 +373,6 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                         ?? physical.Appearance;
                     DrawTerrainAt(level, draw, cannon + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
-                cannon = origin + new Offset16<RoomBlocks>(draygonCannon.NextX(run), draygonCannon.NextY(run));
             }
             return;
         }
@@ -413,22 +407,20 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         throw new InvalidDataException($"PLM draw {draw} has no compiled definition.");
     }
 
-    /// <summary>Walks signed-offset runs in a compiled PLM draw and applies each authored block.</summary>
+    /// <summary>Writes each run of a compiled PLM draw from where it starts and applies each authored block.</summary>
     private static void DrawCompiledBlockInstruction(RoomLevelData level, RoomObjectShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin)
     {
-        Position16<RoomBlocks> entry = origin;
         ReadOnlySpan<RoomObjectShotBlockDrawDefinitions.Run> runs = definition.Runs.Span;
         for (int runIndex = 0; runIndex < runs.Length; runIndex++)
         {
             RoomObjectShotBlockDrawDefinitions.Run run = runs[runIndex];
+            Position16<RoomBlocks> entry = origin + run.Start;
             bool vertical = run.Direction == RoomObjectRunDirection.Vertical;
             for (int offset = 0; offset < run.Count; offset++)
             {
                 Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(vertical ? 0 : offset, vertical ? offset : 0);
                 DrawTerrainAt(level, definition.Draw, block, run.Blocks.Span[offset]);
             }
-
-            entry = origin + run.Next;
         }
     }
 

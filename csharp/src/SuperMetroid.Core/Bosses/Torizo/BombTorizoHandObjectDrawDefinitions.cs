@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -12,12 +13,12 @@ internal static class BombTorizoHandObjectDrawDefinitions
     private static readonly RoomTerrainBlock ClearedCell = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air);
 
     /// <summary>
-    /// Each draw's horizontal strips in authored run order. Intact is four strips of solid blocks whose tiles are
+    /// Each draw's horizontal strips in authored run order, each placed where it starts from the hand PLM block. Intact is four strips of solid blocks whose tiles are
     /// consecutive within each spatial role: origin pair 65..66, left singleton 64, upper pair 45..46, lower triple
     /// 47..49. Cleared splits the origin row into two halves, then clears the lower, top and upper rows of a
     /// four-by-four area.
     /// </summary>
-    internal static readonly Dictionary<BombTorizoHandDraw, BombTorizoHandStrip[]> Strips = new()
+    internal static readonly Dictionary<BombTorizoHandDraw, RoomObjectBlockStrip[]> Strips = new()
     {
         [BombTorizoHandDraw.Intact] =
         [

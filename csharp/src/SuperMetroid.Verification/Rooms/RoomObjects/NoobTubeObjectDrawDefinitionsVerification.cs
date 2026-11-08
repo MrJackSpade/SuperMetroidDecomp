@@ -76,11 +76,11 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
             $"n00b tube loads for draw ${RoomObjectDrawAddressCodec.Of(selected.Draw):X4}");
         roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<NoobTubeDraw>(RoomObjectDrawAddressCodec.Of(selected.Draw)));
 
-        int entryX = originX;
-        int entryY = originY;
         var expected = new Dictionary<int, RoomTerrainBlock>();
         foreach (RoomObjectShotBlockDrawDefinitions.Run run in selected.Runs.Span)
         {
+            int entryX = originX + run.Start.X;
+            int entryY = originY + run.Start.Y;
             bool vertical = run.Direction == RoomObjectRunDirection.Vertical;
             for (int block = 0; block < run.Count; block++)
             {
@@ -88,8 +88,6 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
                 int y = entryY + (vertical ? block : 0);
                 expected.Add(y * width + x, run.Blocks.Span[block]);
             }
-            entryX = originX + run.Next.X;
-            entryY = originY + run.Next.Y;
         }
         foreach ((int index, RoomTerrainBlock block) in expected)
             AssertEqual(block, level.GetCollisionBlockByIndex(index).Terrain,

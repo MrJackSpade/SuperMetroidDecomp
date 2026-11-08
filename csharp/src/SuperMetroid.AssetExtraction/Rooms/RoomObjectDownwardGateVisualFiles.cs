@@ -98,7 +98,7 @@ public static class RoomObjectDownwardGateVisualFiles
         bool found = DownwardGateObjectDraws.TryDescribe(request, out DownwardGateObjectDraws.Draw draw);
         list = found
             ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
-                _ => draw.Column ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, draw.NextX, static _ => 0)
+                _ => draw.Column ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, draw.Start)
             : default;
         return found;
     }
@@ -140,8 +140,9 @@ public static class RoomObjectDownwardGateVisualFiles
         {
             int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
             var visuals = new List<RoomBlockAppearance[]>();
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in list.Runs.Span)
+            for (int runIndex = 0; runIndex < list.Runs.Length; runIndex++)
             {
+                RoomObjectShotBlockDrawDefinitions.Run run = list.Runs.Span[runIndex];
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != RoomObjectRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Downward gate draw list {list.Draw} differs in source cartridge shape.");
@@ -157,9 +158,9 @@ public static class RoomObjectDownwardGateVisualFiles
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
-                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != unchecked((byte)run.Next.X) ||
+                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != unchecked((byte)RoomObjectRunContinuationCodec.X(list, runIndex)) ||
                     bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, unchecked((ushort)(cursor + 1)))) !=
-                        unchecked((byte)run.Next.Y))
+                        unchecked((byte)RoomObjectRunContinuationCodec.Y(list, runIndex)))
                     throw new InvalidDataException(
                         $"Downward gate draw list {list.Draw} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));

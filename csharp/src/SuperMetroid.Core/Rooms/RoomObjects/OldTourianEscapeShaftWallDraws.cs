@@ -20,8 +20,8 @@ internal static class OldTourianEscapeShaftWallDraws
         RoomTerrainBlock[] column = [RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir];
         draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[]
         {
-            new(RoomObjectRunDirection.Vertical, column, new(1, 0)),
             new(RoomObjectRunDirection.Vertical, column, new(0, 0)),
+            new(RoomObjectRunDirection.Vertical, column, new(1, 0)),
         });
         return true;
     }

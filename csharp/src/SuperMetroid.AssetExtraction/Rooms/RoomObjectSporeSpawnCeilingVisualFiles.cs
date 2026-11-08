@@ -81,5 +81,5 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// <summary>Duplicates one terrain block across the two horizontal runs of the ceiling's two-by-two layout.</summary>
     private static RoomObjectShotBlockDrawDefinitions.DrawList Square(RoomObjectDraw draw, RoomTerrainBlock block) =>
         RoomObjectDrawListExport.Runs(draw, 2, static _ => 2, (_, _) => block,
-            RoomObjectDrawListExport.Horizontal, static _ => 0, static run => run == 0 ? 1 : 0);
+            RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
 }

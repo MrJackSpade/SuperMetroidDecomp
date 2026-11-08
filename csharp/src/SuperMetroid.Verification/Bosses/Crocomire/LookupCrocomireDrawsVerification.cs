@@ -61,11 +61,10 @@ internal static class LookupCrocomireDrawsVerification
                 }
                 sbyte nextX = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
                 sbyte nextY = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
-                AssertEqual(nextX, shape.NextX(run), "Crocomire native origin-relative X");
-                AssertEqual(nextX, dto.Runs.Span[run].Next.X, "Crocomire DTO X");
-                AssertEqual(nextY, dto.Runs.Span[run].Next.Y, "Crocomire DTO Y");
-                AssertEqual(nextX, exported[index].Runs.Span[run].Next.X, "Crocomire export X");
-                AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Crocomire export Y");
+                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(dto, run), "Crocomire DTO X");
+                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(dto, run), "Crocomire DTO Y");
+                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(exported[index], run), "Crocomire export X");
+                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(exported[index], run), "Crocomire export Y");
                 AssertEqual((sbyte)0, nextY, "Crocomire runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Crocomire cell bounds");
@@ -80,7 +79,7 @@ internal static class LookupCrocomireDrawsVerification
             foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Crocomire run bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Crocomire offset bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Crocomire start bounds");
             }
         }
         AssertEqual(60, cells, "Crocomire sixty original physical cells");

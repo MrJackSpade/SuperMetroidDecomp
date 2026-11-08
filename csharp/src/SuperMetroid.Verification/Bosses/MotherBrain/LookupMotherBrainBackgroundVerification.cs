@@ -37,8 +37,8 @@ internal static class LookupMotherBrainBackgroundVerification
                 var run = draw.Runs.Span[0];
                 AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | value), run, "Mother Brain native background count/direction");
                 AssertEqual(13, run.Blocks.Length, "Mother Brain background width");
-                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 28))), run.Next.X, "Mother Brain background native X");
-                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 29))), run.Next.Y, "Mother Brain background native Y");
+                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 28))), RoomObjectRunContinuationCodec.X(draw, 0), "Mother Brain background native X");
+                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 29))), RoomObjectRunContinuationCodec.Y(draw, 0), "Mother Brain background native Y");
             }
             foreach (int bad in new[] {int.MinValue,-1,13,int.MaxValue})
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad), "Mother Brain background column bounds");

@@ -63,11 +63,12 @@ internal static class LookupMotherBrainRegularDrawsVerification
                 }
                 sbyte nextX = unchecked((sbyte)MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | cursor++));
                 sbyte nextY = unchecked((sbyte)MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | cursor++));
-                AssertEqual(nextX, shape.NextX(run), "Mother Brain regular native origin-relative X");
-                AssertEqual(nextX, dto.Runs.Span[run].Next.X, "Mother Brain regular DTO X");
-                AssertEqual(nextY, dto.Runs.Span[run].Next.Y, "Mother Brain regular DTO Y");
-                AssertEqual(nextX, exported[index].Runs.Span[run].Next.X, "Mother Brain regular export X");
-                AssertEqual(nextY, exported[index].Runs.Span[run].Next.Y, "Mother Brain regular export Y");
+                // The cartridge ends each run with the next run's start, and the last with no offset.
+                AssertEqual(nextX, run + 1 < shape.RunCount ? shape.Start(run + 1).X : (short)0, "Mother Brain regular native origin-relative X");
+                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(dto, run), "Mother Brain regular DTO X");
+                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(dto, run), "Mother Brain regular DTO Y");
+                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(exported[index], run), "Mother Brain regular export X");
+                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(exported[index], run), "Mother Brain regular export Y");
                 AssertEqual((sbyte)0, nextY, "Mother Brain regular runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Mother Brain regular cell bounds");
@@ -82,7 +83,7 @@ internal static class LookupMotherBrainRegularDrawsVerification
             foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Mother Brain regular run bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Mother Brain regular offset bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Mother Brain regular start bounds");
             }
         }
         AssertEqual(63, cells, "Mother Brain regular sixty-three original physical cells");

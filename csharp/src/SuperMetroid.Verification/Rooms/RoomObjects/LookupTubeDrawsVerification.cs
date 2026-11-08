@@ -61,7 +61,7 @@ internal static class LookupTubeDrawsVerification
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Tube run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Tube offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Tube start bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Tube word run bounds");
                 }
             }
@@ -76,13 +76,15 @@ internal static class LookupTubeDrawsVerification
                 {
                     AssertEqual((ushort)count, header, "Tube native horizontal run");
                     AssertEqual(count, shape.BlockCount(run), "Tube native calculated count");
-                    AssertEqual(LittleEndianBytes.Word(0, unchecked((byte)shape.NextY(run))), offset, "Tube native calculated continuation");
+                    // The cartridge ends each run with the next run's start, and the last with no offset.
+                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "Tube native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Tube native DTO geometry");
                         AssertEqual(count, part.Count, "Tube native DTO count");
-                        AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Tube native DTO offset");
+                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "Tube native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})

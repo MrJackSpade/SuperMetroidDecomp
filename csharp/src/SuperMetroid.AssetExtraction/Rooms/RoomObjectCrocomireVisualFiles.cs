@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -14,12 +15,12 @@ public static class RoomObjectCrocomireVisualFiles
         /// <summary>Wall columns write down their column; the bridge writes along its row.</summary>
         internal RoomObjectRunDirection Direction => shape.Wall ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal;
 
-        /// <summary>Offsets the next wall column from the draw origin rather than from the prior column.</summary>
+        /// <summary>Where a run starts: each wall column its run number of blocks right of the draw origin.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the draw's runs.</exception>
-        internal int NextX(int run)
+        internal Offset16<RoomBlocks> Start(int run)
         {
             if ((uint)run >= shape.RunCount) throw new ArgumentOutOfRangeException(nameof(run));
-            return run + 1 < shape.RunCount ? run + 1 : 0;
+            return new(run, 0);
         }
     }
 
@@ -73,7 +74,7 @@ public static class RoomObjectCrocomireVisualFiles
         bool found = CrocomireArenaDraws.TryDescribe(draw, out CrocomireArenaDraws.Draw shape);
         list = found
             ? RoomObjectDrawListExport.Runs(draw, shape.RunCount, _ => shape.BlocksPerRun, shape.BlockAt,
-                _ => shape.Direction, run => shape.NextX(run), static _ => 0)
+                _ => shape.Direction, run => shape.Start(run))
             : default;
         return found;
     }

@@ -161,20 +161,22 @@ internal static class SamusEaterVisualsVerification
                     AssertRunHeader(count, exportedRun, "plant export direction/count");
                     ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
                     sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
-                    AssertEqual(x, SamusEaterObjectDraws.Draw.NextX(run), "plant signed horizontal offset");
-                    AssertEqual(y, draw.NextY(run), "plant signed vertical offset");
-                    AssertEqual(x, dtoRun.Next.X, "plant DTO horizontal offset");
-                    AssertEqual(y, dtoRun.Next.Y, "plant DTO vertical offset");
-                    AssertEqual(x, exportedRun.Next.X, "plant export horizontal offset");
-                    AssertEqual(y, exportedRun.Next.Y, "plant export vertical offset");
+                    // The cartridge ends each run with the next run's start, and the last with no offset.
+                    Offset16<RoomBlocks> continuation = run + 1 < SamusEaterObjectDraws.Draw.RunCount
+                        ? draw.Start(run + 1) : Offset16<RoomBlocks>.Zero;
+                    AssertEqual(x, continuation.X, "plant signed horizontal offset");
+                    AssertEqual(y, continuation.Y, "plant signed vertical offset");
+                    AssertEqual(x, RoomObjectRunContinuationCodec.X(dto, run), "plant DTO horizontal offset");
+                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(dto, run), "plant DTO vertical offset");
+                    AssertEqual(x, RoomObjectRunContinuationCodec.X(exported[frame], run), "plant export horizontal offset");
+                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(exported[frame], run), "plant export vertical offset");
                 }
                 cursor += 4 + count * 2;
             }
             foreach (int invalid in new[] { int.MinValue, -1, 3, 256, int.MaxValue })
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => SamusEaterObjectDraws.Draw.Count(invalid), "plant run count bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusEaterObjectDraws.Draw.NextX(invalid), "plant offset X bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.NextY(invalid), "plant offset Y bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.Start(invalid), "plant start bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(invalid, 0), "plant word run bounds");
             }
         }

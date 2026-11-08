@@ -29,11 +29,14 @@ internal static class MotherBrainFakeDeathDraws
         }
         /// <summary>Tube clears run vertically except for a side-tube's extra centerward cell.</summary>
         internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
-        /// <summary>Moves to the next paired tube column, using signed direction for the side clears.</summary>
-        internal int NextX(int run)
+        /// <summary>
+        /// Where a run starts, in blocks from the draw's origin: a later run starts in the paired tube column beside the
+        /// origin, toward the centre for a side clear.
+        /// </summary>
+        internal Offset16<RoomBlocks> Start(int run)
         {
             Count(run);
-            return run + 1 == RunCount ? 0 : Side == 0 ? 1 : Side;
+            return new(run == 0 ? 0 : Side == 0 ? 1 : Side, 0);
         }
         /// <summary>The solid fill row's cell, or a tube interior cleared between its restored endpoints.</summary>
         internal RoomTerrainBlock BlockAt(int run, int block)
@@ -94,21 +97,24 @@ internal static class MotherBrainFakeDeathDraws
         /// <summary>Chooses four cells per escape-door column or the wall's two-cell and one-cell runs.</summary>
         internal int Count(int run)
         {
-            if ((uint)run >= 2) throw new ArgumentOutOfRangeException(nameof(run));
+            if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return MotherBrainFakeDeathObjectDrawDefinitions.Cells[Frame][run].Length;
         }
-        /// <summary>Steps from the escape door's left column to its right air column.</summary>
-        internal int NextX(int run)
+        /// <summary>
+        /// Where a run starts, in blocks from the draw's origin: the escape door's right air column one block right of
+        /// its left column, and the wall's second cap one block above its first run's centred tile.
+        /// </summary>
+        internal Offset16<RoomBlocks> Start(int run)
         {
             Count(run);
-            return Frame == MotherBrainFakeDeathDraw.EscapeDoor && run == 0 ? 1 : 0;
+            if (run == 0) return Offset16<RoomBlocks>.Zero;
+            return Frame == MotherBrainFakeDeathDraw.EscapeDoor ? new Offset16<RoomBlocks>(1, 0)
+                : Frame == MotherBrainFakeDeathDraw.FillWall ? new Offset16<RoomBlocks>(0, -1)
+                : throw new InvalidOperationException($"MotherBrainFakeDeathDraw {Frame} is not a boundary draw.");
         }
-        /// <summary>Raises the second wall cap above its first run's centered tile.</summary>
-        internal int NextY(int run)
-        {
-            Count(run);
-            return Frame == MotherBrainFakeDeathDraw.FillWall && run == 0 ? -1 : 0;
-        }
+
+        /// <summary>The runs a wall-fill or escape-door draw writes.</summary>
+        internal const int RunCount = 2;
         /// <summary>The solid wall caps or the escape door's parent, extensions and air-backed artwork.</summary>
         internal RoomTerrainBlock BlockAt(int run, int block)
         {

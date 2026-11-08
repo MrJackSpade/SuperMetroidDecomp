@@ -110,8 +110,7 @@ internal static class RoomObjectDoorVisualFileCodec
                 }
                 int nativeOffset = ReadWord(bus,
                     checked((ushort)(cursor + 2 + run.Count * 2)));
-                int compiledOffset =
-                    LittleEndianBytes.Word(unchecked((byte)run.Next.X), unchecked((byte)run.Next.Y));
+                int compiledOffset = RoomObjectRunContinuationCodec.Encode(draw, runIndex);
                 if (nativeOffset != compiledOffset ||
                     (runIndex == draw.Runs.Length - 1) != (nativeOffset == 0))
                     throw new InvalidDataException(

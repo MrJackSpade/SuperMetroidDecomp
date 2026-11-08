@@ -62,7 +62,7 @@ public static class RoomObjectMotherBrainGlassVisualFiles
         bool found = MotherBrainGlassDraws.TryDescribe(request, out MotherBrainGlassDraws.Draw draw);
         list = found
             ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
-                run => draw.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, draw.NextX, draw.NextY)
+                run => draw.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, draw.Start)
             : default;
         return found;
     }

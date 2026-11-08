@@ -68,8 +68,8 @@ internal static class LookupBombTorizoHandDrawVerification
                 if (field == 0)
                 {
                     AssertEqual(count, shape.BlockCount(run), "Torizo hand native run width");
-                    AssertEqual(x, shape.OriginX(run), "Torizo hand original origin-relative X");
-                    AssertEqual(y, shape.OriginY(run), "Torizo hand original origin-relative Y");
+                    AssertEqual(x, shape.Start(run).X, "Torizo hand original origin-relative X");
+                    AssertEqual(y, shape.Start(run).Y, "Torizo hand original origin-relative Y");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         AssertRunHeader(count, frame.Runs.Span[run], "Torizo hand DTO direction/count");
@@ -93,12 +93,10 @@ internal static class LookupBombTorizoHandDrawVerification
                 y = unchecked((sbyte)BombTorizoHandDrawFieldRomByte(rom, 0x840000 | cursor++));
                 if (field == 0)
                 {
-                    AssertEqual(x, shape.NextX(run), "Torizo hand native next X");
-                    AssertEqual(y, shape.NextY(run), "Torizo hand native next Y");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
-                        AssertEqual(x, frame.Runs.Span[run].Next.X, "Torizo hand DTO next X");
-                        AssertEqual(y, frame.Runs.Span[run].Next.Y, "Torizo hand DTO next Y");
+                        AssertEqual(x, RoomObjectRunContinuationCodec.X(frame, run), "Torizo hand DTO next X");
+                        AssertEqual(y, RoomObjectRunContinuationCodec.Y(frame, run), "Torizo hand DTO next Y");
                     }
                 }
                 run++;
@@ -112,10 +110,7 @@ internal static class LookupBombTorizoHandDrawVerification
             foreach (int bad in new[] {int.MinValue,-1,run,int.MaxValue})
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad,0), "Torizo hand run bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.OriginX(bad), "Torizo hand X bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.OriginY(bad), "Torizo hand Y bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(bad), "Torizo hand next X bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(bad), "Torizo hand next Y bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(bad), "Torizo hand start bounds");
             }
         }
         AssertEqual(24, cells, "Torizo hand complete native cell domain");

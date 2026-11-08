@@ -62,8 +62,8 @@ public static class RoomObjectSamusEaterVisualFiles
     {
         bool found = SamusEaterObjectDraws.TryDescribe(request, out SamusEaterObjectDraws.Draw draw);
         list = found
-            ? RoomObjectDrawListExport.Runs(request, 3, SamusEaterObjectDraws.Draw.Count, draw.BlockAt,
-                RoomObjectDrawListExport.Horizontal, SamusEaterObjectDraws.Draw.NextX, draw.NextY)
+            ? RoomObjectDrawListExport.Strips(request, SamusEaterObjectDraws.Draw.RunCount, SamusEaterObjectDraws.Draw.Count,
+                draw.BlockAt, draw.Start)
             : default;
         return found;
     }

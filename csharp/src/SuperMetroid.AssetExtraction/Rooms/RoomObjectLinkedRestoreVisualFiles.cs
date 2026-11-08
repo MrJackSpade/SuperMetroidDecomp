@@ -59,7 +59,7 @@ public static class RoomObjectLinkedRestoreVisualFiles
     internal static RoomObjectShotBlockDrawDefinitions.DrawList Export(RoomObjectDraw request, LinkedRestoreObjectFamily.Draw draw) =>
         RoomObjectDrawListExport.Runs(request, draw.RunCount, static _ => 2, draw.BlockAt,
             _ => draw.Vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal,
-            static _ => 0, run => run + 1 < draw.RunCount ? 1 : 0);
+            RoomObjectDrawListExport.Stacked);
 
     /// <summary>Maps a restoration draw to its bomb or crumble artwork key and rejects other draws.</summary>
     internal static string VisualId(RoomObjectDraw draw) => draw switch

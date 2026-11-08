@@ -62,8 +62,7 @@ public static class RoomObjectDraygonCannonVisualFiles
     {
         bool found = DraygonCannonDraws.TryDescribe(request, out DraygonCannonDraws.Draw draw);
         list = found
-            ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
-                RoomObjectDrawListExport.Horizontal, draw.NextX, draw.NextY)
+            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start)
             : default;
         return found;
     }

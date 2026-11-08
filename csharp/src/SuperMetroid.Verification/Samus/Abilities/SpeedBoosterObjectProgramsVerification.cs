@@ -57,8 +57,8 @@ internal static class SpeedBoosterObjectProgramsVerification
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),run,"speed reveal native direction/count");
             AssertEqual(1,run.Count,"speed reveal single word");
             AssertEqual(nativeTerrain,run.Blocks.Span[0],"speed reveal exported native terrain");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),run.Next.Y,"speed reveal native terminal Y");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodec.X(draw, 0),"speed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodec.Y(draw, 0),"speed reveal native terminal Y");
         }
     }
 

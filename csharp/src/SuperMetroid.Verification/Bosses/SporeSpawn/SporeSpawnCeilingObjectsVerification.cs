@@ -78,18 +78,19 @@ internal static class SporeSpawnCeilingObjectsVerification
         foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in draws)
         {
             int cursor = RoomObjectDrawAddressCodec.Of(draw.Draw);
-            foreach (RoomObjectShotBlockDrawDefinitions.Run run in draw.Runs.Span)
+            for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
+                RoomObjectShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
                 foreach (RoomTerrainBlock cell in run.Blocks.Span)
                     AssertDrawBlock(cell);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)run.Next.X),
+                    unchecked((byte)RoomObjectRunContinuationCodec.X(draw, runIndex)),
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} signed X offset");
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)run.Next.Y),
+                    unchecked((byte)RoomObjectRunContinuationCodec.Y(draw, runIndex)),
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} signed Y offset");
             }
             AssertEqual(16, cursor - RoomObjectDrawAddressCodec.Of(draw.Draw),

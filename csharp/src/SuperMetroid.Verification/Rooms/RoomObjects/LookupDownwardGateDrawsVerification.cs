@@ -97,12 +97,13 @@ internal static class LookupDownwardGateDrawsVerification
                 sbyte y = unchecked((sbyte)DownwardGateDrawFieldRomByte(rom, 0x840000 | cursor++));
                 if (field == 0)
                 {
-                    AssertEqual(x, shape.NextX(run), "Gate original continuation X");
+                    // The cartridge ends each run with the next run's start, and the last with no offset.
+                    AssertEqual(x, run + 1 < shape.RunCount ? shape.Start(run + 1).X : (short)0, "Gate original continuation X");
                     AssertEqual((sbyte)0, y, "Gate runtime continuation Y");
-                    AssertEqual(x, dto.Runs.Span[run].Next.X, "Gate DTO X");
-                    AssertEqual(y, dto.Runs.Span[run].Next.Y, "Gate DTO Y");
-                    AssertEqual(x, exported[index].Runs.Span[run].Next.X, "Gate export X");
-                    AssertEqual(y, exported[index].Runs.Span[run].Next.Y, "Gate export Y");
+                    AssertEqual(x, RoomObjectRunContinuationCodec.X(dto, run), "Gate DTO X");
+                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(dto, run), "Gate DTO Y");
+                    AssertEqual(x, RoomObjectRunContinuationCodec.X(exported[index], run), "Gate export X");
+                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(exported[index], run), "Gate export Y");
                 }
                 run++;
                 if (x == 0 && y == 0) break;
@@ -117,7 +118,7 @@ internal static class LookupDownwardGateDrawsVerification
                 foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Gate run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Gate offset bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Gate start bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Gate run-width bounds");
                 }
             }

@@ -38,20 +38,19 @@ internal static class MotherBrainGlassDraws
             CheckRun(run);
             return Frame != MotherBrainGlassDraw.Initial && !(Shifted && run == 0);
         }
-        /// <summary>Horizontal origin adjustment before the following run.</summary>
-        internal int NextX(int run)
+        /// <summary>
+        /// Where a run starts, in blocks from the glass's origin; the first run starts at the origin. A pane's later
+        /// columns start one block left and one down; every other layout's later runs start four blocks left of their run
+        /// number, one row down for a shifted pane's runs (except the first shifted pane's second run) and for the first
+        /// shatter's runs from the third on.
+        /// </summary>
+        internal Offset16<RoomBlocks> Start(int run)
         {
             CheckRun(run);
-            if (run == RunCount - 1) return 0;
-            return Pane ? -1 : run - 3;
-        }
-        /// <summary>Vertical origin adjustment before the following run.</summary>
-        internal int NextY(int run)
-        {
-            CheckRun(run);
-            if (run == RunCount - 1) return 0;
-            return Pane || Shifted && (run != 0 || Frame != MotherBrainGlassDraw.ShiftedPane1) ||
-                Frame == MotherBrainGlassDraw.Shatter1 && run >= 1 ? 1 : 0;
+            if (run == 0) return Offset16<RoomBlocks>.Zero;
+            bool lowered = Pane || Shifted && (run != 1 || Frame != MotherBrainGlassDraw.ShiftedPane1) ||
+                Frame == MotherBrainGlassDraw.Shatter1 && run >= 2;
+            return new(Pane ? -1 : run - 4, lowered ? 1 : 0);
         }
         /// <summary>The selected block's appearance and collision kind.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)

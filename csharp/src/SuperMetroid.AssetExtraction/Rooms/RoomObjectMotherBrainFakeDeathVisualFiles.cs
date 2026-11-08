@@ -70,7 +70,7 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
         bool found = MotherBrainFakeDeathDraws.TryDescribeRegular(request, out MotherBrainFakeDeathDraws.RegularDraw shape);
         draw = found
             ? RoomObjectDrawListExport.Runs(request, shape.RunCount, shape.Count, shape.BlockAt,
-                run => shape.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, shape.NextX, static _ => 0)
+                run => shape.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, shape.Start)
             : default;
         return found;
     }
@@ -114,8 +114,8 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
     {
         bool found = MotherBrainFakeDeathDraws.TryDescribeBoundary(request, out MotherBrainFakeDeathDraws.BoundaryDraw shape);
         draw = found
-            ? RoomObjectDrawListExport.Runs(request, 2, shape.Count, shape.BlockAt,
-                static _ => RoomObjectRunDirection.Vertical, shape.NextX, shape.NextY)
+            ? RoomObjectDrawListExport.Runs(request, MotherBrainFakeDeathDraws.BoundaryDraw.RunCount, shape.Count, shape.BlockAt,
+                static _ => RoomObjectRunDirection.Vertical, shape.Start)
             : default;
         return found;
     }

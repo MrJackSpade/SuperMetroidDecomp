@@ -68,8 +68,8 @@ internal static class LookupBlueCapVerification
                     AssertEqual(1, frame.Runs.Length, "Blue cap one run");
                     AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Blue cap DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].Count, "Blue cap DTO width");
-                    AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Blue cap DTO final X");
-                    AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Blue cap DTO final Y");
+                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.X(frame, 0), "Blue cap DTO final X");
+                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.Y(frame, 0), "Blue cap DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Blue cap calculated row bounds");

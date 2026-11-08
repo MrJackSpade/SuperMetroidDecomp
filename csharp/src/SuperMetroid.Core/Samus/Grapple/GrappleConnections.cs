@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionDefinitions;
-using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionHandler;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 
 namespace SuperMetroid.Core.Samus.Grapple;
@@ -71,42 +70,8 @@ internal static class GrappleConnections
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 
-    /// <summary>The connection records each table begins at; a direction past a table's ten reads on into the next's.</summary>
-    private static int FirstRecordOf(GrappleConnectionTable table) => table switch
-    {
-        GrappleConnectionTable.Default => 0,
-        GrappleConnectionTable.MovingVertically => 10,
-        GrappleConnectionTable.Crouching => 20,
-        _ => throw new ArgumentOutOfRangeException(nameof(table), table, "Unknown grapple connection table."),
-    };
-
-    /// <summary>
-    /// The default, vertical and crouching directional connection policies: the record
-    /// <paramref name="table"/>'s policy names for <paramref name="fireDirection"/>, the records lying one table after another.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The direction reaches past the last compiled record.</exception>
-    internal static GrappleConnection ResolveConnection(GrappleConnectionTable table, int fireDirection)
-    {
-        int record = FirstRecordOf(table) + fireDirection;
-        if (fireDirection < 0 || record >= 30)
-            throw new InvalidDataException($"Grapple connection {table} direction {fireDirection} is outside the compiled definitions.");
-        int direction = record % 10;
-        bool compact = record >= 20;
-        GrappleConnectionHandler handler = record is >= 10 and < 20
-            ? direction < 5 ? SwingClockwise : SwingAnticlockwise
-            : direction switch
-            {
-                0 or 1 => SwingClockwise,
-                2 => compact ? CrouchingUpRight : StandingUpRight,
-                3 => compact ? CrouchingRight : StandingRight,
-                4 or 5 => StandingDown,
-                6 => compact ? CrouchingDownLeft : StandingDown,
-                7 => compact ? CrouchingUpLeft : StandingUpLeft,
-                _ => SwingAnticlockwise,
-            };
-        GrappleConnectionFunction function = handler is SwingClockwise or SwingAnticlockwise
-            ? GrappleConnectionFunction.Swinging
-            : GrappleConnectionFunction.LockedInPlace;
-        return new GrappleConnection(function, handler);
-    }
+    /// <summary>The connection <paramref name="table"/>'s policy installs for a grapple fired in <paramref name="fireDirection"/>.</summary>
+    /// <exception cref="KeyNotFoundException">The policy or direction is not a defined member.</exception>
+    internal static GrappleConnection ResolveConnection(GrappleConnectionTable table, SamusProjectileDirection fireDirection) =>
+        Directional[table][fireDirection];
 }

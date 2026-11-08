@@ -20,13 +20,26 @@ using SuperMetroid.Core.World.RoomStates;
 /// <summary>Checks compiled room FX records and Ceres consumers against the pinned cartridge.</summary>
 internal static class RoomFxRecordDefinitionsVerification
 {
+    /// <summary>
+    /// The pointer of every terminator word that ends a header with no default record: the header itself when it lists
+    /// nothing, otherwise the record after its last door record.
+    /// </summary>
+    private static SortedSet<ushort> TerminatorsOf(RoomFxRecordCatalogSource.RetailRoomFxCapture capture) =>
+    [
+        .. capture.Lists
+            .Where(list => list.Value.Length == 0 || capture.Doors.ContainsKey(list.Value[^1]))
+            .Select(list => list.Value.Length == 0
+                ? list.Key
+                : unchecked((ushort)(list.Value[^1] + RoomFxToolingRomData.Record.ByteCount))),
+    ];
+
     /// <summary>Checks the complete generated catalog and every source field against the ROM.</summary>
     internal static void VerifyRoomFxRecordDefinitions(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         RoomFxRecordCatalogSource.RetailRoomFxCapture capture = RoomFxRecordCatalogSource.CaptureRetailRoomFx(bus);
-        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, capture.Records, capture.Ends));
+        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, capture.Records, TerminatorsOf(capture)));
         Suite(nameof(VerifyRoomFxListSelection), () => VerifyRoomFxListSelection(bus));
         string generated = RoomFxRecordCatalogSource.RenderRoomFxDefinitions(capture).Replace("\r\n", "\n");
         string checkedIn = File.ReadAllText(RoomFxRecordCatalogSource.GeneratedPath).Replace("\r\n", "\n");

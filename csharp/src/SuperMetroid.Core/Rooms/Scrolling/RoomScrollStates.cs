@@ -28,23 +28,6 @@ public static class RoomScrollStates
         _ => RoomScrollState.Green,
     };
 
-    /// <summary>Whether <paramref name="value"/> is one of the three authored scroll states.</summary>
-    public static bool IsAuthoredByte(byte value) => Enum.IsDefined((RoomScrollState)value);
-    /// <summary>
-    /// Converts a cartridge-authored byte into its named state and reports the owning data
-    /// source when an untranslated value enters a logical room cell.
-    /// </summary>
-    public static RoomScrollState FromAuthoredByte(byte value, string sourceContext)
-    {
-        if (!IsAuthoredByte(value))
-        {
-            throw new NotSupportedException(
-                $"Room scroll state ${value:X2} from {sourceContext} is not translated.");
-        }
-
-        return FromStorageByte(value);
-    }
-
     /// <summary>Rejects undefined values passed through a typed host-side API.</summary>
     public static void Validate(RoomScrollState state, string parameterName)
     {

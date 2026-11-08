@@ -75,7 +75,7 @@ internal static class RoomObjectPopulationImporter
                 if ((cell & 0x80) != 0)
                     return [.. writes];
                 byte state = Byte(0x8f, unchecked((ushort)(argument + cursor++)));
-                writes.Add(new RoomScrollWrite(cell, RoomScrollStates.FromAuthoredByte(state, $"scroll program $8F:{argument:X4}")));
+                writes.Add(new RoomScrollWrite(cell, RoomScrollAuthoredBytes.FromAuthored(state, $"scroll program $8F:{argument:X4}")));
             }
             throw new InvalidDataException($"Imported scroll program $8F:{argument:X4} has no bounded negative terminator.");
         }

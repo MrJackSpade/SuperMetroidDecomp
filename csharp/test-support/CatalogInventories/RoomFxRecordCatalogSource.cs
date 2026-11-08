@@ -20,14 +20,13 @@ internal static class RoomFxRecordCatalogSource
         "csharp", "src", "SuperMetroid.Core", "Fx", "RoomFxDefinitions.cs"));
 
     /// <summary>
-    /// Every captured record by its bank-$83 pointer, the entry door of each door record, each header's record pointers in
-    /// native order, and the pointer of every terminator word that ends a header without a default record (#1546).
+    /// Every captured record by its bank-$83 pointer, the entry door of each door record, and each header's record pointers
+    /// in native order (#1546).
     /// </summary>
     internal sealed record RetailRoomFxCapture(
         SortedDictionary<ushort, RoomFxRecordDefinition> Records,
         SortedDictionary<ushort, DoorDefinition> Doors,
-        SortedDictionary<ushort, ushort[]> Lists,
-        SortedSet<ushort> Ends);
+        SortedDictionary<ushort, ushort[]> Lists);
 
     /// <summary>The names of the records Mother Brain's fight applies by itself, after her room's default record, by pointer.</summary>
     private static readonly SortedDictionary<ushort, string> MotherBrainRecordNames = new()
@@ -47,7 +46,6 @@ internal static class RoomFxRecordCatalogSource
         var records = new SortedDictionary<ushort, RoomFxRecordDefinition>();
         var doors = new SortedDictionary<ushort, DoorDefinition>();
         var lists = new SortedDictionary<ushort, ushort[]>();
-        var ends = new SortedSet<ushort>();
         foreach (ushort header in RoomFxSources.Pointers)
         {
             AreaId area = RoomFxHeaderAreas.Of(RoomFxSources.Fx(header));
@@ -63,7 +61,6 @@ internal static class RoomFxRecordCatalogSource
                 if (door == RoomFxRomDataRecordTooling.TerminatorDoorPointer)
                 {
                     // The terminator is the end of the header's list, not a record.
-                    ends.Add(pointer);
                     break;
                 }
                 Capture(bus, records, pointer, area);
@@ -86,7 +83,7 @@ internal static class RoomFxRecordCatalogSource
             }
             lists.Add(header, list.ToArray());
         }
-        return new RetailRoomFxCapture(records, doors, lists, ends);
+        return new RetailRoomFxCapture(records, doors, lists);
     }
 
     /// <summary>The door word of the record at <paramref name="pointer"/>: a door's pointer, zero for a default, or the terminator.</summary>

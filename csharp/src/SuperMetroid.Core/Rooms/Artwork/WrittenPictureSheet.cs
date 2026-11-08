@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured pictures written over one tileset's rooms after they load (#1392, #1466): each picture
 /// something writes over the foreground or the background (typed text, the Ceres warning) or that effect overlay shows (an effect's page, the cleared cell,
-/// the HUD's images), coloured with the tileset's standard palette over what the rooms load, pictured again for each value
+/// the HUD's images), coloured with their own standard colours, pictured again for each value
 /// of the appearance inputs it depends on and named by <see cref="AppearancePictureNames"/>; with the inputs each picture
 /// depends on, which choose among them.
 /// </summary>
@@ -21,10 +21,7 @@ public sealed class WrittenPictureSheet
     /// <param name="tileset">The tileset whose rooms the pictures are written in.</param>
     /// <param name="sheet">The pictures.</param>
     /// <param name="inputs">The inputs each picture depends on, by the name its pictures begin with.</param>
-    /// <exception cref="InvalidDataException">
-    /// The sheet is not coloured as its layer's backgrounds are, or a picture has no frame for the room's load, or one that
-    /// is not whole tiles.
-    /// </exception>
+    /// <exception cref="InvalidDataException">A picture has no frame for the room's load, or one that is not whole tiles.</exception>
     public WrittenPictureSheet(WrittenPictureLayer layer, TilesetDefinition tileset, SpriteSheet sheet,
         IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> inputs)
     {
@@ -32,8 +29,6 @@ public sealed class WrittenPictureSheet
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
         this.inputs = new Dictionary<string, ImmutableArray<AppearanceInput>>(Ensure.NotNull(inputs), StringComparer.Ordinal);
-        if (sheet.Image.Colours != ColoursOf(layer))
-            throw new InvalidDataException($"{Name} is not coloured as {layer}'s backgrounds are.");
         foreach ((string picture, ImmutableArray<AppearanceInput> depends) in this.inputs)
         {
             string[] loaded = [.. Enumerable.Repeat(RoomAppearanceValues.Loaded, depends.Length)];
@@ -74,8 +69,4 @@ public sealed class WrittenPictureSheet
     /// <summary>The installed name of the sheet of pictures written over <paramref name="layer"/> in <paramref name="tileset"/>'s rooms.</summary>
     public static string NameOf(WrittenPictureLayer layer, TilesetDefinition tileset) =>
         $"{(layer == WrittenPictureLayer.FxOverlayAndHud ? "Bg3Pictures" : "Written")}.{RoomBlockSheet.NameOf(tileset)}";
-
-    /// <summary>How the pictures of <paramref name="layer"/> are coloured: effect overlay's from colour sets of four.</summary>
-    public static SpriteImageColours ColoursOf(WrittenPictureLayer layer) =>
-        layer == WrittenPictureLayer.FxOverlayAndHud ? SpriteImageColours.TwoBppBackground : SpriteImageColours.Background;
 }

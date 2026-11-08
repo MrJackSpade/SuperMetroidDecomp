@@ -152,7 +152,7 @@ public static class GameplayDisplayCapture
     /// </summary>
     private static HudLayer Hud(GameplayDisplayLatch latched) => new(latched.PicturedHud
         ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
-        TransparentColorZero: false);
+        ClearPixelsShowBehind: false);
 
     /// <summary>The room effect's page the frame boundary displays on the effect overlay (#1348, #1514).</summary>
     private static FxOverlayPage FxOverlay(GameplayDisplayLatch latched) => (latched.Rooms

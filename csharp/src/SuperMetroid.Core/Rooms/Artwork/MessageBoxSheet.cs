@@ -17,15 +17,11 @@ public sealed class MessageBoxSheet
     /// <param name="tileset">The tileset whose rooms show the messages.</param>
     /// <param name="sheet">The images.</param>
     /// <param name="forms">Every form the message box can show, each of which the sheet pictures (#1536).</param>
-    /// <exception cref="InvalidDataException">
-    /// The sheet is not coloured as the effect overlay's characters are, or it pictures a form under no frame of its name.
-    /// </exception>
+    /// <exception cref="InvalidDataException">The sheet pictures a form under no frame of its name.</exception>
     public MessageBoxSheet(TilesetDefinition tileset, SpriteSheet sheet, IEnumerable<ShownMessage> forms)
     {
         Tileset = tileset;
         Sheet = Ensure.NotNull(sheet);
-        if (sheet.Image.Colours != SpriteImageColours.TwoBppBackground)
-            throw new InvalidDataException($"{Name} is not coloured as the effect overlay's characters are.");
         foreach (ShownMessage form in Ensure.NotNull(forms))
             pictures[form] = sheet.Frame(form.FrameName);
     }

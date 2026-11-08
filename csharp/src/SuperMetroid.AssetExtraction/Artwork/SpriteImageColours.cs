@@ -1,6 +1,10 @@
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>Which half of the colour table a pre-coloured image's palette indices name (#1392).</summary>
+/// <summary>
+/// Which half of the cartridge's colour table a sheet the import composes names its colours from (#1392): the import's
+/// knowledge while it composes. The installed image names its own colours instead (#1544); see
+/// <see cref="InstalledSheetColouring"/>.
+/// </summary>
 public enum SpriteImageColours
 {
     /// <summary>The eight sprite colour sets, colours 128 to 255: actors' sheets.</summary>
@@ -11,7 +15,8 @@ public enum SpriteImageColours
 
     /// <summary>
     /// The HUD layer's eight colour sets of four, colours 0 to 31: HUD and room effect sheets. Every pixel keeps its set
-    /// times four plus its colour, colour zero included, so a layer that shows colour zero shows its set's (#1392).
+    /// times four plus its colour, colour zero included, so a layer that shows colour zero shows its set's (#1392); the
+    /// installed image keeps such a pixel as a clear pixel with a colour of its own (#1544).
     /// </summary>
     TwoBppBackground,
 

@@ -34,16 +34,19 @@ public sealed class GameplayShadingBuilder
     }
 
     /// <summary>
-    /// The frame's shading, its backdrop the colour ink zero of <paramref name="roomColours"/>, the room's tileset picture,
-    /// shows under the room's shading and the display's fade: the tileset's backdrop colour, with what the room's effects
-    /// make of it.
+    /// The frame's shading, its backdrop the colour <paramref name="roomColours"/>, the room's tileset picture, names as its
+    /// scene's backdrop (#1544), shown under the room's shading and the display's fade: the tileset's backdrop colour, with
+    /// what the room's effects make of it.
     /// </summary>
-    /// <param name="roomColours">A picture of the room's tileset, whose ink zero is the backdrop.</param>
+    /// <param name="roomColours">A picture of the room's tileset, which names its scene's backdrop colour.</param>
+    /// <exception cref="InvalidDataException">The picture names no backdrop colour.</exception>
     public GameplayShading Build(SpriteImage roomColours)
     {
         Ensure.NotNull(roomColours);
+        int backdrop = roomColours.Backdrop
+            ?? throw new InvalidDataException($"Room picture {roomColours.Name} names no backdrop colour for its scene.");
         var built = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
-        return built.WithBackdrop(built.Of(GameplayPictures.Room).InkColours(roomColours)[0]);
+        return built.WithBackdrop(built.Of(GameplayPictures.Room).InkColours(roomColours)[backdrop]);
     }
 
     /// <summary>Checks that <paramref name="pictures"/> is a group of gameplay pictures.</summary>

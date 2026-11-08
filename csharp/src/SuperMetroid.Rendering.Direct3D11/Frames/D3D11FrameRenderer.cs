@@ -797,14 +797,14 @@ public sealed class D3D11FrameRenderer : IDisposable
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
                         Map = roomLevels.PlaneTable(pictured.Plane), Scroll = pictured.Scroll,
-                        RoomSource = D3D11RoomSource.PicturedPlane, TransparentZero = pictured.ShowsColourZero ? 0u : 1u,
+                        RoomSource = D3D11RoomSource.PicturedPlane, TransparentZero = pictured.ShowsClearPixelColours ? 0u : 1u,
                     });
                     break;
                 case HudLayer hudLayer:
                     // The HUD's placed pictures at the top of the screen, every pixel of each (#1466, #1514).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        RoomSource = D3D11RoomSource.Hud, TransparentZero = hudLayer.TransparentColorZero ? 1u : 0u,
+                        RoomSource = D3D11RoomSource.Hud, TransparentZero = hudLayer.ClearPixelsShowBehind ? 1u : 0u,
                         EndScanline = D3D11Screen.HudHeight,
                     });
                     break;

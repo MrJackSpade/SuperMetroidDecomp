@@ -287,7 +287,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             ? new PictureGridLayer(AreaMapPictures.Grid(ShownMap, screen.Pictures), mapScroll) { Window = MapFrameOpening.Window(new(0, PauseScreen.PageRowsAboveScreen)) }
             : new PicturedPlaneLayer(screen.EquipmentPage(EquipmentPage, ReserveArrowShading), mapScroll);
         // The retained HUD is its own layer at the HUD's place (#1466).
-        var hud = new HudLayer(screen.RetainedHudPictures(), TransparentColorZero: true);
+        var hud = new HudLayer(screen.RetainedHudPictures(), ClearPixelsShowBehind: true);
         // Back to front (#1514): the area's frame, the page inside it, the page's markers, cursors and labels, and the
         // retained HUD over the top band. Each picture and sprite is drawn whole at its layer's place; the per-tile and
         // per-sprite-part priority tiers that once interleaved them are a presentation quirk the port does not keep.

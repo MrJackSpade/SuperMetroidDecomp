@@ -91,7 +91,7 @@ internal static class ScenePixels
         TurningFloorLayer leftFloor => right is TurningFloorLayer rightFloor && leftFloor.Transform == rightFloor.Transform
             && Equals(leftFloor.Floor, rightFloor.Floor) && leftFloor.SubtractsSprites == rightFloor.SubtractsSprites
             && leftFloor.AddsForeground == rightFloor.AddsForeground,
-        HudLayer leftHud => right is HudLayer rightHud && leftHud.TransparentColorZero == rightHud.TransparentColorZero
+        HudLayer leftHud => right is HudLayer rightHud && leftHud.ClearPixelsShowBehind == rightHud.ClearPixelsShowBehind
             && SameHud(leftHud.Hud, rightHud.Hud),
         PicturedPlaneLayer or AddedPicturedPlaneLayer or SpritesLayer or ScreenTintLayer or ScreenGradientLayer
             or ColourAddWindowLayer => left.Equals(right),

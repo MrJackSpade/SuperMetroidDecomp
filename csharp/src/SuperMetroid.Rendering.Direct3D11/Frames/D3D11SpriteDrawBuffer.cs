@@ -13,7 +13,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// picture's inks under that shading, then, for each rotting corpse's draw (#1531), the first word of each of its image's
 /// character columns' table of rows, then each of those tables: the image row each of the image's rows shows in the
 /// column, or <see cref="ClearedRow"/> where the rot has cleared it. Which of a sprite's pixels blend
-/// is the shader's rule, by the pixel's colour group. The GPU buffer grows to fit the largest frame seen.
+/// is what its image says of each pixel (#1544). The GPU buffer grows to fit the largest frame seen.
 /// </summary>
 internal sealed class D3D11SpriteDrawBuffer : IDisposable
 {

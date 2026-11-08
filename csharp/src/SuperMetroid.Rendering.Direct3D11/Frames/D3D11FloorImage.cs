@@ -70,13 +70,9 @@ internal sealed class D3D11FloorImage : IDisposable
             for (int x = 0; x < picture.Size.X; x++)
             {
                 RgbaPixel pixel = pixels[source + x];
-                SpriteImageInk ink = inks[source + x];
-                bool colourZero = sheet.IsColourZero(ink);
                 int target = TexelWords * ((top + y) * Side + left + x);
                 texels[target] = pixel.R | (uint)pixel.G << 8 | (uint)pixel.B << 16 | (uint)pixel.A << 24;
-                texels[target + 1] = (uint)ink.PaletteIndex | (ink.FrontTile ? D3D11ImageAtlas.FrontTileInk : 0) | sheetIndex
-                    | (colourZero ? D3D11ImageAtlas.ColourZeroInk : 0)
-                    | (colourZero && sheet.ColourZeroKeepsGroup ? D3D11ImageAtlas.KeepsGroupInk : 0);
+                texels[target + 1] = D3D11ImageAtlas.InkWord(inks[source + x]) | sheetIndex;
             }
         }
     }

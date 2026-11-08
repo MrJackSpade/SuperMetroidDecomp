@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
 /// One installed pre-coloured room background (#1392, #1466): the full picture of a 32-tile-wide tilemap a room shows on
-/// The background, coloured with its tileset's palette over what the room loads, and the cells whose pictures change with the room's
+/// The background, coloured with its own colours, and the cells whose pictures change with the room's
 /// appearance inputs. A library background pictures the two background pages it loads, the first above the second; the scrolling
 /// sky pictures all its rows.
 /// </summary>
@@ -39,8 +39,6 @@ public sealed class RoomBackgroundImage
         SpriteSheetFrame picture = Ensure.NotNull(sheet).Frame(FrameName);
         if (picture.Size.X != PagePixels || picture.Size.Y == 0 || picture.Size.Y % CellPixels != 0)
             throw new InvalidDataException($"Room background {name} is {picture.Size.X}x{picture.Size.Y}, not whole cell rows across a page.");
-        if (picture.Sheet.Colours != SpriteImageColours.Background)
-            throw new InvalidDataException($"Room background {name} is not coloured from the background palette.");
         Name = name;
         Sheet = sheet;
         Picture = picture;

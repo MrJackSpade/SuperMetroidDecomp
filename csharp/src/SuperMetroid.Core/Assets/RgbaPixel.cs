@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One displayed pixel's colour with four independent eight-bit channels, rather than a packed game colour or palette index.</summary>
+/// <summary>One displayed pixel's colour with four independent eight-bit channels, rather than a packed game colour or a place among an image's colours.</summary>
 /// <param name="R">Red channel intensity, 0..255.</param>
 /// <param name="G">Green channel intensity, 0..255.</param>
 /// <param name="B">Blue channel intensity, 0..255.</param>

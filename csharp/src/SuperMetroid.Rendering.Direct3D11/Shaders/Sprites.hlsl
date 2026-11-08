@@ -10,7 +10,8 @@ cbuffer SpriteRun : register(b0)
 {
     uint FirstDraw, DrawCount;
 };
-// Each texel: the image's pre-coloured pixel, then its ink (D3D11ImageAtlas): its ink index in the low byte.
+// Each texel: the image's pre-coloured pixel, then its ink word (D3D11ImageAtlas.InkWord): the place of its colour among
+// its image's own colours in the low byte (#1544), then whether it blends and whether it is clear.
 // Compiled apart from Tiles.hlsl, which declares the same texture.
 Texture2D<uint2> Images : register(t4);
 static const uint SpriteRecordWords = 6;
@@ -22,14 +23,11 @@ static const uint SpriteDepthShift = 3, SpriteDepthMask = 3;
 static const uint SpriteClearedRow = 0xffffffffu;
 // The pixels of one of a rotting corpse's character columns, each with its own table of rows.
 static const uint SpriteCorpseColumnPixels = 8;
-// A record flag marking a draw whose shading blends over every part, so each of its pixels blends whatever its ink's
-// own group (#1512).
+// A record flag marking a draw whose shading blends over every part, so each of its pixels blends whether or not its
+// image marks it as blending (#1512).
 static const uint SpriteShadingBlends = 1024;
-// The inks of one sprite colour group.
-static const uint SpriteGroupInks = 16;
-// The first of a sprite sheet's colour groups whose pixels blend, as every later group's do (#1514): an ink's group is
-// its index over SpriteGroupInks.
-static const uint FirstBlendingGroup = 4;
+// An ink word's bits marking a pixel that blends (#1514, #1544) and a clear pixel.
+static const uint InkBlends = 512, InkClear = 65536;
 // A layer pixel's flag marking a sprite pixel that blends.
 static const uint SpriteBlends = 16;
 
@@ -78,10 +76,10 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     uint2 texel = Images.Load(int3(uint2(place & 65535, place >> 16) + source, 0));
     uint ink = texel.y & 255;
     uint depth = (flags >> SpriteDepthShift) & SpriteDepthMask;
-    uint blends = (ink / SpriteGroupInks) >= FirstBlendingGroup || (flags & SpriteShadingBlends) != 0 ? SpriteBlends : 0;
+    uint blends = (texel.y & InkBlends) != 0 || (flags & SpriteShadingBlends) != 0 ? SpriteBlends : 0;
     if ((flags & SpriteRecolour) != 0)
     {
-        if (ink == 0) discard;
+        if ((texel.y & InkClear) != 0) discard;
         // A shaded draw's pixel shows its ink's colour under the draw's shading (#1512).
         return uint2(SpriteDraws[SpriteDraws[record + 4] + ink], depth | blends);
     }

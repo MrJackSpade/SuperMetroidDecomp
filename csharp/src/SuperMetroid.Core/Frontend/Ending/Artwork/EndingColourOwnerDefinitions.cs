@@ -43,50 +43,44 @@ internal static class EndingColourOwnerDefinitions
     /// <summary>A scene's whole screen of colours, every actor's and every scenery's own.</summary>
     private static readonly EndingEffectOwners WholeScreen = new(EveryActor, EveryScenery);
 
-    /// <summary>The owners of an effect authored for the actors drawn in <paramref name="actors"/> alone.</summary>
-    private static EndingEffectOwners Actors(ImmutableArray<EndingSpriteColouring> actors) => new(actors, []);
-
-    /// <summary>The owners of an effect authored for <paramref name="scenery"/> alone.</summary>
-    private static EndingEffectOwners Scenery(ImmutableArray<EndingScenery> scenery) => new([], scenery);
-
     /// <summary>What each colour load is authored for.</summary>
     internal static readonly FrozenDictionary<EndingColourLoad, EndingEffectOwners> Loads =
         new Dictionary<EndingColourLoad, EndingEffectOwners>
         {
             [EndingColourLoad.Escape] = WholeScreen,
             [EndingColourLoad.Explosion] = WholeScreen,
-            [EndingColourLoad.ExplosionBackgrounds] = Scenery([EndingScenery.PlanetExplosionFloor, EndingScenery.ExplosionPictures,
+            [EndingColourLoad.ExplosionBackgrounds] = new([], [EndingScenery.PlanetExplosionFloor, EndingScenery.ExplosionPictures,
                 EndingScenery.FlyawayFloor]),
-            [EndingColourLoad.FinalGunship] = Scenery([EndingScenery.FlyawayFloor]),
+            [EndingColourLoad.FinalGunship] = new([], [EndingScenery.FlyawayFloor]),
             [EndingColourLoad.Credits] = WholeScreen,
             [EndingColourLoad.PostCredits] = WholeScreen,
             [EndingColourLoad.RestoredShot] = new([EndingSpriteColouring.ShootingStars], [EndingScenery.PostCreditsShotFloor]),
-            [EndingColourLoad.LogoInitial] = Actors([EndingSpriteColouring.Logo]),
+            [EndingColourLoad.LogoInitial] = new([EndingSpriteColouring.Logo], []),
         }.ToFrozenDictionary();
 
     /// <summary>What each faded group is authored for.</summary>
     internal static readonly FrozenDictionary<EndingFade, EndingEffectOwners> Fades =
         new Dictionary<EndingFade, EndingEffectOwners>
         {
-            [EndingFade.ExplosionBackground] = Scenery([EndingScenery.PlanetExplosionFloor]),
-            [EndingFade.ExplosionLava] = Actors([EndingSpriteColouring.ExplosionLava]),
-            [EndingFade.ExplodingPlanet] = Actors([EndingSpriteColouring.ExplodingPlanet]),
-            [EndingFade.WaitingBackdrop] = Scenery([EndingScenery.WaitingBackdrop]),
-            [EndingFade.SuitlessSamus] = Actors([EndingSpriteColouring.SuitlessSamus]),
-            [EndingFade.SuitedSamus] = Actors([EndingSpriteColouring.SuitedSamus]),
+            [EndingFade.ExplosionBackground] = new([], [EndingScenery.PlanetExplosionFloor]),
+            [EndingFade.ExplosionLava] = new([EndingSpriteColouring.ExplosionLava], []),
+            [EndingFade.ExplodingPlanet] = new([EndingSpriteColouring.ExplodingPlanet], []),
+            [EndingFade.WaitingBackdrop] = new([], [EndingScenery.WaitingBackdrop]),
+            [EndingFade.SuitlessSamus] = new([EndingSpriteColouring.SuitlessSamus], []),
+            [EndingFade.SuitedSamus] = new([EndingSpriteColouring.SuitedSamus], []),
             [EndingFade.Shot] = new([EndingSpriteColouring.ShootingStars], [EndingScenery.PostCreditsShotFloor]),
-            [EndingFade.ShootingSamus] = Actors([EndingSpriteColouring.ShootingSamus]),
+            [EndingFade.ShootingSamus] = new([EndingSpriteColouring.ShootingSamus], []),
         }.ToFrozenDictionary();
 
     /// <summary>What each flash is authored for.</summary>
     internal static readonly FrozenDictionary<EndingFlash, EndingEffectOwners> Flashes =
         new Dictionary<EndingFlash, EndingEffectOwners>
         {
-            [EndingFlash.PlanetGlow] = Actors([EndingSpriteColouring.ExplodingPlanet]),
-            [EndingFlash.SilhouetteBackdrop] = Scenery([]),
-            [EndingFlash.ExplosionWhiteout] = Scenery([EndingScenery.FlyawayFloor]),
-            [EndingFlash.WhiteoutCleared] = Scenery([EndingScenery.FlyawayFloor]),
-            [EndingFlash.LogoBackground] = Scenery([EndingScenery.LogoPicture]),
+            [EndingFlash.PlanetGlow] = new([EndingSpriteColouring.ExplodingPlanet], []),
+            [EndingFlash.SilhouetteBackdrop] = new([], []),
+            [EndingFlash.ExplosionWhiteout] = new([], [EndingScenery.FlyawayFloor]),
+            [EndingFlash.WhiteoutCleared] = new([], [EndingScenery.FlyawayFloor]),
+            [EndingFlash.LogoBackground] = new([], [EndingScenery.LogoPicture]),
         }.ToFrozenDictionary();
 
     /// <summary>What the logo crossfade is authored for.</summary>
@@ -96,16 +90,16 @@ internal static class EndingColourOwnerDefinitions
     internal static readonly FrozenDictionary<PaletteFxColours, EndingEffectOwners> PaletteFx =
         new Dictionary<PaletteFxColours, EndingEffectOwners>
         {
-            [PaletteFxColours.WideZebesExplosionForeground] = Scenery([EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.WideZebesExplosionBackground] = Scenery([EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.ZebesExplosionFinale] = Scenery([EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.SpaceDuringZebesExplosion] = Scenery([EndingScenery.ExplosionPictures]),
-            [PaletteFxColours.ExplodingZebesLava] = Scenery([EndingScenery.EscapeSceneAFloor]),
-            [PaletteFxColours.ExplodingZebesCrust] = Scenery([EndingScenery.EscapeSceneAFloor]),
-            [PaletteFxColours.ExplodingZebesGreyClouds] = Scenery([EndingScenery.EscapeSceneBFloor]),
-            [PaletteFxColours.GunshipEmergingFromExplosion] = Scenery([EndingScenery.FlyawayFloor]),
-            [PaletteFxColours.ZebesPlanetAfterglow] = Actors([EndingSpriteColouring.ExplosionAfterglow]),
-            [PaletteFxColours.ZoomedOutExplodingZebes] = Actors([EndingSpriteColouring.ExplodingPlanet]),
-            [PaletteFxColours.PostCreditsSuperMetroidIcon] = Actors([EndingSpriteColouring.Logo]),
+            [PaletteFxColours.WideZebesExplosionForeground] = new([], [EndingScenery.ExplosionPictures]),
+            [PaletteFxColours.WideZebesExplosionBackground] = new([], [EndingScenery.ExplosionPictures]),
+            [PaletteFxColours.ZebesExplosionFinale] = new([], [EndingScenery.ExplosionPictures]),
+            [PaletteFxColours.SpaceDuringZebesExplosion] = new([], [EndingScenery.ExplosionPictures]),
+            [PaletteFxColours.ExplodingZebesLava] = new([], [EndingScenery.EscapeSceneAFloor]),
+            [PaletteFxColours.ExplodingZebesCrust] = new([], [EndingScenery.EscapeSceneAFloor]),
+            [PaletteFxColours.ExplodingZebesGreyClouds] = new([], [EndingScenery.EscapeSceneBFloor]),
+            [PaletteFxColours.GunshipEmergingFromExplosion] = new([], [EndingScenery.FlyawayFloor]),
+            [PaletteFxColours.ZebesPlanetAfterglow] = new([EndingSpriteColouring.ExplosionAfterglow], []),
+            [PaletteFxColours.ZoomedOutExplodingZebes] = new([EndingSpriteColouring.ExplodingPlanet], []),
+            [PaletteFxColours.PostCreditsSuperMetroidIcon] = new([EndingSpriteColouring.Logo], []),
         }.ToFrozenDictionary();
 }

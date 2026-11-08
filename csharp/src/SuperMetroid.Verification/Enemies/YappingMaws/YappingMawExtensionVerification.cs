@@ -30,11 +30,11 @@ internal static class YappingMawExtensionVerification
     internal static void VerifyYappingMawExtension()
     {
         int row = Enumerable.Range(0, EnemyQuadraticSpeedDefinitions.RowCount).First(candidate =>
-            EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Positive is int extending &&
+            EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Positive.RawValue is int extending &&
             extending > 0 && SignedSixteenSixteen.FromRaw(extending).Fraction != 0 &&
-            EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Negative < 0);
-        int extend = EnemyQuadraticSpeeds.Row(checked((ushort)row)).Positive;
-        int retract = EnemyQuadraticSpeeds.Row(checked((ushort)row)).Negative;
+            EnemyQuadraticSpeeds.Row(checked((ushort)candidate)).Negative.RawValue < 0);
+        int extend = EnemyQuadraticSpeeds.Row(checked((ushort)row)).Positive.RawValue;
+        int retract = EnemyQuadraticSpeeds.Row(checked((ushort)row)).Negative.RawValue;
         int extendWhole = SignedSixteenSixteen.FromRaw(extend).WholePixels;
         ushort extendFraction = SignedSixteenSixteen.FromRaw(extend).Fraction;
         var maximum = SignedSixteenSixteen.FromParts(128, 0);

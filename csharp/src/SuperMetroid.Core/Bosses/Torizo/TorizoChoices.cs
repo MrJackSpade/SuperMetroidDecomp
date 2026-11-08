@@ -129,7 +129,7 @@ internal sealed class TorizoChoices
         int step)
     {
         state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(GoldenTorizoWalk.Velocity(step)));
-        int displacement = SixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.AirTransitionTimer = 0;
@@ -173,7 +173,7 @@ internal sealed class TorizoChoices
     internal AnimationProgramCursor<TorizoBodyProgram>? ProcessBombTorizoWalkInstruction(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, TorizoWalkStep step)
     {
         state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(BombTorizoMovement.WalkVelocity(step.Step)));
-        int displacement = SixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.AirTransitionTimer = 0;

@@ -30,7 +30,7 @@ internal static class PolypRockBehaviorVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
-        enemies.PolypBehavior.SpawnPolypRock(source, 16, unchecked((ushort)-256));
+        enemies.PolypBehavior.SpawnPolypRock(source, 16, SignedEightEight.FromSignedRaw(-256));
         RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);
         AssertTrue(rock.Animation is PolypRockAnimation { Cursor.Program: PolypRockProgram.Initial }, "a spawned rock starts its typed program");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, rock,

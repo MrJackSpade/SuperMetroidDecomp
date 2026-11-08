@@ -298,7 +298,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoBugGravity);
-        if (projectile.Velocity.Y.SignedRawValue >= 0)
+        if (!projectile.Velocity.Y.IsNegative)
             BeginKagoBugFall(projectile);
     }
 
@@ -342,7 +342,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int random = ReadKagoRandomNumber();
         int upwardMagnitude = (KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStep) + 2048;
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(-upwardMagnitude));
+        // At most three steps over the base, 2816 256ths, so the upward speed lies well inside the 8.8 range.
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(-upwardMagnitude));
 
         RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
         int sourceDelta = CoordinateAxis.Difference(source.Position.X.Whole, projectile.Position.X.Whole);

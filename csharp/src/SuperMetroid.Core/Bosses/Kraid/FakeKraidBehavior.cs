@@ -183,7 +183,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            int displacement = SixteenSixteen.FromWhole(state.WalkDelta);
+            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.WalkDelta);
             reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,

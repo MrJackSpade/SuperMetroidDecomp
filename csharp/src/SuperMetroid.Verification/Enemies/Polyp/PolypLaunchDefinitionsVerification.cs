@@ -13,7 +13,7 @@ internal static class PolypLaunchDefinitionsVerification
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b520 + (random & 0x0e))), PolypLaunches.Cooldown((ushort)random), "Polyp native cooldown selection");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b530 + (random & 0x1e))), PolypLaunches.InitialYIndex((ushort)random), "Polyp native Y-index selection");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b550 + (random & 0x1e))), PolypLaunches.XVelocity((ushort)random), "Polyp native signed X selection");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b550 + (random & 0x1e))), PolypLaunches.XVelocity((ushort)random).RawValue, "Polyp native signed X selection");
         }
         Console.WriteLine("Polyp launch definitions: all 65536 RNG words match each of three native table selectors, covering all 40 authored words.");
     }

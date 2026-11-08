@@ -10,15 +10,23 @@ internal static class EnemyMath
     /// Clamps a signed 16.16 velocity to plus or minus <paramref name="maximum"/> whole pixels: a whole part at or past
     /// the maximum becomes exactly the maximum, one below its negation exactly the negation.
     /// </summary>
-    internal static int ClampWholeVelocity(int velocity, int maximum)
+    internal static SignedSixteenSixteen ClampWholeVelocity(SignedSixteenSixteen velocity, int maximum)
     {
-        int whole = SixteenSixteen.WholeOf(velocity);
+        int whole = velocity.WholePixels;
         if (whole >= maximum)
-            return SixteenSixteen.FromWhole(maximum);
+            return SignedSixteenSixteen.FromWholePixels(maximum);
         if (whole < -maximum)
-            return SixteenSixteen.FromWhole(-maximum);
+            return SignedSixteenSixteen.FromWholePixels(-maximum);
         return velocity;
     }
+
+    /// <summary>
+    /// The proportional pull a Metroid or Mochtroid takes from its velocity for a signed distance of
+    /// <paramref name="distance"/> pixels from its target, -32768 through 32767: a quarter of the distance, rounded
+    /// toward minus infinity, in 256ths of a pixel.
+    /// </summary>
+    internal static SignedSixteenSixteen HomingPull(int distance) =>
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(distance >> 2);
 
     /// <summary>
     /// Calculates the bearing of an offset. Zero points upward and the
@@ -63,14 +71,6 @@ internal static class EnemyMath
     /// <summary>Adds one signed 8.8 velocity to a wrapped 16.16 position.</summary>
     internal static FixedCoordinate AddEightBitVelocity(FixedCoordinate position, SignedEightEight velocity) =>
         velocity.ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
-
-    /// <summary>
-    /// Sign-extends one 8.8 velocity and shifts it into the signed 16.16 displacement
-    /// consumed by the shared enemy collision routines. Rio-family AI uses this exact
-    /// eight-bit-shift conversion on both axes.
-    /// </summary>
-    internal static int ToEightBitVelocityDisplacement(SignedEightEight velocity) =>
-        velocity.ToSixteenSixteenDelta().RawValue;
 
     /// <summary>
     /// Implements the shared proximity helpers' strict <c>magnitude &lt; limit</c>
@@ -123,8 +123,8 @@ internal static class EnemyMath
     {
         // A half-wave byte times a radius byte is below 65,536, so the product needs no wrap.
         int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
-        SignedSixteenSixteen product = SignedSixteenSixteen.FromRaw(
-            SixteenSixteen.FromEightEight(sample * RadiusMultiplierOperand(radius)));
+        SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(
+            sample * RadiusMultiplierOperand(radius));
         // The game negates each word independently instead of carrying the
         // fractional increment into the whole word. Preserve that documented quirk.
         return angle.IsInSecondHalf ? product.NegatedWordsSeparately() : product;
@@ -169,6 +169,20 @@ internal static class EnemyMath
     /// <summary>The absolute sine half of the angle-to-vector routine: the sample a half turn ahead.</summary>
     internal static int ReadAbsoluteSineProduct(ByteAngle angle, int magnitude) =>
         ReadUnsignedSineMagnitudeProduct(angle, magnitude, RotationAngle.HalfTurn.TableIndex);
+
+    /// <summary>
+    /// The horizontal part of a speed of <paramref name="magnitude"/> 256ths of a pixel along <paramref name="angle"/>,
+    /// regardless of direction: the absolute cosine product as an unsigned 16.16 speed.
+    /// </summary>
+    internal static UnsignedSixteenSixteen AbsoluteCosineSpeed(ByteAngle angle, int magnitude) =>
+        UnsignedSixteenSixteen.FromRaw(unchecked((uint)ReadAbsoluteCosineProduct(angle, magnitude)));
+
+    /// <summary>
+    /// The vertical part of a speed of <paramref name="magnitude"/> 256ths of a pixel along <paramref name="angle"/>,
+    /// regardless of direction: the absolute sine product as an unsigned 16.16 speed.
+    /// </summary>
+    internal static UnsignedSixteenSixteen AbsoluteSineSpeed(ByteAngle angle, int magnitude) =>
+        UnsignedSixteenSixteen.FromRaw(unchecked((uint)ReadAbsoluteSineProduct(angle, magnitude)));
 
     /// <summary>Whether a table angle's cosine component is negative: the tests bit 7 of the angle plus a quarter turn.</summary>
     internal static bool CosineIsNegative(ByteAngle angle) => angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue).RawValue >= ByteAngle.HalfTurn.RawValue;

@@ -29,6 +29,17 @@ public readonly record struct SignedEightEight
     /// <summary>The velocity reversed: its raw word negated, wrapping at sixteen bits, so the most negative value stays.</summary>
     public SignedEightEight Negated() => Wrapped(-RawValue);
 
+    /// <summary>
+    /// The whole part's eight bits read as an unsigned count of pixels, 0 through 255, as routines that take only the
+    /// velocity's high byte do: a negative velocity's whole part reads 256 larger.
+    /// </summary>
+    [IntegerQuantity("whole-pixel byte of an 8.8 velocity")]
+    public int WholeByte => EightEight.WholeOf(RawValue);
+
+    /// <summary>The fraction's eight bits, 0 through 255 256ths of a pixel.</summary>
+    [IntegerQuantity("fraction byte of an 8.8 velocity")]
+    public int FractionByte => EightEight.FractionOf(RawValue);
+
     /// <summary>Whether the velocity points toward decreasing coordinates, leftward or upward.</summary>
     public bool IsNegative => SignedRawValue < 0;
 
@@ -54,6 +65,26 @@ public readonly record struct SignedEightEight
     /// <exception cref="ArgumentOutOfRangeException">The product lies outside the type's range.</exception>
     public static SignedEightEight operator *(SignedEightEight value, int factor) =>
         FromSignedRaw(checked(value.SignedRawValue * factor));
+
+    /// <summary>Whether <paramref name="left"/> is the lesser signed velocity.</summary>
+    public static bool operator <(SignedEightEight left, SignedEightEight right) => left.SignedRawValue < right.SignedRawValue;
+
+    /// <summary>Whether <paramref name="left"/> is the greater signed velocity.</summary>
+    public static bool operator >(SignedEightEight left, SignedEightEight right) => left.SignedRawValue > right.SignedRawValue;
+
+    /// <summary>Whether <paramref name="left"/> is no greater than <paramref name="right"/> as a signed velocity.</summary>
+    public static bool operator <=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue <= right.SignedRawValue;
+
+    /// <summary>Whether <paramref name="left"/> is no less than <paramref name="right"/> as a signed velocity.</summary>
+    public static bool operator >=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue >= right.SignedRawValue;
+
+    /// <summary>
+    /// The velocity times a factor in 256ths, <paramref name="factorInTwoHundredFiftySixths"/>, as a 16.16 displacement
+    /// that keeps the product's full precision: the product of the two 8.8 values, nothing truncated.
+    /// </summary>
+    /// <exception cref="OverflowException">The product lies outside the 16.16 range.</exception>
+    public SignedSixteenSixteen ScaledBy(int factorInTwoHundredFiftySixths) =>
+        SignedSixteenSixteen.FromRaw(checked(SignedRawValue * factorInTwoHundredFiftySixths));
 
     /// <summary>Promotes the signed word to the 16.16 delta used by native position adders.</summary>
     public SignedSixteenSixteen ToSixteenSixteenDelta() =>

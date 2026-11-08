@@ -177,7 +177,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        _terrain.MoveEnemyVertically(level, slot, 1 << 16);
+        _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
         if (!DachoraWithinAxis(slot.Position.Y.Whole, samus.Position.Y.Whole, DachoraActivationYDistance) ||
             !DachoraWithinAxis(slot.Position.X.Whole, samus.Position.X.Whole, DachoraActivationXDistance))
         {
@@ -219,7 +219,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         RoomLevelData level)
     {
-        int displacement = unchecked(-AccelerateDachora(slot, state, level));
+        SignedSixteenSixteen displacement = -AccelerateDachora(slot, state, level);
         bool hitWall = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
@@ -244,7 +244,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         RoomLevelData level)
     {
-        int displacement = AccelerateDachora(slot, state, level);
+        SignedSixteenSixteen displacement = AccelerateDachora(slot, state, level);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraWallImpactSound, priority: SoundRequestPriority.Normal);
@@ -274,7 +274,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// speed glow's cycle (DachoraGlowCycle): after frame three is reached, the game shows that brightest
     /// speed glow frame again every sixteen frames instead of wrapping to frame zero.
     /// </summary>
-    internal int AccelerateDachora(
+    internal SignedSixteenSixteen AccelerateDachora(
         RoomEnemySlot slot,
         DachoraEnemyState state,
         RoomLevelData level)
@@ -299,7 +299,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Presses the body down one pixel every running frame before changing speed.
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
-        _terrain.MoveEnemyVertically(level, slot, 1 << 16);
+        _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
 
         // The game compares the whole and fraction words separately, each by the sign of its difference
         // from the cap's; a fraction with its top bit set therefore also counts as below the cap.
@@ -321,7 +321,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Speed = DachoraMaximumSpeed;
         }
 
-        return state.Speed.RawValue;
+        return state.Speed;
     }
 
     /// <summary>Runs the stored-shine countdown and echo activation.</summary>
@@ -370,7 +370,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen capped = speed.WholePixels >= DachoraShinesparkMaximumWholeSpeed
             ? speed.WithWholePixels(DachoraShinesparkMaximumWholeSpeed)
             : speed;
-        int upwardDisplacement = unchecked(-capped.RawValue);
+        SignedSixteenSixteen upwardDisplacement = -capped;
         if (!_terrain.MoveEnemyVertically(level, slot, upwardDisplacement))
             return;
 
@@ -406,7 +406,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(
                 level,
                 slot,
-                state.Speed.RawValue))
+                state.Speed))
         {
             return;
         }

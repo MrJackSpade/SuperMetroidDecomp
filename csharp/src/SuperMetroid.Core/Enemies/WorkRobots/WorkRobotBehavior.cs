@@ -143,7 +143,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Work Robot gravity requires room collision data.");
 
-        if (_terrain.MoveEnemyVertically(level, slot, state.FallVelocity.RawValue))
+        if (_terrain.MoveEnemyVertically(level, slot, state.FallVelocity))
             return;
 
         // Enemy instruction processing will decrement the timer later in this same frame.
@@ -237,7 +237,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                SixteenSixteen.FromWhole(step.HorizontalPixels)))
+                SignedSixteenSixteen.FromWholePixels(step.HorizontalPixels)))
         {
             state.LaserCooldown = state.LaserCooldown.AddFrames(8);
             return step.WallProgram;
@@ -256,7 +256,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BackupPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithWrappedWholeX(
             slot.Position.X.Whole + step.LedgeProbeDirection * slot.Radius.X * 2);
-        bool floorFound = _terrain.MoveEnemyVertically(level, slot, 1 << 16);
+        bool floorFound = _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1));
         slot.Position = slot.Position.WithWhole(state.BackupPosition);
         if (floorFound)
             return null;
@@ -326,7 +326,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Work Robot shot recoil requires the active Samus actor.");
 
         WorkRobotEnemyState state = robot.RequireSpeciesState<WorkRobotEnemyState>();
-        bool facingLeft = state.LaserVelocity.X.SignedRawValue < 0;
+        bool facingLeft = state.LaserVelocity.X.IsNegative;
         if (facingLeft)
         {
             state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(samus.Position.X.Whole < robot.Position.X.Whole
@@ -454,7 +454,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // owner; the laser's frame behaviour clears it before the first draw, matching the game's
         // use of palette/tile bits embedded directly in the laser spritemaps.
         projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
-            (state.LaserVelocity.X.SignedRawValue < 0 ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
+            (state.LaserVelocity.X.IsNegative ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
         // The down-left/right initializer clears the graphics word itself.
         // Upward and horizontal variants retain the owner's word until common
         // frame behaviour clears it on their first projectile pass.

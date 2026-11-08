@@ -25,15 +25,22 @@ internal sealed class AngledFlightState(ByteAngle heading, UnsignedSixteenSixtee
     /// <param name="speed">The speed, 0 through 65535 in 1/256 pixel per update.</param>
     internal static AngledFlightState Launch(ByteAngle heading, int speed) => new(
         heading,
-        UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadAbsoluteCosineProduct(heading, speed))),
-        UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadAbsoluteSineProduct(heading, speed))));
+        EnemyMath.AbsoluteCosineSpeed(heading, speed),
+        EnemyMath.AbsoluteSineSpeed(heading, speed));
 
-    /// <summary>Moves <paramref name="projectile"/> one update along the heading.</summary>
+    /// <summary>
+    /// Moves <paramref name="projectile"/> one update along the heading: each part moves the projectile back along its
+    /// axis when the heading's quadrant points that way and forward otherwise, wrapping around the coordinate range.
+    /// </summary>
     internal void Advance(RoomEnemyProjectileSlot projectile)
     {
-        int horizontal = unchecked((int)HorizontalSpeed.RawValue);
-        int vertical = unchecked((int)VerticalSpeed.RawValue);
-        projectile.Position = projectile.Position.AdvanceX(SignedSixteenSixteen.FromRaw(EnemyMath.CosineIsNegative(Heading) ? unchecked(-horizontal) : horizontal));
-        projectile.Position = projectile.Position.AdvanceY(SignedSixteenSixteen.FromRaw(EnemyMath.SineIsNegative(Heading) ? unchecked(-vertical) : vertical));
+        FixedCoordinate x = projectile.Position.X;
+        projectile.Position = projectile.Position.WithX(EnemyMath.CosineIsNegative(Heading)
+            ? x.MovedBack(HorizontalSpeed)
+            : x.MovedForward(HorizontalSpeed));
+        FixedCoordinate y = projectile.Position.Y;
+        projectile.Position = projectile.Position.WithY(EnemyMath.SineIsNegative(Heading)
+            ? y.MovedBack(VerticalSpeed)
+            : y.MovedForward(VerticalSpeed));
     }
 }

@@ -115,9 +115,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         HorizontalDirection direction)
     {
-        int horizontalDisplacement = (direction == HorizontalDirection.Left
+        SignedSixteenSixteen horizontalDisplacement = direction == HorizontalDirection.Left
             ? state.LeftVelocity
-            : state.RightVelocity).RawValue;
+            : state.RightVelocity;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -133,7 +133,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CurrentYOffset = EnemyMath.ReadEightBitNegativeSineProduct(state.Angle.ToByteAngle(), state.Radius);
         // Both offsets lie within the radius either way, so their difference never wraps.
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
-        if (_terrain.MoveEnemyVertically(level, slot, SixteenSixteen.FromWhole(yDifference)))
+        if (_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(yDifference)))
         {
             BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
         }

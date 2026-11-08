@@ -332,7 +332,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // performs a real one-pixel downward collision move. Restore only the whole words,
         // preserving collision-produced subposition just as the game does.
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? -8 : 8));
-        if (!_terrain.MoveEnemyVertically(level, slot, 1 << 16))
+        if (!_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(1)))
         {
             state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
             slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
@@ -341,7 +341,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8));
-        int displacement = direction == HorizontalDirection.Left ? -(1 << 14) : 1 << 14;
+        SignedSixteenSixteen displacement = direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromSixteenthsOfPixel(-4) : SignedSixteenSixteen.FromSixteenthsOfPixel(4);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
     }
@@ -361,9 +361,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // The horizontal half still runs on the exact frame that vertical collision changes
         // the function pointer. That ordering is easy to lose when expressing the two axes
         // as a single host movement vector.
-        int displacement = arc == BeetomArcKind.Lunge
-            ? (direction == HorizontalDirection.Left ? -(3 << 16) : 3 << 16)
-            : (direction == HorizontalDirection.Left ? -(1 << 14) : 1 << 14);
+        SignedSixteenSixteen displacement = arc == BeetomArcKind.Lunge
+            ? (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-3) : SignedSixteenSixteen.FromWholePixels(3))
+            : (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromSixteenthsOfPixel(-4) : SignedSixteenSixteen.FromSixteenthsOfPixel(4));
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -423,11 +423,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // Escape throws the Beetom sixteen pixels away. A wall reverses the direction and
         // applies an additional 32-pixel move, producing the net sixteen-pixel throw
         // to the other side rather than merely cancelling the first displacement.
-        int initialDisplacement = side == HorizontalDirection.Left ? 16 << 16 : -(16 << 16);
+        SignedSixteenSixteen initialDisplacement = side == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(16) : SignedSixteenSixteen.FromWholePixels(-16);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, initialDisplacement))
         {
             state.FacingRight = side == HorizontalDirection.Left;
-            int reflectedDisplacement = side == HorizontalDirection.Left ? -(32 << 16) : 32 << 16;
+            SignedSixteenSixteen reflectedDisplacement = side == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-32) : SignedSixteenSixteen.FromWholePixels(32);
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, reflectedDisplacement);
         }
         state.AttachedToSamus = false;
@@ -437,7 +437,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Falls three pixels per frame and resumes crawling on floor contact.</summary>
     private void RunBeetomDrop(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level)
     {
-        if (!_terrain.MoveEnemyVertically(level, slot, 3 << 16))
+        if (!_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(3)))
             return;
         state.Function = state.FacingRight
             ? BeetomEnemyFunction.StartCrawlingRight
@@ -454,7 +454,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The facing is the pre-escape facing. The throw deliberately travels in the
         // opposite direction: facing left moves right and facing right moves left.
-        int horizontal = state.FacingRight ? -(2 << 16) : 2 << 16;
+        SignedSixteenSixteen horizontal = state.FacingRight ? SignedSixteenSixteen.FromWholePixels(-2) : SignedSixteenSixteen.FromWholePixels(2);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontal))
             return;
         state.FacingRight = !state.FacingRight;

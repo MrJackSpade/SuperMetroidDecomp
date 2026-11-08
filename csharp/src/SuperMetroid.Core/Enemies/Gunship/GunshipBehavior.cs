@@ -600,7 +600,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             bottomPart.EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
 
         samus.Kinematics.Position = samus.Kinematics.Position.WithY(samus.Kinematics.Position.Y.MovedBy(
-            SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromEightEight(bottomPart.EscapeVelocity))));
+            -SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(bottomPart.EscapeVelocity)));
         MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole);
     }
 

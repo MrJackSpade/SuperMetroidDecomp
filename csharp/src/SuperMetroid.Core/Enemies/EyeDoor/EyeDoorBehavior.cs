@@ -295,7 +295,7 @@ internal sealed class EyeDoorBehavior
     {
         MoveEyeDoorEffectHorizontally(projectile, level);
         bool collidedVertically = MoveEyeDoorEffectVertically(projectile, level);
-        if (projectile.Velocity.Y.SignedRawValue >= 0 && collidedVertically)
+        if (!projectile.Velocity.Y.IsNegative && collidedVertically)
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
             // The floor splash stops the drop's movement, as the list switch does.
@@ -365,7 +365,7 @@ internal sealed class EyeDoorBehavior
         RoomLevelData level)
     {
         FixedCoordinate moved = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta()).X;
-        int edge = projectile.Velocity.X.SignedRawValue < 0
+        int edge = projectile.Velocity.X.IsNegative
             ? CoordinateAxis.Wrap(moved.Whole - projectile.Radius.X)
             : CoordinateAxis.Wrap(moved.Whole + projectile.Radius.X - 1);
         if (EyeDoorEffectEdgeIsSolid(
@@ -377,7 +377,7 @@ internal sealed class EyeDoorBehavior
         {
             projectile.Position = projectile.Position.WithFractionX(0);
             projectile.Position = projectile.Position.WithWholeX(SnapEnemyProjectileAxis(projectile.Position.X.Whole, edge, projectile.Radius.X,
-                movingBack: projectile.Velocity.X.SignedRawValue < 0));
+                movingBack: projectile.Velocity.X.IsNegative));
             return true;
         }
 
@@ -409,7 +409,7 @@ internal sealed class EyeDoorBehavior
         RoomLevelData level)
     {
         FixedCoordinate moved = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).Y;
-        int edge = projectile.Velocity.Y.SignedRawValue < 0
+        int edge = projectile.Velocity.Y.IsNegative
             ? CoordinateAxis.Wrap(moved.Whole - projectile.Radius.Y)
             : CoordinateAxis.Wrap(moved.Whole + projectile.Radius.Y - 1);
         if (EyeDoorEffectEdgeIsSolid(
@@ -421,7 +421,7 @@ internal sealed class EyeDoorBehavior
         {
             projectile.Position = projectile.Position.WithFractionY(0);
             projectile.Position = projectile.Position.WithWholeY(SnapEnemyProjectileAxis(projectile.Position.Y.Whole, edge, projectile.Radius.Y,
-                movingBack: projectile.Velocity.Y.SignedRawValue < 0));
+                movingBack: projectile.Velocity.Y.IsNegative));
             return true;
         }
 

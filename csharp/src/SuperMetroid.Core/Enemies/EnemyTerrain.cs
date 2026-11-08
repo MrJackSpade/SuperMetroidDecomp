@@ -16,7 +16,7 @@ internal sealed class EnemyTerrain
     internal bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int displacement) =>
+        SignedSixteenSixteen displacement) =>
         MoveEnemyHorizontally(
             level,
             slot,
@@ -30,7 +30,7 @@ internal sealed class EnemyTerrain
     internal bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int displacement) =>
+        SignedSixteenSixteen displacement) =>
         MoveEnemyHorizontally(
             level,
             slot,
@@ -44,15 +44,15 @@ internal sealed class EnemyTerrain
     private bool MoveEnemyHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int displacement,
+        SignedSixteenSixteen displacement,
         NonSquareSlopes slopes)
     {
-        if (displacement == 0)
+        if (displacement.IsZero)
             return false;
 
-        FixedCoordinate newPosition = slot.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(displacement));
+        FixedCoordinate newPosition = slot.Position.X.MovedBy(displacement);
         int targetCenter = newPosition.Whole;
-        bool movingLeft = displacement < 0;
+        bool movingLeft = displacement.IsNegative;
         int targetEdge = movingLeft
             ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
             : CoordinateAxis.Wrap(targetCenter + slot.Radius.X - 1);
@@ -110,14 +110,14 @@ internal sealed class EnemyTerrain
     internal bool MoveEnemyVertically(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int displacement)
+        SignedSixteenSixteen displacement)
     {
-        if (displacement == 0)
+        if (displacement.IsZero)
             return false;
 
-        FixedCoordinate newPosition = slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement));
+        FixedCoordinate newPosition = slot.Position.Y.MovedBy(displacement);
         int targetCenter = newPosition.Whole;
-        bool movingUp = displacement < 0;
+        bool movingUp = displacement.IsNegative;
         int targetEdge = movingUp
             ? CoordinateAxis.Wrap(targetCenter - slot.Radius.Y)
             : CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
@@ -171,9 +171,9 @@ internal sealed class EnemyTerrain
     internal static bool EnemyMeetsAttachmentBlockBelow(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int unsignedDistance)
+        SignedSixteenSixteen distance)
     {
-        int targetCenter = slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(unsignedDistance)).Whole;
+        int targetCenter = slot.Position.Y.MovedBy(distance).Whole;
         int targetEdge = CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
         int row = targetEdge >> 4;
         int firstColumn = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
@@ -198,10 +198,10 @@ internal sealed class EnemyTerrain
     internal static bool EnemyMeetsAttachmentBlockHorizontallyAhead(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int displacement)
+        SignedSixteenSixteen displacement)
     {
-        int targetCenter = slot.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(displacement)).Whole;
-        bool movingLeft = displacement < 0;
+        int targetCenter = slot.Position.X.MovedBy(displacement).Whole;
+        bool movingLeft = displacement.IsNegative;
         int targetEdge = movingLeft
             ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
             : CoordinateAxis.Wrap(targetCenter + slot.Radius.X - 1);
@@ -228,10 +228,10 @@ internal sealed class EnemyTerrain
     /// actor or apply slope or extension behavior; Yard hiding and Stoke support checks
     /// use it to test attachment without consuming their look-ahead distance.
     /// </summary>
-    internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
+    internal static bool EnemyMeetsAttachmentBlockVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, SignedSixteenSixteen displacement)
     {
-        int center = slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(displacement)).Whole;
-        int edge = displacement < 0
+        int center = slot.Position.Y.MovedBy(displacement).Whole;
+        int edge = displacement.IsNegative
             ? CoordinateAxis.Wrap(center - slot.Radius.Y)
             : CoordinateAxis.Wrap(center + slot.Radius.Y - 1);
         int blockY = edge >> 4;

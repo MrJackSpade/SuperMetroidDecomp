@@ -157,7 +157,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
                 slot,
-                SixteenSixteen.FromWhole(state.YVelocity)))
+                SignedSixteenSixteen.FromWholePixels(state.YVelocity)))
         {
             slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);

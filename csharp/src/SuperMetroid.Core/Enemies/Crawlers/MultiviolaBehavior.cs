@@ -69,7 +69,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
             NegateWithoutFractionCarry(ref state, axis: Axis.Horizontal);
         }
 
-        int horizontalDisplacement = state.Velocity.X.RawValue;
+        SignedSixteenSixteen horizontalDisplacement = state.Velocity.X;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -85,7 +85,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyMath.SineIsNegative(state.Heading))
             NegateWithoutFractionCarry(ref state, axis: Axis.Vertical);
 
-        int verticalDisplacement = state.Velocity.Y.RawValue;
+        SignedSixteenSixteen verticalDisplacement = state.Velocity.Y;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
             state.Heading = Reflected(state.Heading, MultiviolaVerticalReflection);
     }
@@ -99,10 +99,9 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
     {
         int magnitude = state.Speed;
-        int xProduct = EnemyMath.ReadAbsoluteCosineProduct(state.Heading, magnitude);
-        int yProduct = EnemyMath.ReadAbsoluteSineProduct(state.Heading, magnitude);
         state.Velocity = new FixedVector<RoomPixels>(
-            SignedSixteenSixteen.FromRaw(xProduct), SignedSixteenSixteen.FromRaw(yProduct));
+            EnemyMath.AbsoluteCosineSpeed(state.Heading, magnitude).AsDisplacement(),
+            EnemyMath.AbsoluteSineSpeed(state.Heading, magnitude).AsDisplacement());
     }
 
     /// <summary>

@@ -163,7 +163,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = PowampEnemyFunction.InflatedRiseToTargetHeight;
             // Exactly half a pixel per frame upward on NTSC.
-            state.YVelocity = SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromWhole(1) / 2);
+            state.YVelocity = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
             SetPowampProgram(body, state, PowampProgram.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
@@ -467,7 +467,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The body's vertical displacement for terrain movement.</summary>
-    private static int ComposePowampVerticalDisplacement(PowampEnemyState state) => state.YVelocity.RawValue;
+    private static SignedSixteenSixteen ComposePowampVerticalDisplacement(PowampEnemyState state) => state.YVelocity;
 
     /// <summary>Recognizes the two zero-offset points in the twelve-phase wiggle table.</summary>
     private static bool IsPowampCentered(int wiggleIndex) => wiggleIndex is 0 or 6;

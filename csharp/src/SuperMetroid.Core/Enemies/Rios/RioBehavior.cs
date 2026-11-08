@@ -113,7 +113,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
+                        state.Velocity.X.ToSixteenSixteenDelta()))
                 {
                     state.Velocity = state.Velocity.ReversedX();
                     ReverseRioVerticalVelocityAndBounce(state);
@@ -122,14 +122,14 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
+                        state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
                 }
 
                 state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioGravityStep);
-                if (state.Velocity.Y.SignedRawValue < 0)
+                if (state.Velocity.Y.IsNegative)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
                     state.Velocity = new EightEightVector<RoomPixels>(0, 0);
@@ -150,14 +150,14 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
+                        state.Velocity.X.ToSixteenSixteenDelta()))
                 {
                     state.Velocity = state.Velocity.ReversedX();
                 }
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
+                        state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
                     InstallRioAnimationScript(
                         slot,
@@ -189,17 +189,17 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 ByteAngle angle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
-                state.Velocity = state.Velocity.WithX(new SignedEightEight(ReadRioSignedSineCosineSample(
-                    angle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn))));
-                state.Velocity = state.Velocity.WithY(new SignedEightEight(ReadRioSignedSineCosineSample(angle)));
+                state.Velocity = state.Velocity.WithX(ReadRioSignedSineCosineSample(
+                    angle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn)));
+                state.Velocity = state.Velocity.WithY(ReadRioSignedSineCosineSample(angle));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
                     slot,
-                    EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X));
+                    state.Velocity.X.ToSixteenSixteenDelta());
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
-                    EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y));
+                    state.Velocity.Y.ToSixteenSixteenDelta());
                 return;
 
             default:
@@ -244,8 +244,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reads one sign-extended entry from the eight-bit sine/cosine table. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
-    internal static int ReadRioSignedSineCosineSample(ByteAngle angle) =>
-        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle)).RawValue;
+    internal static SignedEightEight ReadRioSignedSineCosineSample(ByteAngle angle) =>
+        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>
     private static void RequireRioLevel([NotNull] RoomLevelData? level)

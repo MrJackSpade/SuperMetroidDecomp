@@ -164,7 +164,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // The game caps the speed by the sign of its difference from the cap; both stay far
         // below the sign bit, so that is the ordinary minimum.
         SignedSixteenSixteen accelerated = state.FallingSpeed + KzanFallAcceleration;
-        state.FallingSpeed = accelerated.RawValue < KzanMaximumFallingSpeed.RawValue ? accelerated : KzanMaximumFallingSpeed;
+        state.FallingSpeed = (accelerated - KzanMaximumFallingSpeed).IsNegative ? accelerated : KzanMaximumFallingSpeed;
     }
 
     /// <summary>Counts down the 64-frame NTSC landing hold before switching to ascent.</summary>

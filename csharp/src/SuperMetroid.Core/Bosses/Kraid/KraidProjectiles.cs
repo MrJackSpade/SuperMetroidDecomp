@@ -305,12 +305,12 @@ internal sealed class KraidProjectiles
     internal void TickKraidNailFlight(RoomEnemySlot nail, RoomLevelData level)
     {
         KraidNailState part = _access.NailState(nail);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, part.NailVelocity.X.RawValue))
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, part.NailVelocity.X))
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
         else if (KraidBodyContourReflectsNail(nail))
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
 
-        if (_terrain.MoveEnemyVertically(level, nail, part.NailVelocity.Y.RawValue))
+        if (_terrain.MoveEnemyVertically(level, nail, part.NailVelocity.Y))
             part.NailVelocity = part.NailVelocity.WithY(SignedSixteenSixteen.Zero - part.NailVelocity.Y);
     }
 

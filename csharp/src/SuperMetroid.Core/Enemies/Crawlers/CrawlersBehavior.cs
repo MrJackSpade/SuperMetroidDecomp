@@ -183,12 +183,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
+        SignedSixteenSixteen wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+            SignedSixteenSixteen tangent = state.Velocity.Y.ToSixteenSixteenDelta();
             if (_terrain.MoveEnemyVertically(level, slot, tangent))
             {
                 state.Velocity = state.Velocity.ReversedX();
@@ -197,7 +197,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             bool samusBelow = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) >= 0;
-            bool movingDown = state.Velocity.Y.SignedRawValue >= 0;
+            bool movingDown = !state.Velocity.Y.IsNegative;
             if (samusBelow != movingDown)
                 state.Velocity = state.Velocity.ReversedY();
             return;
@@ -221,11 +221,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
+        SignedSixteenSixteen surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
         if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
-            int tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(slot, state, level);
+            SignedSixteenSixteen tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(slot, state, level);
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, tangent))
             {
                 state.Velocity = state.Velocity.ReversedY();
@@ -235,7 +235,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
             bool samusRight = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0;
-            bool movingRight = state.Velocity.X.SignedRawValue >= 0;
+            bool movingRight = !state.Velocity.X.IsNegative;
             if (samusRight != movingRight)
                 state.Velocity = state.Velocity.ReversedX();
             return;
@@ -266,7 +266,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetHZoomerProgram(
             slot,
             state,
-            state.Velocity.Y.SignedRawValue < 0
+            state.Velocity.Y.IsNegative
                 ? CrawlerSurfaceAnimations.ProgramFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideDown)
                 : CrawlerSurfaceAnimations.ProgramFor(
@@ -279,7 +279,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetHZoomerProgram(
             slot,
             state,
-            state.Velocity.X.SignedRawValue < 0
+            state.Velocity.X.IsNegative
                 ? CrawlerSurfaceAnimations.ProgramFor(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideRight)
                 : CrawlerSurfaceAnimations.ProgramFor(
@@ -333,12 +333,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Sets the next function but still executes this attached movement
         // call. Falling displacement begins on the following AI frame.
         TriggerCrawlerEarthquakeFall(state);
-        int wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
+        SignedSixteenSixteen wallProbe = Shift8AddMagnitude(state.Velocity.X, 1);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
             state.ConsecutiveTurnCounter = 0;
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
+            SignedSixteenSixteen tangent = state.Velocity.Y.ToSixteenSixteenDelta();
             if (!_terrain.MoveEnemyVertically(level, slot, tangent))
                 return;
 
@@ -368,11 +368,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         TriggerCrawlerEarthquakeFall(state);
-        int surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
+        SignedSixteenSixteen surfaceProbe = Shift8AddMagnitude(state.Velocity.Y, 1);
         if (_terrain.MoveEnemyVertically(level, slot, surfaceProbe))
         {
             state.ConsecutiveTurnCounter = 0;
-            int tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(slot, state, level);
+            SignedSixteenSixteen tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(slot, state, level);
             if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, tangent))
             {
                 // Inside corner: the surface normal changes from Y to X.
@@ -403,7 +403,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state,
         RoomLevelData level)
     {
-        int displacement = state.FallingYVelocity.RawValue;
+        SignedSixteenSixteen displacement = state.FallingYVelocity;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             // A crawler placed without a crawl speed takes the default speed after its first landing.
@@ -437,7 +437,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
-        CrawlerSurfaceOrientation orientation = state.Velocity.Y.SignedRawValue < 0
+        CrawlerSurfaceOrientation orientation = state.Velocity.Y.IsNegative
             ? CrawlerSurfaceOrientation.UpsideDown
             : CrawlerSurfaceOrientation.UpsideUp;
         SetCrawlerProgramFromTable(slot, state, orientation);
@@ -448,7 +448,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         CrawlerEnemyState state)
     {
-        CrawlerSurfaceOrientation orientation = state.Velocity.X.SignedRawValue < 0
+        CrawlerSurfaceOrientation orientation = state.Velocity.X.IsNegative
             ? CrawlerSurfaceOrientation.UpsideRight
             : CrawlerSurfaceOrientation.UpsideLeft;
         SetCrawlerProgramFromTable(slot, state, orientation);
@@ -470,7 +470,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Converts the current crawler velocity to a horizontal move adjusted for the supporting slope.</summary>
-    private static int GetCrawlerSlopeAdjustedHorizontalDisplacement(
+    private static SignedSixteenSixteen GetCrawlerSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
         RoomLevelData level) =>
@@ -480,12 +480,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shared geometry from the crawlers' slope-processing horizontal mover. Both the common
     /// crawlers and Yard multiply their tangent by the game's non-square-slope factor.
     /// </summary>
-    internal static int GetSurfaceSlopeAdjustedHorizontalDisplacement(
+    internal static SignedSixteenSixteen GetSurfaceSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
         EightEightVector<RoomPixels> velocity,
         RoomLevelData level)
     {
-        int surfaceY = velocity.Y.SignedRawValue < 0
+        int surfaceY = velocity.Y.IsNegative
             ? CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)
             : CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int blockX = slot.Position.X.Whole >> 4;
@@ -500,7 +500,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return CrawlerSlopes.Scale(velocity.X, slopeShape);
             }
         }
-        return SixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
+        return velocity.X.ToSixteenSixteenDelta();
     }
 
     /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
@@ -508,11 +508,10 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state);
 
     /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
-    internal static int Shift8AddMagnitude(SignedEightEight velocity, int wholePixels)
+    internal static SignedSixteenSixteen Shift8AddMagnitude(SignedEightEight velocity, int wholePixels)
     {
-        int signedVelocity = velocity.SignedRawValue;
-        int bias = SixteenSixteen.FromWhole(wholePixels);
-        return unchecked((SixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
+        SignedSixteenSixteen margin = SignedSixteenSixteen.FromWholePixels(wholePixels);
+        return velocity.ToSixteenSixteenDelta() + (velocity.IsNegative ? -margin : margin);
     }
 
 

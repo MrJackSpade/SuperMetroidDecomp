@@ -39,8 +39,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Horizontal speed of one and a half pixels per update in signed 16.16 form.</summary>
-    private const int WaverHorizontalSpeedFixed = 98304;
+    /// <summary>Horizontal speed of one and a half pixels per update.</summary>
+    private static readonly SignedSixteenSixteen WaverHorizontalSpeed = SignedSixteenSixteen.FromParts(1, 32768);
     /// <summary>Four-pixel amplitude used by Waver's negative-sine vertical motion.</summary>
     private const int WaverVerticalRadius = 4;
 
@@ -48,12 +48,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeWaver(RoomEnemySlot slot)
     {
         HorizontalDirection facing = slot.SpawnSettings<WaverSpawnSettings>().Facing;
-        int signedSpeed = facing == HorizontalDirection.Right
-            ? WaverHorizontalSpeedFixed
-            : -WaverHorizontalSpeedFixed;
+        SignedSixteenSixteen signedSpeed = facing == HorizontalDirection.Right
+            ? WaverHorizontalSpeed
+            : -WaverHorizontalSpeed;
         var state = new WaverEnemyState
         {
-            XVelocity = SignedSixteenSixteen.FromRaw(signedSpeed),
+            XVelocity = signedSpeed,
             InstalledAnimation = WaverProgram.SteadyFacingLeft,
             Angle = RotationAngle.Zero,
             SpinFinished = false,
@@ -76,7 +76,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Waver AI requires active room collision data.");
 
-        int horizontalDisplacement = state.XVelocity.RawValue;
+        SignedSixteenSixteen horizontalDisplacement = state.XVelocity;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -85,7 +85,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             // The wall reversal negates the overlapping velocity bytes and writes them back
             // as two words. For every initialized Waver this is exactly a signed 16.16
             // negation; expressing that value directly preserves the game's ±1.5 px/frame.
-            state.XVelocity = SignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
+            state.XVelocity = -horizontalDisplacement;
             // A wall turns Waver around and ends any spin.
             state.RequestedAnimation = WaverPrograms.TurnedAround(state.RequestedAnimation);
             SetWaverProgram(slot, state);
@@ -95,7 +95,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             int verticalPixels = EnemyMath.ReadEightBitNegativeSineProduct(
                 state.Angle.ToByteAngle(),
                 WaverVerticalRadius);
-            if (_terrain.MoveEnemyVertically(level, slot, SixteenSixteen.FromWhole(verticalPixels)))
+            if (_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(verticalPixels)))
             {
                 state.ReflectWave();
             }

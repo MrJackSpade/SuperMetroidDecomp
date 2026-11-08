@@ -237,12 +237,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                state.CustomXVelocity.RawValue))
+                state.CustomXVelocity))
         {
             state.Function = SbugEnemyFunction.WaitForSamus;
             return;
         }
-        if (_terrain.MoveEnemyVertically(level, slot, state.CustomYVelocity.RawValue))
+        if (_terrain.MoveEnemyVertically(level, slot, state.CustomYVelocity))
             state.Function = SbugEnemyFunction.WaitForSamus;
     }
 
@@ -349,7 +349,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static SignedSixteenSixteen ForwardDisplacement(UnsignedSixteenSixteen speed, bool against)
     {
-        SignedSixteenSixteen along = SignedSixteenSixteen.FromRaw(unchecked((int)speed.RawValue));
+        SignedSixteenSixteen along = speed.AsDisplacement();
         return against ? SignedSixteenSixteen.Zero - along : along;
     }
 
@@ -387,7 +387,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         ByteAngle tableAngle = angle.AddTableUnits(phase);
         int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);
         // Every authored speed is below five, so the product of the two bytes stays below 65,536.
-        SignedSixteenSixteen product = SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(sineMagnitude * speed));
+        SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sineMagnitude * speed);
         return tableAngle.IsInSecondHalf ? product.NegatedWordsSeparately() : product;
     }
 

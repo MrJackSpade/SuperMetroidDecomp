@@ -11,6 +11,6 @@ public static class PolypLaunches
     /// <summary>Uses RNG bits 1..4 to select quadratic speed indices 28 through 43.</summary>
     public static int InitialYIndex(int random) => FirstInitialYIndex + LaunchSelector.Of(random);
 
-    /// <summary>The selected signed 8.8 horizontal velocity, as the raw value the rock's velocity holds.</summary>
-    public static int XVelocity(int random) => SignedEightEight.FromSignedRaw(XVelocities[LaunchSelector.Of(random)]).RawValue;
+    /// <summary>The selected signed 8.8 horizontal velocity.</summary>
+    public static SignedEightEight XVelocity(int random) => SignedEightEight.FromSignedRaw(XVelocities[LaunchSelector.Of(random)]);
 }

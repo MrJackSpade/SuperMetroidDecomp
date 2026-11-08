@@ -19,7 +19,7 @@ internal static class SurfaceMotionDefinitionsVerification
                 int speed = unchecked((short)raw);
                 int magnitude = Math.Abs(speed) * multiplier;
                 AssertEqual(speed < 0 ? -magnitude : magnitude,
-                    CrawlerSlopes.Scale(new SignedEightEight(raw), shape), "Crawler signed slope displacement");
+                    CrawlerSlopes.Scale(new SignedEightEight(raw), shape).RawValue, "Crawler signed slope displacement");
             }
         }
         for (int speed = 0; speed <= ushort.MaxValue; speed++)

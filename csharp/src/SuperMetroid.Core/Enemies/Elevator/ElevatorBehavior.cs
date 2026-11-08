@@ -34,7 +34,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Elevator travel advances one and a half pixels per enemy update.</summary>
-    private const int ElevatorSpeedFixed = 98304;
+    private static readonly SignedSixteenSixteen ElevatorSpeed = SignedSixteenSixteen.FromParts(1, 32768);
 
     /// <summary>What has armed the elevator's pseudo-door: nothing, a collision with it, or an elevator door load.</summary>
     public ElevatorJourneyFlag ElevatorFlags
@@ -231,12 +231,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         if (state.Direction is ElevatorTravelDirection.Up)
         {
             ElevatorTravelsUpward = true;
-            AddElevatorYVelocity(slot, -ElevatorSpeedFixed);
+            AddElevatorYVelocity(slot, -ElevatorSpeed);
         }
         else
         {
             ElevatorTravelsUpward = false;
-            AddElevatorYVelocity(slot, ElevatorSpeedFixed);
+            AddElevatorYVelocity(slot, ElevatorSpeed);
         }
         PinSamusToElevator(slot, samus);
     }
@@ -250,12 +250,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         bool stillReturning;
         if (state.Direction is ElevatorTravelDirection.Up)
         {
-            AddElevatorYVelocity(slot, ElevatorSpeedFixed);
+            AddElevatorYVelocity(slot, ElevatorSpeed);
             stillReturning = slot.Position.Y.Whole < state.RestingHeight.Y;
         }
         else
         {
-            AddElevatorYVelocity(slot, -ElevatorSpeedFixed);
+            AddElevatorYVelocity(slot, -ElevatorSpeed);
             stillReturning = slot.Position.Y.Whole >= state.RestingHeight.Y;
         }
 
@@ -275,9 +275,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Ports the direct 16.16 <c>AddToHiLo</c> used by both travel directions.</summary>
-    private static void AddElevatorYVelocity(RoomEnemySlot slot, int signedVelocity)
+    private static void AddElevatorYVelocity(RoomEnemySlot slot, SignedSixteenSixteen velocity)
     {
-        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(SignedSixteenSixteen.FromRaw(signedVelocity)));
+        slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(velocity));
     }
 
     /// <summary>Pins Samus to the elevator.</summary>

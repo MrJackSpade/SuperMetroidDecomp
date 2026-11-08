@@ -135,14 +135,14 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
+                        state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
                     BeginLowerNorfairRioReturn(slot, state);
                     return;
                 }
 
                 ApplyLowerNorfairRioGravity(state);
-                if (state.Velocity.Y.SignedRawValue < 0)
+                if (state.Velocity.Y.IsNegative)
                     BeginLowerNorfairRioReturn(slot, state);
                 return;
 
@@ -152,7 +152,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 if (_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.Y)))
+                        state.Velocity.Y.ToSixteenSixteenDelta()))
                 {
                     InstallLowerNorfairRioAnimationScript(
                         slot,
@@ -259,7 +259,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
+                state.Velocity.X.ToSixteenSixteenDelta()))
         {
             NegateLowerNorfairRioXVelocity(state);
         }

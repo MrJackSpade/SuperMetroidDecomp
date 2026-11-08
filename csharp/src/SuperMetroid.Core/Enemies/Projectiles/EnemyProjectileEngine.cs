@@ -460,7 +460,7 @@ internal sealed class EnemyProjectileEngine
     {
         FixedCoordinate current = axis == Axis.Horizontal ? projectile.Position.X : projectile.Position.Y;
         int position = current.Whole;
-        int velocity = speed.SignedRawValue;
+        bool movingNegative = speed.IsNegative;
         FixedCoordinate next = current.MovedBy(speed.ToSixteenSixteenDelta());
         int nextPosition = next.Whole;
 
@@ -477,7 +477,7 @@ internal sealed class EnemyProjectileEngine
         // right/down projectiles collide one pixel earlier than their counterparts.
         // The edge wraps at the room's sixteen-bit coordinate width, as the probe's block bounds check expects.
         int movementEdge = CoordinateAxis.Wrap(nextPosition +
-            (velocity < 0 ? -movementRadius : movementRadius - 1));
+            (movingNegative ? -movementRadius : movementRadius - 1));
         int firstPerpendicularBlock = (perpendicularPosition - perpendicularRadius) >> 4;
         int lastPerpendicularBlock = (perpendicularPosition + perpendicularRadius - 1) >> 4;
         for (int block = firstPerpendicularBlock; block <= lastPerpendicularBlock; block++)
@@ -489,7 +489,7 @@ internal sealed class EnemyProjectileEngine
                     projectile,
                     new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)),
                     axis,
-                    movingNegative: velocity < 0,
+                    movingNegative: movingNegative,
                     targetEdge: movementEdge,
                     slopeAlignedPosition: out int? slopeAlignedPosition))
             {
@@ -498,10 +498,10 @@ internal sealed class EnemyProjectileEngine
                 // projectile flush against the 16-pixel block boundary it reached.
                 // Without this correction a fast downward projectile retains its last
                 // pre-collision coordinate and visibly hovers above the floor.
-                int snappedPosition = slopeAlignedPosition ?? (velocity < 0
+                int snappedPosition = slopeAlignedPosition ?? (movingNegative
                     ? CoordinateAxis.Wrap((movementEdge | BlockPixelMask) + movementRadius + 1)
                     : CoordinateAxis.Wrap((movementEdge & ~BlockPixelMask) - movementRadius));
-                bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (velocity < 0
+                bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (movingNegative
                     ? snappedPosition <= position
                     : snappedPosition >= position);
 

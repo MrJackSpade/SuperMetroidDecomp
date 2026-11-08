@@ -118,9 +118,10 @@ internal sealed class FallingSparksBehavior
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkProgram.HitFloor));
 
-        // The impact quadruples the sideways drift, wrapping as the 32-bit doubling does.
+        // The impact quadruples the sideways drift, wrapping as the 32-bit doubling does: the unauthored launch the
+        // last random selection reads is any displacement, so its quadruple can pass the type's range.
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
-        spark.HorizontalStep = SignedSixteenSixteen.FromRaw(unchecked(spark.HorizontalStep.RawValue * FallingSparkImpactDriftScale));
+        spark.HorizontalStep *= FallingSparkImpactDriftScale;
 
         // Half a pixel upward. Because the whole part is negative, later frames skip collision and gravity while the
         // impact spark arcs upward through its eleven-frame blinking animation.

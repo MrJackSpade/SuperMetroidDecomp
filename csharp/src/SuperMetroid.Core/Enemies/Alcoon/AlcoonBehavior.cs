@@ -109,7 +109,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         while (true)
         {
-            int displacement = state.Velocity.Y.RawValue;
+            SignedSixteenSixteen displacement = state.Velocity.Y;
             if (_terrain.MoveEnemyVertically(level, slot, displacement))
                 break;
             AccelerateAlcoonY(state);
@@ -215,7 +215,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Alcoon falling AI requires room collision data.");
 
-        int displacement = state.Velocity.Y.RawValue;
+        SignedSixteenSixteen displacement = state.Velocity.Y;
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             AccelerateAlcoonY(state);
@@ -251,7 +251,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // This is a real two-pixel downward move, not merely a floor probe. On ordinary
         // floors it collides and keeps Alcoon aligned; if the floor vanishes it lets the
         // walking actor fall by the same amount before the remainder of main AI runs.
-        _terrain.MoveEnemyVertically(level, slot, 2 << 16);
+        _terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(2));
 
         if (CoordinateAxis.Distance(state.SpawnPosition.X, slot.Position.X.Whole) >= AlcoonHideXDistance)
         {
@@ -314,7 +314,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = new FixedVector<RoomPixels>(
             SignedSixteenSixteen.Zero, SignedSixteenSixteen.FromParts(-12, 0));
         // The game also clears a record word here that nothing reads.
-        state.YAcceleration = SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 2);
+        state.YAcceleration = SignedSixteenSixteen.FromParts(0, 32768);
     }
 
     /// <summary>Adds the per-slot 16.16 acceleration to Alcoon's vertical velocity.</summary>
@@ -371,7 +371,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Alcoon movement instruction requires room collision data.");
 
-        int displacement = state.Velocity.X.RawValue;
+        SignedSixteenSixteen displacement = state.Velocity.X;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
@@ -413,11 +413,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
 
     /// <summary>Initial horizontal fireball speed in 8.8 units.</summary>
-    private const int AlcoonFireballGraphicsHorizontalSpeed = 1024;
+    private static readonly SignedEightEight AlcoonFireballGraphicsHorizontalSpeed = SignedEightEight.FromSignedRaw(1024);
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
-    private const int AlcoonFireballTerminalHorizontalSpeed = 512;
+    private static readonly SignedEightEight AlcoonFireballTerminalHorizontalSpeed = SignedEightEight.FromSignedRaw(512);
     /// <summary>8.8 horizontal speed reduction applied per fireball update.</summary>
-    private const int AlcoonFireballHorizontalDeceleration = 64;
+    private static readonly SignedEightEight AlcoonFireballHorizontalDeceleration = SignedEightEight.FromSignedRaw(64);
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
     internal void SpawnAlcoonFireball(RoomEnemySlot alcoon, AlcoonFireballLaunch launch)
@@ -438,9 +438,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.AlcoonFireball,
             SpriteGraphics.SpawnedBy(alcoon));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(alcoon.Position.X.Whole + (movingLeft ? -16 : 16)), CoordinateAxis.Wrap(alcoon.Position.Y.Whole - 12)));
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(movingLeft
+        projectile.Velocity = projectile.Velocity.WithX(movingLeft
             ? -AlcoonFireballGraphicsHorizontalSpeed
-            : AlcoonFireballGraphicsHorizontalSpeed));
+            : AlcoonFireballGraphicsHorizontalSpeed);
         projectile.Velocity = projectile.Velocity.WithY(launch.YVelocity);
     }
 
@@ -459,12 +459,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int velocity = projectile.Velocity.X.SignedRawValue;
-        if (velocity < 0)
+        // The speed slows toward the terminal speed and then holds it; neither step leaves the 8.8 range, as the speed
+        // starts at the launch speed and only moves toward the terminal speed.
+        SignedEightEight velocity = projectile.Velocity.X;
+        if (velocity.IsNegative)
         {
             velocity += AlcoonFireballHorizontalDeceleration;
-            if (velocity >= unchecked(-AlcoonFireballTerminalHorizontalSpeed))
-                velocity = unchecked(-AlcoonFireballTerminalHorizontalSpeed);
+            if (velocity >= -AlcoonFireballTerminalHorizontalSpeed)
+                velocity = -AlcoonFireballTerminalHorizontalSpeed;
         }
         else
         {
@@ -472,6 +474,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (velocity < AlcoonFireballTerminalHorizontalSpeed)
                 velocity = AlcoonFireballTerminalHorizontalSpeed;
         }
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(velocity));
+        projectile.Velocity = projectile.Velocity.WithX(velocity);
     }
 }

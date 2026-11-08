@@ -407,15 +407,15 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
 
-        if (projectile.Velocity.Y.SignedRawValue < 0)
+        if (projectile.Velocity.Y.IsNegative)
         {
             projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + DragonFireballGravity);
-            if (projectile.Velocity.Y.SignedRawValue < 0)
+            if (projectile.Velocity.Y.IsNegative)
                 return;
 
             // The exact zero crossing switches from the rising pair of two-frame loops to
             // the falling pair and forces an instruction tick on this same projectile pass.
-            projectile.StartAnimation(new DragonFireballAnimation(projectile.Velocity.X.SignedRawValue < 0
+            projectile.StartAnimation(new DragonFireballAnimation(projectile.Velocity.X.IsNegative
                 ? DragonFireballProgram.FallingLeft
                 : DragonFireballProgram.FallingRight));
             return;

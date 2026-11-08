@@ -25,19 +25,21 @@ public abstract class PauseReserveTankPresentation
         var basis = PauseReserveTankParts.StockAnchor(index);
         return anchorOverrides.TryGetValue(index, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
     }
-    /// <summary>Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position.</summary>
+    /// <summary>
+    /// Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position, in the
+    /// strip's own colours (#1544).
+    /// </summary>
     /// <param name="entries">The screen's sprite entries.</param>
     /// <param name="sheet">The pause sheet.</param>
     /// <param name="visual">The one of the ten reserve visuals to draw.</param>
     /// <param name="index">Zero-based tank or trailing-cap anchor index.</param>
-    /// <param name="shading">The shading the strip shows: the pause highlight cycle's, as the strip is drawn in the row it recolours.</param>
     /// <exception cref="InvalidOperationException">The visual identity is unknown.</exception>
-    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseReserveTankVisual visual, int index, PictureShading shading)
+    public void Draw(ScreenSprites entries, SpriteSheet sheet, PauseReserveTankVisual visual, int index)
     {
         // The strip position is checked before the visual.
         Position16<SpritePixels> anchor = Anchor(index);
         string name = PauseReserveTankParts.Frames().Where(frame => frame.Id == visual).Select(frame => frame.Name)
             .SingleOrDefault() ?? throw new InvalidOperationException($"Undefined PauseReserveTankVisual {visual}.");
-        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankParts.SheetFrameName(name)), anchor, shading: Ensure.NotNull(shading));
+        Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseReserveTankParts.SheetFrameName(name)), anchor, PictureShading.Standard);
     }
 }

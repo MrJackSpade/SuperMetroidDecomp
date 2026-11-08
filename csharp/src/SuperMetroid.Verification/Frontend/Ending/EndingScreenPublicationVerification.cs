@@ -35,7 +35,7 @@ internal static class EndingScreenPublicationVerification
             restored.Flyaway.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
             restored.Stage.BindFloorArtwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
             restored.InstalledArtwork.BindFixtureObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
-            restored.InstalledArtwork.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
+            restored.InstalledArtwork.BindBackdrops(InstalledFixtures.EndingBackdrops);
             restored.InstalledArtwork.BindPaletteFxColors(InstalledFixtures.Maps.RoomPaletteFx);
             restored.Stage.BindEndingFont(InstalledFixtures.Maps.EndingFont);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);

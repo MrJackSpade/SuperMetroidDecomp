@@ -37,7 +37,7 @@ public static class SpriteSheetFiles
     public const string ManifestFileName = "sprite-sheets.json";
 
     /// <summary>Composes and writes every sheet.</summary>
-    /// <param name="bus">Cartridge source for frames no installed artwork holds.</param>
+    /// <param name="bus">Cartridge source for frames no installed artwork holds and for the ending's colours (#1544).</param>
     /// <param name="content">Installed stock content holding the characters, compositions and colours the sheets compose from.</param>
     /// <param name="directory">Destination directory, created if absent.</param>
     /// <param name="sourceCartridgeSha256">Identity written into the manifest.</param>
@@ -46,9 +46,10 @@ public static class SpriteSheetFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         SpriteSheetStore store = SpriteSheetStore.Create(directory, ManifestFileName);
-        var sources = new SpriteSheetSourceCatalog(content);
-        // Only the escape timer's sheet reads the cartridge bus, so it composes on this thread; every other sheet composes
-        // from the installed sources in parallel (#1530), each into its own place, so the order stays the sheets' own.
+        // The ending's colours and the escape timer's sheet read the cartridge bus, so they are read on this thread; every
+        // other sheet composes from the installed sources and those colours in parallel (#1530), each into its own place,
+        // so the order stays the sheets' own.
+        var sources = new SpriteSheetSourceCatalog(content, EndingPaletteImport.Read(bus));
         IReadOnlyList<SpriteSheetId> sheets = SpriteSheetDefinitions.Sheets;
         var composed = new ComposedSpriteSheet[sheets.Count];
         Parallel.For(0, sheets.Count, index =>

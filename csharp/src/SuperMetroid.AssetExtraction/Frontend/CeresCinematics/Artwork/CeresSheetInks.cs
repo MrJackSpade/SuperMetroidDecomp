@@ -11,9 +11,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// Where the Ceres cinematics' colours lie among their sheets' inks (#1512): the sprite set each Ceres actor colouring draws
-/// in, and the background inks the gunship engine's flicker recolours. A colour is its set's place times sixteen plus its
-/// colour within the set, as the Ceres flight loads its palette; a background colour is the same ink on the floor and the
-/// cinematic pictures' sheets.
+/// in, and the background inks the gunship engine's flicker recolours on the gunship's floor. A colour is its set's place
+/// times sixteen plus its colour within the set, as the Ceres flight loads its palette.
 /// </summary>
 internal static class CeresSheetInks
 {
@@ -44,7 +43,7 @@ internal static class CeresSheetInks
 
     /// <summary>
     /// The shade of every record the Ceres destruction's gunship engine flicker shows, coloured from
-    /// <paramref name="colours"/> over the background inks it recolours, which the floor and the planet show it in.
+    /// <paramref name="colours"/> over the background inks it recolours, which the gunship's floor shows it in.
     /// </summary>
     /// <exception cref="InvalidDataException">A record has no installed colour, or writes past the engine's set.</exception>
     internal static IReadOnlyList<SheetShade> EngineShades(IPaletteFxColorSource colours) =>

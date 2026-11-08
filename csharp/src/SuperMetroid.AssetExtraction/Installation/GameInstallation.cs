@@ -117,11 +117,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the installed ending OBJ artwork.</summary>
     public EndingObjectSourceArtwork LoadEndingObjectArt() =>
         EndingObjectArtworkFiles.Load(EndingObjectDirectory);
-    /// <summary>Installed ending-scene color palettes, which the player edits in place.</summary>
-    public string EndingPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingPaletteDirectoryName);
-    /// <summary>Loads the installed ending color palettes.</summary>
-    public EndingPaletteSet LoadEndingPalettes() =>
-        EndingPaletteArtworkFiles.Load(EndingPaletteDirectory);
+    /// <summary>Installed ending scene backdrops, which the player edits in place (#1544).</summary>
+    public string EndingBackdropDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingBackdropDirectoryName);
+    /// <summary>Loads the installed ending scene backdrops.</summary>
+    public EndingBackdrops LoadEndingBackdrops() =>
+        EndingBackdropFiles.Load(EndingBackdropDirectory);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Loads each installed room palette as the player left it, keyed by its source identity.</summary>
@@ -306,7 +306,7 @@ public sealed record GameInstallation(string Root)
             SamusBodyArt = LoadSamusBodyArt(),
             EndingFloorArt = LoadEndingMode7Art(),
             EndingObjectArt = LoadEndingObjectArt(),
-            EndingPaletteArt = LoadEndingPalettes(),
+            EndingBackdrops = LoadEndingBackdrops(),
             RoomBlockSheets = LoadRoomBlockSheets(),
             RoomVisualLayouts = LoadRoomVisualLayouts(),
             RoomLevelStreams = LoadRoomLevelStreams(),

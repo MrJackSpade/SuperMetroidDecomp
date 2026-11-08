@@ -95,9 +95,21 @@ internal static class InstalledFixtures
     private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork> endingObjects =
         Shared<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork>("ending objects", () => RepositoryInstallation.Installation.LoadEndingObjectArt());
 
-    /// <summary>The installed ending palettes, loaded once for every ending fixture (#1532).</summary>
-    private static readonly Lazy<SuperMetroid.Core.Frontend.Ending.Artwork.EndingPaletteSet> endingPalettes =
-        Shared<SuperMetroid.Core.Frontend.Ending.Artwork.EndingPaletteSet>("ending palettes", () => RepositoryInstallation.Installation.LoadEndingPalettes());
+    /// <summary>The installed ending scene backdrops, loaded once for every ending fixture (#1532, #1544).</summary>
+    private static readonly Lazy<SuperMetroid.Core.Frontend.Ending.Artwork.EndingBackdrops> endingBackdrops =
+        Shared<SuperMetroid.Core.Frontend.Ending.Artwork.EndingBackdrops>("ending backdrops", () => RepositoryInstallation.Installation.LoadEndingBackdrops());
+
+    /// <summary>The ending's colours the import decodes from the cartridge and pre-colours the ending's sheets in (#1544).</summary>
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteSet> endingColours =
+        Shared<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteSet>("ending colours", () =>
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingPaletteImport.Read(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+
+    /// <summary>The installed ending scene backdrops.</summary>
+    internal static SuperMetroid.Core.Frontend.Ending.Artwork.EndingBackdrops EndingBackdrops => endingBackdrops.Value;
+
+    /// <summary>The ending's colours the import decodes from the cartridge, which the installed ending sheets are pre-coloured in.</summary>
+    internal static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingPaletteSet EndingColours => endingColours.Value;
 
     /// <summary>Lazy action that binds all installed host catalogs to a game.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
@@ -280,7 +292,7 @@ internal static class InstalledFixtures
         ending.Flyaway.BindFlightArtwork(IntroArtwork.CeresFlight);
         ending.Stage.BindFloorArtwork(endingFloors.Value);
         ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
-        ending.InstalledArtwork.BindPaletteArtwork(endingPalettes.Value);
+        ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
         ending.InstalledArtwork.BindPaletteFxColors(Maps.RoomPaletteFx);
         ending.Stage.BindEndingFont(Maps.EndingFont);
         return ending;

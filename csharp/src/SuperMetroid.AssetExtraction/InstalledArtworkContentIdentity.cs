@@ -335,21 +335,12 @@ internal static class InstalledArtworkContentIdentity
         });
     }
 
-    /// <summary>The installed content identity of a <see cref="EndingPaletteSet"/>.</summary>
-    extension(EndingPaletteSet palettes)
+    /// <summary>The installed content identity of a <see cref="EndingBackdrops"/>.</summary>
+    extension(EndingBackdrops backdrops)
     {
-        /// <summary>Identity of all selected static colors and every ordered logo-crossfade color.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create("EndingPaletteCatalog", content =>
-        {
-            content.Append("palette-count", 7);
-            content.Append("palette", EndingPaletteWords.Of(palettes.escape).Span);
-            content.Append("palette", EndingPaletteWords.Of(palettes.postCredits).Span);
-            content.Append("palette", EndingPaletteWords.Of(palettes.credits).Span);
-            content.Append("palette", EndingPaletteWords.Of(palettes.explosion).Span);
-            content.Append("palette", EndingPaletteWords.Of(palettes.finalGunship).Span);
-            content.Append("palette", EndingPaletteWords.Of(palettes.logoInitial).Span);
-            content.Append("palette", EndingPaletteWords.Of(palettes.logoCrossfade).Span);
-        });
+        /// <summary>Identity of each scene's backdrop, in scene order (#1544).</summary>
+        public string ContentIdentity => SelectedPresentationHash.Create(nameof(EndingBackdrops), content =>
+            content.AppendColors("backdrops", [backdrops.Escape, backdrops.Explosion, backdrops.Credits, backdrops.PostCredits]));
     }
 
     /// <summary>Appends each sheet's frames that show a rotting corpse and where the corpse lies in each (#1531), in a stable order.</summary>

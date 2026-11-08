@@ -119,9 +119,9 @@ internal static class EndingContentIdentityVerification
             "EscapeA-map", "EscapeA-pixels", "EscapeB-map", "EscapeB-pixels",
             "PlanetExplosion-map", "PlanetExplosion-pixels", "scene-order", "reward-map", "reward-pixels",
         }) edits.Add(new EndingContentIdentityEdit(edit, GameInstallationLayout.EndingMode7DirectoryName));
-        foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
-            edits.Add(new EndingContentIdentityEdit("palette-" + id, GameInstallationLayout.EndingPaletteDirectoryName));
-        edits.Add(new EndingContentIdentityEdit("palette-order", GameInstallationLayout.EndingPaletteDirectoryName));
+        foreach (string edit in BackdropScenes)
+            edits.Add(new EndingContentIdentityEdit("backdrop-" + edit, GameInstallationLayout.EndingBackdropDirectoryName));
+        edits.Add(new EndingContentIdentityEdit("backdrop-order", GameInstallationLayout.EndingBackdropDirectoryName));
 
         foreach ((string edit, string component) in edits)
         {
@@ -146,7 +146,7 @@ internal static class EndingContentIdentityVerification
         // digest would needlessly change the exact debugger-object layout of older save states.
         foreach (Type type in new[]
         {
-            typeof(EndingObjectArtwork), typeof(EndingFloorArtwork), typeof(EndingPaletteSet),
+            typeof(EndingObjectArtwork), typeof(EndingFloorArtwork), typeof(EndingBackdrops),
             typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
             typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
             typeof(EndingLogoSpritePresentation),
@@ -154,7 +154,7 @@ internal static class EndingContentIdentityVerification
             AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
                 type.Name + " adds no serialized derived-identity field");
-        Console.WriteLine($"  Ending content: {edits.Count} independent character/map/composition/palette edits, " +
+        Console.WriteLine($"  Ending content: {edits.Count} independent character/map/composition/backdrop edits, " +
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
 
@@ -282,25 +282,14 @@ internal static class EndingContentIdentityVerification
         var mode7 = new EndingFloorCharacters(scenes[0], scenes[1], scenes[2],
             EndingRewardIconCharacters.Read(FloorMap("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
 
-        EndingPalette[] colors = Enum.GetValues<EndingPaletteId>().Select(id => EndingPaletteFile.Read(Json(new EndingPaletteDocument
-        {
-            Version = EndingPaletteDefinitions.Version,
-            Colors = Enumerable.Range(0, EndingPaletteFiles.ColorCount(id)).Select(index => new PaletteRgb5
-            {
-                Red = ((int)id + index) % 32,
-                Green = index == EndingPaletteFiles.ColorCount(id) - 1 && edit == "palette-" + id ? 1 : 0,
-                Blue = 0,
-            }).ToArray(),
-        }), id)).ToArray();
-        if (edit == "palette-order") {
-    var held0 = colors[1];
-    var held1 = colors[0];
-    colors[0] = held0;
-    colors[1] = held1;
-}
-        var palettes = new EndingPaletteSet(colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6]);
-        return EndingPresentationIdentity.Create(mode7, objects, palettes);
+        RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new RgbColor(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0))];
+        if (edit == "backdrop-order")
+            backdrops = [backdrops[1], backdrops[0], .. backdrops[2..]];
+        return EndingPresentationIdentity.Create(mode7, objects, new EndingBackdrops(backdrops[0], backdrops[1], backdrops[2], backdrops[3]));
     }
+
+    /// <summary>The scenes whose backdrops the identity fixture edits, in the backdrops' order.</summary>
+    private static readonly string[] BackdropScenes = ["Escape", "Explosion", "Credits", "PostCredits"];
 
     /// <summary>Runs the native ending Mode 7 source and artwork-role check.</summary>
     [VerificationCommand("--lookup-ending-mode7-roles")]

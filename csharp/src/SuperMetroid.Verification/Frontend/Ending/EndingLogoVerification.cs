@@ -35,8 +35,8 @@ internal static class EndingLogoVerification
         var screen = new EndingScreen();
         var stage = new EndingStage(0, screen, []);
         int landings = 0;
-        EndingPaletteSet palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
-        stage.BindPaletteArtwork(palettes);
+        EndingPaletteSet palettes = InstalledFixtures.EndingColours;
+        stage.BindBackdrops(InstalledFixtures.EndingBackdrops);
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(palettes, InstalledFixtures.Maps.RoomPaletteFx);
         var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);
         var logo = new EndingLogo(stage, () => landings++);

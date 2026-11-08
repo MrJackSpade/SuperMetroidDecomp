@@ -1,15 +1,14 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
 /// How the import builds and reads an ending colour resource (#1464, #1512): the logo crossfade's colours by step and
-/// layer, and a whole screen's or a run's colours, which it pre-colours the ending's sheets in. The ending itself reads only
-/// a whole screen's backdrop.
+/// layer, and a whole screen's or a run's colours, which it pre-colours the ending's sheets in.
 /// </summary>
 internal static class EndingPaletteReading
 {
@@ -36,7 +35,7 @@ internal static class EndingPaletteReading
         /// <summary>A whole screen's sprite colours.</summary>
         /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
         internal ReadOnlySpan<RgbColor> Sprites =>
-            palette.RequireScreen().AsSpan(SpriteImage.SpriteColourCount, SpriteImage.SpriteColourCount);
+            palette.RequireScreen().AsSpan(ScreenColourImage.ColorCount / 2, ScreenColourImage.ColorCount / 2);
 
         /// <summary>The logo crossfade's colour <paramref name="colour"/> of <paramref name="layer"/> at crossfade step <paramref name="step"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The step, layer or colour is outside the crossfade.</exception>

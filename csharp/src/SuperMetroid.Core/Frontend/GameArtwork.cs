@@ -55,8 +55,8 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Ending sprite artwork.</summary>
     public EndingObjectArtwork? EndingObjectArt { get; init; }
 
-    /// <summary>Ending palettes.</summary>
-    public EndingPaletteSet? EndingPaletteArt { get; init; }
+    /// <summary>The ending scenes' backdrops (#1544).</summary>
+    public EndingBackdrops? EndingBackdrops { get; init; }
 
     /// <summary>The pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork? RoomBlockSheets { get; init; }

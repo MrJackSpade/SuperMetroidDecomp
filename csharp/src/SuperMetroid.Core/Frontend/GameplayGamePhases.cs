@@ -238,7 +238,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.ActiveEndingCredits.Flyaway.BindFlightArtwork(session.Artwork.IntroCinematicArt?.CeresFlight);
             session.ActiveEndingCredits.Stage.BindFloorArtwork(session.Artwork.EndingFloorArt);
             session.ActiveEndingCredits.InstalledArtwork.BindObjectArtwork(session.Artwork.EndingObjectArt);
-            session.ActiveEndingCredits.InstalledArtwork.BindPaletteArtwork(session.Artwork.EndingPaletteArt);
+            session.ActiveEndingCredits.InstalledArtwork.BindBackdrops(session.Artwork.EndingBackdrops);
             session.ActiveEndingCredits.InstalledArtwork.BindSpriteSheets(session.Artwork.SpriteSheets);
             session.ActiveEndingCredits.InstalledArtwork.BindPaletteFxColors(session.Artwork.MapPresentation?.RoomPaletteFx);
             session.ActiveEndingCredits.Stage.BindEndingFont(session.Artwork.MapPresentation?.EndingFont);

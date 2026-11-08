@@ -21,18 +21,18 @@ internal static class EndingScreenInks
     /// <summary>The screen's colours.</summary>
     internal const int ScreenColourCount = 2 * SpriteFirst;
 
-    /// <summary>The first screen colours, which the credits' end does not restore: they keep the credits' colours.</summary>
-    private const int CreditsKeptColours = 4;
-
-    /// <summary>The screen colours each load writes.</summary>
+    /// <summary>
+    /// The screen colours each load writes. A scene's own colours are its whole screen (#1544): nothing an earlier scene
+    /// loaded shows in it.
+    /// </summary>
     private static readonly Dictionary<EndingColourLoad, int[]> Loads = new()
     {
         [EndingColourLoad.Escape] = Range(0, ScreenColourCount),
-        [EndingColourLoad.ExplosionSprites] = Range(SpriteFirst, SpriteFirst),
+        [EndingColourLoad.Explosion] = Range(0, ScreenColourCount),
         [EndingColourLoad.ExplosionBackgrounds] = Range(0, SpriteFirst),
         [EndingColourLoad.FinalGunship] = Background(5),
-        [EndingColourLoad.CreditsBackgrounds] = Range(0, SpriteFirst),
-        [EndingColourLoad.PostCredits] = Range(CreditsKeptColours, ScreenColourCount - CreditsKeptColours),
+        [EndingColourLoad.Credits] = Range(0, ScreenColourCount),
+        [EndingColourLoad.PostCredits] = Range(0, ScreenColourCount),
         [EndingColourLoad.RestoredShot] = Sprite(4),
         [EndingColourLoad.LogoInitial] = Sprite(7),
     };

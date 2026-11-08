@@ -595,7 +595,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // because custom phases may draw different compositions.
         LastSelectorCategory = SelectedCategory;
         LastMapIndicatorSprite = null;
-        selector.Draw(screen.Objects, PauseSheet, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame, paletteAnimation.CycleShading);
+        selector.Draw(screen.Objects, PauseSheet, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame);
     }
 
     /// <summary>
@@ -886,7 +886,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             (mapPresentation ?? throw new InvalidOperationException(
                 "Reserve tanks require installed presentation assets."))
-                .PauseReserveTanks.Draw(screen.Objects, PauseSheet, map, index, paletteAnimation.CycleShading);
+                .PauseReserveTanks.Draw(screen.Objects, PauseSheet, map, index);
         }
     }
 

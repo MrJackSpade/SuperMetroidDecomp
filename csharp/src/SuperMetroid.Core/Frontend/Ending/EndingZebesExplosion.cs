@@ -33,7 +33,7 @@ internal sealed class EndingZebesExplosion
     {
         _stage.RequireFloorArtwork();
         _artwork.RequireExplosionArtwork();
-        _stage.LoadColours(EndingColourLoad.ExplosionSprites);
+        _stage.LoadColours(EndingColourLoad.Explosion);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionLava, EndingSpriteRole.ExplosionLava);
@@ -58,10 +58,9 @@ internal sealed class EndingZebesExplosion
     /// <summary>Stops cloud palette effects and seeds the planet object's first fade step.</summary>
     private void BeginExplosionCrossfade()
     {
-        // Func115 clears the previous cloud palette programs before taking its source
-        // snapshot; otherwise their next instruction can overwrite the new sprite fade.
-        // The snapshot holds the escape's far background and the explosion's sprite colours just loaded,
-        // which the import scales at every level (#1512).
+        // The cloud palette effects end before the crossfade begins; otherwise their next record would show over it.
+        // The crossfade fades the escape's far background out and the explosion's planet and lava in, from colours the
+        // import scales at every level (#1512).
         _stage.ResetPaletteFx();
         explosionFadeStep = 0;
         screen.Colours.Fade(EndingFade.ExplosionLava, 0);

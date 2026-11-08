@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
@@ -21,13 +20,16 @@ namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 
-/// <summary>Checks ending palette identity, native fade colors, and installed artwork.</summary>
+/// <summary>
+/// Checks the ending colours the import decodes (#1544): their cartridge sources, the logo's calculated fade, the installed
+/// scene backdrops, and an installed ending that reads no colour from the cartridge.
+/// </summary>
 internal static class EndingPaletteArtworkVerification
 {
     /// <summary>$95:A82F: the flyaway's compressed character lane, a valid non-palette cartridge source the guard must reject (#1416: moved from the deleted test-support constants).</summary>
     private const int FlyawayCharactersSource = 0x95a82f;
 
-    /// <summary>Checks the logo's reverse-copy palette fade against native pointers and actual CGRAM writes.</summary>
+    /// <summary>Checks the import's decoded logo fade against native pointers and actual CGRAM writes.</summary>
     internal static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];
@@ -55,26 +57,19 @@ internal static class EndingPaletteArtworkVerification
             AssertThrows<ArgumentOutOfRangeException>(() => gradient.Color(invalid), "logo background gradient bounds");
         EndingLogoPaletteFade fade = EndingPaletteRecognition.LogoFade(EndingLogoPaletteFadeAccess.DecodeWords(original))
             ?? throw new InvalidOperationException("Original logo fade must use computed interpolation.");
-        EndingPalette Load(PaletteRgb5[] supplied)
-        {
-            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-                new EndingPaletteDocument { Version = 1, Colors = supplied }, ArtworkJson.Options));
-            return EndingPaletteFile.Read(json, EndingPaletteId.LogoCrossfade);
-        }
-        EndingPalette loaded = Load(colors);
+        EndingPalette loaded = EndingPaletteImport.Read(rom)[EndingPaletteId.LogoCrossfade];
         int remaindersSeen = 0;
         for (int index = 0; index < 512; index++)
         {
             ushort expected = LittleEndianBytes.Word(original[index * 2], original[index * 2 + 1]);
             AssertEqual(expected, fade.Color(index), "all original logo fade colors computed exactly");
-            AssertEqual(expected, loaded.CrossfadeColorAt(index), "computed fade reaches palette accessor");
+            AssertEqual(expected, loaded.CrossfadeColorAt(index), "computed fade reaches the decoded crossfade");
             int palette = index / 16 % 2, step = index / 32;
             PaletteRgb5 endpoint = colors[(palette == 0 ? 15 * 32 : 16) + index % 16];
             foreach (int channel in new[] { endpoint.Red, endpoint.Green, endpoint.Blue })
                 remaindersSeen |= 1 << (channel * (palette == 0 ? step : 15 - step) % 15);
         }
         AssertEqual(0x7fff, remaindersSeen, "original data exercises every quantization remainder");
-        AssertTrue(EndingPaletteWords.Of(loaded).Span.SequenceEqual(original), "computed fade preserves complete exported bytes");
         // The logo reads each step's colours by layer; the native resource holds each step's background colours, then its
         // sprite colours.
         for (int step = 0; step < 16; step++)
@@ -88,14 +83,14 @@ internal static class EndingPaletteArtworkVerification
         foreach (int invalid in new[] { int.MinValue, -1, 512, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => fade.Color(invalid), "computed fade index domain");
-            AssertThrows<ArgumentOutOfRangeException>(() => loaded.CrossfadeColorAt(invalid), "loaded fade index domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => loaded.CrossfadeColorAt(invalid), "decoded fade index domain");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(16, EndingLogoLayer.Background, 0), "computed fade step bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => loaded.LogoCrossfadeColour(0, EndingLogoLayer.Sprites, 16), "computed fade colour bounds");
-        AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
+        AssertEqual(512, loaded.Colours.Length, "decoded fade holds every crossfade colour");
     }
 
-    /// <summary>Derives six ending palette source ranges from native load operands and validates catalog metadata.</summary>
+    /// <summary>Derives six ending palette source ranges from native load operands and validates the import's colour counts.</summary>
     internal static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
         // Original indexed LDA operands select the six contiguous resources. The gunship
@@ -124,79 +119,44 @@ internal static class EndingPaletteArtworkVerification
             new EndingPaletteArtworkVerificationValue(EndingPaletteId.Escape, 0x8cede9, 0x8cefe9),
         })
             AssertEqual((allocation.End - allocation.Start) / 2,
-                EndingPaletteFiles.ColorCount(allocation.Id), "complete palette allocation size");
+                EndingPaletteImport.ColorCount(allocation.Id), "complete palette allocation size");
         foreach (var single in new[] { new VerifyEndingPaletteMetadataCase(EndingPaletteId.FinalGunship, 0x8bde34), new VerifyEndingPaletteMetadataCase(EndingPaletteId.LogoInitial, 0x8be57a) })
         {
             AssertEqual(0xa2, (int)rom.ReadCartridgeByte(single.Second), "native reverse palette LDX opcode");
             int lastOffset = rom.ReadCartridgeWord(single.Second + 1);
-            AssertEqual(lastOffset / 2 + 1, EndingPaletteFiles.ColorCount(single.First), "single palette reverse-copy size");
+            AssertEqual(lastOffset / 2 + 1, EndingPaletteImport.ColorCount(single.First), "single palette reverse-copy size");
         }
         AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
-            EndingPaletteFiles.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
-        Published[] published =
-        [
-            new Published(EndingPaletteId.Escape, "ending-escape-palette.json"),
-            new Published(EndingPaletteId.PostCredits, "ending-post-credits-palette.json"),
-            new Published(EndingPaletteId.Credits, "ending-credits-palette.json"),
-            new Published(EndingPaletteId.Explosion, "ending-explosion-palette.json"),
-            new Published(EndingPaletteId.FinalGunship, "ending-final-gunship-palette.json"),
-            new Published(EndingPaletteId.LogoInitial, "ending-logo-initial-palette.json"),
-            new Published(EndingPaletteId.LogoCrossfade, "ending-logo-crossfade-palette.json"),
-        ];
-        foreach (var file in published)
-            AssertEqual(file.Name, EndingPaletteFiles.FileName(file.Role), "published palette filename compatibility");
+            EndingPaletteImport.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
         AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source(EndingPaletteId.LogoCrossfade),
             "crossfade has no contiguous source");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source((EndingPaletteId)invalid), "invalid palette source role");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteFiles.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteFiles.FileName((EndingPaletteId)invalid), "invalid palette file role");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteImport.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
         }
     }
 
-    /// <summary>Checks all seven constructor-position palette roles with distinct caller-owned colors.</summary>
-    internal static void VerifyEndingPaletteRoleSelection()
-    {
-        // Distinct caller-owned values exercise the original constructor-position contract.
-        var supplied = new EndingPalette[7];
-        for (int i = 0; i < supplied.Length; i++)
-        {
-            using var json = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(new EndingPaletteDocument
-            {
-                Version = 1,
-                Colors = Enumerable.Range(0, 256).Select(_ => new PaletteRgb5 { Red = i, Green = 0, Blue = 0 }).ToArray(),
-            }, ArtworkJson.Options));
-            supplied[i] = EndingPaletteFile.Read(json, EndingPaletteId.Escape);
-        }
-        var catalog = new EndingPaletteSet(supplied[0], supplied[1], supplied[2], supplied[3], supplied[4], supplied[5], supplied[6]);
-        EndingPaletteId[] originalOrder = [EndingPaletteId.Escape, EndingPaletteId.PostCredits, EndingPaletteId.Credits,
-            EndingPaletteId.Explosion, EndingPaletteId.FinalGunship, EndingPaletteId.LogoInitial, EndingPaletteId.LogoCrossfade];
-        for (int i = 0; i < originalOrder.Length; i++)
-            AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending palette role preserves supplied reference");
-        string originalIdentity = SelectedPresentationHash.Create("EndingPaletteCatalog", content =>
-        {
-            content.Append("palette-count", supplied.Length);
-            foreach (EndingPalette palette in supplied) content.Append("palette", EndingPaletteWords.Of(palette).Span);
-        });
-        AssertEqual(originalIdentity, catalog.ContentIdentity, "ending palette identity preserves original role order");
-        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
-    }
-
-    /// <summary>Checks installed ending colors with cartridge reads guarded.</summary>
+    /// <summary>
+    /// Checks the installed scene backdrops against the cartridge's scene colours, and an installed ending that reads no
+    /// colour from the cartridge (#1544).
+    /// </summary>
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
-        Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
-        EndingPaletteSet stock = installation.LoadEndingPalettes();
+        EndingBackdrops backdrops = installation.LoadEndingBackdrops();
         AreaMapPresentation maps = installation.LoadMaps();
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
+        foreach (EndingBackdropScene scene in new[]
         {
-            byte[] native = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus, id,
-                EndingPaletteFiles.ColorCount(id));
-            AssertTrue(EndingPaletteWords.Of(stock[id]).Span.SequenceEqual(native),
-                $"installed ending {id} palette preserves every cartridge color byte");
+            new EndingBackdropScene(EndingPaletteId.Escape, backdrops.Escape),
+            new EndingBackdropScene(EndingPaletteId.Explosion, backdrops.Explosion),
+            new EndingBackdropScene(EndingPaletteId.Credits, backdrops.Credits),
+            new EndingBackdropScene(EndingPaletteId.PostCredits, backdrops.PostCredits),
+        })
+        {
+            byte[] native = EndingPaletteImport.ReadNativePalette(nativeBus, scene.Screen, EndingPaletteImport.ColorCount(scene.Screen));
+            AssertEqual(LittleEndianBytes.Word(native[0], native[1]), scene.Backdrop.ToWord(),
+                $"installed ending {scene.Screen} backdrop is the cartridge scene's first colour");
         }
 
         bool rejectAllCartridgeReads = false;
@@ -207,16 +167,15 @@ internal static class EndingPaletteArtworkVerification
         var installedAudio = new AudioQueues();
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
         var installedState = CreateRetailEndingFixture(installedAudio, 2, 59);
-        installedState.InstalledArtwork.BindPaletteArtwork(stock);
+        installedState.InstalledArtwork.BindBackdrops(backdrops);
         installedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
         installedState.InstalledArtwork.BindEndingText(maps.EndingText);
         installedState.Stage.BindEndingFont(maps.EndingFont);
         installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         installedState.Stage.BindFloorArtwork(installation.LoadEndingMode7Art());
         installedState.InstalledArtwork.BindFixtureObjectArtwork(installation.LoadEndingObjectArt());
-        // This matches the playable host's installed ending bindings. The fallback
-        // bus remains available in narrower native-reference tests below, but the
-        // production-shaped scene must complete without *any* cartridge read.
+        // This matches the playable host's installed ending bindings: the production-shaped scene must complete without
+        // *any* cartridge read.
         rejectAllCartridgeReads = true;
         AssertThrows<InvalidOperationException>(
             () => guardedBus.ReadByte(FlyawayCharactersSource),
@@ -226,7 +185,7 @@ internal static class EndingPaletteArtworkVerification
             nativeState.Stage.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
         {
             AssertEqual(nativeState.Stage.Phase, installedState.Stage.Phase,
-                $"installed ending palettes preserve phase at frame {frame}");
+                $"installed ending backdrops preserve phase at frame {frame}");
             bool first = reached.Add(nativeState.Stage.Phase);
             if (first || frame % 173 == 0)
             {
@@ -239,7 +198,7 @@ internal static class EndingPaletteArtworkVerification
                 AssertTrue(actualColours.SequenceEqual(expectedColours) &&
                         actualVram.SequenceEqual(expectedVram) &&
                         actual.Brightness == expected.Brightness,
-                    $"installed ending palettes preserve native PPU state at frame {frame}");
+                    $"installed ending backdrops preserve the shown ending at frame {frame}");
             }
             nativeState.Step();
             installedState.Step();
@@ -267,27 +226,27 @@ internal static class EndingPaletteArtworkVerification
                 $"ending palette parity exercises {phase}");
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "installed ending never rereads static, logo or palette-FX ROM colors");
-        Suite(nameof(VerifyEndingLogoPaletteArtwork), () => VerifyEndingLogoPaletteArtwork(stock, nativeBus, guardedBus));
+        Suite(nameof(VerifyEndingLogoPaletteArtwork), () => VerifyEndingLogoPaletteArtwork(EndingPaletteImport.Read(nativeBus), nativeBus, guardedBus));
 
-        Console.WriteLine("Ending palettes: seven native images and installed palette-FX colors, full ending CGRAM parity and ROM-free installed scene/audio-step guard pass.");
+        Console.WriteLine("Ending colours: installed scene backdrops, the decoded logo colours and a ROM-free installed scene/audio-step guard pass.");
     }
 
-    /// <summary>Compares installed logo fade CGRAM with native playback while prohibiting source color reads.</summary>
-    private static void VerifyEndingLogoPaletteArtwork(EndingPaletteSet stock,
+    /// <summary>Compares the logo's pre-coloured shades with the cartridge's colours while prohibiting source color reads.</summary>
+    private static void VerifyEndingLogoPaletteArtwork(EndingPaletteSet decoded,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {
-        // The import pre-colours the logo's first sprite colours and each crossfade step from the installed palettes
-        // (#1512): each shade holds the cartridge's colours, the step's background colours before its sprite colours.
-        IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(stock, InstalledFixtures.Maps.RoomPaletteFx);
-        byte[] nativeInitial = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
-            EndingPaletteId.LogoInitial, EndingPaletteFiles.ColorCount(EndingPaletteId.LogoInitial));
+        // The import pre-colours the logo's first sprite colours and each crossfade step from the decoded colours
+        // (#1512, #1544): each shade holds the cartridge's colours, the step's background colours before its sprite colours.
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(decoded, InstalledFixtures.Maps.RoomPaletteFx);
+        byte[] nativeInitial = EndingPaletteImport.ReadNativePalette(nativeBus,
+            EndingPaletteId.LogoInitial, EndingPaletteImport.ColorCount(EndingPaletteId.LogoInitial));
         SheetShade initial = shades.Single(shade => shade.Shade == EndingShades.Loaded(EndingColourLoad.LogoInitial));
         AssertTrue(initial.Inks.SequenceEqual(Enumerable.Range(240, 16)), "the logo's first colours cover its sprite colours");
         for (int color = 0; color < 16; color++)
             AssertEqual(LittleEndianBytes.Word(nativeInitial[color * 2], nativeInitial[color * 2 + 1]), initial.Colours[color].ToWord(),
                 "installed initial logo colours match the cartridge");
-        byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
-            EndingPaletteId.LogoCrossfade, EndingPaletteFiles.ColorCount(EndingPaletteId.LogoCrossfade));
+        byte[] nativeColors = EndingPaletteImport.ReadNativePalette(nativeBus,
+            EndingPaletteId.LogoCrossfade, EndingPaletteImport.ColorCount(EndingPaletteId.LogoCrossfade));
         for (int step = 0; step < EndingShades.LogoCrossfadeSteps; step++)
         {
             SheetShade shown = shades.Single(shade => shade.Shade == EndingShades.LogoCrossfade(step));
@@ -309,12 +268,12 @@ internal static class EndingPaletteArtworkVerification
             .Where(id => id != EndingPaletteId.LogoCrossfade)
             .Select(id => new EndingPaletteArtworkVerificationValue(id, EndingPaletteSources.Source(id),
                 EndingPaletteSources.Source(id) +
-                EndingPaletteFiles.ColorCount(id) * sizeof(ushort)))
+                EndingPaletteImport.ColorCount(id) * sizeof(ushort)))
             .Append(new EndingPaletteArtworkVerificationValue(EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
             .ToArray();
 
     /// <summary>
-    /// Forbids every installed ending palette source. While <paramref name="rejectAllCartridgeReads"/>
+    /// Forbids every ending colour source. While <paramref name="rejectAllCartridgeReads"/>
     /// holds, any other cartridge read is also rejected; that rejection is not a forbidden-source
     /// attempt, so it throws from an observation rule and leaves the counter unchanged.
     /// </summary>
@@ -334,14 +293,5 @@ internal static class EndingPaletteArtworkVerification
             address => throw new InvalidOperationException(
                 $"Installed ending reread cartridge byte ${address:X6}."));
         return guard;
-    }
-
-    /// <summary>Runs the seven-role palette identity check without a cartridge source.</summary>
-    [VerificationCommand("--lookup-ending-palette-roles")]
-    internal static int LookupEndingPaletteRolesCommand()
-    {
-        Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
-        Console.WriteLine("Ending palette roles: all seven supplied references, original identity order and invalid-role behavior pass.");
-        return 0;
     }
 }

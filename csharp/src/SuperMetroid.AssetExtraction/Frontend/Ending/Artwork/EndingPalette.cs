@@ -1,13 +1,15 @@
 using System.Collections.Immutable;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Ending;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
-/// One independently editable ending colour resource (#1464): a whole screen's colours, a run of colours a scene loads,
-/// such as the final gunship's colours, or the logo crossfade's colours by step and layer. The import decodes each,
-/// recognising the logo's calculated fade, and pre-colours the ending's sheets in them (#1512); the ending itself reads
-/// only a whole screen's backdrop.
+/// One ending colour resource as the import decodes it from the cartridge (#1464, #1544): a whole screen's colours, a run
+/// of colours a scene loads, such as the final gunship's colours, or the logo crossfade's colours by step and layer. The
+/// import pre-colours the ending's sheets in them (#1512) and installs each scene's backdrop as a colour; the game loads
+/// none of them.
 /// </summary>
 public sealed class EndingPalette
 {
@@ -31,7 +33,7 @@ public sealed class EndingPalette
     /// <exception cref="ArgumentException">A whole screen's or the crossfade's colours are not as many as it holds.</exception>
     internal EndingPalette(ImmutableArray<RgbColor> colours, Kind kind)
     {
-        if (colours.IsDefault || (kind == Kind.Screen && colours.Length != 2 * SpriteImage.SpriteColourCount)
+        if (colours.IsDefault || (kind == Kind.Screen && colours.Length != ScreenColourImage.ColorCount)
             || (kind == Kind.LogoCrossfade && colours.Length != CrossfadeColours))
             throw new ArgumentException($"An ending {kind} palette does not hold its colours.", nameof(colours));
         this.colours = colours;
@@ -49,7 +51,7 @@ public sealed class EndingPalette
 
     /// <summary>The solid colour a whole screen shows behind every layer once it is loaded: its first background colour.</summary>
     /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>
-    public RgbColor Backdrop => RequireScreen()[0];
+    internal RgbColor Backdrop => RequireScreen()[0];
 
     /// <summary>The whole screen's colours.</summary>
     /// <exception cref="InvalidOperationException">This resource is not a whole screen's.</exception>

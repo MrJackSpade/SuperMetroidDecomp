@@ -1522,42 +1522,49 @@ internal static class LookupStream2Verification
             AssertEqual(64, state.StablePositionTimer, "Ghost appearance position timer");
             AssertEqual(16, state.StableDirectionTimer, "Ghost appearance direction timer");
         }
-        for (int offset = 0; offset < 34; offset++)
+        // The flicker steps are the native interval table's words after its first, which no appearance starts (each starts
+        // at the second word); the word after the last step is the table's terminator, the steps' end. A step at an odd
+        // position shows the ghost.
+        IReadOnlyList<WreckedShipGhostFlickerStep> steps = WreckedShipGhostAppearanceDefinitions.FlickerSteps;
+        for (int position = 0; position <= steps.Count; position++)
         {
-            short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
-            AssertEqual(original, WreckedShipGhostAppearance.FlickerDuration(offset / 2), "Ghost original flicker interval");
+            int original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (position + 1)));
+            bool ended = position == steps.Count;
+            if (ended)
+                AssertEqual(-1, original, "Ghost native flicker terminator follows the last step");
+            else
+            {
+                AssertEqual(original, steps[position].Duration, "Ghost original flicker interval");
+                AssertEqual(position % 2 == 1 ? WreckedShipGhostFlickerVisibility.Shown : WreckedShipGhostFlickerVisibility.Unchanged,
+                    steps[position].Visibility, "Ghost original flicker visibility");
+            }
             slot.Properties = (EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
             state.PhaseTimer = 1;
-            state.FlickerTableOffset = offset;
+            state.NextFlickerStep = position;
             flicker(slot, state);
-            AssertEqual(original < 0 ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
-            AssertEqual(original < 0 ? 0 : offset + 2, state.FlickerTableOffset, "Ghost actual next offset including odd folding");
-            bool remainsInvisible = original < 0 || (offset & 2) != 0;
+            AssertEqual(ended ? 0 : original, state.PhaseTimer, "Ghost actual next interval");
+            AssertEqual(ended ? steps.Count : position + 1, state.NextFlickerStep, "Ghost actual next step");
+            bool remainsInvisible = ended || position % 2 == 0;
             AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost actual visibility preserves unrelated flags");
         }
         state.PhaseTimer = 2;
-        state.FlickerTableOffset = 2;
+        state.NextFlickerStep = 0;
         slot.Properties = (EnemyProperties.Invisible);
         flicker(slot, state);
         AssertEqual(1, state.PhaseTimer, "Ghost interval countdown");
-        AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
+        AssertEqual(0, state.NextFlickerStep, "Ghost no early interval advance");
         AssertEqual((ushort)EnemyProperties.Invisible, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost no early visibility change");
         state.PhaseTimer = 0;
         flicker(slot, state);
         AssertEqual(0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost terminal next call clears invisibility");
-        state.PhaseTimer = 1;
-        state.FlickerTableOffset = 34;
-        AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
         state.SpawnColumn = 3;
         state.SpawnRow = 0;
         AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost out-of-range spawn class remains rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(-1), "Ghost spawn lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.SpawnOffset(9), "Ghost spawn upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.FlickerDuration(-1), "Ghost flicker lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.FlickerDuration(17), "Ghost flicker upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
-        Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
+        Console.WriteLine("Ghost appearance: 18 native offset fields, 15 native intervals and the terminator, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
     }
     /// <summary>Checks compiled palette instruction mechanics across upper, old, and belly color programs.</summary>
     internal static void VerifyLookupStream2PaletteMechanics()

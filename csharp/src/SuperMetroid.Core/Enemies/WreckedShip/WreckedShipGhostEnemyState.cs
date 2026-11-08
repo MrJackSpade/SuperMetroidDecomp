@@ -14,14 +14,14 @@ public sealed class WreckedShipGhostEnemyState
     public int PhaseTimer { get; internal set; }
 
     /// <summary>
-    /// The flicker-duration table's byte offset, two per interval, 0 through 65535. It starts at two, steps by two with
-    /// each interval and returns to zero at the table's terminator; its second bit selects whether the interval just
-    /// started shows the ghost. An offset past the table's seventeen intervals is rejected before it can grow further.
+    /// The flicker step that starts when the current one's <see cref="PhaseTimer"/> runs out, a position in
+    /// <see cref="WreckedShipGhostAppearanceDefinitions.FlickerSteps"/>; the position past the last step ends the flicker.
+    /// Each appearance and each visible spell starts it at the first step.
     /// </summary>
-    public int FlickerTableOffset
+    public int NextFlickerStep
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count, value);
     }
 
     /// <summary>

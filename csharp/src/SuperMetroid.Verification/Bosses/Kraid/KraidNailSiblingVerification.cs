@@ -63,32 +63,32 @@ internal static class KraidNailSiblingVerification
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
-        Action<RoomEnemySlot, KraidPartState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
+        Action<RoomEnemySlot, KraidNailState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         foreach (bool siblingAlternate in new[] { false, true })
         {
             var nail = enemies.SlotTable.Slots[slot];
             var sibling = enemies.SlotTable.Slots[13 - slot];
-            var part = enemies.KraidBehavior.Parts.StateOf(state, nail);
+            var part = enemies.KraidBehavior.Parts.NailStateOf(state, nail);
             random = (ushort)raw;
-            enemies.KraidBehavior.Parts.StateOf(state, sibling).NailVelocity = enemies.KraidBehavior.Parts.StateOf(state, sibling).NailVelocity.WithY(enemies.KraidBehavior.Parts.StateOf(state, sibling).NailVelocity.Y.WithWholePixels(unchecked((short)raw)));
-            enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity = enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.WithY(enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.Y.WithWholePixels(unchecked((short)~raw)));
-            enemies.KraidBehavior.Parts.StateOf(state, sibling).AlternateSpawn = siblingAlternate;
+            enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity = enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.WithY(enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.Y.WithWholePixels(unchecked((short)raw)));
+            enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity = enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.WithY(enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.Y.WithWholePixels(unchecked((short)~raw)));
+            enemies.KraidBehavior.Parts.NailStateOf(state, sibling).AlternateSpawn = siblingAlternate;
             part.AlternateSpawn = !siblingAlternate;
             bool diagonal = (random & 1) == 0 || siblingAlternate;
-            int table = enemies.KraidBehavior.Parts.StateOf(state, sibling).NailVelocity.Y.WholePixels < 0 ? 0xa7be3e : 0xa7be46;
+            int table = enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.Y.WholePixels < 0 ? 0xa7be3e : 0xa7be46;
             int pointer = 0xa70000 | Word(table + (random & 6));
-            enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity = enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.WithX(enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.X.WithFraction(ushort.MaxValue)).WithFractionY(ushort.MaxValue);
+            enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity = enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.WithX(enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.WithFraction(ushort.MaxValue)).WithFractionY(ushort.MaxValue);
             initialize(nail, part);
-            AssertEqual((ushort)0, enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.X.Fraction, "Launch clears old X fraction");
-            AssertEqual((ushort)0, enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.Y.Fraction, "Launch clears old Y fraction");
-            AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.Y.WholeWord, "Nail launch Y velocity comes from sibling sign");
-            AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, enemies.KraidBehavior.Parts.StateOf(state, nail).NailVelocity.X.WholeWord, "Nail launch X velocity and horizontal override");
+            AssertEqual((ushort)0, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.Fraction, "Launch clears old X fraction");
+            AssertEqual((ushort)0, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.Y.Fraction, "Launch clears old Y fraction");
+            AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.Y.WholeWord, "Nail launch Y velocity comes from sibling sign");
+            AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.WholeWord, "Nail launch X velocity and horizontal override");
             AssertEqual(!diagonal, part.AlternateSpawn, "Nail spawn mode consults sibling flag, writes own flag");
-            AssertEqual(siblingAlternate, enemies.KraidBehavior.Parts.StateOf(state, sibling).AlternateSpawn, "Sibling flag remains unchanged");
-            AssertEqual((ushort)raw, enemies.KraidBehavior.Parts.StateOf(state, sibling).NailVelocity.Y.WholeWord, "Sibling velocity remains unchanged");
-            AssertEqual((diagonal ? KraidAiFunction.FingernailFire : KraidAiFunction.FingernailWaitForLint), enemies.KraidBehavior.Parts.StateOf(state, nail).Function, "Sibling choice selects actual launch phase");
+            AssertEqual(siblingAlternate, enemies.KraidBehavior.Parts.NailStateOf(state, sibling).AlternateSpawn, "Sibling flag remains unchanged");
+            AssertEqual((ushort)raw, enemies.KraidBehavior.Parts.NailStateOf(state, sibling).NailVelocity.Y.WholeWord, "Sibling velocity remains unchanged");
+            AssertEqual((diagonal ? KraidAiFunction.FingernailFire : KraidAiFunction.FingernailWaitForLint), enemies.KraidBehavior.Parts.NailStateOf(state, nail).Function, "Sibling choice selects actual launch phase");
         }
         Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and both sibling spawn modes match native launch handoff without ROM access.");
     }

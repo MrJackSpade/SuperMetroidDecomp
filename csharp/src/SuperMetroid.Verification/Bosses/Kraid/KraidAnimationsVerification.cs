@@ -123,26 +123,26 @@ internal static class KraidAnimationsVerification
     {
         (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
         body.Health = 104;
-        state.Part(KraidPart.Arm).Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
+        state.ArmState.Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
         arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartProgram.ArmNormal, state.Part(KraidPart.Arm).Cursor.Program, "a healthy arm loops its normal swing");
+        AssertEqual(KraidPartProgram.ArmNormal, state.ArmState.Cursor.Program, "a healthy arm loops its normal swing");
 
         body.Health = 51;
-        state.Part(KraidPart.Arm).Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
+        state.ArmState.Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
         arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartProgram.ArmSlow, state.Part(KraidPart.Arm).Cursor.Program, "below half health the pause starts the slow swing");
+        AssertEqual(KraidPartProgram.ArmSlow, state.ArmState.Cursor.Program, "below half health the pause starts the slow swing");
         AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Arm, 0)), arm.SpritemapPointer, "the slow swing's first frame shows at once");
         AssertEqual((ushort)8, arm.FrameHold.RawValue, "the slow swing's first frame lasts eight updates");
 
-        state.Part(KraidPart.Arm).Cursor = new(KraidPartProgram.ArmSlow, KraidAnimations.Programs.Steps(KraidPartProgram.ArmSlow).Count - 3);
+        state.ArmState.Cursor = new(KraidPartProgram.ArmSlow, KraidAnimations.Programs.Steps(KraidPartProgram.ArmSlow).Count - 3);
         arm.FrameHold = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartProgram.ArmSlow, state.Part(KraidPart.Arm).Cursor.Program, "a slow arm's callback keeps the slow swing");
+        AssertEqual(KraidPartProgram.ArmSlow, state.ArmState.Cursor.Program, "a slow arm's callback keeps the slow swing");
     }
 
     /// <summary>Runs one arm update, optionally expiring the current frame first.</summary>

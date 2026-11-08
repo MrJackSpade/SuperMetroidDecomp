@@ -51,7 +51,7 @@ internal sealed class KraidRise
         _head = dependencies.Head;
     }
 
-    /// <summary>Creates slot-zero encounter state and restores the defeated room when the area-boss flag is set.</summary>
+    /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
     internal void InitializeKraidBody(RoomEnemySlot body)
     {
         KraidParts.Require(body, _parts.Body, "body");
@@ -73,7 +73,7 @@ internal sealed class KraidRise
             // The body owns the sinking: a defeated room's body starts at hiding his body layer's halves and
             // the death's four-update wait. The other seven physical records take their own dead initializer and
             // remain deleted as in the original game.
-            _parts.StateOf(state, body).Function = KraidAiFunction.DeathHideUpperBody;
+            state.BodyState.Function = KraidAiFunction.DeathHideUpperBody;
             return;
         }
 
@@ -90,10 +90,10 @@ internal sealed class KraidRise
 
         body.Position = body.Position.WithWhole(new(176, 592));
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        _parts.StateOf(state, body).Function = KraidAiFunction.RestrictSamusToFirstScreen;
-        _parts.StateOf(state, body).FunctionTimer = 300;
-        _parts.StateOf(state, body).HeadTimer = 64;
-        state.Part(KraidPart.Kraid).NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
+        state.BodyState.Function = KraidAiFunction.RestrictSamusToFirstScreen;
+        state.BodyState.FunctionTimer = 300;
+        state.BodyState.HeadTimer = 64;
+        state.BodyState.NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
 
         // The rocks' colours are the import's shade of them (#1512); his eyes start from his band's colours.
         state.Colours.EyeGlow.ShowBand(_head.BandEyes(KraidHead.InitialBand(body, state)));
@@ -128,7 +128,7 @@ internal sealed class KraidRise
     /// <summary>Restores the grown-body thinking state after an attack.</summary>
     private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
-        _parts.StateOf(state, body).Function = KraidAiFunction.SecondPhaseThinking;
+        state.BodyState.Function = KraidAiFunction.SecondPhaseThinking;
         _parts.TopLint.Position = _parts.TopLint.Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
         _parts.MiddleLint.Position = _parts.MiddleLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
         _parts.BottomLint.Position = _parts.BottomLint.Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
@@ -138,11 +138,11 @@ internal sealed class KraidRise
     /// <summary>Dispatches the rise, camera, body and palette stages of growth.</summary>
     internal void RunKraidGrowthFunction(RoomEnemySlot body, KraidEnemyState state)
     {
-        switch (_parts.StateOf(state, body).Function)
+        switch (state.BodyState.Function)
         {
             case KraidAiFunction.GrowReleaseCamera:
                 ApplyKraidScrolls(layout: KraidScrollLayout.Grown);
-                _parts.StateOf(state, body).Function = KraidAiFunction.GrowBreakCeilingPlatforms;
+                state.BodyState.Function = KraidAiFunction.GrowBreakCeilingPlatforms;
                 state.CameraReleasedForSecondPhase = true;
                 state.EjectionLimit = new Position16<RoomPixels>(0, 164);
                 return;
@@ -153,28 +153,28 @@ internal sealed class KraidRise
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? 1 : -1));
                 body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
-                if ((body.Position.Y.Whole & 3) == 0 && _parts.StateOf(state, body).CeilingRock < KraidCeilingRocks.Count)
+                if ((body.Position.Y.Whole & 3) == 0 && state.BodyState.CeilingRock < KraidCeilingRocks.Count)
                 {
-                    int rock = _parts.StateOf(state, body).CeilingRock;
+                    int rock = state.BodyState.CeilingRock;
                     if (_background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock)))
                         state.CeilingRockSpawnCount++;
                     _frameResults.KraidObjects.Add(KraidObjectDefinitions.GrowthCeiling[rock]);
-                    _parts.StateOf(state, body).CeilingRock = rock + 1;
+                    state.BodyState.CeilingRock = rock + 1;
                 }
                 if (CoordinateAxis.Difference(body.Position.Y.Whole, 296) < 0)
-                    _parts.StateOf(state, body).Function = KraidAiFunction.GrowBringBodyInFront;
+                    state.BodyState.Function = KraidAiFunction.GrowBringBodyInFront;
                 return;
 
             case KraidAiFunction.GrowBringBodyInFront:
                 BringKraidBodyInFront(state);
                 _parts.Arm.Properties = _parts.Arm.Properties.Without(
                     EnemyProperties.IgnoreSamusCollision);
-                _parts.StateOf(state, body).Function = KraidAiFunction.GrowShowLowerBodyInFront;
+                state.BodyState.Function = KraidAiFunction.GrowShowLowerBodyInFront;
                 state.ShowBody();
                 return;
 
             case KraidAiFunction.GrowShowLowerBodyInFront:
-                _parts.StateOf(state, body).Function = KraidAiFunction.GrowDrawRoomBackground;
+                state.BodyState.Function = KraidAiFunction.GrowDrawRoomBackground;
                 RoomEnemySlot foot = _parts.Foot;
                 _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
                 foreach (RoomEnemySlot lint in _parts.Lints)
@@ -185,9 +185,9 @@ internal sealed class KraidRise
                 return;
 
             case KraidAiFunction.GrowDrawRoomBackground:
-                _parts.StateOf(state, body).Function = KraidAiFunction.GrowFadeInRoomBackground;
+                state.BodyState.Function = KraidAiFunction.GrowFadeInRoomBackground;
                 // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
-                _parts.StateOf(state, body).FunctionTimer = 0;
+                state.BodyState.FunctionTimer = 0;
                 // DrawKraidsRoomBackground zeroes the shared numerator.
                 _presentation.GradualColorChange.Reset();
                 // The background redraw queues this character upload on the same frame that it
@@ -252,7 +252,7 @@ internal sealed class KraidRise
             case KraidAiFunction.RaiseBody:
             case KraidAiFunction.None:
             default:
-                throw new InvalidOperationException($"Kraid body function {_parts.StateOf(state, body).Function} is not a growth function.");
+                throw new InvalidOperationException($"Kraid body function {state.BodyState.Function} is not a growth function.");
         }
     }
 
@@ -264,24 +264,24 @@ internal sealed class KraidRise
         foreach (KraidLintPart part in Enum.GetValues<KraidLintPart>())
         {
             RoomEnemySlot lint = _parts.Lint(part);
-            _parts.StateOf(state, lint).FunctionTimer = KraidLints.InitialDelay(part);
-            _parts.StateOf(state, lint).Function = KraidAiFunction.AlignPartToKraid;
-            _parts.StateOf(state, lint).NextFunction = KraidAiFunction.LintProduce;
-            _parts.StateOf(state, lint).LintTravel = 0;
+            _parts.LintStateOf(state, lint).FunctionTimer = KraidLints.InitialDelay(part);
+            _parts.LintStateOf(state, lint).Function = KraidAiFunction.AlignPartToKraid;
+            _parts.LintStateOf(state, lint).NextFunction = KraidAiFunction.LintProduce;
+            _parts.LintStateOf(state, lint).LintTravel = 0;
         }
         // The second fingernail waits 64 updates longer than the first.
         int nailDelay = 64;
         foreach (RoomEnemySlot nail in _parts.Nails)
         {
-            _parts.StateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
-            _parts.StateOf(state, nail).Function = KraidAiFunction.HandleFunctionTimer;
-            _parts.StateOf(state, nail).FunctionTimer = nailDelay;
+            _parts.NailStateOf(state, nail).NextFunction = KraidAiFunction.FingernailInitialize;
+            _parts.NailStateOf(state, nail).Function = KraidAiFunction.HandleFunctionTimer;
+            _parts.NailStateOf(state, nail).FunctionTimer = nailDelay;
             nailDelay += 64;
         }
         state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
         RoomEnemySlot foot = _parts.Foot;
-        _parts.StateOf(state, foot).Function = KraidAiFunction.FootSecondPhaseWalkToStart;
+        state.FootState.Function = KraidAiFunction.FootSecondPhaseWalkToStart;
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
     }
 
@@ -318,37 +318,37 @@ internal sealed class KraidRise
         KraidEnemyState state,
         SamusState? samus)
     {
-        KraidAiFunction function = _parts.StateOf(state, body).Function;
+        KraidAiFunction function = state.BodyState.Function;
         switch (function)
         {
             case KraidAiFunction.RestrictSamusToFirstScreen:
                 RestrictSamusToKraidFirstScreen(samus);
-                KraidEncounterAccess.TickKraidFunctionTimer(state.Part(KraidPart.Kraid));
+                KraidEncounterAccess.TickKraidFunctionTimer(state.BodyState);
                 return;
 
             case KraidAiFunction.RaiseKraidThroughFloor:
                 RestrictSamusToKraidFirstScreen(samus);
-                _parts.StateOf(state, body).Function = KraidAiFunction.RaiseShowLowerBody;
+                state.BodyState.Function = KraidAiFunction.RaiseShowLowerBody;
                 // His body shows from here, as he rises through the floor (#1515).
                 state.ShowBody();
                 return;
 
             case KraidAiFunction.RaiseShowLowerBody:
                 RestrictSamusToKraidFirstScreen(samus);
-                _parts.StateOf(state, body).Function = KraidAiFunction.RaiseRocksEvery16Frames;
-                _parts.StateOf(state, body).RisingRockTimer = 120;
+                state.BodyState.Function = KraidAiFunction.RaiseRocksEvery16Frames;
+                state.BodyState.RisingRockTimer = 120;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(5));
                 return;
 
             case KraidAiFunction.RaiseRocksEvery16Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                if (--_parts.StateOf(state, body).RisingRockTimer == 0)
+                if (--state.BodyState.RisingRockTimer == 0)
                 {
-                    _parts.StateOf(state, body).Function = KraidAiFunction.RaiseRocksEvery8Frames;
-                    _parts.StateOf(state, body).RisingRockTimer = 96;
+                    state.BodyState.Function = KraidAiFunction.RaiseRocksEvery8Frames;
+                    state.BodyState.RisingRockTimer = 96;
                 }
-                else if (_parts.StateOf(state, body).RisingRockTimer % 16 == 0)
+                else if (state.BodyState.RisingRockTimer % 16 == 0)
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -356,12 +356,12 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseRocksEvery8Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                if (--_parts.StateOf(state, body).RisingRockTimer == 0)
+                if (--state.BodyState.RisingRockTimer == 0)
                 {
-                    _parts.StateOf(state, body).Function = KraidAiFunction.RaiseBody;
-                    _parts.StateOf(state, body).FunctionTimer = 288;
+                    state.BodyState.Function = KraidAiFunction.RaiseBody;
+                    state.BodyState.FunctionTimer = 288;
                 }
-                else if (_parts.StateOf(state, body).RisingRockTimer % 8 == 0)
+                else if (state.BodyState.RisingRockTimer % 8 == 0)
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -386,9 +386,9 @@ internal sealed class KraidRise
                     // The foot owns first-phase lunges independently of the body thinker.
                     // Its 300-frame delay starts on the exact rise-completion frame.
                     RoomEnemySlot foot = _parts.Foot;
-                    _parts.StateOf(state, foot).Function = KraidAiFunction.FootFirstPhaseThinking;
-                    _parts.StateOf(state, foot).FunctionTimer = 300;
-                    _parts.StateOf(state, foot).NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
+                    state.FootState.Function = KraidAiFunction.FootFirstPhaseThinking;
+                    state.FootState.FunctionTimer = 300;
+                    state.FootState.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
                     _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmNormal);
                 }
                 return;
@@ -444,7 +444,7 @@ internal sealed class KraidRise
             case KraidAiFunction.None:
             default:
                 throw new InvalidDataException(
-                    $"Kraid body function {_parts.StateOf(state, body).Function} is not translated.");
+                    $"Kraid body function {state.BodyState.Function} is not translated.");
         }
     }
 

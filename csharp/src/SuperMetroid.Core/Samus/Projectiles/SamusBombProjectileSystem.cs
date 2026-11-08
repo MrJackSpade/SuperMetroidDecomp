@@ -43,6 +43,12 @@ public sealed class SamusBombProjectileSystem
     /// <summary>The bomb slots by ordinal.</summary>
     public IReadOnlyList<SamusBombProjectileSlot> Slots => _slots;
 
+    /// <summary>
+    /// Samus's first bomb: the bomb with the lowest ordinal, which a bomb placed while none is out takes and a bomb
+    /// spread fills first. Enemy shot passes that count one past Samus's shots reach it (<c>KraidShotSlots</c>).
+    /// </summary>
+    public SamusBombProjectileSlot FirstBomb => _slots[0];
+
     /// <summary>The bomb slots in update order, highest ordinal first.</summary>
     private IEnumerable<SamusBombProjectileSlot> InUpdateOrder
     {

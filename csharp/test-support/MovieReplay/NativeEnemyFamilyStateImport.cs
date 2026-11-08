@@ -123,16 +123,27 @@ internal static class NativeEnemyFamilyStateImport
         {
             kraidPartRecord.Function = (KraidAiFunction)words.A;
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
-            // each part reads only its own, so each is imported from the words.
-            kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
-            kraidPartRecord.HeadTimer = words.C;
-            kraidPartRecord.LintXOffset = CoordinateAxis.AsSigned(words.C);
-            kraidPartRecord.LintTravel = words.B;
+            // each part's own state takes its own.
+            if (kraidPartRecord is KraidNailState kraidNail)
+                kraidNail.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
+            if (kraidPartRecord is KraidLintState kraidLint)
+            {
+                kraidLint.LintXOffset = CoordinateAxis.AsSigned(words.C);
+                kraidLint.LintTravel = words.B;
+            }
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
-            if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
-                kraidPartRecord.CeilingRock = words.F / sizeof(ushort);
+            if (kraidPartRecord is KraidBodyState kraidBody)
+            {
+                kraidBody.HeadTimer = words.C;
+                if (kraidBody.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
+                    kraidBody.CeilingRock = words.F / sizeof(ushort);
+                else
+                    kraidBody.FunctionTimer = words.F;
+            }
             else
+            {
                 kraidPartRecord.FunctionTimer = words.F;
+            }
         }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {

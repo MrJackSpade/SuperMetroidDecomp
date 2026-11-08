@@ -71,7 +71,7 @@ internal sealed class KraidEncounterAccess
             part.Function = part.NextFunction;
     }
 
-    /// <summary>Active typed state when the loaded room owns retail Kraid slot zero.</summary>
+    /// <summary>Kraid's encounter state once his body has initialized in the room.</summary>
     public KraidEnemyState? Kraid { get; internal set; }
 
     /// <summary>
@@ -83,7 +83,7 @@ internal sealed class KraidEncounterAccess
 
     /// <summary>
     /// Kraid's room state, created by the body's initializer and kept for the room. Parts
-    /// read slot zero's words directly, so they keep running after the dead-room body is
+    /// read the body's state directly, so they keep running after the dead-room body is
     /// deleted, as the fingernails do.
     /// </summary>
     internal KraidEnemyState RequireKraidState(RoomEnemySlot slot)
@@ -98,6 +98,12 @@ internal sealed class KraidEncounterAccess
 
     /// <summary>The state of the Kraid part in <paramref name="slot"/>.</summary>
     internal KraidPartState Part(RoomEnemySlot slot) => _parts.StateOf(RequireKraidState(slot), slot);
+
+    /// <summary>The state of the Kraid lint in <paramref name="slot"/>.</summary>
+    internal KraidLintState LintState(RoomEnemySlot slot) => _parts.LintStateOf(RequireKraidState(slot), slot);
+
+    /// <summary>The state of the Kraid fingernail in <paramref name="slot"/>.</summary>
+    internal KraidNailState NailState(RoomEnemySlot slot) => _parts.NailStateOf(RequireKraidState(slot), slot);
 
     /// <summary>Installs a part's state with its slot, so a kill empties its record values.</summary>
     internal void AttachKraidPart(RoomEnemySlot slot, KraidEnemyState state)

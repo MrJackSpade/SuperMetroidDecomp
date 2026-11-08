@@ -12,15 +12,52 @@ public sealed class KraidEnemyState
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
     internal KraidColours Colours { get; } = new();
 
-    /// <summary>
-    /// Each part's own workspace: his body's, his arm's, his three lints', his foot's and his two fingernails'. They remain
-    /// owned by the room after the body is deleted.
-    /// </summary>
-    private readonly Dictionary<KraidPart, KraidPartState> _parts =
-        Enum.GetValues<KraidPart>().ToDictionary(part => part, _ => new KraidPartState());
+    /// <summary>His body's own state. Like every part's, it remains owned by the room after the body is deleted.</summary>
+    internal KraidBodyState BodyState { get; } = new();
 
-    /// <summary>The workspace of Kraid's part <paramref name="part"/>.</summary>
-    internal KraidPartState Part(KraidPart part) => Ensure.Listed(_parts, part);
+    /// <summary>His arm's own state.</summary>
+    internal KraidArmState ArmState { get; } = new();
+
+    /// <summary>His top lint's own state.</summary>
+    internal KraidLintState TopLintState { get; } = new();
+
+    /// <summary>His middle lint's own state.</summary>
+    internal KraidLintState MiddleLintState { get; } = new();
+
+    /// <summary>His bottom lint's own state.</summary>
+    internal KraidLintState BottomLintState { get; } = new();
+
+    /// <summary>His foot's own state.</summary>
+    internal KraidFootState FootState { get; } = new();
+
+    /// <summary>His first fingernail's own state.</summary>
+    internal KraidNailState FirstNailState { get; } = new();
+
+    /// <summary>His second fingernail's own state.</summary>
+    internal KraidNailState SecondNailState { get; } = new();
+
+    /// <summary>The state of Kraid's part <paramref name="part"/>.</summary>
+    internal KraidPartState Part(KraidPart part) => part switch
+    {
+        KraidPart.Kraid => BodyState,
+        KraidPart.Arm => ArmState,
+        KraidPart.LintTop => TopLintState,
+        KraidPart.LintMiddle => MiddleLintState,
+        KraidPart.LintBottom => BottomLintState,
+        KraidPart.Foot => FootState,
+        KraidPart.Nail => FirstNailState,
+        KraidPart.NailBad => SecondNailState,
+        _ => throw new InvalidOperationException($"Undefined {nameof(KraidPart)} {part}."),
+    };
+
+    /// <summary>The state of Kraid's lint <paramref name="part"/>.</summary>
+    internal KraidLintState Lint(KraidLintPart part) => part switch
+    {
+        KraidLintPart.Top => TopLintState,
+        KraidLintPart.Middle => MiddleLintState,
+        KraidLintPart.Bottom => BottomLintState,
+        _ => throw new InvalidOperationException($"Undefined {nameof(KraidLintPart)} {part}."),
+    };
 
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public int ThinkingTimer { get; internal set; }

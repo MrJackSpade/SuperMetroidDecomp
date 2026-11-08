@@ -65,5 +65,5 @@ internal sealed class NorfairRidleyRevealPaint
         CavernHighlightBlue - shade);
     /// <summary>Clamps calculated red and blue material channels to RGB5 bounds.</summary>
     private static RgbColor Pack(int red, int green, int blue) =>
-        new(Math.Clamp(red, 0, Maximum), green, Math.Clamp(blue, 0, Maximum));
+        new FadeLevelColour(Math.Clamp(red, 0, Maximum), green, Math.Clamp(blue, 0, Maximum)).ToColour();
 }

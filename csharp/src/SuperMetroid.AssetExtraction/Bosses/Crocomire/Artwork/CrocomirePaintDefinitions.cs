@@ -43,13 +43,13 @@ internal static class CrocomirePaintDefinitions
     /// <summary>Repeated neutral masonry paint.</summary>
     internal const int WallNeutral = 24;
     /// <summary>Independently chosen masonry face, recess and edge paints.</summary>
-    internal static readonly RgbColor WallFace = new(27, 19, 18), WallRecess = new(16, 4, 7), WallEdge = new(9, 3, 5), WallDeepEdge = new(4, 1, 5);
+    internal static readonly RgbColor WallFace = new(222, 156, 148), WallRecess = new(132, 33, 57), WallEdge = new(74, 24, 41), WallDeepEdge = new(33, 8, 41);
     /// <summary>Selected red-only deepest masonry mark.</summary>
     internal const int WallRedMark = 8;
     /// <summary>Masonry shares hide red/green contour shading but selects violet-blue tint levels.</summary>
     internal const int WallTintLight = 9, WallTintDeep = 7;
     /// <summary>Independent darkest wall paint, including its selected red-channel endpoint.</summary>
-    internal static readonly RgbColor WallDark = new(5, 2, 4);
+    internal static readonly RgbColor WallDark = new(41, 16, 33);
     /// <summary>Full-blue projectile glint with equal selected red and green.</summary>
     internal const int ProjectileGlint = 26;
     /// <summary>Yellow/orange projectile core endpoints; red uses floor gamma-two interpolation and green floor linear interpolation. Blue is absent.</summary>
@@ -68,5 +68,5 @@ internal static class CrocomirePaintDefinitions
     /// <summary>Four cool steel shades interpolate downward with floor rounding and a shared blue excess.</summary>
     internal const int SteelLight = 19, SteelDark = 3, SteelBlueTint = 3;
     /// <summary>Three additional copied spike-palette accent paints; no visible-role claim is made for this fragment fixture.</summary>
-    internal static readonly RgbColor SpikeAccent = new(17, 29, 2), SpikeWarmAccent = new(27, 7, 18), SpikeCoolAccent = new(5, 7, 17);
+    internal static readonly RgbColor SpikeAccent = new(140, 239, 16), SpikeWarmAccent = new(222, 57, 148), SpikeCoolAccent = new(41, 57, 140);
 }

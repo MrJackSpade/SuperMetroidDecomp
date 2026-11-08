@@ -9,8 +9,8 @@ public sealed record CeresHazeTints(RgbColor WhileRidleyLives, RgbColor AfterRid
 {
     /// <summary>The stock tints, at the final amplitude the haze fades in to.</summary>
     internal static CeresHazeTints Stock { get; } = new(
-        new RgbColor(0, 0, CeresHazeDefinitions.FadeSteps - 1),
-        new RgbColor(CeresHazeDefinitions.FadeSteps - 1, 0, 0));
+        new FadeLevelColour(0, 0, CeresHazeDefinitions.FadeSteps - 1).ToColour(),
+        new FadeLevelColour(CeresHazeDefinitions.FadeSteps - 1, 0, 0).ToColour());
 
     /// <summary>The tint the haze shows for Ridley's state.</summary>
     internal RgbColor For(bool ridleyIsDead) => ridleyIsDead ? AfterRidleyDies : WhileRidleyLives;

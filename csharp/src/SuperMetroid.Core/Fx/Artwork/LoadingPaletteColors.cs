@@ -58,7 +58,7 @@ internal static class LoadingPaletteColors
     /// <summary>Calculates the shared blue/green loading tint from normal suit colors.</summary>
     /// <remarks>Power slots3..8/13..15 and Gravity slots10/11 preserve red.
     /// Bright, middle and dim shades add green15/5/0 and blue20/20/10,
-    /// saturating each RGB5 channel at31. All33 original words independently
+    /// saturating each level at31. All33 original words independently
     /// confirm this channel transformation. Varia slots1/2 use the weaker green
     /// and stronger blue tint; slots10/11 share its middle and dim shades only.
     /// Their brightest blue29 is a separate tint input in LoadingPaletteInputView.
@@ -83,7 +83,7 @@ internal static class LoadingPaletteColors
         {
             if (!TryReadColor(frames.Color(0, slot), colors, out RgbColor normal) ||
                 !TryReadColor(frames.Color(7, 2), colors, out RgbColor blueSource)) return false;
-            value = normal.WithBlue(blueSource.Blue);
+            value = normal.FadeLevels.WithBlue(blueSource.FadeLevels.Blue).ToColour();
             return true;
         }
         if (power && slot == 9 && group != 0)
@@ -93,7 +93,7 @@ internal static class LoadingPaletteColors
             if (group == 2)
             {
                 if (!TryReadColor(frames.Color(1, slot), colors, out RgbColor bright)) return false;
-                tint = tint.WithBlue(bright.Blue);
+                tint = tint.FadeLevels.WithBlue(bright.FadeLevels.Blue).ToColour();
             }
             value = tint;
             return true;
@@ -123,17 +123,17 @@ internal static class LoadingPaletteColors
     /// blue10/5; only Power slots10/11 also add green5/0. Red is unchanged,
     /// sums saturate at31. These14 words derive from seven editable dim
     /// endpoints whose independent channels are documented by LoadingPaletteInputView.
-    /// Shade0/1 is bright/middle; greenPeak is an RGB5 additive amount.</remarks>
+    /// Shade0/1 is bright/middle; greenPeak is an additive number of levels.</remarks>
     internal static RgbColor BrightenDimColor(RgbColor dim, int shade, int greenPeak, bool bluePlateau)
     {
         if ((uint)shade >= 2) throw new ArgumentOutOfRangeException(nameof(shade));
         if ((uint)greenPeak > 31) throw new ArgumentOutOfRangeException(nameof(greenPeak));
-        int green = Math.Min(31, dim.Green + Math.Max(0, greenPeak - 10 * shade));
-        int blue = Math.Min(31, dim.Blue + (bluePlateau ? 10 : 10 - 5 * shade));
-        return new(dim.Red, green, blue);
+        int green = Math.Min(31, dim.FadeLevels.Green + Math.Max(0, greenPeak - 10 * shade));
+        int blue = Math.Min(31, dim.FadeLevels.Blue + (bluePlateau ? 10 : 10 - 5 * shade));
+        return new FadeLevelColour(dim.FadeLevels.Red, green, blue).ToColour();
     }
 
-    /// <summary>Applies Varia's blue-dominant loading tint to one RGB5 input.</summary>
+    /// <summary>Applies Varia's blue-dominant loading tint to one colour.</summary>
     /// <remarks>Shade0..2 preserves red and adds green=max(0,5-5*shade),
     /// blue=30-10*shade, saturating at31. Original Varia slots1/2 follow all
     /// three levels; slots10/11 follow levels1/2. The brightest slots10/11
@@ -142,9 +142,9 @@ internal static class LoadingPaletteColors
     internal static RgbColor VariaTintColor(RgbColor original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
-        int green = Math.Min(31, original.Green + Math.Max(0, 5 - 5 * shade));
-        int blue = Math.Min(31, original.Blue + 30 - 10 * shade);
-        return new(original.Red, green, blue);
+        int green = Math.Min(31, original.FadeLevels.Green + Math.Max(0, 5 - 5 * shade));
+        int blue = Math.Min(31, original.FadeLevels.Blue + 30 - 10 * shade);
+        return new FadeLevelColour(original.FadeLevels.Red, green, blue).ToColour();
     }
 
     /// <summary>The loading color <paramref name="slot"/> names.</summary>
@@ -175,19 +175,19 @@ internal static class LoadingPaletteColors
         _ => throw new ArgumentOutOfRangeException(nameof(slot), slot, "Not a calculated loading tint endpoint."),
     };
 
-    /// <summary>Applies the three saturating loading tint levels to one RGB5 input.</summary>
+    /// <summary>Applies the three saturating loading tint levels to one colour.</summary>
     /// <remarks>Shade0..2 runs bright to dim. Green=max(0,15-10*shade),
     /// blue=min(20,30-10*shade); channel sums saturate at31, red is unchanged.</remarks>
     internal static RgbColor TintColor(RgbColor original, int shade)
     {
         if ((uint)shade >= 3) throw new ArgumentOutOfRangeException(nameof(shade));
-        int green = Math.Min(31, original.Green + Math.Max(0, 15 - 10 * shade));
-        int blue = Math.Min(31, original.Blue + Math.Min(20, 30 - 10 * shade));
-        return new(original.Red, green, blue);
+        int green = Math.Min(31, original.FadeLevels.Green + Math.Max(0, 15 - 10 * shade));
+        int blue = Math.Min(31, original.FadeLevels.Blue + Math.Min(20, 30 - 10 * shade));
+        return new FadeLevelColour(original.FadeLevels.Red, green, blue).ToColour();
     }
 
     /// <summary>Chooses the independent suit ink or its identical Power counterpart; Varia normal slot zero aliases Power bright black rather than Power normal's payload.</summary>
-    /// <remarks>Original complete RGB5 words establish each equality. Varia's
+    /// <remarks>Original complete colours establish each equality. Varia's
     /// normal frame differs at0/2/10/11 and bright frames at1/2/10/11/12. Gravity's
     /// normal frame differs at2/10/11/12 and bright frames at2/10/11. All other slots
     /// share the Power input, including transparent entries where equal.

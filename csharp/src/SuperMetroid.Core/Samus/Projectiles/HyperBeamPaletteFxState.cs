@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <remarks>
 /// The state retains the instruction pointer and timer. Fixed program control is
-/// compiled separately from the live BGR555 payloads so presentation replacement cannot
+/// compiled separately from the live colours so presentation replacement cannot
 /// silently change engine cadence or route restored state into adjacent game data.
 /// </remarks>
 public sealed class HyperBeamPaletteFxState

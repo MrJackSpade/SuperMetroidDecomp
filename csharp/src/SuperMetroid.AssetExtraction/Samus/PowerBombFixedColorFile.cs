@@ -51,7 +51,7 @@ public static class PowerBombFixedColorFile
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Power Bomb {name} color {index} requires components from zero through 31.");
-            colors[index] = new RgbColor(color.Red, color.Green, color.Blue);
+            colors[index] = new FadeLevelColour(color.Red, color.Green, color.Blue).ToColour();
         }
         return colors;
     }

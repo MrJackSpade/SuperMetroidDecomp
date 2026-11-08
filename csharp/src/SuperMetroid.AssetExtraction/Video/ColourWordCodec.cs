@@ -4,10 +4,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
-/// The cartridge's colour word (#1512): the import's codec between a stored 15-bit colour and a game colour. Red takes
-/// bits 0-4, green bits 5-9 and blue bits 10-14; bit 15 is not a colour bit. The cartridge's colour tables, colour
-/// memory and the installed colour documents store colours in this form, so only the import and the checks that read
-/// those stores decode or encode it. Core holds colours by their channels and never sees the word.
+/// The cartridge's colour word (#1512, #1544): the import's codec between a stored 15-bit colour and a plain colour. Red
+/// takes bits 0-4, green bits 5-9 and blue bits 10-14, each one of a colour's thirty-two levels
+/// (<see cref="FadeLevelColour"/>); bit 15 is not a colour bit. The cartridge's colour tables, colour memory and the
+/// installed colour documents store colours in this form, so only the import and the checks that read those stores
+/// decode or encode it. Core holds plain colours and never sees the word.
 /// </summary>
 [EncodingOwner("RGB5 colour word of the cartridge and the installed colour documents")]
 internal static class ColourWordCodec
@@ -20,6 +21,9 @@ internal static class ColourWordCodec
 
     /// <summary>Bits each channel takes in the word.</summary>
     private const int ChannelBits = 5;
+
+    /// <summary>Mask for one channel's bits once shifted to the bottom of the word.</summary>
+    private const int ChannelMask = (1 << ChannelBits) - 1;
 
     /// <summary>Where the green channel starts in the word.</summary>
     private const int GreenShift = ChannelBits;
@@ -58,12 +62,19 @@ internal static class ColourWordCodec
     /// <summary>Encoding a colour as its stored word.</summary>
     extension(RgbColor colour)
     {
-        /// <summary>The packed 15-bit word, for the cartridge's, colour memory's and installed documents' stores.</summary>
-        internal ushort ToWord() =>
-            (ushort)(colour.Red | (colour.Green << GreenShift) | (colour.Blue << BlueShift));
+        /// <summary>
+        /// The packed 15-bit word, for the cartridge's, colour memory's and installed documents' stores: the colour's own
+        /// levels when it lies on the scale, as every authored colour does, and its nearest levels when a plain blend or
+        /// scale made it (<see cref="FadeLevelColour.Nearest"/>), so an installed fade's step keeps the closest stored colour.
+        /// </summary>
+        internal ushort ToWord()
+        {
+            FadeLevelColour levels = FadeLevelColour.Nearest(colour);
+            return (ushort)(levels.Red | (levels.Green << GreenShift) | (levels.Blue << BlueShift));
+        }
     }
 
-    /// <summary>Splits a fifteen-bit word into its three channels.</summary>
+    /// <summary>Splits a fifteen-bit word into its three channels' levels and shows them.</summary>
     private static RgbColor Decode(int word) =>
-        new(word & RgbColor.MaxChannel, (word >> GreenShift) & RgbColor.MaxChannel, (word >> BlueShift) & RgbColor.MaxChannel);
+        new FadeLevelColour(word & ChannelMask, (word >> GreenShift) & ChannelMask, (word >> BlueShift) & ChannelMask).ToColour();
 }

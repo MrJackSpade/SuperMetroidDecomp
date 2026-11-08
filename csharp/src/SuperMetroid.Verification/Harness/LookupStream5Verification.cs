@@ -921,7 +921,7 @@ internal static class LookupStream5Verification
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
 
-        static RgbColor Shown(PaletteRgb5 rgb) => new(rgb.Red, rgb.Green, rgb.Blue);
+        static RgbColor Shown(PaletteRgb5 rgb) => new FadeLevelColour(rgb.Red, rgb.Green, rgb.Blue).ToColour();
 
         static TourianStatuePalettes Check(TourianStatueColorDocument expected)
         {
@@ -1014,7 +1014,7 @@ internal static class LookupStream5Verification
             for (int frame = 0; frame < expected.Frames.Length; frame++)
             {
                 for (int color = 0; color < expected.Frames[frame].Length; color++)
-                    AssertEqual(new RgbColor(expected.Frames[frame][color].Red, expected.Frames[frame][color].Green, expected.Frames[frame][color].Blue),
+                    AssertEqual(new FadeLevelColour(expected.Frames[frame][color].Red, expected.Frames[frame][color].Green, expected.Frames[frame][color].Blue).ToColour(),
                         actual.Resolve(frame, color), "Magdollite pulse exact installed glow colour");
             }
             string identity = SelectedPresentationHash.Create("MagdollitePaletteCycle-v1",
@@ -1131,9 +1131,9 @@ internal static class LookupStream5Verification
         for (int phase = 0; phase < 16; phase++)
         {
             // The cartridge's colour bytes carry each channel's intensity in their low five bits.
-            var expected = new RgbColor(rom.ReadCartridgeByte(0x88ea8b + phase * 4) & RgbColor.MaxChannel,
-                rom.ReadCartridgeByte(0x88ea8c + phase * 4) & RgbColor.MaxChannel,
-                rom.ReadCartridgeByte(0x88ea8d + phase * 4) & RgbColor.MaxChannel);
+            var expected = new FadeLevelColour(rom.ReadCartridgeByte(0x88ea8b + phase * 4) & FadeLevelColour.FullLevel,
+                rom.ReadCartridgeByte(0x88ea8c + phase * 4) & FadeLevelColour.FullLevel,
+                rom.ReadCartridgeByte(0x88ea8d + phase * 4) & FadeLevelColour.FullLevel).ToColour();
             AssertEqual(expected, MorphBallEyeGeometry.BeamColor(phase), "Native two-channel triangle intensities");
             step();
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
@@ -1185,7 +1185,7 @@ internal static class LookupStream5Verification
                 for (int color = 0; color < 16; color++)
                 {
                     var rgb = document.Frames[frame].Colors[color];
-                    AssertEqual(new RgbColor(rgb.Red, rgb.Green, rgb.Blue), shown[color], "Highlight shade colour");
+                    AssertEqual(new FadeLevelColour(rgb.Red, rgb.Green, rgb.Blue).ToColour(), shown[color], "Highlight shade colour");
                 }
             }
             return cycle;
@@ -1422,7 +1422,7 @@ internal static class LookupStream5Verification
         void Check(CeresDoorSourceArtwork source,CeresDoorVisualDocument expected)
         {
             CeresDoorVisuals actual = source.Visuals;
-            static RgbColor Shown(PaletteRgb5 rgb) => new(rgb.Red, rgb.Green, rgb.Blue);
+            static RgbColor Shown(PaletteRgb5 rgb) => new FadeLevelColour(rgb.Red, rgb.Green, rgb.Blue).ToColour();
             for(int row =0;row<8;row++)
             {
                 for(int color=0;color<6;color++) AssertEqual(Shown(expected.Animation[row][color]),actual.AnimationColor(row,color),"Ceres animation color");

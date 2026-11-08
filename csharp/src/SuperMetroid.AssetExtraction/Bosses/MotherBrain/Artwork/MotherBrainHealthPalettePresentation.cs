@@ -34,12 +34,12 @@ public sealed class MotherBrainHealthPalettePresentation
     private static RgbColor TintColor(RgbColor initial, int state, MotherBrainPalettePart part)
     {
         int amount = state * (state + 1) + (part == MotherBrainPalettePart.BackLeg && state != 0 ? 2 : 0);
-        return initial.Map((channel, value) =>
+        return initial.FadeLevels.Map((channel, value) =>
         {
             int rgb8 = value * 8 + 1;
             int target = channel == ColorChannel.Red ? 31 * 8 : 0;
             return (rgb8 * (30 - amount) + target * amount) / (30 * 8);
-        });
+        }).ToColour();
     }
     /// <summary>
     /// RGB8 red tint with a shared one-unit quantization bias. Body strength is
@@ -159,7 +159,7 @@ public sealed class MotherBrainHealthPalettePresentation
             {
                 if (front is null) return field;
                 RgbColor lit = front.Color(3);
-                return lit.WithGreen(Math.Min(31, lit.Green + 1));
+                return lit.FadeLevels.WithGreen(Math.Min(31, lit.FadeLevels.Green + 1)).ToColour();
             }
         }
         /// <summary>Rear gray halves the front endpoint, rounding red and green upward and blue downward before its shade ramp.</summary>
@@ -169,13 +169,13 @@ public sealed class MotherBrainHealthPalettePresentation
             {
                 if (front is null) return field;
                 RgbColor lit = front.Color(4);
-                return new((lit.Red + 1) / 2, (lit.Green + 1) / 2, lit.Blue / 2);
+                return new FadeLevelColour((lit.FadeLevels.Red + 1) / 2, (lit.FadeLevels.Green + 1) / 2, lit.FadeLevels.Blue / 2).ToColour();
             }
         }
         /// <summary>Scales each RGB5 channel with nearest-integer rounding for a quarter or fifth ramp.</summary>
         private static RgbColor Shade(RgbColor source, int numerator, int denominator)
         {
-            return source.Map((_, a) => ((a * numerator + denominator / 2) / denominator));
+            return source.FadeLevels.Map((_, a) => ((a * numerator + denominator / 2) / denominator)).ToColour();
         }
     }
 }

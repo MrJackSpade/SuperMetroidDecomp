@@ -12,8 +12,8 @@ internal static class SporeSpawnDeathColorDefinitions
     /// </summary>
     internal static readonly RgbColor[] InitialRoomBackgroundColors =
     [
-        new RgbColor(2, 9, 23), new RgbColor(3, 3, 17), new RgbColor(0, 2, 6), new RgbColor(0, 6, 9), new RgbColor(0, 5, 7), new RgbColor(0, 4, 5), new RgbColor(0, 2, 4),
-        new RgbColor(31, 22, 5), new RgbColor(23, 14, 5), new RgbColor(14, 7, 5), new RgbColor(6, 4, 5), new RgbColor(31, 22, 5), new RgbColor(0, 0, 2),
+        new RgbColor(16, 74, 189), new RgbColor(24, 24, 140), new RgbColor(0, 16, 49), new RgbColor(0, 49, 74), new RgbColor(0, 41, 57), new RgbColor(0, 33, 41), new RgbColor(0, 16, 33),
+        new RgbColor(255, 181, 41), new RgbColor(189, 115, 41), new RgbColor(115, 57, 41), new RgbColor(49, 33, 41), new RgbColor(255, 181, 41), new RgbColor(0, 0, 16),
     ];
 
     /// <summary>
@@ -22,7 +22,7 @@ internal static class SporeSpawnDeathColorDefinitions
     /// </summary>
     internal static readonly RgbColor[] InitialRoomLevelColors =
     [
-        new RgbColor(24, 24, 24), new RgbColor(24, 24, 24), new RgbColor(0, 7, 8), new RgbColor(7, 13, 7), new RgbColor(1, 9, 11), new RgbColor(0, 5, 10),
-        new RgbColor(9, 21, 9), new RgbColor(9, 15, 9), new RgbColor(2, 10, 5), new RgbColor(9, 21, 9), new RgbColor(2, 4, 0), new RgbColor(17, 27, 9),
+        new RgbColor(198, 198, 198), new RgbColor(198, 198, 198), new RgbColor(0, 57, 66), new RgbColor(57, 107, 57), new RgbColor(8, 74, 90), new RgbColor(0, 41, 82),
+        new RgbColor(74, 173, 74), new RgbColor(74, 123, 74), new RgbColor(16, 82, 41), new RgbColor(74, 173, 74), new RgbColor(16, 33, 0), new RgbColor(140, 222, 74),
     ];
 }

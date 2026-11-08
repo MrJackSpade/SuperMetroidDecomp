@@ -163,8 +163,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     /// the steps left.
     /// </summary>
     private static RgbColor CartridgeFadeStep(int step, RgbColor shown, RgbColor goal, int denominator) =>
-        shown.Zip(goal, (_, from, to) => step == 0 ? from : step - 1 == denominator ? to
-            : ((from << 8) + Math.Sign(to - from) * (Math.Abs(to - from) * 256 / (denominator - step + 1))) >> 8);
+        shown.FadeLevels.Zip(goal.FadeLevels, (_, from, to) => step == 0 ? from : step - 1 == denominator ? to
+            : ((from << 8) + Math.Sign(to - from) * (Math.Abs(to - from) * 256 / (denominator - step + 1))) >> 8).ToColour();
 
     /// <summary>Asserts that the import's <paramref name="shade"/> among <paramref name="made"/> shows <paramref name="expected"/>'s colours.</summary>
     private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)

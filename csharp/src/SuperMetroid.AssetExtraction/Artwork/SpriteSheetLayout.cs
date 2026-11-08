@@ -426,9 +426,9 @@ internal sealed class SpriteSheetLayout
     /// <summary>Writes a colour's three channels.</summary>
     private static void WriteColour(BinaryWriter writer, RgbColor colour)
     {
-        writer.Write((byte)colour.Red);
-        writer.Write((byte)colour.Green);
-        writer.Write((byte)colour.Blue);
+        writer.Write((byte)colour.FadeLevels.Red);
+        writer.Write((byte)colour.FadeLevels.Green);
+        writer.Write((byte)colour.FadeLevels.Blue);
     }
 
     /// <summary>

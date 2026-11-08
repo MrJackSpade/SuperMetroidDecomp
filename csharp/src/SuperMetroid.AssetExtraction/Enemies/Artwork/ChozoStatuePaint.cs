@@ -54,8 +54,8 @@ internal static class ChozoStatuePaint
 
     /// <summary>Interpolates each RGB5 channel between authored material endpoints with nearest-integer rounding.</summary>
     private static RgbColor Ramp(RgbColor start, RgbColor end, int step) =>
-        new(Nearest(start.Red, end.Red, step), Nearest(start.Green, end.Green, step),
-            Nearest(start.Blue, end.Blue, step));
+        new FadeLevelColour(Nearest(start.FadeLevels.Red, end.FadeLevels.Red, step), Nearest(start.FadeLevels.Green, end.FadeLevels.Green, step),
+            Nearest(start.FadeLevels.Blue, end.FadeLevels.Blue, step)).ToColour();
 
     /// <summary>Rounds one signed shade step to its nearest channel value.</summary>
     private static int Nearest(int start, int end, int step)

@@ -47,12 +47,12 @@ internal sealed class CeresDoorWarmTargetPaint
     /// <summary>Builds the white, amber, red, and three descending gold targets from shared five-bit channel parameters.</summary>
     private RgbColor Calculate(int index)
     {
-        if (index == 0) return new(Maximum, Maximum, highlightBlue);
-        if (index == 1) return new(amberRed, amberGreen, 0);
-        if (index == 2) return new(red, 0, 0);
+        if (index == 0) return new FadeLevelColour(Maximum, Maximum, highlightBlue).ToColour();
+        if (index == 1) return new FadeLevelColour(amberRed, amberGreen, 0).ToColour();
+        if (index == 2) return new FadeLevelColour(red, 0, 0).ToColour();
         int shade = index - 3;
-        return new(Math.Max(0, goldRed - GoldRedStep * shade),
+        return new FadeLevelColour(Math.Max(0, goldRed - GoldRedStep * shade),
             Math.Max(0, goldGreen - GoldGreenStep * shade),
-            Math.Max(0, goldBlue * (1 - shade)));
+            Math.Max(0, goldBlue * (1 - shade))).ToColour();
     }
 }

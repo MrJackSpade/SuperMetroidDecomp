@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 internal static class TourianStatuePaintDefinitions
 {
     /// <summary>The copied transparent-slot colour of the decoration and grey-transition palettes.</summary>
-    internal static readonly RgbColor TransparentSlotPayload = new(0, 0, 14);
+    internal static readonly RgbColor TransparentSlotPayload = new(0, 0, 115);
     /// <summary>Maximum value of a five-bit RGB color channel.</summary>
     internal const int Max = 31;
     /// <summary>Olive base highlight RGB(25,31,9), fading to black at color8.</summary>

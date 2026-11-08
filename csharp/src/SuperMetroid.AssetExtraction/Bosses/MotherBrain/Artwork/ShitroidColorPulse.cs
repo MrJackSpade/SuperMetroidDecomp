@@ -25,7 +25,7 @@ internal sealed class ShitroidColorPulse
         if (supplied is not null) return supplied[frame][color];
         int phase = Math.Min(frame, ShitroidColorDefinitions.NormalFrameCount - 1 - frame);
         RgbColor paint = target.Resolve(ShitroidColorDefinitions.NormalFirstInitialColor + color);
-        return paint.Map((channel, origin) =>
+        return paint.FadeLevels.Map((channel, origin) =>
         {
             int floor = 0;
             if (channel == ColorChannel.Red)
@@ -34,6 +34,6 @@ internal sealed class ShitroidColorPulse
                 if (origin == 31) origin += ShitroidColorDefinitions.NormalOrganRedHeadroom;
             }
             return Math.Clamp(origin - ShitroidColorDefinitions.NormalOrganDimmingStep * phase, floor, 31);
-        });
+        }).ToColour();
     }
 }

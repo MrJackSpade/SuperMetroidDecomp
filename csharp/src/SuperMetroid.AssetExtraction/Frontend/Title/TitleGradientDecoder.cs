@@ -37,7 +37,7 @@ public static class TitleGradientDecoder
             if ((write & 0x20) != 0) red = component; // cartridge-encoding: allow(Register) - COLDATA red-select bit
             if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(Register) - COLDATA green-select bit
             if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(Register) - COLDATA blue-select bit
-            var colour = new RgbColor(red, green, blue);
+            var colour = new FadeLevelColour(red, green, blue).ToColour();
             GradientBlend blend = Blend(control[line], line);
             if (stops.Count == 0 || stops[^1].Colour != colour || stops[^1].Blend != blend)
                 stops.Add(new GradientStop(line, colour, blend));

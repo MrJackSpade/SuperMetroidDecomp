@@ -21,5 +21,5 @@ internal static class SamusHurtColorDefinitions
     /// <summary>Sprite transparent-slot black, calculated from zero RGB channels.</summary>
     internal static RgbColor HurtTransparentWord => RgbColor.Black;
     /// <summary>Exact independently editable transparent payload shared with the previously reviewed normal suit palette.</summary>
-    internal static readonly RgbColor IntroTransparentWord = new(0, 0, 14);
+    internal static readonly RgbColor IntroTransparentWord = new(0, 0, 115);
 }

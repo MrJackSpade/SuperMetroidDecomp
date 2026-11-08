@@ -42,9 +42,9 @@ public sealed class InstalledSamusDeathPalettes
     public const int ColorCount = SamusColourSets.ColoursPerSet;
 
     /// <summary>The yellow flash step: full red and green, zero blue.</summary>
-    private static readonly RgbColor YellowFlashColor = new(31, 31, 0);
+    private static readonly RgbColor YellowFlashColor = new(255, 255, 0);
     /// <summary>The suitless death colours' ink 5: full red, green and blue.</summary>
-    private static readonly RgbColor WhiteInkColor = new(31, 31, 31);
+    private static readonly RgbColor WhiteInkColor = new(255, 255, 255);
 
     /// <summary>Independent edits to selected suited RGB5 ink words.</summary>
     internal readonly Dictionary<TableColourPlace, RgbColor> suited = new();
@@ -134,7 +134,7 @@ public sealed class InstalledSamusDeathPalettes
             }
             if (palette == 0 && color is 7 or 9)
             {
-                if (TrySuitlessTintShade(suitless[0][6], suitless[0][10], value.Blue, color, out RgbColor expected))
+                if (TrySuitlessTintShade(suitless[0][6], suitless[0][10], value.FadeLevels.Blue, color, out RgbColor expected))
                     tintShadeInputs.Add(key, new(value, expected, independentMask: 4));
                 else this.suitless.Add(keyCell, value);
                 continue;
@@ -147,7 +147,7 @@ public sealed class InstalledSamusDeathPalettes
             }
             if (palette == 0 && color is >= 12 and <= 15)
             {
-                RgbColor expected = Neutral(SuitlessGrayIntensity(suitless[0][11].Red, color));
+                RgbColor expected = Neutral(SuitlessGrayIntensity(suitless[0][11].FadeLevels.Red, color));
                 if (value != expected) neutralInputs.Add(key, new(value, expected));
                 continue;
             }
@@ -158,7 +158,7 @@ public sealed class InstalledSamusDeathPalettes
             }
             if (palette == 0 && color == 11 || palette == 9 && color == 0)
             {
-                neutralInputs.Add(key, new(value, Neutral(value.Red), independentMask: 1));
+                neutralInputs.Add(key, new(value, Neutral(value.FadeLevels.Red), independentMask: 1));
                 continue;
             }
             if (palette is >= 2 and <= 8)
@@ -245,7 +245,7 @@ public sealed class InstalledSamusDeathPalettes
         }
         if (tintShadeInputs.TryGetValue(key, out var tint))
         {
-            if (!TrySuitlessTintShade(SuitlessColor(0, 6), SuitlessColor(0, 10), tint.Apply(RgbColor.Black).Blue, color, out RgbColor expectedTint))
+            if (!TrySuitlessTintShade(SuitlessColor(0, 6), SuitlessColor(0, 10), tint.Apply(RgbColor.Black).FadeLevels.Blue, color, out RgbColor expectedTint))
                 throw new InvalidOperationException("Validated suitless tint exceeds RGB5.");
             return tint.Apply(expectedTint);
         }
@@ -256,11 +256,11 @@ public sealed class InstalledSamusDeathPalettes
         }
         if (palette == 0 && color is >= 12 and <= 15)
         {
-            RgbColor gray = Neutral(SuitlessGrayIntensity(SuitlessColor(0, 11).Red, color));
+            RgbColor gray = Neutral(SuitlessGrayIntensity(SuitlessColor(0, 11).FadeLevels.Red, color));
             return neutralInputs.TryGetValue(key, out var grayInput) ? grayInput.Apply(gray) : gray;
         }
         if (neutralInputs.TryGetValue(key, out var neutral))
-            return neutral.Apply(Neutral(neutral.Apply(RgbColor.Black).Red));
+            return neutral.Apply(Neutral(neutral.Apply(RgbColor.Black).FadeLevels.Red));
         if (palette == 9) return SuitlessColor(9, 0);
         if (palette == 1) return SuitlessColor(0, color);
         RgbColor expected = SamusPaletteFade.EighthTowardWhite(SuitlessColor(0, color), palette - 1);
@@ -275,9 +275,9 @@ public sealed class InstalledSamusDeathPalettes
     /// Inputs are RGB5 words; signed intermediate green spans-31..62.</remarks>
     internal static bool TrySuitlessTintEndpoint(RgbColor bright, RgbColor dark, out RgbColor value)
     {
-        int green = (dark.Blue) + (bright.Green) - (bright.Blue);
+        int green = (dark.FadeLevels.Blue) + (bright.FadeLevels.Green) - (bright.FadeLevels.Blue);
         if ((uint)green > 31) { value = RgbColor.Black; return false; }
-        value = dark.WithGreen(green);
+        value = dark.FadeLevels.WithGreen(green).ToColour();
         return true;
     }
     /// <summary>Calculates the central suitless tint between its neighboring shades.</summary>
@@ -289,10 +289,10 @@ public sealed class InstalledSamusDeathPalettes
     /// the middle intensity input, not the remaining endpoint choices.</remarks>
     internal static RgbColor SuitlessTintMidpoint(RgbColor first, RgbColor last)
     {
-        int red = ((first.Red) + (last.Red)) / 2;
-        int green = ((first.Green) + (last.Green)) / 2;
-        int blue = ((first.Blue) + (last.Blue)) / 2;
-        return new RgbColor(red, green, blue);
+        int red = ((first.FadeLevels.Red) + (last.FadeLevels.Red)) / 2;
+        int green = ((first.FadeLevels.Green) + (last.FadeLevels.Green)) / 2;
+        int blue = ((first.FadeLevels.Blue) + (last.FadeLevels.Blue)) / 2;
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
     /// <summary>Interpolates tint balance while preserving a supplied middle-shade intensity.</summary>
     /// <remarks>The stock suitless inks 6..10 have middle
@@ -311,12 +311,12 @@ public sealed class InstalledSamusDeathPalettes
         if ((uint)blue > 31) throw new ArgumentOutOfRangeException(nameof(blue));
         if (color is < 7 or > 9) throw new ArgumentOutOfRangeException(nameof(color));
         int weight = color - 6;
-        int interpolatedBlue = ((first.Blue) * (4 - weight) + (last.Blue) * weight) / 4;
+        int interpolatedBlue = ((first.FadeLevels.Blue) * (4 - weight) + (last.FadeLevels.Blue) * weight) / 4;
         int shift = blue - interpolatedBlue;
-        int red = ((first.Red) * (4 - weight) + (last.Red) * weight) / 4 + shift;
-        int green = ((first.Green) * (4 - weight) + (last.Green) * weight) / 4 + shift;
+        int red = ((first.FadeLevels.Red) * (4 - weight) + (last.FadeLevels.Red) * weight) / 4 + shift;
+        int green = ((first.FadeLevels.Green) * (4 - weight) + (last.FadeLevels.Green) * weight) / 4 + shift;
         if ((uint)red > 31 || (uint)green > 31) { value = RgbColor.Black; return false; }
-        value = new RgbColor(red, green, blue);
+        value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
     /// <summary>Shares the warm ramp's blue level between its endpoints.</summary>
@@ -326,7 +326,7 @@ public sealed class InstalledSamusDeathPalettes
     /// differences override sharing. RGB5 words only, no rounding or saturation.</remarks>
     internal static RgbColor SuitlessWarmEndpoint(RgbColor bright, RgbColor dark)
     {
-        return dark.WithBlue(bright.Blue);
+        return dark.FadeLevels.WithBlue(bright.FadeLevels.Blue).ToColour();
     }
     /// <summary>Interpolates the two middle warm inks between their supplied endpoints.</summary>
     /// <remarks>The stock warm ramp contains four ordered warm shades.
@@ -339,10 +339,10 @@ public sealed class InstalledSamusDeathPalettes
     {
         if (color is not (2 or 3)) throw new ArgumentOutOfRangeException(nameof(color));
         int weight = color - 1;
-        int red = ((first.Red) * (3 - weight) + (last.Red) * weight) / 3;
-        int green = ((first.Green) * (3 - weight) + (last.Green) * weight) / 3;
-        int blue = ((first.Blue) * (3 - weight) + (last.Blue) * weight) / 3;
-        return new RgbColor(red, green, blue);
+        int red = ((first.FadeLevels.Red) * (3 - weight) + (last.FadeLevels.Red) * weight) / 3;
+        int green = ((first.FadeLevels.Green) * (3 - weight) + (last.FadeLevels.Green) * weight) / 3;
+        int blue = ((first.FadeLevels.Blue) * (3 - weight) + (last.FadeLevels.Blue) * weight) / 3;
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
     /// <summary>Returns a suitless gray ink's evenly spaced intensity toward black.</summary>
     /// <remarks>The stock gray ramp contains five descending neutral shades.
@@ -364,7 +364,7 @@ public sealed class InstalledSamusDeathPalettes
     /// green/blue edits override the shared value. The supplied red channel
     /// is bounded 0..31; bit replication needs no rounding or saturation.
     /// This converts channel duplication, not the separate intensity choices.</remarks>
-    private static RgbColor Neutral(int intensity) => new(intensity, intensity, intensity);
+    private static RgbColor Neutral(int intensity) => new FadeLevelColour(intensity, intensity, intensity).ToColour();
     /// <summary>Resolves a ShadesOfWhite entry, retaining independent edits to the calculated two-rate whiteout.</summary>
     /// <param name="index">Whiteout shade 0..21, not an explosion frame; the terminal call selects 21 explicitly.</param>
     /// <returns>The RGB5 word used by the consumer to fill colours 0..191 and 208..239, excluding suited and suitless Samus palettes.</returns>

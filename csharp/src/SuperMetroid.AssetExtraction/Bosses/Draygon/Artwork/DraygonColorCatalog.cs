@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 public sealed class DraygonColorCatalog
 {
     /// <summary><c>Palette_Draygon_WhiteFlash</c>: every visible flash ink is white.</summary>
-    internal static readonly RgbColor FlashInk = new(31, 31, 31);
+    internal static readonly RgbColor FlashInk = new(255, 255, 255);
 
     /// <summary>The selected opening, material, flash and health-band colours.</summary>
     internal readonly DraygonColorSelection selection;

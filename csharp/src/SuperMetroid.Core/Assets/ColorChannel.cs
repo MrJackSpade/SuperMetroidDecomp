@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>The three five-bit channels of a <see cref="RgbColor"/>, in packed order.</summary>
+/// <summary>The three channels of a colour's levels (<see cref="FadeLevelColour"/>), in the order a level-by-level change steps them.</summary>
 public enum ColorChannel
 {
-    /// <summary>Bits 0-4.</summary>
+    /// <summary>Red, stepped first.</summary>
     Red = 0,
-    /// <summary>Bits 5-9.</summary>
+    /// <summary>Green, stepped second.</summary>
     Green = 1,
-    /// <summary>Bits 10-14.</summary>
+    /// <summary>Blue, stepped last.</summary>
     Blue = 2,
 }

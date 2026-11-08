@@ -7,9 +7,9 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 internal static class SidehopperDrainShades
 {
     /// <summary>Places an upper intermediate red seven steps below its light endpoint.</summary>
-    private static int LightShadeRed(RgbColor light) => light.Red - SelectedLightRedDrop;
+    private static int LightShadeRed(RgbColor light) => light.FadeLevels.Red - SelectedLightRedDrop;
     /// <summary>Places a lower intermediate red four steps above its dark endpoint.</summary>
-    private static int DarkShadeRed(RgbColor dark) => dark.Red + SelectedDarkRedLift;
+    private static int DarkShadeRed(RgbColor dark) => dark.FadeLevels.Red + SelectedDarkRedLift;
 
     /// <summary>Selects the eight body/detail endpoints and intermediate shades in palette order.</summary>
     internal static RgbColor Resolve(int color, RgbColor bodyLight, RgbColor detailLight, RgbColor detailDark, RgbColor bodyDark) => color switch
@@ -28,7 +28,7 @@ internal static class SidehopperDrainShades
     /// <summary>Interpolates each RGB5 channel between its endpoints at the chosen red-channel fraction.</summary>
     private static RgbColor Shade(RgbColor light, RgbColor dark, int red)
     {
-        int lightRed = light.Red, darkRed = dark.Red;
-        return light.Zip(dark, (_, a, b) => ((a * (red - darkRed) + b * (lightRed - red)) / (lightRed - darkRed)));
+        int lightRed = light.FadeLevels.Red, darkRed = dark.FadeLevels.Red;
+        return light.FadeLevels.Zip(dark.FadeLevels, (_, a, b) => ((a * (red - darkRed) + b * (lightRed - red)) / (lightRed - darkRed))).ToColour();
     }
 }

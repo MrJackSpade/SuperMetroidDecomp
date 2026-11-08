@@ -1,107 +1,84 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// One game colour (#1420): three five-bit channels, red, green and blue, each 0 through <see cref="MaxChannel"/>,
-/// the precision every authored palette and colour effect works in. A colour is made from and read as its channels.
+/// One plain colour (#1420, #1544): red, green and blue, each from none (0) to full (<see cref="FullChannel"/>), as the
+/// display shows it. A colour is made from and read as its channels, and moved by colour operations: a blend part of the
+/// way toward another colour, a colour scaled toward black, a colour added to another. The game's authored colours, and
+/// the few places whose timing counts a colour in the levels the game steps it through, use
+/// <see cref="FadeLevelColour"/>; the colour itself holds no levels and no stored form.
 /// </summary>
-/// <remarks>
-/// The channels are stored packed into one field, which is this type's private storage and nothing else: no member
-/// exposes it. Decoding and encoding a stored colour word belong to the import (<c>ColourWordCodec</c>), never to Core.
-/// </remarks>
-[EncodingOwner("five-bit channels packed into the colour's own storage")]
 public readonly record struct RgbColor
 {
-    /// <summary>The largest value of one five-bit channel.</summary>
-    public const int MaxChannel = 31;
+    /// <summary>A channel at full strength.</summary>
+    public const int FullChannel = 255;
 
-    /// <summary>The colour's three five-bit channels, red lowest, as validated.</summary>
-    private readonly ushort channels;
+    /// <summary>Makes a colour from its three channels, each 0-<see cref="FullChannel"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">A channel is outside 0-<see cref="FullChannel"/>.</exception>
+    public RgbColor(int red, int green, int blue)
+    {
+        Red = Channel(red, nameof(red));
+        Green = Channel(green, nameof(green));
+        Blue = Channel(blue, nameof(blue));
+    }
 
-    /// <summary>Packs three channels, each 0-<see cref="MaxChannel"/>.</summary>
-    public RgbColor(int red, int green, int blue) => channels = Pack(red, green, blue);
-
-    /// <summary>Black: every channel zero.</summary>
+    /// <summary>Black: every channel none.</summary>
     public static RgbColor Black => default;
 
-    /// <summary>White: every channel at <see cref="MaxChannel"/>.</summary>
-    public static RgbColor White => new(MaxChannel, MaxChannel, MaxChannel);
+    /// <summary>White: every channel full.</summary>
+    public static RgbColor White => new(FullChannel, FullChannel, FullChannel);
 
-    /// <summary>The red channel, 0-<see cref="MaxChannel"/>.</summary>
-    public int Red => channels & MaxChannel;
+    /// <summary>The red channel, 0-<see cref="FullChannel"/>.</summary>
+    public int Red { get; }
 
-    /// <summary>The green channel, 0-<see cref="MaxChannel"/>.</summary>
-    public int Green => (channels >> 5) & MaxChannel;
+    /// <summary>The green channel, 0-<see cref="FullChannel"/>.</summary>
+    public int Green { get; }
 
-    /// <summary>The blue channel, 0-<see cref="MaxChannel"/>.</summary>
-    public int Blue => (channels >> 10) & MaxChannel;
+    /// <summary>The blue channel, 0-<see cref="FullChannel"/>.</summary>
+    public int Blue { get; }
 
-    /// <summary>One channel, 0-<see cref="MaxChannel"/>.</summary>
-    public int this[ColorChannel channel] => channel switch
+    /// <summary>
+    /// This colour blended <paramref name="part"/> of <paramref name="parts"/> of the way toward <paramref name="toward"/>:
+    /// none of the way is this colour, all of it is <paramref name="toward"/>, and each channel between is rounded toward
+    /// this colour.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="parts"/> is not positive or <paramref name="part"/> is outside 0-<paramref name="parts"/>.</exception>
+    public RgbColor Blend(RgbColor toward, int part, int parts)
     {
-        ColorChannel.Red => Red,
-        ColorChannel.Green => Green,
-        ColorChannel.Blue => Blue,
-        _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "Undefined color channel."),
-    };
-
-    /// <summary>This color with one channel replaced.</summary>
-    public RgbColor With(ColorChannel channel, int value) => channel switch
-    {
-        ColorChannel.Red => WithRed(value),
-        ColorChannel.Green => WithGreen(value),
-        ColorChannel.Blue => WithBlue(value),
-        _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "Undefined color channel."),
-    };
-
-    /// <summary>This color with its red channel replaced.</summary>
-    public RgbColor WithRed(int red) => new(red, Green, Blue);
-
-    /// <summary>This color with its green channel replaced.</summary>
-    public RgbColor WithGreen(int green) => new(Red, green, Blue);
-
-    /// <summary>This color with its blue channel replaced.</summary>
-    public RgbColor WithBlue(int blue) => new(Red, Green, blue);
-
-    /// <summary>Applies <paramref name="map"/> to each channel; the results must be valid channels.</summary>
-    public RgbColor Map(Func<ColorChannel, int, int> map)
-    {
-        Ensure.NotNull(map);
-        return new(map(ColorChannel.Red, Red), map(ColorChannel.Green, Green), map(ColorChannel.Blue, Blue));
+        _ = Ensure.BetweenInclusive(1, int.MaxValue, parts);
+        _ = Ensure.BetweenInclusive(0, parts, part);
+        return new(Blended(Red, toward.Red, part, parts), Blended(Green, toward.Green, part, parts),
+            Blended(Blue, toward.Blue, part, parts));
     }
 
-    /// <summary>Combines matching channels of this color and <paramref name="other"/>; the results must be valid channels.</summary>
-    public RgbColor Zip(RgbColor other, Func<ColorChannel, int, int, int> combine)
+    /// <summary>
+    /// This colour scaled to <paramref name="part"/> of <paramref name="parts"/> of its strength: none is black, all of it
+    /// is this colour, and each channel between is rounded down.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="parts"/> is not positive or <paramref name="part"/> is outside 0-<paramref name="parts"/>.</exception>
+    public RgbColor Scaled(int part, int parts)
     {
-        Ensure.NotNull(combine);
-        return new(combine(ColorChannel.Red, Red, other.Red), combine(ColorChannel.Green, Green, other.Green),
-            combine(ColorChannel.Blue, Blue, other.Blue));
+        _ = Ensure.BetweenInclusive(1, int.MaxValue, parts);
+        _ = Ensure.BetweenInclusive(0, parts, part);
+        return new(Red * part / parts, Green * part / parts, Blue * part / parts);
     }
 
-    /// <summary>Host RGBA, expanding each five-bit channel to eight bits by bit replication.</summary>
-    public RgbaPixel ToRgbaPixel() => new(Expand(Red), Expand(Green), Expand(Blue));
+    /// <summary>This colour with <paramref name="added"/> added to it, each channel held at full.</summary>
+    public RgbColor Plus(RgbColor added) =>
+        new(Math.Min(FullChannel, Red + added.Red), Math.Min(FullChannel, Green + added.Green),
+            Math.Min(FullChannel, Blue + added.Blue));
+
+    /// <summary>The host pixel showing this colour, opaque.</summary>
+    public RgbaPixel ToRgbaPixel() => new((byte)Red, (byte)Green, (byte)Blue);
 
     /// <inheritdoc />
     public override string ToString() => $"Rgb(r{Red}, g{Green}, b{Blue})";
 
-    /// <summary>Validates and packs three five-bit channels into the colour's storage.</summary>
-    private static ushort Pack(int red, int green, int blue)
-    {
-        Channel(red, nameof(red));
-        Channel(green, nameof(green));
-        Channel(blue, nameof(blue));
-        return (ushort)(red | (green << 5) | (blue << 10));
-    }
+    /// <summary>One channel <paramref name="part"/> of <paramref name="parts"/> of the way toward <paramref name="toward"/>, rounded toward <paramref name="from"/>.</summary>
+    private static int Blended(int from, int toward, int part, int parts) => from + (toward - from) * part / parts;
 
-    /// <summary>Rejects a component outside the five-bit channel range before packing.</summary>
-    private static void Channel(int value, string name)
-    {
-        if ((uint)value > MaxChannel)
-            throw new ArgumentOutOfRangeException(name, value, $"A colour channel is 0-{MaxChannel}.");
-    }
-
-    /// <summary>
-    /// Replicates the high three bits into the low end, mapping a five-bit channel's 0..31 across the full
-    /// 0..255 display range including both endpoints.
-    /// </summary>
-    private static byte Expand(int channel) => (byte)((channel << 3) | (channel >> 2));
+    /// <summary>Rejects a channel outside 0-<see cref="FullChannel"/>.</summary>
+    private static int Channel(int value, string name) =>
+        value is >= 0 and <= FullChannel
+            ? value
+            : throw new ArgumentOutOfRangeException(name, value, $"A colour channel is 0-{FullChannel}.");
 }

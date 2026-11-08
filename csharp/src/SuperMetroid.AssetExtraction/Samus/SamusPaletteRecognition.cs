@@ -44,8 +44,8 @@ internal static class SamusPaletteRecognition
     internal static InstalledSamusHurtColors Hurt(RgbColor[] hurt, RgbColor[] intro)
     {
         Dictionary<int, int> introLevels = Enumerable.Range(1, 15)
-            .Where(index => intro[index].Red != SamusHurtColorLevels.DefaultIntroLevel(index))
-            .ToDictionary(index => index, index => intro[index].Red);
+            .Where(index => intro[index].FadeLevels.Red != SamusHurtColorLevels.DefaultIntroLevel(index))
+            .ToDictionary(index => index, index => intro[index].FadeLevels.Red);
         Dictionary<TableColourPlace, RgbColor> introOverrides = Enumerable.Range(1, 15)
             .Where(index => intro[index] != SamusHurtColorLevels.IntroFromLevel(
                 introLevels.TryGetValue(index, out int level) ? level : SamusHurtColorLevels.DefaultIntroLevel(index)))

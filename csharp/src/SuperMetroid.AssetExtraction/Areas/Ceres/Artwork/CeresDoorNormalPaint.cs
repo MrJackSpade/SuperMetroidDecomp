@@ -55,6 +55,6 @@ internal sealed class CeresDoorNormalPaint
         if (slot is >= 9 and <= 14) return WarmTargets.ColorAt(slot - 9);
         int green = slot == 15 ? MaximumChannel : slot == 4 ? 0 : slot == 8 ? Seed(7, ColorChannel.Green) : Seed(slot, ColorChannel.Green);
         int blue = slot is 1 or 2 ? Math.Min(MaximumChannel, green + HighlightBlueTint) : Seed(slot, ColorChannel.Blue);
-        return new(0, green, blue);
+        return new FadeLevelColour(0, green, blue).ToColour();
     }
 }

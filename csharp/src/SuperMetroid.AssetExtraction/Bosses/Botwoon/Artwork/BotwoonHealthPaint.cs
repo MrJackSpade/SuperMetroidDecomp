@@ -26,11 +26,11 @@ internal sealed class BotwoonHealthPaint
     {
         if (color == 0) return band is 1 or 2 ? BotwoonHealthPaintDefinitions.EarlyBandTransparentTarget : RgbColor.Black;
         RgbColor first = Endpoint(BotwoonHealthEndpoint.Healthy, color), last = Endpoint(BotwoonHealthEndpoint.Damaged, color);
-        return first.Zip(last, (_, start, end) =>
+        return first.FadeLevels.Zip(last.FadeLevels, (_, start, end) =>
         {
             int difference = end - start;
             return start + Math.Sign(difference) * ((Math.Abs(difference) * band + 3) / 7);
-        });
+        }).ToColour();
     }
 
     /// <summary>Chooses the healthy or damaged material paint for one Botwoon palette slot.</summary>
@@ -41,8 +41,8 @@ internal sealed class BotwoonHealthPaint
             >= 1 and <= 4 => Eye(endpoint == BotwoonHealthEndpoint.Damaged, color - 1),
             >= 5 and <= 8 => Jaw(endpoint == BotwoonHealthEndpoint.Damaged, color - 5),
             >= 9 and <= 13 => Skin(endpoint == BotwoonHealthEndpoint.Damaged, color - 9),
-            14 => endpoint == BotwoonHealthEndpoint.Damaged ? new RgbColor(31, 31, 17) : new RgbColor(29, 29, 31),
-            15 => endpoint == BotwoonHealthEndpoint.Damaged ? new RgbColor(11, 0, 0) : new RgbColor(5, 0, 3),
+            14 => endpoint == BotwoonHealthEndpoint.Damaged ? new RgbColor(255, 255, 140) : new RgbColor(239, 239, 255),
+            15 => endpoint == BotwoonHealthEndpoint.Damaged ? new RgbColor(90, 0, 0) : new RgbColor(41, 0, 24),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }
@@ -53,30 +53,30 @@ internal sealed class BotwoonHealthPaint
         if (!damaged)
         {
             int grey = shade switch { 0 => 9, 1 => 6, 2 => 5, _ => 3 };
-            return new RgbColor(grey, shade == 0 ? 31 : 19 - 7 * (shade - 1), grey);
+            return new FadeLevelColour(grey, shade == 0 ? 31 : 19 - 7 * (shade - 1), grey).ToColour();
         }
         int red = shade switch { 0 => 24, 1 => 21, 2 => 17, _ => 11 };
         int green = shade switch { 0 => 31, 1 => 24, 2 => 18, _ => red };
         int blue = shade switch { 0 => 7, 3 => 1, _ => 3 };
-        return new RgbColor(red, green, blue);
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 
     /// <summary>Builds four jaw shades from healthy blue and damaged red ramps.</summary>
     private static RgbColor Jaw(bool damaged, int shade)
     {
         static int Ramp(int peak, int floor, int phase) => (peak * (3 - phase) + floor * phase) / 3;
-        if (damaged) return new RgbColor(Ramp(30, 23, shade), Math.Max(0, 12 - 9 * shade / 2), Ramp(10, 5, shade));
+        if (damaged) return new FadeLevelColour(Ramp(30, 23, shade), Math.Max(0, 12 - 9 * shade / 2), Ramp(10, 5, shade)).ToColour();
         int blue = Ramp(15, 4, shade), red = blue + 13 - shade;
         int green = shade switch { 0 => red, 1 => 20, 2 => 11, _ => blue };
-        return new RgbColor(red, green, blue);
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 
     /// <summary>Builds five skin shades with reduced green in the damaged endpoint.</summary>
     private static RgbColor Skin(bool damaged, int shade)
     {
         int healthyGreen = shade == 4 ? 1 : 18 - 4 * shade;
-        if (!damaged) return new RgbColor(shade == 4 ? 12 : 31 - 9 * shade / 2, healthyGreen, 2);
+        if (!damaged) return new FadeLevelColour(shade == 4 ? 12 : 31 - 9 * shade / 2, healthyGreen, 2).ToColour();
         int red = shade switch { 0 => 31, 1 => 28, 2 => 23, 3 => 20, _ => 15 };
-        return new RgbColor(red, Math.Max(1, healthyGreen / 2), 6);
+        return new FadeLevelColour(red, Math.Max(1, healthyGreen / 2), 6).ToColour();
     }
 }

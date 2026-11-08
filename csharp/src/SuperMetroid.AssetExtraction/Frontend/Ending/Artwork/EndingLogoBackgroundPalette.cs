@@ -25,7 +25,7 @@ internal sealed class EndingLogoBackgroundPalette
     internal static EndingLogoBackgroundPalette? TryCreate(ReadOnlySpan<RgbColor> colors)
     {
         if (colors.Length != 16) return null;
-        var gradient = new EndingLogoBackgroundPalette(colors[1].Red, colors[8].Red);
+        var gradient = new EndingLogoBackgroundPalette(colors[1].FadeLevels.Red, colors[8].FadeLevels.Red);
         for (int color = 0; color < 16; color++)
             if (gradient.Color(color) != colors[color]) return null;
         return gradient;
@@ -38,6 +38,6 @@ internal sealed class EndingLogoBackgroundPalette
         if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));
         if (color is < 1 or > 8) return RgbColor.Black;
         int level = (light * (8 - color) + dark * (color - 1) + 3) / 7;
-        return new RgbColor(level, level, level);
+        return new FadeLevelColour(level, level, level).ToColour();
     }
 }

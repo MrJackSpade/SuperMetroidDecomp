@@ -12,7 +12,7 @@ internal static class SidehopperDrainPaint
         if ((uint)frame > CorpseFrame || (uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(frame));
         if (frame == CorpseFrame) return SidehopperCorpsePaint.Color(color);
         RgbColor start = SidehopperInitialPaint.Color(color), end = Endpoint(color);
-        return start.Zip(end, (_, a, b) => ((a * (DrainIntervals - frame) + b * frame + DrainIntervals / 2) / DrainIntervals));
+        return start.FadeLevels.Zip(end.FadeLevels, (_, a, b) => ((a * (DrainIntervals - frame) + b * frame + DrainIntervals / 2) / DrainIntervals)).ToColour();
     }
 
     /// <summary>Selects the unchanged clear slot, shifted drain shades, or mapped corpse colors for a channel endpoint.</summary>

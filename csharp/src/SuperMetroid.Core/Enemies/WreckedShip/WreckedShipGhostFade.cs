@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// <summary>
 /// The Wrecked Ship ghost's fading colours (#1512, #1544): a compatibility value the ghost owns, reproducing the colours
 /// the game fades the ghost's sixteen colours through, because when each fade ends decides when the ghost's AI moves on.
+/// It counts the colours in the levels the game authored them in (<see cref="FadeLevelColour"/>), as its steps do.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -28,9 +29,6 @@ public sealed class WreckedShipGhostFade
 {
     /// <summary>The colours the ghost's fades move: the fifteen its pictures draw and colour zero, which none draws.</summary>
     public const int ColourCount = 16;
-
-    /// <summary>The highest level of a colour channel.</summary>
-    private const int FullLevel = 31;
 
     /// <summary>The channels a fade step moves, in the order the game steps them.</summary>
     private static readonly ColorChannel[] Channels = [ColorChannel.Red, ColorChannel.Green, ColorChannel.Blue];
@@ -78,10 +76,10 @@ public sealed class WreckedShipGhostFade
         int changed = 0;
         for (int colour = 0; colour < ColourCount; colour++)
         {
-            RgbColor current = shown[colour];
-            if (current.Red >= FullLevel)
+            FadeLevelColour current = shown[colour].FadeLevels;
+            if (current.Red >= FadeLevelColour.FullLevel)
                 continue;
-            shown[colour] = RaisedOneLevel(current);
+            shown[colour] = RaisedOneLevel(current).ToColour();
             changed++;
         }
         if (changed != 0)
@@ -110,18 +108,18 @@ public sealed class WreckedShipGhostFade
         int moved = 0;
         for (int colour = 0; colour < ColourCount; colour++)
         {
-            RgbColor current = shown[colour];
-            RgbColor next = current;
+            FadeLevelColour next = shown[colour].FadeLevels;
+            FadeLevelColour goal = target[colour].FadeLevels;
             foreach (ColorChannel channel in Channels)
             {
                 int level = next[channel];
-                int toward = target[colour][channel];
+                int toward = goal[channel];
                 if (level == toward)
                     continue;
                 next = next.With(channel, level + (level > toward ? -1 : 1));
                 moved++;
             }
-            shown[colour] = next;
+            shown[colour] = next.ToColour();
         }
         if (moved != 0)
             Changed(fade);
@@ -154,11 +152,12 @@ public sealed class WreckedShipGhostFade
     /// <paramref name="colour"/> one level brighter in each channel, a channel passing full wrapping to zero and carrying
     /// one level into the next, the last channel's carry lost.
     /// </summary>
-    private static RgbColor RaisedOneLevel(RgbColor colour)
+    private static FadeLevelColour RaisedOneLevel(FadeLevelColour colour)
     {
+        const int levels = FadeLevelColour.FullLevel + 1;
         int red = colour.Red + 1;
-        int green = colour.Green + 1 + red / (FullLevel + 1);
-        int blue = colour.Blue + 1 + green / (FullLevel + 1);
-        return new RgbColor(red % (FullLevel + 1), green % (FullLevel + 1), blue % (FullLevel + 1));
+        int green = colour.Green + 1 + red / levels;
+        int blue = colour.Blue + 1 + green / levels;
+        return new FadeLevelColour(red % levels, green % levels, blue % levels);
     }
 }

@@ -25,7 +25,7 @@ internal static class TitleAmbientColors
             if (frame == 0) { color = first; return true; }
             if (supplied.TryGetValue(tube.Color(0, index), out RgbColor edited)) first = edited;
             int phase = Math.Min(frame, tube.FrameCount - frame);
-            color = first.Map((_, channel) => Channel(channel, phase));
+            color = first.FadeLevels.Map((_, channel) => Channel(channel, phase)).ToColour();
             return true;
         }
         var displays = TitleScreenAmbientPaletteFxColorDefinitions.Displays;

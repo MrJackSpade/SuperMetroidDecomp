@@ -104,7 +104,7 @@ internal static class WreckedShipPowerPaint
     private static RgbColor Cool(int intensity) => Rgb(intensity, intensity, intensity + CoolBlueTint);
     /// <summary>Darkens each RGB5 channel without passing below zero.</summary>
     private static RgbColor Subtract(RgbColor color, int amount) =>
-        Rgb(Math.Max(0, (color.Red) - amount), Math.Max(0, (color.Green) - amount), Math.Max(0, (color.Blue) - amount));
+        Rgb(Math.Max(0, (color.FadeLevels.Red) - amount), Math.Max(0, (color.FadeLevels.Green) - amount), Math.Max(0, (color.FadeLevels.Blue) - amount));
     /// <summary>Gets the green door and background's dark green shade.</summary>
     private static RgbColor GreenDark => Rgb(GreenDarkRed, GreenDarkRed * 2, 0);
     /// <summary>Builds an equal-channel neutral material ink.</summary>
@@ -112,5 +112,5 @@ internal static class WreckedShipPowerPaint
     /// <summary>Gets the shared maximum-intensity white accent.</summary>
     private static RgbColor White => Neutral(31);
     /// <summary>Packs selected five-bit red, green, and blue levels into a BG palette word.</summary>
-    private static RgbColor Rgb(int red, int green, int blue) => new RgbColor(red, green, blue);
+    private static RgbColor Rgb(int red, int green, int blue) => new FadeLevelColour(red, green, blue).ToColour();
 }

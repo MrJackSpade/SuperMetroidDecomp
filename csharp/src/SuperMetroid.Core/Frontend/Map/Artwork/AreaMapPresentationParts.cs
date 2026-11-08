@@ -106,7 +106,7 @@ internal sealed record AreaMapPresentationParts
     /// <summary>The Ceres haze's installed tints.</summary>
     public required CeresHazeTints CeresHaze { get; init; }
 
-    /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
+    /// <summary>Fixed colours for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>
     public required InstalledPowerBombFixedColors PowerBombFixedColors { get; init; }
 
 

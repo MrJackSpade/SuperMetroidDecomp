@@ -34,7 +34,7 @@ internal static class LookupFxBlendBlackColorsVerification
             AssertEqual(expected, ((RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdColor(FxNativeWords.PaletteBlend(id)).")).ToWord() >> shift) & 31, "Original third-color component");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> shift) & 31, "Resolved third-color component");
             RgbColor ink = stock.Inks(FxNativeWords.PaletteBlend(id))[2];
-            AssertEqual(expected, shift switch { 0 => ink.Red, 5 => ink.Green, _ => ink.Blue }, "Layer 3's third blend ink shows the third-color component");
+            AssertEqual(expected, shift switch { 0 => ink.FadeLevels.Red, 5 => ink.FadeLevels.Green, _ => ink.FadeLevels.Blue }, "Layer 3's third blend ink shows the third-color component");
         }
     }
 

@@ -28,11 +28,11 @@ internal sealed class CeresRidleyBodyPaint
     /// <summary>Shared membrane material, also present in the Baby palette.</summary>
     internal CeresRidleyBodyPaint(RgbColor highlight, RgbColor middle, RgbColor dark)
     {
-        highlightGreen = highlight.Green;
-        middleGreen = middle.Green;
-        blueTint = highlight.Blue - highlightGreen;
-        darkRed = dark.Red;
-        darkBlue = dark.Blue;
+        highlightGreen = highlight.FadeLevels.Green;
+        middleGreen = middle.FadeLevels.Green;
+        blueTint = highlight.FadeLevels.Blue - highlightGreen;
+        darkRed = dark.FadeLevels.Red;
+        darkBlue = dark.FadeLevels.Blue;
     }
 
     /// <summary>Uses Golden Torizo armor for inks zero through seven and the derived wing paints for eight through ten.</summary>
@@ -40,9 +40,9 @@ internal sealed class CeresRidleyBodyPaint
     {
         if ((uint)color >= 11) throw new ArgumentOutOfRangeException(nameof(color));
         if (color < 8) return GoldenTorizoHealthPaint.Color(0, color + 1, GoldenTorizoHealthFacing.Front);
-        if (color == 10) return new(darkRed, 0, darkBlue);
+        if (color == 10) return new FadeLevelColour(darkRed, 0, darkBlue).ToColour();
         int green = color == 8 ? highlightGreen : middleGreen;
         int blue = Math.Clamp(green + blueTint, 0, MaximumChannel);
-        return new(MaximumChannel, green, blue);
+        return new FadeLevelColour(MaximumChannel, green, blue).ToColour();
     }
 }

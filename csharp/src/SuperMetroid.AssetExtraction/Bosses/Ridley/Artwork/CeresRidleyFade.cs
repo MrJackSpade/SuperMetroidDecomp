@@ -26,7 +26,7 @@ internal sealed class CeresRidleyFade
         {
             int red = Math.Clamp(MaximumRgb5 - RedStep * shade, 0, MaximumRgb5);
             int green = shade switch { 0 => HighlightGreen, 1 => MiddleGreen, 2 => ShadowGreen, _ => throw new ArgumentOutOfRangeException(nameof(shade)) };
-            return new(red, green, 0);
+            return new FadeLevelColour(red, green, 0).ToColour();
         }
     }
     /// <summary>Imported colors that differ from the common quantized fade formula.</summary>
@@ -74,7 +74,7 @@ internal sealed class CeresRidleyFade
     {
         const int intervals = 15;
         const int bias = 1;
-        return endpoint.Map((_, channel) => (channel * phase + bias) / intervals);
+        return endpoint.FadeLevels.Map((_, channel) => (channel * phase + bias) / intervals).ToColour();
     }
 
     /// <summary>Rejects fade shades beyond the selected eye or body table.</summary>

@@ -39,7 +39,7 @@ internal static class ColorWindowSmokeTests
             ];
             int firstLine = random.Next(224);
             var window = new ScreenWindow(shapes.AsSpan(0, 1 + sample % shapes.Length), firstLine, random.Next(firstLine, 225));
-            var colour = new RgbColor(random.Next(32), random.Next(32), random.Next(32));
+            var colour = new FadeLevelColour(random.Next(32), random.Next(32), random.Next(32)).ToColour();
             Check(new ColourAddWindowLayer(window, colour, sample % 2 == 0 ? null
                 : new LineColourSteps(random.Next(224), 1 + random.Next(16), 1 + random.Next(15), random.Next(-1, 2))));
         }
@@ -69,7 +69,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    new ScreenTintLayer(1, 2, 3), new AddedPicturedPlaneLayer(subscreen, coverage) }, 13));
+                    new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), new AddedPicturedPlaneLayer(subscreen, coverage) }, 13));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: glow {count}, over a plane {masked}, geometry {width}x{height}");
         }
@@ -90,7 +90,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    windows, new ScreenTintLayer(1, 2, 3), windows }, DisplayBrightness.Combine(13, 11)));
+                    windows, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()), windows }, DisplayBrightness.Combine(13, 11)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: color-window sample {count}");
         }

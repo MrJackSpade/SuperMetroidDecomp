@@ -62,23 +62,23 @@ internal sealed class BabyMetroidInitialPalette
 
     /// <summary>Raises each innard-light channel to form the clipped glint.</summary>
     private static RgbColor Glint(RgbColor light) =>
-        light.Map((_, channel) => Math.Min(RgbColor.MaxChannel, channel + InnardGlintAddition));
+        light.FadeLevels.Map((_, channel) => Math.Min(FadeLevelColour.FullLevel, channel + InnardGlintAddition)).ToColour();
 
     /// <summary>Eases the innard red channel with smoothstep, then interpolates other channels by that red level.</summary>
     private static RgbColor InnardShade(RgbColor light, RgbColor dark, int shade)
     {
-        int lightRed = light.Red, darkRed = dark.Red;
+        int lightRed = light.FadeLevels.Red, darkRed = dark.FadeLevels.Red;
         int intervals = lightRed - darkRed;
         int shadeIntervals = BabyMetroidInitialColorSlot.InnardDark - BabyMetroidInitialColorSlot.InnardLight;
         int denominator = shadeIntervals * shadeIntervals * shadeIntervals;
         int weight = shade * shade * (3 * shadeIntervals - 2 * shade);
         // Standard smoothstep, rounded to the nearest RGB5 red level; no historical-tool claim.
         int red = (lightRed * (denominator - weight) + darkRed * weight + denominator / 2) / denominator;
-        return light.Zip(dark, (_, lightChannel, darkChannel) =>
-            (lightChannel * (red - darkRed) + darkChannel * (lightRed - red)) / intervals);
+        return light.FadeLevels.Zip(dark.FadeLevels, (_, lightChannel, darkChannel) =>
+            (lightChannel * (red - darkRed) + darkChannel * (lightRed - red)) / intervals).ToColour();
     }
 
     /// <summary>Averages each RGB5 channel down to the intermediate fang paint.</summary>
     internal static RgbColor Midpoint(RgbColor light, RgbColor dark) =>
-        light.Zip(dark, (_, lightChannel, darkChannel) => (lightChannel + darkChannel) / 2);
+        light.FadeLevels.Zip(dark.FadeLevels, (_, lightChannel, darkChannel) => (lightChannel + darkChannel) / 2).ToColour();
 }

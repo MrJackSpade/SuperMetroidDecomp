@@ -20,10 +20,10 @@ public static class HyperBeamHues
     internal static RgbColor HueMidpoint(RgbColor first, RgbColor second, HueRounding direction = HueRounding.Up)
     {
         int rounding = direction == HueRounding.Up ? 1 : 0;
-        int red = ((first.Red) + (second.Red) + rounding) / 2;
-        int green = ((first.Green) + (second.Green) + rounding) / 2;
-        int blue = ((first.Blue) + (second.Blue) + rounding) / 2;
-        return new RgbColor(red, green, blue);
+        int red = ((first.FadeLevels.Red) + (second.FadeLevels.Red) + rounding) / 2;
+        int green = ((first.FadeLevels.Green) + (second.FadeLevels.Green) + rounding) / 2;
+        int blue = ((first.FadeLevels.Blue) + (second.FadeLevels.Blue) + rounding) / 2;
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 
     /// <summary>Turns the red endpoint into magenta by raising blue to red.</summary>
@@ -32,7 +32,7 @@ public static class HyperBeamHues
     /// its independently edited shade-red channels. Red/green stay fixed; copying red into blue
     /// needs no rounding,saturation or overflow. Edits remain independent.</remarks>
     internal static RgbColor MagentaFromRed(RgbColor red) =>
-        red.WithBlue(red.Red);
+        red.FadeLevels.WithBlue(red.FadeLevels.Red).ToColour();
 
     /// <summary>Changes the green Hyper Beam hue into yellow by raising red to green.</summary>
     /// <remarks>Every opaque original frame7 word equals frame5
@@ -40,5 +40,5 @@ public static class HyperBeamHues
     /// RGB5 component copying needs no rounding or saturation. Transparent
     /// payloads are outside the hue transform; differing asset values override it.</remarks>
     internal static RgbColor YellowFromGreen(RgbColor green) =>
-        green.WithRed(green.Green);
+        green.FadeLevels.WithRed(green.FadeLevels.Green).ToColour();
 }

@@ -65,13 +65,15 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   pixel. Outside the floor it shows nothing or repeats. Options: add the floor's colour to whichever of the floor and the sprites is in front
   (the floor shows over sprites drawn behind the room; a sprite that does not blend is left as it is), or subtract the
   sprite layer's colour from the floor.
-- **Add colour.** Adds a fixed colour to every pixel, in five-bit channels, clamped.
+- **Add colour.** Adds a fixed colour to every pixel, in the colour's thirty-two levels a channel, clamped. The display
+  model describes colours as plain colours (`RgbColor`, 0-255 a channel); a colour reaches the tile shaders' colour maths
+  as its nearest levels (`FadeLevelColour.Nearest`, #1544), exactly its own for every colour the game authored.
 - **Line colour add.** Adds each line's colour within that line's window.
 - **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own scroll, eight bits a
   channel, clamped. The overlay is a rectangle of its picture placed in an area that repeats across and down
   (`OverlayPicture`, #1514); nothing shows outside the rectangle.
 - **Add layer behind.** Adds a frontend layer's colours where the layer covering it shows (and, optionally, where a
-  sprite that blends shows over it), each line at its own scroll, in five-bit channels.
+  sprite that blends shows over it), each line at its own scroll, in thirty-two levels a channel.
 - **Message text.** Draws the message box's text image from its top line, within the reveal window's lines.
 - **Blended room** (`Xray.hlsli`). Composes a room under a gameplay blend (`GameplayBlendLayer`: the X-ray, Phantoon,
   Fireflea, the waterfall rooms, the spores) in one pass: the foreground, the background and the actors in room order,

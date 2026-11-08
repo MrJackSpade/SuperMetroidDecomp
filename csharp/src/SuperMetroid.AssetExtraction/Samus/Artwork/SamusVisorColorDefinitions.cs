@@ -11,10 +11,10 @@ internal static class SamusVisorColorDefinitions
     /// not a measured quantity determining its RGB value. The same3BE0 begins this visor
     /// transition. Catalogs remain independently editable; this is shared source identity,
     /// not mutable cross-catalog coupling. FullBeamStart and DarkeningStep have a separate narrow visor-light disposition.</remarks>
-    internal static readonly RgbColor WideningStart = new(0, 31, 14);
+    internal static readonly RgbColor WideningStart = new(0, 255, 115);
 
     /// <summary>SamusPalettes_Visor: selected yellow-white full-beam/room-cycle ink (31,31,16); retained painted visor-light choice.</summary>
-    internal static readonly RgbColor FullBeamStart = new(31, 31, 16);
+    internal static readonly RgbColor FullBeamStart = new(255, 255, 132);
 
     /// <summary>SamusPalettes_Visor: selected five-level decrement per RGB5 channel; retained visor-light brightness contrast.</summary>
     /// <remarks>Only the six original visor RGB outputs are covered. The visor handlers

@@ -18,8 +18,8 @@ internal static class EndingSceneColoursVerification
     internal static void VerifyEndingSceneColours()
     {
         var black = RgbColor.Black;
-        var escape = new RgbColor(1, 2, 3);
-        var explosion = new RgbColor(4, 5, 6);
+        var escape = new RgbColor(8, 16, 24);
+        var explosion = new RgbColor(33, 41, 49);
         PictureShade gunshipRecord = PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion, new PaletteFxFrame(0));
 
         var colours = new EndingColours();

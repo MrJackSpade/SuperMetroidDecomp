@@ -26,11 +26,11 @@ internal sealed class KraidHealthBands : IReadOnlyList<RgbColor>
     internal static RgbColor Interpolate(RgbColor first, RgbColor last, int band)
     {
         int intervals = KraidPalettes.HealthBandCount - 2;
-        return first.Zip(last, (_, start, end) =>
+        return first.FadeLevels.Zip(last.FadeLevels, (_, start, end) =>
         {
             int delta = end - start;
             return start + Math.Sign(delta) * ((Math.Abs(delta) * (band - 1) + intervals / 2) / intervals);
-        });
+        }).ToColour();
     }
 
     /// <summary>White flash plus eight sixteen-color health bands.</summary>

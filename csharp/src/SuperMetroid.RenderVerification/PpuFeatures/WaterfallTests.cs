@@ -20,11 +20,11 @@ internal static class WaterfallTests
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        RgbColor main = new(24, 20, 16);
+        RgbColor main = new(198, 165, 132);
         cgram.SetColor(0, main);
         cgram.SetColor(1, main);
-        cgram.SetColor(2, new RgbColor(5, 7, 9));
-        cgram.SetColor(3, new RgbColor(2, 3, 4));
+        cgram.SetColor(2, new RgbColor(41, 57, 74));
+        cgram.SetColor(3, new RgbColor(16, 24, 33));
         cgram.SetColor(128 + 3 * 16 + 1, main);
         cgram.SetColor(128 + 4 * 16 + 1, main);
         for (int row = 0; row < 8; row++)

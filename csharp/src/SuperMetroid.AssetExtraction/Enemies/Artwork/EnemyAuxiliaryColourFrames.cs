@@ -76,7 +76,7 @@ internal sealed class EnemyAuxiliaryColourFrames
             start = glowAccentStart;
             frame--; steps--;
         }
-        return start.Zip(last[color], (_, a, b) => ((a * (steps - frame)
-                + b * frame + steps / 2) / steps));
+        return start.FadeLevels.Zip(last[color].FadeLevels, (_, a, b) => ((a * (steps - frame)
+                + b * frame + steps / 2) / steps)).ToColour();
     }
 }

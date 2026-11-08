@@ -14,11 +14,11 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// </summary>
     internal static readonly RgbColor[] OwnColours =
     [
-        new(0, 0, 14),
-        new(31, 31, 21), new(23, 23, 16), new(9, 9, 2), new(5, 5, 0),
-        new(26, 26, 19), new(21, 21, 13), new(16, 16, 9), new(14, 14, 7),
-        new(31, 14, 0), new(31, 0, 0), new(24, 0, 0), new(10, 0, 0),
-        new(25, 21, 1), new(10, 7, 0), new(5, 2, 0),
+        new(0, 0, 115),
+        new(255, 255, 173), new(189, 189, 132), new(74, 74, 16), new(41, 41, 0),
+        new(214, 214, 156), new(173, 173, 107), new(132, 132, 74), new(115, 115, 57),
+        new(255, 115, 0), new(255, 0, 0), new(198, 0, 0), new(82, 0, 0),
+        new(206, 173, 8), new(82, 57, 0), new(41, 16, 0),
     ];
 
     /// <summary>The spawn table contains the nine row-major positions of a three-by-three spawn grid.</summary>

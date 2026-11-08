@@ -31,7 +31,9 @@ public sealed class MorphBallEyeBeamState
 
     /// <summary>
     /// The colour the beam adds inside its cone: red and green only, never blue; black before the beam appears and once
-    /// it has faded.
+    /// it has faded. A compatibility value (#1544): the beam fades one level of the game's authored levels
+    /// (<see cref="FadeLevelColour"/>) a channel an update and is removed on the update its green is found at none, so the
+    /// beam's lifetime depends on those levels, as the original's beam fade tests the colour's green before darkening it.
     /// </summary>
     public RgbColor Color { get; internal set; }
 
@@ -62,6 +64,9 @@ public sealed class MorphBallEyeBeamState
         Color = RgbColor.Black;
     }
 
-    /// <summary>Darkens each colour channel by one intensity, leaving a channel already at zero unchanged.</summary>
-    internal void FadeOneStep() => Color = Color.Map(static (_, intensity) => intensity == 0 ? 0 : intensity - 1);
+    /// <summary>Whether the beam's green has faded to none, which ends the beam.</summary>
+    internal bool GreenFaded => Color.FadeLevels.Green == 0;
+
+    /// <summary>Darkens each channel one level, leaving a channel already at none unchanged.</summary>
+    internal void FadeOneStep() => Color = Color.FadeLevels.Map(static (_, level) => level == 0 ? 0 : level - 1).ToColour();
 }

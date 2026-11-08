@@ -42,7 +42,7 @@ internal static class Mode7SmokeTests
             Check(frame);
             Check(new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
                 new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws), new TurningFloorLayer(registers, map),
-                    new ScreenTintLayer(3, 7, 11) }, 15)));
+                    new ScreenTintLayer(new FadeLevelColour(3, 7, 11).ToColour()) }, 15)));
             Check(new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { new TurningFloorLayer(registers, map, AddsForeground: true) }, 15)));
         }

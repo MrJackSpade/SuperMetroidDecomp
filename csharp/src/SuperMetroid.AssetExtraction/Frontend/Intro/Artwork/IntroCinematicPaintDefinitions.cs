@@ -44,11 +44,11 @@ internal static class IntroCinematicPaintDefinitions
     internal const int PortraitOutlineBlue = 5;
 
     /// <summary>The transparent colour of every sprite colour set: copied transparent compatibility word.</summary>
-    internal static readonly RgbColor ObjectZero = new(0, 0, 14);
+    internal static readonly RgbColor ObjectZero = new(0, 0, 115);
     /// <summary>Shoulder/edge paint.</summary>
-    internal static readonly RgbColor Shoulder = new(10, 13, 5);
+    internal static readonly RgbColor Shoulder = new(82, 107, 41);
     /// <summary>Dark cyan contour.</summary>
-    internal static readonly RgbColor PortraitContour = new(2, 5, 5);
+    internal static readonly RgbColor PortraitContour = new(16, 41, 41);
     /// <summary>Deep cool silhouette paint.</summary>
-    internal static readonly RgbColor PortraitDeep = new(2, 2, 7);
+    internal static readonly RgbColor PortraitDeep = new(16, 16, 57);
 }

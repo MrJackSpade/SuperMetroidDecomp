@@ -11,7 +11,7 @@ public static class XrayRoomDisplayRules
     /// <summary>True only for the room where X-ray, keeping the room's backgrounds, also hides the background layer.</summary>
     public static bool RemovesBackground(RoomHeaderDefinition room) => room == RoomHeaderDefinitions.GlassTunnel;
     /// <summary>The dark grey backdrop shown while the X-ray beam is out.</summary>
-    public static RgbColor ActiveBackdrop => new(3, 3, 3);
+    public static RgbColor ActiveBackdrop => new(24, 24, 24);
 
     /// <summary>
     /// What the X-ray blends outside its cone (#1514): in a reveal room and Fireflea's room, the foreground, the background,

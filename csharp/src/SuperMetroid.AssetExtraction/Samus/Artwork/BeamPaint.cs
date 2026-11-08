@@ -10,8 +10,8 @@ internal static class BeamPaint
     /// <summary>Builds a sixteen-color beam colour set from shared clear/white/black slots and the selected power, ice, wave, plasma, or Spazer paint.</summary>
     internal static RgbColor Color(SamusBeamCombination selection, int color)
     {
-        if (color == 0) return new RgbColor(0, 0, ClearTargetBlue);
-        if (color == 1) return new RgbColor(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum);
+        if (color == 0) return new FadeLevelColour(0, 0, ClearTargetBlue).ToColour();
+        if (color == 1) return new FadeLevelColour(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum).ToColour();
         if (BeamPaletteSources.IsBlackSlot(selection, color)) return RgbColor.Black;
         SamusBeamCombination source = BeamPaletteSources.ColorSourceSelection(selection, color);
         return source switch
@@ -44,15 +44,15 @@ internal static class BeamPaint
             int shade = color - 2;
             int red = shade switch { 0 => Rgb5Maximum, 1 => 21, _ => 13 };
             int blue = shade switch { 0 => 6, 1 => 7, _ => 4 };
-            return new RgbColor(red, 15 - 5 * shade, blue);
+            return new FadeLevelColour(red, 15 - 5 * shade, blue).ToColour();
         }
         return color switch
         {
-            5 => new RgbColor(Rgb5Maximum, Rgb5Maximum, 20),
-            6 => new RgbColor(30, 28, 0),
-            7 => new RgbColor(Rgb5Maximum, 10, 10),
-            8 => new RgbColor(Rgb5Maximum, 6, 6),
-            15 => new RgbColor(10, 2, 4),
+            5 => new FadeLevelColour(Rgb5Maximum, Rgb5Maximum, 20).ToColour(),
+            6 => new RgbColor(247, 231, 0),
+            7 => new FadeLevelColour(Rgb5Maximum, 10, 10).ToColour(),
+            8 => new FadeLevelColour(Rgb5Maximum, 6, 6).ToColour(),
+            15 => new RgbColor(82, 16, 33),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }
@@ -64,26 +64,26 @@ internal static class BeamPaint
         {
             int shade = color - 2;
             int blue = shade switch { 0 => Rgb5Maximum, 1 => 27, _ => 21 };
-            return new RgbColor(0, (22 * (2 - shade) + 7 * shade + 1) / 2, blue);
+            return new FadeLevelColour(0, (22 * (2 - shade) + 7 * shade + 1) / 2, blue).ToColour();
         }
         if (color is >= 5 and <= 8)
         {
             int shade = color - 5;
             int red = shade switch { 0 => 14, 1 => 10, 2 => 5, _ => 2 };
             int green = shade switch { 0 => 27, 1 => 24, 2 => 19, _ => 17 };
-            return new RgbColor(red, green, (Rgb5Maximum * (3 - shade) + 23 * shade) / 3);
+            return new FadeLevelColour(red, green, (Rgb5Maximum * (3 - shade) + 23 * shade) / 3).ToColour();
         }
         if (color is >= 9 and <= 13)
         {
             int shade = color - 9;
             // Selected extra green step belongs to final two frost targets. It is
             // color composition, not a spatial lighting or hardware rule.
-            return new RgbColor(0, 29 - 2 * (shade + (shade >= 3 ? 1 : 0)), Rgb5Maximum - shade);
+            return new FadeLevelColour(0, 29 - 2 * (shade + (shade >= 3 ? 1 : 0)), Rgb5Maximum - shade).ToColour();
         }
         return color switch
         {
-            14 => new RgbColor(17, 28, Rgb5Maximum),
-            15 => new RgbColor(0, 6, 8),
+            14 => new FadeLevelColour(17, 28, Rgb5Maximum).ToColour(),
+            15 => new RgbColor(0, 49, 66),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }
@@ -95,11 +95,11 @@ internal static class BeamPaint
         {
             int shade = color - 2;
             int magenta = (Rgb5Maximum * (2 - shade) + 12 * shade + 1) / 2;
-            return new RgbColor(magenta, 0, magenta);
+            return new FadeLevelColour(magenta, 0, magenta).ToColour();
         }
-        if (color is >= 5 and <= 7) return new RgbColor(Rgb5Maximum, (22 * (7 - color) + 6 * (color - 5)) / 2, Rgb5Maximum);
+        if (color is >= 5 and <= 7) return new FadeLevelColour(Rgb5Maximum, (22 * (7 - color) + 6 * (color - 5)) / 2, Rgb5Maximum).ToColour();
         int level = color switch { 8 => 26, 15 => 9, _ => throw new ArgumentOutOfRangeException(nameof(color)) };
-        return new RgbColor(level, 0, level);
+        return new FadeLevelColour(level, 0, level).ToColour();
     }
 
     /// <summary>Interpolates Plasma's green ramp and the brighter green-white accent colours.</summary>
@@ -108,14 +108,14 @@ internal static class BeamPaint
         if (color is >= 2 and <= 4)
         {
             int shade = color - 2, green = shade switch { 0 => Rgb5Maximum, 1 => 20, _ => 12 };
-            return new RgbColor(0, green, (14 * (2 - shade) + 5 * shade) / 2);
+            return new FadeLevelColour(0, green, (14 * (2 - shade) + 5 * shade) / 2).ToColour();
         }
         if (color is >= 5 and <= 7)
         {
             int level = (26 * (7 - color) + 10 * (color - 5)) / 2;
-            return new RgbColor(level, Rgb5Maximum, level);
+            return new FadeLevelColour(level, Rgb5Maximum, level).ToColour();
         }
-        return color switch { 8 => new RgbColor(0, Rgb5Maximum, 0), 15 => new RgbColor(0, 9, 2), _ => throw new ArgumentOutOfRangeException(nameof(color)) };
+        return color switch { 8 => new FadeLevelColour(0, Rgb5Maximum, 0).ToColour(), 15 => new RgbColor(0, 74, 16), _ => throw new ArgumentOutOfRangeException(nameof(color)) };
     }
 
     /// <summary>Reuses Plasma's green ramp channels for Spazer's yellow-green accents and supplies its remaining gold inks.</summary>
@@ -124,15 +124,15 @@ internal static class BeamPaint
         if (color is >= 5 and <= 7)
         {
             var plasma = Plasma(color);
-            return new RgbColor(plasma.Green, plasma.Green, plasma.Red);
+            return new FadeLevelColour(plasma.FadeLevels.Green, plasma.FadeLevels.Green, plasma.FadeLevels.Red).ToColour();
         }
         return color switch
         {
-            2 => new RgbColor(Rgb5Maximum, Rgb5Maximum, 0),
-            3 => new RgbColor(22, 16, 0),
-            4 => new RgbColor(14, 7, 0),
-            8 => new RgbColor(27, 27, 0),
-            15 => new RgbColor(13, 5, 0),
+            2 => new FadeLevelColour(Rgb5Maximum, Rgb5Maximum, 0).ToColour(),
+            3 => new RgbColor(181, 132, 0),
+            4 => new RgbColor(115, 57, 0),
+            8 => new RgbColor(222, 222, 0),
+            15 => new RgbColor(107, 41, 0),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }

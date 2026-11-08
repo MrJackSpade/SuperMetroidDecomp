@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -85,14 +86,14 @@ internal static class MorphBallEyeBehaviorVerification
 
         beam.Phase = MorphBallEyeBeamPhase.Deactivating;
         beam.Color = MorphBallEyeBeamDefinitions.InitialColor;
-        int fadeUpdates = MorphBallEyeBeamDefinitions.InitialColor.Green;
+        int fadeUpdates = MorphBallEyeBeamDefinitions.InitialColor.FadeLevels.Green;
         for (int update = 1; update <= fadeUpdates; update++)
         {
             enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
-            AssertEqual(Math.Max(MorphBallEyeBeamDefinitions.InitialColor.Red - update, 0), beam.Color.Red,
+            AssertEqual(Math.Max(MorphBallEyeBeamDefinitions.InitialColor.FadeLevels.Red - update, 0), beam.Color.FadeLevels.Red,
                 $"eye beam red intensity after fading update {update}");
-            AssertEqual(MorphBallEyeBeamDefinitions.InitialColor.Green - update, beam.Color.Green, $"eye beam green intensity after fading update {update}");
-            AssertEqual(0, beam.Color.Blue, $"eye beam blue intensity after fading update {update}");
+            AssertEqual(MorphBallEyeBeamDefinitions.InitialColor.FadeLevels.Green - update, beam.Color.FadeLevels.Green, $"eye beam green intensity after fading update {update}");
+            AssertEqual(0, beam.Color.FadeLevels.Blue, $"eye beam blue intensity after fading update {update}");
             AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Phase, $"eye beam still fading after update {update}");
         }
         enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();

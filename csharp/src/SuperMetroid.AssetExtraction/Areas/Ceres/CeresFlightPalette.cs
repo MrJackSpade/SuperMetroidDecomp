@@ -115,6 +115,6 @@ public sealed class CeresFlightPalette
         int step = source - RampStart;
         int steps = RampEnd - RampStart;
         RgbColor first = colors[RampStart], last = colors[RampEnd];
-        return first.Zip(last, (_, start, end) => (start * (steps - step) + end * step + steps / 2) / steps);
+        return first.FadeLevels.Zip(last.FadeLevels, (_, start, end) => (start * (steps - step) + end * step + steps / 2) / steps).ToColour();
     }
 }

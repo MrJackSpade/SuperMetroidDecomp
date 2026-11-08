@@ -114,7 +114,7 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
             FramePaint memory = FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0);
             var packet = new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
-                new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, tint: new RgbColor(8, 4, 2)) }, 15));
+                new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, tint: new RgbColor(66, 33, 16)) }, 15));
             var pixels = DisplayRendering.Render(packet);
             AssertEqual(objPalette == 4 ? new RgbaPixel(123, 33, 16) : new RgbaPixel(57, 0, 0), pixels[8 * 256 + 8],
                 "a sprite tint brightens only the sprites that blend, its five-bit channels expanded");

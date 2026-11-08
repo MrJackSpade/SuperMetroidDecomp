@@ -22,7 +22,7 @@ internal static class LookupFxWeatherBlueVerification
             int expected = (native >> 5) & 31;
             AssertEqual(expected, (RoomFxPaletteBlendRules.CalculatedThirdGreen(FxNativeWords.PaletteBlend(id)) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdGreen(FxNativeWords.PaletteBlend(id)).")), "Native weather third green");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> 5) & 31, "Installed weather third green");
-            AssertEqual(expected, stock.Inks(FxNativeWords.PaletteBlend(id))[2].Green, "Layer 3's third blend ink shows the weather third green");
+            AssertEqual(expected, stock.Inks(FxNativeWords.PaletteBlend(id))[2].FadeLevels.Green, "Layer 3's third blend ink shows the weather third green");
             var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked(native)));
             AssertTrue(owner.greenOverride is null, "Stock weather third green is not stored");
             _ = owner.CreateColor();
@@ -46,7 +46,7 @@ internal static class LookupFxWeatherBlueVerification
             int expected = (native >> 10) & 31;
             AssertEqual(expected, (RoomFxPaletteBlendRules.CalculatedThirdBlue(FxNativeWords.PaletteBlend(id), native & 31) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendRules.CalculatedThirdBlue(FxNativeWords.PaletteBlend(id), native & 31).")), "Native weather third blue");
             AssertEqual(expected, (stock.Resolve(FxNativeWords.PaletteBlend(id))[2].ToWord() >> 10) & 31, "Installed weather third blue");
-            AssertEqual(expected, stock.Inks(FxNativeWords.PaletteBlend(id))[2].Blue, "Layer 3's third blend ink shows the weather third blue");
+            AssertEqual(expected, stock.Inks(FxNativeWords.PaletteBlend(id))[2].FadeLevels.Blue, "Layer 3's third blend ink shows the weather third blue");
             var owner = new RoomFxThirdColor(FxNativeWords.PaletteBlend(id), RgbColor.FromWord(checked(native)));
             AssertTrue(owner.blueOverride is null, "Stock weather third blue is not stored");
             _ = owner.CreateColor();

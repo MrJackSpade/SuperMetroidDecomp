@@ -92,7 +92,7 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
         /// <summary>Rounds each RGB5 body channel upward when deriving rainbow rear-leg paint.</summary>
-        internal static RgbColor HalfIntensity(RgbColor color) => color.Map((_, channel) => (channel + 1) / 2);
+        internal static RgbColor HalfIntensity(RgbColor color) => color.FadeLevels.Map((_, channel) => (channel + 1) / 2).ToColour();
     }
 
     /// <summary>
@@ -138,24 +138,24 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
             {
                 if (color < RedOrigin.PlateStart)
                 {
-                    int red = head.Red - color * MotherBrainRainbowPaletteGeometry.HeadRedStep;
+                    int red = head.FadeLevels.Red - color * MotherBrainRainbowPaletteGeometry.HeadRedStep;
                     return color < RedOrigin.DarkHead
-                        ? head.WithRed(red)
-                        : new RgbColor(red, darkHead.Green, darkHead.Blue);
+                        ? head.FadeLevels.WithRed(red).ToColour()
+                        : new FadeLevelColour(red, darkHead.Green, darkHead.Blue).ToColour();
                 }
                 if (color < RedOrigin.TissueStart)
                 {
                     int shade = color - RedOrigin.PlateStart;
-                    return plateStart.Zip(plateEnd, (_, from, to) => (from * (RedOrigin.PlateIntervals - shade) +
-                        to * shade + RedOrigin.PlateIntervals - 1) / RedOrigin.PlateIntervals);
+                    return plateStart.FadeLevels.Zip(plateEnd.FadeLevels, (_, from, to) => (from * (RedOrigin.PlateIntervals - shade) +
+                        to * shade + RedOrigin.PlateIntervals - 1) / RedOrigin.PlateIntervals).ToColour();
                 }
                 if (color < RedOrigin.TailStart)
                 {
                     int shade = color - RedOrigin.TissueStart;
-                    int red = (tissueStart.Red * (RedOrigin.TissueIntervals - shade) + tissueEnd.Red * shade + RedOrigin.TissueIntervals / 2) / RedOrigin.TissueIntervals;
-                    int blue = (tissueStart.Blue * (RedOrigin.TissueIntervals - shade) + tissueEnd.Blue * shade) / RedOrigin.TissueIntervals;
-                    int green = shade == 0 ? tissueStart.Green : shade == RedOrigin.TissueIntervals ? tissueEnd.Green : tissueGreens[shade - 1];
-                    return new RgbColor(red, green, blue);
+                    int red = (tissueStart.FadeLevels.Red * (RedOrigin.TissueIntervals - shade) + tissueEnd.FadeLevels.Red * shade + RedOrigin.TissueIntervals / 2) / RedOrigin.TissueIntervals;
+                    int blue = (tissueStart.FadeLevels.Blue * (RedOrigin.TissueIntervals - shade) + tissueEnd.FadeLevels.Blue * shade) / RedOrigin.TissueIntervals;
+                    int green = shade == 0 ? tissueStart.FadeLevels.Green : shade == RedOrigin.TissueIntervals ? tissueEnd.FadeLevels.Green : tissueGreens[shade - 1];
+                    return new FadeLevelColour(red, green, blue).ToColour();
                 }
                 return tail[color - RedOrigin.TailStart];
             }
@@ -200,10 +200,10 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
             {
                 RgbColor from = source[color];
                 int index = color * independentCount;
-                int r = red ? (from.Red) + redAddition : independent[index++];
-                int g = green ? (from.Green) + greenAddition : independent[index++];
-                int b = blue ? from.Blue : independent[index];
-                return new RgbColor(r, g, b);
+                int r = red ? (from.FadeLevels.Red) + redAddition : independent[index++];
+                int g = green ? (from.FadeLevels.Green) + greenAddition : independent[index++];
+                int b = blue ? from.FadeLevels.Blue : independent[index];
+                return new FadeLevelColour(r, g, b).ToColour();
             }
         }
     }
@@ -242,8 +242,8 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
         /// <summary>The tinted color, or null when a channel leaves RGB5 (never a shared tint).</summary>
         internal static RgbColor? Tinted(RgbColor color, int red, int green, int blue)
         {
-            int r = color.Red + red, g = color.Green + green, b = color.Blue + blue;
-            return (uint)r > 31 || (uint)g > 31 || (uint)b > 31 ? null : new RgbColor(r, g, b);
+            int r = color.FadeLevels.Red + red, g = color.FadeLevels.Green + green, b = color.FadeLevels.Blue + blue;
+            return (uint)r > 31 || (uint)g > 31 || (uint)b > 31 ? null : new FadeLevelColour(r, g, b).ToColour();
         }
         /// <summary>Drained-paint interpolation selected when every colour agrees.</summary>
         internal readonly DrainedBodyColors? drained;
@@ -313,12 +313,12 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
             if (color == 13) return RgbColor.White;
             if (color == 14) return RgbColor.Black;
             if (color < 4)
-                return outline.Map((channel, outlineChannel) =>
-                    (tissueLight[channel] / 8 * (3 - color) + outlineChannel * color + 1) / 3);
-            return new RgbColor(
+                return outline.FadeLevels.Map((channel, outlineChannel) =>
+                    (tissueLight[channel] / 8 * (3 - color) + outlineChannel * color + 1) / 3).ToColour();
+            return new FadeLevelColour(
                 (tissueLight.Red * (12 - color) + tissueDark.Red * (color - 8)) / 32,
                 (tissueLight.Green * (12 - color) + tissueDark.Green * (color - 8)) / 32,
-                (tissueLight.Blue * (12 - color) + tissueDark.Blue * (color - 8)) / 32);
+                (tissueLight.Blue * (12 - color) + tissueDark.Blue * (color - 8)) / 32).ToColour();
         }
 
     }
@@ -381,8 +381,8 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
             RgbColor start = ReadColor(first, color);
             RgbColor end = ReadColor(last, color);
             int intervals = Length - 1;
-            return start.Zip(end, (_, a, b) => ((a * (intervals - frame)
-                    + b * frame + intervals / 2) / intervals));
+            return start.FadeLevels.Zip(end.FadeLevels, (_, a, b) => ((a * (intervals - frame)
+                    + b * frame + intervals / 2) / intervals)).ToColour();
         }
     }
     /// <summary>Straight RGB5 endpoint fade that keeps every authored frame for independent edits.</summary>
@@ -425,8 +425,8 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
         internal RgbColor Interpolate(RgbColor start, RgbColor end, int frame)
         {
             int intervals = Length - 1;
-            return start.Zip(end, (_, a, b) => ((a * (intervals - frame)
-                    + b * frame + intervals / 2) / intervals));
+            return start.FadeLevels.Zip(end.FadeLevels, (_, a, b) => ((a * (intervals - frame)
+                    + b * frame + intervals / 2) / intervals)).ToColour();
         }
     }
 }

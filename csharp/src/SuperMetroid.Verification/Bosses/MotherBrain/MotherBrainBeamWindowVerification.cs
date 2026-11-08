@@ -138,7 +138,7 @@ internal static class MotherBrainBeamWindowVerification
     /// <summary>The active beam over a black screen, in a fixed colour, as the display renderer draws it.</summary>
     private static RgbaPixel[] Draw(MotherBrainRainbowBeamRenderSnapshot beam) =>
         DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),
-            new DisplayLayer[] { new ColourAddWindowLayer(Cone(beam), new RgbColor(31, 31, 31)) }, DisplayBrightness.Full));
+            new DisplayLayer[] { new ColourAddWindowLayer(Cone(beam), new RgbColor(255, 255, 255)) }, DisplayBrightness.Full));
 
     /// <summary>The columns a drawn line lights.</summary>
     private static int[] LitColumns(RgbaPixel[] drawn, int line) =>

@@ -62,8 +62,8 @@ public static class TitleGradientFile
             var stops = ImmutableArray.CreateBuilder<GradientStop>(source.Stops.Length);
             foreach (TitleGradientStop? value in source.Stops)
             {
-                if (value is null || value.Red is < 0 or > RgbColor.MaxChannel || value.Green is < 0 or > RgbColor.MaxChannel ||
-                    value.Blue is < 0 or > RgbColor.MaxChannel)
+                if (value is null || value.Red is < 0 or > FadeLevelColour.FullLevel || value.Green is < 0 or > FadeLevelColour.FullLevel ||
+                    value.Blue is < 0 or > FadeLevelColour.FullLevel)
                 {
                     throw new InvalidDataException(
                         $"Title gradient variant {variant}, stop {stops.Count} requires an RGB5 colour.");
@@ -74,7 +74,7 @@ public static class TitleGradientFile
                     throw new InvalidDataException(
                         $"Title gradient variant {variant}, stop {stops.Count} must begin on line 0 or below the stop before it, on the screen.");
                 }
-                stops.Add(new GradientStop(value.Line, new RgbColor(value.Red, value.Green, value.Blue), Blend(value)));
+                stops.Add(new GradientStop(value.Line, new FadeLevelColour(value.Red, value.Green, value.Blue).ToColour(), Blend(value)));
             }
             variants[variant] = new ScreenGradient(stops.MoveToImmutable(), DisplayScreen.Height);
         }
@@ -110,9 +110,9 @@ public static class TitleGradientFile
         return new TitleGradientStop
         {
             Line = stop.Line,
-            Red = stop.Colour.Red,
-            Green = stop.Colour.Green,
-            Blue = stop.Colour.Blue,
+            Red = stop.Colour.FadeLevels.Red,
+            Green = stop.Colour.FadeLevels.Green,
+            Blue = stop.Colour.FadeLevels.Blue,
             BlendsFloor = true,
             BlendsObjects = !darkens,
             BlendsBackdrop = true,

@@ -110,6 +110,14 @@ statues is the game's own work, and the compatibility behaviour it carries, its 
 
 `WreckedShipGhostFade` (Enemies, #1512, #1544) is the Wrecked Ship ghost's own colour value rather than a service of this module, because its colours are the ghost's and the import pre-colours its shades by running it: its brightening raises all three channels of each colour in one addition, so a channel passing full carries into the next, and its fades step all sixteen of the ghost's colours, colour zero too, which no picture draws; when each ends decides when the ghost's AI moves on. Its documentation states the behaviour, the phases that consult it and the evidence.
 
+The game's colours are plain colours (`RgbColor`, #1544); the levels the game authored them in (`FadeLevelColour`, thirty-two a channel) survive only where a step-wise colour change is read back by gameplay, and in the values that own those changes:
+
+| Value | Gameplay behaviour reproduced | Consulted |
+| --- | --- | --- |
+| `WreckedShipGhostFade` (Enemies) | the ghost's brightening and fades move its colours a level at a time, as above; when each ends decides when its AI moves on | every update of the ghost's brightening, materializing and vanishing phases |
+| `KraidEyeGlow` (Bosses) | Kraid's eyes glow up a level an update to full and fade back a level an update, wrapping from none to full, toward his health band's eye colours; when the glow peaks and when the eyes show the band's again times his roar; evidence: the original glow and fade routines step and test the eye colours' channels; the Kraid replays | every update of his eye glow and its fade, from the head's instructions |
+| `MorphBallEyeBeamState.Color` (Enemies) | the Morph Ball eye's beam darkens a level a channel an update and is removed on the update its green is found at none, so its lifetime follows its brightness; evidence: the original beam fade tests the colour's green before darkening it | every update of the beam's fade, before the beam's cone is updated |
+
 The Samus over-read services are decoded by the import pipeline (`SamusOverreadFiles`) and reach the session with the
 installed content as `SamusOverreadServices`; the gameplay runtime hands each to the owner that consults it as it builds
 that owner (the projectile system, every Samus, the actor drawing, the opening cinematic's flashbacks).

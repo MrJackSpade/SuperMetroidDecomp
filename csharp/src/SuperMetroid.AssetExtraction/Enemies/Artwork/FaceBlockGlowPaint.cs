@@ -14,11 +14,11 @@ internal static class FaceBlockGlowPaint
         int green = Interpolate(0, PeakGreen, depth, PeakDepth);
         return color switch
         {
-            0 => new RgbColor(31, green, depth * BlueDepthStep),
-            1 => new RgbColor(Interpolate(MiddleRestRed, 31, depth, PeakDepth), (green + 1) / 2, 0),
-            2 => new RgbColor(Interpolate(ShadowRestRed, 31, depth, PeakDepth), 0, 0),
-            3 when depth == 0 => new RgbColor(ShadowRestRed + RestWarmAddition, RestWarmAddition, 0),
-            3 => new RgbColor(Interpolate(ActiveAccentRed, MiddleRestRed, depth - 1, PeakDepth - 1), 0, 0),
+            0 => new FadeLevelColour(31, green, depth * BlueDepthStep).ToColour(),
+            1 => new FadeLevelColour(Interpolate(MiddleRestRed, 31, depth, PeakDepth), (green + 1) / 2, 0).ToColour(),
+            2 => new FadeLevelColour(Interpolate(ShadowRestRed, 31, depth, PeakDepth), 0, 0).ToColour(),
+            3 when depth == 0 => new FadeLevelColour(ShadowRestRed + RestWarmAddition, RestWarmAddition, 0).ToColour(),
+            3 => new FadeLevelColour(Interpolate(ActiveAccentRed, MiddleRestRed, depth - 1, PeakDepth - 1), 0, 0).ToColour(),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
     }

@@ -49,7 +49,7 @@ internal static class SporeSpawnColors
     internal static RgbColor CalculateDeathSpriteColor(RgbColor first, RgbColor last, int frame)
     {
         int intervals = SporeSpawnColorFormat.DeathSpriteFrameCount - 1;
-        return first.Zip(last, (_, start, end) => (start * (intervals - frame) + end * frame + intervals / 2) / intervals);
+        return first.FadeLevels.Zip(last.FadeLevels, (_, start, end) => (start * (intervals - frame) + end * frame + intervals / 2) / intervals).ToColour();
     }
 
     /// <summary>A level death phase's colour: its edit, or the calculated fade.</summary>

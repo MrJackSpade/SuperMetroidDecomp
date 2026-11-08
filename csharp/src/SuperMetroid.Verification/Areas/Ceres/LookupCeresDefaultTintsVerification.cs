@@ -13,11 +13,11 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 internal static class LookupCeresDefaultTintsVerification
 {
     /// <summary>Checks the red haze channel for live and dead Ceres states.</summary>
-    internal static void VerifyCeresDefaultRed(ISnesAddressSpace rom, CeresHazeTints stock) => VerifyCeresDefaultComponent(rom, stock, 0x20, color => color.Red);
+    internal static void VerifyCeresDefaultRed(ISnesAddressSpace rom, CeresHazeTints stock) => VerifyCeresDefaultComponent(rom, stock, 0x20, color => color.FadeLevels.Red);
     /// <summary>Checks the green haze channel for live and dead Ceres states.</summary>
-    internal static void VerifyCeresDefaultGreen(ISnesAddressSpace rom, CeresHazeTints stock) => VerifyCeresDefaultComponent(rom, stock, 0x40, color => color.Green);
+    internal static void VerifyCeresDefaultGreen(ISnesAddressSpace rom, CeresHazeTints stock) => VerifyCeresDefaultComponent(rom, stock, 0x40, color => color.FadeLevels.Green);
     /// <summary>Checks the blue haze channel for live and dead Ceres states.</summary>
-    internal static void VerifyCeresDefaultBlue(ISnesAddressSpace rom, CeresHazeTints stock) => VerifyCeresDefaultComponent(rom, stock, 0x80, color => color.Blue);
+    internal static void VerifyCeresDefaultBlue(ISnesAddressSpace rom, CeresHazeTints stock) => VerifyCeresDefaultComponent(rom, stock, 0x80, color => color.FadeLevels.Blue);
 
     /// <summary>Checks that channel flags use the last value before native CMP #$0010 stops the fade.</summary>
     private static void VerifyCeresDefaultComponent(ISnesAddressSpace rom, CeresHazeTints stock,
@@ -29,7 +29,7 @@ internal static class LookupCeresDefaultTintsVerification
             ushort channelFlags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
             int expected = (channelFlags & channelMask) != 0 ? stopCounter - 1 : 0;
             var scalar = CeresHazeTints.Stock.For(dead);
-            AssertEqual(expected, channelMask == 0x20 ? scalar.Red : channelMask == 0x40 ? scalar.Green : scalar.Blue,
+            AssertEqual(expected, channelMask == 0x20 ? scalar.FadeLevels.Red : channelMask == 0x40 ? scalar.FadeLevels.Green : scalar.FadeLevels.Blue,
                 "Scalar tint view uses the same native component");
             AssertEqual(expected, component(SceneColourFiles.StockCeresHaze(dead ? CeresHazeColor.Red : CeresHazeColor.Blue)), "Original Ceres default channel/amplitude");
             AssertEqual(expected, component(dead ? SceneColourFiles.StockCeresHazeRed : SceneColourFiles.StockCeresHazeBlue), "Named default tint alias");

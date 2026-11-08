@@ -44,7 +44,7 @@ internal static class EndingExplosionSlotOrderVerification
         // The white sky, then the afterglow behind the departing gunship, tinted with the sky's white, then the gunship
         // (#1514).
         var fixedWhite = snapshot.LayersOf<ScreenTintLayer>().Single();
-        var white = new RgbColor(fixedWhite.Red, fixedWhite.Green, fixedWhite.Blue);
+        RgbColor white = fixedWhite.Colour;
         AssertTrue(snapshot.Layers is [ScreenTintLayer, SpritesLayer { Tint: { } tint }, TurningFloorLayer] && tint == white,
             "the live getaway ship covers the afterglow, which shares the sky's white");
     }

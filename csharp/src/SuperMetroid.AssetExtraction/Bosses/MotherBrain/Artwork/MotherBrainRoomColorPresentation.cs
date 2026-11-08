@@ -103,11 +103,11 @@ public sealed class MotherBrainRoomColorPresentation
             stock[MotherBrainRoomColorGeometry.RoomDarkGrayColor] = contour;
             stock[MotherBrainRoomColorGeometry.RoomRepeatedDarkGrayColor] = contour;
             stock[MotherBrainRoomColorGeometry.RoomRedFirst] = MotherBrainFinalRoomPaintDefinitions.RedLens;
-            stock[MotherBrainRoomColorGeometry.RoomRedFirst + 1] = new RgbColor(
-                Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0);
+            stock[MotherBrainRoomColorGeometry.RoomRedFirst + 1] = new FadeLevelColour(
+                Math.Max(0, MotherBrainFinalRoomPaintDefinitions.RedLens.FadeLevels.Red - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop), 0, 0).ToColour();
             stock[MotherBrainRoomColorGeometry.RoomBlueFirst] = MotherBrainFinalRoomPaintDefinitions.BlueLens;
-            stock[MotherBrainRoomColorGeometry.RoomBlueFirst + 1] = new RgbColor(0, 0,
-                Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop));
+            stock[MotherBrainRoomColorGeometry.RoomBlueFirst + 1] = new FadeLevelColour(0, 0,
+                Math.Max(0, MotherBrainFinalRoomPaintDefinitions.BlueLens.FadeLevels.Blue - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop)).ToColour();
             stock[MotherBrainRoomColorGeometry.RoomGlowColor] = MotherBrainFinalRoomPaintDefinitions.WarmAccent;
             return [.. stock];
         }
@@ -118,7 +118,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Interpolates RGB5 channels with nearest rounding, or ceiling rounding for shadow red.</summary>
     private static RgbColor InterpolateRgb5(RgbColor start, RgbColor end, int step, int intervals, bool ceilingRed = false)
     {
-        return start.Zip(end, (channel, a, b) => ((a * (intervals - step) + b * step + (ceilingRed && channel == ColorChannel.Red ? intervals - 1 : intervals / 2)) / intervals));
+        return start.FadeLevels.Zip(end.FadeLevels, (channel, a, b) => ((a * (intervals - step) + b * step + (ceilingRed && channel == ColorChannel.Red ? intervals - 1 : intervals / 2)) / intervals)).ToColour();
     }
     /// <summary>Derives ring, core, tissue, and casing shades while preserving independent edits.</summary>
     internal sealed class AttackPalette
@@ -154,8 +154,8 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Interpolates an attack shade between its painted endpoints with nearest rounding.</summary>
         private static RgbColor InterpolateShade(RgbColor first, RgbColor last, int shade, int intervals)
         {
-            return first.Zip(last, (_, a, b) => ((a * (intervals - shade)
-                    + b * shade + intervals / 2) / intervals));
+            return first.FadeLevels.Zip(last.FadeLevels, (_, a, b) => ((a * (intervals - shade)
+                    + b * shade + intervals / 2) / intervals)).ToColour();
         }
     }
     /// <summary>Relates glass-shard metal shades to room colors and selected glass paint.</summary>
@@ -249,13 +249,13 @@ public sealed class MotherBrainRoomColorPresentation
             int strength = MotherBrainRoomFlashes.FlashStrength(frame);
             // The first level color joins the background highlight; the remaining
             // level colors dim by one quarter per strength step, rounding nearest.
-            return basis[color].Zip(MotherBrainRoomFlashPaintDefinitions.WarmFlood, (_, channel, warm) =>
+            return basis[color].FadeLevels.Zip(MotherBrainRoomFlashPaintDefinitions.WarmFlood.FadeLevels, (_, channel, warm) =>
                 color < MotherBrainRoomFlashPaintDefinitions.HighlightedColorCount
                     ? (channel * (MotherBrainRoomFlashPaintDefinitions.BrightenIntervals - strength)
                         + warm * strength
                         + MotherBrainRoomFlashPaintDefinitions.BrightenIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.BrightenIntervals
                     : (channel * (MotherBrainRoomFlashPaintDefinitions.DimIntervals - strength)
-                        + MotherBrainRoomFlashPaintDefinitions.DimIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.DimIntervals);
+                        + MotherBrainRoomFlashPaintDefinitions.DimIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.DimIntervals).ToColour();
         }
     }
     /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
@@ -290,8 +290,8 @@ public sealed class MotherBrainRoomColorPresentation
                 14 or 15 => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
                 _ => finalRoom[color - 4],
             };
-            return endpoint.Map((_, a) => (a * (frame + 1) /
-                    MotherBrainRoomColorDefinitions.RecoveryLightsFrames));
+            return endpoint.FadeLevels.Map((_, a) => (a * (frame + 1) /
+                    MotherBrainRoomColorDefinitions.RecoveryLightsFrames)).ToColour();
         }
     }
 }

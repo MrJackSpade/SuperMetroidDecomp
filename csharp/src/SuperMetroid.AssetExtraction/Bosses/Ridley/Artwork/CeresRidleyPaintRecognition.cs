@@ -32,7 +32,7 @@ internal static class CeresRidleyPaintRecognition
 
     /// <summary>Extracts the selected red step and three green levels from the eye endpoint shade.</summary>
     private static CeresRidleyFade.EyePaint Eye(ReadOnlySpan<RgbColor> colors) =>
-        new(CeresRidleyFade.EyePaint.MaximumRgb5 - colors[1].Red, colors[0].Green, colors[1].Green, colors[2].Green);
+        new(CeresRidleyFade.EyePaint.MaximumRgb5 - colors[1].FadeLevels.Red, colors[0].FadeLevels.Green, colors[1].FadeLevels.Green, colors[2].FadeLevels.Green);
 
     /// <summary>Extracts the three membrane endpoints from an eleven-color body palette.</summary>
     private static CeresRidleyBodyPaint Body(ReadOnlySpan<RgbColor> endpoint)
@@ -46,8 +46,8 @@ internal static class CeresRidleyPaintRecognition
     {
         if (initial.Length != CeresRidleyColorFormat.BabyColorCount)
             throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
-        return new(initial[0].Red, initial[0].Blue, initial[12].Red, CeresBabyPaintDefinitions.Maximum - initial[12].Green,
-            initial[1].Red, initial[1].Green, initial[1].Green - initial[2].Green, initial[8].Red);
+        return new(initial[0].FadeLevels.Red, initial[0].FadeLevels.Blue, initial[12].FadeLevels.Red, CeresBabyPaintDefinitions.Maximum - initial[12].FadeLevels.Green,
+            initial[1].FadeLevels.Red, initial[1].FadeLevels.Green, initial[1].FadeLevels.Green - initial[2].FadeLevels.Green, initial[8].FadeLevels.Red);
     }
 
     /// <summary>Matches the four Ceres shades to shared body paint while preserving independent color edits.</summary>
@@ -130,8 +130,8 @@ internal static class CeresRidleyPaintRecognition
     internal static NorfairRidleyInitialPaint NorfairInitial(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 32);
-        int clearBlue = colors[0].Blue;
-        var clearSlot = new RgbColor(0, 0, clearBlue);
+        int clearBlue = colors[0].FadeLevels.Blue;
+        var clearSlot = new FadeLevelColour(0, 0, clearBlue).ToColour();
         var edits = new Dictionary<PaintColour, RgbColor>();
         if (colors[0] != clearSlot) edits.Add(new PaintColour(0, 0), colors[0]);
         if (colors[16] != clearSlot) edits.Add(new PaintColour(0, 16), colors[16]);

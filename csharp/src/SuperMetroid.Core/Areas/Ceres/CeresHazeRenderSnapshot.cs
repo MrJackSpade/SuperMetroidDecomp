@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// describes it as a colour strengthening in bands down the screen (#1468).
 /// </summary>
 /// <param name="IsRed">True for the Ridley-dead red ramp, false for the Ridley-alive blue ramp.</param>
-/// <param name="Intensity">Last published ramp strength in RGB5 channel units.</param>
+/// <param name="Intensity">Last published strength in steps of the haze's fade.</param>
 public readonly record struct CeresHazeRenderSnapshot(bool IsRed, int Intensity)
 {
     /// <summary>Copies an enabled haze owner, or null when the room has none.</summary>

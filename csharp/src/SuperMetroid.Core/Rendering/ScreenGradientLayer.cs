@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>
 /// A gradient drawn over the composed layers below it (#1468): on each line of its band, the covering stop's colour
 /// darkens the floor and the backdrop, or brightens them and the frontmost sprites that take part in blends, as the stop's
-/// blend says, each five-bit channel clamped.
+/// blend says, each channel held within none and full.
 /// </summary>
 public sealed record ScreenGradientLayer : DisplayLayer
 {

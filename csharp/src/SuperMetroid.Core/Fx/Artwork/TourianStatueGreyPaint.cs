@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// Tourian statue grey-out colors: six intermediate RGB5 samples
+/// Tourian statue grey-out colors: six intermediate colour samples
 /// between the first and last supplied frames, rounded to the nearest seventh.
 /// Color zero changes immediately to its final value. Endpoints remain supplied
 /// inputs; their independent artwork choices are outside this interpolation conversion.
@@ -24,14 +24,14 @@ internal static class TourianStatueGreyPaint
             value = last;
             return true;
         }
-        int red = Channel(first.Red, last.Red, frame);
-        int green = Channel(first.Green, last.Green, frame);
-        int blue = Channel(first.Blue, last.Blue, frame);
-        value = new RgbColor(red, green, blue);
+        int red = Channel(first.FadeLevels.Red, last.FadeLevels.Red, frame);
+        int green = Channel(first.FadeLevels.Green, last.FadeLevels.Green, frame);
+        int blue = Channel(first.FadeLevels.Blue, last.FadeLevels.Blue, frame);
+        value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
 
-    /// <summary>Interpolates one RGB5 channel toward the supplied final shade with nearest-seventh rounding.</summary>
+    /// <summary>Interpolates one level toward the supplied final shade with nearest-seventh rounding.</summary>
     private static int Channel(int first, int last, int frame)
     {
         int delta = last - first;

@@ -115,7 +115,7 @@ internal static class HeatPaletteColors
             return false;
         PaletteFxColorKey source = ColorFrames(suit).Color(0, color);
         if (!(colors.TryGetValue(source, out RgbColor start) || TryBaseColor(source, colors, out start))) return false;
-        value = start.WithRed((start.Red + 32) / 2);
+        value = start.FadeLevels.WithRed((start.FadeLevels.Red + 32) / 2).ToColour();
         return true;
     }
 
@@ -125,7 +125,7 @@ internal static class HeatPaletteColors
     /// color tracks share this red difference, independently verified from the original
     /// phases. Keep the endpoint colors as inputs; interior heat step r=1..3 is
     /// floor((startRed*(4-r)+endRed*r)/4), with the initial green/blue. Integer
-    /// weighted sums also give defined, bounded RGB5 results for edited endpoints.
+    /// weighted sums also give defined, bounded level results for edited endpoints.
     /// This is the sampled linear heating gradient, not a fit with corrections.</remarks>
     internal static bool TryRedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
         => TryEndpointRed(key, colors, PaletteFxHeatSuit.Power, 3, 0, out value);
@@ -153,8 +153,8 @@ internal static class HeatPaletteColors
         if (!TryInputColor(phases.Color(0, colorIndex), colors, out RgbColor start) ||
             !TryInputColor(phases.Color(7, colorIndex), colors, out RgbColor end)) return false;
         int heatStep = (phase + 1) / 2;
-        int red = (start.Red * (4 - heatStep) + end.Red * heatStep + roundingBias) / 4;
-        value = start.WithRed(red);
+        int red = (start.FadeLevels.Red * (4 - heatStep) + end.FadeLevels.Red * heatStep + roundingBias) / 4;
+        value = start.FadeLevels.WithRed(red).ToColour();
         return true;
     }
 
@@ -164,7 +164,7 @@ internal static class HeatPaletteColors
     /// interpolation. Green is nearest-even endpoint interpolation; blue shares its
     /// change, preserving the initial green/blue difference. Each rule matches the
     /// complete original channel independently. This exact bounded representation
-    /// does not assert historical tooling. Edited blue results outside RGB5 decline
+    /// does not assert historical tooling. Edited blue results outside the levels decline
     /// calculation so their explicit supplied values survive; no clamping is added.</remarks>
     internal static bool TryMixedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
@@ -174,15 +174,15 @@ internal static class HeatPaletteColors
         if (!TryInputColor(phases.Color(0, 4), colors, out RgbColor start) ||
             !TryInputColor(phases.Color(7, 4), colors, out RgbColor end)) return false;
         int heatStep = (phase + 1) / 2;
-        int red = (start.Red * (4 - heatStep) + end.Red * heatStep + 3) / 4;
-        int initialGreen = start.Green;
-        int greenSum = initialGreen * (4 - heatStep) + end.Green * heatStep;
+        int red = (start.FadeLevels.Red * (4 - heatStep) + end.FadeLevels.Red * heatStep + 3) / 4;
+        int initialGreen = start.FadeLevels.Green;
+        int greenSum = initialGreen * (4 - heatStep) + end.FadeLevels.Green * heatStep;
         int green = greenSum / 4;
         int remainder = greenSum % 4;
         if (remainder > 2 || (remainder == 2 && (green & 1) != 0)) green++;
-        int blue = start.Blue + green - initialGreen;
+        int blue = start.FadeLevels.Blue + green - initialGreen;
         if ((uint)blue > 31) return false;
-        value = new(red, green, blue);
+        value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
 
@@ -192,7 +192,7 @@ internal static class HeatPaletteColors
     /// Base colors and slot3 endpoints remain independently owned inputs. Interior
     /// slot3 samples are calculated by TryRedRamp when no edited override exists. Only canonical
     /// noninitial heat steps qualify. Nonrepresentable edited deltas return false so the
-    /// loader keeps the supplied independent RGB5 color instead of clamping it.</remarks>
+    /// loader keeps the supplied independent colour instead of clamping it.</remarks>
     internal static bool TrySharedRed(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)
     {
         value = RgbColor.Black;
@@ -220,9 +220,9 @@ internal static class HeatPaletteColors
             !TryInputColor(power.Color(0, 3), colors, out RgbColor baseline) ||
             !(colors.TryGetValue(power.Color(phase, 3), out RgbColor heated) ||
               TryRedRamp(power.Color(phase, 3), colors, out heated))) return false;
-        int red = original.Red + heated.Red - baseline.Red;
+        int red = original.FadeLevels.Red + heated.FadeLevels.Red - baseline.FadeLevels.Red;
         if ((uint)red > 31) return false;
-        value = original.WithRed(red);
+        value = original.FadeLevels.WithRed(red).ToColour();
         return true;
     }
 

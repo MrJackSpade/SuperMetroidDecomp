@@ -33,13 +33,13 @@ internal static class EyeWindowSnapshotTestsVerification
             // Nonzero camera coordinates also exercise signed world-to-screen wrapping.
             var beam = new MorphBallEyeBeamCone(MorphBallEyeBeamPhase.Full,
                 new(unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768))),
-                RotationAngle.FromTableIndex((byte)angle), width, new RgbColor(31, 12, 1));
+                RotationAngle.FromTableIndex((byte)angle), width, new RgbColor(255, 99, 8));
             ColourAddWindowLayer layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768))
                 ?? throw new InvalidOperationException($"eye capture origin {x},{y}; angle {angle}; width {width}");
             var apex = Offset16<ScreenPixels>.Of(unchecked((short)x), unchecked((short)(y - 1)));
             AssertEqual(ScreenWindow.Of(new WindowCone(apex, angle - width, angle + width), DisplayScreen.HudHeight), layer.Window,
                 $"eye cone from the line above the eye, origin {x},{y}; angle {angle}; width {width}");
-            AssertEqual(new RgbColor(31, 12, 1), layer.Colour, "eye cone adds the beam's colour");
+            AssertEqual(new RgbColor(255, 99, 8), layer.Colour, "eye cone adds the beam's colour");
             samples++;
         }
     }
@@ -65,7 +65,7 @@ internal static class EyeWindowSnapshotTestsVerification
         foreach (var sample in expected)
         {
             var beam = new MorphBallEyeBeamCone(MorphBallEyeBeamPhase.Full,
-                new(552, 616), RotationAngle.FromTableIndex(sample.Angle), sample.Width, new RgbColor(31, 31, 0));
+                new(552, 616), RotationAngle.FromTableIndex(sample.Angle), sample.Width, new RgbColor(255, 255, 0));
             ColourAddWindowLayer layer = GameplayEffectCapture.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(384, 512))
                 ?? throw new InvalidOperationException("A full eye beam captures its cone.");
             // The beam over a black screen, as the display renderer draws it.

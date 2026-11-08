@@ -15,15 +15,15 @@ public static class HyperBeamFxColorFormat
     /// Other components remain independent inputs,including zero-valued edits.</remarks>
     internal static bool TrySharedEndpoint(int frame, int ink, RgbColor white, RgbColor red, out RgbColor basis, out int independentMask)
     {
-        int minimum = red.Green, maximum = red.Red;
+        int minimum = red.FadeLevels.Green, maximum = red.FadeLevels.Red;
         HyperBeamMaskedColor selected = new HyperBeamInk(frame, ink) switch
         {
-            (0, 1) => new HyperBeamMaskedColor(new RgbColor(white.Red, 0, 0), 6),
-            (2, 1 or 3) => new HyperBeamMaskedColor(new RgbColor(0, 0, minimum), 3),
-            (4, 1) => new HyperBeamMaskedColor(new RgbColor(minimum, maximum, 0), 4),
-            (4, 3) or (6, 3) => new HyperBeamMaskedColor(new RgbColor(minimum, 0, 0), 6),
-            (6, 1) => new HyperBeamMaskedColor(new RgbColor(minimum, 0, white.Blue), 2),
-            (6, 4) => new HyperBeamMaskedColor(new RgbColor(0, 0, white.Blue), 3),
+            (0, 1) => new HyperBeamMaskedColor(new FadeLevelColour(white.FadeLevels.Red, 0, 0).ToColour(), 6),
+            (2, 1 or 3) => new HyperBeamMaskedColor(new FadeLevelColour(0, 0, minimum).ToColour(), 3),
+            (4, 1) => new HyperBeamMaskedColor(new FadeLevelColour(minimum, maximum, 0).ToColour(), 4),
+            (4, 3) or (6, 3) => new HyperBeamMaskedColor(new FadeLevelColour(minimum, 0, 0).ToColour(), 6),
+            (6, 1) => new HyperBeamMaskedColor(new FadeLevelColour(minimum, 0, white.FadeLevels.Blue).ToColour(), 2),
+            (6, 4) => new HyperBeamMaskedColor(new FadeLevelColour(0, 0, white.FadeLevels.Blue).ToColour(), 3),
             _ => new HyperBeamMaskedColor(RgbColor.Black, 7),
         };
         basis = selected.Value;
@@ -37,14 +37,14 @@ public static class HyperBeamFxColorFormat
     internal static RgbColor Neutral(int intensity)
     {
         if ((uint)intensity > 31) throw new ArgumentOutOfRangeException(nameof(intensity));
-        return new RgbColor(intensity, intensity, intensity);
+        return new FadeLevelColour(intensity, intensity, intensity).ToColour();
     }
     /// <summary>Rotates the red endpoint into green by exchanging red and green channels.</summary>
     /// <remarks>Original projectile frame4 ink7 ($8D:D964) derives from
     /// frame0 ink3 ($D90C). Blue stays fixed; RGB5 channel exchange has no
     /// rounding,saturation or overflow. Differing asset values remain inputs.</remarks>
     internal static RgbColor GreenFromRed(RgbColor red) =>
-        new(red.Green, red.Red, red.Blue);
+        new FadeLevelColour(red.FadeLevels.Green, red.FadeLevels.Red, red.FadeLevels.Blue).ToColour();
 
     /// <summary>Selects middle projectile shades calculated from their adjacent inks.</summary>
     /// <remarks>In the original rows8D:D906+20*frame, red frame0 and magenta
@@ -65,10 +65,10 @@ public static class HyperBeamFxColorFormat
     {
         if (ink is < 4 or > 7) throw new ArgumentOutOfRangeException(nameof(ink));
         int whiteWeight = 8 - ink, redWeight = 5 - whiteWeight;
-        int r = ((red.Red) * redWeight + (white.Red) * whiteWeight + 2) / 5;
-        int g = ((red.Green) * redWeight + (white.Green) * whiteWeight + 2) / 5;
-        int b = ((red.Blue) * redWeight + (white.Blue) * whiteWeight + 2) / 5;
-        return new RgbColor(r, g, b);
+        int r = ((red.FadeLevels.Red) * redWeight + (white.FadeLevels.Red) * whiteWeight + 2) / 5;
+        int g = ((red.FadeLevels.Green) * redWeight + (white.FadeLevels.Green) * whiteWeight + 2) / 5;
+        int b = ((red.FadeLevels.Blue) * redWeight + (white.FadeLevels.Blue) * whiteWeight + 2) / 5;
+        return new FadeLevelColour(r, g, b).ToColour();
     }
     /// <summary>Asset filename for the Hyper Beam projectile palette colors, separate from Samus's full-body Hyper Beam cycle.</summary>
     public const string FileName = "hyper-beam-fx-colors.json";

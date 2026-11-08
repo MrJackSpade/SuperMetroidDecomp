@@ -40,7 +40,7 @@ public static class SamusHyperBeamColorFormat
     /// This states the exact color construction,not the original tool's identity.</remarks>
     internal static RgbColor CyanTransitionMiddle(RgbColor magenta, RgbColor cyan)
     {
-        return HyperBeamHues.HueMidpoint(magenta, cyan).WithRed(HyperBeamHues.HueMidpoint(magenta, cyan, direction: HueRounding.Down).Red);
+        return HyperBeamHues.HueMidpoint(magenta, cyan).FadeLevels.WithRed(HyperBeamHues.HueMidpoint(magenta, cyan, direction: HueRounding.Down).FadeLevels.Red).ToColour();
     }
 
     /// <summary>Builds the lower and upper shadows around the magenta-cyan middle ink.</summary>
@@ -52,16 +52,16 @@ public static class SamusHyperBeamColorFormat
     internal static bool TryCyanTransitionShadow(RgbColor middle, int ink, out RgbColor value)
     {
         if (ink is not (3 or 11)) throw new ArgumentOutOfRangeException(nameof(ink));
-        int red = middle.Red, green = middle.Green, blue = middle.Blue;
+        int red = middle.FadeLevels.Red, green = middle.FadeLevels.Green, blue = middle.FadeLevels.Blue;
         if (ink == 3)
         {
             if (green == 0) { value = RgbColor.Black; return false; }
-            value = middle.WithGreen(green - 1);
+            value = middle.FadeLevels.WithGreen(green - 1).ToColour();
         }
         else
         {
             if (red == 31 || green == 31 || blue == 31) { value = RgbColor.Black; return false; }
-            value = new(red + 1, green + 1, blue + 1);
+            value = new FadeLevelColour(red + 1, green + 1, blue + 1).ToColour();
         }
         return true;
     }
@@ -81,14 +81,14 @@ public static class SamusHyperBeamColorFormat
     {
         if (frame is not (1 or 5 or 9)) throw new ArgumentOutOfRangeException(nameof(frame));
         if (color is not (3 or 11 or 13)) throw new ArgumentOutOfRangeException(nameof(color));
-        int? red = frame == 9 ? greenHue.Green : null;
-        int? green = frame == 1 ? greenHue.Red : null;
+        int? red = frame == 9 ? greenHue.FadeLevels.Green : null;
+        int? green = frame == 1 ? greenHue.FadeLevels.Red : null;
         if (color == 13)
         {
             RgbColor middle = HyperBeamHues.HueMidpoint(lowShadow, highShadow);
-            if (frame == 1) red = middle.Red;
-            if (frame == 5) red = lowShadow.Red;
-            if (frame is 5 or 9) green = middle.Green;
+            if (frame == 1) red = middle.FadeLevels.Red;
+            if (frame == 5) red = lowShadow.FadeLevels.Red;
+            if (frame is 5 or 9) green = middle.FadeLevels.Green;
         }
         return new HyperBeamEndpointChannels(red, green);
     }
@@ -116,11 +116,11 @@ public static class SamusHyperBeamColorFormat
     internal static bool TryBrighten(RgbColor source, int brightness, out RgbColor value)
     {
         if (brightness is not (2 or 4 or 7 or 8)) throw new ArgumentOutOfRangeException(nameof(brightness));
-        int red = (source.Red) + brightness;
-        int green = (source.Green) + brightness;
-        int blue = (source.Blue) + brightness;
+        int red = (source.FadeLevels.Red) + brightness;
+        int green = (source.FadeLevels.Green) + brightness;
+        int blue = (source.FadeLevels.Blue) + brightness;
         if (red > 31 || green > 31 || blue > 31) { value = RgbColor.Black; return false; }
-        value = new RgbColor(red, green, blue);
+        value = new FadeLevelColour(red, green, blue).ToColour();
         return true;
     }
     /// <summary>Interpolates red halfway from green-frame red to its green value, rounding upward.</summary>
@@ -131,7 +131,7 @@ public static class SamusHyperBeamColorFormat
     /// The numerator is at most63; no saturation or
     /// overflow is needed. This reuses the green-frame input, not a generated cache.</remarks>
     internal static RgbColor GreenYellowMidpoint(RgbColor green) =>
-        green.WithRed((green.Red + green.Green + 1) / 2);
+        green.FadeLevels.WithRed((green.FadeLevels.Red + green.FadeLevels.Green + 1) / 2).ToColour();
 
     /// <summary>Extends the green-yellow red shadow ramp by its existing equal step.</summary>
     /// <remarks>Native frame6 inks3/13/11 at9BA2A6/A2BA/A2B6 have red11/12/13.
@@ -142,9 +142,9 @@ public static class SamusHyperBeamColorFormat
     /// so import keeps the independently supplied whole target,without clamping.</remarks>
     internal static bool TryGreenYellowHighShadow(RgbColor low, RgbColor middle, RgbColor green, out RgbColor value)
     {
-        int red = 2 * (middle.Red) - (low.Red);
+        int red = 2 * (middle.FadeLevels.Red) - (low.FadeLevels.Red);
         if ((uint)red > 31) { value = RgbColor.Black; return false; }
-        value = green.WithRed(red);
+        value = green.FadeLevels.WithRed(red).ToColour();
         return true;
     }
 

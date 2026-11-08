@@ -36,9 +36,9 @@ internal static class PowerBombFixedColorsVerification
                 int address = PowerBombColorSources.Start(sequence) +
                     index * SamusSourceDefinitions.PowerBombBytesPerColor;
                 RgbColor color = catalog.Resolve(sequence, index);
-                byte red = (byte)color.Red;
-                byte green = (byte)color.Green;
-                byte blue = (byte)color.Blue;
+                byte red = (byte)color.FadeLevels.Red;
+                byte green = (byte)color.FadeLevels.Green;
+                byte blue = (byte)color.FadeLevels.Blue;
                 AssertEqual((byte)(rom.ReadCartridgeByte(address) & PowerBombFixedColorExtractor.ComponentMask),
                     red, $"{sequence} native red {index}");
                 AssertEqual((byte)(rom.ReadCartridgeByte(address + 1) & PowerBombFixedColorExtractor.ComponentMask),
@@ -95,9 +95,9 @@ internal static class PowerBombFixedColorsVerification
             AssertEqual(native.RenderedPhase, installed.RenderedPhase, $"{label} rendered phase");
             AssertEqual(native.PreExplosionRadius, installed.PreExplosionRadius, $"{label} pre-radius");
             AssertEqual(native.ExplosionRadius, installed.ExplosionRadius, $"{label} radius");
-            AssertEqual(native.FixedColor.Red, installed.FixedColor.Red, $"{label} fixed red");
-            AssertEqual(native.FixedColor.Green, installed.FixedColor.Green, $"{label} fixed green");
-            AssertEqual(native.FixedColor.Blue, installed.FixedColor.Blue, $"{label} fixed blue");
+            AssertEqual(native.FixedColor.FadeLevels.Red, installed.FixedColor.FadeLevels.Red, $"{label} fixed red");
+            AssertEqual(native.FixedColor.FadeLevels.Green, installed.FixedColor.FadeLevels.Green, $"{label} fixed green");
+            AssertEqual(native.FixedColor.FadeLevels.Blue, installed.FixedColor.FadeLevels.Blue, $"{label} fixed blue");
             frames++;
             AssertTrue(frames < 1000, $"{label} completes in bounded time");
         } while (native.IsActive);

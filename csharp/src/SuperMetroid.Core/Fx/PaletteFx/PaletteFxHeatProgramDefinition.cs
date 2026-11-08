@@ -9,7 +9,7 @@ public sealed class PaletteFxHeatProgramDefinition
     {
     }
 
-    /// <summary>Fifteen BGR555 colors follow every timed duration word.</summary>
+    /// <summary>Fifteen colours follow every timed duration word.</summary>
     public const int ColorsPerFrame = 15;
 
     /// <summary>The mutually exclusive suit palette represented by this program.</summary>

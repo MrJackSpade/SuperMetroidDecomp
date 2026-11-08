@@ -22,7 +22,7 @@ internal sealed class RoomFxPairColor
     {
         this.selection = selection;
         this.isPrimary = member == RoomFxPairMember.Primary;
-        int red = color.Red, green = color.Green, blue = color.Blue;
+        int red = color.FadeLevels.Red, green = color.FadeLevels.Green, blue = color.FadeLevels.Blue;
         redOverride = RoomFxPaletteBlendRules.CalculatedPairRed(selection, member == RoomFxPairMember.Primary) == red ? null : red;
         greenOverride = RoomFxPaletteBlendRules.CalculatedPairGreen(selection, red, member == RoomFxPairMember.Primary) == green ? null : green;
         blueOverride = RoomFxPaletteBlendRules.CalculatedPairBlue(selection, red, green, member == RoomFxPairMember.Primary) == blue ? null : blue;
@@ -37,6 +37,6 @@ internal sealed class RoomFxPairColor
             throw new InvalidOperationException("A blend color without a green edit has a calculated green.");
         int blue = blueOverride ?? RoomFxPaletteBlendRules.CalculatedPairBlue(selection, red, green, isPrimary) ??
             throw new InvalidOperationException("A blend color without a blue edit has a calculated blue.");
-        return new RgbColor(red, green, blue);
+        return new FadeLevelColour(red, green, blue).ToColour();
     }
 }

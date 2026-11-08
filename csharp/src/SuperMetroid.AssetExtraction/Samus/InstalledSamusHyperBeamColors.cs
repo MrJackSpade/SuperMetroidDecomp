@@ -62,7 +62,7 @@ public sealed class InstalledSamusHyperBeamColors
                 if (SamusHyperBeamColorFormat.TryBrighten(frames[frame][shade.Ink], shade.Brightness, out RgbColor brighter))
                 {
                     // Magenta blue follows the supplied red channel, including a red override.
-                    RgbColor expected = frame == 1 ? brighter.WithBlue(frames[frame][color].Red) : brighter;
+                    RgbColor expected = frame == 1 ? brighter.FadeLevels.WithBlue(frames[frame][color].FadeLevels.Red).ToColour() : brighter;
                     if (frames[frame][color] != expected) shadeInputs.Add(index, new(frames[frame][color], expected));
                     continue;
                 }
@@ -98,7 +98,7 @@ public sealed class InstalledSamusHyperBeamColors
                     SamusHyperBeamColorFormat.GreenYellowMidpoint(frames[5][color]) :
                     HyperBeamHues.HueMidpoint(frames[(frame + 9) % 10][color], frames[frame + 1][color]);
                 if (SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color) is ColorChannel shared)
-                    expected = expected.With(shared, frames[frame][13][shared]);
+                    expected = expected.FadeLevels.With(shared, frames[frame][13].FadeLevels[shared]).ToColour();
                 if (frames[frame][color] != expected)
                     intermediateInputs.Add(index, new(frames[frame][color], expected));
                 continue;
@@ -186,7 +186,7 @@ public sealed class InstalledSamusHyperBeamColors
         RgbColor expected = frame == 6 ? SamusHyperBeamColorFormat.GreenYellowMidpoint(Resolve(5, color)) :
             HyperBeamHues.HueMidpoint(Resolve((frame + 9) % 10, color), Resolve(frame + 1, color));
         if (SamusHyperBeamColorFormat.SharedIntermediateShadowChannel(frame, color) is ColorChannel shared)
-            expected = expected.With(shared, Resolve(frame, 13)[shared]);
+            expected = expected.FadeLevels.With(shared, Resolve(frame, 13).FadeLevels[shared]).ToColour();
         return intermediateInputs.TryGetValue(frame * 16 + color, out var inputs) ? inputs.Apply(expected) : expected;
     }
 
@@ -210,12 +210,12 @@ public sealed class InstalledSamusHyperBeamColors
         /// <summary>Retains only independently chosen endpoint channels from a supplied RGB5 word.</summary>
         internal EndpointChannels(RgbColor supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
         {
-            int suppliedRed = supplied.Red;
-            int suppliedGreen = supplied.Green;
+            int suppliedRed = supplied.FadeLevels.Red;
+            int suppliedGreen = supplied.FadeLevels.Green;
             green = suppliedGreen == expectedGreen ? null : suppliedGreen;
             red = suppliedRed == expectedRed ? null : suppliedRed;
             int expectedBlue = redHue ? suppliedGreen : suppliedRed;
-            blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
+            blue = (supplied.FadeLevels.Blue) == expectedBlue ? null : supplied.FadeLevels.Blue;
         }
 
         /// <summary>Rebuilds an endpoint by combining supplied channels with shared hue relationships.</summary>
@@ -223,7 +223,7 @@ public sealed class InstalledSamusHyperBeamColors
         {
             int resolvedRed = red ?? expectedRed;
             int resolvedGreen = green ?? expectedGreen;
-            return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));
+            return new FadeLevelColour(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed)).ToColour();
         }
     }
 }

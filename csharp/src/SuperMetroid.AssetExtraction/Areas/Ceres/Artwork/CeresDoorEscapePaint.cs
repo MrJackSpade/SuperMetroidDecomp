@@ -48,7 +48,7 @@ internal sealed class CeresDoorEscapePaint
     private RgbColor Calculate(int index)
     {
         if (index is >= 8 and < 14) return warm.ColorAt(index - 8);
-        if (index == 14) return new(0, MaximumChannel, accentBlue);
+        if (index == 14) return new FadeLevelColour(0, MaximumChannel, accentBlue).ToColour();
         return surface.ColorAt(index);
     }
 }

@@ -30,10 +30,10 @@ internal static class WreckedShipGhostShadeContentVerification
         AssertEqual(WreckedShipGhostAppearance.Colour(0), fade.Shown[0], "the materialized ghost shows its own colour zero");
         for (int step = 0; step < 17; step++)
             fade.Brighten();
-        AssertEqual(new RgbColor(17, 17, 31), fade.Shown[0], "seventeen brightenings fill colour zero's blue");
+        AssertEqual(new RgbColor(140, 140, 255), fade.Shown[0], "seventeen brightenings fill colour zero's blue");
         fade.Brighten();
-        AssertEqual(new RgbColor(18, 18, 0), fade.Shown[0], "the next brightening carries blue out of the colour");
-        AssertEqual(new RgbColor(31, 0, 0), fade.Shown[10], "a colour whose red is full is not brightened");
+        AssertEqual(new RgbColor(148, 148, 0), fade.Shown[0], "the next brightening carries blue out of the colour");
+        AssertEqual(new RgbColor(255, 0, 0), fade.Shown[10], "a colour whose red is full is not brightened");
 
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.All.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));

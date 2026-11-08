@@ -42,11 +42,11 @@ internal sealed class CeresRidleyHealthPaint
         RgbColor healthy = color < 11 ? body.Resolve(15, color) : eyes.Resolve(0, color - 11);
         RgbColor target = body.Resolve(15, 9);
         int strength = 2 + band;
-        return healthy.Zip(target, (channel, original, toward) =>
+        return healthy.FadeLevels.Zip(target.FadeLevels, (channel, original, toward) =>
         {
             if (band == 0 && color == 2 && channel == ColorChannel.Green) return original;
-            if (band == 1 && color == 5 && channel == ColorChannel.Blue) return Calculate(0, color).Blue;
+            if (band == 1 && color == 5 && channel == ColorChannel.Blue) return Calculate(0, color).FadeLevels.Blue;
             return (original * (20 - strength) + toward * strength) / 20;
-        });
+        }).ToColour();
     }
 }

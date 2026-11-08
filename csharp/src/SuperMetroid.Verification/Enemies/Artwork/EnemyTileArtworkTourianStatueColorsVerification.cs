@@ -156,7 +156,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 if (place >= SnesCgram.ColorCount / 2 && place % 16 == 0)
                     continue;
                 ushort word = ReadReferenceWord(source + color * 2);
-                AssertEqual(new RgbColor(word & 31, word >> 5 & 31, word >> 10 & 31), shown[destination + color],
+                AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), shown[destination + color],
                     $"{context}: colour {destination + color}");
             }
         }

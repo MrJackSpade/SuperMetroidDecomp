@@ -59,7 +59,7 @@ internal static class PpuMemoryModelVerification
 
         var cgram = new SnesCgram();
         CgramPalette row = new CgramPalettes(cgram).ObjectRow(7);
-        var color = new RgbColor(31, 7, 19);
+        var color = new RgbColor(255, 57, 156);
         row.Write(9, color);
         AssertEqual(color, row.Colors[9], "a RgbColor colour round-trips through an OBJ palette row");
         AssertEqual(color, cgram.Colors[PpuMemoryLayoutConstants.ObjectPaletteRows[7].Offset + 9], "OBJ row 7 colour 9 is CGRAM slot $F9");
@@ -181,7 +181,7 @@ internal static class PpuMemoryModelVerification
         CgramPalette row = new CgramPalettes(cgram).BackgroundRow(0);
         row.LoadPortBytes([0xff, 0xff, 0x1f, 0x80], start: 1);
         AssertEqual(RgbColor.White, row.Colors[1], "port word $FFFF stores $7FFF");
-        AssertEqual(new RgbColor(31, 0, 0), row.Colors[2], "port word $801F stores $001F");
+        AssertEqual(new RgbColor(255, 0, 0), row.Colors[2], "port word $801F stores $001F");
         AssertEqual((ushort)0x7fff, row.Colors[1].ToWord(), "the stored raw word has bit 15 clear");
         AssertThrows<ArgumentOutOfRangeException>(() => RgbColor.FromWord(0x8000), "a RgbColor rejects bit 15");
         AssertThrows<ArgumentException>(() => row.LoadPortBytes([0x00]), "a port stream carries whole colour words");
@@ -206,7 +206,7 @@ internal static class PpuMemoryModelVerification
             {
                 CgramPalette objects = new CgramPalettes(cgram).Objects;
                 for (int index = 0; index < objects.Count; index++)
-                    objects.Write(index, RgbColor.Saturating(objects.Colors[index].Red + 1, frame & 31, index & 31));
+                    objects.Write(index, RgbColor.Saturating(objects.Colors[index].FadeLevels.Red + 1, frame & 31, index & 31));
                 VramRegion bg1 = new VramRegion(vram, GameplayVramLayoutConstants.Bg1Tilemap);
                 for (int line = 0; line < 32; line++)
                 {

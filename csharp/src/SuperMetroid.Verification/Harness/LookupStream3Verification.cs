@@ -1531,8 +1531,8 @@ internal static class LookupStream3Verification
             var cgram = new SnesCgram();
             for (int frame = 0; frame < 8; frame++)
             {
-                cgram.SetColor(0x4e, new RgbColor(27, 3, 0));
-                cgram.SetColor(0x9e, new RgbColor(27, 3, 0));
+                cgram.SetColor(0x4e, new RgbColor(222, 24, 0));
+                cgram.SetColor(0x9e, new RgbColor(222, 24, 0));
                 palette.ApplyFromGrey(cgram, frame);
                 for (int color = 0; color < 13; color++)
                 {

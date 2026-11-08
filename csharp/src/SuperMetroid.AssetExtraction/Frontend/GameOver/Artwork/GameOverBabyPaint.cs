@@ -56,8 +56,8 @@ internal sealed class GameOverBabyPaint
     internal GameOverBabyPaint(IReadOnlyDictionary<GameOverBabyPalette, RgbColor[]> palettes)
     {
         RgbColor[] closed = palettes[GameOverBabyPalette.ClosedCry];
-        greenCryRed = closed[4].Red;
-        glassCryRed = closed[13].Red;
+        greenCryRed = closed[4].FadeLevels.Red;
+        glassCryRed = closed[13].FadeLevels.Red;
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         for (int color = 0; color < 16; color++)
         {
@@ -138,42 +138,42 @@ internal sealed class GameOverBabyPaint
 
     /// <summary>Derives the brighter green ramp members from its darkest endpoint.</summary>
     private static RgbColor GreenShade(RgbColor darkest, int color) =>
-        darkest.WithGreen(Math.Min(31, darkest.Green + (4 - color) * 5));
+        darkest.FadeLevels.WithGreen(Math.Min(31, darkest.FadeLevels.Green + (4 - color) * 5)).ToColour();
 
     /// <summary>Adds warm red and reduces blue for a closed-cry organ or fang ink.</summary>
     private static RgbColor WarmCry(RgbColor idle) =>
-        new(Math.Min(31, idle.Red + 5), idle.Green, Math.Max(0, idle.Blue - 5));
+        new FadeLevelColour(Math.Min(31, idle.FadeLevels.Red + 5), idle.FadeLevels.Green, Math.Max(0, idle.FadeLevels.Blue - 5)).ToColour();
 
     /// <summary>Raises cool glass inks while preserving the final highlight's red channel.</summary>
     private static RgbColor CoolCry(RgbColor idle, int ink) =>
-        new(ink == 15 ? idle.Red : Math.Min(31, idle.Red + 5), Math.Min(31, idle.Green + 5), WarmCry(idle).Blue);
+        new FadeLevelColour(ink == 15 ? idle.FadeLevels.Red : Math.Min(31, idle.FadeLevels.Red + 5), Math.Min(31, idle.FadeLevels.Green + 5), WarmCry(idle).FadeLevels.Blue).ToColour();
 
     /// <summary>Uses the authored red endpoint for both red and blue of the bright green cry ink.</summary>
     private RgbColor GreenCry(RgbColor idle) =>
-        new(greenCryRed, Math.Min(31, idle.Green + 5), greenCryRed);
+        new FadeLevelColour(greenCryRed, Math.Min(31, idle.FadeLevels.Green + 5), greenCryRed).ToColour();
 
     /// <summary>Uses an independent red endpoint with Idle green shared into green and blue.</summary>
     private RgbColor GlassCry(RgbColor idle) =>
-        new(glassCryRed, idle.Green, idle.Green);
+        new FadeLevelColour(glassCryRed, idle.FadeLevels.Green, idle.FadeLevels.Green).ToColour();
 
     /// <summary>Floors the componentwise midpoint between adjacent bright and dark inks.</summary>
     private static RgbColor MiddleShade(RgbColor bright, RgbColor dark) =>
-        bright.Zip(dark, (_, light, shadow) => (light + shadow) / 2);
+        bright.FadeLevels.Zip(dark.FadeLevels, (_, light, shadow) => (light + shadow) / 2).ToColour();
 
     /// <summary>Brightens a prior cry phase while preserving fang red and capping glass below its glint.</summary>
     private static RgbColor CryShade(RgbColor previous, GameOverBabyPalette palette, int ink, RgbColor highlight)
     {
         RgbColor bright = Brighten(previous, 3);
         if (palette == GameOverBabyPalette.MiddleCry && ink is >= 10 and <= 12)
-            return bright.WithRed(previous.Red);
+            return bright.FadeLevels.WithRed(previous.FadeLevels.Red).ToColour();
         if (ink == 13)
-            return bright.Zip(highlight, (_, brightened, glint) => Math.Min(brightened, Math.Max(0, glint - 1)));
+            return bright.FadeLevels.Zip(highlight.FadeLevels, (_, brightened, glint) => Math.Min(brightened, Math.Max(0, glint - 1))).ToColour();
         return bright;
     }
 
     /// <summary>RGB5 additive brightness, saturating each component at 31 before packing.</summary>
     private static RgbColor Brighten(RgbColor color, int amount) =>
-        color.Map((_, channel) => Math.Min(31, channel + amount));
+        color.FadeLevels.Map((_, channel) => Math.Min(31, channel + amount)).ToColour();
 
     /// <summary>The palette whose colors a cry palette brightens: the cry before it, or the idle colors for the first cry.</summary>
     /// <exception cref="InvalidOperationException">The idle palette has no predecessor.</exception>

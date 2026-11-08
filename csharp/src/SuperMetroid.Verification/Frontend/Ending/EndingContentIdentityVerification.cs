@@ -282,7 +282,7 @@ internal static class EndingContentIdentityVerification
         var mode7 = new EndingFloorCharacters(scenes[0], scenes[1], scenes[2],
             EndingRewardIconCharacters.Read(FloorMap("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
 
-        RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new RgbColor(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0))];
+        RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new FadeLevelColour(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0).ToColour())];
         if (edit == "backdrop-order")
             backdrops = [backdrops[1], backdrops[0], .. backdrops[2..]];
         return EndingPresentationIdentity.Create(mode7, objects, new EndingBackdrops(backdrops[0], backdrops[1], backdrops[2], backdrops[3]));

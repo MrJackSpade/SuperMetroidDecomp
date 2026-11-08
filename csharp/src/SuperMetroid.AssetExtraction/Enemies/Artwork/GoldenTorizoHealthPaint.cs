@@ -13,7 +13,7 @@ internal static class GoldenTorizoHealthPaint
         if ((uint)frame > Intervals || (uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
         if (color == 0) return !rear && frame == Intervals ? RgbColor.Black : TransparentPayload;
         RgbColor first = Endpoint(GoldenTorizoHealthEndpoint.Low, color, rear), last = Endpoint(GoldenTorizoHealthEndpoint.Gold, color, rear);
-        return first.Zip(last, (_, from, to) => (from * (Intervals - frame) + to * frame + Intervals / 2) / Intervals);
+        return first.FadeLevels.Zip(last.FadeLevels, (_, from, to) => (from * (Intervals - frame) + to * frame + Intervals / 2) / Intervals).ToColour();
     }
 
     /// <summary>Selects endpoint paint and applies the rear-facing shade rules where requested.</summary>
@@ -27,8 +27,8 @@ internal static class GoldenTorizoHealthPaint
         RgbColor result = color is >= 9 and <= 11
             ? Adjust(front, -RearShade, -RearCoreShade, -RearCoreShade)
             : Adjust(front, -RearShade, -RearShade, -RearShade);
-        if (endpoint != GoldenTorizoHealthEndpoint.Gold && color == 7) result = new(result.Red, result.Green, LowRearPlateBlue);
-        if (endpoint == GoldenTorizoHealthEndpoint.Gold && color == 9) result = new(result.Red, Math.Max(0, front.Green - RearShade), result.Blue);
+        if (endpoint != GoldenTorizoHealthEndpoint.Gold && color == 7) result = new FadeLevelColour(result.FadeLevels.Red, result.FadeLevels.Green, LowRearPlateBlue).ToColour();
+        if (endpoint == GoldenTorizoHealthEndpoint.Gold && color == 9) result = new FadeLevelColour(result.FadeLevels.Red, Math.Max(0, front.FadeLevels.Green - RearShade), result.FadeLevels.Blue).ToColour();
         return result;
     }
 
@@ -85,7 +85,7 @@ internal static class GoldenTorizoHealthPaint
 
     /// <summary>Applies per-channel lighting offsets with RGB5 saturation.</summary>
     private static RgbColor Adjust(RgbColor color, int red, int green, int blue) =>
-        RgbColor.Saturating(color.Red + red, color.Green + green, color.Blue + blue);
+        RgbColor.Saturating(color.FadeLevels.Red + red, color.FadeLevels.Green + green, color.FadeLevels.Blue + blue);
     /// <summary>Packs the selected red, green, and blue levels into a palette color.</summary>
-    private static RgbColor Pack(int red, int green, int blue) => new(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new FadeLevelColour(red, green, blue).ToColour();
 }

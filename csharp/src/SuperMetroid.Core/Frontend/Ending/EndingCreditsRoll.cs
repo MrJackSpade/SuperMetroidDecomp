@@ -108,7 +108,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>The shown text page's height in cells, enlarged to two screens for the final page.</summary>
     internal int PostCreditsPageHeight { get; private set; } = 32;
 
-    /// <summary>Fixed-color white component of the brief transition into the final logo, fading from 31 to zero, where it stays.</summary>
+    /// <summary>The steps left of the white wash of the brief transition into the final logo (<see cref="WhiteWash"/>), fading to none, where it stays.</summary>
     internal int WhiteFlashColor { get; set; }
 
     /// <summary>The state of the ending logo, which exists while that phase runs.</summary>

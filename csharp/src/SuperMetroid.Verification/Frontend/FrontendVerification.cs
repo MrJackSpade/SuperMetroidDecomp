@@ -420,7 +420,7 @@ internal static void VerifyCinematicPaletteFader()
 {
     var fader = new CinematicPaletteFader();
     var lit = new IntroFadeColours([IntroBackgroundFade.NarrationText], []);
-    var target = new RgbColor(4, 4, 4);
+    var target = new RgbColor(33, 33, 33);
     AssertTrue(fader.SceneShading.IsStandard, "every cinematic colour starts at full, so the scene pictures name no fade shade");
 
     // $8B:B018 clears incoming range $28/$03, the Mother Brain room's three lit colours.
@@ -435,7 +435,7 @@ internal static void VerifyCinematicPaletteFader()
         fader.FadeIn(lit);
     AssertEqual(RgbColor.Black, Shown(fader), "8.8 cinematic fade preserves early rounding");
     fader.FadeIn(lit);
-    AssertEqual(new RgbColor(1, 1, 1), Shown(fader), "eighth fade step reaches component one");
+    AssertEqual(new RgbColor(8, 8, 8), Shown(fader), "eighth fade step reaches component one");
     AssertTrue(fader.SceneShading.Shades.SequenceEqual([IntroShades.Faded(IntroBackgroundFade.NarrationText, 8)]),
         "the scene pictures name the shade of the group's current level");
 

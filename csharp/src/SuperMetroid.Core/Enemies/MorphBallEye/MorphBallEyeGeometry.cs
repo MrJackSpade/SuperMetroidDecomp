@@ -16,13 +16,13 @@ internal static class MorphBallEyeGeometry
     };
 
     /// <summary>
-    /// The beam colour table interleaves the red and green intensities, a dark blue and padding.
-    /// Red and green trace intensity 16 down to 8 and back to 15 in sixteen steps; blue stays dark.
+    /// The beam's brightness cycle: red and green trace level 16 down to 8 and back to 15 in sixteen steps of the
+    /// game's authored levels; blue stays none.
     /// </summary>
     internal static RgbColor BeamColor(int phase)
     {
         if ((uint)phase >= 16) throw new ArgumentOutOfRangeException(nameof(phase));
         int intensity = 8 + Math.Abs(phase - 8);
-        return new RgbColor(intensity, intensity, 0);
+        return new FadeLevelColour(intensity, intensity, 0).ToColour();
     }
 }

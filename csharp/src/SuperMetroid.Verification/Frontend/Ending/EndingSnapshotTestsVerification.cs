@@ -85,7 +85,7 @@ internal static class EndingSnapshotTestsVerification
                             for (int i = 0; i < 16; i++)
                             {
                                 int remaining = level;
-                                AssertEqual(explosionBackgroundSource[i].Map((_, channel) => channel * remaining / 32), background.Colours[i],
+                                AssertEqual(explosionBackgroundSource[i].FadeLevels.Map((_, channel) => channel * remaining / 32).ToColour(), background.Colours[i],
                                     "the import's explosion BG fade level scales the escape's far background");
                             }
                             foreach ((EndingFade fade, int start) in new[] { (EndingFade.ExplosionLava, 208), (EndingFade.ExplodingPlanet, 240) })
@@ -210,7 +210,7 @@ internal static class EndingSnapshotTestsVerification
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash];
                     var flash = Live();
                     var add = flash.LayersOf<ScreenTintLayer>().Single();
-                    AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
+                    AssertEqual(WhiteWash.Colour(Math.Max(0, WhiteWash.Steps - elapsed)), add.Colour, "native post-shot white wash, one step a frame");
                     var textPlane = flash.LayersOf<PicturedPlaneLayer>().Single();
                     // E48A clears the copyright before the final page is first shown, so the final page shows no text yet.
                     AssertTrue(textPlane.Plane.Pictures.IsEmpty, "final text page starts cleared");
@@ -298,14 +298,14 @@ internal static class EndingSnapshotTestsVerification
                     gunshipPalettes.Add(string.Join(',', legacy.screen.Colours.Shading.Shades
                         .Where(shade => shade.Effect == PaletteFxShades.Of(PaletteFxColours.GunshipEmergingFromExplosion, new PaletteFxFrame(0)).Effect)));
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
-                    int expectedWhite = elapsed <= 192 ? 31 : Math.Max(0, 30 - (elapsed - 193) / 8);
+                    int expectedWhite = elapsed <= 192 ? WhiteWash.Steps : Math.Max(0, WhiteWash.Steps - 1 - (elapsed - 193) / 8);
                     var flight = Live();
                     var fixedColors = flight.LayersOf<ScreenTintLayer>();
                     AssertEqual(expectedWhite > 0 ? 1 : 0, fixedColors.Length, "native flyaway disables fixed color after final decrement");
                     if (expectedWhite > 0)
                     {
-                        AssertEqual((byte)expectedWhite, fixedColors[0].Red, "native flyaway holds 192 calls then fades every eight");
-                        var white = new RgbColor(fixedColors[0].Red, fixedColors[0].Green, fixedColors[0].Blue);
+                        AssertEqual(WhiteWash.Colour(expectedWhite), fixedColors[0].Colour, "native flyaway holds 192 calls then fades a step every eight");
+                        RgbColor white = fixedColors[0].Colour;
                         AssertTrue(flight.LayersOf<SpritesLayer>().All(layer => layer.Tint == white), "the sprites and the sky share the flyaway's white");
                         AssertTrue(flight.Layers[0] is ScreenTintLayer && flight.Layers[1] is SpritesLayer
                             && flight.Layers[2] is TurningFloorLayer,
@@ -348,7 +348,7 @@ internal static class EndingSnapshotTestsVerification
                     {
                         // Every picture coloured from the gunship's emergence colour shows it white (#1512).
                         RgbColor[] emergence = SceneShownColours.ShownAt(Live(), 81);
-                        AssertTrue(emergence.Length > 0 && emergence.All(colour => colour == new RgbColor(31, 31, 31)),
+                        AssertTrue(emergence.Length > 0 && emergence.All(colour => colour == new RgbColor(255, 255, 255)),
                             "native gunship emergence palette starts white");
                     }
                 }

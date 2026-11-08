@@ -9,5 +9,5 @@ internal static class MotherBrainGlassPaintDefinitions
     /// in the glass shard frames. The shard initializer selects its graphics, selecting
     /// head-sheet tiles 354/357 and sprite palette three; this is a fixed painted tint.
     /// </summary>
-    internal static readonly RgbColor FaceHighlight = new(11, 28, 31);
+    internal static readonly RgbColor FaceHighlight = new(90, 231, 255);
 }

@@ -3,9 +3,10 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A gradual fade between the colour an ink shows and one fixed colour (#1512), as the game's shared gradual colour change
-/// moves colours: each step moves every channel by its remaining distance over the steps left, in 8.8 fixed point, step
-/// zero changes nothing and the step after the last reaches the far colour exactly. The fade keeps the step counter's
+/// A gradual fade between the colour an ink shows and one fixed colour (#1512, #1544), as the game's shared gradual colour
+/// change moves colours: each step moves every channel of the plain colour by its remaining distance over the steps left,
+/// in 256ths, step zero changes nothing and the step after the last reaches the far colour exactly. The steps and their
+/// count are the game's; the colours between are the plain-colour equivalent of its fade. The fade keeps the step counter's
 /// value at each step it took, as a fade that shares the counter with another sees the values that fade leaves it.
 /// </summary>
 public sealed record GradualColourFade : ColourEffect
@@ -53,7 +54,8 @@ public sealed record GradualColourFade : ColourEffect
     /// <param name="goal">The colour the fade ends in.</param>
     /// <param name="denominator">The fade's length.</param>
     public static RgbColor Step(int step, RgbColor current, RgbColor goal, int denominator) =>
-        current.Zip(goal, (_, from, to) => Component(step, from, to, denominator));
+        new(Component(step, current.Red, goal.Red, denominator), Component(step, current.Green, goal.Green, denominator),
+            Component(step, current.Blue, goal.Blue, denominator));
 
     /// <summary>
     /// Moves one channel one step toward its goal: step zero keeps it, the step after the last reaches the goal, and every

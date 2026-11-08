@@ -45,10 +45,10 @@ internal sealed class IntroColourSet
     {
         for (int color = 1; color <= 8; color++)
             if (colors[color] != source.Resolve(color)) return false;
-        int blue = colors[9].Blue;
-        if (colors[9].Red != 0 || colors[9].Green != 0 || blue < 3 * IntroCinematicPaletteFormat.CrossFadeBlueStep) return false;
+        int blue = colors[9].FadeLevels.Blue;
+        if (colors[9].FadeLevels.Red != 0 || colors[9].FadeLevels.Green != 0 || blue < 3 * IntroCinematicPaletteFormat.CrossFadeBlueStep) return false;
         for (int shade = 1; shade < 4; shade++)
-            if (colors[9 + shade] != new RgbColor(0, 0, blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep)) return false;
+            if (colors[9 + shade] != new FadeLevelColour(0, 0, blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep).ToColour()) return false;
         return true;
     }
     /// <summary>Reconstructs a color from retained source inks or its proven cycle/cross-fade relationship.</summary>
@@ -62,8 +62,8 @@ internal sealed class IntroColourSet
                 return (sharedGradient ?? throw new InvalidOperationException(
                     "A cross-faded intro palette requires its shared gradient.")).Resolve(color);
             }
-            if (color <= 12) return new RgbColor(0, 0, crossFadeInputs[1].Blue -
-                (color - 9) * IntroCinematicPaletteFormat.CrossFadeBlueStep);
+            if (color <= 12) return new FadeLevelColour(0, 0, crossFadeInputs[1].FadeLevels.Blue -
+                (color - 9) * IntroCinematicPaletteFormat.CrossFadeBlueStep).ToColour();
             return crossFadeInputs[color - 11];
         }
         return supplied is not null ? supplied[color] :
@@ -74,6 +74,6 @@ internal sealed class IntroColourSet
     {
         int decrease = (color - 1) % IntroCinematicPaletteFormat.NeutralCycleLength *
             IntroCinematicPaletteFormat.NeutralCycleStep;
-        return foreground.Map((_, a) => Math.Max(0, a - decrease));
+        return foreground.FadeLevels.Map((_, a) => Math.Max(0, a - decrease)).ToColour();
     }
 }

@@ -53,6 +53,6 @@ internal static class SporeSpawnDeathFade
     private static RgbColor Interpolate(RgbColor initial, RgbColor finalColor, int step)
     {
         int intervals = SporeSpawnColorFormat.DeathSceneFrameCount;
-        return initial.Zip(finalColor, (_, first, last) => (first * (intervals - step) + last * step + intervals / 2) / intervals);
+        return initial.FadeLevels.Zip(finalColor.FadeLevels, (_, first, last) => (first * (intervals - step) + last * step + intervals / 2) / intervals).ToColour();
     }
 }

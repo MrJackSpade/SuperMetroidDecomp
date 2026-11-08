@@ -15,7 +15,7 @@ internal static class WreckedShipPowerPaintDefinitions
     /// <summary>The colours of each powered part: one colour group's sixteen, of which the first and the last are not painted.</summary>
     internal const int PartColourCount = 16;
     /// <summary>Exact copied ink-zero metadata of the green and magenta door sets; background ink zero is transparent.</summary>
-    internal static readonly RgbColor DoorTransparentMetadata = new(3, 0, 8);
+    internal static readonly RgbColor DoorTransparentMetadata = new(24, 0, 66);
     /// <summary>Common gold door/machine accent endpoints and selected middle red.</summary>
     internal const int GoldMiddleRed = 23, GoldDarkRed = 12, GoldLightGreen = 22, GoldDarkGreen = 5;
     /// <summary>Repeated atCA89-CA8F: warm common-room machinery red/green intensities.</summary>
@@ -24,17 +24,17 @@ internal static class WreckedShipPowerPaintDefinitions
     /// <summary>The two lighter steel facets add two blue levels to green; deeper facets add one.</summary>
     internal const int MetalLightBlueTint = 2, MetalDarkBlueTint = 1;
     /// <summary>Common green indicator/door highlight paint.</summary>
-    internal static readonly RgbColor GreenHighlight = new(17, 29, 2);
+    internal static readonly RgbColor GreenHighlight = new(140, 239, 16);
     /// <summary>Common green door/indicator middle paint.</summary>
-    internal static readonly RgbColor GreenMiddle = new(9, 21, 7);
+    internal static readonly RgbColor GreenMiddle = new(74, 173, 57);
     /// <summary>Green door shadow; green is twice red and blue is absent.</summary>
     internal const int GreenDarkRed = 5;
     /// <summary>Shared magenta door/common indicator paint.</summary>
-    internal static readonly RgbColor MagentaMiddle = new(27, 7, 18);
+    internal static readonly RgbColor MagentaMiddle = new(222, 57, 148);
     /// <summary>Magenta door glint and dark red-blue outline.</summary>
     internal const int MagentaLight = 28, MagentaLightGreen = 21, MagentaDarkRed = 22, MagentaDarkBlue = 6;
     /// <summary>Additional copied common-room blue accent paint; not assigned a visible role by the source metatile packet.</summary>
-    internal static readonly RgbColor CommonBlueAccent = new(5, 7, 17);
+    internal static readonly RgbColor CommonBlueAccent = new(41, 57, 140);
     /// <summary>Common neutral placeholder/material ink.</summary>
     internal const int CommonNeutral = 24;
     /// <summary>Independent common-room neutral shadow and outline intensities.</summary>

@@ -8,7 +8,7 @@ internal static class FirefleaFxDefinitions
 {
     /// <summary>
     /// The shade level at darkness offset twelve, one entry past the six-step ramp: the game reads the byte
-    /// past its ramp there, 194, whose five-bit intensity is two.
+    /// past its ramp there, 194, whose level is two.
     /// </summary>
     internal const int PastRampShadeLevel = 194;
     /// <summary>Six effect passes per flashing shade.</summary>

@@ -43,7 +43,7 @@ internal sealed class SidehopperInitialPalette
         if (!calculated) return independentOrSupplied[color];
         return color switch
         {
-            1 or 9 => new RgbColor(31, 31, 31),
+            1 or 9 => new RgbColor(255, 255, 255),
             11 => ClawMidpoint(Resolve(10), Resolve(12)),
             14 => Resolve(11),
             15 => Resolve(12),
@@ -61,17 +61,17 @@ internal sealed class SidehopperInitialPalette
     /// of installed inner-detail paints at slots6/8 (5EC0/35A0).</summary>
     internal static RgbColor DetailMidpoint(RgbColor light, RgbColor dark)
     {
-        return light.Zip(dark, (_, a, b) => ((a + b) / 2));
+        return light.FadeLevels.Zip(dark.FadeLevels, (_, a, b) => ((a + b) / 2)).ToColour();
     }
     /// <summary>Halves each RGB5 channel of the selected body paint for the standalone shadow slot.</summary>
     internal static RgbColor BodyShadow(RgbColor light)
     {
-        return light.Map((_, a) => (a / BodyShadowDivisor));
+        return light.FadeLevels.Map((_, a) => (a / BodyShadowDivisor)).ToColour();
     }
     /// <summary>Yellow claw shade0237 is the ceiling-channel midpoint of039C/00D1.
     /// Independently supplied light/dark endpoints remain editable.</summary>
     internal static RgbColor ClawMidpoint(RgbColor light, RgbColor dark)
     {
-        return light.Zip(dark, (_, a, b) => ((a + b + 1) / 2));
+        return light.FadeLevels.Zip(dark.FadeLevels, (_, a, b) => ((a + b + 1) / 2)).ToColour();
     }
 }

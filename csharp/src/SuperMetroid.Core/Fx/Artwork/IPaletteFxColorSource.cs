@@ -10,6 +10,6 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public interface IPaletteFxColorSource
 {
-    /// <summary>Resolves one BGR555 color by the record that writes it and its position among the record's colors.</summary>
+    /// <summary>Resolves one colour by the record that writes it and its position among the record's colors.</summary>
     bool TryReadColor(PaletteFxColorKey key, out RgbColor color);
 }

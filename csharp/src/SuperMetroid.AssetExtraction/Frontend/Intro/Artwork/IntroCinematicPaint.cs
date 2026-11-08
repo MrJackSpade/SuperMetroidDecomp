@@ -86,13 +86,13 @@ internal static class IntroCinematicPaint
     private static RgbColor Warm(int ink, int tint)
     {
         RgbColor color = Sepia(ink);
-        return Pack(Math.Min(31, (color.Red) + tint), Math.Min(31, (color.Green) + tint), color.Blue);
+        return Pack(Math.Min(31, (color.FadeLevels.Red) + tint), Math.Min(31, (color.FadeLevels.Green) + tint), color.FadeLevels.Blue);
     }
     /// <summary>Darkens the shared Mother Brain plate highlight by one RGB5 level for intro scene objects.</summary>
     private static RgbColor Plate()
     {
         RgbColor color = MotherBrainHealthPaintDefinitions.PlateHighlight;
-        return Pack((color.Red) - PlateShade, (color.Green) - PlateShade, (color.Blue) - PlateShade);
+        return Pack((color.FadeLevels.Red) - PlateShade, (color.FadeLevels.Green) - PlateShade, (color.FadeLevels.Blue) - PlateShade);
     }
     /// <summary>Selects authored neutral, sepia, plate, and warm materials for the intro scene colour set.</summary>
     private static RgbColor Scene(int ink) => ink switch
@@ -167,5 +167,5 @@ internal static class IntroCinematicPaint
     /// <summary>Uses one RGB5 intensity across all three channels for neutral paint.</summary>
     private static RgbColor Neutral(int value) => Pack(value, value, value);
     /// <summary>Converts three calculated five-bit channels into a packed colour.</summary>
-    private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
+    private static RgbColor Pack(int red, int green, int blue) => new FadeLevelColour(red, green, blue).ToColour();
 }

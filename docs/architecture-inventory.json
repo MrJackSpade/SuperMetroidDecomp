@@ -160527,19 +160527,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Frontend.Ending.EndingPlanetBoundaryVerification.PlanetFrameCapture",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Frontend/Ending/EndingPlanetBoundaryVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Verification.Frontend.Ending.EndingPostCreditsScrollVerification",
       "kind": "static class",
       "scope": "test",

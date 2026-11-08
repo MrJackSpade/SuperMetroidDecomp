@@ -553,8 +553,8 @@ its timing; this JSON contains only the colors.
 Botwoon's eight health-band sprite palettes are in
 `game/enemy-tiles/botwoon-colors.json`. The initial enemy palette remains in the ordinary
 enemy color sheet; health thresholds and band progression stay compiled.
-Mother Brain's sixteen paired body/leg death-fade frames, eight corpse-head
-fade frames, and exploded-door palette are in
+Mother Brain's sixteen paired body/leg death-fade frames and eight corpse-head
+fade frames are in
 `game/enemy-tiles/mother-brain-death-colors.json`; death-phase timing, counter selection, and collision
 remain compiled behavior.
 Zebetite's eight-frame, two-color Tourian pulse is in

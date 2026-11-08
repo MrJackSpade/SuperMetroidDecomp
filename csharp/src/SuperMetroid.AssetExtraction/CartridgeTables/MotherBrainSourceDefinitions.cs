@@ -99,8 +99,6 @@ internal static class MotherBrainSourceDefinitions
         /// <summary>$AD:F119, the first of eight consecutive fifteen-colour corpse-head images.</summary>
         internal const int FirstCorpseFadeColors = 0xadf119;
 
-        /// <summary>$A9:9534, the fourteen colours installed for the exploded escape door.</summary>
-        internal const int ExplodedDoorColors = 0xa99534;
 
         /// <summary>The source of body-and-leg fade image <paramref name="frame"/> (0..15).</summary>
         internal static int BodyFadeColors(int frame) =>

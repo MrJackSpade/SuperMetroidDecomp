@@ -1715,9 +1715,6 @@ internal static class LookupStream3Verification
             for (int color = 0; color < 15; color++)
                 corpse[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadf119 + 30 * frame + 2 * color));
         }
-        var door = new ushort[14];
-        for (int color = 0; color < door.Length; color++)
-            door[color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa99534 + 2 * color));
 
         static PaletteRgb5 Rgb(ushort value) => new()
         {
@@ -1726,11 +1723,10 @@ internal static class LookupStream3Verification
         MotherBrainDeathColorCatalog Load() => MotherBrainDeathColorFile.Read(new MemoryStream(
             MotherBrainDeathColorFile.Write(new MotherBrainDeathColorDocument
             {
-                Version = 1,
+                Version = MotherBrainDeathColorFormat.Version,
                 BodyFade = body.Select(row => row.Select(Rgb).ToArray()).ToArray(),
                 LegFade = leg.Select(row => row.Select(Rgb).ToArray()).ToArray(),
                 CorpseFade = corpse.Select(row => row.Select(Rgb).ToArray()).ToArray(),
-                ExplodedDoor = door.Select(Rgb).ToArray(),
             }), writable: false));
         void Check(MotherBrainDeathColorCatalog catalog)
         {
@@ -1743,11 +1739,8 @@ internal static class LookupStream3Verification
             for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 15; color++)
                 AssertEqual(corpse[frame][color], catalog.CorpseColor(frame, color), "stream 3 selected corpse fade color");
-            for (int color = 0; color < door.Length; color++)
-                AssertEqual(door[color], catalog.ExplodedDoorColor(color), "stream 3 unchanged door color");
-            string identity = SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
+            string identity = SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v2", content =>
             {
-                content.AppendWords("explodedDoor", door);
                 content.AppendWordFrames("bodyFade", body);
                 content.AppendWordFrames("legFade", leg);
                 content.AppendWordFrames("corpseFade", corpse);
@@ -1756,10 +1749,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        AssertTrue(stock.selection.ExplodedDoor is null,
-            "stream 3 exploded-door stock paint keeps no stored word array");
-        foreach (int invalid in new[] { -1, 14, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.ExplodedDoorColor(invalid), "stream 3 exploded-door color bounds");
         foreach (var fade in new[] { stock.selection.BodyFade, stock.selection.LegFade, stock.selection.CorpseFade })
         {
             AssertTrue(fade.first is null,

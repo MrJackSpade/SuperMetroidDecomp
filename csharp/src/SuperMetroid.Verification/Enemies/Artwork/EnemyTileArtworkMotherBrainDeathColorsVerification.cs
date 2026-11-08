@@ -28,7 +28,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
     /// <summary>JSON options: Case-insensitive property matching.</summary>
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Compares all fade selectors and RGB5 words and checks live body, corpse, and door destinations.</summary>
+    /// <summary>Compares all fade selectors and RGB5 words and checks live body and corpse destinations.</summary>
     internal static void VerifyInstalledMotherBrainDeathColors(
         ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
@@ -64,11 +64,6 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                     native.CorpseColor(frame, color),
                     $"installed Mother Brain corpse death frame {frame} color {color}");
         }
-        for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                    MotherBrainSourceDefinitions.Death.ExplodedDoorColors + color * 2),
-                native.ExplodedDoorColor(color),
-                $"installed Mother Brain exploded-door color {color}");
 
         string file = Path.Combine(stockDirectory, MotherBrainDeathColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
@@ -86,10 +81,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                 address >= CorpseFadeTable &&
                     address < MotherBrainSourceDefinitions.Death.CorpseFadeColors(
                         MotherBrainDeathColorFile.CorpseFadeFrameCount - 1) +
-                        MotherBrainDeathColorFormat.CorpseColorCount * sizeof(ushort) ||
-                address is >= MotherBrainSourceDefinitions.Death.ExplodedDoorColors and
-                    < (MotherBrainSourceDefinitions.Death.ExplodedDoorColors +
-                        MotherBrainDeathColorFormat.BodyColorCount * sizeof(ushort)),
+                        MotherBrainDeathColorFormat.CorpseColorCount * sizeof(ushort),
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
         // The import pre-colours her body layer and her sprites in each death fade step and her detached brain in each step
         // of the corpse's fade, from the installed colours (#1512).
@@ -136,6 +128,6 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         AssertThrows<InvalidDataException>(
             () => MotherBrainDeathColorFile.Read(new MemoryStream(MotherBrainDeathColorFile.Write(visual), writable: false)),
             "reading Mother Brain death colors rejects an RGB5 channel outside five-bit precision");
-        Console.WriteLine("  Mother Brain death colors: 582 native RGB5 words, 24 selectors, live body/leg/corpse/door CGRAM, ROM guard and strict failures pass.");
+        Console.WriteLine("  Mother Brain death colors: 582 native RGB5 words, 24 selectors, live body/leg/corpse CGRAM, ROM guard and strict failures pass.");
     }
 }

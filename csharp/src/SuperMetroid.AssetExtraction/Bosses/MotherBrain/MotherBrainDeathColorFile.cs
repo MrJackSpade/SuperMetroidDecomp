@@ -15,7 +15,7 @@ public static class MotherBrainDeathColorFile
     /// <summary>The corpse-head fade images, shown in order while the corpse rots away.</summary>
     public const int CorpseFadeFrameCount = 8;
 
-    /// <summary>Validates and compiles the death-fade and exploded-door RGB5 document, retaining edited images independently of the health-palette presentation.</summary>
+    /// <summary>Validates and compiles the death-fade RGB5 document, retaining edited images independently of the health-palette presentation.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled color catalog detached from the deserialized document arrays.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
@@ -36,13 +36,11 @@ public static class MotherBrainDeathColorFile
                 MotherBrainDeathColorFormat.BodyColorCount, "leg fade"),
             CompileFrames(document.CorpseFade,
                 CorpseFadeFrameCount,
-                MotherBrainDeathColorFormat.CorpseColorCount, "corpse fade"),
-            Compile(document.ExplodedDoor, MotherBrainDeathColorFormat.BodyColorCount,
-                "exploded door")));
+                MotherBrainDeathColorFormat.CorpseColorCount, "corpse fade")));
     }
 
     /// <summary>Serializes the editable death-color document to indented camel-case UTF-8 JSON.</summary>
-    /// <param name="document">Palette-stage and door colors to serialize; their collections are not retained.</param>
+    /// <param name="document">Palette-stage colors to serialize; their collections are not retained.</param>
     /// <returns>JSON bytes ready to install under <see cref="MotherBrainDeathColorFormat.FileName"/>.</returns>
     public static byte[] Write(MotherBrainDeathColorDocument document) =>
         JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);

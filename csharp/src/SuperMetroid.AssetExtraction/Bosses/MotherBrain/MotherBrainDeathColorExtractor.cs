@@ -8,11 +8,11 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
-/// <summary>Exports complete Mother Brain death-fade and exploded-door RGB5 images.</summary>
+/// <summary>Exports complete Mother Brain death-fade RGB5 images.</summary>
 public static class MotherBrainDeathColorExtractor
 {
-    /// <summary>Reads every Mother Brain body, leg, and corpse death-fade row plus the exploded-door palette, rejects high-bit colors, and serializes RGB5 data.</summary>
-    /// <param name="bus">Supported-cartridge address space containing the death-fade and door palette tables.</param>
+    /// <summary>Reads every Mother Brain body, leg, and corpse death-fade row, rejects high-bit colors, and serializes RGB5 data.</summary>
+    /// <param name="bus">Supported-cartridge address space containing the death-fade tables.</param>
     /// <returns>UTF-8 JSON bytes for the complete versioned Mother Brain death-color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
@@ -36,8 +36,6 @@ public static class MotherBrainDeathColorExtractor
             BodyFade = body,
             LegFade = leg,
             CorpseFade = corpse,
-            ExplodedDoor = Read(MotherBrainSourceDefinitions.Death.ExplodedDoorColors,
-                MotherBrainDeathColorFormat.BodyColorCount),
         });
 
         PaletteRgb5[] Read(int source, int count)

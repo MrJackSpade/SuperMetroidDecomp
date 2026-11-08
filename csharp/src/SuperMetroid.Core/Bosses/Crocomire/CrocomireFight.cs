@@ -89,7 +89,7 @@ internal sealed class CrocomireFight
         state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
         // On the living branch only.
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.BossTracking;
+        _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Initial);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);

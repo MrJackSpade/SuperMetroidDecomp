@@ -261,7 +261,7 @@ internal sealed class KraidDeath
         _parts.Foot.Properties = otherProperties;
         state.BodyState.Function = KraidAiFunction.DeathHideUpperBody;
         // The death returns the camera to distance index zero before the death drop.
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
+        _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
 
         // The death drops fill the same sixteen-projectile pool used by ordinary deaths. Each
         // pickup gets a random position in Kraid's 256x64 floor strip and independently

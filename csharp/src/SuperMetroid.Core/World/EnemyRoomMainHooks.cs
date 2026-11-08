@@ -22,5 +22,5 @@ internal sealed class EnemyRoomMainHooks(CrocomireBehavior crocomire, SporeSpawn
     public void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera) => sporeSpawn.RunScrollingFinishedHook(camera);
 
     /// <inheritdoc/>
-    public CameraDistanceMode ZebetiteCameraDistanceIndex => zebetites.CameraDistanceIndex;
+    public CameraDistanceMode ZebetiteCameraDistance => zebetites.CameraDistance;
 }

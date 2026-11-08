@@ -78,7 +78,7 @@ internal sealed class KraidRise
         }
 
         // Kraid's fight tracks the camera like a boss.
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.BossTracking;
+        _zebetiteBehavior.CameraDistance = CameraDistanceMode.BossTracking;
         ApplyKraidScrolls(layout: KraidScrollLayout.Initial);
         state.EjectionLimit = new Position16<RoomPixels>(0, 324);
         state.InitialHealth = body.Health;

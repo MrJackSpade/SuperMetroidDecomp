@@ -65,7 +65,7 @@ internal sealed class CrocomireSkeleton
         _room.Services.RoomScroll.Write(3, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.RightEdge;
+        _zebetiteBehavior.CameraDistance = CameraDistanceMode.RightEdge;
         RoomEnemySlot body = state.Body;
         body.Properties = body.Properties.Replace(
             EnemyProperties.SolidToSamus | EnemyProperties.IgnoreSamusCollision,
@@ -236,7 +236,7 @@ internal sealed class CrocomireSkeleton
     internal void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
-        _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
+        _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         _access.RequireCrocomireDeath().BossBitSet = true;
         _access.SpawnCrocomireDust(state, -16);

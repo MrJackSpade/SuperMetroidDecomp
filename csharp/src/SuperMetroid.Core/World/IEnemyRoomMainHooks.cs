@@ -17,5 +17,5 @@ internal interface IEnemyRoomMainHooks
     void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera);
 
     /// <summary>The Zebetites' camera-distance index.</summary>
-    CameraDistanceMode ZebetiteCameraDistanceIndex { get; }
+    CameraDistanceMode ZebetiteCameraDistance { get; }
 }

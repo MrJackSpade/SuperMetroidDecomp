@@ -15,14 +15,14 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <param name="FacesLeft">
 /// Whether Samus's pose faces left. Every other pose facing, front-view included, selects the right-facing target.
 /// </param>
-/// <param name="CameraDistanceIndex">How far ahead of Samus the camera target sits.</param>
+/// <param name="CameraDistance">How far ahead of Samus the camera target sits.</param>
 [IndependentFlag("independent facts about Samus the camera target reads")]
 public readonly record struct HorizontalCameraContext(
     bool KnockedBack,
     SamusMovementType MovementType,
     bool TurningAgainstMomentum,
     bool FacesLeft,
-    CameraDistanceMode CameraDistanceIndex)
+    CameraDistanceMode CameraDistance)
 {
     /// <summary>
     /// Decodes the runtime's knockback, acceleration-mode and facing words into the camera context: a nonzero
@@ -33,19 +33,19 @@ public readonly record struct HorizontalCameraContext(
     /// <param name="MovementType">Samus's movement type.</param>
     /// <param name="XAccelerationMode">Samus's horizontal acceleration mode.</param>
     /// <param name="PoseXDirection">Samus's pose-definition facing byte.</param>
-    /// <param name="CameraDistanceIndex">How far ahead of Samus the camera target sits.</param>
+    /// <param name="CameraDistance">How far ahead of Samus the camera target sits.</param>
     public HorizontalCameraContext(
         bool KnockedBack,
         SamusMovementType MovementType,
         SamusAccelerationMode XAccelerationMode,
         int PoseXDirection,
-        CameraDistanceMode CameraDistanceIndex)
+        CameraDistanceMode CameraDistance)
         : this(
             KnockedBack,
             MovementType,
             TurningAgainstMomentum: XAccelerationMode == SamusAccelerationMode.Turning,
             FacesLeft: PoseXDirection == LeftFacingPose,
-            CameraDistanceIndex)
+            CameraDistance)
     {
     }
 

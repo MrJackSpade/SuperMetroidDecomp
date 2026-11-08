@@ -71,10 +71,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     public int PaletteChangeNumber { get; set; }
 
     /// <summary>
-    /// <c>CameraDistanceIndex</c>, shared by every boss that retargets the camera.
+    /// How far ahead of Samus the camera aims, shared by every boss that retargets the camera.
     /// The new room's special-effect setup clears it on every room load.
     /// </summary>
-    public CameraDistanceMode CameraDistanceIndex { get; internal set; }
+    public CameraDistanceMode CameraDistance { get; internal set; }
 
     /// <summary>
     /// The Zebetites' shared pulse counter, advanced by every primary Zebetite in the room; it starts at zero with the

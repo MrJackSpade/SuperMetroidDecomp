@@ -22,8 +22,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the lava shots emitted by the overlay's instruction list.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Resolves the three adjacent records that form one Magdollite.</summary>
+    /// <summary>The room's enemy places, where each Magdollite part finds the others when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The partners each Magdollite part found when it was placed.</summary>
+    private readonly EnemyPartLinks<MagdollitePartners> _partners = new();
     /// <summary>Runs common contact damage before the species reaction.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Creates the item drop when a thrown lava projectile is destroyed.</summary>
@@ -59,6 +61,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
     {
         MagdollitePart part = slot.SpawnSettings<MagdolliteSpawnSettings>().Part;
+        // The room lists each Magdollite's head, body and overlay in a row; each part finds the others, the enemy
+        // listed after it and the two its follow-up to a hit reaches.
+        RoomEnemySlot head = part == MagdollitePart.Head ? slot : _slotTable.ListedBefore(slot, SlotsAfterHead(part));
+        _partners.Place(slot, new MagdollitePartners(
+            Composite: new(head, _slotTable.ListedAfter(head, 1), _slotTable.ListedAfter(head, 2)),
+            Next: _slotTable.ListedAfterOrNone(slot, 1),
+            FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfterOrNone(slot, distance), reach: 2)));
         var state = new MagdolliteEnemyState(part);
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -484,16 +493,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Finds and validates the retail-ordered head, body and overlay around any one component.</summary>
+    /// <summary>Validates the retail-ordered head, body and overlay any one component found when it was placed.</summary>
     private MagdolliteComposite RequireMagdolliteComposite(RoomEnemySlot member)
     {
-        int headIndex = member.SlotIndex - SlotsAfterHead(member.SpawnSettings<MagdolliteSpawnSettings>().Part);
-        if (headIndex < 0 || headIndex + 2 >= EnemySlotOrder.Capacity)
-            throw new InvalidDataException($"Magdollite slot {member.SlotIndex} has no complete composite.");
-
-        RoomEnemySlot head = _slotTable.Slots[headIndex];
-        RoomEnemySlot body = _slotTable.Slots[headIndex + 1];
-        RoomEnemySlot overlay = _slotTable.Slots[headIndex + 2];
+        (RoomEnemySlot head, RoomEnemySlot body, RoomEnemySlot overlay) = _partners.Of(member).Composite;
         if (head.DefinitionId != EnemyDefinitionId.Magdollite || head.SpawnSettings<MagdolliteSpawnSettings>().Part != MagdollitePart.Head ||
             body.DefinitionId != EnemyDefinitionId.Magdollite || body.SpawnSettings<MagdolliteSpawnSettings>().Part != MagdollitePart.RisingBody ||
             overlay.DefinitionId != EnemyDefinitionId.Magdollite || overlay.SpawnSettings<MagdolliteSpawnSettings>().Part != MagdollitePart.TrackingOverlay)
@@ -504,7 +507,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         return new(head, body, overlay);
     }
 
-    /// <summary>How many slots after its composite's head a part's slot lies: the head, then the body, then the overlay.</summary>
+    /// <summary>How many places after its composite's head the room lists a part: the head, then the body, then the overlay.</summary>
     private static int SlotsAfterHead(MagdollitePart part) => part switch
     {
         MagdollitePart.Head => 0,
@@ -631,26 +634,19 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Resolves the next physical record used by paired base-and-pillar animation opcodes.</summary>
-    private RoomEnemySlot NextMagdolliteSlot(RoomEnemySlot slot)
-    {
-        if (slot.SlotIndex + 1 >= EnemySlotOrder.Capacity)
-            throw new InvalidDataException($"Magdollite slot {slot.SlotIndex} has no following component.");
-        return _slotTable.Slots[slot.SlotIndex + 1];
-    }
+    /// <summary>The enemy listed after the part, which it found when it was placed, used by the paired pillar cues.</summary>
+    private RoomEnemySlot NextMagdolliteSlot(RoomEnemySlot slot) =>
+        _partners.Of(slot).Next ?? throw new InvalidDataException($"Magdollite slot {slot.SlotIndex} has no following component.");
 
     /// <summary>Runs the shared post-combat tail.</summary>
     private void ResolveMagdolliteCombatAfterCommon(RoomEnemySlot current)
     {
-        // The callback reaches the next two slots after the current one. Ordinary
+        // The callback reaches the two enemies listed after the current one (FollowUpAfterStruckPart). Ordinary
         // touch/shot reaches only the collision-enabled head, but power bombs may expose
         // this retail cross-record quirk, so do not silently normalize current to a group.
-        RoomEnemySlot? following = current.SlotIndex + 1 < EnemySlotOrder.Capacity
-            ? _slotTable.Slots[current.SlotIndex + 1]
-            : null;
-        RoomEnemySlot? secondFollowing = current.SlotIndex + 2 < EnemySlotOrder.Capacity
-            ? _slotTable.Slots[current.SlotIndex + 2]
-            : null;
+        IReadOnlyList<RoomEnemySlot?> recipients = _partners.Of(current).FollowUpRecipients;
+        RoomEnemySlot? following = recipients[0];
+        RoomEnemySlot? secondFollowing = recipients[1];
 
         if (current.Health == 0)
         {

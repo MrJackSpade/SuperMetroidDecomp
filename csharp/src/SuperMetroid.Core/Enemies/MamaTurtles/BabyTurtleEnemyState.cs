@@ -16,13 +16,6 @@ public sealed class BabyTurtleEnemyState
     /// </summary>
     public BabyTurtleAiFunction? Function { get; internal set; }
 
-    /// <summary>The parent Mama Turtle's slot ordinal.</summary>
-    public int ParentSlotIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity - 1, value);
-    }
-
     /// <summary>
     /// The child's spawn point: its spawn X, which the crawl turns around 48 pixels from, and the top of its spawn
     /// hitbox, which the crawl holds it to.
@@ -44,7 +37,6 @@ public sealed class BabyTurtleEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        ParentSlotIndex = 0;
         SpawnTopCenter = Position16<RoomPixels>.Zero;
         Velocity = new(0, Velocity.Y);
     }

@@ -15,18 +15,24 @@ internal static class RoomEnemyListing
     /// <param name="part">The part looking for its partner.</param>
     /// <param name="distance">How many places after it the partner is listed, one or more.</param>
     /// <exception cref="InvalidDataException">No place is listed that far after <paramref name="part"/>.</exception>
-    internal static RoomEnemySlot ListedAfter(this EnemySlotTable enemies, RoomEnemySlot part, int distance)
+    internal static RoomEnemySlot ListedAfter(this EnemySlotTable enemies, RoomEnemySlot part, int distance) =>
+        enemies.ListedAfterOrNone(part, distance) ?? throw new InvalidDataException(
+            $"Enemy {part.SlotIndex} ({part.DefinitionId}) has no place listed {distance} after it for its partner.");
+
+    /// <summary>
+    /// The place the population lists <paramref name="distance"/> places after <paramref name="part"/>, or null when
+    /// <paramref name="part"/> is listed too late to have one.
+    /// </summary>
+    /// <param name="enemies">The room's enemy places.</param>
+    /// <param name="part">The part looking for its partner.</param>
+    /// <param name="distance">How many places after it the partner is listed, one or more.</param>
+    internal static RoomEnemySlot? ListedAfterOrNone(this EnemySlotTable enemies, RoomEnemySlot part, int distance)
     {
         Ensure.NotNull(enemies);
         Ensure.NotNull(part);
         _ = Ensure.BetweenInclusive(1, EnemySlotOrder.Capacity - 1, distance);
         int place = part.SlotIndex + distance;
-        if (place >= EnemySlotOrder.Capacity)
-        {
-            throw new InvalidDataException(
-                $"Enemy {part.SlotIndex} ({part.DefinitionId}) has no place listed {distance} after it for its partner.");
-        }
-        return enemies.Slots[place];
+        return place >= EnemySlotOrder.Capacity ? null : enemies.Slots[place];
     }
 
     /// <summary>The <paramref name="count"/> places the population lists directly after <paramref name="part"/>, nearest first.</summary>

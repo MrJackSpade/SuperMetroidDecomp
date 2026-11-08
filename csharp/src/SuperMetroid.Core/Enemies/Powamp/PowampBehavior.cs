@@ -24,8 +24,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Spawns the eight radial spikes emitted at death.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Resolves each body's preceding balloon slot.</summary>
+    /// <summary>The room's enemy places, where each body finds its balloon when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The balloon each body found when it was placed, which its room lists right before it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _balloons = new();
     /// <summary>Applies shared shot and touch reactions before paired-state propagation.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Starts ordinary death processing after the delayed spike burst.</summary>
@@ -70,9 +72,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!state.IsBalloon)
         {
-            // The body's balloon is simply the slot before it, whatever occupies that slot.
+            // The body's balloon is the enemy its room lists before it, whatever occupies that place.
             // Reject malformed populations instead of accidentally
             // binding a body to an unrelated actor.
+            _balloons.Place(slot, _slotTable.ListedBefore(slot, 1));
             RequirePowampBalloon(slot);
             state.FunctionTimer = PowampRestFrames;
             state.Function = PowampEnemyFunction.DeflatedResting;
@@ -486,12 +489,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RoomLevelData RequirePowampLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException("Powamp movement requires room level data.");
 
-    /// <summary>Requires the literal preceding enemy slot to be this body's initialized balloon half.</summary>
+    /// <summary>Requires the balloon the body found when it was placed to be its initialized balloon half.</summary>
     private PowampBalloon RequirePowampBalloon(RoomEnemySlot body)
     {
-        if (body.SlotIndex == 0)
-            throw new InvalidDataException("A Powamp body has no preceding balloon slot.");
-        RoomEnemySlot balloon = _slotTable.Slots[body.SlotIndex - 1];
+        RoomEnemySlot balloon = _balloons.Of(body);
         if (balloon.DefinitionId != EnemyDefinitionId.Powamp || balloon.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
         {
             throw new InvalidDataException(

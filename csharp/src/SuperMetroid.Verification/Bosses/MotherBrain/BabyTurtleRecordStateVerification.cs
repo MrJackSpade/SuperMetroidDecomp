@@ -18,13 +18,11 @@ internal static class BabyTurtleRecordStateVerification
         var state = new BabyTurtleEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<BabyTurtleAiFunction>()[^1];
-        state.ParentSlotIndex = 1;
         state.SpawnTopCenter = new Position16<RoomPixels>(1, 0);
         state.Velocity = new Offset16<RoomPixels>(1, 0);
 
         slot.Clear();
         AssertEqual<BabyTurtleAiFunction?>(null, state.Function, "a kill empties Function");
-        AssertEqual<int>(0, state.ParentSlotIndex, "a kill empties ParentSlotIndex");
         AssertEqual<Position16<RoomPixels>>(Position16<RoomPixels>.Zero, state.SpawnTopCenter, "a kill empties SpawnTopCenter");
         AssertEqual<Offset16<RoomPixels>>(Offset16<RoomPixels>.Zero, state.Velocity, "a kill empties Velocity");
         Console.WriteLine("BabyTurtle record state: a kill empties every value the record holds.");

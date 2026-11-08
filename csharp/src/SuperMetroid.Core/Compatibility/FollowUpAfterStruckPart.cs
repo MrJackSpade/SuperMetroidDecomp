@@ -3,13 +3,14 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Which enemies a composite enemy's follow-up to a hit reaches (#1500): the enemies placed directly after the part
 /// that was hit, whichever part that is. A hit on a Dragon passes its hurt and freeze timers to the next enemy, or
-/// deletes it when the hit kills; a hit on an Evir freezes or deletes the next two. Touches and shots reach only the
+/// deletes it when the hit kills; a hit on an Evir freezes or deletes the next two, and so does a hit on any Magdollite
+/// part, skipping a recipient that would lie past the room's final place. Touches and shots reach only the
 /// body, whose followers are its own wing, arms and spit, but a power bomb also hits the intangible trailing parts, so
 /// its follow-up reaches the enemies placed after them: the next Dragon's body, a Geruta, a Sova, a Hibashi or a
 /// Squeept after a Dragon wing, and the next Evir's body after an Evir's arms, which a kill deletes.
 /// </summary>
 /// <remarks>
-/// Consulted when each Dragon and Evir part is placed, which keeps the recipients it is given; its follow-up after the
+/// Consulted when each Dragon, Evir and Magdollite part is placed, which keeps the recipients it is given; its follow-up after the
 /// common touch, shot or power-bomb reaction reaches them, once per hit (#1542). The recipients are places, so a
 /// recipient that has died or been deleted is still the one reached.
 /// Evidence: the follow-ups at <c>$A2:E7DA</c> and <c>$A8:8B16</c> write the records one and two slots after the
@@ -21,7 +22,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a composite enemy's follow-up to a hit reaches the enemies placed after the part that was hit, so a power bomb hitting a trailing part carries it to the next enemies")]
 public static class FollowUpAfterStruckPart
 {
-    /// <summary>The <paramref name="reach"/> enemies placed directly after a Dragon or Evir part, nearest first.</summary>
+    /// <summary>The <paramref name="reach"/> enemies placed directly after a Dragon, Evir or Magdollite part, nearest first.</summary>
     /// <typeparam name="TEnemy">An enemy place.</typeparam>
     /// <param name="listedAfterPart">The enemy the room lists a given number of places, one or more, after the part.</param>
     /// <param name="reach">How many following enemies the part's follow-up reaches, one or more.</param>

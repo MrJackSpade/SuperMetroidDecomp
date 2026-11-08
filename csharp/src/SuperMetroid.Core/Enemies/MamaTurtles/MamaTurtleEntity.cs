@@ -10,7 +10,7 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch
     {
-        MamaTurtlePart.MamaTurtle => MamaTurtleBehavior.InitializeMamaTurtle,
+        MamaTurtlePart.MamaTurtle => species.InitializeMamaTurtle,
         MamaTurtlePart.BabyTurtle => MamaTurtleBehavior.InitializeBabyTurtle,
         _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}."),
     };

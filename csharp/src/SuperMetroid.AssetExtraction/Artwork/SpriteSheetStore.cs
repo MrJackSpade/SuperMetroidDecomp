@@ -120,42 +120,38 @@ internal sealed class SpriteSheetStore
         });
     }
 
-    /// <summary>Reads one sheet's image and palette-index image into its layers.</summary>
+    /// <summary>Reads one sheet's image and palette map into its layers.</summary>
     /// <exception cref="InvalidDataException">The manifest omits a file, an image is malformed, or the two images differ in size.</exception>
     private SpriteImageLayers Decode(string name, out Extent16<ImagePixels> size)
     {
         byte[] image = Installed(ImageFile(name));
         byte[] palette = Installed(PaletteFile(name));
-        RgbaPixel[] pixels, indices;
-        Extent16<ImagePixels> indexSize;
+        RgbaPixel[] pixels, map;
+        Extent16<ImagePixels> mapSize;
         try
         {
             pixels = RgbaPng.Read(new MemoryStream(image, writable: false), out size);
-            indices = RgbaPng.Read(new MemoryStream(palette, writable: false), out indexSize);
+            map = RgbaPng.Read(new MemoryStream(palette, writable: false), out mapSize);
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        if (indexSize != size)
+        if (mapSize != size)
             throw new InvalidDataException($"Sprite sheet {PaletteFile(name)} is not the size of {ImageFile(name)}.");
-        var paletteIndices = new byte[indices.Length];
-        var frontTiles = new byte[indices.Length];
-        for (int pixel = 0; pixel < indices.Length; pixel++)
-        {
-            paletteIndices[pixel] = indices[pixel].R;
-            frontTiles[pixel] = indices[pixel].G;
-        }
-        // The palette-index image's blue channel is unused (#1512).
-        return new SpriteImageLayers(pixels, paletteIndices, frontTiles);
+        var inks = new SpriteImageInk[map.Length];
+        for (int pixel = 0; pixel < map.Length; pixel++)
+            inks[pixel] = InstalledSheetColouring.InkOf(map[pixel]);
+        return new SpriteImageLayers(pixels, inks);
     }
 
     /// <summary>A sheet's image file name.</summary>
     internal static string ImageFile(string name) => name + ".png";
 
     /// <summary>
-    /// A sheet's palette-index image file name: each pixel's colour group's place times sixteen plus its colour in red,
-    /// one in green where it lies in one of its layer's front tiles (#1514); blue is unused (#1512).
+    /// A sheet's palette map file name: each pixel's ink, as <see cref="InstalledSheetColouring.MapPixelOf"/> installs it
+    /// (#1544): the place of its colour among the image's own colours in red, whether it lies in a front tile, is clear and
+    /// blends in green, opaque where it has a colour.
     /// </summary>
     internal static string PaletteFile(string name) => name + ".palette.png";
 

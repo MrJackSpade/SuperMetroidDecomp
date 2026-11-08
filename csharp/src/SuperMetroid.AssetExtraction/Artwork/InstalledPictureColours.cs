@@ -6,13 +6,14 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// Where in the cartridge's 256-colour image each ink of an installed picture was coloured from (#1512): the import's
-/// knowledge, which the sheet manifest records and the loader keeps beside each picture it loads. A sprite sheet's ink is
-/// its part's own row times sixteen plus its colour, coloured from the sprite half's row of that row with the sheet's
-/// palette bits ORed in; a gameplay background sheet's colour group was
-/// installed from the background set the manifest names for it; a frontend screen's background sheet names none, and
-/// its groups lie in the background half in their own order; a full-palette sheet's ink is its colour's place in the
-/// image. Core never addresses a colour by these places.
+/// Where in the cartridge's 256-colour image each of an installed picture's own colours was coloured from (#1512, #1544):
+/// the import's knowledge, which the sheet manifest records (<see cref="InstalledSheetSource"/>) and the loader keeps beside
+/// each picture it loads. Each colour came from a composed palette index of the half of the colour table the sheet was
+/// composed against. A sprite sheet's index is its part's own row times sixteen plus its colour, coloured from the sprite
+/// half's row of that row with the sheet's palette bits ORed in; a gameplay background sheet's colour group was installed
+/// from the background set the manifest names for it; a frontend screen's background sheet names none, and its groups lie
+/// in the background half in their own order; a full-palette sheet's index is its colour's place in the image. Core never
+/// addresses a colour by these places.
 /// </summary>
 public static class InstalledPictureColours
 {
@@ -23,34 +24,38 @@ public static class InstalledPictureColours
     /// </summary>
     public static ImmutableArray<InstalledBackgroundSet> CartridgeOrderSets { get; } = [.. InstalledBackgroundSetPositionDefinitions.InCartridgeOrder];
 
-    /// <summary>The background sets each loaded picture's colour groups were installed from, as its manifest names them.</summary>
+    /// <summary>Where each loaded picture's colours came from, as its manifest names it.</summary>
     private static readonly ConditionalWeakTable<SpriteImage, InstalledPictureColourSources> Loaded = [];
-
-    /// <summary>
-    /// Keeps the background sets <paramref name="picture"/>'s manifest names for its colour groups, none for most sheets,
-    /// and the <paramref name="paletteBits"/> a sprite sheet's draws OR into each ink's own row.
-    /// </summary>
-    /// <exception cref="InvalidDataException">
-    /// The manifest names sets for a sprite sheet, which has no background groups, or a number of sets other than one per
-    /// background colour group, or palette bits for a picture other than a sprite sheet or past the sprite rows.
-    /// </exception>
-    internal static void Record(SpriteImage picture, ImmutableArray<InstalledBackgroundSet> backgroundSets, int paletteBits)
-    {
-        Ensure.NotNull(picture);
-        if (!backgroundSets.IsEmpty &&
-            (picture.Colours == SpriteImageColours.Sprite ||
-             backgroundSets.Length != ImageColourGroup.Count))
-        {
-            throw new InvalidDataException(
-                $"Sprite sheet {picture.Name} names {backgroundSets.Length} background sets for a {picture.Colours} image.");
-        }
-        if (paletteBits != 0 && (picture.Colours != SpriteImageColours.Sprite || paletteBits is < 0 or >= SpriteRows))
-            throw new InvalidDataException($"Sheet {picture.Name} names palette bits {paletteBits} for a {picture.Colours} image.");
-        Loaded.AddOrUpdate(picture, new InstalledPictureColourSources(backgroundSets, paletteBits));
-    }
 
     /// <summary>The sprite rows a sprite sheet's palette bits select among.</summary>
     private const int SpriteRows = 8;
+
+    /// <summary>Keeps where <paramref name="picture"/>'s manifest says each of its colours came from.</summary>
+    /// <exception cref="InvalidDataException">
+    /// The manifest names sets for a sprite sheet, which has no background groups, or a number of sets other than one per
+    /// background colour group, or palette bits for a picture other than a sprite sheet or past the sprite rows, or a
+    /// composed palette index for each colour other than one per colour, past the half, or repeated.
+    /// </exception>
+    internal static void Record(SpriteImage picture, InstalledSheetSource source)
+    {
+        Ensure.NotNull(picture);
+        Ensure.NotNull(source);
+        ImmutableArray<InstalledBackgroundSet> backgroundSets = [.. source.BackgroundSets ?? []];
+        if (!backgroundSets.IsEmpty &&
+            (source.Palette == SpriteImageColours.Sprite ||
+             backgroundSets.Length != ImageColourGroup.Count))
+        {
+            throw new InvalidDataException(
+                $"Sprite sheet {picture.Name} names {backgroundSets.Length} background sets for a {source.Palette} image.");
+        }
+        if (source.PaletteBits != 0 && (source.Palette != SpriteImageColours.Sprite || source.PaletteBits is < 0 or >= SpriteRows))
+            throw new InvalidDataException($"Sheet {picture.Name} names palette bits {source.PaletteBits} for a {source.Palette} image.");
+        ImmutableArray<int> inks = [.. source.Inks ?? []];
+        int half = ImageColourGroup.ColourCountOf(source.Palette);
+        if (inks.Length != picture.StandardColours.Length || inks.Any(ink => ink < 0 || ink >= half) || inks.Distinct().Count() != inks.Length)
+            throw new InvalidDataException($"Sheet {picture.Name} does not name one composed palette index for each of its {picture.StandardColours.Length} colours.");
+        Loaded.AddOrUpdate(picture, new InstalledPictureColourSources(source.Palette, backgroundSets, source.PaletteBits, inks));
+    }
 
     /// <summary>The palette bits <paramref name="picture"/>'s draws OR into each ink's own row, zero for most pictures.</summary>
     /// <exception cref="InvalidOperationException">The picture was not loaded from an installed sheet manifest.</exception>

@@ -114,7 +114,7 @@ internal static class ScreenPictureSheetComposer
         if (rows > PackedTiles)
             throw new InvalidDataException($"A frontend screen's {subjects.Count} pictures need more than one {RgbaPng.MaximumDimension}-pixel sheet.");
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(widest * TilePixels)), checked((ushort)(rows * TilePixels))));
-        RgbColor[] colours = palette[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = palette[..ImageColourGroup.HalfColours].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         WrittenPictureLayer depth = characters.Depth == TileInkDepth.SixteenColours ? WrittenPictureLayer.WrittenOverRoom : WrittenPictureLayer.FxOverlayAndHud;
         var paintedFrames = new SpriteSheetFrameDocument[pictured.Count];

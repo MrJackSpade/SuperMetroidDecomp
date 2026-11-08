@@ -125,7 +125,7 @@ internal static class FloorSheetComposer
             rowHeight = Math.Max(rowHeight, picture.Rows * TilePixels);
         }
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)(top + rowHeight))));
-        RgbColor[] colours = palette[..SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
+        RgbColor[] colours = palette[..ImageColourGroup.ColourCountOf(SpriteImageColours.FullPalette)].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         for (int index = 0; index < pictures.Count; index++)
         {
@@ -210,7 +210,7 @@ internal static class FloorSheetComposer
         {
             int source = tile * TileBytes + pixel;
             int index = source < tilePixels.Length ? tilePixels[source] : 0;
-            if (index % ColourGroupSize != 0 && index < SpriteImage.SpriteColourCount)
+            if (index % ColourGroupSize != 0 && index < ImageColourGroup.HalfColours)
                 coloured = coloured.With(ImageColourGroup.OfInk(index));
         }
         return coloured;

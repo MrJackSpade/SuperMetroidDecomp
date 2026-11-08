@@ -29,7 +29,7 @@ internal static class RoomFloorSheetComposer
         RgbColor[] background = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
         // The sprite half as a room load leaves it: gameplay starts from the initial palette, and each room load restores
         // the common sprite and enemy-projectile rows; an actor's own row shows its live colours over these.
-        var colours = new RgbColor[SpriteImage.ColourCountOf(SpriteImageColours.FullPalette)];
+        var colours = new RgbColor[ImageColourGroup.ColourCountOf(SpriteImageColours.FullPalette)];
         background.CopyTo(colours, 0);
         RoomLoadPalettes.SpriteColours(inputs.Objects.Palettes).CopyTo(colours, background.Length);
         // Each VRAM word holds a floor cell in its low byte and a tile pixel in its high byte.

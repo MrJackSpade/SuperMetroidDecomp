@@ -247,7 +247,7 @@ internal static class EndingPictureSheetComposer
 
     /// <summary>The ending palette <paramref name="palette"/>'s background colours, as the screen tile sheets are coloured.</summary>
     private static RgbColor[] Colours(ScreenTileSources sources, EndingPaletteId palette) =>
-        ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette)[..SpriteImage.SpriteColourCount].ToArray();
+        ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette)[..ImageColourGroup.HalfColours].ToArray();
 
     /// <summary>Requires the font's blank glyph to show nothing, as the pages leave its cells without a picture.</summary>
     /// <exception cref="InvalidDataException">The blank glyph has a pixel of another colour than colour zero.</exception>

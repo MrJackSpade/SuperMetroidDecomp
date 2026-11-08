@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
 
@@ -11,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 public static class SpriteSheetFile
 {
     /// <summary>The manifest schema revision this reader reads.</summary>
-    public const int Version = 10;
+    public const int Version = 11;
 
     /// <summary>
     /// Camel-case manifest fields; unknown fields are rejected. The import writes manifests with the same settings, unindented:
@@ -29,43 +30,46 @@ public static class SpriteSheetFile
     /// Reads a sheet manifest and cuts its frames from a sheet image whose layers <paramref name="decode"/> produces
     /// when the image is first drawn (#1430).
     /// </summary>
-    /// <param name="manifest">The frame list and standard colours.</param>
+    /// <param name="manifest">The frame list and the image's own colours.</param>
     /// <param name="name">The sheet's installed name.</param>
     /// <param name="size">The image's width and height.</param>
-    /// <param name="decode">Produces the image's pixels, palette indices and front tiles.</param>
+    /// <param name="decode">Produces the image's pixels and inks.</param>
     /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or places a frame off the image.</exception>
     public static SpriteSheet Load(Stream manifest, string name, Extent16<ImagePixels> size, Func<SpriteImageLayers> decode)
     {
-        SpriteSheetDocument document = ReadDocument(manifest, name);
+        InstalledSheetDocument document = ReadDocument(manifest, name);
         SpriteImage image;
         try
         {
-            image = new SpriteImage(name, size, PaletteOf(document), decode);
+            image = new SpriteImage(name, size, ColoursOf(document), decode);
         }
         catch (ArgumentException error)
         {
             throw new InvalidDataException($"Sprite sheet {name}: {error.Message}", error);
         }
-        InstalledPictureColours.Record(image, [.. document.BackgroundSets ?? []], document.PaletteBits);
+        InstalledPictureColours.Record(image, document.Source);
         return CutFrames(document, name, image);
     }
 
     /// <summary>Reads and checks a sheet manifest.</summary>
-    /// <exception cref="InvalidDataException">The manifest is malformed, of another revision, or lacks its standard colours.</exception>
-    internal static SpriteSheetDocument ReadDocument(Stream manifest, string name)
+    /// <exception cref="InvalidDataException">
+    /// The manifest is malformed or of another revision, or does not say where each of its colours came from.
+    /// </exception>
+    internal static InstalledSheetDocument ReadDocument(Stream manifest, string name)
     {
-        SpriteSheetDocument document = JsonAssetDocument.Read<SpriteSheetDocument>(manifest, Options, $"sprite sheet {name}");
+        InstalledSheetDocument document = JsonAssetDocument.Read<InstalledSheetDocument>(manifest, Options, $"sprite sheet {name}");
         if (document.Version != Version)
             throw new InvalidDataException($"Sprite sheet {name} has manifest revision {document.Version}, not {Version}.");
-        if (document.Colours is null || document.Colours.Length != SpriteImage.ColourCountOf(document.Palette))
-            throw new InvalidDataException($"Sprite sheet {name} needs its {SpriteImage.ColourCountOf(document.Palette)} standard colours.");
+        if (document.Colours is null || document.Source?.Inks is null || document.Source.Inks.Length != document.Colours.Length)
+            throw new InvalidDataException($"Sprite sheet {name} does not say where each of its {document.Colours?.Length ?? 0} colours came from.");
         return document;
     }
 
-    /// <summary>The standard colours a sheet manifest names.</summary>
-    internal static SpriteImagePalette PaletteOf(SpriteSheetDocument document) =>
-        new(document.Palette, [.. (document.Colours ?? []).Select(RgbColor.FromWord)])
+    /// <summary>The image's own colours, its shades and its scene's backdrop, as a sheet manifest names them.</summary>
+    internal static PictureColours ColoursOf(InstalledSheetDocument document) =>
+        new([.. Ensure.NotNull(document).Colours.Select(RgbColor.FromWord)])
         {
+            Backdrop = document.Backdrop,
             Shades = (document.Shades ?? []).ToImmutableDictionary(
                 shade => PictureShade.FromKey(shade.Key),
                 shade => new ShadeInks([.. shade.Value.Inks], [.. shade.Value.Colours.Select(RgbColor.FromWord)])
@@ -79,10 +83,10 @@ public static class SpriteSheetFile
     /// The manifest lists no frames, a null frame, places a frame off the image, or names a frame that shows nothing twice,
     /// as null, or as a pictured frame too.
     /// </exception>
-    internal static SpriteSheet CutFrames(SpriteSheetDocument document, string name, SpriteImage image)
+    internal static SpriteSheet CutFrames(InstalledSheetDocument document, string name, SpriteImage image)
     {
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
-        foreach ((string frameName, SpriteSheetFrameDocument? frame) in document.Frames ??
+        foreach ((string frameName, InstalledSheetFrameDocument? frame) in document.Frames ??
             throw new InvalidDataException($"Sprite sheet {name} has no frame list."))
         {
             frames.Add(frameName, Cut(image, name, frameName, frame
@@ -102,11 +106,11 @@ public static class SpriteSheetFile
     }
 
     /// <summary>Cuts one frame from the sheet image.</summary>
-    private static SpriteSheetFrame Cut(SpriteImage image, string sheet, string name, SpriteSheetFrameDocument document)
+    private static SpriteSheetFrame Cut(SpriteImage image, string sheet, string name, InstalledSheetFrameDocument document)
     {
         try
         {
-            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin, ImageColourGroups.FromManifest(document.ColourGroups))
+            return new SpriteSheetFrame(image, document.Corner, document.Size, document.Origin)
             {
                 Depth = document.Depth,
             };

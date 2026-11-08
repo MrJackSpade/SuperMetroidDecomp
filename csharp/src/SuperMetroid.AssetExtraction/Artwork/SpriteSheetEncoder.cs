@@ -12,7 +12,7 @@ internal sealed class SpriteSheetEncoder : IDisposable
     /// <summary>The PNG encoder's rows and compressed stream.</summary>
     private readonly RgbaPngBuffers png = new();
 
-    /// <summary>The palette-index image of the sheet being encoded.</summary>
+    /// <summary>The palette map of the sheet being encoded.</summary>
     private RgbaPixel[] paletteImage = [];
 
     /// <summary>The planes a laid-out sheet is painted on before it is encoded.</summary>
@@ -39,31 +39,32 @@ internal sealed class SpriteSheetEncoder : IDisposable
         return Encode(planes, manifest);
     }
 
-    /// <summary>Encodes one sheet's image, palette-index image and frame manifest.</summary>
-    /// <param name="planes">The sheet's pixel planes.</param>
-    /// <param name="manifest">The sheet's frame manifest.</param>
+    /// <summary>
+    /// Encodes one composed sheet as the import installs it (#1544): its image, the palette map of each pixel's ink, naming
+    /// its colour by its place among the image's own colours, and the manifest of those colours and the frames.
+    /// </summary>
+    /// <param name="planes">The sheet's pixel planes, composed against the cartridge's colours.</param>
+    /// <param name="manifest">The sheet's composed manifest.</param>
     internal EncodedSpriteSheet Encode(SpriteSheetPlanes planes, SpriteSheetDocument manifest)
     {
         Ensure.NotNull(manifest);
+        InstalledSheetLayers installed = InstalledSheetColouring.Install(manifest, planes.PaletteIndices, planes.FrontTiles);
         byte[] image = RgbaPng.Encode(planes.Size, planes.Pixels, png);
-        byte[] palette = RgbaPng.Encode(planes.Size, PaletteImage(planes), png);
-        return new EncodedSpriteSheet(image, palette, SpriteSheetManifestWriter.Write(manifest));
+        byte[] palette = RgbaPng.Encode(planes.Size, PaletteImage(installed.Inks), png);
+        return new EncodedSpriteSheet(image, palette, SpriteSheetManifestWriter.Write(installed.Manifest));
     }
 
     /// <summary>
-    /// The palette-index image: each index in red and, in green, one where the pixel lies in one of its layer's front tiles
-    /// (#1514), blue unused and zero, opaque where a colour is shown. It is laid out in the reused image buffer, valid until
-    /// the next sheet.
+    /// The palette map: each pixel's ink as <see cref="InstalledSheetColouring.MapPixelOf"/> installs it. It is laid out in
+    /// the reused image buffer, valid until the next sheet.
     /// </summary>
-    private ReadOnlySpan<RgbaPixel> PaletteImage(SpriteSheetPlanes planes)
+    private ReadOnlySpan<RgbaPixel> PaletteImage(ReadOnlySpan<SpriteImageInk> inks)
     {
-        ReadOnlySpan<byte> indices = planes.PaletteIndices;
-        ReadOnlySpan<byte> frontTiles = planes.FrontTiles;
-        if (paletteImage.Length < indices.Length)
-            paletteImage = new RgbaPixel[indices.Length];
-        Span<RgbaPixel> pixels = paletteImage.AsSpan(0, indices.Length);
-        for (int pixel = 0; pixel < indices.Length; pixel++)
-            pixels[pixel] = new RgbaPixel(indices[pixel], frontTiles[pixel], 0, indices[pixel] == 0 ? (byte)0 : byte.MaxValue);
+        if (paletteImage.Length < inks.Length)
+            paletteImage = new RgbaPixel[inks.Length];
+        Span<RgbaPixel> pixels = paletteImage.AsSpan(0, inks.Length);
+        for (int pixel = 0; pixel < inks.Length; pixel++)
+            pixels[pixel] = InstalledSheetColouring.MapPixelOf(inks[pixel]);
         return pixels;
     }
 

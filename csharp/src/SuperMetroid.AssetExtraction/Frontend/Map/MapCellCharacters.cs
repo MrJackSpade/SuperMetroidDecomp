@@ -29,7 +29,7 @@ internal static class MapCellCharacters
     private const int ComparedRow = 0;
 
     /// <summary>Colours that leave every pixel's colour number readable, for comparing what characters paint.</summary>
-    private static readonly RgbColor[] Unshaded = new RgbColor[SpriteImage.SpriteColourCount];
+    private static readonly RgbColor[] Unshaded = new RgbColor[ImageColourGroup.HalfColours];
 
     /// <summary>
     /// The cell a retail area-map word shows: the cell its character and mirroring picture, after requiring the word to

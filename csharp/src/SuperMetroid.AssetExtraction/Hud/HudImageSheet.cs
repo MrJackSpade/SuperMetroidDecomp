@@ -132,7 +132,7 @@ internal static class HudImageSheet
         HudSheetLayout layout = Layout(GameplayHudArtwork.Of(maps.GameplayHud), Maps(maps));
         const int cell = RoomTileCanvas.CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ShelfCells * cell, checked((ushort)(layout.Rows * cell))));
-        RgbColor[] colours = InstalledAreaMapPresentation.PalettesOf(maps).Pause[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = InstalledAreaMapPresentation.PalettesOf(maps).Pause[..ImageColourGroup.HalfColours].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         foreach (HudSheetPlacement placed in layout.Placements)
         {

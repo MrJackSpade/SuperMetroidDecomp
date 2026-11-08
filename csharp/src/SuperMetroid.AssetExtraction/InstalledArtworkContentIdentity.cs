@@ -96,17 +96,22 @@ internal static class InstalledArtworkContentIdentity
         internal void AppendIdentity(SelectedPresentationHash content)
         {
             content.AppendName("sheet", sheet.Image.Name);
-            content.AppendName("palette", sheet.Image.Colours.ToString());
+            content.AppendName("palette", InstalledPictureColours.SetsOf(sheet.Image).Palette.ToString());
             foreach (InstalledBackgroundSet set in InstalledPictureColours.BackgroundSetsOf(sheet.Image))
                 content.AppendName("background set", set.ToString());
             content.Append("palette bits", InstalledPictureColours.PaletteBitsOf(sheet.Image));
+            content.Append("composed indices", System.Runtime.InteropServices.MemoryMarshal.AsBytes(InstalledPictureColours.SetsOf(sheet.Image).Inks.AsSpan()));
             content.Append("width", sheet.Image.Size.X);
             content.Append("height", sheet.Image.Size.Y);
             content.Append("pixels", System.Runtime.InteropServices.MemoryMarshal.AsBytes(sheet.Image.Pixels));
             // Each ink field is identified as its own plane, as the image was installed.
             ReadOnlySpan<SpriteImageInk> inks = sheet.Image.Inks;
-            content.AppendBytes("palette indices", inks.SelectToArray(ink => ink.PaletteIndex));
+            content.AppendBytes("colours", inks.SelectToArray(ink => ink.Colour ?? 0));
+            content.AppendBytes("transparent", inks.SelectToArray(ink => ink.IsTransparent ? 1 : 0));
+            content.AppendBytes("clear", inks.SelectToArray(ink => ink.Clear ? 1 : 0));
+            content.AppendBytes("blends", inks.SelectToArray(ink => ink.Blends ? 1 : 0));
             content.Append("standard colours", System.Runtime.InteropServices.MemoryMarshal.AsBytes(sheet.Image.StandardColours));
+            content.Append("backdrop", sheet.Image.Backdrop ?? -1);
             foreach ((PictureShade shade, ShadeInks shown) in sheet.Image.Shades.OrderBy(pair => pair.Key.Key, StringComparer.Ordinal))
             {
                 content.AppendName("shade", shade.Key);
@@ -124,8 +129,6 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("height", frame.Size.Y);
                 content.Append("origin x", frame.Origin.X);
                 content.Append("origin y", frame.Origin.Y);
-                foreach (ImageColourGroup group in ImageColourGroup.Every)
-                    content.Append("colour group", frame.ColourGroups.Contains(group) ? 1 : 0);
                 content.AppendName("depth", frame.Depth?.ToString() ?? "none");
             }
         }

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.World;
@@ -8,10 +7,6 @@ namespace SuperMetroid.Core.World;
 /// <summary>The collaborators a <see cref="EnemyRoomEffects"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record EnemyRoomEffectsDependencies
 {
-    /// <summary>Display.</summary>
-    public required GameplayDisplayState Display { get; init; }
-
-
     /// <summary>Escape timer.</summary>
     public required EscapeTimer EscapeTimer { get; init; }
 

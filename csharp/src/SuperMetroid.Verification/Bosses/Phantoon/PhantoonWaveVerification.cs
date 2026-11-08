@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
 

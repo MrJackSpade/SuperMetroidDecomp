@@ -3,7 +3,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Bosses;
@@ -21,8 +20,6 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class EnemyRoomEffects
 {
-    /// <summary>Receives layer-blending defaults selected by a Mother Brain FX entry.</summary>
-    private readonly GameplayDisplayState _display;
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
     private readonly EscapeTimer _escapeTimer;
     /// <summary>Supplies Samus equipment and relinquishes the drained-phase timer handler.</summary>
@@ -35,7 +32,6 @@ internal sealed class EnemyRoomEffects
     /// <summary>Binds the room systems needed to consume enemy publications immediately after their AI pass.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
     {
-        _display = dependencies.Display;
         _escapeTimer = dependencies.EscapeTimer;
         _player = dependencies.Player;
         _room = dependencies.Room;

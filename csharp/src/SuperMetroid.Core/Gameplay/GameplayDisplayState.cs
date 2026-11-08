@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Gameplay;

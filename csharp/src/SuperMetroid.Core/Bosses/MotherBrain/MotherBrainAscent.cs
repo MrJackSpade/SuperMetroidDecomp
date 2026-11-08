@@ -50,7 +50,7 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>Attaches the phase-two head and prepares its first animation and position.</summary>
-    internal void SetupMotherBrainPhaseTwoBrain(
+    internal static void SetupMotherBrainPhaseTwoBrain(
         MotherBrainEnemyState state)
     {
         state.BrainFunction = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;

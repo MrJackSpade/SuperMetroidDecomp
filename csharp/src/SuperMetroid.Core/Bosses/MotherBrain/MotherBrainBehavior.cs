@@ -519,7 +519,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
-                Ascent.SetupMotherBrainPhaseTwoBrain(state);
+                MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:
                 MotherBrainAscent.PauseBeforeMotherBrainRises(state);

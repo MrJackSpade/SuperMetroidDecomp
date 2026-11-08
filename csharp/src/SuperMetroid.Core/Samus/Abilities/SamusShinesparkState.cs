@@ -986,7 +986,7 @@ false,             CrashSequenceFinished: true);
     {
         int x = LookupSignedComponent(angle, radius).SignedRawValue;
         int y = LookupSignedComponent(
-            angle.AddRaw(-RotationAngle.QuarterTurn.RawValue),
+            angle - RotationAngle.QuarterTurn,
             radius).SignedRawValue;
         return new(x, y);
     }

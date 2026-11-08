@@ -149,12 +149,12 @@ internal sealed class ProjectileMotion
         // PLMs while intentionally discarding their carry result, matching this fallthrough.
         if (MovesHorizontally(direction))
         {
-            slot.Position = slot.Position.AdvanceX(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.X.SignedRawValue));
+            slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
             ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, slot, roomObjects);
         }
         if (MovesVertically(direction))
         {
-            slot.Position = slot.Position.AdvanceY(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.Y.SignedRawValue));
+            slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());
             ProjectileTerrainCollision.ScanVerticalWaveShotReactions(level, slot, roomObjects);
         }
 
@@ -306,9 +306,7 @@ internal sealed class ProjectileMotion
     /// stays far inside its range, since a shot accelerating that long has left the movement window.
     /// </summary>
     private static void Accelerate(SamusProjectileSlot slot, EightEightVector<RoomPixels> acceleration) =>
-        slot.Velocity = new(
-            slot.Velocity.X.SignedRawValue + acceleration.X.SignedRawValue,
-            slot.Velocity.Y.SignedRawValue + acceleration.Y.SignedRawValue);
+        slot.Velocity += acceleration;
 
     /// <summary>
     /// Applies the shared beam/missile deletion window after movement. The game's
@@ -460,7 +458,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot slot,
         ISamusRoomObjects? roomObjects)
     {
-        slot.Position = slot.Position.AdvanceX(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.X.SignedRawValue));
+        slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
 
         // Missile block collision tests the projectile center, not its radius-spanning leading edge. Room
         // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
@@ -478,7 +476,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot slot,
         ISamusRoomObjects? roomObjects)
     {
-        slot.Position = slot.Position.AdvanceY(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.Y.SignedRawValue));
+        slot.Position = slot.Position.AdvanceY(slot.Velocity.Y.ToSixteenSixteenDelta());
 
         int roomHeightInScreens = (level.Size.Y + 15) >> 4;
         if ((EightEight.WholeOf(slot.Position.Y.Whole)) >= roomHeightInScreens)

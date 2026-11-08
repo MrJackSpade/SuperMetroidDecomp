@@ -460,7 +460,7 @@ internal static void VerifySamusXray()
     const int wideningCalls = 26;
     AssertEqual(10, standing.Xray.AngularWidth, "call 26 whole width");
     AssertEqual(SignedSixteenSixteen.FromRaw(wideningCalls * (wideningCalls + 1) / 2 *
-            checked((int)XrayScopeDefinitions.Window.WideningStep)), standing.Xray.AngularHalfWidth,
+            XrayScopeDefinitions.Window.WideningStep.RawValue), standing.Xray.AngularHalfWidth,
         "call 26 width is 351 widening steps, carrying into whole units exactly");
     standing.Xray.StepBeam(standing, ControllerButton.B);
     AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");

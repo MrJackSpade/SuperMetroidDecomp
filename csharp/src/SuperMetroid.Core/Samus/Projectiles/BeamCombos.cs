@@ -381,15 +381,12 @@ internal sealed class BeamCombos
             _trails.SpawnTrail(slot);
         }
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole))));
-        uint x = unchecked(new FixedCoordinate(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(SixteenSixteen.FromEightEight(slot.Velocity.X.SignedRawValue)));
-        slot.Position = slot.Position.WithWholeX(FixedCoordinate.WholeOf(unchecked((int)x))).WithFractionX(CoordinateAxis.Wrap(x));
-        int ySpeed = AccelerateWaveAxis(slot.WaveComboVerticalSpeed.SignedRawValue, CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole));
-        slot.WaveComboVerticalSpeed = SignedEightEight.FromSignedRaw(ySpeed);
-        uint y = unchecked(new FixedCoordinate(slot.Position.Y.Whole, slot.Position.Y.Fraction).RawValue + (uint)(SixteenSixteen.FromEightEight(ySpeed)));
-        slot.Position = slot.Position.WithWholeY(FixedCoordinate.WholeOf(unchecked((int)y))).WithFractionY(CoordinateAxis.Wrap(y));
+        slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
+        slot.WaveComboVerticalSpeed = SignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.WaveComboVerticalSpeed.SignedRawValue, CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
+        slot.Position = slot.Position.AdvanceY(slot.WaveComboVerticalSpeed.ToSixteenSixteenDelta());
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
-        return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X.SignedRawValue < 0) ? BeamComboDefinitions.WavePulseSound : null;
+        return slot.SlotIndex == 3 && (oldXSpeed < 0) != slot.Velocity.X.IsNegative ? BeamComboDefinitions.WavePulseSound : null;
     }
 
     /// <summary>Moves one Wave velocity component toward Samus, respecting the acceleration and signed speed bound.</summary>

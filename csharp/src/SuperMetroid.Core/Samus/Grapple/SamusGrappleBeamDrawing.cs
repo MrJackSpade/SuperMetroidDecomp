@@ -199,7 +199,7 @@ public static class SamusGrappleBeamDrawing
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
         // Preserve the fractional word across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
-        int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).TableIndex)
+        int stepX = SamusGrappleSwing.ReadSignedSine((drawAngle + RotationAngle.QuarterTurn).TableIndex)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
         int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle.TableIndex)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;

@@ -352,7 +352,7 @@ public sealed class SamusXrayState
 
             // Mirroring through `256 - angle` turns right-space 0-127 into its exact
             // left-space counterpart and vice versa. This happens before selecting turn art.
-            Angle = RotationAngle.NormalizeRaw(-Angle.RawValue);
+            Angle = RotationAngle.Zero - Angle;
             bool crouching = movementType == SamusMovementType.Crouching;
             SamusPoseId targetPose = facingLeft
                 ? crouching ? SamusPoseId.TurningLeftToRightCrouchingPose : SamusPoseId.TurningLeftToRightPose
@@ -445,8 +445,7 @@ public sealed class SamusXrayState
                 // The 16.16 adds reproduce the game's fraction overflow exactly: the widening
                 // speed gains the fixed fractional step per call, and both speed and width can
                 // overflow into their whole parts before the ten-unit clamp.
-                AngularWideningSpeed += SignedSixteenSixteen.FromRaw(
-                    checked((int)XrayScopeDefinitions.Window.WideningStep));
+                AngularWideningSpeed += XrayScopeDefinitions.Window.WideningStep;
                 AngularHalfWidth += AngularWideningSpeed;
                 if (AngularHalfWidth.WholePixels >= 11)
                 {
@@ -553,7 +552,7 @@ public sealed class SamusXrayState
     /// <summary>Rotates the beam upward one angle unit while keeping its edge within the facing-dependent limit.</summary>
     private void MoveAngleUp()
     {
-        if (Angle.RawValue < RotationAngle.HalfTurn.RawValue)
+        if (Angle < RotationAngle.HalfTurn)
         {
             // Right-facing upper limit is `angle - width >= 0`. Equality returns without
             // movement; crossing clamps the center to exactly the current half-width.
@@ -590,7 +589,7 @@ public sealed class SamusXrayState
     /// <summary>Rotates the beam downward one angle unit while keeping its edge on the correct side of straight down.</summary>
     private void MoveAngleDown()
     {
-        if (Angle.RawValue < RotationAngle.HalfTurn.RawValue)
+        if (Angle < RotationAngle.HalfTurn)
         {
             // Right-facing down rotates toward straight down; keep the lower edge at or below it.
             int lowerEdge = Angle.TableIndex + AngularWidth;

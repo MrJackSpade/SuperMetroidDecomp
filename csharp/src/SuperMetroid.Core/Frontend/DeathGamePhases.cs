@@ -14,12 +14,11 @@ internal sealed class DeathGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DeathSequenceStart"/>.</summary>
     internal void DispatchDeathSequenceStart(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // The death sequence's first state deliberately completes one final state-eight pass under the
-        // global freeze word, then snapshots the visible palette and makes every
-        // target colour set black except Samus's sixteen-color suit set.
+        // The death sequence's first state deliberately completes one final gameplay pass with the game clock held, then
+        // begins fading the whole display to black, which Samus's own colours are spared (#1544).
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
-        PrepareDeathPaletteFade();
+        BeginDeathFade();
         SamusState dyingSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
         dyingSamus.SelectedHudItem = HudItem.Beam;
@@ -34,9 +33,9 @@ internal sealed class DeathGamePhases(FrontendSession session)
     internal void DispatchDeathBlackOutSurroundings(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
-        bool paletteBlackoutComplete = StepDeathPaletteFade();
+        bool fadeComplete = StepDeathFade();
         session.display.PublishGameplay(session.GameplayRuntime);
-        if (paletteBlackoutComplete)
+        if (fadeComplete)
         {
             // Death setup cancels all three sound libraries, then installs the death
             // music data and track through the ordinary delayed music queue.
@@ -100,19 +99,20 @@ internal sealed class DeathGamePhases(FrontendSession session)
     /// Begins the death fade: the whole gameplay display but Samus fades to black over six steps of the shared gradual
     /// colour change (#1512), so her suit stays lit as the game keeps it.
     /// </summary>
-    private void PrepareDeathPaletteFade()
+    private void BeginDeathFade()
     {
-        SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("Death palette setup requires a runtime.");
-        runtime.FadeOut.Begin(RgbColor.Black, denominator: 6, runtime.EnemySession.GradualColorChange, GameplayFadeSpares.Samus);
+        SuperMetroidRuntime runtime = session.Runtime ?? throw new InvalidOperationException("The death fade requires a runtime.");
+        runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeDenominator, runtime.EnemySession.GradualColorChange,
+            GameplayFadeSpares.Samus);
     }
 
     /// <summary>
-    /// Executes <c>AdvancePaletteFadeForAllPalettes</c> with denominator six. The routine
-    /// interpolates from the already-updated current color each call, including its initial
-    /// no-op step zero and separate completion call after step seven reaches the target.
+    /// Takes one step of the death fade. Each step moves the display one step of six further toward black, including its
+    /// initial step that changes nothing and the separate call that completes the fade once its last step reaches black.
     /// </summary>
-    private bool StepDeathPaletteFade()
+    /// <returns>Whether the fade completed on this call.</returns>
+    private bool StepDeathFade()
     {
-        return (session.Runtime ?? throw new InvalidOperationException("Death palette fade requires a runtime.")).FadeOut.Step();
+        return (session.Runtime ?? throw new InvalidOperationException("The death fade requires a runtime.")).FadeOut.Step();
     }
 }

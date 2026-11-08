@@ -86,7 +86,7 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key);
                 // The caption is painted from the flight's characters and palette, so edited flight art recomposes it.
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
-                    CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork, InstalledFixtures.Maps.RoomPaletteFx), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
+                    CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
                     FrontendFloorSheetComposer.Ceres(key, IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).CeresDestructionMaps, InstalledFixtures.Maps.RoomPaletteFx), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
@@ -133,7 +133,7 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.IntroScenePictures] = LoadTiles(SpriteSheetId.IntroScenePictures,
                     IntroScenePictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
-                    CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.Maps.RoomPaletteFx), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                    CeresCinematicPictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
                     FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.Maps.RoomPaletteFx), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);

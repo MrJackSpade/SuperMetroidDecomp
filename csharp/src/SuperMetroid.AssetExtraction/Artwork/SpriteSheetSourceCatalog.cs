@@ -69,7 +69,7 @@ internal sealed class SpriteSheetSourceCatalog
             ? MapPictureSheets.ComposeWorldBackground(maps.Value, ScreenTileSheetDefinitions.AreaMapBackgrounds.Single(entry => entry.Value == sheet).Key)
         : FrontendFloorSheetComposer.Sheets.Contains(sheet) ? FrontendFloorSheetComposer.Compose(sheet, ScreenTiles())
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
-        : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value, maps.Value.RoomPaletteFx)
+        : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
         : sheet == SpriteSheetId.IntroScenePictures ? IntroScenePictureSheetComposer.Compose(intro.Value)
         : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, maps.Value.IntroFont)
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);

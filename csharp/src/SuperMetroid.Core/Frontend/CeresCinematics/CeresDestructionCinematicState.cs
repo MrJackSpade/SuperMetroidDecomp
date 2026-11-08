@@ -836,7 +836,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             // Preserve the existing non-mosaicked path. Mosaic implementation
             // is a game-correctness change, not an implicit part of this extraction.
             // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
-            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed, EngineShading),
+            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed),
                 new Position16<PlanePixels>(0, 0))];
         }
         if (CaptureStationExplosion() is { } blast)
@@ -845,9 +845,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// The shading of the scene's background pictures (#1512): the shade of the record the gunship engine's flicker last
-    /// showed, which recolours the engine's colour wherever the floor or the planet shows it, or their standard colours
-    /// before the flicker has shown one.
+    /// The shading of the gunship's floor (#1512, #1544): the shade of the record the gunship engine's flicker last showed,
+    /// which recolours the engine's colour, or the floor's standard colours before the flicker has shown one.
     /// </summary>
     internal PictureShading EngineShading => engineRecord is { } record
         ? PictureShading.Shaded(PaletteFxShades.Of(PaletteFxColours.CutsceneGunshipEngine, record))

@@ -5,4 +5,7 @@ internal static class SamusDeathDefinitions
 {
     /// <summary>The death fanfare's track in the death music set, selected after every sound and the current music stop.</summary>
     public const int FanfareTrack = 5;
+
+    /// <summary>The steps of the gradual colour change in which the display fades to black as Samus dies.</summary>
+    public const int FadeDenominator = 6;
 }

@@ -5,7 +5,7 @@ internal static class GunshipMotion
 {
     /// <summary>The landing brake's signed whole-pixel Y delta at <paramref name="frameIndex"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frameIndex"/> is past the 17-frame schedule.</exception>
-    internal static short LandingBrakeYDelta(int frameIndex)
+    internal static int LandingBrakeYDelta(int frameIndex)
     {
         if (frameIndex >= GunshipMotionDefinitions.LandingBrakeYDeltas.Length)
             throw new InvalidDataException(

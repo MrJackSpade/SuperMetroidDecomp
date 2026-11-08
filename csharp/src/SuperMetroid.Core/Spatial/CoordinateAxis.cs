@@ -48,4 +48,14 @@ public static class CoordinateAxis
     /// <param name="to">The coordinate measured to.</param>
     /// <param name="from">The coordinate measured from.</param>
     public static int Distance(int to, int from) => Math.Abs(Difference(to, from));
+
+    /// <summary>
+    /// Whether <paramref name="coordinate"/> lies before <paramref name="reference"/>, left of or above it, across the
+    /// wrapping space: their wrapped signed <see cref="Difference"/> is negative. A coordinate more than half the space
+    /// past the reference therefore reads as lying before it, as the game's sign tests of a coordinate difference read
+    /// one.
+    /// </summary>
+    /// <param name="coordinate">The coordinate tested, which may be computed past either end of the space.</param>
+    /// <param name="reference">The coordinate it is compared with, which may be computed past either end of the space.</param>
+    public static bool Precedes(int coordinate, int reference) => Difference(coordinate, reference) < 0;
 }

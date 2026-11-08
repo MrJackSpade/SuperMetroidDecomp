@@ -37,18 +37,14 @@ public sealed class BullEnemyState
     public int Acceleration
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
     }
 
     /// <summary>
     /// The change in <see cref="Acceleration"/> at each interval expiry, 24 (a 256th of a pixel per update each) while
     /// flying and zero once the flight cycle stops.
     /// </summary>
-    public int AccelerationDelta
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int AccelerationDelta { get; internal set; }
 
     /// <summary>
     /// The flight speed in 256ths of a pixel per update, projected through the sine table into the X and Y
@@ -58,18 +54,18 @@ public sealed class BullEnemyState
     public int Speed
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
     }
 
     /// <summary>
     /// Whether flight is still below <see cref="MaxSpeed"/>, compared by the sign of the word difference as the
     /// game does; an overshooting update is not clamped.
     /// </summary>
-    internal bool IsBelowMaximumSpeed => EnemyMath.IsNegative16(Speed - MaxSpeed);
+    internal bool IsBelowMaximumSpeed => WrappingCounter.IsBehind(Speed, MaxSpeed);
 
     /// <summary>Whether a decelerating update stops the flight: the speed or the acceleration is zero or has gone below zero.</summary>
     internal bool HasStopped =>
-        Speed == 0 || EnemyMath.IsNegative16(Speed) || Acceleration == 0 || EnemyMath.IsNegative16(Acceleration);
+        Speed == 0 || WrappingCounter.ReadsBelowZero(Speed) || Acceleration == 0 || WrappingCounter.ReadsBelowZero(Acceleration);
 
     /// <summary>
     /// An accelerating interval expiry: the acceleration grows by its delta, then the speed grows by the acceleration.
@@ -77,8 +73,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Accelerate()
     {
-        Acceleration = SignedEightEight.Wrapped(Acceleration + AccelerationDelta).RawValue;
-        Speed = SignedEightEight.Wrapped(Speed + Acceleration).RawValue;
+        Acceleration = WrappingCounter.AddWord(Acceleration, AccelerationDelta);
+        Speed = WrappingCounter.AddWord(Speed, Acceleration);
     }
 
     /// <summary>
@@ -88,8 +84,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Decelerate()
     {
-        Acceleration = SignedEightEight.Wrapped(Acceleration - AccelerationDelta).RawValue;
-        Speed = SignedEightEight.Wrapped(Speed - Acceleration).RawValue;
+        Acceleration = WrappingCounter.SubtractWord(Acceleration, AccelerationDelta);
+        Speed = WrappingCounter.SubtractWord(Speed, Acceleration);
     }
 
     /// <summary>

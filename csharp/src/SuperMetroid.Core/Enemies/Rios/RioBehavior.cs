@@ -36,7 +36,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Strict horizontal Samus proximity threshold that starts a dive.</summary>
     private const int RioTriggerDistance = 160;
     /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
-    private const int RioGravityStep = 24;
+    private static readonly SignedEightEight RioGravityStep = SignedEightEight.FromSignedRaw(24);
 
     /// <summary>Initializes the Rio.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
@@ -84,7 +84,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     new SignedEightEight(RioLaunchDefinitions.RioXVelocity),
                     new SignedEightEight(RioLaunchDefinitions.RioYVelocity));
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
-                    state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
+                    state.Velocity = state.Velocity.ReversedX();
                 InstallRioAnimationScript(
                     slot,
                     state,
@@ -115,7 +115,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
-                    state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
+                    state.Velocity = state.Velocity.ReversedX();
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
                 }
@@ -128,7 +128,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue - RioGravityStep));
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioGravityStep);
                 if (state.Velocity.Y.SignedRawValue < 0)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
@@ -152,7 +152,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
-                    state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
+                    state.Velocity = state.Velocity.ReversedX();
                 }
                 if (_terrain.MoveEnemyVertically(
                         level,
@@ -167,7 +167,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 else
                 {
-                    state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue - RioGravityStep));
+                    state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioGravityStep);
                 }
                 return;
 
@@ -182,7 +182,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
-                        SignedEightEight.Wrapped(-1));
+                        SignedEightEight.FromSignedRaw(-1));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
                 }
@@ -236,7 +236,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-state.Velocity.Y.SignedRawValue));
+        state.Velocity = state.Velocity.ReversedY();
         state.Function = RioEnemyFunction.BouncingBackToPerch;
     }
 

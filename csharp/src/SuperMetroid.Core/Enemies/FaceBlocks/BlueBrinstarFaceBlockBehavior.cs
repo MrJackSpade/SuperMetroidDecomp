@@ -101,19 +101,19 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (state.Activated)
             return;
 
-        int verticalDelta = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
-        if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
+        if (CoordinateAxis.Distance(samus.Position.Y.Whole, slot.Position.Y.Whole) >=
+            slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
         // Variable B is written after the Y test but before the X test, including on frames
         // that fail horizontal range or side, so a frame that fails the X test still
         // records the vertical distance.
-        int horizontalDelta = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
+        int horizontalDelta = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
         state.LastHorizontalDelta = horizontalDelta;
-        if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
+        if (Math.Abs(horizontalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
-        bool samusToTheLeft = EnemyMath.IsNegative16(horizontalDelta);
+        bool samusToTheLeft = horizontalDelta < 0;
         if (samusToTheLeft == state.FacesRight)
             return;
 
@@ -133,13 +133,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState? samus) =>
         samus is not null &&
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
-
-    /// <summary>
-    /// Reproduces the signed-magnitude helper over one wrapped 16-bit subtraction.
-    /// In particular, -32768 remains -32768 just as the game's negation does.
-    /// </summary>
-    private static int AbsoluteFaceBlockDelta(int delta) =>
-        Math.Abs(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, delta)));
 
     /// <summary>
     /// Installs the singleton graphics hook and shows the room's glow on the block. The game's hook recolours the palette

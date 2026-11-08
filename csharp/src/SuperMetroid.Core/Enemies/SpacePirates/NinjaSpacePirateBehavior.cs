@@ -579,7 +579,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // check deletes the claw. Y advances one pixel on both halves of the flight.
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
             (outbound ? direction * pixels : -direction * pixels));
-        claw.Speed = SignedEightEight.Wrapped(claw.Speed + (outbound ? -NinjaPirateClawSpeedChange : NinjaPirateClawSpeedChange)).RawValue;
+        claw.Speed = outbound
+            ? WrappingCounter.SubtractWord(claw.Speed, NinjaPirateClawSpeedChange)
+            : WrappingCounter.AddWord(claw.Speed, NinjaPirateClawSpeedChange);
         if (outbound && claw.Speed == 0)
             claw.Outbound = false;
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);

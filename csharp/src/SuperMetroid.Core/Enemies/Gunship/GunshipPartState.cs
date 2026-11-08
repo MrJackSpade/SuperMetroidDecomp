@@ -18,14 +18,14 @@ internal sealed class GunshipPartState
     public int EngineReadyingElapsed
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, GunshipTakeoffDefinitions.EngineReadyingDuration, value);
     }
 
     /// <summary>The top hull's next idle-bob entry, 0 through 3.</summary>
     public int BobPhase
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, GunshipMotionDefinitions.IdleBobs.Length - 1, value);
     }
 
     /// <summary>The top hull's updates until its next idle-bob step.</summary>
@@ -35,34 +35,36 @@ internal sealed class GunshipPartState
     public int EngineSoundTimer { get; internal set; }
 
     /// <summary>The top hull's landed room Y, from which Samus's entry and exit heights are measured.</summary>
-    public int BaseY
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int BaseY { get; internal set; }
 
     /// <summary>The top hull's next landing-brake entry, counting through the seventeen authored offsets.</summary>
     public int LandingBrakeStep
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, GunshipMotionDefinitions.LandingBrakeYDeltas.Length, value);
     }
 
-    /// <summary>The bottom hull's engine-rumble frame, counting the 128 frames before liftoff.</summary>
+    /// <summary>
+    /// The bottom hull's engine-rumble frame, counting the <see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/>
+    /// frames before liftoff.
+    /// </summary>
     public int RumbleFrame
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, GunshipTakeoffDefinitions.EngineRumbleFrames, value);
     }
 
     /// <summary>The function the top hull dispatches.</summary>
     public GunshipFunction Function { get; internal set; }
 
-    /// <summary>The bottom hull's unsigned 8.8 escape speed in pixels per update, raised each update up to its cap.</summary>
+    /// <summary>
+    /// The bottom hull's unsigned 8.8 escape speed in pixels per update, raised each update up to its cap: the update
+    /// that reaches <see cref="GunshipMotionDefinitions.EscapeVelocityCapTrigger"/> sets it back to the cap.
+    /// </summary>
     public int EscapeVelocity
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, GunshipMotionDefinitions.EscapeVelocityCapTrigger, value);
     }
 
     /// <summary>The state of a gunship slot, failing if the slot never initialized as a gunship part.</summary>

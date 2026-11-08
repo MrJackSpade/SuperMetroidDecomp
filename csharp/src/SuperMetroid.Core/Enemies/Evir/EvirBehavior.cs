@@ -365,10 +365,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         bool farOffscreen =
-            EnemyMath.IsNegative16(projectile.Position.X.Whole + EvirFarOffscreenDistance - camera.X) ||
-            EnemyMath.IsNegative16(camera.X + 256 + EvirFarOffscreenDistance - projectile.Position.X.Whole) ||
-            EnemyMath.IsNegative16(projectile.Position.Y.Whole + EvirFarOffscreenDistance - camera.Y) ||
-            EnemyMath.IsNegative16(camera.Y + 256 + EvirFarOffscreenDistance - projectile.Position.Y.Whole);
+            CoordinateAxis.Precedes(projectile.Position.X.Whole + EvirFarOffscreenDistance, camera.X) ||
+            CoordinateAxis.Precedes(camera.X + 256 + EvirFarOffscreenDistance, projectile.Position.X.Whole) ||
+            CoordinateAxis.Precedes(projectile.Position.Y.Whole + EvirFarOffscreenDistance, camera.Y) ||
+            CoordinateAxis.Precedes(camera.Y + 256 + EvirFarOffscreenDistance, projectile.Position.Y.Whole);
         if (!farOffscreen)
             return;
 

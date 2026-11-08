@@ -179,7 +179,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative than a conventional two's-complement negation.
         // The high byte is below 128 and the speed below 65536, so the product fits a 16.16 displacement.
         int sineHighByte = UnsignedEightEight.Whole(Math.Abs(sine));
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(sineHighByte * Ensure.BetweenInclusive(0, ushort.MaxValue, speed));
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(sineHighByte * speed);
         if (sine < 0 && displacement != SignedSixteenSixteen.Zero)
         {
             // A displacement with no fraction reverses one subpixel further than its true reversal.

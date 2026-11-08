@@ -30,8 +30,7 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
 
     /// <summary>Adds the raw 8.8 words of each axis, wrapping at sixteen bits.</summary>
     public static EightEightVector<TSpace> operator +(EightEightVector<TSpace> left, EightEightVector<TSpace> right) =>
-        new(SignedEightEight.Wrapped(left.X.RawValue + right.X.RawValue),
-            SignedEightEight.Wrapped(left.Y.RawValue + right.Y.RawValue));
+        new(left.X + right.X, left.Y + right.Y);
 
     /// <summary>Scales the signed raw 8.8 words of each axis, wrapping at sixteen bits.</summary>
     public static EightEightVector<TSpace> operator *(EightEightVector<TSpace> vector, int factor) =>

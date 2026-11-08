@@ -29,6 +29,23 @@ public readonly record struct SignedEightEight
     /// <summary>The velocity reversed: its raw word negated, wrapping at sixteen bits, so the most negative value stays.</summary>
     public SignedEightEight Negated() => Wrapped(-RawValue);
 
+    /// <summary>Whether the velocity points toward decreasing coordinates, leftward or upward.</summary>
+    public bool IsNegative => SignedRawValue < 0;
+
+    /// <summary>
+    /// A velocity changed by an acceleration, as the game's velocity arithmetic adds them: a sum past the largest
+    /// positive value continues from the most negative one and the reverse (<see cref="Wrapped"/>).
+    /// </summary>
+    public static SignedEightEight operator +(SignedEightEight velocity, SignedEightEight acceleration) =>
+        Wrapped(velocity.RawValue + acceleration.RawValue);
+
+    /// <summary>
+    /// A velocity changed by a deceleration, as the game's velocity arithmetic subtracts them: a difference past the most
+    /// negative value continues from the largest positive one and the reverse (<see cref="Wrapped"/>).
+    /// </summary>
+    public static SignedEightEight operator -(SignedEightEight velocity, SignedEightEight deceleration) =>
+        Wrapped(velocity.RawValue - deceleration.RawValue);
+
     /// <summary>Promotes the signed word to the 16.16 delta used by native position adders.</summary>
     public SignedSixteenSixteen ToSixteenSixteenDelta() =>
         SignedSixteenSixteen.FromRaw(unchecked((short)RawValue) << 8);

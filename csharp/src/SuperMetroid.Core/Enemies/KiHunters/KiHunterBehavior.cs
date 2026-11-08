@@ -227,8 +227,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
 
-        int signedXDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - body.Position.X.Whole);
-        int absoluteXDistance = EnemyMath.WrappedMagnitude(signedXDistance);
+        int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole);
+        int absoluteXDistance = Math.Abs(signedXDistance);
         int triggerDistance = KiHunterMotionDefinitions.SwoopTriggerDistance;
         if (CoordinateAxis.Difference(absoluteXDistance, triggerDistance) >= 0 ||
             CoordinateAxis.Difference(samus.Position.Y.Whole - body.Position.Y.Whole, 32) < 0)
@@ -245,7 +245,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SwoopOrigin = new(0, body.Position.Y.Whole);
         state.Function = KiHunterEnemyFunction.Swooping;
 
-        bool swoopLeft = CoordinateAxis.AsSigned(signedXDistance) < 0;
+        bool swoopLeft = signedXDistance < 0;
         if (swoopLeft)
         {
             state.MaximumAngularVelocity = -2;
@@ -901,7 +901,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
     private const int KiHunterAcidHorizontalSpeed = 768;
     /// <summary>8.8 downward speed added to each active acid frame.</summary>
-    private const int KiHunterAcidGravity = 16;
+    private static readonly SignedEightEight KiHunterAcidGravity = SignedEightEight.FromSignedRaw(16);
     /// <summary>Maximum 8.8 downward speed for a falling acid projectile.</summary>
     private const int KiHunterAcidTerminalYSpeed = 512;
 
@@ -965,7 +965,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SignedEightEight accelerated = SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + KiHunterAcidGravity);
+        SignedEightEight accelerated = projectile.Velocity.Y + KiHunterAcidGravity;
         projectile.Velocity = projectile.Velocity.WithY(accelerated.SignedRawValue >= KiHunterAcidTerminalYSpeed
             ? new SignedEightEight(KiHunterAcidTerminalYSpeed)
             : accelerated);

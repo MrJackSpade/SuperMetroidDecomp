@@ -11,6 +11,9 @@ internal static class GunshipTakeoffDefinitions
     /// </summary>
     internal const int EngineReadyingDuration = 5;
 
+    /// <summary>The frames the fired-up engines rumble before the steady liftoff begins.</summary>
+    internal const int EngineRumbleFrames = 128;
+
     /// <summary>The gunship's look once its engines are readied for the takeoff, which its hull and the takeoff's dust show.</summary>
     internal static EncounterLook TakeoffLook { get; } = new(EncounterArtwork.Gunship, "Takeoff");
 }

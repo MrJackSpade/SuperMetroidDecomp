@@ -9,21 +9,22 @@ public sealed class BoyonEnemyState
 
     /// <summary>
     /// The multiplier its bounce curve is scaled by, from its spawn settings. The multiply takes it whole, so a
-    /// multiplier the multiply could not hold, above 255, is rejected.
+    /// multiplier the multiply could not hold, above <see cref="BoyonSpeedDefinitions.LargestMultiplier"/>, is rejected.
     /// </summary>
     public int SpeedMultiplier
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, BoyonSpeedDefinitions.LargestMultiplier, value);
     }
 
     /// <summary>
-    /// The latest product of the curve sample and the multiplier, in 256ths of a pixel per update (0 through 65025).
+    /// The latest product of the curve sample and the multiplier, in 256ths of a pixel per update, 0 through
+    /// <see cref="BoyonSpeedDefinitions.LargestScaledSample"/>.
     /// </summary>
     public int Speed
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, BoyonSpeedDefinitions.LargestScaledSample, value);
     }
 
     /// <summary>
@@ -31,21 +32,13 @@ public sealed class BoyonEnemyState
     /// <see cref="DistanceAccumulator"/> by the sign of their word difference (<see cref="HasReachedJumpHeight"/>), so
     /// heights of 32769 and above behave as the game's do.
     /// </summary>
-    public int JumpHeight
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int JumpHeight { get; internal set; }
 
     /// <summary>
     /// The distance accumulated while deriving the initial curve index, in 256ths of a pixel, as the exact word the
-    /// game keeps (0 through 65535). It advances only through <see cref="AccumulateBounceDistance"/>.
+    /// game keeps (0 through 65535): it advances only through <see cref="AccumulateBounceDistance"/>, which wraps it.
     /// </summary>
-    public int DistanceAccumulator
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int DistanceAccumulator { get; internal set; }
 
     /// <summary>
     /// The current entry of the triangular speed curve, as the exact word the game keeps. Rising retreats it with
@@ -56,7 +49,7 @@ public sealed class BoyonEnemyState
     public int SpeedTableIndex
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, LargestSpeedTableIndex, value);
     }
 
     /// <summary>The largest curve index the word holds: rising past entry zero leaves this value.</summary>
@@ -66,7 +59,7 @@ public sealed class BoyonEnemyState
     /// Whether the accumulated distance has reached the jump height. The game subtracts the height from the
     /// distance and tests the sign of the word result, so any height above 32768 is reached by a zero distance.
     /// </summary>
-    internal bool HasReachedJumpHeight => !EnemyMath.IsNegative16(DistanceAccumulator - JumpHeight);
+    internal bool HasReachedJumpHeight => !WrappingCounter.IsBehind(DistanceAccumulator, JumpHeight);
 
     /// <summary>Adds one update's speed to the accumulated distance, wrapping as the game's word addition does.</summary>
     internal void AccumulateBounceDistance(int speed) =>
@@ -74,7 +67,7 @@ public sealed class BoyonEnemyState
 
     /// <summary>Moves one entry down the curve (falling), wrapping from <see cref="LargestSpeedTableIndex"/> to zero.</summary>
     internal void AdvanceSpeedTableIndex() =>
-        SpeedTableIndex = Ensure.BetweenInclusive(0, ushort.MaxValue, SpeedTableIndex == LargestSpeedTableIndex ? 0 : SpeedTableIndex + 1);
+        SpeedTableIndex = WrappingCounter.IncrementWord(SpeedTableIndex);
 
     /// <summary>
     /// Moves one entry up the curve (rising). The index wraps from zero to <see cref="LargestSpeedTableIndex"/>, and
@@ -83,7 +76,7 @@ public sealed class BoyonEnemyState
     /// </summary>
     internal bool RetreatSpeedTableIndex()
     {
-        CountdownStep step = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, SpeedTableIndex));
+        CountdownStep step = WrappingCounter.Decrement(SpeedTableIndex);
         SpeedTableIndex = step.Remaining.RemainingFrames;
         return step.IsNegative;
     }

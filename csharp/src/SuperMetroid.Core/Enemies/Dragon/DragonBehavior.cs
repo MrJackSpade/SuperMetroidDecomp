@@ -369,7 +369,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rightward eight-eight fireball velocity.</summary>
     private const int DragonFireballRightXVelocity = 704;
     /// <summary>Eight-eight downward acceleration applied to a live fireball.</summary>
-    private const int DragonFireballGravity = 32;
+    private static readonly SignedEightEight DragonFireballGravity = SignedEightEight.FromSignedRaw(32);
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
     internal void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)
@@ -409,8 +409,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (projectile.Velocity.Y.SignedRawValue < 0)
         {
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
-                projectile.Velocity.Y.RawValue + DragonFireballGravity));
+            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + DragonFireballGravity);
             if (projectile.Velocity.Y.SignedRawValue < 0)
                 return;
 
@@ -422,8 +421,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
-            projectile.Velocity.Y.RawValue + DragonFireballGravity));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + DragonFireballGravity);
 
         // The fireball is retained above the viewport; horizontal distance is never consulted.
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);

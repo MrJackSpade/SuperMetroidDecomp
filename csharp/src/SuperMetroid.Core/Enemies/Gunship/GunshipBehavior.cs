@@ -317,7 +317,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
-        int yDelta = GunshipMotion.LandingBrakeYDelta(Ensure.BetweenInclusive(0, ushort.MaxValue, Part(top).LandingBrakeStep));
+        int yDelta = GunshipMotion.LandingBrakeYDelta(Part(top).LandingBrakeStep);
         samus.Position += new Offset16<RoomPixels>(0, yDelta);
         foreach (RoomEnemySlot slot in Pieces(top).All)
         {
@@ -325,7 +325,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
 
         Part(top).LandingBrakeStep++;
-        if (Part(top).LandingBrakeStep < 17)
+        if (Part(top).LandingBrakeStep < GunshipMotionDefinitions.LandingBrakeYDeltas.Length)
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
@@ -348,8 +348,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             throw new InvalidOperationException("Post-Ceres gunship exit lost Samus.");
 
         samus.Position -= new Offset16<RoomPixels>(0, 1);
-        int targetY = CoordinateAxis.Wrap(Part(top).BaseY - 30);
-        if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - targetY))
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - 30) >= 0)
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
@@ -391,15 +390,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (--Part(top).BobTimer > 0)
             return;
 
-        GunshipIdleBobDefinition bob = GunshipMotion.IdleBob(
-            Part(top).BobPhase & 3);
+        GunshipIdleBobDefinition bob = GunshipMotion.IdleBob(Part(top).BobPhase);
         Part(top).BobTimer = bob.Timer;
         int yDelta = bob.YDelta;
         foreach (RoomEnemySlot slot in Pieces(top).All)
         {
             slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + yDelta);
         }
-        Part(top).BobPhase = (Part(top).BobPhase + 1) & 3;
+        Part(top).BobPhase = (Part(top).BobPhase + 1) % GunshipMotionDefinitions.IdleBobs.Length;
     }
 
     /// <summary>Accepts a new Down press inside the standing entrance box and opens the pad.</summary>
@@ -451,7 +449,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Gunship entry lost its Samus actor.");
         samus.Position += new Offset16<RoomPixels>(0, 2);
-        if (EnemyMath.IsNegative16(samus.Position.Y.Whole - CoordinateAxis.Wrap(Part(top).BaseY + 18)))
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY + 18) < 0)
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
@@ -502,7 +500,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Gunship exit lost its Samus actor.");
         samus.Position -= new Offset16<RoomPixels>(0, 2);
-        if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - CoordinateAxis.Wrap(Part(top).BaseY - 30)))
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, Part(top).BaseY - 30) >= 0)
             return;
 
         RoomEnemySlot pad = Pieces(top).EntrancePad;
@@ -522,7 +520,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     internal void ReadyGunshipTakeoffEngines(RoomEnemySlot top)
     {
         int elapsed = Part(top).EngineReadyingElapsed;
-        if ((uint)elapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
+        if (elapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
             throw new InvalidDataException("The gunship's takeoff readied its engines past its duration.");
 
         Part(top).EngineReadyingElapsed = elapsed + 1;
@@ -559,7 +557,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
                 _projectiles.SpawnGunshipLiftoffDustCloud(cloud, samus);
         }
-        if (Part(bottom).RumbleFrame >= 128)
+        if (Part(bottom).RumbleFrame >= GunshipTakeoffDefinitions.EngineRumbleFrames)
         {
             Part(top).Function = GunshipFunction.SteadyLiftoff;
             Part(top).FunctionTimer = 0;
@@ -572,7 +570,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Gunship liftoff lost Samus.");
         MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - 2));
-        if (EnemyMath.IsNegative16(top.Position.Y.Whole - 896))
+        if (CoordinateAxis.Difference(top.Position.Y.Whole, 896) < 0)
         {
             Part(top).Function = GunshipFunction.AcceleratingLiftoff;
             Part(Pieces(top).Bottom).EscapeVelocity = GunshipMotionDefinitions.EscapeStartVelocity;
@@ -583,7 +581,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private void AccelerateEscapingGunship(RoomEnemySlot top, SamusState? samus)
     {
         MoveEscapingGunship(top, samus);
-        if (EnemyMath.IsNegative16(top.Position.Y.Whole - 256))
+        if (CoordinateAxis.Difference(top.Position.Y.Whole, 256) < 0)
         {
             Part(top).Function = GunshipFunction.MoveAccelerating;
             _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffCompleted;

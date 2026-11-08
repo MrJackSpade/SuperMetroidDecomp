@@ -76,5 +76,5 @@ public sealed class NinjaSpacePirateEnemyState
     /// Changes <see cref="Speed"/> by <paramref name="delta"/> 1/256-pixel units, wrapping as the game's
     /// sixteen-bit speed does.
     /// </summary>
-    internal void ChangeSpeed(int delta) => Speed = SignedEightEight.Wrapped(Speed.RawValue + delta);
+    internal void ChangeSpeed(int delta) => Speed += SignedEightEight.FromSignedRaw(delta);
 }

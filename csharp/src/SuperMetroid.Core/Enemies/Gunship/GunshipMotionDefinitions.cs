@@ -10,7 +10,7 @@ internal static class GunshipMotionDefinitions
     /// original data. These are explicit six/five/six braking intervals, not a sampled
     /// physical acceleration curve. Callers add the signed whole-pixel delta with word wrapping, then advance.
     /// </remarks>
-    internal static readonly short[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
+    internal static readonly int[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
 
     /// <summary>The idle bob's four phases: timer 16 and signed delta +1,-1,-1,+1.</summary>
     /// <remarks>

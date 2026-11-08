@@ -78,9 +78,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // GetSignedYMinusX treats the wrapped word as signed before taking its magnitude.
         // In particular, -32768 remains -32768 after negation; ordinary Math.Abs(short) would
         // throw and a wider subtraction would disagree near the world-coordinate seam.
-        int distance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
-        if (EnemyMath.IsNegative16(distance))
-            distance = CoordinateAxis.Wrap(-distance);
+        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
         if (CoordinateAxis.Difference(distance, ChootActivationDistance) >= 0)
             return;
 

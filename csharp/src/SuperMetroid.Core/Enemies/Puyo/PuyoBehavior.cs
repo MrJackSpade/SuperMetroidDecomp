@@ -161,9 +161,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int xSpeed = hop.XSpeed;
         // The game exchanges the height word's bytes (XBA); every authored height is below 256 pixels, so that
         // makes the height the whole part of an 8.8 distance.
-        int swappedJumpHeight = UnsignedEightEight.FromParts(whole: Ensure.BetweenInclusive(0, byte.MaxValue, hop.Height), fraction: 0);
+        int swappedJumpHeight = UnsignedEightEight.FromParts(whole: hop.Height, fraction: 0);
 
-        for (int guard = 0; guard <= ushort.MaxValue; guard++)
+        for (int guard = 0; guard <= WrappingCounter.LargestWordCount; guard++)
         {
             timeAccumulator = WrappingCounter.AddWord(timeAccumulator, xSpeed);
             EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(UnsignedEightEight.Whole(timeAccumulator));
@@ -172,7 +172,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             // find the initial curve row.
             distanceAccumulator = WrappingCounter.AddWord(distanceAccumulator,
                 speedRow.CoarseToward(EnemySpeedSign.Positive));
-            if (!EnemyMath.IsNegative16(CoordinateAxis.Wrap(swappedJumpHeight - distanceAccumulator)))
+            if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
                 continue;
 
             state.YSpeedTableIndex = timeAccumulator;

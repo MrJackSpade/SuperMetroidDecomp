@@ -167,12 +167,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Distance(state.LandingPosition.Y, samus.Position.Y.Whole) >= 32)
             return;
 
-        int signedXDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
-        if (EnemyMath.WrappedMagnitude(signedXDistance) >= AlcoonEmergeXDistance)
+        int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
+        if (Math.Abs(signedXDistance) >= AlcoonEmergeXDistance)
             return;
 
         SetupAlcoonJumpMovement(state);
-        if (CoordinateAxis.AsSigned(signedXDistance) < 0)
+        if (signedXDistance < 0)
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
             InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneLeftLookingUp);
@@ -222,8 +222,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int signedXDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
-        if (CoordinateAxis.AsSigned(signedXDistance) < 0)
+        if (CoordinateAxis.Precedes(samus.Position.X.Whole, slot.Position.X.Whole))
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
             InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingLeft);
@@ -254,8 +253,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // walking actor fall by the same amount before the remainder of main AI runs.
         _terrain.MoveEnemyVertically(level, slot, 2 << 16);
 
-        int spawnDistance = CoordinateAxis.Wrap(state.SpawnPosition.X - slot.Position.X.Whole);
-        if (EnemyMath.WrappedMagnitude(spawnDistance) >= AlcoonHideXDistance)
+        if (CoordinateAxis.Distance(state.SpawnPosition.X, slot.Position.X.Whole) >= AlcoonHideXDistance)
         {
             state.Function = AlcoonEnemyFunction.HidingRising;
             state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-4, 0));

@@ -7,24 +7,19 @@ public static class PowampMotion
 {
     /// <summary>The wiggle offset at <paramref name="phase"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="phase"/> is outside the twelve phases.</exception>
-    public static short WiggleOffset(int phase) =>
+    public static int WiggleOffset(int phase) =>
         (uint)phase < WigglePhaseCount ? WiggleOffsets[phase] : throw new InvalidDataException($"Invalid Powamp wiggle phase {phase}.");
 
     /// <summary>The balloon's Y offset at inflation pose <paramref name="pose"/> while rising or sinking.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is outside the three poses.</exception>
-    public static short BalloonOffset(int pose, bool sinking)
+    public static int BalloonOffset(int pose, bool sinking)
     {
-        short[] offsets = sinking ? SinkingBalloonOffsets : RisingBalloonOffsets;
+        int[] offsets = sinking ? SinkingBalloonOffsets : RisingBalloonOffsets;
         return (uint)pose < (uint)offsets.Length ? offsets[pose] : throw new ArgumentOutOfRangeException(nameof(pose));
     }
 
-    /// <summary>A spike's signed 8.8 X acceleration in compass <paramref name="direction"/>.</summary>
+    /// <summary>A spike's signed 8.8 acceleration in compass <paramref name="direction"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="direction"/> is outside the eight directions.</exception>
-    public static int SpikeXAcceleration(int direction) =>
-        (uint)direction < SpikeDirectionCount ? SpikeAccelerations[direction].X.SignedRawValue : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
-
-    /// <summary>A spike's signed 8.8 Y acceleration in compass <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is outside the eight directions.</exception>
-    public static int SpikeYAcceleration(int direction) =>
-        (uint)direction < SpikeDirectionCount ? SpikeAccelerations[direction].Y.SignedRawValue : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
+    public static EightEightVector<RoomPixels> SpikeAcceleration(int direction) =>
+        (uint)direction < SpikeDirectionCount ? SpikeAccelerations[direction] : throw new InvalidDataException($"Invalid Powamp spike direction {direction}.");
 }

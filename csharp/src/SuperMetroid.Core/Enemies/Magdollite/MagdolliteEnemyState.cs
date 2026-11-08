@@ -29,7 +29,7 @@ public sealed class MagdolliteEnemyState
     public int BodyPhase
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue / 2, value);
+        internal set => field = Ensure.BetweenInclusive(0, MagdollitePhaseDefinitions.Phases.Length - 1, value);
     }
 
     /// <summary>Whether the hand throws its lava rightward, chosen from Samus's side at the apex.</summary>

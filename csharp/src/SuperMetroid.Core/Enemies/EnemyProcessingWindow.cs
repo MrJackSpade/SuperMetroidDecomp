@@ -90,20 +90,20 @@ internal sealed class EnemyProcessingWindow
     private static bool EnemyIsWithinProcessingWindow(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        !EnemyMath.IsNegative16(slot.Radius.X + slot.Position.X.Whole - camera.X) &&
-        !EnemyMath.IsNegative16(slot.Radius.X + camera.X + 256 - slot.Position.X.Whole) &&
-        !EnemyMath.IsNegative16(slot.Position.Y.Whole + 8 - camera.Y) &&
-        !EnemyMath.IsNegative16(camera.Y + 248 - slot.Position.Y.Whole);
+        !CoordinateAxis.Precedes(slot.Radius.X + slot.Position.X.Whole, camera.X) &&
+        !CoordinateAxis.Precedes(slot.Radius.X + camera.X + 256, slot.Position.X.Whole) &&
+        !CoordinateAxis.Precedes(slot.Position.Y.Whole + 8, camera.Y) &&
+        !CoordinateAxis.Precedes(camera.Y + 248, slot.Position.Y.Whole);
 
     /// <summary>
     /// The center lies within $100 pixels
     /// right of and below the camera on both axes.
     /// </summary>
     internal static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, Position16<RoomPixels> camera) =>
-        !EnemyMath.IsNegative16(slot.Position.X.Whole - camera.X) &&
-        !EnemyMath.IsNegative16(camera.X + 256 - slot.Position.X.Whole) &&
-        !EnemyMath.IsNegative16(slot.Position.Y.Whole - camera.Y) &&
-        !EnemyMath.IsNegative16(camera.Y + 256 - slot.Position.Y.Whole);
+        !CoordinateAxis.Precedes(slot.Position.X.Whole, camera.X) &&
+        !CoordinateAxis.Precedes(camera.X + 256, slot.Position.X.Whole) &&
+        !CoordinateAxis.Precedes(slot.Position.Y.Whole, camera.Y) &&
+        !CoordinateAxis.Precedes(camera.Y + 256, slot.Position.Y.Whole);
 
     /// <summary>
     /// A negative X, a right edge
@@ -111,18 +111,18 @@ internal sealed class EnemyProcessingWindow
     /// </summary>
     internal static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, int cameraX)
     {
-        if (EnemyMath.IsNegative16(slot.Position.X.Whole))
+        if (CoordinateAxis.AsSigned(slot.Position.X.Whole) < 0)
             return true;
         int fromCamera = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - cameraX);
-        return EnemyMath.IsNegative16(fromCamera) || !EnemyMath.IsNegative16(fromCamera - 256 - slot.Radius.X);
+        return CoordinateAxis.AsSigned(fromCamera) < 0 || !CoordinateAxis.Precedes(fromCamera, 256 + slot.Radius.X);
     }
 
     /// <summary>Uses the normal-sprite processing window to determine whether all bounds reject a slot.</summary>
     internal static bool EnemyWithNormalSpritesIsOffScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        EnemyMath.IsNegative16(slot.Radius.X + slot.Position.X.Whole - camera.X) ||
-        EnemyMath.IsNegative16(slot.Radius.X + camera.X + 256 - slot.Position.X.Whole) ||
-        EnemyMath.IsNegative16(slot.Position.Y.Whole + 8 - camera.Y) ||
-        EnemyMath.IsNegative16(camera.Y + 248 - slot.Position.Y.Whole);
+        CoordinateAxis.Precedes(slot.Radius.X + slot.Position.X.Whole, camera.X) ||
+        CoordinateAxis.Precedes(slot.Radius.X + camera.X + 256, slot.Position.X.Whole) ||
+        CoordinateAxis.Precedes(slot.Position.Y.Whole + 8, camera.Y) ||
+        CoordinateAxis.Precedes(camera.Y + 248, slot.Position.Y.Whole);
 }

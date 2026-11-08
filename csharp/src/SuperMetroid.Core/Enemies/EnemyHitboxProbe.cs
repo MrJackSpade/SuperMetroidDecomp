@@ -20,12 +20,12 @@ internal readonly record struct EnemyHitboxProbe(
     /// </summary>
     internal bool Overlaps(int left, int top, int right, int bottom) =>
         SelectsShot
-            ? !EnemyMath.IsNegative16(BottomRight.X - left) &&
-              EnemyMath.IsNegative16(TopLeft.X - right) &&
-              !EnemyMath.IsNegative16(BottomRight.Y - top) &&
-              EnemyMath.IsNegative16(TopLeft.Y - bottom)
-            : EnemyMath.IsNegative16(left - BottomRight.X) &&
-              !EnemyMath.IsNegative16(right - TopLeft.X) &&
-              EnemyMath.IsNegative16(top - BottomRight.Y) &&
-              !EnemyMath.IsNegative16(bottom - TopLeft.Y);
+            ? !CoordinateAxis.Precedes(BottomRight.X, left) &&
+              CoordinateAxis.Precedes(TopLeft.X, right) &&
+              !CoordinateAxis.Precedes(BottomRight.Y, top) &&
+              CoordinateAxis.Precedes(TopLeft.Y, bottom)
+            : CoordinateAxis.Precedes(left, BottomRight.X) &&
+              !CoordinateAxis.Precedes(right, TopLeft.X) &&
+              CoordinateAxis.Precedes(top, BottomRight.Y) &&
+              !CoordinateAxis.Precedes(bottom, TopLeft.Y);
 }

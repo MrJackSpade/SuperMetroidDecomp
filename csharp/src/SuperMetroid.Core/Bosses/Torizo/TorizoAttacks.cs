@@ -515,7 +515,7 @@ internal sealed class TorizoAttacks
         }
 
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
-        if (projectile.Velocity.Y.SignedRawValue >= 0 && verticalCollision)
+        if (!projectile.Velocity.Y.IsNegative && verticalCollision)
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(
                 BlockTop(projectile.Position.Y.Whole) + 6);
@@ -564,20 +564,17 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        int xVelocity = projectile.Velocity.X.SignedRawValue;
-        if (xVelocity < 0)
-        {
-            int dragged = xVelocity + 4;
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(dragged < 0 ? dragged : 3));
-        }
-        else
-        {
-            int dragged = xVelocity - 4;
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(dragged >= 0 ? dragged : 3));
-        }
+        // The drag slows the drool toward rest; a step that would carry it past rest leaves it drifting right instead.
+        SignedEightEight xVelocity = projectile.Velocity.X;
+        SignedEightEight dragged = xVelocity.IsNegative
+            ? xVelocity + TorizoMotionDefinitions.DroolDrag
+            : xVelocity - TorizoMotionDefinitions.DroolDrag;
+        projectile.Velocity = projectile.Velocity.WithX(dragged.IsNegative == xVelocity.IsNegative
+            ? dragged
+            : TorizoMotionDefinitions.DroolPastRestDrift);
 
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
-        if (projectile.Velocity.Y.SignedRawValue >= 0 && verticalCollision)
+        if (!projectile.Velocity.Y.IsNegative && verticalCollision)
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 3);
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.DroolFloorImpact));
@@ -598,14 +595,14 @@ internal sealed class TorizoAttacks
             projectile.Velocity = projectile.Velocity.WithX(-projectile.Velocity.X);
 
         bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
-        if (verticalCollision && projectile.Velocity.Y.SignedRawValue >= 0)
+        if (verticalCollision && !projectile.Velocity.Y.IsNegative)
         {
             SignedEightEight xVelocity = projectile.Velocity.X;
             projectile.Velocity = projectile.Velocity.WithX(xVelocity.IsNegative
                 ? xVelocity + TorizoMotionDefinitions.GoldenOrbBounceDrag
                 : xVelocity - TorizoMotionDefinitions.GoldenOrbBounceDrag);
             // The orb is falling here, so halving its speed in 256ths rounds toward zero before it reverses.
-            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(-(projectile.Velocity.Y.SignedRawValue >> 1)));
+            projectile.Velocity = projectile.Velocity.WithY(-projectile.Velocity.Y.DividedRoundingDown(2));
             if (HasSettled(projectile.Velocity.Y))
             {
                 projectile.Position = projectile.Position.WithWrappedWholeY(
@@ -642,7 +639,7 @@ internal sealed class TorizoAttacks
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) &&
-            projectile.Velocity.Y.SignedRawValue >= 0)
+            !projectile.Velocity.Y.IsNegative)
         {
             SignedEightEight xVelocity = projectile.Velocity.X;
             projectile.Velocity = projectile.Velocity.WithX(xVelocity.IsNegative
@@ -712,7 +709,7 @@ internal sealed class TorizoAttacks
         if (!impact)
         {
             bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
-            impact = verticalCollision && projectile.Velocity.Y.SignedRawValue >= 0;
+            impact = verticalCollision && !projectile.Velocity.Y.IsNegative;
         }
 
         if (impact)
@@ -825,16 +822,16 @@ internal sealed class TorizoAttacks
         RoomLevelData level)
     {
         bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
-        if (projectile.Velocity.Y.SignedRawValue < 0 || !collided)
+        if (projectile.Velocity.Y.IsNegative || !collided)
         {
             RoomEnemyProjectileSlot firstSlot = _projectiles.EnemyProjectiles[0];
-            int acceleration = FirstSlotFallAcceleration.Of(
+            SignedEightEight acceleration = FirstSlotFallAcceleration.Of(
                 firstSlot.IsActive,
                 firstSlot.IsActive && firstSlot.State is BombTorizoStatueFragmentState piece ? piece.Acceleration : null);
             // A piece's speed stops at the runaway speed, so the acceleration never carries it out of range.
-            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + SignedEightEight.FromSignedRaw(acceleration));
+            projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + acceleration);
             if (IsRunaway(projectile.Velocity.Y))
-                projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(TorizoMotionDefinitions.RunawaySpeed));
+                projectile.Velocity = projectile.Velocity.WithY(TorizoMotionDefinitions.RunawaySpeed);
             return;
         }
 
@@ -846,14 +843,14 @@ internal sealed class TorizoAttacks
     /// thirty-two, the range whose top four bits the original game compares with one.
     /// </summary>
     private static bool IsRunaway(SignedEightEight speed) =>
-        speed.SignedRawValue is >= TorizoMotionDefinitions.RunawaySpeed and < 2 * TorizoMotionDefinitions.RunawaySpeed;
+        speed >= TorizoMotionDefinitions.RunawaySpeed && speed < TorizoMotionDefinitions.TwiceRunawaySpeed;
 
     /// <summary>
     /// Whether a bounced Chozo orb's rebound has settled: an upward speed under half a pixel per frame, the range whose
     /// top nine bits the original game tests all set.
     /// </summary>
     private static bool HasSettled(SignedEightEight speed) =>
-        speed.SignedRawValue is < 0 and >= -TorizoMotionDefinitions.SettledBounceSpeed;
+        speed.IsNegative && speed >= -TorizoMotionDefinitions.SettledBounceSpeed;
 
     /// <summary>The top of the room block a whole pixel coordinate lies in.</summary>
     private static int BlockTop(int whole) => whole - whole % TorizoMotionDefinitions.BlockPixels;

@@ -342,16 +342,11 @@ internal sealed class CrocomireCombat
         }
         piece.Acceleration = acceleration;
 
-        // The acceleration's whole part is added to the 8.8 velocity's fraction: a fraction that passes a whole
-        // pixel raises the whole velocity by one, and it is then capped by this piece's maximum. The piece
-        // starts at rest and its whole velocity stays at or below its cap of at most six pixels.
-        int accelerated = projectile.Velocity.X.RawValue + UnsignedEightEight.Whole(acceleration);
-        int velocityFraction = EightEight.FractionOf(accelerated);
-        int velocityWhole = EightEight.WholeOf(accelerated);
-        int maximumVelocity = CrocomireSpikeMotion.MaximumVelocity(piece.Piece);
-        if (velocityWhole >= maximumVelocity)
-            velocityWhole = maximumVelocity;
-        var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: velocityWhole, fraction: velocityFraction));
+        // The acceleration's whole part is added to the velocity in 256ths of a pixel: a fraction that passes a whole
+        // pixel raises the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The
+        // piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
+        SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromSignedRaw(UnsignedEightEight.Whole(acceleration)))
+            .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
         projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
         // Move X with the same split-byte math. Only the high subposition byte participates;

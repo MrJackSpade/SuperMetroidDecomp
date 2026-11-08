@@ -548,7 +548,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape music track seven.
         _state.EarthquakeType = 5;
-        _state.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);
+        _state.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianShutterRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianBackgroundRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
@@ -657,7 +657,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.EarthquakeTimer = observedEarthquakeTimer;
         if (_state.EarthquakeTimer.IsZero)
         {
-            _state.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);
+            _state.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
             requests.EarthquakeTimerRefreshed = true;
         }
         return false;

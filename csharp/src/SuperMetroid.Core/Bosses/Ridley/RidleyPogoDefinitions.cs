@@ -50,5 +50,5 @@ public static class RidleyPogoDefinitions
     /// <summary>One launch: its rightward speed and upward speed, then its upward and downward accelerations.</summary>
     private static RidleyPogoDefinition Pogo(int horizontal, int upwardSpeed, int upward, int downward) =>
         new(new EightEightVector<RoomPixels>(SignedEightEight.FromSignedRaw(horizontal), SignedEightEight.FromSignedRaw(-upwardSpeed)),
-            upward, downward);
+            SignedEightEight.FromSignedRaw(upward), SignedEightEight.FromSignedRaw(downward));
 }

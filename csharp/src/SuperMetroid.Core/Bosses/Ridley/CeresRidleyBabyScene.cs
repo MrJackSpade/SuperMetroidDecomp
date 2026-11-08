@@ -37,6 +37,9 @@ internal sealed class CeresRidleyBabyScene
         _ridleyEncounter = ridleyEncounter;
     }
 
+    /// <summary>The gravity the dropped Baby's fall gains each update.</summary>
+    private static readonly SignedEightEight CeresBabyFallGravity = SignedEightEight.FromSignedRaw(8);
+
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
     internal static void TickCeresBaby(RoomEnemySlot slot, RidleyEnemyState state)
     {
@@ -51,16 +54,15 @@ internal sealed class CeresRidleyBabyScene
 
             case CeresBabyFunction.Drop:
                 state.BabyPosition = state.BabyPosition.WithFractionY(0);
-                state.BabyVerticalVelocity = 0;
+                state.BabyVerticalVelocity = SignedEightEight.Zero;
                 state.BabyFunction = CeresBabyFunction.Dropped;
                 goto case CeresBabyFunction.Dropped;
 
             case CeresBabyFunction.Dropped:
-                state.BabyVerticalVelocity += 8;
-                // The falling speed only grows from zero and the fall ends at Y=192, so it is always a
-                // nonnegative 8.8 velocity well inside the signed range the integrator accepts.
-                state.BabyPosition = state.BabyPosition.WithY(
-                    state.BabyPosition.Y.MovedBy(new SignedEightEight(Ensure.BetweenInclusive(0, ushort.MaxValue, state.BabyVerticalVelocity))));
+                // The falling speed only grows from zero and the fall ends at Y=192, so it stays a few pixels an
+                // update.
+                state.BabyVerticalVelocity += CeresBabyFallGravity;
+                state.BabyPosition = state.BabyPosition.WithY(state.BabyPosition.Y.MovedBy(state.BabyVerticalVelocity));
                 if (CoordinateAxis.Difference(state.BabyPosition.Y.Whole, 192) >= 0)
                 {
                     state.BabyPosition = state.BabyPosition.WithWholeY(192);
@@ -253,7 +255,7 @@ internal sealed class CeresRidleyBabyScene
                 // While the baby is falling (its falling flag set) it always cries and
                 // continues. Otherwise it samples the live RNG word's low bit without
                 // calling GenerateRandomNumber; a set bit jumps silently.
-                if (state.BabyVerticalVelocity == 0 && (_room.Random.Read() & 1) != 0)
+                if (state.BabyVerticalVelocity.IsZero && (_room.Random.Read() & 1) != 0)
                     return cryOrGoTo.Target;
                 _audio.QueueEnemySound(Library3Sound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
@@ -261,7 +263,7 @@ internal sealed class CeresRidleyBabyScene
                 state.Colours.Sprites.Lay(RidleyShades.Baby(updateColors.Shade));
                 return null;
             case CeresBabyCue.GoToIfMoving goToIfMoving:
-                return state.BabyVerticalVelocity != 0 ? goToIfMoving.Target : null;
+                return !state.BabyVerticalVelocity.IsZero ? goToIfMoving.Target : null;
             default:
                 throw new InvalidOperationException($"Undefined Ceres Baby cue {cue}.");
         }

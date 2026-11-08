@@ -283,17 +283,16 @@ internal sealed class NorfairRidleyCombat
         if (samus is not null && SamusMovementUsesRidleyGrab(samus) &&
             RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(4, 4)))
         {
-            state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(-int.Max(
-                512,
-                Math.Abs(state.Velocity.Y.SignedRawValue))));
+            // Every acceleration clamps Ridley's speed to a few pixels an update, so it always has a magnitude.
+            state.Velocity = state.Velocity.WithY(-SignedEightEight.Max(GrabLiftMinimumSpeed, state.Velocity.Y.Magnitude()));
             state.TailFunctionIndex = RidleyTailFunction.Neutral;
             state.TailAngleDelta = 1;
             BeginNorfairRidleyGrab(slot, state, samus);
             return;
         }
 
-        int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoDownwardAcceleration;
-        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(Math.Min(nextVertical, 1536)));
+        // The fall is clamped to six pixels an update, so adding the acceleration stays far inside the speed's range.
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Min(state.Velocity.Y + state.PogoDownwardAcceleration, PogoMaximumFallSpeed));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state, level))
             return;
@@ -334,15 +333,17 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoUpwardAcceleration;
-        if (nextVertical >= 0)
+        // The rise starts at its launch speed and slows toward rest, so adding the acceleration never passes the speed's
+        // range.
+        SignedEightEight nextVertical = state.Velocity.Y + state.PogoUpwardAcceleration;
+        if (!nextVertical.IsNegative)
         {
-            state.Velocity = state.Velocity.WithY(new SignedEightEight(0));
+            state.Velocity = state.Velocity.WithY(SignedEightEight.Zero);
             state.Function = RidleyAiFunction.NorfairFireballAttack;
         }
         else
         {
-            state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(nextVertical));
+            state.Velocity = state.Velocity.WithY(nextVertical);
         }
     }
 
@@ -360,7 +361,7 @@ internal sealed class NorfairRidleyCombat
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
         state.Velocity = state.Velocity.WithY(definition.Velocity.Y);
         SignedEightEight horizontal = definition.Velocity.X;
-        state.Velocity = state.Velocity.WithX(state.Velocity.X.SignedRawValue < 0
+        state.Velocity = state.Velocity.WithX(state.Velocity.X.IsNegative
             ? horizontal.Negated()
             : horizontal);
     }
@@ -612,18 +613,27 @@ internal sealed class NorfairRidleyCombat
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, ReadRidleyHealthMovementDivisor(state));
     }
 
+    /// <summary>The sideways speed a pogo bounce starts from when Ridley has none: three quarters of a pixel an update.</summary>
+    private static readonly SignedEightEight PogoRestartSpeed = SignedEightEight.FromSignedRaw(192);
+
+    /// <summary>The least upward speed Ridley lifts a grabbed Samus with.</summary>
+    private static readonly SignedEightEight GrabLiftMinimumSpeed = SignedEightEight.FromSignedRaw(512);
+
+    /// <summary>The fastest Ridley falls on a pogo bounce: six pixels an update.</summary>
+    private static readonly SignedEightEight PogoMaximumFallSpeed = SignedEightEight.FromSignedRaw(1536);
+
     /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>
     internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
-        if (state.Velocity.X.RawValue == 0)
-            state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) < 128 ? 192 : -192));
-        bool negative = state.Velocity.X.SignedRawValue < 0;
+        if (state.Velocity.X.IsZero)
+            state.Velocity = state.Velocity.WithX(RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) < 128 ? PogoRestartSpeed : -PogoRestartSpeed);
+        bool negative = state.Velocity.X.IsNegative;
         bool reverse;
         if (CoordinateAxis.Difference(slot.Position.X.Whole, state.MovementMinimum.X) < 0) reverse = negative;
         else if (CoordinateAxis.Difference(slot.Position.X.Whole, state.MovementMaximum.X) >= 0) reverse = !negative;
         else
         {
-            bool oppositeSigns = (CoordinateAxis.Wrap(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.Velocity.X.RawValue) > short.MaxValue;
+            bool oppositeSigns = CoordinateAxis.Difference(slot.Position.X.Whole, samus?.Position.X.Whole ?? 0) < 0 != state.Velocity.X.IsNegative;
             reverse = oppositeSigns ? _room.Random.Read() < 1365 : _room.Random.Read() >= 1365;
         }
         if (reverse) state.Velocity = state.Velocity.WithX(state.Velocity.X.Negated());

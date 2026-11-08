@@ -128,10 +128,10 @@ public sealed class RidleyEnemyState
     public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the Lower Norfair pogo bounce counter, reset after its two-bounce threshold.</summary>
     public int PogoBounceCount { get; internal set; }
-    /// <summary>Gets the positive 8.8 velocity increment (1/256 pixels per update) selected by health stage for downward pogo motion.</summary>
-    public int PogoDownwardAcceleration { get; internal set; }
-    /// <summary>Gets the positive 8.8 velocity increment (1/256 pixels per update) selected by health stage for upward pogo motion.</summary>
-    public int PogoUpwardAcceleration { get; internal set; }
+    /// <summary>Gets the positive velocity increment selected by health stage for downward pogo motion.</summary>
+    public SignedEightEight PogoDownwardAcceleration { get; internal set; }
+    /// <summary>Gets the positive velocity increment selected by health stage for upward pogo motion.</summary>
+    public SignedEightEight PogoUpwardAcceleration { get; internal set; }
     /// <summary>Gets Samus's signed whole-pixel displacement from the claw anchor; carry updates decay each axis toward zero.</summary>
     public Offset16<RoomPixels> GrabOffset { get; internal set; }
     /// <summary>
@@ -173,7 +173,7 @@ public sealed class RidleyEnemyState
     /// Gets the Ceres Baby's 8.8 falling speed (1/256 pixels per update): zero until it is dropped, then eight more each
     /// falling update until it lands.
     /// </summary>
-    public int BabyVerticalVelocity { get; internal set; }
+    public SignedEightEight BabyVerticalVelocity { get; internal set; }
     /// <summary>Gets whether Ceres's getaway transform currently owns the Ridley/Baby presentation.</summary>
     public bool GetawayActive { get; internal set; }
     /// <summary>Gets whether the Ceres getaway's motion has ended, its curve having passed its last frame, and released the active transform.</summary>

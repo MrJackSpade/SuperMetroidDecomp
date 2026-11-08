@@ -34,6 +34,12 @@ internal sealed class TourianUnlockBehavior
     /// <summary>How far above the water surface a splash sits.</summary>
     private static readonly Offset16<RoomPixels> SplashAboveSurface = new(0, -4);
 
+    /// <summary>The upward acceleration of a rising statue soul each update.</summary>
+    private static readonly SignedEightEight SoulRiseAcceleration = SignedEightEight.FromSignedRaw(128);
+
+    /// <summary>The gravity a falling statue particle gains each update.</summary>
+    private static readonly SignedEightEight ParticleGravity = SignedEightEight.FromSignedRaw(16);
+
     /// <summary>The water surface the unlocking particles cross and their splashes ride; only its Y axis is meaningful.</summary>
     internal Position16<RoomPixels> TourianStatueWaterSurface { get; set; }
     /// <summary>The point the descending statue's dust puffs return to whenever they restart.</summary>
@@ -94,8 +100,9 @@ internal sealed class TourianUnlockBehavior
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         ByteAngle angle = ByteAngle.Wrapped((_room.Random.Generate() & 63) - 32);
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedNegativeCosineWord(angle.RawValue + 64)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(4 * Trigonometry.SignedNegativeCosineWord(angle.RawValue)));
+        // The samples lie within one pixel either way, so four times one stays within four.
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle.RawValue + 64)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(4 * Trigonometry.SignedNegativeCosineWord(angle.RawValue)));
     }
 
     /// <summary>Holds a splash at the water surface.</summary>
@@ -113,7 +120,7 @@ internal sealed class TourianUnlockBehavior
         {
             projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
         }
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue - 128));
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - SoulRiseAcceleration);
     }
 
     /// <summary>Drops a particle under gravity, splashing as it crosses the water surface and deleting it below the room.</summary>
@@ -130,7 +137,7 @@ internal sealed class TourianUnlockBehavior
         {
             projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
         }
-        else projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + (16)));
+        else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ParticleGravity);
     }
 
     /// <summary>Registers the statue effects' movers and program cues.</summary>

@@ -161,7 +161,7 @@ internal sealed class RidleyTail
                 break;
             }
         }
-        int targetByte = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue).RawValue;
+        int targetByte = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn).RawValue;
         int additional = additionalAngle.ToAngle().RawValue;
 
         if (state.FacingDirection == RidleyFacing.Left)
@@ -304,7 +304,7 @@ internal sealed class RidleyTail
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle))),
-            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)))));
+            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(ByteAngle.QuarterTurn)))));
     }
 
     /// <summary>Ends a joint's active whip and flips its movement direction for the next activation.</summary>
@@ -539,7 +539,7 @@ internal sealed class RidleyTail
             return;
         }
         if (state.TailSegments.Any(segment => segment.Active)) return;
-        if (state.Velocity.Y.SignedRawValue >= 0)
+        if (!state.Velocity.Y.IsNegative)
         {
             state.TailFunctionIndex = stabbing ? RidleyTailFunction.Stab : RidleyTailFunction.StabSetup;
             if (stabbing)

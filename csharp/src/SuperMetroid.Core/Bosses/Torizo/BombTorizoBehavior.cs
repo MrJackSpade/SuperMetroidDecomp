@@ -406,7 +406,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return Choices.ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodyProgram.FacingLeftFacelessTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightFacelessTurningRight });
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfRising } branch:
-                return state.Velocity.Y.SignedRawValue < 0 ? AnimationProgramCursor<TorizoBodyProgram>.Start(branch.Target) : null;
+                return state.Velocity.Y.IsNegative ? AnimationProgramCursor<TorizoBodyProgram>.Start(branch.Target) : null;
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.CallIfSamusCloseBehind } branch:
                 return Choices.SelectBombTorizoCloseBehindBranch(

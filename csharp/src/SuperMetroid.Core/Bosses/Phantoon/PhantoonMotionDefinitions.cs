@@ -4,10 +4,16 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonMotionDefinitions
 {
     /// <summary>
-    /// MovePhantoonInSwoopingPattern: the signed 8.8 horizontal swoop velocity, in 256ths of a pixel per
-    /// update, below which the leftward pull stops (the NTSC value, about -8 pixels per update; PAL differs).
+    /// MovePhantoonInSwoopingPattern: the horizontal swoop velocity below which the leftward pull stops (the NTSC
+    /// value, about -8 pixels per update; PAL differs).
     /// </summary>
-    public const int SwoopNegativeXThreshold = -2047;
+    public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromSignedRaw(-2047);
+
+    /// <summary>The horizontal swoop velocity, eight pixels an update, at which the rightward pull stops.</summary>
+    public static SignedEightEight SwoopPositiveXLimit { get; } = SignedEightEight.FromSignedRaw(2048);
+
+    /// <summary>The vertical swoop velocity, six pixels an update, at which the downward pull stops.</summary>
+    public static SignedEightEight SwoopPositiveYLimit { get; } = SignedEightEight.FromSignedRaw(1536);
 
     /// <summary>The swoop's horizontal pull toward its target, in 256ths of a pixel an update, each update.</summary>
     public static SignedEightEight SwoopHorizontalPull { get; } = SignedEightEight.FromSignedRaw(32);
@@ -21,10 +27,10 @@ public static class PhantoonMotionDefinitions
     /// <summary>The rightmost swoop X position.</summary>
     public const int SwoopMaximumX = 448;
     /// <summary>
-    /// MovePhantoonInSwoopingPattern: the signed 8.8 vertical swoop velocity, in 256ths of a pixel per update,
-    /// below which the upward pull stops (the NTSC value, about -6 pixels per update; PAL differs).
+    /// MovePhantoonInSwoopingPattern: the vertical swoop velocity below which the upward pull stops (the NTSC value,
+    /// about -6 pixels per update; PAL differs).
     /// </summary>
-    public const int SwoopNegativeYThreshold = -1535;
+    public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromSignedRaw(-1535);
     /// <summary>The figure-eight's slow-stage sub-pixel acceleration, shared by its reverse, fractional 16.16 acceleration.</summary>
     public const int SlowFraction = 1536;
     /// <summary>Slow-stage whole acceleration, zero in both directions.</summary>

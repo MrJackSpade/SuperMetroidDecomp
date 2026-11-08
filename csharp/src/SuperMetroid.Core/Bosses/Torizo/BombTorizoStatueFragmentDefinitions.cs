@@ -10,5 +10,5 @@ internal static class BombTorizoStatueFragmentDefinitions
     internal const int YVelocity = 256;
 
     /// <summary>Every fragment's downward acceleration.</summary>
-    internal const int Acceleration = 16;
+    internal static readonly SignedEightEight Acceleration = SignedEightEight.FromSignedRaw(16);
 }

@@ -192,7 +192,7 @@ internal static class MotherBrainNeckKinematics
     /// </summary>
     private static Offset16<RoomPixels> CalculatePolarOffset(ByteAngle angle, int distance) =>
         new(CalculateSignedComponent(angle, distance),
-            CalculateSignedComponent(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue), distance));
+            CalculateSignedComponent(angle.TurnedBy(ByteAngle.QuarterTurn), distance));
 
     /// <summary>
     /// Exact signed multiply/high-word behavior of the sine multiply. A joint lies at most 127 pixels from its anchor:

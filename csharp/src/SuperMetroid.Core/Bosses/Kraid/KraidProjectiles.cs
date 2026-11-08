@@ -506,7 +506,7 @@ internal sealed class KraidProjectiles
         }
 
         SignedEightEight horizontal = rock.Velocity.X + KraidRockLaunchDefinitions.RockDrift;
-        if (horizontal.SignedRawValue >= KraidRockLaunchDefinitions.RockDriftRestart.SignedRawValue)
+        if (horizontal >= KraidRockLaunchDefinitions.RockDriftRestart)
             horizontal = -KraidRockLaunchDefinitions.RockDriftRestart;
         rock.Velocity = rock.Velocity.WithX(horizontal);
         rock.Velocity = rock.Velocity.WithY(rock.Velocity.Y + KraidRockLaunchDefinitions.RockGravity);

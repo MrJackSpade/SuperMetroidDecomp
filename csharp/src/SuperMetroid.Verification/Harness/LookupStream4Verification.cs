@@ -599,13 +599,13 @@ internal static class LookupStream4Verification
             return unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction));
         }
         for (int index = 0; index < 16; index++)
-            AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index), "native fast shake signed fixed-point value");
+            AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index).RawValue, "native fast shake signed fixed-point value");
         for (int index = 0; index < 8; index++)
-            AssertEqual(Native(0x8BDDAD + index * 4), EndingShipShake.PlanetSlowDelta(index), "native slow shake signed fixed-point value");
-        AssertEqual(32768, EndingShipShake.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
-        AssertEqual(-32768, EndingShipShake.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
-        AssertEqual(2 << 16, Enumerable.Range(0, 16).Sum(EndingShipShake.PlanetFastDelta), "fast cycle shares exact two-pixel translation");
-        AssertEqual(2 << 16, Enumerable.Range(0, 8).Sum(EndingShipShake.PlanetSlowDelta), "slow cycle shares exact two-pixel translation");
+            AssertEqual(Native(0x8BDDAD + index * 4), EndingShipShake.PlanetSlowDelta(index).RawValue, "native slow shake signed fixed-point value");
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 32768), EndingShipShake.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
+        AssertEqual(-SignedSixteenSixteen.FromParts(0, 32768), EndingShipShake.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
+        AssertEqual(SignedSixteenSixteen.FromParts(2, 0), Enumerable.Range(0, 16).Select(EndingShipShake.PlanetFastDelta).Aggregate(SignedSixteenSixteen.Zero, (sum, delta) => sum + delta), "fast cycle shares exact two-pixel translation");
+        AssertEqual(SignedSixteenSixteen.FromParts(2, 0), Enumerable.Range(0, 8).Select(EndingShipShake.PlanetSlowDelta).Aggregate(SignedSixteenSixteen.Zero, (sum, delta) => sum + delta), "slow cycle shares exact two-pixel translation");
         foreach (bool fast in new[] { true, false })
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
@@ -1635,8 +1635,8 @@ internal static class LookupStream4Verification
             int y = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b96d + 2 * pattern));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.Velocity.X.RawValue, "stream4 native pogo horizontal magnitude");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((y + 2 * stage)), actual.Velocity.Y.RawValue, "stream4 native pogo signed vertical speed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b94d + 2 * stage)), actual.UpwardAcceleration, "stream4 native pogo upward acceleration");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b959 + 2 * stage)), actual.DownwardAcceleration, "stream4 native pogo downward acceleration");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b94d + 2 * stage)), actual.UpwardAcceleration.RawValue, "stream4 native pogo upward acceleration");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b959 + 2 * stage)), actual.DownwardAcceleration.RawValue, "stream4 native pogo downward acceleration");
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyPogo.Read(invalid, 0), "stream4 invalid pogo pattern");
@@ -2639,7 +2639,7 @@ internal static class LookupStream4Verification
                 int cursor = 0xbf5d + phase * 8;
                 int row = (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 2)) - 0xe1f1) / 30;
                 // The expressive loop's palette command for this phase is step 1 + 2 * phase, its pose the next step.
-                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyFrameHold = 1, BabyVerticalVelocity = 1 };
+                var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyFrameHold = 1, BabyVerticalVelocity = SignedEightEight.FromSignedRaw(1) };
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
                 AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
                 AssertEqual(1, state.BabyFrameHold, "The new pose starts its elapsed count at one");

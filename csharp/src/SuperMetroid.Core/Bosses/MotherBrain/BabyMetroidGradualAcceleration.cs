@@ -14,10 +14,10 @@ internal static class BabyMetroidGradualAcceleration
 {
     /// <summary>Extra speed adjustment while reversing direction toward the target.</summary>
     private const int ReversalStep = 8;
-    /// <summary>Horizontal signed-velocity clamp applied after the run.</summary>
-    private const int MaxXSpeed = 2048;
-    /// <summary>Vertical signed-velocity clamp, smaller than the horizontal limit.</summary>
-    private const int MaxYSpeed = 1280;
+    /// <summary>Horizontal signed-velocity clamp applied after the run: eight pixels an update either way.</summary>
+    private static readonly SignedEightEight MaxXSpeed = SignedEightEight.FromSignedRaw(2048);
+    /// <summary>Vertical signed-velocity clamp, smaller than the horizontal limit: five pixels an update either way.</summary>
+    private static readonly SignedEightEight MaxYSpeed = SignedEightEight.FromSignedRaw(1280);
 
     /// <summary>
     /// Returns the new X velocity. <paramref name="isVaguelyOffScreen"/> runs only on the
@@ -45,7 +45,7 @@ internal static class BabyMetroidGradualAcceleration
         if (distance < 0)
         {
             int step = Step(-distance, divisor);
-            if (velocity.SignedRawValue < 0)
+            if (velocity.IsNegative)
             {
                 // Off screen, a reversal first pushes the mover by its off-screen speed, raising by one unit more
                 // than the matching lowering does.
@@ -59,12 +59,12 @@ internal static class BabyMetroidGradualAcceleration
                 run.Raise(step);
             }
             run.Raise(step);
-            return SignedEightEight.FromSignedRaw(Math.Min(run.Velocity.SignedRawValue, MaxXSpeed));
+            return SignedEightEight.Min(run.Velocity, MaxXSpeed);
         }
         else
         {
             int step = Step(distance, divisor);
-            if (velocity.SignedRawValue >= 0)
+            if (!velocity.IsNegative)
             {
                 if (isVaguelyOffScreen())
                 {
@@ -76,7 +76,7 @@ internal static class BabyMetroidGradualAcceleration
                 run.Lower(step);
             }
             run.Lower(step);
-            return SignedEightEight.FromSignedRaw(Math.Max(run.Velocity.SignedRawValue, -MaxXSpeed));
+            return SignedEightEight.Max(run.Velocity, -MaxXSpeed);
         }
     }
 
@@ -94,26 +94,26 @@ internal static class BabyMetroidGradualAcceleration
         if (distance < 0)
         {
             int step = Step(-distance, divisor);
-            if (velocity.SignedRawValue < 0)
+            if (velocity.IsNegative)
             {
                 run.StartFresh();
                 run.Raise(ReversalStep);
                 run.Raise(step);
             }
             run.Raise(step);
-            return SignedEightEight.FromSignedRaw(Math.Min(run.Velocity.SignedRawValue, MaxYSpeed));
+            return SignedEightEight.Min(run.Velocity, MaxYSpeed);
         }
         else
         {
             int step = Step(distance, divisor);
-            if (velocity.SignedRawValue >= 0)
+            if (!velocity.IsNegative)
             {
                 run.StartFresh();
                 run.Lower(ReversalStep);
                 run.Lower(step);
             }
             run.Lower(step);
-            return SignedEightEight.FromSignedRaw(Math.Max(run.Velocity.SignedRawValue, -MaxYSpeed));
+            return SignedEightEight.Max(run.Velocity, -MaxYSpeed);
         }
     }
 

@@ -561,7 +561,7 @@ internal sealed class PhantoonCombat
         // Unlike the common byte-table enemy sine routine, this callback uses a
         // word sample. Its high byte preserves the exact full radius at cardinal angles.
         int xOffset = ReadPhantoonFlameComponent(angle, radius);
-        int yOffset = ReadPhantoonFlameComponent(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue), radius);
+        int yOffset = ReadPhantoonFlameComponent(angle.TurnedBy(ByteAngle.HalfTurn).TurnedBy(ByteAngle.QuarterTurn), radius);
         flame.Position = flame.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(body.Position.Y.Whole + 16 + yOffset)));
     }
 

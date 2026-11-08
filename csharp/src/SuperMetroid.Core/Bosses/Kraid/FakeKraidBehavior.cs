@@ -77,6 +77,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Fewest frames a spike clock waits after it fires before it can fire again.</summary>
     private const int MinimumSpikeReloadFrames = 16;
 
+    /// <summary>The gravity Mini-Kraid's spit gains each update.</summary>
+    private static readonly SignedEightEight SpitGravity = SignedEightEight.FromSignedRaw(64);
+
+    /// <summary>The fastest Mini-Kraid's spit falls: four pixels an update.</summary>
+    private static readonly SignedEightEight SpitMaximumFallSpeed = SignedEightEight.FromSignedRaw(1024);
+
     /// <summary>Number of distinct random extra frames (zero through sixty-three) added to a spike clock's reload.</summary>
     private const int SpikeReloadRandomSpread = 64;
 
@@ -307,12 +313,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The fall speed stops at four pixels an update.
-        int oldVelocity = projectile.Velocity.Y.SignedRawValue;
-        int nextVelocity = oldVelocity + 64;
-        if (nextVelocity >= 0 && oldVelocity >= 960)
-            nextVelocity = 1024;
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(nextVelocity));
+        // The fall speed stops at four pixels an update: a spit falling within one step of it is set to it.
+        SignedEightEight oldVelocity = projectile.Velocity.Y;
+        SignedEightEight nextVelocity = oldVelocity + SpitGravity;
+        if (!nextVelocity.IsNegative && oldVelocity >= SpitMaximumFallSpeed - SpitGravity)
+            nextVelocity = SpitMaximumFallSpeed;
+        projectile.Velocity = projectile.Velocity.WithY(nextVelocity);
     }
 
     /// <summary>Runs Mini-Kraid's body spikes per frame.</summary>

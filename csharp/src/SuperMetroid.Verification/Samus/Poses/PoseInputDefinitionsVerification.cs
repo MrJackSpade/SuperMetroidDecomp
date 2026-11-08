@@ -59,12 +59,11 @@ internal static class PoseInputDefinitionsVerification
         // tests the whole held word against zero, removes Start and Select, and every rule of SamusPoseInputRulesEarly
         // and SamusPoseInputRulesLate reads the held and new buttons only through SamusPoseInputs.Has (after
         // MirrorButtons, which only exchanges Left and Right). Has reads only the controller buttons of
-        // SamusPoseInputDefinitions.ChordButtons, so B and Y, the held noise, are never read; and no rule names AimUp
-        // or AimDown (the L and R buttons) on the new buttons, so the new-button noise (B, Y, Select, Start, L, R) is
-        // never read either. One lookup per distinct case therefore stands for all four noise representatives; the
-        // held-noise representative is looked up on its own only for the zero held word, the one case it decides. The
-        // native result is still computed and compared for every representative. The chord-button half of the
-        // argument is data and is checked here; the rule-text half is the rule sources'.
+        // SamusPoseInputDefinitions.ChordButtons, so B and Y, the held noise, are never read. One lookup therefore
+        // stands for both held-noise representatives; the held-noise representative is looked up on its own only for
+        // the zero held word, the one case it decides, and its native result is still computed and compared. The
+        // new-button noise includes L and R, which are chord buttons, so each new-button representative keeps its own
+        // lookup.
         ControllerButton chordButtons = ControllerButton.None;
         foreach (SamusPoseChordButton chord in SamusPoseInputDefinitions.ChordButtons)
             chordButtons |= chord.Button;
@@ -81,15 +80,16 @@ internal static class PoseInputDefinitionsVerification
             for (int held = 0; held < 256; held++)
             for (int pressed = 0; pressed < 64; pressed++)
             {
-                SamusPoseTransitionLookup actual = default;
-                for (int heldNoise = 0; heldNoise < 2; heldNoise++)
+                for (int edgeNoise = 0; edgeNoise < 2; edgeNoise++)
                 {
-                    ControllerButton input = heldInputs[held * 2 + heldNoise];
-                    if (heldNoise == 0 || held == 0)
-                        actual = SamusPoseTransitionTable.Lookup(pose, input, edgeInputs[pressed * 2]);
-                    for (int edgeNoise = 0; edgeNoise < 2; edgeNoise++)
+                    ControllerButton edges = edgeInputs[pressed * 2 + edgeNoise];
+                    SamusPoseTransitionLookup actual = default;
+                    for (int heldNoise = 0; heldNoise < 2; heldNoise++)
                     {
-                        AssertEqual(NativeLookup(native, nativeHeld, nativeNew, pose, input, edgeInputs[pressed * 2 + edgeNoise]), actual,
+                        ControllerButton input = heldInputs[held * 2 + heldNoise];
+                        if (heldNoise == 0 || held == 0)
+                            actual = SamusPoseTransitionTable.Lookup(pose, input, edges);
+                        AssertEqual(NativeLookup(native, nativeHeld, nativeNew, pose, input, edges), actual,
                             "Compiled input graph preserves native first-match, self-match and fallback result");
                     }
                 }

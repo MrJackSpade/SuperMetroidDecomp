@@ -12,19 +12,22 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 /// <summary>Checks compiled gunship liftoff dust data and real projectile allocation against cartridge table values.</summary>
 internal static class GunshipDustDefinitionsVerification
 {
-    /// <summary>Compares all six dust definitions and wrapped spawn positions, then checks full-pool and invalid-parameter behavior.</summary>
+    /// <summary>Compares all six dust definitions and wrapped spawn positions, then checks full-pool behavior.</summary>
     internal static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var spawn = new Action<int, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
+        var spawn = new Action<GunshipDustPlacement, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var slot = enemies.Projectiles.EnemyProjectiles[^1];
-        for (ushort parameter = 0; parameter <= 10; parameter += 2)
+        AssertEqual(6, GunshipDustDefinitions.LiftoffClouds.Count, "Six liftoff dust clouds");
+        for (int cloud = 0; cloud < GunshipDustDefinitions.LiftoffClouds.Count; cloud++)
         {
+            // The gunship's six spawn parameters are the native tables' byte offsets, in the clouds' spawn order.
+            int parameter = 2 * cloud;
             short dx = unchecked((short)Word(EnemyRomTablePointersGunship.DustXOffsetWords + parameter));
             ushort instruction = Word(EnemyRomTablePointersGunship.DustInstructionPointers + parameter);
-            var definition = GunshipDust.ForParameter(parameter);
+            var definition = GunshipDustDefinitions.LiftoffClouds[cloud];
             AssertEqual(dx, definition.XOffset, "All native dust signed X offsets");
             AssertEqual(instruction, GunshipDustNativeListAddresses.Entry(definition.Program), "All native dust instruction selections");
             for (int origin = 0; origin <= ushort.MaxValue; origin++)
@@ -35,7 +38,7 @@ internal static class GunshipDustDefinitionsVerification
                 samus.Position = samus.Position.WithWhole(new((ushort)origin, (ushort)(ushort.MaxValue - origin)));
                 slot.Position = slot.Position.WithFractionY(0xffff).WithFractionX(0xffff);
                 slot.Velocity = new(new SignedEightEight(0x1234), new SignedEightEight(0x1234));
-                spawn(parameter, samus);
+                spawn(definition, samus);
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");
@@ -54,16 +57,14 @@ internal static class GunshipDustDefinitionsVerification
             occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
         }
-        for (ushort parameter = 0; parameter <= 10; parameter += 2) spawn(parameter, samus);
+        foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds) spawn(cloud, samus);
         foreach (var occupied in enemies.Projectiles.EnemyProjectiles)
         {
             AssertEqual(RoomEnemyProjectileKind.PhantoonStartingFlame, occupied.Kind, "Full pool retains owner");
             AssertEqual((ushort)0x1234, occupied.Position.X.Whole, "Full pool retains X");
             AssertTrue(ReferenceEquals(EnemyProjectileDeleteAnimation.Instance, occupied.Animation), "Full pool retains program");
         }
-        foreach (ushort invalid in new ushort[] { 1, 3, 9, 11, 12, 0xffff })
-            AssertThrows<ArgumentOutOfRangeException>(() => spawn(invalid, samus), "Invalid dust parameter still rejected before full-pool return");
-        Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns, full-pool retention and parameter validation pass with migrated reads forbidden.");
+        Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns and full-pool retention pass with migrated reads forbidden.");
     }
 
     /// <summary>Reads a native dust-table byte solely as the verification oracle at the CPU bus boundary.</summary>

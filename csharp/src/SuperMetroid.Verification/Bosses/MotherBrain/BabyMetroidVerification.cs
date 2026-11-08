@@ -177,9 +177,9 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(0x002f, motherBrain.State.FunctionTimer,
         "Mother Brain first regain call decrements $30 to $2F");
     AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.State.Body.Form, "Baby drain changes Mother Brain to her drained form");
-    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.LowerNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.LowerNeckMovement,
         "Mother Brain taken-aback lower neck index");
-    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.UpperNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.State.UpperNeckMovement,
         "Mother Brain taken-aback upper neck index");
     AssertEqual(0x0700, motherBrain.State.NeckAngleDelta,
         "Mother Brain taken-aback neck delta");
@@ -194,9 +194,9 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam,
         motherBrain.State.Phase,
         "Mother Brain advances to painful firing function");
-    AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.State.LowerNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.State.LowerNeckMovement,
         "Mother Brain drained firing lower neck index");
-    AssertEqual(MotherBrainNeckMovement.BobUp, motherBrain.State.UpperNeckMovementIndex,
+    AssertEqual(MotherBrainNeckMovement.BobUp, motherBrain.State.UpperNeckMovement,
         "Mother Brain drained firing upper neck index");
 
     Console.WriteLine(

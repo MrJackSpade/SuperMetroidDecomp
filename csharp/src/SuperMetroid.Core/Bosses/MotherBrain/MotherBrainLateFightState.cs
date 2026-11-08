@@ -30,11 +30,11 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Whether articulated neck angle dispatch runs on the brain's turn.</summary>
     public bool NeckMovementEnabled { get; internal set; }
 
-    /// <summary>Lower neck movement index selected by the current actor phase.</summary>
-    public MotherBrainNeckMovement LowerNeckMovementIndex { get; internal set; }
+    /// <summary>The lower neck movement selected by the current actor phase.</summary>
+    public MotherBrainNeckMovement LowerNeckMovement { get; internal set; }
 
-    /// <summary>Upper neck movement index selected by the current actor phase.</summary>
-    public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
+    /// <summary>The upper neck movement selected by the current actor phase.</summary>
+    public MotherBrainNeckMovement UpperNeckMovement { get; internal set; }
 
     /// <summary>Body function timer.</summary>
     public int FunctionTimer { get; internal set; }
@@ -125,8 +125,8 @@ internal sealed class MotherBrainLateFightState
         // NTSC takes 80 from the regional constant pair of 80 and 99.
         NeckAngleDelta = 80;
         NeckMovementEnabled = true;
-        LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
-        UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+        LowerNeckMovement = MotherBrainNeckMovement.Raise;
+        UpperNeckMovement = MotherBrainNeckMovement.Lower;
     }
 
     /// <summary>Selects the forward body list for the animation delay and applies the forward target rules.</summary>

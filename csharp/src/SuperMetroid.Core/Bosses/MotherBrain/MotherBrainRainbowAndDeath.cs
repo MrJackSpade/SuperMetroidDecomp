@@ -216,7 +216,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence)
     {
         RoomEnemySlot head = state.Head;
-        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovementIndex = state.LowerNeckMovementIndex, UpperNeckMovementIndex = state.UpperNeckMovementIndex, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
+        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
     }
 
     /// <summary>
@@ -257,8 +257,8 @@ internal sealed class MotherBrainRainbowAndDeath
         state.FunctionTimer = sequence.State.FunctionTimer;
         state.NeckAngleDelta = sequence.State.NeckAngleDelta;
         state.NeckMovementEnabled = sequence.State.NeckMovementEnabled;
-        state.LowerNeckMovementIndex = sequence.State.LowerNeckMovementIndex;
-        state.UpperNeckMovementIndex = sequence.State.UpperNeckMovementIndex;
+        state.LowerNeckMovement = sequence.State.LowerNeckMovement;
+        state.UpperNeckMovement = sequence.State.UpperNeckMovement;
         if (sequence.ThirdPhaseFight.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
             sequence.ThirdPhaseFight.Phase3NeckFunctionTimer == 10)
         {

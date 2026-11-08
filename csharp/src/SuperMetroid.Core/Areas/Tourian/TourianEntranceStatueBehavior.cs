@@ -52,10 +52,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The graphics a statue scene projectile spawns with: the shared sheet in the scene's look.</summary>
     internal SpriteGraphics SceneGraphics => SpriteGraphics.SharedIn(SceneShading);
 
-    /// <summary>Lights the eye glow of boss <paramref name="glow"/>, in Phantoon, Ridley, Draygon, Kraid order, over the last.</summary>
-    internal void ShowEyeGlow(int glow)
+    /// <summary>Lights a released boss statue's eye <paramref name="glow"/>, over the last.</summary>
+    internal void ShowEyeGlow(PictureShade glow)
     {
-        _eyeGlow = TourianStatueShades.EyeGlow(glow);
+        _eyeGlow = glow;
         ShowScene();
     }
 

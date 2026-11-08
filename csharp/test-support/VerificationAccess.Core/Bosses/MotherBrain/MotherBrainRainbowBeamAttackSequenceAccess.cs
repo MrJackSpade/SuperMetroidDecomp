@@ -51,20 +51,20 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
             {
                 RotationAngle lowerAngle = self.LowerNeckAngle;
                 RotationAngle upperAngle = self.UpperNeckAngle;
-                MotherBrainNeckMovement lowerIndex = self.State.LowerNeckMovementIndex;
-                MotherBrainNeckMovement upperIndex = self.State.UpperNeckMovementIndex;
+                MotherBrainNeckMovement lowerMovement = self.State.LowerNeckMovement;
+                MotherBrainNeckMovement upperMovement = self.State.UpperNeckMovement;
                 MotherBrainNeckKinematics.StepAngles(
                     ref lowerAngle,
                     ref upperAngle,
-                    ref lowerIndex,
-                    ref upperIndex,
+                    ref lowerMovement,
+                    ref upperMovement,
                     self.State.NeckAngleDelta,
                     self.State.BrainPosition.Y,
                     samus.Position.Y.Whole);
                 self.LowerNeckAngle = lowerAngle;
                 self.UpperNeckAngle = upperAngle;
-                self.State.LowerNeckMovementIndex = lowerIndex;
-                self.State.UpperNeckMovementIndex = upperIndex;
+                self.State.LowerNeckMovement = lowerMovement;
+                self.State.UpperNeckMovement = upperMovement;
             }
 
             self.State.BrainPosition = MotherBrainNeckKinematics.CalculateGeometry(self.State.Body.Position, self.LowerNeckAngle, self.UpperNeckAngle,

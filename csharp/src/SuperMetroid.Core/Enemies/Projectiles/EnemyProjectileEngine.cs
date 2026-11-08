@@ -873,15 +873,9 @@ internal sealed class EnemyProjectileEngine
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(16 * (blockX + 1)), CoordinateAxis.Wrap(16 * (blockY - 2))));
     }
 
-    /// <summary>
-    /// Allocates one of the gunship liftoff's six room-graphics dust actors.
-    /// Parameter values are even byte offsets 0..10 into the X/list tables.
-    /// </summary>
-    internal void SpawnGunshipLiftoffDustCloud(int parameter, SamusState samus)
+    /// <summary>Allocates one of the gunship liftoff's six dust clouds, <paramref name="definition"/>, below Samus.</summary>
+    internal void SpawnGunshipLiftoffDustCloud(GunshipDustPlacement definition, SamusState samus)
     {
-        // Validate before allocation, including when the projectile pool is full.
-        var definition = GunshipDust.ForParameter(parameter);
-
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;

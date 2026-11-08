@@ -686,7 +686,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
             {
-                // The suit scan checks byte offset ten only AFTER an unsuccessful probe.
+                // The suit scan checks for its last item only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit item can succeed, but scanning
                 // forward from an earlier missing item must not discover it.
                 if (categoryIndex == PauseEquipmentCategory.Suits && step > 0 &&

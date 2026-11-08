@@ -122,7 +122,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         state.PhaseTimer = 1;
-        state.FlickerTableOffset = 2;
+        state.NextFlickerStep = 0;
         state.Function = WreckedShipGhostAiFunction.TrackingSamusForSpawn;
     }
 
@@ -265,7 +265,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.Function = WreckedShipGhostAiFunction.BobbingWhileVisible;
         state.BobbingOrigin = new(0, slot.Position.Y.Whole);
         state.PhaseTimer = WreckedShipGhostVisibleDuration;
-        state.FlickerTableOffset = 2;
+        state.NextFlickerStep = 0;
         state.VerticalVelocity = WreckedShipGhostInitialVerticalVelocity;
         state.SpawnColumn = WreckedShipGhostStationaryClass;
         state.SpawnRow = WreckedShipGhostStationaryClass;
@@ -310,8 +310,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Advances the flicker. The table alternates hidden and visible intervals whose lengths
-    /// converge; its -1 terminator leaves the ghost permanently visible for this cycle.
+    /// Advances the flicker: when the current step's updates run out, the next step starts and may show the ghost; past the
+    /// last step the flicker ends and every later call keeps the ghost visible for this cycle.
     /// </summary>
     internal static void AdvanceWreckedShipGhostFlicker(
         RoomEnemySlot slot,
@@ -322,25 +322,14 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             if (--state.PhaseTimer != 0)
                 return;
 
-            int tableIndex = state.FlickerTableOffset / 2;
-            if ((uint)tableIndex >= WreckedShipGhostAppearanceDefinitions.FlickerCount)
-            {
-                throw new InvalidDataException(
-                    $"Wrecked Ship ghost flicker offset {state.FlickerTableOffset} is outside the flicker table.");
-            }
-
-            int duration = WreckedShipGhostAppearance.FlickerDuration(tableIndex);
-            if (duration < 0)
-            {
-                state.PhaseTimer = 0;
-                state.FlickerTableOffset = 0;
+            IReadOnlyList<WreckedShipGhostFlickerStep> steps = WreckedShipGhostAppearanceDefinitions.FlickerSteps;
+            if (state.NextFlickerStep == steps.Count)
                 return;
-            }
 
-            state.PhaseTimer = duration;
-            int oldOffset = state.FlickerTableOffset;
-            state.FlickerTableOffset = oldOffset + 2;
-            if ((oldOffset & 2) != 0)
+            WreckedShipGhostFlickerStep step = steps[state.NextFlickerStep];
+            state.PhaseTimer = step.Duration;
+            state.NextFlickerStep++;
+            if (step.Visibility == WreckedShipGhostFlickerVisibility.Unchanged)
                 return;
         }
 

@@ -47,7 +47,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         enemies.VerificationServices().NextRandom = () => 4;
 
-        enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(0);
+        enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(0));
         RoomEnemyProjectileSlot eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
         Run(eye, 10);
         AssertEqual((ushort)0xb7db, NativePointer(eye),
@@ -92,7 +92,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(splash, 1);
         AssertTrue(!splash.IsActive, "water splash deletes on its fifth instruction tick");
 
-        enemies.TourianUnlockBehavior.SpawnTourianSoul(2);
+        enemies.TourianUnlockBehavior.SpawnTourianSoul(TourianStatueNativeWords.Eye(2));
         RoomEnemyProjectileSlot soul = Single(RoomEnemyProjectileKind.TourianStatueSoul);
         Run(soul, 3);
         AssertEqual((ushort)0xb852, NativePointer(soul),

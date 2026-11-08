@@ -151,16 +151,16 @@ internal sealed class MotherBrainThirdPhaseFight
                 // two before any other code can observe the word. Preserve the observable
                 // result; the first write has no effect.
                 _state.NeckAngleDelta = 128;
-                _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
-                _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+                _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+                _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Inactive;
                 return;
 
             case MotherBrainPhase3NeckPhase.SetupRecoilRecovery:
                 _state.NeckMovementEnabled = true;
                 _state.NeckAngleDelta = 1280;
-                _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
-                _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+                _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
+                _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
                 Phase3NeckFunctionTimer = 16;
 
@@ -187,8 +187,8 @@ internal sealed class MotherBrainThirdPhaseFight
                 _state.SetHeadProgram(MotherBrainHeadProgram.HyperBeamRecoil);
                 _state.BrainMainShakeTimer = 50;
                 _state.NeckAngleDelta = 2304;
-                _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
-                _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
+                _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+                _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
                 Phase3NeckFunctionTimer = 11;
 

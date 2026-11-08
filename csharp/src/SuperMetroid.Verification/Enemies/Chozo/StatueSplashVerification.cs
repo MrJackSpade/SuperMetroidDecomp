@@ -28,7 +28,7 @@ internal static class StatueSplashVerification
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
             foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
             enemies.TourianUnlockBehavior.TourianStatueWaterSurface = new(0, 216);
-            enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(0);
+            enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(SuperMetroid.Core.Areas.Tourian.TourianStatueNativeWords.Eye(0));
             var eye = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             RoomEnemyProjectileSlot? particle = null;
             for (int frame = 0; frame < 200 && particle is null; frame++)

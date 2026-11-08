@@ -178,7 +178,7 @@ public sealed class RidleyEnemyState
     public bool GetawayActive { get; internal set; }
     /// <summary>Gets whether the Ceres getaway table reached its terminator and released the active transform.</summary>
     public bool GetawayFinished { get; internal set; }
-    /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (byte offset twice this).</summary>
+    /// <summary>Gets the frame of Ceres's getaway motion the next update shows, advanced by one each update.</summary>
     public int GetawayFrameIndex { get; internal set; }
     /// <summary>Gets how far the Ceres getaway has turned its floor clockwise, wrapping at a full turn.</summary>
     public RotationAngle FloorAngle { get; internal set; }

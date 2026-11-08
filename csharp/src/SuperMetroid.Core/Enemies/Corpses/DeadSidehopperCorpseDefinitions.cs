@@ -12,10 +12,4 @@ internal static class DeadSidehopperCorpseDefinitions
     internal static readonly DeadSidehopperCorpseDefinition InitiallyDead = new(
         Kind: new(RottingCorpseSpecies.Sidehopper, 1),
         RowCount: 40);
-
-    /// <summary>
-    /// The palette stage of a corpse placed already dead: the largest stage, so every "stage of 8 or more" test reads it as
-    /// finished, exactly as the game's all-ones word does.
-    /// </summary>
-    internal const int NoPaletteStage = ushort.MaxValue;
 }

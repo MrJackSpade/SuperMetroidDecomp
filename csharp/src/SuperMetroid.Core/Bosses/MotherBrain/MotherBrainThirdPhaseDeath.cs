@@ -255,8 +255,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (dyingAdvance.ReachedTarget)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.DyingDrool);
-            _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
-            _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+            _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
+            _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects;
             _state.FunctionTimer = 32;
@@ -277,8 +277,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             // Disabling the brain's effects removes the neck/breath/palette producers, copies sprite
             // palette 1 into palette 7, performs one health-palette refresh, and then
             // deliberately falls through with the already-negative timer.
-            _state.LowerNeckMovementIndex = MotherBrainNeckMovement.None;
-            _state.UpperNeckMovementIndex = MotherBrainNeckMovement.None;
+            _state.LowerNeckMovement = MotherBrainNeckMovement.None;
+            _state.UpperNeckMovement = MotherBrainNeckMovement.None;
             _state.DroolGenerationEnabled = false;
             _state.DisableSmallPurpleBreathGeneration();
             _state.BrainPaletteHandlingEnabled = false;

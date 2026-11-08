@@ -74,8 +74,9 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} program");
             AssertEqual(expected.Velocity, state.Velocity,
                 $"production escape Etecoon selector {parameter} speed");
-            AssertEqual((EscapeEtecoonRole)(role * 2), (EscapeEtecoonRole)(parameter & 0xfffe),
-                $"escape Etecoon selector {parameter} role mask");
+            AssertEqual(new[] { EscapeEtecoonRole.LeftWalker, EscapeEtecoonRole.RightWalker, EscapeEtecoonRole.WaitForEscapeEvent }[role],
+                SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter),
+                $"escape Etecoon selector {parameter} decodes the role its cleared low bit selects");
         }
 
         Console.WriteLine(

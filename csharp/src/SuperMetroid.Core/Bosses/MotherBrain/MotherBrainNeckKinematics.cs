@@ -29,13 +29,13 @@ internal static class MotherBrainNeckKinematics
     internal static void StepAngles(
         ref RotationAngle lowerAngle,
         ref RotationAngle upperAngle,
-        ref MotherBrainNeckMovement lowerMovementIndex,
-        ref MotherBrainNeckMovement upperMovementIndex,
+        ref MotherBrainNeckMovement lowerMovement,
+        ref MotherBrainNeckMovement upperMovement,
         int angleDelta,
         int brainY,
         int samusY)
     {
-        switch (lowerMovementIndex)
+        switch (lowerMovement)
         {
             case MotherBrainNeckMovement.None:
                 break;
@@ -45,7 +45,7 @@ internal static class MotherBrainNeckKinematics
                 if (candidate.CompareTo(LowerBobFloor) < 0)
                 {
                     candidate = LowerBobFloor;
-                    lowerMovementIndex = MotherBrainNeckMovement.BobUp;
+                    lowerMovement = MotherBrainNeckMovement.BobUp;
                 }
                 lowerAngle = candidate;
                 break;
@@ -53,7 +53,7 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.BobUp: // Bob up to nine sixteenths of a turn unless the brain is already above Y=60.
                 if (CoordinateAxis.Difference(brainY, 60) < 0)
                 {
-                    lowerMovementIndex = MotherBrainNeckMovement.BobDown;
+                    lowerMovement = MotherBrainNeckMovement.BobDown;
                 }
                 else
                 {
@@ -61,7 +61,7 @@ internal static class MotherBrainNeckKinematics
                     if (candidate.CompareTo(LowerCeiling) >= 0)
                     {
                         candidate = LowerCeiling;
-                        lowerMovementIndex = MotherBrainNeckMovement.BobDown;
+                        lowerMovement = MotherBrainNeckMovement.BobDown;
                     }
                     lowerAngle = candidate;
                 }
@@ -72,7 +72,7 @@ internal static class MotherBrainNeckKinematics
                 if (candidate.CompareTo(LowerFloor) < 0)
                 {
                     candidate = LowerFloor;
-                    lowerMovementIndex = MotherBrainNeckMovement.None;
+                    lowerMovement = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
                 break;
@@ -83,27 +83,27 @@ internal static class MotherBrainNeckKinematics
                 if (candidate.CompareTo(LowerCeiling) >= 0)
                 {
                     candidate = LowerCeiling;
-                    lowerMovementIndex = MotherBrainNeckMovement.None;
+                    lowerMovement = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
                 break;
             }
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported lower-neck movement {lowerMovementIndex}.");
+                    $"Unsupported lower-neck movement {lowerMovement}.");
         }
 
         // Runs the upper dispatcher after the lower dispatcher, so it observes the
         // lower angle and movement-index mutations made immediately above on this frame.
-        switch (upperMovementIndex)
+        switch (upperMovement)
         {
             case MotherBrainNeckMovement.None:
                 break;
             case MotherBrainNeckMovement.BobDown: // Bob down; Samus below the brain forces both halves back upward.
                 if (CoordinateAxis.AsSigned(brainY + 4 - samusY) >= 0)
                 {
-                    lowerMovementIndex = MotherBrainNeckMovement.BobUp;
-                    upperMovementIndex = MotherBrainNeckMovement.BobUp;
+                    lowerMovement = MotherBrainNeckMovement.BobUp;
+                    upperMovement = MotherBrainNeckMovement.BobUp;
                 }
                 else
                 {
@@ -111,7 +111,7 @@ internal static class MotherBrainNeckKinematics
                     if (candidate.CompareTo(UpperFloor) < 0)
                     {
                         candidate = UpperFloor;
-                        upperMovementIndex = MotherBrainNeckMovement.BobUp;
+                        upperMovement = MotherBrainNeckMovement.BobUp;
                     }
                     upperAngle = candidate;
                 }
@@ -123,7 +123,7 @@ internal static class MotherBrainNeckKinematics
                 if (candidate.CompareTo(target) >= 0)
                 {
                     candidate = target;
-                    upperMovementIndex = MotherBrainNeckMovement.BobDown;
+                    upperMovement = MotherBrainNeckMovement.BobDown;
                 }
                 upperAngle = candidate;
                 break;
@@ -134,7 +134,7 @@ internal static class MotherBrainNeckKinematics
                 if (candidate.CompareTo(UpperFloor) < 0)
                 {
                     candidate = UpperFloor;
-                    upperMovementIndex = MotherBrainNeckMovement.None;
+                    upperMovement = MotherBrainNeckMovement.None;
                 }
                 upperAngle = candidate;
                 break;
@@ -146,14 +146,14 @@ internal static class MotherBrainNeckKinematics
                 if (candidate.CompareTo(target) >= 0)
                 {
                     candidate = target;
-                    upperMovementIndex = MotherBrainNeckMovement.None;
+                    upperMovement = MotherBrainNeckMovement.None;
                 }
                 upperAngle = candidate;
                 break;
             }
             default:
                 throw new InvalidOperationException(
-                    $"Unsupported upper-neck movement {upperMovementIndex}.");
+                    $"Unsupported upper-neck movement {upperMovement}.");
         }
     }
 

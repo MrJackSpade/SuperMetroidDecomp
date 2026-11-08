@@ -587,7 +587,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             ghost.Function = words.A == 0 ? null : WreckedShipNativeWords.WreckedShipGhostAiFunctions.Decode(words.A, "recorded WreckedShipGhostAiFunction");
             ghost.PhaseTimer = unchecked((short)words.B);
-            ghost.FlickerTableOffset = words.C;
+            ghost.NextFlickerStep = WreckedShipGhostFlickerStepOf(words.C);
         }
         if (slot.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
         {
@@ -821,6 +821,22 @@ internal static class NativeEnemyFamilyStateImport
                 DeadTourianCorpseFunction.Rotting,
             _ => throw new InvalidDataException($"Recorded dead {species} function ${word:X4} is not one of its routines."),
         };
+
+    /// <summary>
+    /// Decodes a Wrecked Ship ghost's recorded flicker-table byte offset into its next flicker step. The steps are the
+    /// table's entries after its first, two bytes each, so offset two is the first step; the terminator's offset and zero,
+    /// which the game writes when the flicker ends, are the position past the last step.
+    /// </summary>
+    /// <param name="word">The recorded byte offset.</param>
+    private static int WreckedShipGhostFlickerStepOf(ushort word)
+    {
+        int count = WreckedShipGhostAppearanceDefinitions.FlickerSteps.Count;
+        if (word == 0)
+            return count;
+        if (word % 2 != 0 || word / 2 - 1 > count)
+            throw new InvalidDataException($"Recorded Wrecked Ship ghost flicker offset {word} is not a flicker step.");
+        return word / 2 - 1;
+    }
 
     /// <summary>Decodes a recorded index word that the family's updates keep within 0 through <paramref name="maximum"/>.</summary>
     /// <param name="word">The recorded word.</param>

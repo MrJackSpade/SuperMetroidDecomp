@@ -115,19 +115,19 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
-        // A population loop count of zero starts below zero, so the fall ends at the first terminator as a count of one does.
+        // A population loop count of zero starts below zero, so the fall ends at the first loop's end as a count of one does.
         state.FallingPatternLoopCounter = slot.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
         SetChootProgram(slot, state, ChootProgram.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }
 
-    /// <summary>Follows authored path offsets, advancing its origin at terminators and restoring the exact spawn state after the final loop.</summary>
+    /// <summary>Follows authored path offsets, advancing its origin at each loop's end and restoring the exact spawn state after the final loop.</summary>
     internal static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
-        ChootFallingPathPoint point = ChootFalls.At(
+        Offset16<RoomPixels>? offset = ChootFalls.At(
             state.FallingPath ?? throw new InvalidDataException("A falling Choot has no falling pattern."),
             state.FallingPatternFrame);
-        if (point.IsTerminator)
+        if (offset is not { } pathOffset)
         {
             state.FallingOrigin = state.FallingOrigin.WithY(CoordinateAxis.Wrap(
                 state.FallingOrigin.Y + state.FallingPatternYDistance));
@@ -135,7 +135,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             if (--state.FallingPatternLoopCounter >= 0)
                 return;
 
-            // The last terminator restores exact spawn coordinates/subpositions, reinstalls
+            // The last loop's end restores exact spawn coordinates/subpositions, reinstalls
             // idle bytecode, and rearms the same calculated ascent for the next activation.
             state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
             slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);
@@ -144,7 +144,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.Position = slot.Position.WithWhole(state.FallingOrigin + point.Offset);
+        slot.Position = slot.Position.WithWhole(state.FallingOrigin + pathOffset);
         state.FallingPatternFrame++;
     }
 

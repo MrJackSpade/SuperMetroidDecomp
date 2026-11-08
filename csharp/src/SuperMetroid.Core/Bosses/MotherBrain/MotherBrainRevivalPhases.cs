@@ -99,8 +99,8 @@ internal sealed class MotherBrainRevivalPhases
         requests.BodyPostureRequested = postureRequested;
         if (stoodUp)
         {
-            _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
-            _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+            _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
+            _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
             _state.NeckMovementEnabled = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch;
@@ -159,8 +159,8 @@ internal sealed class MotherBrainRevivalPhases
         // The separate body instruction stage may still be finishing the last walk.
         BabyMetroidAttackCounter = 0;
         _state.NeckMovementEnabled = true;
-        _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
-        _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+        _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+        _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         _state.NeckAngleDelta = 64;
         _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveFinishPreparingForBabyDeath;
         return true;

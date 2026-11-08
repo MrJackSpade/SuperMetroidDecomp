@@ -32,8 +32,8 @@ internal sealed class MotherBrainAttacks
             case MotherBrainHandBeamPhase.BackUp:
                 if (!TryWalkMotherBrainBackwardsForHandBeam(state))
                     return;
-                state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
-                state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+                state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+                state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
                 state.HandBeamPhase = MotherBrainHandBeamPhase.WaitForBombs;
                 return;
 
@@ -53,8 +53,8 @@ internal sealed class MotherBrainAttacks
 
             case MotherBrainHandBeamPhase.Finish:
                 MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2);
-                state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
-                state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+                state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+                state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
                 state.HandBeamPhase = MotherBrainHandBeamPhase.BackUp;
                 state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
                 return;
@@ -422,11 +422,11 @@ internal sealed class MotherBrainAttacks
         // The comparison takes the sign of the wrapped 16-bit difference. Arena coordinates
         // never leave the signed range, and a wrapped coordinate keeps the same answer.
         int headMinusSamus = CoordinateAxis.Difference(head.Position.Y.Whole, samus.Position.Y.Whole);
-        MotherBrainNeckMovement targetIndex = headMinusSamus >= 0
+        MotherBrainNeckMovement targetMovement = headMinusSamus >= 0
             ? MotherBrainNeckMovement.Raise
             : MotherBrainNeckMovement.Lower;
-        state.LowerNeckMovementIndex = targetIndex;
-        state.UpperNeckMovementIndex = targetIndex;
+        state.LowerNeckMovement = targetMovement;
+        state.UpperNeckMovement = targetMovement;
         state.NeckAngleDelta = 512;
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire;
         state.FunctionTimer = 4;
@@ -461,8 +461,8 @@ internal sealed class MotherBrainAttacks
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobUp;
-        state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+        state.LowerNeckMovement = MotherBrainNeckMovement.BobUp;
+        state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         state.Function = MotherBrainBodyFunction.SecondPhaseThinking;
         RunMotherBrainSecondPhaseThinking(state, samus);
     }

@@ -61,8 +61,8 @@ internal sealed class MotherBrainRainbowAttackPhases
         SamusProjectileCooldownTimer = 0;
         _state.NeckAngleDelta = 64;
         _state.NeckMovementEnabled = true;
-        _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
-        _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+        _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+        _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
 
         // The rainbow's Samus command selects command five at 700 energy or above and command 24
         // below it. CPY/BPL is a signed 16-bit branch, retained by AtLeastBySignedDifference.
@@ -82,8 +82,8 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.SetHeadProgram(MotherBrainHeadProgram.NeutralPhase2);
         _state.NeckAngleDelta = 64;
         _state.NeckMovementEnabled = true;
-        _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
-        _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+        _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+        _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartCharging;
         _state.FunctionTimer = 256;
     }
@@ -274,8 +274,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     internal bool RunSecondPhaseRainbowExtendNeckDown()
     {
         SamusProjectileCooldownTimer = 8;
-        _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
-        _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+        _state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
+        _state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         _state.NeckAngleDelta = 1280; // NTSC value of the regional pair 1280/1792.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartFiring;
         _state.FunctionTimer = 16; // NTSC value of the regional pair 16/12.

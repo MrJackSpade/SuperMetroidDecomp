@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 public static class TourianStatueAnimatedTileMechanicsDefinitions
 {
     /// <summary>
-    /// Each statue's transfer geometry, event, boss test, shades and effect parameters, by its animated-tile
+    /// Each statue's transfer geometry, event, boss test, shades, eye and palette effect, by its animated-tile
     /// object; no other animated-tile object is a statue (<see cref="TourianStatueAnimatedTiles"/>).
     /// </summary>
     internal static readonly IReadOnlyDictionary<AnimatedTileObject, TourianStatueAnimatedTileProgramDefinition> Statues =
@@ -32,7 +32,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             BossArea = AreaId.WreckedShip,
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedShade = TourianStatueShades.PhantoonCleared,
-            UnlockEffectParameter = 0,
+            Eye = new(new(132, 144), TourianStatueShades.EyeGlow(0)),
             PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
             GreyShade = TourianStatueShades.PhantoonGrey,
         },
@@ -46,7 +46,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             BossArea = AreaId.Norfair,
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedShade = TourianStatueShades.RidleyCleared,
-            UnlockEffectParameter = 2,
+            Eye = new(new(122, 81), TourianStatueShades.EyeGlow(1)),
             PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
             GreyShade = TourianStatueShades.RidleyGrey,
         },
@@ -60,7 +60,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             BossArea = AreaId.Brinstar,
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedShade = TourianStatueShades.KraidCleared,
-            UnlockEffectParameter = 6,
+            Eye = new(new(104, 114), TourianStatueShades.EyeGlow(3)),
             PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
             GreyShade = TourianStatueShades.KraidGrey,
         },
@@ -74,7 +74,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             BossArea = AreaId.Maridia,
             DefeatedBossBits = BossBits.AreaBoss,
             ClearedShade = TourianStatueShades.DraygonCleared,
-            UnlockEffectParameter = 4,
+            Eye = new(new(158, 128), TourianStatueShades.EyeGlow(2)),
             PaletteFx = PaletteFxObject.GreyOutTourianStatueDraygon,
             GreyShade = TourianStatueShades.DraygonGrey,
         },

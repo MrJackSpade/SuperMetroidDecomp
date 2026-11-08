@@ -162,8 +162,8 @@ internal sealed class MotherBrainAscent
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
         state.NeckAngleDelta = 80;
         state.NeckMovementEnabled = true;
-        state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
-        state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
+        state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+        state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentRaiseMotherBrain;
     }
 
@@ -234,8 +234,8 @@ internal sealed class MotherBrainAscent
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
-        state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
+        state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+        state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingFinish;
         state.FunctionTimer = 64;
         FinishMotherBrainStretching(state);

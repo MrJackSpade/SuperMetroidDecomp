@@ -32,7 +32,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         for (ushort parameter = 0; parameter <= 6; parameter += 2)
         {
             Position16<RoomPixels> position =
-                TourianStatueUnlock.EyePosition(parameter);
+                TourianStatueNativeWords.Eye(parameter).Position;
             AssertEqual(rom.ReadCartridgeWord((0x86b90e + parameter)), position.X,
                 $"Tourian statue eye X parameter {parameter}");
             AssertEqual(rom.ReadCartridgeWord((0x86b916 + parameter)), position.Y,
@@ -45,11 +45,11 @@ internal static class TourianStatueUnlockDefinitionsVerification
         {
             bool soul = soulValue != 0;
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
-            if (soul) enemies.TourianUnlockBehavior.SpawnTourianSoul(parameter);
-            else enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
+            if (soul) enemies.TourianUnlockBehavior.SpawnTourianSoul(TourianStatueNativeWords.Eye(parameter));
+            else enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
 
             Position16<RoomPixels> expected =
-                TourianStatueUnlock.EyePosition(parameter);
+                TourianStatueNativeWords.Eye(parameter).Position;
             RoomEnemyProjectileSlot projectile =
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(expected.X, projectile.Position.X.Whole,
@@ -62,13 +62,6 @@ internal static class TourianStatueUnlockDefinitionsVerification
             AssertEqual(soul ? 0xfc00 : 0,
                 projectile.Velocity.Y.RawValue,
                 $"production Tourian unlock velocity {parameter}/{soul}");
-        }
-
-        foreach (ushort parameter in new ushort[] { 1, 3, 5, 7, ushort.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => TourianStatueUnlock.EyePosition(parameter),
-                $"invalid Tourian statue parameter {parameter}");
         }
 
         Suite(nameof(VerifyTourianStatueAnimatedTileMechanics), () => VerifyTourianStatueAnimatedTileMechanics(rom));

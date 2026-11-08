@@ -85,9 +85,9 @@ internal static class NativeSnapshotMotherBrainImport
         state.UpperNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         state.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         state.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        state.LowerNeckMovementIndex = ClosedEnumWordDecoding.Decode<MotherBrainNeckMovement>(
+        state.LowerNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
-        state.UpperNeckMovementIndex = ClosedEnumWordDecoding.Decode<MotherBrainNeckMovement>(
+        state.UpperNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
         state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
@@ -219,9 +219,9 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.UpperNeckAngle = RotationAngle.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
         sequence.State.NeckAngleDelta = W(MotherBrainMemory.NeckAngleDelta);
         sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        sequence.State.LowerNeckMovementIndex = ClosedEnumWordDecoding.Decode<MotherBrainNeckMovement>(
+        sequence.State.LowerNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
-        sequence.State.UpperNeckMovementIndex = ClosedEnumWordDecoding.Decode<MotherBrainNeckMovement>(
+        sequence.State.UpperNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }

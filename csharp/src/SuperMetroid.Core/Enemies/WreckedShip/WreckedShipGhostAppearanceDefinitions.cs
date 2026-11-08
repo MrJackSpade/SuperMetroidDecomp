@@ -36,12 +36,22 @@ public static class WreckedShipGhostAppearanceDefinitions
         new(-64, 64), new(0, 64), new(64, 64),
     ];
 
-    /// <summary>The flicker table contains sixteen alternating intervals followed by the -1 terminator.</summary>
-    public const int FlickerCount = 17;
-
     /// <summary>
-    /// The flicker intervals, i=0..16. Each four-interval stage repeats twice: the even interval grows
-    /// from max(1, stage), the odd interval falls from 8-stage. The final -1 terminates flickering.
+    /// The steps of a ghost's flicker as it appears, in order; flickering ends when the last step does, leaving the ghost
+    /// visible. The hidden steps shorten from eight updates to five and the shown steps lengthen from one to three, each
+    /// length held for two hidden and two shown steps; the ghost starts hidden. Once a step has shown the ghost, the hidden
+    /// steps that follow leave it shown, so the steps' lengths decide when the ghost first appears and when its flicker
+    /// ends, which the fade's completion waits for.
     /// </summary>
-    internal static readonly short[] FlickerDurations = [1, 8, 1, 8, 1, 7, 1, 7, 2, 6, 2, 6, 3, 5, 3, 5, -1];
+    public static IReadOnlyList<WreckedShipGhostFlickerStep> FlickerSteps { get; } =
+    [
+        new(8, WreckedShipGhostFlickerVisibility.Unchanged), new(1, WreckedShipGhostFlickerVisibility.Shown),
+        new(8, WreckedShipGhostFlickerVisibility.Unchanged), new(1, WreckedShipGhostFlickerVisibility.Shown),
+        new(7, WreckedShipGhostFlickerVisibility.Unchanged), new(1, WreckedShipGhostFlickerVisibility.Shown),
+        new(7, WreckedShipGhostFlickerVisibility.Unchanged), new(2, WreckedShipGhostFlickerVisibility.Shown),
+        new(6, WreckedShipGhostFlickerVisibility.Unchanged), new(2, WreckedShipGhostFlickerVisibility.Shown),
+        new(6, WreckedShipGhostFlickerVisibility.Unchanged), new(3, WreckedShipGhostFlickerVisibility.Shown),
+        new(5, WreckedShipGhostFlickerVisibility.Unchanged), new(3, WreckedShipGhostFlickerVisibility.Shown),
+        new(5, WreckedShipGhostFlickerVisibility.Unchanged),
+    ];
 }

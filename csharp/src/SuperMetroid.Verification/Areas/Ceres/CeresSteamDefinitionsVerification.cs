@@ -38,7 +38,7 @@ internal static class CeresSteamDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 
-            AssertEqual(AnimationProgramCursor<CeresSteamProgram>.Start(definition.Program), enemies.CeresSteamPrograms[slot.SlotIndex],
+            AssertEqual(AnimationProgramCursor<CeresSteamProgram>.Start(definition.Program), slot.RequireSpeciesState<CeresSteamEnemyState>().Program,
                 $"production Ceres steam {variant} program");
             CeresSteamEnemyState steamState = slot.SpeciesState<CeresSteamEnemyState>()
                 ?? throw new InvalidOperationException("The initialized vent has no state.");

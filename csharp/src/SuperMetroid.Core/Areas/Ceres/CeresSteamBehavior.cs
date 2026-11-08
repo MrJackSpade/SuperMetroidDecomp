@@ -28,21 +28,16 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         _collision = collision;
     }
 
-    /// <summary>
-    /// Each vent slot's typed program cursor. Initialization sets a slot's cursor before its program runs, so a slot's
-    /// entry always belongs to its current vent.
-    /// </summary>
-    internal readonly Dictionary<int, AnimationProgramCursor<CeresSteamProgram>> VentPrograms = [];
-
     /// <summary>Runs a vent's typed program where the enemy instruction interpreter would.</summary>
     internal void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<CeresSteamProgram> cursor = VentPrograms[slot.SlotIndex];
+        CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
+        AnimationProgramCursor<CeresSteamProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, CeresSteamAnimations.Programs, ref cursor, CeresSteamFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyCeresSteamCue(slot, cue));
-        VentPrograms[slot.SlotIndex] = cursor;
+        state.Program = cursor;
     }
 
     /// <summary>Carries out one cue of a vent's program, returning the program a branch continues at, or null to run on.</summary>
@@ -97,10 +92,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         var state = new CeresSteamEnemyState
         {
             ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
+            Program = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        VentPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresSteamProgram>.Start(initialization.Program);
         state.Function = initialization.Function;
     }
 

@@ -61,18 +61,16 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             frame.Shade(GameplayPictures.Room, CeresDoorShades.ElevatorRoomGlow(step));
     }
 
-    /// <summary>Each door slot's typed program cursor in the loaded room.</summary>
-    internal readonly Dictionary<int, AnimationProgramCursor<CeresDoorProgram>> DoorPrograms = [];
-
     /// <summary>Runs a door's typed program where the enemy instruction interpreter would.</summary>
     private void AdvanceCeresDoorAnimation(RoomEnemySlot slot, SamusState? samus)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<CeresDoorProgram> cursor = DoorPrograms[slot.SlotIndex];
+        CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
+        AnimationProgramCursor<CeresDoorProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, CeresDoorAnimations.Programs, ref cursor, CeresDoorFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyCeresDoorCue(slot, samus, cue));
-        DoorPrograms[slot.SlotIndex] = cursor;
+        state.Program = cursor;
     }
 
     /// <summary>Carries out one cue of a door's program, returning the program a branch continues at, or null to run on.</summary>
@@ -151,9 +149,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         slot.Frame = EnemyFrameId.CeresDoorInitial;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
+        var state = new CeresDoorEnemyState
+        {
+            Function = initialization.MainFunction,
+            Program = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program),
+        };
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
 
         // Only the pre-explosion overlay shows the door's own look (#1406, #1538).
         if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)

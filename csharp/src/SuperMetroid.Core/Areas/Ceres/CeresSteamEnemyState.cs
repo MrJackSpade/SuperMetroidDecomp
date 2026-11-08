@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Programs;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -11,6 +13,9 @@ internal sealed class CeresSteamEnemyState
 
     /// <summary>The staggered updates before the vent first appears, counted down by its program.</summary>
     public WrappingCountdown ActivationDelay { get; internal set; }
+
+    /// <summary>Where the vent's typed program resumes, set when the vent initializes; a kill leaves it in place.</summary>
+    internal AnimationProgramCursor<CeresSteamProgram> Program { get; set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

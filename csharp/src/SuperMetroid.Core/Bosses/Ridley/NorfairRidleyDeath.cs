@@ -250,7 +250,7 @@ internal sealed class NorfairRidleyDeath
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
                 ByteAngle.Wrapped(tail.Angle + state.TailSegments[5].Angle + 8).RawValue / 16;
-            StartRidleyBreakupProgram(state, fragment, RidleyBreakup.SelectTailFrame(
+            fragmentState.Program = AnimationProgramCursor<RidleyBreakupFrame>.Start(RidleyBreakup.SelectTailFrame(
                 part,
                 tailTipOrientation));
             return;
@@ -261,12 +261,8 @@ internal sealed class NorfairRidleyDeath
                 part,
                 facingRight: state.FacingDirection != RidleyFacing.Left);
         fragment.Position = fragment.Position.WithWhole(body.Position.Whole + bodyPart.Offset);
-        StartRidleyBreakupProgram(state, fragment, bodyPart.Frame);
+        fragmentState.Program = AnimationProgramCursor<RidleyBreakupFrame>.Start(bodyPart.Frame);
     }
-
-    /// <summary>Starts a breakup fragment's typed program for <paramref name="frame"/>.</summary>
-    private static void StartRidleyBreakupProgram(RidleyEnemyState state, RoomEnemySlot fragment, RidleyBreakupFrame frame) =>
-        state.BreakupPrograms[fragment.SlotIndex] = AnimationProgramCursor<RidleyBreakupFrame>.Start(frame);
 
     /// <summary>Runs the breakup actor's main AI: flicker, drag, gravity, movement, and lifetime.</summary>
     internal void RunNorfairRidleyExplosionMain(RoomEnemySlot fragment)

@@ -210,14 +210,6 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<EscapeEtecoonEntity, EscapeEtecoonEnemyState>())];
 
-        /// <summary>Each Ceres door slot's typed program cursor.</summary>
-        internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresDoorProgram>> CeresDoorPrograms =>
-            self.CeresDoorBehavior.DoorPrograms;
-
-        /// <summary>Each Ceres steam vent slot's typed program cursor.</summary>
-        internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresSteamProgram>> CeresSteamPrograms =>
-            self.CeresSteamBehavior.VentPrograms;
-
         /// <summary>Typed state for each physical escape-Dachora slot.</summary>
         internal IReadOnlyList<EscapeDachoraEnemyState?> EscapeDachoraStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<EscapeDachoraEntity, EscapeDachoraEnemyState>())];

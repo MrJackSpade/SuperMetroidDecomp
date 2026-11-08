@@ -134,12 +134,10 @@ internal sealed class RidleyBodyAnimation
     {
         if (!EnemyProgramAnimation.Expire(fragment))
             return;
-        RidleyEnemyState state = _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
-            $"Ridley breakup fragment in slot {fragment.SlotIndex} requires Ridley's encounter state.");
-        if (!state.BreakupPrograms.TryGetValue(fragment.SlotIndex, out AnimationProgramCursor<RidleyBreakupFrame> cursor))
-            throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no program.");
+        RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
+        AnimationProgramCursor<RidleyBreakupFrame> cursor = state.Program;
         EnemyProgramAnimation.Run(fragment, RidleyBreakupAnimations.Programs, ref cursor, RidleyBreakupFrameDefinitions.ShownFrames.Of,
             (cue, continuation) => throw new InvalidOperationException("Ridley's breakup programs publish no cues."));
-        state.BreakupPrograms[fragment.SlotIndex] = cursor;
+        state.Program = cursor;
     }
 }

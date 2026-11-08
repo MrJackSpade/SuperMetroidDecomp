@@ -56,8 +56,7 @@ internal sealed class RidleyNativeInstructionPointers
             return Body(RequireRidley(enemies));
         if (actor.DefinitionId == EnemyDefinitionId.RidleyExplosion)
         {
-            if (!RequireRidley(enemies).BreakupPrograms.TryGetValue(actor.SlotIndex, out AnimationProgramCursor<RidleyBreakupFrame> cursor))
-                throw new InvalidOperationException($"Ridley breakup fragment in slot {actor.SlotIndex} has no program.");
+            AnimationProgramCursor<RidleyBreakupFrame> cursor = actor.RequireSpeciesState<RidleyExplosionFragmentState>().Program;
             // A fragment's frame sits at its list entry and its hold at the sleep after the frame record.
             return checked((ushort)(RidleyNativeProgramOracle.BreakupList(cursor.Program) + (cursor.Position == 0 ? 0 : 4)));
         }

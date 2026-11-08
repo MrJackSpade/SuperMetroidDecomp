@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Programs;
+
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
@@ -9,6 +11,9 @@ internal sealed class CeresDoorEnemyState
 {
     /// <summary>The main-AI function; none once a kill has emptied the record.</summary>
     public CeresDoorFunction? Function { get; internal set; }
+
+    /// <summary>Where the door's typed program resumes, set when the door initializes; a kill leaves it in place.</summary>
+    internal AnimationProgramCursor<CeresDoorProgram> Program { get; set; }
 
     /// <summary>
     /// Whether the door's program has handed its drawing to Ridley's scene and not yet taken it back.

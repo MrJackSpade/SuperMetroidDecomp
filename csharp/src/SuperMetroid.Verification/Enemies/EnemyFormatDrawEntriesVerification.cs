@@ -23,7 +23,7 @@ internal static class EnemyFormatDrawEntriesVerification
 {
     /// <summary>The row holding the projectile's colours, the enemy projectiles'.</summary>
     /// <summary>The projectile's graphics: the set's shared sheet, which holds every object it can spawn, in the enemy projectiles' colours.</summary>
-    private static readonly SpriteGraphics ProjectileGraphics = SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours);
+    private static readonly SpriteGraphics ProjectileGraphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
 
     /// <summary>Loads a room graphics set, publishes a constructed population and checks every entry.</summary>
     internal static void VerifyEnemyFormatDrawEntries()
@@ -92,7 +92,7 @@ internal static class EnemyFormatDrawEntriesVerification
         SpawnedObjectSheet projectileSheet = InstalledFixtures.EnemySheets.Spawned(set, SpawnedObjectOwner.Shared);
         AssertImage(draws[entry++], new SpriteSource(SpriteSourceKind.EnemyProjectile, 17),
             projectileSheet.Frame(EnemySheetDefinitions.ProjectileFrameName(projectileFrame)), new(30, 40),
-            EnemyShades.InEnemyProjectileColours, "Enemy projectile");
+            EnemyShades.InProjectileLook, "Enemy projectile");
         AssertEqual(draws.Length, entry, "No other entries are published");
 
         // An enemy drawn in another look shows its frame under that look's shading (#1512).

@@ -304,7 +304,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("deadSidehopper", 0, ShitroidColorDefinitions.TargetColorCount)), BabyMetroidCutsceneColors = ColorCatalog(BabyMetroidCutsceneColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, BabyMetroidCutsceneColorFormat.InitialColorCount),
                     new EnemyContentIdentityFixtureField("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount)), BotwoonColors = ColorCatalog(BotwoonColorFile.Read,
-                    new EnemyContentIdentityFixtureField("health", BotwoonHealthPaletteDefinitions.PaletteCount, BotwoonColorFormat.ColorsPerPalette)), MotherBrainDeathColors = ColorCatalog(MotherBrainDeathColorFile.Read,
+                    new EnemyContentIdentityFixtureField("health", BotwoonHealthBandDefinitions.BandCount, BotwoonColorFormat.ColorsPerPalette)), MotherBrainDeathColors = ColorCatalog(MotherBrainDeathColorFile.Read,
                     new EnemyContentIdentityFixtureField("bodyFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount),
                     new EnemyContentIdentityFixtureField("legFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount),
                     new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathColorFile.CorpseFadeFrameCount, MotherBrainDeathColorFormat.CorpseColorCount),

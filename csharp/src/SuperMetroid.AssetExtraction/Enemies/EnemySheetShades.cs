@@ -183,9 +183,9 @@ internal sealed class EnemySheetShades
     /// <summary>The selection shades every enemy and spawned-object sheet takes: the hit flash, the frozen look and the enemy projectiles' colours.</summary>
     internal IReadOnlyList<SheetRowShade> Shared() =>
     [
-        new(EnemyShades.HitFlash, EnemySheetRowDefinitions.Common, colours.SpriteColours),
+        new(EnemyShades.HurtFlash, EnemySheetRowDefinitions.Common, colours.SpriteColours),
         new(EnemyShades.Frozen, EnemySheetRowDefinitions.Beams, colours.With(EnemySheetRowDefinitions.Beams, 0, FrozenColours())),
-        new(EnemyShades.EnemyProjectileColours, EnemySheetRowDefinitions.EnemyProjectiles, colours.SpriteColours),
+        new(EnemyShades.ProjectileLook, EnemySheetRowDefinitions.EnemyProjectiles, colours.SpriteColours),
     ];
 
     /// <summary>
@@ -202,12 +202,12 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.Dachora:
             {
                 DachoraColorCatalog dachora = inputs.Enemies.DachoraColors ?? throw Missing("Dachora colours");
-                shades.Add(SheetShade.Run(DachoraShades.Of(DachoraPalettePhase.Default, 0), first, Frame(16, colour => dachora.Resolve(DachoraPalettePhase.Default, 0, colour))));
+                shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Default, 0), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Default, 0, colour))));
                 for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
                 {
                     int step = frame;
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraPalettePhase.Speed, step), first, Frame(16, colour => dachora.Resolve(DachoraPalettePhase.Speed, step, colour))));
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraPalettePhase.Shine, step), first, Frame(16, colour => dachora.Resolve(DachoraPalettePhase.Shine, step, colour))));
+                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Speed, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Speed, step, colour))));
+                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Shine, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Shine, step, colour))));
                 }
                 break;
             }
@@ -272,7 +272,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
                 // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
                 SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses));
                 break;
             case EnemyDefinitionId.BabyMetroid:
                 SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
@@ -390,7 +390,7 @@ internal sealed class EnemySheetShades
             inks = inks.Concat(RidleySprites());
         if (enemy is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
             or EnemyDefinitionId.BabyMetroidCutscene)
-            inks = inks.Concat(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
+            inks = inks.Concat(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses));
         return new SheetShadeSet([.. inks], SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours, enemy));
     }
 

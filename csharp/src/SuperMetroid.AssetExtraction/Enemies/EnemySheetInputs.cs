@@ -38,7 +38,6 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
         {
             BeamPalettes = LoadBeamPalettes(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName, BeamPaletteFile.FileName)),
             Maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName)),
-            RoomPalettes = RoomStaticPaletteArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.RoomPaletteDirectoryName)),
         };
     }
 
@@ -63,9 +62,6 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     /// their sprites (#1512); null for fixtures that draw neither encounter.
     /// </summary>
     internal AreaMapPresentation? Maps { get; init; }
-
-    /// <summary>The tilesets' installed colours, which Mother Brain's escape copies room colours from (#1512); null for fixtures that draw no escape.</summary>
-    internal RoomStaticPalettes? RoomPalettes { get; init; }
 
     /// <summary>The installed beam colours at <paramref name="path"/>.</summary>
     private static InstalledBeamPalettes LoadBeamPalettes(string path)

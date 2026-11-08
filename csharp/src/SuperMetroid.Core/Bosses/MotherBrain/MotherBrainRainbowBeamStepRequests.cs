@@ -48,9 +48,6 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the escape music was queued.</summary>
     internal bool EscapeMusicQueued { get; set; }
 
-    /// <summary>Whether the exploded door's palette was requested.</summary>
-    internal bool ExplodedDoorPaletteRequested { get; set; }
-
     /// <summary>Whether the escape music track was queued.</summary>
     internal bool EscapeMusicTrackQueued { get; set; }
 
@@ -93,7 +90,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
         new(phaseBefore, phaseAfter, Movement, SoundQueued, PaletteRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
             headAnimationScriptRequested, BodyPostureRequested, BabySpawnRequested, FinalBeamSoundQueued,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
-            ExplodedDoorPaletteRequested, EscapeMusicTrackQueued, EscapePaletteFxRequests,
+            EscapeMusicTrackQueued, EscapePaletteFxRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, TimerHandlingEnableRequested,
             MotherBrainEscapeTimerStartRequested, MotherBrainBossBitRequested, ZebesTimebombEventRequested, EscapeDoorParticleSpawns,
             EscapeDoorObject, EarthquakeTimerRefreshed);

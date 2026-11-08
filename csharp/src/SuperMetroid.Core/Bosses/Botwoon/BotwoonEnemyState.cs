@@ -75,12 +75,12 @@ public sealed class BotwoonEnemyState
     /// <summary>The next step of the head animation's timeline.</summary>
     internal int HeadAnimationPosition { get; set; }
     /// <summary>The shading his head and body show: the last health band shown, or his own colours before any (#1512).</summary>
-    internal PictureShading BodyShading => BotwoonHealthPalette.LastBandShown(PalettePhase) is { } band
+    internal PictureShading BodyShading => BotwoonHealthBands.LastBandShown(HealthBandsPassed) is { } band
         ? PictureShading.Shaded(BotwoonShades.Health(band))
         : PictureShading.Standard;
-    /// <summary>Band 0 through 7 selecting the next health threshold/palette; 8 marks completion of all eight palette steps.</summary>
-    public int PalettePhase { get; internal set; }
-    /// <summary>Head health retained from initialization, independently of subsequent damage and the palette threshold table.</summary>
+    /// <summary>The health thresholds he has passed, 0 through 8: each shows the next health band, and 8 marks all passed.</summary>
+    public int HealthBandsPassed { get; internal set; }
+    /// <summary>Head health retained from initialization, independently of subsequent damage and the health-band thresholds.</summary>
     public int MaximumHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
     public int HalfHealth { get; internal set; }

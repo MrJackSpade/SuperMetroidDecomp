@@ -252,8 +252,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(EnemyShades.HitFlashed);
-        state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(EnemyShades.HitFlashed);
+        state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(EnemyShades.HurtFlashLook);
+        state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(EnemyShades.HurtFlashLook);
     }
 
     /// <summary>Resolves the ordinary and contact-damage branches of a Metroid's touch.</summary>

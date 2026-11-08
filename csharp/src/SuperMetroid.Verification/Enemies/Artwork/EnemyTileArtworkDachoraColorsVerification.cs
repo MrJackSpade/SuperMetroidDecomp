@@ -27,18 +27,18 @@ internal static class EnemyTileArtworkDachoraColorsVerification
     {
         DachoraColorCatalog native = stock.Enemies.DachoraColors ??
             throw new InvalidDataException("Installed enemy art has no Dachora colors.");
-        Suite(nameof(VerifyFrame), () => VerifyFrame(DachoraPalettePhase.Default, 0));
+        Suite(nameof(VerifyFrame), () => VerifyFrame(DachoraColourPhase.Default, 0));
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
-            VerifyFrame(DachoraPalettePhase.Speed, frame);
-            VerifyFrame(DachoraPalettePhase.Shine, frame);
+            VerifyFrame(DachoraColourPhase.Speed, frame);
+            VerifyFrame(DachoraColourPhase.Shine, frame);
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
-                    DachoraPalettePhase.Speed, frame)),
+                    DachoraColourPhase.Speed, frame)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DachoraColorSources.SpeedPointerTable + frame * sizeof(ushort)),
                 $"native Dachora speed selector {frame}");
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
-                    DachoraPalettePhase.Shine, frame)),
+                    DachoraColourPhase.Shine, frame)),
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     DachoraColorSources.ShinePointerTable + frame * sizeof(ushort)),
                 $"native Dachora shine selector {frame}");
@@ -65,26 +65,26 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
         var state = new DachoraEnemyState();
-        DachoraBehavior.LoadDachoraPalette(slot, DachoraPalettePhase.Default, 0);
-        CheckLive(DachoraPalettePhase.Default, 0);
+        DachoraBehavior.ShowDachoraColours(slot, DachoraColourPhase.Default, 0);
+        CheckLive(DachoraColourPhase.Default, 0);
 
         RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             state.Speed = SignedSixteenSixteen.FromParts(8, 0);
-            state.SetPaletteCycle(frame, ticks: 1);
+            state.SetGlowCycle(frame, ticks: 1);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
-            CheckLive(DachoraPalettePhase.Speed, frame);
+            CheckLive(DachoraColourPhase.Speed, frame);
         }
 
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
-            state.SetPaletteCycle(frame, ticks: 0);
-            DachoraBehavior.StepDachoraShinePalette(slot, state);
-            CheckLive(DachoraPalettePhase.Shine, frame);
-            AssertEqual((frame + 1) % 4, state.PaletteFrame,
+            state.SetGlowCycle(frame, ticks: 0);
+            DachoraBehavior.StepDachoraShineGlow(slot, state);
+            CheckLive(DachoraColourPhase.Shine, frame);
+            AssertEqual((frame + 1) % 4, state.GlowFrame,
                 $"Dachora shine frame {frame} retains native next-frame selection");
-            AssertEqual(0, state.PaletteTicks,
+            AssertEqual(0, state.GlowTicks,
                 $"Dachora shine frame {frame} keeps no speed ticks");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -95,7 +95,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             "Dachora RGB5 channel outside five-bit precision is rejected");
         Console.WriteLine("  Dachora colors: 144 native RGB5 words, eight compiled selector pointers, live speed/shine phase selection, ROM guard and strict failures pass.");
 
-        void VerifyFrame(DachoraPalettePhase phase, int frame)
+        void VerifyFrame(DachoraColourPhase phase, int frame)
         {
             int source = DachoraColorSources.Source(phase, frame);
             for (int color = 0; color < DachoraColorFormat.ColorsPerFrame; color++)
@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
                     $"installed Dachora {phase} frame {frame} color {color}");
         }
 
-        void CheckLive(DachoraPalettePhase phase, int frame)
+        void CheckLive(DachoraColourPhase phase, int frame)
         {
             // The Dachora shows its phase's frame as the shade its draws publish (#1512); the colours are the import's.
             AssertEqual(PictureShading.Shaded(DachoraShades.Of(phase, frame)), slot.Shading,

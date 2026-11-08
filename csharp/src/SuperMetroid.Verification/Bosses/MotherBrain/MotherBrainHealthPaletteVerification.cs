@@ -22,9 +22,9 @@ internal static class MotherBrainHealthPaletteVerification
             int band = MotherBrainHealthPalette.Band(health);
             AssertEqual(index, band, $"health {health} selects band {index}");
             ushort[] cgram = BossShadeColours.Filled(0);
-            BossShadeColours.Lay(cgram, MotherBrainSheetShades.Background(InstalledFixtures.Maps, InstalledFixtures.EnemyArtwork.Bosses),
+            BossShadeColours.Lay(cgram, MotherBrainSheetShades.BodyLayer(InstalledFixtures.Maps, InstalledFixtures.EnemyArtwork.Bosses),
                 MotherBrainShades.Health(band), BossShadeColours.Room);
-            BossShadeColours.Lay(cgram, MotherBrainSheetShades.Sprites(InstalledFixtures.Maps, InstalledFixtures.EnemyArtwork.Bosses, InstalledFixtures.RoomPalettes),
+            BossShadeColours.Lay(cgram, MotherBrainSheetShades.Sprites(InstalledFixtures.Maps, InstalledFixtures.EnemyArtwork.Bosses),
                 MotherBrainShades.Health(band), BossShadeColours.Sprites);
             VerifyCopy(0xade6a2, 65);
             VerifyCopy(0xade6a2, 145);

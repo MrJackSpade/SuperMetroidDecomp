@@ -20,15 +20,9 @@ internal sealed class DraygonCombat
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
     private readonly DraygonGrab _grab;
 
-    /// <summary>The room's sprite objects, among them the Evirs that show his sprite shading.</summary>
-    private readonly RoomSpriteObjectPool _spriteObjects;
-
-
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyCollision collision, DraygonParts parts, DraygonGrab grab,
-        RoomSpriteObjectPool spriteObjects)
+    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyCollision collision, DraygonParts parts, DraygonGrab grab)
     {
-        _spriteObjects = spriteObjects;
         _projectiles = projectiles;
         _collision = collision;
         _parts = parts;
@@ -109,7 +103,6 @@ internal sealed class DraygonCombat
         if (!whiteFrame)
             state.Colours.ShowBand(RequireHealthPaletteBand(state));
         state.ShadeSprites();
-        state.ShadeEvirs(_spriteObjects);
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every

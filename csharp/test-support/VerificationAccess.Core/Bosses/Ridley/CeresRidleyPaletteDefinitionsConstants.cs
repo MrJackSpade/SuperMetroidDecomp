@@ -20,8 +20,6 @@ internal static class CeresRidleyPaletteDefinitionsConstants
     public const int RetreatBgCgramIndex = 0x0a2 / 2;
     /// <summary>CGRAM color index 33 (native byte offset $0042), BG palette 2 color 1, receiving the shared retreat shade.</summary>
     public const int RetreatSharedBgCgramIndex = 0x042 / 2;
-    /// <summary>CGRAM color index 241 (native byte offset $01E2), OBJ palette 7 color 1, receiving the same eight retreat colors as BG palette 2.</summary>
-    public const int RetreatSharedObjCgramIndex = 0x1e2 / 2;
     /// <summary>CGRAM color index 97 (native byte offset $00C2), BG palette 6 color 1; the alarm cycle updates indices 97..99.</summary>
     public const int AlarmCgramIndex = 97;
     /// <summary>CGRAM color index 81 (native byte offset $00A2), BG palette 5 color 1, updated by native zoom-palette routine $A6:B0EF.</summary>

@@ -71,7 +71,7 @@ internal static class BotwoonAttackCooldownVerification
         head.Position = head.Position.WithWhole(new(1000, 1000));
         var state = new BotwoonEnemyState()
         {
-            PalettePhase = BotwoonHealthPaletteDefinitions.CompletePhase,
+            HealthBandsPassed = BotwoonHealthBandDefinitions.BandCount,
             SegmentSpacingEntries = 3,
             Speed = 0,
         };

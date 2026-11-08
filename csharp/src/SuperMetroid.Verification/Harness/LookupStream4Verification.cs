@@ -1290,7 +1290,7 @@ internal static class LookupStream4Verification
             ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours));
+            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
             AssertEqual(entry, (spawned ?? throw new InvalidOperationException("Verification requires spawned.")).InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
@@ -1298,7 +1298,7 @@ internal static class LookupStream4Verification
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");
             AssertEqual((ushort)0x5678, spawned.Position.Y.Whole, "room sprite spawn Y preserved");
-            AssertEqual(SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InEnemyProjectileColours), spawned.Graphics, "room sprite tile base and colouring argument preserved");
+            AssertEqual(SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook), spawned.Graphics, "room sprite tile base and colouring argument preserved");
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
@@ -2343,7 +2343,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
                 var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var guard = NewBotwoonColorReadGuard(rom);
-                Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPalette;
+                Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
                 var state = new BotwoonEnemyState();
                 // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
@@ -2351,16 +2351,16 @@ internal static class LookupStream4Verification
                 ushort[] Shown() => BossShadeColours.Laid(state.BodyShading.Shades, botwoonShades, BossShadeColours.Sprites, 0x1234);
                 for (int band = 0; band < 8; band++)
                 {
-                    state.PalettePhase = band;
+                    state.HealthBandsPassed = band;
                     head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
                     ushort[] before = Shown();
                     update(head, state);
-                    AssertEqual(band, state.PalettePhase, "exact threshold does not advance");
+                    AssertEqual(band, state.HealthBandsPassed, "exact threshold does not advance");
                     ushort[] held = Shown();
                     for (int color = 0; color < 256; color++) AssertEqual(before[color], held[color], "exact threshold preserves CGRAM");
                     head.Health--;
                     update(head, state);
-                    AssertEqual(band + 1, state.PalettePhase, "below threshold advances exactly one band");
+                    AssertEqual(band + 1, state.HealthBandsPassed, "below threshold advances exactly one band");
                     ushort[] cgram = Shown();
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
@@ -2672,13 +2672,13 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[BossShadeColours.Sprites]);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
-            BossShadeColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, BossShadeColours.Sprites);
+            // Ridley's sprites keep their own colours through the retreat (#1544): only the room's colours change.
             for (int color = 0; color < 256; color++)
             {
-                int sharedColor = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                int sharedColor = color is >= 33 and < 41 ? color - 33 : -1;
                 ushort expected = sharedColor >= 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + sharedColor * 2))
                     : color is >= 81 and < 96 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram[color], "Exact retreat BG/OBJ copies");
+                AssertEqual(expected, cgram[color], "Exact retreat room colours");
             }
         }
         foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
@@ -2726,14 +2726,13 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, zoomStock, new RgbColor[BossShadeColours.Sprites]);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
-            BossShadeColours.Lay(cgram, RidleySheetShades.CeresSprites(selected), RidleyShades.RetreatShared, BossShadeColours.Sprites);
             for (int color = 0; color < 256; color++)
             {
-                int shared = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                int shared = color is >= 33 and < 41 ? color - 33 : -1;
                 ushort expected = color is >= 81 and < 96
                     ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a9e3 + (color - 81) * 2))
                     : shared >= 0 ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6aa01 + shared * 2)) : (ushort)0x1234;
-                AssertEqual(expected, cgram[color], "Retreat near-black source and exact BG/OBJ destinations");
+                AssertEqual(expected, cgram[color], "Retreat near-black source and exact room destinations");
             }
         }
         foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })
@@ -2922,7 +2921,7 @@ internal static class LookupStream4Verification
         return 0;
     }
 
-    /// <summary>Every shade Draygon's colours can lay over his room's pictures: his material colours, their white flash and each health band.</summary>
+    /// <summary>Every shade Draygon's colours can lay over his body layer: his material colours, their white flash and each health band.</summary>
     private static readonly SuperMetroid.Core.Assets.PictureShade[] DraygonRoomShades =
     [
         SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Background,
@@ -2930,9 +2929,9 @@ internal static class LookupStream4Verification
         .. Enumerable.Range(0, 8).Select(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Health),
     ];
 
-    /// <summary>The shading Draygon's colours give his room's pictures, which share his background colours (#1512).</summary>
+    /// <summary>The shading Draygon's colours give his body layer (#1512).</summary>
     private static PictureShading DraygonRoomShading(DraygonColours colours) =>
-        GameplayShadingProbe.ShadingOf(colours, GameplayPictures.Room, DraygonRoomShades);
+        GameplayShadingProbe.ShadingOf(colours, GameplayPictures.BossBody, DraygonRoomShades);
 
     /// <summary>
     /// Lays the shading Draygon's colours publish over <paramref name="cgram"/> as <paramref name="catalog"/>'s imported

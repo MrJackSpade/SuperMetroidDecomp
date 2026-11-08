@@ -25,5 +25,5 @@ public sealed class DachoraColorCatalog
     /// <param name="color">Palette color index 0 through 15, including the transparent slot at zero.</param>
     /// <returns>RGB555 word with red in bits 0..4, green in bits 5..9, and blue in bits 10..14; the caller chooses the actor's sprite palette destination.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The phase/frame combination is unsupported or the color index is outside the palette.</exception>
-    public RgbColor Resolve(DachoraPalettePhase phase, int frame, int color) => DachoraColors.Resolve(this, phase, frame, color);
+    public RgbColor Resolve(DachoraColourPhase phase, int frame, int color) => DachoraColors.Resolve(this, phase, frame, color);
 }

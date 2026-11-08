@@ -148,9 +148,6 @@ internal static class CeresRidleyColorsVerification
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedBgCgramIndex,
             InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared BG");
-        CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatSharedColorCount,
-            CeresRidleyPaletteDefinitionsConstants.RetreatSharedObjCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared OBJ");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Ceres Ridley installed colors avoid their original source ranges");
 

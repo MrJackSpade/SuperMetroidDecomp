@@ -104,6 +104,9 @@ internal sealed class PhantoonColours : IGameplayShadingSource
         }
     }
 
-    /// <summary>The pictures the power coming on recolours: the room's, its HUD's and its effect overlay's.</summary>
-    private static readonly GameplayPictures[] PoweredPictures = [GameplayPictures.Room, GameplayPictures.Hud, GameplayPictures.FxOverlay];
+    /// <summary>
+    /// The pictures the power coming on recolours: the room's and its effect overlay's. The HUD keeps its own colours: the
+    /// original game's power-on also reached the HUD through colours they shared, which the port does not keep (#1544).
+    /// </summary>
+    private static readonly GameplayPictures[] PoweredPictures = [GameplayPictures.Room, GameplayPictures.FxOverlay];
 }

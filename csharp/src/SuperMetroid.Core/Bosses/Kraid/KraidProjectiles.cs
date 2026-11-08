@@ -448,7 +448,7 @@ internal sealed class KraidProjectiles
     {
         lint.Shading = _access.LintState(lint).FunctionTimer % 2 != 0
             ? _access.RequireKraidState(lint).Colours.Parts
-            : EnemyShades.HitFlashed;
+            : EnemyShades.HurtFlashLook;
         lint.Position = lint.Position.WithWrappedWholeX(
             _access.LintState(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.LintState(lint).LintTravel);
         if (--_access.LintState(lint).FunctionTimer == 0)

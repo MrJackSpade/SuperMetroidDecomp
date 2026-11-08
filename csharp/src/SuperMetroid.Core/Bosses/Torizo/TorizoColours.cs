@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// A Torizo's colours (#1512): the colouring his body and belly last showed whole and the fade running from it toward the
-/// colours his program names, each step on the shared gradual colour change. His draws show the import's shade of each.
-/// His initialization clears his draw's palette bits, so his sheets are coloured in the rows his parts name and need no
-/// selection shade; a hurt flash, which clears the same bits, changes nothing he shows.
+/// colours his program names, each step on the shared gradual colour change. His draws show the import's shade of each,
+/// over the orb, flame and statue-shading colours both Torizos show. He shows no common hurt flash: his own white
+/// colouring is his flash (#1544).
 /// </summary>
 /// <remarks>
 /// The game moves each colour one step from the colour shown, so a fade starts from what is shown when it takes its

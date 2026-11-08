@@ -10,7 +10,7 @@ internal static class BotwoonHealthColors
     /// <exception cref="ArgumentOutOfRangeException">Either index is outside its authored range.</exception>
     internal static RgbColor Read(BotwoonHealthPaint health, int band, int color)
     {
-        if ((uint)band >= BotwoonHealthPaletteDefinitions.PaletteCount ||
+        if ((uint)band >= BotwoonHealthBandDefinitions.BandCount ||
             (uint)color >= BotwoonColorFormat.ColorsPerPalette)
             throw new ArgumentOutOfRangeException(nameof(band),
                 $"Botwoon health band {band}, color {color} is outside the authored images.");

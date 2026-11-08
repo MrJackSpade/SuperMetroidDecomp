@@ -49,7 +49,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                     $"production Mother Brain glass-shard X {parameter}/{animationIndex}");
                 AssertEqual(unchecked((ushort)(0x0080 + unchecked((short)ReadMotherBrainGlassShardWord(rom, 0x86ce67 + parameter)))), shard.Position.Y.Whole,
                     $"production Mother Brain glass-shard Y {parameter}/{animationIndex}");
-                AssertEqual(MotherBrainGlassShardDefinitions.Graphics(motherBrain.Colours.SpriteShading), shard.Graphics,
+                AssertEqual(MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes), shard.Graphics,
                     $"production Mother Brain glass-shard graphics index {parameter}/{animationIndex}");
                 AssertEqual(0, random.Count,
                     $"production Mother Brain glass-shard RNG count {parameter}/{animationIndex}");

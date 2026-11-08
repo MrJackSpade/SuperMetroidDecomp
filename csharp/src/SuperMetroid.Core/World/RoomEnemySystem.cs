@@ -519,7 +519,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
     /// <summary>The enemies' palette-FX glows and flashes the room's palette-FX handler shows.</summary>
     internal IEnemyPaletteFxShows PaletteFxShows => field ??= new EnemyPaletteFxShows(BombTorizoBehavior, TourianEntranceStatueBehavior,
-        MotherBrainEncounter, SlotTable);
+        SlotTable);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
     internal IEnemyDisplaySources DisplaySources => this;

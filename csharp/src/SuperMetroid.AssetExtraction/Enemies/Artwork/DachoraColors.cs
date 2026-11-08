@@ -39,10 +39,10 @@ internal static class DachoraColors
 
     /// <summary>Resolves one selected Dachora color, preserving every supplied speed/shine deviation.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase/frame combination is unsupported or the color index is outside the palette.</exception>
-    internal static RgbColor Resolve(DachoraColorCatalog colors, DachoraPalettePhase phase, int frame, int color)
+    internal static RgbColor Resolve(DachoraColorCatalog colors, DachoraColourPhase phase, int frame, int color)
     {
-        bool animated = phase is DachoraPalettePhase.Speed or DachoraPalettePhase.Shine;
-        if (!(phase == DachoraPalettePhase.Default && frame == 0) &&
+        bool animated = phase is DachoraColourPhase.Speed or DachoraColourPhase.Shine;
+        if (!(phase == DachoraColourPhase.Default && frame == 0) &&
             !(animated && (uint)frame < DachoraColorDefinitions.AnimatedFrameCount))
             throw new ArgumentOutOfRangeException(nameof(frame), $"Dachora phase {phase} has no frame {frame}.");
         if ((uint)color >= DachoraColorFormat.ColorsPerFrame)
@@ -50,9 +50,9 @@ internal static class DachoraColors
         var key = new ColourStep(frame, color);
         return phase switch
         {
-            DachoraPalettePhase.Speed => colors.selection.SpeedEdits.TryGetValue(key, out RgbColor speed) ? speed : SpeedColor(colors.selection.Normal, frame, color),
-            DachoraPalettePhase.Shine => colors.selection.ShineEdits.TryGetValue(key, out RgbColor shine) ? shine : ShineColor(colors.selection.Normal, frame, color),
-            DachoraPalettePhase.Default => colors.selection.Normal[color],
+            DachoraColourPhase.Speed => colors.selection.SpeedEdits.TryGetValue(key, out RgbColor speed) ? speed : SpeedColor(colors.selection.Normal, frame, color),
+            DachoraColourPhase.Shine => colors.selection.ShineEdits.TryGetValue(key, out RgbColor shine) ? shine : ShineColor(colors.selection.Normal, frame, color),
+            DachoraColourPhase.Default => colors.selection.Normal[color],
             _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined Dachora palette phase."),
         };
     }

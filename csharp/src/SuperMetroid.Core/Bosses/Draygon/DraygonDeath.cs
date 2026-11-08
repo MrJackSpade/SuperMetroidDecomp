@@ -149,8 +149,7 @@ internal sealed class DraygonDeath
     }
 
     /// <summary>
-    /// Allocates one burial Evir from its definition-table position and kind. It draws in Draygon's own palette row, so it
-    /// shows the shading his sprites show (#1512).
+    /// Allocates one burial Evir from its definition-table position and kind, in the Evirs' own colours (#1544).
     /// </summary>
     internal void SpawnDraygonDeathEvir(DraygonEnemyState state, int entry, RoomSpriteObjectKind kind)
     {
@@ -160,7 +159,7 @@ internal sealed class DraygonDeath
         RoomSpriteObjectSlot? sprite = _spriteObjects.SpawnRoomSpriteObject(
             definition.Initial,
             kind,
-            graphics: SpriteGraphics.SharedIn(state.Colours.Sprites));
+            graphics: SpriteGraphics.SharedIn(DraygonColours.Evirs));
         if (sprite is null)
         {
             throw new InvalidOperationException(

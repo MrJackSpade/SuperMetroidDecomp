@@ -3,9 +3,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>
-/// The shades a boss has laid over one group of pictures, in the order it laid them (#1512): each colour load of a boss
-/// encounter is a shade the import pre-colours, a later load covers the colours an earlier one shares with it, and a
-/// shade of the same effect replaces the one laid before it, as loading a fade's next step replaced its last.
+/// The shades one owner of a boss encounter has laid over its own pictures, in the order it laid them (#1512, #1544): each
+/// colour load of the owner is a shade the import pre-colours, a later load covers the colours an earlier one shares with
+/// it, and a shade of the same effect replaces the one laid before it, as a fade's next step replaces its last. No other
+/// owner draws in them.
 /// </summary>
 internal sealed class LaidShades
 {
@@ -20,14 +21,6 @@ internal sealed class LaidShades
     {
         laid.RemoveAll(earlier => earlier.Effect == shade.Effect);
         laid.Add(shade);
-    }
-
-    /// <summary>A separate layer holding the shades laid here so far, as a copy of these colours into another row holds them.</summary>
-    internal LaidShades Copy()
-    {
-        var copy = new LaidShades();
-        copy.laid.AddRange(laid);
-        return copy;
     }
 
     /// <summary><paramref name="drawn"/>, a draw's own shading, with the shades laid over it in order.</summary>

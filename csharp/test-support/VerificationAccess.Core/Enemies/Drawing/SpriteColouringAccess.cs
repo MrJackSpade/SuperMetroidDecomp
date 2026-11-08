@@ -18,8 +18,8 @@ internal static class SpriteColouringAccess
     /// <summary>The shared row each selection shade selects, which a draw showing it selects on the cartridge.</summary>
     private static readonly Dictionary<PictureShade, int> ShadeRows = new()
     {
-        [EnemyShades.HitFlash] = EnemySheetRowDefinitions.Common,
-        [EnemyShades.EnemyProjectileColours] = EnemySheetRowDefinitions.EnemyProjectiles,
+        [EnemyShades.HurtFlash] = EnemySheetRowDefinitions.Common,
+        [EnemyShades.ProjectileLook] = EnemySheetRowDefinitions.EnemyProjectiles,
         [EnemyShades.Frozen] = EnemySheetRowDefinitions.Beams,
         [NinjaSpacePirateShades.GoldWall] = EnemySheetRowDefinitions.NinjaGoldWall,
         [CeresDoorShades.Normal] = EnemySheetRowDefinitions.CeresDoorActive,
@@ -57,8 +57,8 @@ internal static class SpriteColouringAccess
             return PictureShading.Standard;
         return row switch
         {
-            EnemySheetRowDefinitions.Common => EnemyShades.HitFlashed,
-            EnemySheetRowDefinitions.EnemyProjectiles => EnemyShades.InEnemyProjectileColours,
+            EnemySheetRowDefinitions.Common => EnemyShades.HurtFlashLook,
+            EnemySheetRowDefinitions.EnemyProjectiles => EnemyShades.InProjectileLook,
             EnemySheetRowDefinitions.Beams => EnemyShades.FrozenLook,
             _ => throw new InvalidDataException($"Native palette row {row} is neither the sprite's own row {standardRow} nor a shared selection's."),
         };

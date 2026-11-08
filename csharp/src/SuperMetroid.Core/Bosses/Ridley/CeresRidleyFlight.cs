@@ -386,11 +386,10 @@ internal sealed class CeresRidleyFlight
         state.TailFunctionIndex = RidleyTailFunction.None;
         state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
 
-        // The retreat replaces colors 1..15 of background palette five. The shared colours are
-        // copied to colors 1..8 of background palette two and sprite palette seven.
+        // The retreat recolours the chamber: its walls and its first tiles. The original game also copied the first tiles'
+        // colours into Ridley's own sprite colours; the port's sprites keep their own colours (#1544).
         state.Colours.Room.Lay(RidleyShades.RetreatRoom);
         state.Colours.Room.Lay(RidleyShades.RetreatShared);
-        state.Colours.Sprites.Lay(RidleyShades.RetreatShared);
     }
 
     /// <summary>The retrieval steering target relative to the falling Baby.</summary>

@@ -432,7 +432,7 @@ internal sealed class MotherBrainProjectiles
         shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle) * 4));
         int animationIndex = ((angleOffset >> 4) & 30) >> 1;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
-        shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(_motherBrainEncounter.Colours.SpriteShading);
+        shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
 
         MotherBrainGlassShardPlacement placement =
             MotherBrainGlassShards.Placement(request.Shard);
@@ -483,7 +483,7 @@ internal sealed class MotherBrainProjectiles
         sparkle.Position = sparkle.Position.WithWhole(new(CoordinateAxis.Wrap(
             source.Position.X.Whole + (_room.Random.Generate() % 32) - 16), CoordinateAxis.Wrap(
             source.Position.Y.Whole + (_room.Random.Generate() % 32) - 16)));
-        sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(_motherBrainEncounter.Colours.SpriteShading);
+        sparkle.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
     }
 
     /// <summary>

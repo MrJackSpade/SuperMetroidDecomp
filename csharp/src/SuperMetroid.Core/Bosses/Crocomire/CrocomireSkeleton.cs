@@ -92,7 +92,7 @@ internal sealed class CrocomireSkeleton
         {
             state.DeathPhaseDelay = 128;
             state.Colours.ShowWallSpikes();
-            state.Body.Shading = state.Colours.OverSprites(EnemyShades.HitFlashed);
+            state.Body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
             if (state.Tongue is { } spikedTongue)
                 spikedTongue.Shading = state.Body.Shading;
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
@@ -148,7 +148,7 @@ internal sealed class CrocomireSkeleton
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         // The skeleton draws in the common colours with its arm's laid over them (#1512).
         state.Colours.ShowSkeletonArm();
-        body.Shading = state.Colours.OverSprites(EnemyShades.HitFlashed);
+        body.Shading = state.Colours.OverSprites(EnemyShades.HurtFlashLook);
 
         foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
             projectile.Clear();

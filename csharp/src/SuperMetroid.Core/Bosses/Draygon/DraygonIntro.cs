@@ -39,7 +39,7 @@ internal sealed class DraygonIntro
                     if (_spriteObjects.SpawnRoomSpriteObject(
                             new(16, 384),
                             RoomSpriteObjectKind.DraygonIntroEvir,
-                            SpriteGraphics.SharedIn(state.Colours.Sprites)) is { } sprite)
+                            SpriteGraphics.SharedIn(DraygonColours.Evirs)) is { } sprite)
                     {
                         state.IntroEvirsSpawned++;
                         state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));

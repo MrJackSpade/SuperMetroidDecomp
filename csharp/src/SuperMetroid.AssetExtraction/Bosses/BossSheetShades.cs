@@ -188,7 +188,7 @@ internal static class BossSheetShades
     }
 
     /// <summary>
-    /// The shades of Draygon's background colours, which his body layer and his room's pictures share: his material
+    /// The shades of Draygon's body layer: his material
     /// colours, their white flash and his eight health bands.
     /// </summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
@@ -237,7 +237,7 @@ internal static class BossSheetShades
     private static IEnumerable<SheetShade> Botwoon(BossSourceArtwork bosses, int firstInk)
     {
         BotwoonColorCatalog botwoon = bosses.BotwoonColors ?? throw new InvalidDataException("Botwoon is shaded from the installed Botwoon colours.");
-        for (int band = 0; band < BotwoonHealthPaletteDefinitions.CompletePhase; band++)
+        for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
         {
             int shown = band;
             yield return SheetShade.Run(BotwoonShades.Health(shown), firstInk,

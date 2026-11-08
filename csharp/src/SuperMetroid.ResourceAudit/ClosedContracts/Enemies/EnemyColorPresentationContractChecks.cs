@@ -47,8 +47,8 @@ internal static class EnemyColorPresentationContractChecks
                     auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 7, 15);
                     kraid.Resolve(KraidPaletteSource.Health, KraidPalettes.HealthBandCount * KraidPalettes.BandColors - 1);
                     kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPalettes.BandColors);
-                    botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount - 1, BotwoonColorFormat.ColorsPerPalette - 1);
-                    botwoon.HealthColor(BotwoonHealthPaletteDefinitions.PaletteCount, 0);
+                    botwoon.HealthColor(BotwoonHealthBandDefinitions.BandCount - 1, BotwoonColorFormat.ColorsPerPalette - 1);
+                    botwoon.HealthColor(BotwoonHealthBandDefinitions.BandCount, 0);
                     baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount - 1);
                     baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount);
                     baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount - 1);
@@ -58,8 +58,8 @@ internal static class EnemyColorPresentationContractChecks
                     shitroid.NormalColor(0, ShitroidColorDefinitions.NormalColorsPerFrame);
                     shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount - 1);
                     shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
-                    dachora.Resolve(DachoraPalettePhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorFormat.ColorsPerFrame - 1);
-                    dachora.Resolve(DachoraPalettePhase.Default, 1, 0);
+                    dachora.Resolve(DachoraColourPhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorFormat.ColorsPerFrame - 1);
+                    dachora.Resolve(DachoraColourPhase.Default, 1, 0);
                 }
             }
             """;

@@ -10,18 +10,17 @@ namespace SuperMetroid.Core.World;
 /// <summary>The enemies' palette-FX glows and flashes over the species that show them (#1512).</summary>
 /// <param name="bombTorizo">The Bomb and Golden Torizo, whose bellies glow.</param>
 /// <param name="statue">Tourian's entrance statue, whose sprite statues grey out.</param>
-/// <param name="motherBrain">Mother Brain's encounter, whose exploded door shows the escape's shutter flash.</param>
 /// <param name="slots">The room's enemy places, whose destroyable shutters show the escape's shutter flash.</param>
 internal sealed class EnemyPaletteFxShows(
     BombTorizoBehavior bombTorizo,
     TourianEntranceStatueBehavior statue,
-    MotherBrainEncounter motherBrain,
     EnemySlotTable slots) : IEnemyPaletteFxShows
 {
     /// <inheritdoc/>
     /// <remarks>
-    /// The shutter flash shows on whichever of Mother Brain and the destroyable shutters the room holds, and on nothing once
-    /// both shutters are destroyed, as the record's colours are then shown by no draw.
+    /// The shutter flash shows on the destroyable shutters the room holds, and on nothing once both are destroyed, as the
+    /// record's colours are then shown by no draw. Mother Brain's exploded door's fragments are pre-coloured in their own
+    /// colours and do not show it (#1544).
     /// </remarks>
     public void Show(PaletteFxColours colours, PaletteFxFrame record)
     {
@@ -35,10 +34,7 @@ internal sealed class EnemyPaletteFxShows(
                 statue.ShowStatueGreyOut(colours, record);
                 return;
             case PaletteFxColours.TourianShutters:
-                // The flash recolours Mother Brain's exploded door in her room and the destroyable shutters in the first
-                // escape room, whose FX record also starts the flash.
-                if (motherBrain.MotherBrain is not null)
-                    motherBrain.ShowEscapeShutterFlash(record);
+                // The flash recolours the destroyable shutters in the first escape room, whose FX record also starts it.
                 ShuttersBehavior.ShowEscapeShutterFlash(slots.Slots, record);
                 return;
             case PaletteFxColours.TitleLogo:

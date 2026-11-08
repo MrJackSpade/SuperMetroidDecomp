@@ -22,7 +22,6 @@ public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     IReadOnlyList<MotherBrainCorpseDustRequest> CorpseDustRequests,
     bool MusicStopQueued,
     bool EscapeMusicQueued,
-    bool ExplodedDoorPaletteRequested,
     bool EscapeMusicTrackQueued,
     IReadOnlyList<PaletteFxObject> EscapePaletteFxRequests,
     bool EscapeTypewriterSetupRequested,

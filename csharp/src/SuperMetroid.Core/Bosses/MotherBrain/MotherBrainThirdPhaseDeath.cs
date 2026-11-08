@@ -543,10 +543,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (ExplodedDoorReadyingElapsed != MotherBrainReadyingDefinitions.ExplodedDoorDuration)
             return false;
 
-        // The last readying update performs the full escape-door handoff on that call: copy fourteen colors (palette zero is
-        // skipped), start escape music, hold the quake indefinitely, create four
-        // palette-FX objects, disable the old unpause hook, and initialize text.
-        requests.ExplodedDoorPaletteRequested = true; // 14 colors into the target palette.
+        // The last readying update performs the full escape-door handoff on that call: start escape music, hold the quake
+        // indefinitely, create four palette-FX objects, disable the old unpause hook, and initialize text. The door's
+        // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape music track seven.
         _state.EarthquakeType = 5;
         _state.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);

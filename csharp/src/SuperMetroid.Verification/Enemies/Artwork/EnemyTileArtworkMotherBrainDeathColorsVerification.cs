@@ -91,10 +91,10 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                     < (MotherBrainSourceDefinitions.Death.ExplodedDoorColors +
                         MotherBrainDeathColorFormat.BodyColorCount * sizeof(ushort)),
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
-        // The import pre-colours her body layer and her sprites in each death fade step, her detached brain in each step of
-        // the corpse's fade, and her brain in the exploded door's colours, from the installed colours (#1512).
-        IReadOnlyList<SheetShade> background = MotherBrainSheetShades.Background(InstalledFixtures.Maps, stock.Bosses);
-        IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(InstalledFixtures.Maps, stock.Bosses, InstalledFixtures.RoomPalettes);
+        // The import pre-colours her body layer and her sprites in each death fade step and her detached brain in each step
+        // of the corpse's fade, from the installed colours (#1512).
+        IReadOnlyList<SheetShade> background = MotherBrainSheetShades.BodyLayer(InstalledFixtures.Maps, stock.Bosses);
+        IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(InstalledFixtures.Maps, stock.Bosses);
         ushort[] Shown(PictureShade shade)
         {
             ushort[] colours = BossShadeColours.Filled(0x1234);
@@ -129,11 +129,6 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                     cgram[MotherBrainDeathColorDestinations.BrainColors + color],
                     $"live Mother Brain corpse death frame {frame} color {color}, shown over her brain's pictures");
         }
-        ushort[] door = Shown(MotherBrainShades.ExplodedDoor);
-        for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
-            AssertEqual(colors.ExplodedDoorColor(color).ToWord(),
-                door[MotherBrainDeathColorDestinations.BrainColors + color],
-                $"live Mother Brain exploded-door color {color}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Mother Brain death palettes avoid migrated RGB5/selector ROM reads");
 

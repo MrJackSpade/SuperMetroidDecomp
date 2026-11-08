@@ -57,7 +57,7 @@ internal sealed class DraygonTurrets
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
-            graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
+            graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
         turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(target.Origin);
 

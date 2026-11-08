@@ -29,9 +29,9 @@ internal static class BossColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
             {
-                content.Append("health", BotwoonHealthPaletteDefinitions.PaletteCount);
+                content.Append("health", BotwoonHealthBandDefinitions.BandCount);
                 Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonColorFormat.ColorsPerPalette];
-                for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
+                for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
                 {
                     for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(band, color);
                     content.AppendColors("row", bandColors);

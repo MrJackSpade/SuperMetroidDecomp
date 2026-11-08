@@ -38,7 +38,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
 
-    /// <summary>Binds Botwoon's head, body, palette, collision, and drop services.</summary>
+    /// <summary>Binds Botwoon's head, body, colours, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
     {
         _frameResults = dependencies.FrameResults;
@@ -196,7 +196,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Botwoon function {state.Function} is not translated.");
         }
 
-        UpdateBotwoonHealthPalette(head, state);
+        UpdateBotwoonHealthBand(head, state);
     }
 
     /// <summary>Chooses an authored traversal or hidden spit action after the current path completes.</summary>
@@ -666,13 +666,13 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shows the next health band's colours when Botwoon's health crosses its threshold (#1512): his head and body take
     /// the import's shade of the band.
     /// </summary>
-    internal static void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
+    internal static void UpdateBotwoonHealthBand(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        if (state.PalettePhase == BotwoonHealthPaletteDefinitions.CompletePhase)
+        if (state.HealthBandsPassed == BotwoonHealthBandDefinitions.BandCount)
             return;
-        if (!BotwoonHealthPalette.ShouldAdvance(state.PalettePhase, head.Health))
+        if (!BotwoonHealthBands.ShouldAdvance(state.HealthBandsPassed, head.Health))
             return;
-        state.PalettePhase++;
+        state.HealthBandsPassed++;
         head.Shading = state.BodyShading;
     }
 
@@ -746,7 +746,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 _spriteObjects.SpawnRoomSpriteObject(
                     new((_room.Random.Generate() & 31) + 232, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
-                    graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
+                    graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
 
@@ -758,7 +758,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     _spriteObjects.SpawnRoomSpriteObject(
                         new((_room.Random.Generate() & 63) + 224, state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
-                        graphics: SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours));
+                        graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }
             }
         }
@@ -849,7 +849,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Records pre-hit health for palette phases and skips generic death on shot hits.</summary>
+    /// <summary>Records pre-hit health for the health bands and skips generic death on shot hits.</summary>
     internal void AddBotwoonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
@@ -947,7 +947,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (dying.DeathDelay >= BotwoonSegmentState.FallAt)
                     state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Falling;
                 segment.FrameHold = WrappingCountdown.Start(0);
-                ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
+                ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
                 return;
             }
 
@@ -972,17 +972,17 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
         if (animation.Install(segment.StateOf<BotwoonSegmentState>().Pose))
             segment.FrameHold = WrappingCountdown.Start(1);
-        ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
+        ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
     }
 
-    /// <summary>Uses palette seven unless the flashing head selects palette zero this frame.</summary>
-    private void ApplyBotwoonBodyHurtPalette(
+    /// <summary>Shows his body in his health band's colours, or in the hurt flash on the updates his flashing head shows it.</summary>
+    private void ShowBotwoonBodyHurtFlash(
         RoomEnemyProjectileSlot segment,
         int randomEnemyCounter)
     {
         RoomEnemySlot head = _head ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.");
         segment.Graphics = segment.Graphics.In(head.FlashTimer != 0 && (randomEnemyCounter & 2) != 0
-            ? EnemyShades.HitFlashed
+            ? EnemyShades.HurtFlashLook
             : (BotwoonState ?? throw new InvalidOperationException("Botwoon's body draws once Botwoon is loaded.")).BodyShading);
     }
 
@@ -999,7 +999,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             segment.Velocity = segment.Velocity.WithY(SignedEightEight.Wrapped(segment.Velocity.Y.RawValue + 192));
             segment.FrameHold = WrappingCountdown.Start(0);
-            ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
+            ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
             return;
         }
 
@@ -1007,7 +1007,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Landed;
         // The landed segment hands its animation to the shared big-explosion list.
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
-        segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InEnemyProjectileColours);
+        segment.Graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);

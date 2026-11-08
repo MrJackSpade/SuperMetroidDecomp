@@ -95,8 +95,8 @@ internal static class ActorColourContentIdentity
             SelectedPresentationHash.Create("DachoraColorCatalog-v1", content =>
             {
                 content.AppendColors("normal", colors.selection.Normal);
-                content.AppendColorFrames("speed", DachoraFrames(colors, DachoraPalettePhase.Speed));
-                content.AppendColorFrames("shine", DachoraFrames(colors, DachoraPalettePhase.Shine));
+                content.AppendColorFrames("speed", DachoraFrames(colors, DachoraColourPhase.Speed));
+                content.AppendColorFrames("shine", DachoraFrames(colors, DachoraColourPhase.Shine));
             });
     }
 
@@ -127,7 +127,7 @@ internal static class ActorColourContentIdentity
         Enumerable.Range(0, ChozoAndTubeColorDefinitions.ColorCount).Select(color => ChozoAndTubeColors.Statue(colors, palette, color)).ToArray();
 
     /// <summary>Materializes four selected animated frames for stable content hashing.</summary>
-    private static RgbColor[][] DachoraFrames(DachoraColorCatalog colors, DachoraPalettePhase phase) =>
+    private static RgbColor[][] DachoraFrames(DachoraColorCatalog colors, DachoraColourPhase phase) =>
         Enumerable.Range(0, DachoraColorDefinitions.AnimatedFrameCount)
             .Select(frame => Enumerable.Range(0, DachoraColorFormat.ColorsPerFrame)
                 .Select(color => DachoraColors.Resolve(colors, phase, frame, color)).ToArray()).ToArray();

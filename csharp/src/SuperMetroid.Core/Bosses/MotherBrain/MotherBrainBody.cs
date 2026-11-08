@@ -98,7 +98,7 @@ internal sealed class MotherBrainBody
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.Invisible);
-        body.Shading = EnemyShades.HitFlashed;
+        body.Shading = EnemyShades.HurtFlashLook;
 
         _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
         {
@@ -111,10 +111,7 @@ internal sealed class MotherBrainBody
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
         _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain));
-        // Both source palettes include transparent color zero. The initializer deliberately
-        // begin at +2 and copy only colors 1..15 into the otherwise unrelated room palette
-        // ranges used by glass shards and tube projectiles.
-        _motherBrainEncounter.Colours.Sprites.Lay(MotherBrainShades.RoomEntry);
+        // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
         _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidRises;
         SpawnMotherBrainInitialTurrets();
@@ -375,10 +372,10 @@ internal sealed class MotherBrainBody
         MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
-            graphics: SpriteGraphics.SharedIn(EnemyShades.HitFlashed));
+            graphics: SpriteGraphics.SharedIn(EnemyShades.HurtFlashLook));
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
-        beam.Graphics = SpriteGraphics.SharedIn(state.Colours.SpriteShading);
+        beam.Graphics = SpriteGraphics.SharedIn(state.Colours.OwnShading);
         beam.Position = beam.Position.WithWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 48)));
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);

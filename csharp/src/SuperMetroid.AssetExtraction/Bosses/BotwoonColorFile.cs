@@ -22,7 +22,7 @@ public static class BotwoonColorFile
         if (document.Version != BotwoonColorFormat.Version)
             throw new InvalidDataException("Botwoon colors require the supported version.");
         if (document.Health is null ||
-            document.Health.Length != BotwoonHealthPaletteDefinitions.PaletteCount)
+            document.Health.Length != BotwoonHealthBandDefinitions.BandCount)
             throw new InvalidDataException("Botwoon colors require eight health bands.");
         return new(Health(document.Health.Select((frame, index) =>
             Compile(frame, index)).ToArray()));
@@ -32,7 +32,7 @@ public static class BotwoonColorFile
     private static BotwoonHealthPaint Health(RgbColor[][] healthBands)
     {
         var edits = new Dictionary<PaintColour, RgbColor>();
-        for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
+        for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
             for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
                 if (healthBands[band][color] != BotwoonHealthPaint.Calculate(band, color))
                     edits.Add(new PaintColour(band, color), healthBands[band][color]);

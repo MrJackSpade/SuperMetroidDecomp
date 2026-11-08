@@ -4,18 +4,20 @@ using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// The Wrecked Ship ghost's fading colours (#1512): a compatibility value the ghost owns, reproducing the colours the
-/// game fades the ghost's palette through, because when each fade ends decides when the ghost's AI moves on.
+/// The Wrecked Ship ghost's fading colours (#1512, #1544): a compatibility value the ghost owns, reproducing the colours
+/// the game fades the ghost's sixteen colours through, because when each fade ends decides when the ghost's AI moves on.
 /// </summary>
 /// <remarks>
 /// <para>
 /// Gameplay behaviour reproduced: the ghost darkens to black when it initializes; each brightening step raises every
 /// colour whose red is below full by one level in each channel, carrying a channel that passes full into the next
-/// (red into green, green into blue, blue lost), as the game's addition of one level to all three channels of a packed
-/// colour does, and the brightening ends on the first step that changes nothing; each fade step moves every channel of
-/// every colour one level toward the fade's target and ends on the first step that changes no channel. The AI consults
-/// the step results every update of its brightening, materializing and vanishing phases. Evidence: the original game's
-/// brightening and fade routines for the ghost, whose end conditions the Wrecked Ship ghost replays confirm.
+/// (red into green, green into blue, blue lost), and the brightening ends on the first step that changes nothing; each
+/// fade step moves every channel of every colour one level toward the fade's target and ends on the first step that
+/// changes no channel. Every one of the sixteen colours takes part, colour zero too, which no picture draws, so each
+/// step's count and each fade's end are decided over all of them. The AI consults the step results every update of its
+/// brightening, materializing and vanishing phases. Evidence: the original game's brightening and fade routines for the
+/// ghost, which add one level to all three channels of a colour in one addition, so a channel passing full carries into
+/// the next, and step all sixteen of the ghost's colours; the Wrecked Ship ghost replays confirm their end conditions.
 /// </para>
 /// <para>
 /// The colours themselves are shown as shades the import pre-coloured by running this value along the ghost's one
@@ -24,7 +26,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// </remarks>
 public sealed class WreckedShipGhostFade
 {
-    /// <summary>The colours the ghost's palette holds.</summary>
+    /// <summary>The colours the ghost's fades move: the fifteen its pictures draw and colour zero, which none draws.</summary>
     public const int ColourCount = 16;
 
     /// <summary>The highest level of a colour channel.</summary>
@@ -57,7 +59,7 @@ public sealed class WreckedShipGhostFade
     /// </summary>
     public PictureShade Shade => new(ShadeEffect(effect), steps);
 
-    /// <summary>Darkens every colour, shown and targeted, to black, as the ghost's initialization leaves its palette.</summary>
+    /// <summary>Darkens every colour, shown and targeted, to black, as the ghost's initialization leaves its colours.</summary>
     public void Darken()
     {
         Array.Fill(shown, RgbColor.Black);
@@ -91,7 +93,7 @@ public sealed class WreckedShipGhostFade
     public void BeginMaterializing()
     {
         for (int colour = 0; colour < ColourCount; colour++)
-            target[colour] = WreckedShipGhostAppearance.PaletteColor(colour);
+            target[colour] = WreckedShipGhostAppearance.Colour(colour);
         fade = WreckedShipGhostColourEffect.Materializing;
     }
 

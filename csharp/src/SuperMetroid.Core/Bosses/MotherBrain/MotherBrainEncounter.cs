@@ -33,14 +33,6 @@ internal sealed class MotherBrainEncounter
         "Mother Brain's colours are laid while her encounter is loaded.")).Colours;
 
     /// <summary>
-    /// Lays the escape's red shutter flash record <paramref name="record"/> over Mother Brain's sprites (#1512): the flash
-    /// recolours the exploded door's colours they show, and each record replaces the one before it.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Mother Brain is not loaded.</exception>
-    internal void ShowEscapeShutterFlash(PaletteFxFrame record) =>
-        Colours.Sprites.Lay(PaletteFxShades.Of(PaletteFxColours.TourianShutters, record));
-
-    /// <summary>
     /// Requests a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the
     /// cutscene, at the end of the enemy update. A later sound from this source in the same update replaces it: the
     /// update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.

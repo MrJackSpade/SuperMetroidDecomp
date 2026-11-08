@@ -37,11 +37,14 @@ internal static class RidleyMovementTargetsVerification
         var ground = Facings(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.GroundAttackX);
         var carry = Facings(EnemyRomTablePointers.Ridley.CarryAnchorXWords, RidleyMovementTargets.CarryAnchorX);
         var release = Facings(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryReleaseX);
-        var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes, 4);
-        var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
+        // The cartridge stores each divisor as its index into a table counting the divisors down from the largest.
+        var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords,
+            stage => RidleyInertiaDefinitions.LargestDivisor - RidleyMovementTargets.HoverDivisor(stage), 4);
+        var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords,
+            stage => RidleyInertiaDefinitions.LargestDivisor - RidleyMovementTargets.GrabDivisor(stage), 4);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState> beginCarry = NorfairRidleyCombat.BeginNorfairRidleyCarry;
-        Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisorIndex;
+        Func<RidleyEnemyState, int> readDivisor = NorfairRidleyCombat.ReadRidleyHealthMovementDivisor;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, VerticalDirection> pogo = enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.Combat.TickNorfairRidleyGroundAttackMoveToSide;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ControllerButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
@@ -53,11 +56,11 @@ internal static class RidleyMovementTargetsVerification
         // reversal acceleration of 8 borrows, so the chain removes 8 + 1 + 2 * step. Toward a
         // higher target the single ADC carries in the unsigned CMP result (position >= target),
         // which is set when the signed distance is negative only because the words wrapped.
-        static ushort Expected(ushort position, ushort target, int index)
+        static ushort Expected(ushort position, ushort target, int divisor)
         {
             int distance = unchecked((short)(position - target));
             if (distance == 0) return 0;
-            int step = Math.Max(1, Math.Abs(distance) / (16 - index));
+            int step = Math.Max(1, Math.Abs(distance) / divisor);
             if (distance > 0)
             {
                 ushort lowered = unchecked((ushort)(-9 - 2 * step));
@@ -77,12 +80,12 @@ internal static class RidleyMovementTargetsVerification
             ushort y = unchecked((short)(raw - 320)) < 0 ? (ushort)256 : unchecked((ushort)(raw - 64));
             AssertEqual(x, state.Target.X, "Real carry anchor facing selection");
             AssertEqual(y, state.Target.Y, "Real carry height selection");
-            AssertEqual(Expected(slot.Position.X.Whole, x, 0), state.Velocity.X.RawValue, "Carry target drives exact X acceleration");
-            AssertEqual(Expected(slot.Position.Y.Whole, y, 0), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
+            AssertEqual(Expected(slot.Position.X.Whole, x, 16), state.Velocity.X.RawValue, "Carry target drives exact X acceleration");
+            AssertEqual(Expected(slot.Position.Y.Whole, y, 16), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual(31, state.FunctionTimer, "Carry setup timer");
             AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "Carry setup phase");
-            AssertEqual(hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
+            AssertEqual(RidleyInertiaDefinitions.LargestDivisor - hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
         }
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
         foreach (ushort x in new ushort[] { 0, 128, 0xffff })
@@ -96,16 +99,16 @@ internal static class RidleyMovementTargetsVerification
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
                 pogo(slot, state, null, down ? VerticalDirection.Down : VerticalDirection.Up);
                 ushort target = (down ? descending : ascending)[(int)facing];
-                AssertEqual(Expected(x, target, hover[health]), state.Velocity.X.RawValue, "Pogo side target and health divisor reach motion");
+                AssertEqual(Expected(x, target, RidleyInertiaDefinitions.LargestDivisor - hover[health]), state.Velocity.X.RawValue, "Pogo side target and health divisor reach motion");
             }
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             moveSide(slot, state, null);
-            AssertEqual(Expected(x, ground[(int)facing], 0), state.Velocity.X.RawValue, "Ground side target reaches motion");
+            AssertEqual(Expected(x, ground[(int)facing], 16), state.Velocity.X.RawValue, "Ground side target reaches motion");
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
             state.Function = RidleyAiFunction.NorfairCarryRelease;
             state.FunctionTimer = 1;
             run(slot, state, null, 0, null);
-            AssertEqual(Expected(x, release[(int)facing], 0), state.Velocity.X.RawValue, "Carry release target reaches motion");
+            AssertEqual(Expected(x, release[(int)facing], 16), state.Velocity.X.RawValue, "Carry release target reaches motion");
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
@@ -122,7 +125,7 @@ internal static class RidleyMovementTargetsVerification
             state.HitRoomBoundary = false;
             approach(slot, state, samus);
             ushort targetX = (ushort)(state.FacingDirection == RidleyFacing.Left ? 240 : 272);
-            int divisor = grab[Math.Min(health, 3)];
+            int divisor = RidleyInertiaDefinitions.LargestDivisor - grab[Math.Min(health, 3)];
             AssertEqual(Expected(startX, targetX, divisor), state.Velocity.X.RawValue, "Actual grab health divisor drives X acceleration");
             AssertEqual(Expected(128, 252, divisor), state.Velocity.Y.RawValue, "Actual grab health divisor drives Y acceleration");
         }

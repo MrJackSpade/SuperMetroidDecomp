@@ -149,7 +149,7 @@ internal sealed class NorfairRidleyCombat
             slot,
             state,
             target,
-            ReadRidleyHealthMovementDivisorIndex(state));
+            ReadRidleyHealthMovementDivisor(state));
         if (CeresRidleyFlight.IsWithinRidleyRectangle(slot, target, new(8, 8)))
             state.Function = RidleyAiFunction.NorfairSelectAttack;
     }
@@ -158,7 +158,7 @@ internal sealed class NorfairRidleyCombat
     internal static void TickNorfairRidleySwoopMoveToStart(RoomEnemySlot slot, RidleyEnemyState state)
     {
         Position16<RoomPixels> target = new(state.FacingDirection != RidleyFacing.Left ? 64 : 192, 128);
-        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, divisorIndex: 1);
+        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, divisor: 15);
         if (!CeresRidleyFlight.IsWithinRidleyRectangle(slot, target, new(8, 8)))
             return;
 
@@ -205,7 +205,7 @@ internal sealed class NorfairRidleyCombat
             new Position16<RoomPixels>(
                 direction == VerticalDirection.Down ? RidleyMovementTargets.DescendingPogoX(facing) : RidleyMovementTargets.AscendingPogoX(facing),
                 samus is null ? 352 : int.Min(samus.Position.Y.Whole, 352)),
-            ReadRidleyHealthMovementDivisorIndex(state));
+            ReadRidleyHealthMovementDivisor(state));
         state.TailWhipRequest = 1;
 
         if (samus is null || SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
@@ -253,7 +253,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         NorfairRidleyMovement.MoveNorfairRidleyToward(
-            slot, state, new Position16<RoomPixels>(RidleyMovementTargets.GroundAttackX(state.FacingDirection), 288), divisorIndex: 0);
+            slot, state, new Position16<RoomPixels>(RidleyMovementTargets.GroundAttackX(state.FacingDirection), 288), divisor: 16);
     }
 
     /// <summary>Settles at Y=288, sets the pogo tail, and starts a randomized attack timer.</summary>
@@ -262,7 +262,7 @@ internal sealed class NorfairRidleyCombat
         RidleyEnemyState state,
         SamusState? samus)
     {
-        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, slot.Position.Whole.WithY(288), divisorIndex: 0);
+        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, slot.Position.Whole.WithY(288), divisor: 16);
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
             return;
 
@@ -390,12 +390,12 @@ internal sealed class NorfairRidleyCombat
         }
 
         int sideOffset = state.FacingDirection != RidleyFacing.Left ? 16 : -16;
-        int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes(Math.Min(state.HealthStage, 3));
+        int divisor = RidleyMovementTargets.GrabDivisor(Math.Min(state.HealthStage, 3));
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             slot,
             state,
             samus.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(sideOffset), -4),
-            divisorIndex);
+            divisor);
 
         if (RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(8, 12)))
         {
@@ -504,8 +504,8 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Selects a hover acceleration divisor from Ridley's capped health stage.</summary>
-    internal static int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
-        RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, 3));
+    internal static int ReadRidleyHealthMovementDivisor(RidleyEnemyState state) =>
+        RidleyMovementTargets.HoverDivisor(Math.Min(state.HealthStage, 3));
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal static bool SamusMovementUsesRidleyGrab(SamusState? samus)
@@ -559,7 +559,7 @@ internal sealed class NorfairRidleyCombat
         RidleyEnemyState state)
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
-            RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
+            RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
         if (CeresRidleyFlight.IsWithinRidleyRectangle(body, new(128, 328), new(4, 4)))
             BeginNorfairRidleyDeathRoar(body, state);
     }
@@ -609,7 +609,7 @@ internal sealed class NorfairRidleyCombat
                 ? RidleyLungeDefinitions.DodgeLeftX : RidleyLungeDefinitions.DodgeRightX,
             CoordinateAxis.Difference(bomb.Position.Y, RidleyLungeDefinitions.DodgeSplitY) >= 0
                 ? RidleyLungeDefinitions.DodgeUpperY : RidleyLungeDefinitions.DodgeLowerY);
-        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, ReadRidleyHealthMovementDivisorIndex(state));
+        NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, ReadRidleyHealthMovementDivisor(state));
     }
 
     /// <summary>Chooses the next bounce's direction from position and the current seed.</summary>

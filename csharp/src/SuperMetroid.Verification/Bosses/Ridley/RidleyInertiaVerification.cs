@@ -21,8 +21,9 @@ internal static class RidleyInertiaVerification
         {
             byte divisor = rom.ReadCartridgeByte(0xa6d61f + index);
             byte ceresDivisor = rom.ReadCartridgeByte(0xa6d712 + index);
-            AssertEqual(rom.ReadCartridgeByte(0xa6d712 + index), RidleyInertia.Divisor(index), "Ceres native inertia byte");
-            AssertEqual(divisor, RidleyInertia.Divisor(index), "Norfair native inertia byte");
+            // The cartridge selects each divisor by its index into a table counting the divisors down from the largest.
+            AssertEqual(RidleyInertiaDefinitions.LargestDivisor - index, ceresDivisor, "Ceres native inertia byte");
+            AssertEqual(RidleyInertiaDefinitions.LargestDivisor - index, divisor, "Norfair native inertia byte");
             // Every signed distance a room can hold, either way and across the coordinate wrap, with both reversal
             // directions and the clamp boundaries. Velocities lie within the five-pixel clamp every seek applies, the
             // range the seek's signed clamps cover; a velocity near the word's ends is unreachable.
@@ -33,18 +34,18 @@ internal static class RidleyInertiaVerification
                 ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => -640, _ => 640 }));
                 slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
-                ceres(slot, state, new(0xff00, 0x100), index);
+                ceres(slot, state, new(0xff00, 0x100), ceresDivisor);
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, ceresDivisor), state.Velocity.X.RawValue, "Ceres actual X acceleration");
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, ceresDivisor), state.Velocity.Y.RawValue, "Ceres actual wrapped Y acceleration");
                 state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(velocity), new SignedEightEight(velocity));
                 ushort boost = (ushort)(raw % 3 * 16);
-                norfair(slot, state, new Position16<RoomPixels>(0xff00, 0x100), index, boost);
+                norfair(slot, state, new Position16<RoomPixels>(0xff00, 0x100), divisor, boost);
                 AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, divisor, boost), state.Velocity.X.RawValue, "Norfair actual X acceleration");
                 AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, divisor, boost), state.Velocity.Y.RawValue, "Norfair actual wrapped Y acceleration");
             }
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(-1), "Negative inertia index");
-        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(16), "Inertia table boundary");
+        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(RidleyInertiaDefinitions.SmallestDivisor - 1), "Divisor below the smallest");
+        AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertia.Divisor(RidleyInertiaDefinitions.LargestDivisor + 1), "Divisor above the largest");
         Console.WriteLine($"Ridley inertia: 32 native bytes and {16 * (2 * MaximumRoomDistance + 1) * 2:N0} real two-axis calls match without a bus.");
     }
 

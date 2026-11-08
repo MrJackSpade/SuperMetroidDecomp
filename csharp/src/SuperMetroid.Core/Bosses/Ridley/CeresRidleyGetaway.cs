@@ -95,7 +95,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Runs the getaway room main through its table terminator. This routine
+    /// Runs the getaway room main until its motion ends. This routine
     /// owns presentation only: ordinary Ridley has already been hidden, while Samus remains
     /// in room-world coordinates exactly as she does during the boss-room getaway.
     /// </summary>
@@ -104,21 +104,20 @@ internal sealed class CeresRidleyGetaway
         SamusState? samus,
         int frameCounter)
     {
-        int tableIndex = state.GetawayFrameIndex;
-        state.GetawayFrameIndex = tableIndex + 1;
+        int frameIndex = state.GetawayFrameIndex;
+        state.GetawayFrameIndex = frameIndex + 1;
 
-        // HandleCeresRidleyGetawayCutscene requests the departure sound on the first table
-        // entry only. Tying the request to the
-        // table index preserves the same one-shot behavior after saves/replays and pauses.
-        if (tableIndex == 0)
+        // The getaway requests the departure sound on its first frame only. Tying the request to the
+        // frame preserves the same one-shot behavior after saves/replays and pauses.
+        if (frameIndex == 0)
             _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
 
         // At frame 104, Samus's grab handler replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her from the following frame onward.
-        if (tableIndex == 104 && samus is not null)
+        if (frameIndex == 104 && samus is not null)
             samus.CeresRidleyEjection.Request(samus);
 
-        var frame = CeresRidleyGetawayCurve.FromIndex(tableIndex);
+        var frame = CeresRidleyGetawayCurve.FromIndex(frameIndex);
         int zoom = frame.Zoom;
         if (frame.IsFinished)
         {

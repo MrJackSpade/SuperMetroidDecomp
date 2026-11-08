@@ -147,7 +147,7 @@ internal sealed class CeresRidleyFlight
 
         // The shared cooldown/return-to-hover movement: accelerate toward (192, 100)
         //  using divisor table entry zero.
-        AccelerateRidleyToward(slot, state, target: new(192, 100), divisorIndex: 0);
+        AccelerateRidleyToward(slot, state, target: new(192, 100), divisor: 16);
         if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {
             // The hover-box overlap test returns zero on rectangle overlap. The hover wait therefore waits
@@ -398,11 +398,11 @@ internal sealed class CeresRidleyFlight
         RoomEnemySlot slot,
         RidleyEnemyState state,
         Position16<RoomPixels> target,
-        int divisorIndex)
+        int divisor)
     {
         // Division truncates like the original quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
-        int divisor = RidleyInertia.Divisor(divisorIndex);
+        divisor = RidleyInertia.Divisor(divisor);
 
         state.Velocity = new EightEightVector<RoomPixels>(
             AccelerateAxis(state.Velocity.X, slot.Position.X.Whole, target.X, divisor),

@@ -3,24 +3,24 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>Compiled spawn geometry and movement mechanics for Spore Spawn projectiles.</summary>
 internal static class SporeSpawnProjectileDefinitions
 {
-    /// <summary>The spores' 256-step signed movement stream, in pixels; a spore reads its X step and the next entry as its Y step, wrapping from the last entry to the first.</summary>
-    internal static readonly int[] Movement =
+    /// <summary>A spore's drift path: its signed pixel movement at each step, repeating after the last.</summary>
+    internal static readonly Offset16<RoomPixels>[] Drift =
     [
-        0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,
-        0,1,1,0,1,0,0,1,1,0,0,1,1,0,0,1,
-        1,0,0,1,1,0,1,0,0,1,1,0,0,1,1,0,
-        1,0,0,1,1,0,0,1,1,0,1,0,0,1,1,0,
-        1,0,0,1,1,0,1,0,0,1,1,0,1,0,1,0,
-        0,1,1,0,1,0,1,0,0,1,1,0,1,0,1,0,
-        1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,
-        1,0,0,-1,1,0,1,0,1,0,1,0,1,0,1,0,
-        0,-1,1,0,1,0,0,0,-1,1,-1,1,-1,1,-1,0,
-        0,1,-1,1,-1,1,-1,0,0,1,-1,1,-1,0,0,1,
-        -1,0,0,1,-1,0,0,1,-1,0,-1,1,-1,1,-1,0,
-        0,1,-1,0,-1,1,-1,0,0,1,-1,0,-1,1,-1,0,
-        -1,0,0,1,-1,0,-1,0,0,1,-1,0,-1,0,-1,0,
-        -1,1,-1,0,-1,0,-1,0,-1,0,-1,0,-1,0,-1,0,
-        -1,0,-1,0,0,-1,-1,0,-1,0,-1,0,-1,-1,-1,0,
-        -1,0,-1,0,0,-1,-1,0,-1,0,-1,-1,-1,0,0,0,
+        new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0),
+        new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(0, 1),
+        new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0),
+        new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0),
+        new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(1, 0),
+        new(0, 1), new(1, 0), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(1, 0),
+        new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
+        new(1, 0), new(0, -1), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
+        new(0, -1), new(1, 0), new(1, 0), new(0, 0), new(-1, 1), new(-1, 1), new(-1, 1), new(-1, 0),
+        new(0, 1), new(-1, 1), new(-1, 1), new(-1, 0), new(0, 1), new(-1, 1), new(-1, 0), new(0, 1),
+        new(-1, 0), new(0, 1), new(-1, 0), new(0, 1), new(-1, 0), new(-1, 1), new(-1, 1), new(-1, 0),
+        new(0, 1), new(-1, 0), new(-1, 1), new(-1, 0), new(0, 1), new(-1, 0), new(-1, 1), new(-1, 0),
+        new(-1, 0), new(0, 1), new(-1, 0), new(-1, 0), new(0, 1), new(-1, 0), new(-1, 0), new(-1, 0),
+        new(-1, 1), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0),
+        new(-1, 0), new(-1, 0), new(0, -1), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, -1), new(-1, 0),
+        new(-1, 0), new(-1, 0), new(0, -1), new(-1, 0), new(-1, 0), new(-1, -1), new(-1, 0), new(0, 0),
     ];
 }

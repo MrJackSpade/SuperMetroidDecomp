@@ -34,7 +34,7 @@ internal static class PhantoonFlameSpawnsVerification
                     : enemies.PhantoonBehavior.Patterns.SpawnPhantoonDestroyableFlame(flameBody, flameType, flameIndex);
             var body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));
-            PhantoonFlameSpawnType type = ClosedEnumWords.Decode<PhantoonFlameSpawnType>(
+            PhantoonFlameSpawnType type = PhantoonNativeWords.FlameSpawnTypes.Decode(
                 LittleEndianBytes.HighByte(parameter), "Phantoon flame spawn type");
             int index = LittleEndianBytes.LowByte(parameter);
             AssertTrue(spawn(body, type, (byte)parameter), "Real Phantoon flame allocation succeeds");
@@ -44,7 +44,7 @@ internal static class PhantoonFlameSpawnsVerification
                 PhantoonFlameSpawnType.Enraged => rom.ReadCartridgeByte(0x8698b4 + index),
                 PhantoonFlameSpawnType.Spiral => rom.ReadCartridgeByte(0x869979 + index),
                 PhantoonFlameSpawnType.Casual or PhantoonFlameSpawnType.Rain => 0,
-                _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
+                _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
             };
             ushort x = type == PhantoonFlameSpawnType.Rain ? rom.ReadCartridgeByte(0x8698f7 + (index & 15)) : origin;
             ushort y = type == PhantoonFlameSpawnType.Rain ? (ushort)40
@@ -55,7 +55,7 @@ internal static class PhantoonFlameSpawnsVerification
                 PhantoonFlameSpawnType.Spiral => 0,
                 PhantoonFlameSpawnType.Rain => (ushort)((index & 240) >> 1),
                 PhantoonFlameSpawnType.Casual => 0,
-                _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
+                _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {type}."),
             };
             AssertEqual(angle, flame.State is PhantoonOrbitingFlameState orbit ? orbit.Angle.RawValue : (ushort)0, "Actual flame initial angle; flames that do not orbit keep none");
             AssertEqual(x, flame.Position.X.Whole, "Actual flame initial X");

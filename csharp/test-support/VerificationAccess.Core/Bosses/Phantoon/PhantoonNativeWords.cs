@@ -9,6 +9,18 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 internal static class PhantoonNativeWords
 {
+    /// <summary>
+    /// The high byte of a destroyable flame's spawn parameter naming each <see cref="PhantoonFlameSpawnType"/>: the byte
+    /// offset of the flame's initializer in its jump table. The low byte is the type's own index.
+    /// </summary>
+    internal static readonly NativeWordIdentities<PhantoonFlameSpawnType> FlameSpawnTypes = new(new Dictionary<PhantoonFlameSpawnType, ushort>
+    {
+        [PhantoonFlameSpawnType.Casual] = 0,
+        [PhantoonFlameSpawnType.Enraged] = 2,
+        [PhantoonFlameSpawnType.Rain] = 4,
+        [PhantoonFlameSpawnType.Spiral] = 6,
+    });
+
     /// <summary>The bank-$A7 routine word naming each <see cref="PhantoonAiFunction"/>.</summary>
     internal static readonly NativeWordIdentities<PhantoonAiFunction> AiFunctions = new(new Dictionary<PhantoonAiFunction, ushort>
     {

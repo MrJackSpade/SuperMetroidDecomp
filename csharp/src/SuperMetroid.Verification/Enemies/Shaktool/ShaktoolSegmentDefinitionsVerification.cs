@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -84,7 +85,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Matches each segment's added property bits with the native lookup table.</summary>
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
-            definition => (ushort)definition.PropertyMask, "property selection"));
+            definition => checked((ushort)EnemyPropertyWordCodec.Encode(definition.PropertyMask)), "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
     internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>

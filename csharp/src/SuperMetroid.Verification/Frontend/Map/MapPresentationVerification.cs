@@ -475,12 +475,11 @@ internal static class MapPresentationVerification
         {
             int address = MotherBrainSourceDefinitions.Beam.ColorTable + frame * MotherBrainSourceDefinitions.Beam.ColorEntryBytes;
             ushort nativeBeamColor = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
-            AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(frame, out RgbColor beamColor) &&
-                beamColor == RgbColor.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
+            AssertEqual(RgbColor.FromWord(nativeBeamColor), original.MotherBrainRainbowPalette.BeamColor(frame),
+                $"installed beam HDMA color {frame} matches bank-$88");
         }
-        AssertTrue(!original.MotherBrainRainbowPalette.TryReadBeamColor(
-                MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, out _),
-            "installed beam color loop retains its native signed terminator");
+        AssertEqual(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, original.MotherBrainRainbowPalette.BeamCycleLength,
+            "installed beam colour cycle ends where the native loop does");
         var nativeBeamSequence = new MotherBrainRainbowBeamEffect
         {
             // Source words were compared independently against bank $88 above;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 public class MotherBrainRainbowPalettePresentation
 {
-    /// <summary>Backdrop hue cycle without its signed loop terminator.</summary>
+    /// <summary>The backdrop's hue cycle.</summary>
     internal readonly BeamColors beamCycle;
 
     /// <summary>Keeps the beam backdrop's colours.</summary>
@@ -23,7 +23,7 @@ public class MotherBrainRainbowPalettePresentation
 
     /// <summary>
     /// The rainbow beam's backdrop glow colours:
-    /// five linear hue legs sampled every other word. The blue-to-magenta leg
+    /// five linear hue legs, of which the cycle shows every other hue step. The blue-to-magenta leg
     /// delays red by one step and adds a one-step green tint in its upper half.
     /// Falling green/blue changes its rounding bias after local step eight.
     /// These phase boundaries preserve the source's asymmetric wheel exactly.
@@ -32,7 +32,7 @@ public class MotherBrainRainbowPalettePresentation
     {
         /// <summary>Retained only when an edited sample differs from the five-leg wheel.</summary>
         internal readonly RgbColor[]? supplied;
-        /// <summary>Number of actual color samples, excluding the control terminator.</summary>
+        /// <summary>The colours in the cycle.</summary>
         public int Length { get; }
         /// <summary>Keeps the cycle's length and, when one sample differs from the wheel, every supplied sample.</summary>
         /// <param name="length">The number of samples.</param>
@@ -83,20 +83,13 @@ public class MotherBrainRainbowPalettePresentation
     /// <summary>Fixed-color backdrop used on the beam effect's first active frame.</summary>
     public RgbColor BeamInitialColor { get; }
 
-    /// <summary>
-    /// Reads beam cycle colour <paramref name="index"/>. The cycle's end is engine control, not an editable colour: the
-    /// index one past the last colour returns false, and the beam performs the reset.
-    /// </summary>
-    public bool TryReadBeamColor(int index, out RgbColor color)
-    {
-        if (index < 0 || index > beamCycle.Length)
-            throw new InvalidDataException($"Mother Brain beam color {index} is outside its authored cycle.");
-        if (index == beamCycle.Length)
-        {
-            color = RgbColor.Black;
-            return false;
-        }
-        color = beamCycle[index];
-        return true;
-    }
+    /// <summary>The colours of the beam backdrop's hue cycle; after its last, the beam starts the cycle again.</summary>
+    public int BeamCycleLength => beamCycle.Length;
+
+    /// <summary>Beam cycle colour <paramref name="index"/>, zero through one before <see cref="BeamCycleLength"/>.</summary>
+    /// <exception cref="InvalidDataException">The index is outside the cycle.</exception>
+    public RgbColor BeamColor(int index) =>
+        index >= 0 && index < beamCycle.Length
+            ? beamCycle[index]
+            : throw new InvalidDataException($"Mother Brain beam color {index} is outside its authored cycle.");
 }

@@ -77,8 +77,8 @@ internal static class ClosedPresentationContractChecks
                     phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
                     statues.ResolveEye(3, 0);
                     statues.ResolveEye(4, 0);
-                    rainbow.TryReadBeamColor(38, out _);
-                    rainbow.TryReadBeamColor(39, out _);
+                    _ = rainbow.BeamColor(37);
+                    _ = rainbow.BeamColor(38);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
                     chozo.ResolveTubeCracks(31);

@@ -46,17 +46,16 @@ public sealed class MotherBrainRainbowBeamEffect
             ColorIndex = 0;
             Color = PresentationColors?.BeamInitialColor ?? MotherBrainBeamDefinitions.InitialColor;
         }
+        else if (ColorIndex == Colours.BeamCycleLength)
+        {
+            // Past the cycle's last colour, the update that restarts it repeats colour zero without advancing.
+            ColorIndex = 0;
+            Color = Colours.BeamColor(0);
+        }
         else
         {
-            if (!TryReadColor(ColorIndex, out RgbColor color))
-            {
-                // The cycle's end: the reset frame repeats colour zero without incrementing.
-                ColorIndex = 0;
-                if (!TryReadColor(0, out color))
-                    throw new InvalidDataException("Mother Brain beam color cycle has no first entry.");
-            }
-            else ColorIndex++;
-            Color = color;
+            Color = Colours.BeamColor(ColorIndex);
+            ColorIndex++;
         }
         ResolveGeometry(head, camera, angle, angularWidth);
     }
@@ -83,9 +82,7 @@ public sealed class MotherBrainRainbowBeamEffect
         Geometry = new(CoordinateAxis.Difference(head.X + MotherBrainBeamDefinitions.MouthXOffset, camera.X), originY, a, b);
     }
 
-    /// <summary>Reads the installed color cycle and fails if rainbow presentation colors were never bound.</summary>
-    private bool TryReadColor(int index, out RgbColor color) =>
-        (PresentationColors ?? throw new InvalidOperationException(
-            "Mother Brain rainbow beam requires installed colors."))
-            .TryReadBeamColor(index, out color);
+    /// <summary>The installed colour cycle; fails if rainbow presentation colours were never bound.</summary>
+    private MotherBrainRainbowPalettePresentation Colours => PresentationColors ?? throw new InvalidOperationException(
+        "Mother Brain rainbow beam requires installed colors.");
 }

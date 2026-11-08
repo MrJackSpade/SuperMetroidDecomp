@@ -253,7 +253,7 @@ internal sealed class CrocomireCombat
     private void ResolveCrocomirePowerBombReaction(RoomEnemySlot body)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
-        if (state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
+        if (state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
 
         state.StepCounter = 3;

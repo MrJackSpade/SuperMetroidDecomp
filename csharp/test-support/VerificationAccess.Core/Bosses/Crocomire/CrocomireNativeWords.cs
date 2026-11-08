@@ -23,6 +23,89 @@ internal static class CrocomireNativeWords
         [CrocomireFightFlags.Engaged] = 0x8000,
     };
 
+    /// <summary>
+    /// The byte offset into the death dispatcher's jump table, body variable A, naming each <see cref="CrocomireDeathPhase"/>.
+    /// The cartridge advances a phase by one table word, so the table runs in the phases' declared order.
+    /// </summary>
+    internal static readonly NativeWordIdentities<CrocomireDeathPhase> DeathPhases = new(new Dictionary<CrocomireDeathPhase, ushort>
+    {
+        [CrocomireDeathPhase.Fighting] = 0,
+        [CrocomireDeathPhase.CrumbleBridgeAndSink] = 2,
+        [CrocomireDeathPhase.FirstSubmergedPause] = 4,
+        [CrocomireDeathPhase.FirstHopRise] = 6,
+        [CrocomireDeathPhase.FirstHopSink] = 8,
+        [CrocomireDeathPhase.SecondSubmergedPause] = 10,
+        [CrocomireDeathPhase.SecondHopRise] = 12,
+        [CrocomireDeathPhase.SecondHopSink] = 14,
+        [CrocomireDeathPhase.InstallFirstMeltImage] = 16,
+        [CrocomireDeathPhase.BeginFirstMeltPass] = 18,
+        [CrocomireDeathPhase.ShowFirstMeltBands] = 20,
+        [CrocomireDeathPhase.ThirdHopRise] = 22,
+        [CrocomireDeathPhase.StartFirstDissolve] = 24,
+        [CrocomireDeathPhase.DissolveFirstImage] = 26,
+        [CrocomireDeathPhase.ClearFirstMeltImage] = 28,
+        [CrocomireDeathPhase.FourthHopSink] = 30,
+        [CrocomireDeathPhase.ThirdSubmergedPause] = 32,
+        [CrocomireDeathPhase.FourthHopRise] = 34,
+        [CrocomireDeathPhase.FifthHopSink] = 36,
+        [CrocomireDeathPhase.FourthSubmergedPause] = 38,
+        [CrocomireDeathPhase.FifthHopRise] = 40,
+        [CrocomireDeathPhase.SixthHopSink] = 42,
+        [CrocomireDeathPhase.InstallSecondMeltImage] = 44,
+        [CrocomireDeathPhase.BeginSecondMeltPass] = 46,
+        [CrocomireDeathPhase.ShowSecondMeltBands] = 48,
+        [CrocomireDeathPhase.ShippedSpacer] = 50,
+        [CrocomireDeathPhase.SixthHopRise] = 52,
+        [CrocomireDeathPhase.StartSecondDissolve] = 54,
+        [CrocomireDeathPhase.DissolveSecondImage] = 56,
+        [CrocomireDeathPhase.ClearSecondMeltImage] = 58,
+        [CrocomireDeathPhase.FinalSink] = 60,
+        [CrocomireDeathPhase.WaitForSamusAtWall] = 62,
+        [CrocomireDeathPhase.RumbleHiddenWall] = 64,
+        [CrocomireDeathPhase.BreakSpikeWall] = 66,
+        [CrocomireDeathPhase.DelaySkeletonFall] = 68,
+        [CrocomireDeathPhase.ArcSkeletonIntoArena] = 70,
+        [CrocomireDeathPhase.WaitForSkeletonTerminalImage] = 72,
+        [CrocomireDeathPhase.ClearWallAndOpenScrolls] = 74,
+        [CrocomireDeathPhase.WaitForStableSkeleton] = 76,
+        [CrocomireDeathPhase.WaitOneUpdate] = 78,
+        [CrocomireDeathPhase.PublishDefeatAndRestoreMusic] = 80,
+        [CrocomireDeathPhase.InertCorpse] = 82,
+        [CrocomireDeathPhase.DefeatedRoomAdvance] = 84,
+        [CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement] = 86,
+        [CrocomireDeathPhase.RiverSkeletonDetour] = 88,
+    });
+
+    /// <summary>
+    /// The byte offset into the fight-AI jump table, body variable C, naming each <see cref="CrocomireFightFunction"/>;
+    /// <see cref="CrocomireFightFunction.UnwrittenTableEntry"/> is the offset one entry past the table's 21 entries.
+    /// </summary>
+    internal static readonly NativeWordIdentities<CrocomireFightFunction> FightFunctions = new(new Dictionary<CrocomireFightFunction, ushort>
+    {
+        [CrocomireFightFunction.ResetAnimation] = 0,
+        [CrocomireFightFunction.StepForward] = 2,
+        [CrocomireFightFunction.Sleeping] = 4,
+        [CrocomireFightFunction.SteppingForward] = 6,
+        [CrocomireFightFunction.ProjectileAttack] = 8,
+        [CrocomireFightFunction.NearSpikeWallCharge] = 10,
+        [CrocomireFightFunction.SteppingBack] = 12,
+        [CrocomireFightFunction.BackingOffSpikeWall] = 14,
+        [CrocomireFightFunction.RoarAndStepForwardUnused] = 16,
+        [CrocomireFightFunction.WaitingForFirstDamage] = 18,
+        [CrocomireFightFunction.WaitingForSecondDamage] = 20,
+        [CrocomireFightFunction.WaitingForSecondDamageUnused] = 22,
+        [CrocomireFightFunction.PowerBombCharge] = 24,
+        [CrocomireFightFunction.NearSpikeWallChargeUnused] = 26,
+        [CrocomireFightFunction.ResetAnimationUnused] = 28,
+        [CrocomireFightFunction.ChooseAttackUnused] = 30,
+        [CrocomireFightFunction.StepForwardUnused] = 32,
+        [CrocomireFightFunction.MoveUntilSamusUnused] = 34,
+        [CrocomireFightFunction.MoveClawsUnused] = 36,
+        [CrocomireFightFunction.StepForwardVariantUnused] = 38,
+        [CrocomireFightFunction.MovingClawsUnused] = 40,
+        [CrocomireFightFunction.UnwrittenTableEntry] = 42,
+    });
+
     /// <summary>The low four bits of body variable B: the mouth-hit count.</summary>
     private const int HitCountMask = 0x000f;
 
@@ -79,7 +162,7 @@ internal static class CrocomireNativeWords
     /// </summary>
     internal static void ImportSharedWords(CrocomireEnemyState state, ushort wordD, ushort wordE, ushort wordF)
     {
-        if (state.DeathSequenceIndex == CrocomireDeathPhase.Fighting)
+        if (state.DeathPhase == CrocomireDeathPhase.Fighting)
         {
             state.StepCounter = wordD;
             state.ReactionTimer = wordE;
@@ -87,7 +170,7 @@ internal static class CrocomireNativeWords
             return;
         }
 
-        if (state.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
+        if (state.DeathPhase == CrocomireDeathPhase.RumbleHiddenWall)
         {
             state.RumbleStep = RumbleStep(wordD);
         }

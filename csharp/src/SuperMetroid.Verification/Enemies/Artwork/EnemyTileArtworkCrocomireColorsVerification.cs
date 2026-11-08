@@ -67,7 +67,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
         CrocomireEnemyState state = enemies.CrocomireBehavior.Access.Crocomire ?? throw new InvalidOperationException("Verification requires enemies.CrocomireBehavior.Crocomire.");
-        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathPhase,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial),
             state.BodyCursor,
@@ -84,14 +84,14 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
         AssertTrue(state.Colours.HurtFlash, "a flashing hurt update shows the white hurt flash");
         AssertBand(bodyShades, CrocomireShades.BodyHurt, CrocomireColorDefinitions.FightBodyCount, _ => RgbColor.White, "native white hurt flash");
-        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.Fighting, state.DeathPhase,
             "white hurt flash leaves fight phase unchanged");
         state.DeathPhaseDelay = 0;
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonTileLoadAndWallBreak(state);
         AssertTrue(state.Colours.ShowsSkeletonArm, "the wall break shows the skeleton arm's colours");
         AssertBand(BossSheetShades.OwnRow(bosses, EnemyDefinitionId.Crocomire, 0), CrocomireShades.SkeletonArm,
             CrocomireColorDefinitions.SkeletonArmCount, colors.ResolveSkeletonArm, "skeleton-arm");
-        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase,
             "installed skeleton-arm colors leave death-phase handoff unchanged");
 
         visual.FightBody[1] = visual.FightBody[1] with { Green = 32 };

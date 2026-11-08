@@ -96,7 +96,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         CrocomireEnemyState state = Access.RequireCrocomire(slot);
         state.Camera = camera;
 
-        if (state.DeathSequenceIndex == CrocomireDeathPhase.Fighting)
+        if (state.DeathPhase == CrocomireDeathPhase.Fighting)
         {
             BridgeCollapse.HandleCrocomireBridgeThreshold(state);
             // The word write runs even on the frame that starts bridge collapse.
@@ -123,7 +123,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Dispatches Crocomire's sinking, skeleton, wall-break, and arena-completion phases.</summary>
     private void RunCrocomireDeathSequence(CrocomireEnemyState state, SamusState? samus)
     {
-        switch (state.DeathSequenceIndex)
+        switch (state.DeathPhase)
         {
             case CrocomireDeathPhase.CrumbleBridgeAndSink:
                 BridgeCollapse.SpawnNextCrocomireBridgeFragment();
@@ -209,7 +209,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.ShowNextCrocomireMeltBand(state);
                 return;
             case CrocomireDeathPhase.ShippedSpacer:
-                state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+                state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.SixthHopRise:
                 CrocomireBridgeCollapse.SelectCrocomireRisingInstruction(state);
@@ -252,10 +252,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case CrocomireDeathPhase.WaitForStableSkeleton:
                 if (CrocomireBodyProgramGroups.SkeletonAtRest.Contains(state.BodyResidentProgram))
-                    state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+                    state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.WaitOneUpdate:
-                state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+                state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.PublishDefeatAndRestoreMusic:
                 Skeleton.CompleteCrocomireBoss(state);
@@ -263,7 +263,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.InertCorpse:
                 return;
             case CrocomireDeathPhase.DefeatedRoomAdvance:
-                state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+                state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.PinDefeatedRoomBodyLayerPlacement:
                 BodyLayer.Placement = Position16<BackgroundPixels>.Zero;
@@ -274,7 +274,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrocomireDeathPhase.Fighting:
                 throw new InvalidDataException("Crocomire's death sequence runs before its bridge collapse began.");
             default:
-                throw new InvalidOperationException($"Undefined CrocomireDeathPhase {state.DeathSequenceIndex}.");
+                throw new InvalidOperationException($"Undefined CrocomireDeathPhase {state.DeathPhase}.");
         }
     }
 

@@ -190,7 +190,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         initialize(state);
         AssertEqual(bodyProgram, state.BodyCursor.Program,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
-        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
+        AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathPhase,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         // His body shows the melt image alone, in place of his body frame.
         ushort[] shown = BossBodyWords.Of(enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.Crocomire, artwork.Bosses);

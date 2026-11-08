@@ -47,18 +47,18 @@ internal static class EnemyEffectMechanicsVerification
             fixture.InitializeMap(pass);
             fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
             int bands = CrocomireMelting.BandCount(pass);
-            CrocomireDeathPhase phase = fixture.Actor.DeathSequenceIndex;
+            CrocomireDeathPhase phase = fixture.Actor.DeathPhase;
             for (int band = 0; band <= bands; band++)
             {
                 fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
-                AssertEqual(band == bands ? phase.Next() : phase, fixture.Actor.DeathSequenceIndex,
+                AssertEqual(band == bands ? phase.Next() : phase, fixture.Actor.DeathPhase,
                     "only the update after the last band advances the phase");
                 if (band < bands)
                     AssertEqual(CrocomireEffectFixture.MeltBandFrame(new CrocomireMeltBandPicture(pass, 0), band), fixture.MeltBand(band), "each band shows the unerased image on its own update");
             }
 
             fixture.Call(c => c.Melting.BeginCrocomireMelting);
-            phase = fixture.Actor.DeathSequenceIndex;
+            phase = fixture.Actor.DeathPhase;
             // The cartridge's BG2 vertical-scroll table, from the first gameplay line, levelled as the melt starts.
             var nativeScrolls = new ushort[256];
             Array.Fill(nativeScrolls, fixture.Enemies.CrocomireBehavior.BodyLayer.Placement.Y);
@@ -81,7 +81,7 @@ internal static class EnemyEffectMechanicsVerification
                         AssertEqual(GameplaySceneView.ShownRowAtScreenTop(nativeScrolls[line]), (int)ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion), line + ScreenGeometry.GameplayHudHeightPixels),
                             $"melt dissolve call {call} stretch at gameplay line {line}");
                 }
-                AssertEqual(call == calls ? phase.Next() : phase, fixture.Actor.DeathSequenceIndex, "exact dissolve phase handoff");
+                AssertEqual(call == calls ? phase.Next() : phase, fixture.Actor.DeathPhase, "exact dissolve phase handoff");
                 AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), fixture.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
                     fixture.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive), "fixed acid-smoke cadence");

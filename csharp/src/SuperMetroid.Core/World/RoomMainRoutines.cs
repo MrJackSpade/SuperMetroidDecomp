@@ -38,7 +38,7 @@ internal sealed class RoomMainRoutines
         if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
             room.Enemies.RoomMainHooks.Crocomire is not { } boss ||
             boss.Body.Properties.HasAny(EnemyProperties.Invisible) ||
-            boss.DeathSequenceIndex != CrocomireDeathPhase.RumbleHiddenWall)
+            boss.DeathPhase != CrocomireDeathPhase.RumbleHiddenWall)
             return;
 
         var death = room.Enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(

@@ -112,7 +112,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemySlot body = state.Body;
-        state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopSink;
+        state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
         state.VerticalAcceleration = acceleration;
         state.VerticalSpeed = speed;
         // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
@@ -124,7 +124,7 @@ internal static class CrocomireStateQuantitiesVerification
             enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireSink(state);
             if (!moving)
             {
-                AssertEqual(CrocomireDeathPhase.FirstHopSink.Next(), state.DeathSequenceIndex, $"{name}: ends on the native frame");
+                AssertEqual(CrocomireDeathPhase.FirstHopSink.Next(), state.DeathPhase, $"{name}: ends on the native frame");
                 return;
             }
             AssertMotionWords(state, acceleration, speed, subposition, y, $"{name} frame {frame}");
@@ -137,7 +137,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemySlot body = state.Body;
-        state.DeathSequenceIndex = CrocomireDeathPhase.FirstHopRise;
+        state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
         state.VerticalAcceleration = acceleration;
         state.VerticalSpeed = speed;
         // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
@@ -149,7 +149,7 @@ internal static class CrocomireStateQuantitiesVerification
             enemies.CrocomireBehavior.BridgeCollapse.RunCrocomireRise(state);
             if (!moving)
             {
-                AssertEqual(CrocomireDeathPhase.FirstHopRise.Next(), state.DeathSequenceIndex, $"{name}: ends on the native frame");
+                AssertEqual(CrocomireDeathPhase.FirstHopRise.Next(), state.DeathPhase, $"{name}: ends on the native frame");
                 return;
             }
             AssertMotionWords(state, acceleration, speed, subposition, y, $"{name} frame {frame}");
@@ -242,7 +242,7 @@ internal static class CrocomireStateQuantitiesVerification
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
         death.RumbleCooldown = delay;
-        state.DeathSequenceIndex = CrocomireDeathPhase.DelaySkeletonFall;
+        state.DeathPhase = CrocomireDeathPhase.DelaySkeletonFall;
 
         // The drift right of the broken wall, while the skeleton is left of X 224.
         for (int frame = 1; frame <= delay; frame++)
@@ -254,7 +254,7 @@ internal static class CrocomireStateQuantitiesVerification
             behavior.Skeleton.RunCrocomireWallBreakDelay(state);
             AssertSkeletonWords(state, fraction, whole, position, $"skeleton drift frame {frame}");
         }
-        AssertEqual(CrocomireDeathPhase.DelaySkeletonFall.Next(), state.DeathSequenceIndex, "the drift ends with its delay");
+        AssertEqual(CrocomireDeathPhase.DelaySkeletonFall.Next(), state.DeathPhase, "the drift ends with its delay");
 
         // The arc into the arena, falling 224/256 pixel a frame, until the skeleton passes X 576.
         for (int frame = 1; frame <= 400; frame++)
@@ -267,7 +267,7 @@ internal static class CrocomireStateQuantitiesVerification
             if (unchecked((short)(position.X.Whole - 576)) >= 0)
                 break;
         }
-        AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena.Next(), state.DeathSequenceIndex, "the arc ends past X 576");
+        AssertEqual(CrocomireDeathPhase.ArcSkeletonIntoArena.Next(), state.DeathPhase, "the arc ends past X 576");
 
         // The collapse keeps accelerating the speed, clamped at six pixels, while the skeleton falls apart.
         state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.SkeletonFallsApart);

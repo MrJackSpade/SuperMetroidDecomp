@@ -51,8 +51,8 @@ public sealed class CrocomireEnemyState
     /// <summary>Physical tongue record, attached during initialization; bridge collapse sleeps and hides it, while later melting phases reuse its actor.</summary>
     public RoomEnemySlot? Tongue { get; internal set; }
 
-    /// <summary>The main/death dispatcher phase; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
-    public CrocomireDeathPhase DeathSequenceIndex { get; internal set; }
+    /// <summary>The phase of his death sequence; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
+    public CrocomireDeathPhase DeathPhase { get; internal set; }
 
     /// <summary>The fight latches. The original game keeps them in one value with <see cref="HitCount"/>; nothing reads that value another way.</summary>
     public CrocomireFightFlags FightFlags { get; internal set; }

@@ -71,7 +71,7 @@ internal sealed class CrocomireFight
                 EnemyProperties.SolidToSamus |
                     EnemyProperties.IgnoreSamusCollision,
                 EnemyProperties.IgnoreSamusCollision);
-            state.DeathSequenceIndex = CrocomireDeathPhase.DefeatedRoomAdvance;
+            state.DeathPhase = CrocomireDeathPhase.DefeatedRoomAdvance;
             CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Dead);
             slot.Position = slot.Position.WithWhole(new(576, 144));
             slot.Radius = new(40, 28);
@@ -85,7 +85,7 @@ internal sealed class CrocomireFight
             return;
         }
 
-        state.DeathSequenceIndex = CrocomireDeathPhase.Fighting;
+        state.DeathPhase = CrocomireDeathPhase.Fighting;
         state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
         // On the living branch only.
@@ -129,7 +129,7 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state,
         SamusState? samus)
     {
-        if (samus is null || state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
+        if (samus is null || state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
         int leftEdge = CoordinateAxis.Wrap(
             body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X);

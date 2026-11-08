@@ -80,7 +80,7 @@ internal sealed class CrocomireMelting
     /// <summary>Starts the selected body melting list, which the melt image just shown on his body layer goes with.</summary>
     private static void StartCrocomireMeltingBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram bodyProgram)
     {
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, bodyProgram);
     }
 
@@ -99,7 +99,7 @@ internal sealed class CrocomireMelting
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         _ = RequireCrocomireMeltingImage(pass);
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
         death.DistortionStep = 256;
         death.LowestDistortionSourceRow = CrocomireMeltingDefinitions.LowestDistortionSourceRow;
         death.DistortionSourceRow = death.LowestDistortionSourceRow;
@@ -118,7 +118,7 @@ internal sealed class CrocomireMelting
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (death.NextMeltBand == BandCount(death.MeltPass))
         {
-            state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+            state.DeathPhase = state.DeathPhase.Next();
             death.NextMeltBand = 0;
             return;
         }
@@ -162,7 +162,7 @@ internal sealed class CrocomireMelting
         death.MeltingScrollActive = true;
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
 
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
     }
 
@@ -250,7 +250,7 @@ internal sealed class CrocomireMelting
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltingScrollActive = false;
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
         death.NextMeltBand = 0;
     }
 
@@ -259,6 +259,6 @@ internal sealed class CrocomireMelting
     {
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         _bodyLayer.ClearCrocomireBody();
-        state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
+        state.DeathPhase = state.DeathPhase.Next();
     }
 }

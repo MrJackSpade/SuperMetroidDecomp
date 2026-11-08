@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 public static class CrocomireDeathPhases
 {
     /// <summary>
-    /// The dispatcher entry after <paramref name="phase"/>, as the death handlers
-    /// advance variable A by one table word. <see cref="CrocomireDeathPhase.RiverSkeletonDetour"/> is the last
-    /// table entry and has no successor.
+    /// The phase after <paramref name="phase"/> in the death sequence's declared order, which a finishing phase hands
+    /// over to. <see cref="CrocomireDeathPhase.RiverSkeletonDetour"/> is the last phase and has no successor.
     /// </summary>
     public static CrocomireDeathPhase Next(this CrocomireDeathPhase phase) => EnumOrder.Next(phase);
 }

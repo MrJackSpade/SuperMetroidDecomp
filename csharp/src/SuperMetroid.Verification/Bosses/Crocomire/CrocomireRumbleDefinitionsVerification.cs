@@ -94,7 +94,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new CrocomireEnemyState(body)
         {
-            DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
+            DeathPhase = CrocomireDeathPhase.RumbleHiddenWall,
             RumbleStep = CrocomireRumble.FirstStep,
         };
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
@@ -105,8 +105,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         ushort referenceY = unchecked((ushort)death.RumbleYOffset);
         ushort referenceCooldown = checked((ushort)death.RumbleCooldown);
         ushort referenceDelta = checked((ushort)death.RumbleDelta);
-        // The native dispatcher indexes its table by even byte offset; the state stores the phase in table order.
-        ushort referenceDeathIndex = (ushort)((ushort)state.DeathSequenceIndex * 2);
+        ushort referenceDeathIndex = CrocomireNativeWords.DeathPhases.Word(state.DeathPhase);
         int frames = 0;
         while (referenceIndex != 0x0080 && frames < 2048)
         {
@@ -122,7 +121,7 @@ internal static class CrocomireRumbleDefinitionsVerification
 
             // The terminator writes its marker into the word the rumble shares with the melt shake counter; every
             // melt is over by then and nothing reads either again, so production keeps neither the marker nor the step.
-            if (state.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
+            if (state.DeathPhase == CrocomireDeathPhase.RumbleHiddenWall)
             {
                 AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleStep),
                     $"Crocomire rumble frame {frames} target step");
@@ -138,7 +137,7 @@ internal static class CrocomireRumbleDefinitionsVerification
                 AssertEqual(referenceDelta, death.RumbleDelta,
                     $"Crocomire rumble frame {frames} delta");
             }
-            AssertEqual(referenceDeathIndex, (ushort)((ushort)state.DeathSequenceIndex * 2),
+            AssertEqual(referenceDeathIndex, CrocomireNativeWords.DeathPhases.Word(state.DeathPhase),
                 $"Crocomire rumble frame {frames} death index");
         }
 

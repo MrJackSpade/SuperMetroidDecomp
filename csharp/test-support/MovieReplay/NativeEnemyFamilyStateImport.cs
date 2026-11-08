@@ -218,11 +218,10 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
-            // The cartridge's death word is the phase's byte offset into its dispatch table.
-            crocomireRecord.DeathSequenceIndex = (CrocomireDeathPhase)(words.A / sizeof(ushort));
+            crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
             crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
             crocomireRecord.HitCount = CrocomireNativeWords.HitCount(words.B);
-            crocomireRecord.FightFunction = (CrocomireFightFunction)words.C;
+            crocomireRecord.FightFunction = CrocomireNativeWords.FightFunctions.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }

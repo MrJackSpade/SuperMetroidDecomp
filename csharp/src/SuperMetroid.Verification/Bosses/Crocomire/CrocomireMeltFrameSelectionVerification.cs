@@ -32,22 +32,22 @@ internal static class CrocomireMeltFrameSelectionVerification
             fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
             AssertBands(fixture, expected, $"{pass} pass begins");
 
-            CrocomireDeathPhase showing = fixture.Actor.DeathSequenceIndex;
+            CrocomireDeathPhase showing = fixture.Actor.DeathPhase;
             for (int update = 1; update <= bands + 1; update++)
             {
                 fixture.Call(c => c.Melting.ShowNextCrocomireMeltBand);
                 updates++;
                 if (update <= bands)
                     expected[update - 1] = new CrocomireMeltBandPicture(pass, 0);
-                AssertEqual(update <= bands ? showing : showing.Next(), fixture.Actor.DeathSequenceIndex,
+                AssertEqual(update <= bands ? showing : showing.Next(), fixture.Actor.DeathPhase,
                     $"{pass} band update {update} phase");
                 AssertBands(fixture, expected, $"{pass} band update {update}");
             }
 
             fixture.Call(c => c.Melting.BeginCrocomireMelting);
-            CrocomireDeathPhase dissolving = fixture.Actor.DeathSequenceIndex;
+            CrocomireDeathPhase dissolving = fixture.Actor.DeathPhase;
             int step = 0;
-            while (fixture.Actor.DeathSequenceIndex == dissolving)
+            while (fixture.Actor.DeathPhase == dissolving)
             {
                 fixture.Dissolve();
                 updates++;

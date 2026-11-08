@@ -10,7 +10,7 @@ internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slo
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => KiHunterPartDefinitions.Parts[Slot.DefinitionId] switch
     {
-        KiHunterPart.KihunterGreen or KiHunterPart.KihunterYellow or KiHunterPart.KihunterRed => KiHunterBehavior.InitializeKiHunter,
+        KiHunterPart.KihunterGreen or KiHunterPart.KihunterYellow or KiHunterPart.KihunterRed => species.InitializeKiHunter,
         KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterYellowWings or KiHunterPart.KihunterRedWings => species.InitializeKiHunterWings,
         _ => throw new InvalidOperationException($"KiHunter entity bound to {Slot.DefinitionId}."),
     };

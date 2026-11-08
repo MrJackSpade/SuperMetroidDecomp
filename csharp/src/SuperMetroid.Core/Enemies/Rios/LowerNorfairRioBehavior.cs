@@ -21,8 +21,10 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves wall and floor collisions during Rio dives and returns.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Finds each flame follower in the slot immediately after its parent.</summary>
+    /// <summary>The room's enemy places, where each flame follower finds its parent when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -54,6 +56,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
         if (state.IsFollower)
         {
+            _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateLowerNorfairRioParent(slot);
             state.InstalledProgram = LowerNorfairRioProgram.Flames;
             state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames);
@@ -282,16 +285,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             state.Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(installed);
         });
 
-    /// <summary>Finds the parent slot immediately before a flame follower, rejecting slot zero.</summary>
-    private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower)
-    {
-        if (follower.SlotIndex == 0)
-        {
-            throw new InvalidDataException(
-                "A Lower Norfair Rio follower cannot occupy enemy slot zero.");
-        }
-        return _slotTable.Slots[follower.SlotIndex - 1];
-    }
+    /// <summary>The parent the flame follower found when it was placed, the enemy its room lists directly before it.</summary>
+    private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower) => _parents.Of(follower);
 
     /// <summary>Requires the preceding slot to be an unfollowing Holtz parent record.</summary>
     private void ValidateLowerNorfairRioParent(RoomEnemySlot follower)

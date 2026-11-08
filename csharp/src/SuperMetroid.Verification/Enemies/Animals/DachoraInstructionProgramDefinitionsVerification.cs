@@ -39,7 +39,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(parameter);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-            DachoraBehavior.InitializeDachora(slot);
+            enemies.DachoraBehavior.InitializeDachora(slot);
             AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Program,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
@@ -50,7 +50,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                 continue;
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-            DachoraBehavior.InitializeDachora(slot);
+            enemies.DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
             slot.FrameHold = WrappingCountdown.Start(1);
@@ -67,7 +67,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
-            DachoraBehavior.InitializeDachora(slot);
+            enemies.DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.

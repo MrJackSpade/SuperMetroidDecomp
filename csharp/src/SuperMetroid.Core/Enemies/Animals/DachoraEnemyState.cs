@@ -50,6 +50,12 @@ public sealed class DachoraEnemyState
     public int EchoLifetime { get; internal set; }
 
     /// <summary>
+    /// On an echo: whether it shows on odd updates rather than even ones while it is visible. Its body sets it each time
+    /// it places the echo, alternating along the trail so neighbouring echoes flicker in turn.
+    /// </summary>
+    internal bool ShowsOnOddFrames { get; set; }
+
+    /// <summary>
     /// Starts the warning countdown before the first run. The run that follows starts from rest: the game counts
     /// the countdown in the place of the speed's whole pixels, which the countdown leaves at zero, and keeps the fraction.
     /// </summary>

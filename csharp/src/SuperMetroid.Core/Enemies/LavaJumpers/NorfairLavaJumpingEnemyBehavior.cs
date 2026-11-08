@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The Norfair lava-jumping enemy species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -13,8 +15,10 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>Supplies one random word per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Provides the preceding physical enemy record for the follower's aliased reads.</summary>
+    /// <summary>The room's enemy places, where each follower finds its parent when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The parent each follower found when it was placed, which its room lists right before it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -48,6 +52,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             // The retail population always places this cosmetic second half immediately
             // after its moving parent. Its main AI relies on aliasing across those two
             // physical 64-byte records, so reject reordered/custom populations explicitly.
+            _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairLavaJumpingEnemyParent(slot);
             state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Follower);
             state.Function = NorfairLavaJumpingEnemyFunction.FollowParent;
@@ -177,17 +182,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
     }
 
-    /// <summary>Returns the immediately preceding physical enemy record used by follower aliasing.</summary>
-    private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower)
-    {
-        if (follower.SlotIndex == 0)
-        {
-            throw new InvalidDataException(
-                "A Norfair lava-jumping follower cannot occupy enemy slot zero.");
-        }
-
-        return _slotTable.Slots[follower.SlotIndex - 1];
-    }
+    /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
+    private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower) => _parents.Of(follower);
 
     /// <summary>Rejects a follower population record without a same-species parent directly before it.</summary>
     private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)

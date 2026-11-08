@@ -160696,6 +160696,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Frontend.Ending.ShownFloorInkPair",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorInkPair.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Ending.ShownFloorPairing",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Ending/ShownFloorPairing.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Verification.Frontend.Ending.VerifyEndingCompletionTextInstructionsCase",
       "kind": "record struct",
       "scope": "test",
@@ -165363,19 +165389,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Harness.InstallationCopyVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Harness/InstallationCopyVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification",
       "kind": "static class",
       "scope": "test",
@@ -166713,6 +166726,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.Artwork.RoomAnimatedCharacters",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/Artwork/RoomAnimatedCharacters.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Verification.Rooms.Artwork.RoomBlockPicturesVerification",

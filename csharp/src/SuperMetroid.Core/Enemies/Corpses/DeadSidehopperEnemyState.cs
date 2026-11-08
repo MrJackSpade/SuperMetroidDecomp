@@ -36,12 +36,26 @@ public sealed class DeadSidehopperEnemyState
     public int PaletteFrameCounter { get; internal set; }
 
     /// <summary>
-    /// Drained-palette progress: 0 before Shitroid feeds, 1..7 while draining, 8 once transformed, and
-    /// <see cref="DeadSidehopperCorpseDefinitions.NoPaletteStage"/> for a corpse placed already dead. A stage of 8 or more
-    /// lets a shot, touch or Power Bomb start rotting.
+    /// Drained-palette progress: 0 before Shitroid feeds, 1..7 while draining and 8 once transformed; absent for a corpse
+    /// placed already dead, which has no drain and is drained from the start (<see cref="IsDrained"/>).
     /// </summary>
     [IntegerQuantity("drain progress counted from zero to eight; comparisons test how far draining has gone")]
-    public int PaletteStage { get; internal set; }
+    public int? PaletteStage { get; internal set; }
+
+    /// <summary>The palette stage at which draining is complete.</summary>
+    internal const int DrainedPaletteStage = 8;
+
+    /// <summary>
+    /// Whether the corpse is drained, placed already dead or transformed by Shitroid's feeding, so a shot, touch or Power
+    /// Bomb starts it rotting.
+    /// </summary>
+    internal bool IsDrained => PaletteStage is null or >= DrainedPaletteStage;
+
+    /// <summary>
+    /// Whether draining has begun: Shitroid has fed on the corpse, or it was placed already dead. The hop's end and the
+    /// post-landing pause turn to the palette transformation once it has.
+    /// </summary>
+    internal bool HasBegunDraining => PaletteStage is not 0;
 
     /// <summary>Signed 8.8 hop velocity, horizontal and vertical.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

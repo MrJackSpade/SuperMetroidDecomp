@@ -123,7 +123,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             graphicsVariant: 2,
             DeadSidehopperCorpseDefinitions.InitiallyDead);
         SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperInitiallyDead);
-        state.PaletteStage = DeadSidehopperCorpseDefinitions.NoPaletteStage;
+        state.PaletteStage = null;
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
 
@@ -195,7 +195,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 if (--state.StateTimer >= 0)
                     return;
 
-                if (state.PaletteStage != 0)
+                if (state.HasBegunDraining)
                 {
                     state.Function = DeadSidehopperAiFunction.TransformPalette;
                     return;
@@ -320,10 +320,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         // The game writes the stage's colours into the palette it fades the victim in, which every enemy sharing that
         // palette also showed; only the victim shows the drain here (#1512).
-        slot.Shading = PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(state.PaletteStage - 1));
+        int stage = state.PaletteStage ??
+            throw new InvalidOperationException("A dead Sidehopper placed already dead has no drain to transform.");
+        slot.Shading = PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(stage - 1));
 
-        state.PaletteStage++;
-        if (state.PaletteStage < 8)
+        state.PaletteStage = stage + 1;
+        if (!state.IsDrained)
             return;
 
         SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperCorpse);
@@ -340,7 +342,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private static void SelectDeadSidehopperPostAnimationState(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        state.Function = state.PaletteStage != 0
+        state.Function = state.HasBegunDraining
             ? DeadSidehopperAiFunction.TransformPalette
             : DeadSidehopperAiFunction.BeginPostLandingDelay;
     }
@@ -354,7 +356,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         if (slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
-            state.PaletteStage < 8)
+            !state.IsDrained)
         {
             return;
         }
@@ -367,7 +369,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state,
         SamusState samus)
     {
-        if (state.PaletteStage < 8)
+        if (!state.IsDrained)
         {
             _collision.ResolveNormalEnemyTouch(slot, samus);
             return;
@@ -379,7 +381,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private void ResolveDeadSidehopperPowerBomb(RoomEnemySlot slot, SamusState? samus)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        if (state.PaletteStage >= 8)
+        if (state.IsDrained)
         {
             ResolveDeadSidehopperShot(slot);
             return;

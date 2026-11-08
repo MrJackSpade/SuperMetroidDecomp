@@ -76,8 +76,8 @@ internal static class InstalledSheetColouring
             if (front > 1)
                 throw new InvalidDataException($"A sheet marks a pixel's front tile {front}; a pixel lies in a front tile (one) or not (zero).");
             int index = paletteIndices[pixel];
-            inks[pixel] = IsTransparent(composed.Palette, index) ? SpriteImageInk.Transparent(front != 0)
-                : new SpriteImageInk(placeOf[index], KindOf(composed.Palette, index), front != 0);
+            inks[pixel] = ShownKindOf(composed.Palette, index) is { } kind ? new SpriteImageInk(placeOf[index], kind, front != 0)
+                : SpriteImageInk.Transparent(front != 0);
         }
         var manifest = new InstalledSheetDocument
         {
@@ -112,6 +112,13 @@ internal static class InstalledSheetColouring
         return mapPixel.A == 0 ? SpriteImageInk.Transparent(front)
             : new SpriteImageInk(mapPixel.R, MarkedKind(mapPixel.G), front);
     }
+
+    /// <summary>
+    /// How a pixel of a <paramref name="palette"/> sheet composed as <paramref name="index"/> shows its colour once installed,
+    /// or none where it is transparent and has no colour: what the installed pixel's marks will say of it.
+    /// </summary>
+    internal static ColouredInkKind? ShownKindOf(SpriteImageColours palette, int index) =>
+        IsTransparent(palette, index) ? null : KindOf(palette, index);
 
     /// <summary>How a coloured pixel composed as <paramref name="index"/> shows its colour.</summary>
     private static ColouredInkKind KindOf(SpriteImageColours palette, int index) =>

@@ -6,12 +6,14 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// Holds the spawned-object sheets' common art once (#1513, owner flags 20 and 28). Every graphics set's spawned-object
 /// sheets picture the explosions, drops, projectiles and sprite objects its spawners show, so the common ones were pictured
-/// again on every set's sheet. Each laid-out sheet is painted and cut into its pictures; a picture is known by its pixels and
-/// by its sheet's colouring over the colour groups it uses (<see cref="SheetPictureColouring"/>), as the rows a picture
-/// never shows say nothing about it. A picture two or more sheets hold is common: it is held once, on a common sheet, under
-/// every frame name those sheets show it as. Common pictures whose colourings agree on every group they share are held on
-/// one common sheet, so there is one common sheet for each colouring the common art is drawn in. A sheet keeps only the
-/// pictures no other sheet holds, and has no sheet of its own when it holds none.
+/// again on every set's sheet. Each laid-out sheet is painted and cut into its pictures; a picture is known by what a draw of
+/// it shows (<see cref="SheetPictureLook"/>, #1544): its pixels' colours and marks and what each shade it can be drawn in
+/// shows of those colours, not the rows or palette bits they were composed from, as the installed image names its own
+/// colours. A picture two or more sheets hold is common: it is held once, on a common sheet, under every frame name those
+/// sheets show it as, painted and sourced as the first sheet holding it paints it, with every shade any holder names. Common
+/// pictures whose colourings agree on every group and palette bit they share are held on one common sheet, whose composed
+/// indices and source record they then share. A sheet keeps only the pictures no other sheet holds, and has no sheet of
+/// its own when it holds none.
 /// </summary>
 internal static class SpawnedObjectSheetSharing
 {
@@ -36,13 +38,13 @@ internal static class SpawnedObjectSheetSharing
             foreach ((string name, SheetPicture picture) in painted[sheet].Frames)
             {
                 SheetPictureColouring colouring = SheetPictureColouring.Of(painted[sheet].Document, picture.Rows);
-                string identity = $"{picture.Content}/{colouring.Key}";
-                if (!pictureOf.TryGetValue(identity, out HeldPicture? shown))
+                SheetPictureLook look = picture.LookIn(colouring);
+                if (!pictureOf.TryGetValue(look.Key, out HeldPicture? shown))
                 {
-                    pictureOf.Add(identity, shown = new HeldPicture(picture, colouring));
+                    pictureOf.Add(look.Key, shown = new HeldPicture(picture, colouring, look));
                     pictures.Add(shown);
                 }
-                shown.HeldBy(sheet, name, colouring);
+                shown.HeldBy(sheet, name, colouring, look);
                 held[sheet].Add(name, shown);
             }
         }
@@ -99,19 +101,26 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>The frame names the sheets show the picture as, each once.</summary>
         private readonly HashSet<string> nameSet = new(StringComparer.Ordinal);
 
-        /// <summary>Starts a picture first held in <paramref name="colouring"/>.</summary>
-        internal HeldPicture(SheetPicture picture, SheetPictureColouring colouring)
+        /// <summary>
+        /// What the picture shows in its first holder's colouring, whose inks <see cref="Picture"/> and <see cref="Colouring"/>
+        /// keep.
+        /// </summary>
+        private readonly SheetPictureLook look;
+
+        /// <summary>Starts a picture first held in <paramref name="colouring"/>, where it looks as <paramref name="look"/>.</summary>
+        internal HeldPicture(SheetPicture picture, SheetPictureColouring colouring, SheetPictureLook look)
         {
             Picture = picture;
             Colouring = colouring;
+            this.look = look;
         }
 
-        /// <summary>The picture.</summary>
+        /// <summary>The picture as its first holder paints it.</summary>
         internal SheetPicture Picture { get; }
 
         /// <summary>
-        /// Its colouring over the groups it uses, with every shade any sheet holding it names, so every shade it can be drawn
-        /// in stays installed beside it.
+        /// Its first holder's colouring over the groups it uses, which is where the import's source record says its colours
+        /// came from, with every shade any sheet holding it names, so every shade it can be drawn in stays installed beside it.
         /// </summary>
         internal SheetPictureColouring Colouring { get; private set; }
 
@@ -124,15 +133,18 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>The common sheet the picture is held on, by its place among the common sheets.</summary>
         internal int CommonSheet { get; set; } = -1;
 
-        /// <summary>Records that sheet <paramref name="sheet"/>, coloured as <paramref name="colouring"/>, shows the picture as frame <paramref name="name"/>.</summary>
-        /// <exception cref="InvalidOperationException">The colouring disagrees with the picture's, which its identity rules out.</exception>
-        internal void HeldBy(int sheet, string name, SheetPictureColouring colouring)
+        /// <summary>
+        /// Records that sheet <paramref name="sheet"/>, coloured as <paramref name="colouring"/>, shows the picture as frame
+        /// <paramref name="name"/>, where it looks as <paramref name="shownAs"/>: the same as the picture, though perhaps
+        /// drawn from other rows or palette bits. The holder's shades join the picture's over the colours they correspond to.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The holder's shades show the picture differently, which its one look rules out.</exception>
+        internal void HeldBy(int sheet, string name, SheetPictureColouring colouring, SheetPictureLook shownAs)
         {
             holders.Add(sheet);
             if (nameSet.Add(name))
                 Names.Add(name);
-            Colouring = Colouring.MergedWith(colouring)
-                ?? throw new InvalidOperationException($"Spawned-object frame {name} is coloured two ways under one colouring key.");
+            Colouring = Colouring.WithShadesOf(colouring, shownAs.ShownInks, look.ShownInks);
         }
     }
 

@@ -43,7 +43,6 @@ internal sealed class SheetPicture
                 rows = rows.With(ImageColourGroup.Numbered(ink / GroupColours));
         }
         Rows = rows;
-        Content = ContentOf();
         Pixels = PixelsOf();
     }
 
@@ -64,12 +63,6 @@ internal sealed class SheetPicture
     /// sheet's colours and shades of every other group say nothing about it.
     /// </summary>
     internal ImageColourGroups Rows { get; }
-
-    /// <summary>
-    /// A hash of everything the picture holds: its size, origin, colour groups, depth and each pixel's colour, ink and
-    /// front-tile mark. Pictures with one content show alike in one colouring.
-    /// </summary>
-    internal string Content { get; }
 
     /// <summary>
     /// A hash of the rectangle alone: its size and each pixel's colour, ink and front-tile mark. Pictures with one such
@@ -121,9 +114,17 @@ internal sealed class SheetPicture
         Depth = Depth,
     };
 
-    /// <summary>Hashes everything the picture holds into <see cref="Content"/>.</summary>
-    private string ContentOf()
+    /// <summary>
+    /// What a draw of the picture shows in <paramref name="colouring"/>, its sprite sheet's colouring over <see cref="Rows"/>
+    /// (#1544): its size, origin and depth, each pixel's colour, front-tile mark and how it shows its colour once installed,
+    /// the colour it shows named by the order the picture first shows its colours, and the colouring's colours and shades over
+    /// those colours. Its palette indices and colour groups are left out, as the installed image names its own colours.
+    /// </summary>
+    internal SheetPictureLook LookIn(SheetPictureColouring colouring)
     {
+        Ensure.NotNull(colouring);
+        var shown = new List<int>();
+        var orderOf = new Dictionary<int, int>();
         using var stream = new MemoryStream();
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
@@ -131,13 +132,32 @@ internal sealed class SheetPicture
             writer.Write(Size.Y);
             writer.Write(Origin.X);
             writer.Write(Origin.Y);
-            writer.Write(ColourGroups.ManifestMembers);
             writer.Write(Depth?.ToString() ?? "none");
-            writer.Write(System.Runtime.InteropServices.MemoryMarshal.AsBytes(pixels.AsSpan()));
-            writer.Write(inks);
-            writer.Write(frontTiles);
+            for (int pixel = 0; pixel < inks.Length; pixel++)
+            {
+                RgbaPixel colour = pixels[pixel];
+                writer.Write(colour.R);
+                writer.Write(colour.G);
+                writer.Write(colour.B);
+                writer.Write(colour.A);
+                writer.Write(frontTiles[pixel]);
+                int ink = inks[pixel];
+                if (InstalledSheetColouring.ShownKindOf(SpriteImageColours.Sprite, ink) is not { } kind)
+                {
+                    writer.Write("transparent");
+                    continue;
+                }
+                writer.Write(kind.ToString());
+                if (!orderOf.TryGetValue(ink, out int order))
+                {
+                    orderOf.Add(ink, order = shown.Count);
+                    shown.Add(ink);
+                }
+                writer.Write(order);
+            }
+            colouring.WriteShown(writer, shown);
         }
-        return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
+        return new SheetPictureLook(Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length)))), [.. shown]);
     }
 
     /// <summary>Hashes the rectangle's size and planes into <see cref="Pixels"/>.</summary>

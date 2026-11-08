@@ -72,8 +72,12 @@ internal static class InstalledFixtures
     private static readonly Lazy<RoomMetatileCatalog> blockCompositions = Shared<RoomMetatileCatalog>("block compositions", () =>
         RoomMetatileArtworkFiles.Load(RepositoryInstallation.Installation.RoomMetatileDirectory));
 
-    /// <summary>Lazy map and shared presentation resources.</summary>
-    private static readonly Lazy<AreaMapPresentation> maps = Shared<AreaMapPresentation>("maps", () => RepositoryInstallation.Installation.LoadMaps());
+    /// <summary>
+    /// Lazy map and shared presentation resources, as the import reads them (#1544): the game's presentation with the
+    /// colours the fixture sheets are pre-coloured from. Its identity is the game's read's.
+    /// </summary>
+    private static readonly Lazy<AreaMapPresentation> maps = Shared<AreaMapPresentation>("maps", () =>
+        SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationFiles.LoadForImport(RepositoryInstallation.Installation.MapDirectory));
 
     /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
     private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = Shared<InstalledEnemyArtwork>("enemy artwork", () => RepositoryInstallation.Installation.LoadEnemyTiles());

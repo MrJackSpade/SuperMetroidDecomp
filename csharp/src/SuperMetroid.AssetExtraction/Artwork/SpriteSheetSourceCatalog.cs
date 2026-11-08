@@ -49,7 +49,7 @@ internal sealed class SpriteSheetSourceCatalog
         ArgumentException.ThrowIfNullOrWhiteSpace(content);
         endingPalettes = Ensure.NotNull(endingColours);
         samus = new(() => SamusSheetInputs.Load(content));
-        maps = new(() => MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
+        maps = new(() => MapPresentationFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.MapDirectoryName)));
         intro = new(() => IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName)));
         ending = new(() => EndingObjectArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingObjectDirectoryName)));
         endingMode7 = new(() => EndingMode7ArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.EndingMode7DirectoryName)));

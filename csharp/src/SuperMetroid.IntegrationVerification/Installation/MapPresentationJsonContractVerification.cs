@@ -26,7 +26,7 @@ internal static class MapPresentationJsonContractVerification
             foreach (string source in Directory.GetFiles(installation.MapDirectory))
                 File.Copy(source, Path.Combine(stock, Path.GetFileName(source)));
             Dictionary<string, string> originalHashes = HashFiles(stock);
-            string expected = MapPresentationFiles.Load(stock).ContentIdentity;
+            string expected = MapPresentationFiles.LoadForImport(stock).ContentIdentity;
             string manifestPath = Path.Combine(stock, AreaMapCatalogFormat.ManifestFile);
             byte[] manifest = File.ReadAllBytes(manifestPath);
             using JsonDocument parsedManifest = JsonDocument.Parse(manifest);
@@ -43,7 +43,7 @@ internal static class MapPresentationJsonContractVerification
                 foreach (byte[] corrupt in DuplicateDocuments(document.RootElement))
                 {
                     File.WriteAllBytes(path, corrupt);
-                    Reject(file, path, () => MapPresentationFiles.Load(stock));
+                    Reject(file, path, () => MapPresentationFiles.LoadForImport(stock));
                     File.WriteAllBytes(path, original);
                 }
             }
@@ -51,12 +51,12 @@ internal static class MapPresentationJsonContractVerification
                 foreach (byte[] corrupt in DuplicateDocuments(document.RootElement))
                 {
                     File.WriteAllBytes(manifestPath, corrupt);
-                    Reject("manifest", manifestPath, () => MapPresentationFiles.Load(stock));
+                    Reject("manifest", manifestPath, () => MapPresentationFiles.LoadForImport(stock));
                 }
             File.WriteAllBytes(manifestPath, manifest);
             Require(HashFiles(stock).OrderBy(pair => pair.Key).SequenceEqual(originalHashes.OrderBy(pair => pair.Key)),
                 "the diagnostics put every installed file back as it was");
-            Require(MapPresentationFiles.Load(stock).ContentIdentity == expected,
+            Require(MapPresentationFiles.LoadForImport(stock).ContentIdentity == expected,
                 "the restored files load with their original identity");
             Require(accepted.Count == 0, "silently accepted ambiguous JSON:\n" + string.Join('\n', accepted));
             Console.WriteLine($"PASS installed map/menu/title JSON: {files.Length} resource files plus manifest, " +

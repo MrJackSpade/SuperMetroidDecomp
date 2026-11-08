@@ -37,7 +37,7 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
             LoadEscapeTimer(Path.Combine(content, GameInstallationLayout.MapDirectoryName, EscapeTimerTileAtlasFormat.FileName)))
         {
             BeamPalettes = LoadBeamPalettes(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName, BeamPaletteFile.FileName)),
-            Maps = MapPresentationFiles.Load(Path.Combine(content, GameInstallationLayout.MapDirectoryName)),
+            Maps = MapPresentationFiles.LoadForImport(Path.Combine(content, GameInstallationLayout.MapDirectoryName)),
         };
     }
 

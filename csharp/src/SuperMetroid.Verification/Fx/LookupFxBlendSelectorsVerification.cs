@@ -55,10 +55,8 @@ internal static class LookupFxBlendSelectorsVerification
     {
         var document = new RoomFxPaletteBlendDocument
         {
-            Version = 1,
+            Version = RoomFxPaletteBlendDefinitions.Version,
             Blends = new(),
-            CeresHazeBlue = PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeBlue),
-            CeresHazeRed = PaletteRgb5.From(RoomFxPaletteBlendDocumentRules.StockCeresHazeRed),
         };
         byte[] ids = OriginalFxBlendIds();
         for (int index = 0; index < ids.Length; index++)

@@ -9,7 +9,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <summary>
 /// The complete colours each map and menu screen loads (#1464, #1512), as whole 256-colour images in the cartridge's
 /// colour order: the pause screen's, the file-select screens' and each Zebes area's world map's. Only the import reads
-/// them: it pre-colours the screens' sheets from them and reads each screen's backdrop from them; the game draws none.
+/// them: it pre-colours the screens' sheets from them and takes each screen's backdrop from them once, into the scene
+/// colours the game reads (#1544, <see cref="SceneColourFiles"/>); the game loads no palette document.
 /// </summary>
 public sealed class MapStaticPalettes
 {
@@ -49,7 +50,7 @@ public sealed class MapStaticPalettes
     public ReadOnlySpan<RgbColor> World(AreaId selectedArea) => world.TryGetValue(selectedArea, out RgbColor[]? colours)
         ? colours : throw new ArgumentOutOfRangeException(nameof(selectedArea), "World map palettes cover the six Zebes areas.");
 
-    /// <summary>The solid colour each screen shows where nothing is drawn, as the game publishes it (#1512).</summary>
+    /// <summary>The solid colour each screen shows where nothing is drawn (#1512), which the import records in the scene colours.</summary>
     public MenuBackdrops Backdrops() => new(pause[BackdropColour], fileSelect[BackdropColour],
         world.ToDictionary(pair => pair.Key, pair => pair.Value[BackdropColour]));
 

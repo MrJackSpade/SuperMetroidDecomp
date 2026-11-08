@@ -132,7 +132,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     PrivateInstallationCopy.CopyInstallation(RepositoryInstallation.Installation.MapDirectory, mapDirectory);
     File.WriteAllBytes(Path.Combine(mapDirectory, FileSelectPresentationFormat.FileName),
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
-    var fixturePresentation = MapPresentationFiles.Load(mapDirectory);
+    var fixturePresentation = MapPresentationFiles.LoadForImport(mapDirectory);
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap(fixturePresentation);

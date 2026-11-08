@@ -146,11 +146,11 @@ internal static class MenuSheetFixtures
     private static InstalledSpriteSheets ComposeTitle(TitleGraphicsPresentation graphics)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
-        sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)),
+        sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)),
             $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
         // The title's floor is composed from these graphics (#1392, #1467).
         sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
-            FrontendFloorSheetComposer.Title(graphics, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)), $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
+            FrontendFloorSheetComposer.Title(graphics, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)), $"title-{RuntimeHelpers.GetHashCode(graphics):X8}");
         return new InstalledSpriteSheets(sheets);
     }
 
@@ -185,7 +185,7 @@ internal static class MenuSheetFixtures
     internal static InstalledSpriteSheets WithTitle(TitlePalettePresentation palette)
     {
         ArgumentNullException.ThrowIfNull(palette);
-        return ReferenceEquals(palette, InstalledAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)) ? InstalledFixtures.SpriteSheets
+        return ReferenceEquals(palette, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)) ? InstalledFixtures.SpriteSheets
             : titlePalettes.GetValue(palette, key =>
             {
                 TitleGraphicsPresentation graphics = InstalledFixtures.Maps.TitleGraphics;

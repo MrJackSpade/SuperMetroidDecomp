@@ -99,9 +99,9 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(bosses);
         AreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
-        MotherBrainHealthPalettePresentation health = InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(presentation);
+        MotherBrainHealthPalettePresentation health = ImportAreaMapPresentation.MotherBrainHealthPaletteOf(presentation);
         MotherBrainRainbowPalettePresentation rainbow = presentation.MotherBrainRainbowPalette;
-        MotherBrainRoomColorPresentation room = InstalledAreaMapPresentation.MotherBrainRoomColorsOf(presentation);
+        MotherBrainRoomColorPresentation room = ImportAreaMapPresentation.MotherBrainRoomColorsOf(presentation);
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors ?? throw Missing("the Baby's cutscene colours");
 
@@ -138,7 +138,7 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
-        MotherBrainHealthPalettePresentation health = InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(maps);
+        MotherBrainHealthPalettePresentation health = ImportAreaMapPresentation.MotherBrainHealthPaletteOf(maps);
         MotherBrainRainbowPalettePresentation rainbow = maps.MotherBrainRainbowPalette;
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
@@ -154,7 +154,7 @@ internal static class MotherBrainSheetShades
     internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        return RoomBackground(InstalledAreaMapPresentation.MotherBrainRoomColorsOf(maps));
+        return RoomBackground(ImportAreaMapPresentation.MotherBrainRoomColorsOf(maps));
     }
 
     /// <summary>The sprite shades of her health bands: her brain's and rear legs' colours in each.</summary>

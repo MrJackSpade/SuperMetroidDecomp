@@ -261,6 +261,15 @@ public static class MapPresentationExtractor
             file.Write(titlePaletteBytes);
         hashes.Add(TitlePaletteFormat.FileName,
             Convert.ToHexString(SHA256.HashData(titlePaletteBytes)));
+        // The scene colours the game shows are taken once from the screens' own colours (#1544): the game reads them and no
+        // palette document.
+        byte[] sceneColourBytes = SceneColourFiles.Extract(
+            TitlePaletteFile.Read(new MemoryStream(titlePaletteBytes, writable: false)),
+            MapStaticPalettesFile.Read(new MemoryStream(paletteBytes, writable: false)));
+        using (var file = new FileStream(Path.Combine(directory, SceneColourFiles.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(sceneColourBytes);
+        hashes.Add(SceneColourFiles.FileName,
+            Convert.ToHexString(SHA256.HashData(sceneColourBytes)));
         byte[] titleGradientBytes = TitleGradientExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, TitleGradientFile.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(titleGradientBytes);

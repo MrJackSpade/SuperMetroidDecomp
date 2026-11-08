@@ -27,7 +27,7 @@ internal static class PauseShownColours
     {
         Ensure.NotNull(pause);
         AreaMapPresentation maps = pause.screen.Artwork;
-        RgbColor[] colours = InstalledAreaMapPresentation.PalettesOf(maps).Pause.ToArray();
+        RgbColor[] colours = ImportAreaMapPresentation.PalettesOf(maps).Pause.ToArray();
         if (pause.paletteAnimation.ShownFrame is int frame)
             InstalledAreaMapPresentation.HighlightColoursOf(maps).Colours(frame).CopyTo(colours.AsSpan(HighlightFirstColour));
         PictureShading arrow = pause.ReserveArrowShading;

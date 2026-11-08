@@ -83,7 +83,7 @@ internal static class CeresRidleyColorsVerification
         initialize(slot);
         CheckCgram(enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyPaletteDefinitionsConstants.StartCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveStart, "Ceres Ridley initialization");
+            ImportAreaMapPresentation.CeresRidleyColorsOf(original).ResolveStart, "Ceres Ridley initialization");
 
         Action<RidleyEnemyState> eyeTick = CeresRidleyFades.TickCeresRidleyEyeFade;
         Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.Fades.TickCeresRidleyBodyFade;
@@ -99,7 +99,7 @@ internal static class CeresRidleyColorsVerification
                 $"installed eye fade step {step} advances");
             CheckCgram(state, CeresRidleyColorFormat.EyeFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.EyeFadeCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveEyeFade(row, color),
+                color => ImportAreaMapPresentation.CeresRidleyColorsOf(original).ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
         state.Function = RidleyAiFunction.FadeInBody;
@@ -112,11 +112,11 @@ internal static class CeresRidleyColorsVerification
                 state.FadeStep, $"installed body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeBgCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
+                color => ImportAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
                 $"Ceres Ridley body BG fade row {row}");
             CheckCgram(state, CeresRidleyColorFormat.BodyFadeColorCount,
                 CeresRidleyPaletteDefinitionsConstants.BodyFadeObjCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
+                color => ImportAreaMapPresentation.CeresRidleyColorsOf(original).ResolveBodyFade(row, color),
                 $"Ceres Ridley body OBJ fade row {row}");
         }
         state.FightMode = RidleyFightMode.Fighting;
@@ -128,7 +128,7 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyPaletteDefinitions.HealthLateBand;
             CheckCgram(state, CeresRidleyColorFormat.HealthColorCount,
                 CeresRidleyPaletteDefinitionsConstants.HealthCgramIndex,
-                color => InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveHealth(row, color),
+                color => ImportAreaMapPresentation.CeresRidleyColorsOf(original).ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
@@ -144,10 +144,10 @@ internal static class CeresRidleyColorsVerification
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatBgCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatBg, "Ceres Ridley retreat BG");
+            ImportAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatBg, "Ceres Ridley retreat BG");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatSharedColorCount,
             CeresRidleyPaletteDefinitionsConstants.RetreatSharedBgCgramIndex,
-            InstalledAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared BG");
+            ImportAreaMapPresentation.CeresRidleyColorsOf(original).ResolveRetreatShared, "Ceres Ridley retreat shared BG");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Ceres Ridley installed colors avoid their original source ranges");
 

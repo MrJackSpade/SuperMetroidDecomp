@@ -37,7 +37,7 @@ internal static class MapSpriteSheetComposer
                 MapSpriteColouringSets.SpriteSet(colourings[0])), colourings);
         })];
         ColouringPictures<MapSpriteColouring> pictures = ColouringPictures<MapSpriteColouring>.Of(frames, MapSpriteColouringSets.SpriteSet);
-        MapStaticPalettes palettes = InstalledAreaMapPresentation.PalettesOf(maps);
+        MapStaticPalettes palettes = ImportAreaMapPresentation.PalettesOf(maps);
         RgbColor[] fileSelect = palettes.FileSelect[SpriteColours..].ToArray();
         RgbColor[] pause = palettes.Pause[SpriteColours..].ToArray();
         // Each colouring's shade shows its set's colours on each screen over the sets its sprites are pictured in.

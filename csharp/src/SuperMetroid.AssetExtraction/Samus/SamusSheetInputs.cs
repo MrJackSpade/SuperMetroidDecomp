@@ -40,8 +40,8 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
         GameplayBasePalette palettes = GameplayBasePaletteFiles.Load(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName));
         IntroCinematicArtwork intro = IntroCinematicArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.IntroCinematicDirectoryName));
         // Her colour tables are the ones the map presentation was read with, edits included.
-        AreaMapPresentation maps = MapPresentationFiles.Load(map);
-        SamusMapColourTables tables = InstalledAreaMapPresentation.SamusColoursOf(maps);
+        AreaMapPresentation maps = MapPresentationFiles.LoadForImport(map);
+        SamusMapColourTables tables = ImportAreaMapPresentation.SamusColoursOf(maps);
         string overreads = Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName);
         SamusOverrunColours overruns = SamusOverreadFiles.LoadColours(overreads);
         var sources = new SamusShadeSources(

@@ -63,7 +63,7 @@ internal static class RidleySheetShades
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
-        return [.. CeresRoom(InstalledAreaMapPresentation.CeresRidleyColorsOf(maps), InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(maps), standard),
+        return [.. CeresRoom(ImportAreaMapPresentation.CeresRidleyColorsOf(maps), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(maps), standard),
             .. NorfairRoom(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
     }
 

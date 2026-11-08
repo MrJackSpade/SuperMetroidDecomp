@@ -423,11 +423,17 @@ color math keeps the effect behind BG1 terrain and excludes OBJ palettes
 zero through three; it never tints the HUD or enables liquid physics.
 Malformed FX artwork/tilemap/palette files fail with the exact path.
 
-`game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors and the
-`ceresHazeBlue`/`ceresHazeRed` RGB5 tints. Edit it in place to recolor
-the Ceres haze before or after Ridley's defeat. The tint affects both software
-and hardware rendering; haze activation, scanline bands, and fade timing remain
-compiled. Each channel must be 0–31.
+`game/maps/room-fx-blend-palettes.json` holds the room-FX blend colors, which the
+import pre-colours the effect overlay pictures in; edit it and reinstall to recolor them.
+
+`game/maps/scene-colours.json` holds the colours the game shows that no picture
+holds: the title's backdrop, the pause, file-select and each Zebes area's world-map
+backdrop, and the Ceres haze's `ceresHazeWhileRidleyLives`/`ceresHazeAfterRidleyDies`
+RGB5 tints. The game reads these colours and no palette document. Edit it in place to
+change a backdrop or recolor the Ceres haze before or after Ridley's defeat; haze
+activation, scanline bands, and fade timing remain compiled. Each channel must be 0–31.
+The title, map and menu palette documents are read only by the import, which
+pre-colours the screens' sheets from them.
 
 `game/maps/power-bomb-fixed-colors.json` contains the 16 pre-explosion and
 32 explosion RGB5 rows used by Power Bombs, Crystal Flash and the Ceres

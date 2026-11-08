@@ -46,14 +46,73 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// Reads the installed map and menu presentation (#1409), as the player may have edited it in place, compiled into the
-/// presentation catalog the game binds.
+/// presentation catalog the game binds. The game's read (<see cref="Load"/>) reads no palette document (#1544): the colours
+/// it shows that no picture holds are the scene colours (<see cref="SceneColourFiles"/>), and the colour documents only the
+/// import pre-colours sheets from are read by the import's read (<see cref="LoadForImport"/>) alone.
 /// </summary>
 public static class MapPresentationFiles
 {
-    /// <summary>Reads all areas atomically into a new catalog; a file that does not decode fails loudly, naming the file.</summary>
-    public static AreaMapPresentation Load(string directory)
+    /// <summary>The installed colour documents only the import reads, which the game's read leaves unread.</summary>
+    private static readonly string[] ImportColourFiles =
+    [
+        MapStaticPalettesFormat.FileName, TitlePaletteFormat.FileName, MotherBrainHealthPaletteFile.FileName,
+        MotherBrainRoomColorFormat.FileName, RoomFxPaletteBlendDefinitions.FileName, SamusVisorColorFile.FileName,
+        SamusHurtColorFile.FileName, SamusSuitColorFile.FileName, SamusFullBodyCycleColorFormat.FileName,
+        CrystalFlashColorFile.FileName, SamusChargeColorFormat.FileName, CeresRidleyColorFormat.FileName,
+        CeresRidleyFloorColorFormat.FileName, SamusHyperBeamColorFormat.FileName,
+    ];
+
+    /// <summary>
+    /// Reads all areas atomically into the catalog the game binds; a file that does not decode fails loudly, naming the
+    /// file. The colour documents only the import reads are left unread.
+    /// </summary>
+    public static InstalledAreaMapPresentation Load(string directory)
     {
         using var installed = InstalledMapReader.Open(directory);
+        GameRead game = ReadGame(installed);
+        installed.RequireAllManifestFilesRead(ImportColourFiles);
+        return new InstalledAreaMapPresentation(game.Parts, game.Sources);
+    }
+
+    /// <summary>
+    /// Reads all areas atomically into the catalog the import composes from: the game's catalog with the colours only the
+    /// import pre-colours sheets and pictures from (#1544). A file that does not decode fails loudly, naming the file.
+    /// </summary>
+    public static ImportAreaMapPresentation LoadForImport(string directory)
+    {
+        using var installed = InstalledMapReader.Open(directory);
+        GameRead game = ReadGame(installed);
+        var colours = new ImportPresentationColours(
+            new SamusMapColourTables(
+                Colours(SamusVisorColorFile.FileName, "Samus visor colors", s => SamusVisorColorFile.Read(s)),
+                Colours(SamusHurtColorFile.FileName, "Samus hurt colors", s => SamusHurtColorFile.Read(s)),
+                Colours(SamusSuitColorFile.FileName, "Samus suit colors", s => SamusSuitColorFile.Read(s)),
+                Colours(SamusFullBodyCycleColorFormat.FileName, "Samus full-body cycle colors", s => SamusFullBodyCycleColorFile.Read(s).ToColours()),
+                Colours(SamusChargeColorFormat.FileName, "Samus charge colors", s => SamusChargeColorFile.Read(s).ToColours()),
+                Colours(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorFile.Read(s).ToColours()),
+                Colours(CrystalFlashColorFile.FileName, "Crystal Flash colors", s => CrystalFlashColorFile.Read(s))),
+            Colours(TitlePaletteFormat.FileName, "title palette", s => TitlePaletteFile.Read(s)),
+            Colours(MapStaticPalettesFormat.FileName, "map palettes", s => MapStaticPalettesFile.Read(s)),
+            Colours(CeresRidleyColorFormat.FileName, "Ceres Ridley colors", s => CeresRidleyColorFile.Read(s)),
+            Colours(CeresRidleyFloorColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorFile.Read(s)),
+            Colours(MotherBrainHealthPaletteFile.FileName, "Mother Brain health palette", s => MotherBrainHealthPaletteFile.Read(s)),
+            Colours(MotherBrainRoomColorFormat.FileName, "Mother Brain room colors", s => MotherBrainRoomColorFile.Read(s)),
+            Colours(RoomFxPaletteBlendDefinitions.FileName, "room-FX blends", s => RoomFxPaletteBlendFile.Read(s)));
+        installed.RequireAllManifestFilesRead([]);
+        return new ImportAreaMapPresentation(game.Parts, game.Sources, colours);
+
+        // The import's colours are not part of the presentation's identity: the game reads none of them, and the sheets
+        // composed from them carry their own.
+        T Colours<T>(string file, string description, Func<Stream, T> compile) where T : class =>
+            Compile<T>([installed.Read(file)], [file], installed, description, streams => compile(streams[0]));
+    }
+
+    /// <summary>
+    /// Reads what the game binds: the areas, the presentation resources and the scene colours, framing each into the
+    /// presentation's identity in a fixed order.
+    /// </summary>
+    private static GameRead ReadGame(InstalledMapReader installed)
+    {
         Dictionary<AreaId, HashSet<int>> stationCells = installed.ReadStationCells();
         var areas = new IAreaMapView[AreaIds.RetailCount];
         using var identity = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -84,7 +143,7 @@ public static class MapPresentationFiles
         MapTileCharacters tiles = Resource(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s));
         HudTileAtlas hudTiles = Resource(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlasPng.Read(s));
         MapPaletteCycle cycle = Resource(MapPaletteCycleFile.FileName, "map highlight cycle", s => MapPaletteCycleFile.Read(s));
-        MapStaticPalettes palettes = Resource(MapStaticPalettesFormat.FileName, "map palettes", s => MapStaticPalettesFile.Read(s));
+        SceneColours sceneColours = Resource(SceneColourFiles.FileName, "scene colours", s => SceneColourFiles.Read(s));
         WorldMapLabelPositions labels = Resource(WorldMapLabelFormat.FileName, "world-map labels", s => WorldMapLabelFile.Read(s));
         MapStationPositions stations = Resource(MapStationLayoutFormat.FileName, "map station labels", s => MapStationLayoutFile.Read(s));
         MapLandmarkPositions landmarks = Resource(MapLandmarkFormat.FileName, "map landmarks", s => MapLandmarkFile.Read(s));
@@ -121,35 +180,18 @@ public static class MapPresentationFiles
         TitleGraphicsPresentation titleGraphics = MultiFileResource<TitleGraphicsPresentation>(
             [TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.FloorMapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
             "title graphics", s => TitleGraphicsCharacters.Read(s[0], s[1], s[2], s[3]));
-        TitlePalettePresentation titlePalette = Resource(TitlePaletteFormat.FileName, "title palette", s => TitlePaletteFile.Read(s));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFile.FileName, "title gradient", s => TitleGradientFile.Read(s));
         RoomPaletteFxPresentation roomPaletteFx = Resource(RoomPaletteFxPresentationFormat.FileName, "room palette effects", s => RoomPaletteFxPresentationFile.Read(s));
-        MotherBrainHealthPalettePresentation motherBrainHealthPalette = Resource(MotherBrainHealthPaletteFile.FileName, "Mother Brain health palette", s => MotherBrainHealthPaletteFile.Read(s));
         MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = Resource(MotherBrainRainbowPaletteFile.FileName, "Mother Brain rainbow palette", s => MotherBrainRainbowPaletteFile.Read(s));
-        MotherBrainRoomColorPresentation motherBrainRoomColors = Resource(MotherBrainRoomColorFormat.FileName, "Mother Brain room colors", s => MotherBrainRoomColorFile.Read(s));
         RoomFxAnimatedTileAtlas roomFxAnimatedTiles = Resource(RoomFxAnimatedTileAtlasFile.FileName, "room-FX presentation", s => RoomFxAnimatedTileAtlasPng.Read(s));
         RoomFxLayer3Pages roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s));
-        RoomFxBlendInks roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendFile.Read(s));
         InstalledPowerBombFixedColors powerBombFixedColors = Resource(PowerBombFixedColorFile.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
-        InstalledSamusVisorColors samusVisorColors = Resource(SamusVisorColorFile.FileName, "Samus visor colors", s => SamusVisorColorFile.Read(s));
-        InstalledSamusHurtColors samusHurtColors = Resource(SamusHurtColorFile.FileName, "Samus hurt colors", s => SamusHurtColorFile.Read(s));
-        InstalledSamusSuitColors samusSuitColors = Resource(SamusSuitColorFile.FileName, "Samus suit colors", s => SamusSuitColorFile.Read(s));
-        SamusFullBodyCycleColours samusFullBodyCycleColors = Resource(SamusFullBodyCycleColorFormat.FileName, "Samus full-body cycle colors", s => SamusFullBodyCycleColorFile.Read(s).ToColours());
-        InstalledCrystalFlashColors crystalFlashColors = Resource(CrystalFlashColorFile.FileName, "Crystal Flash colors", s => CrystalFlashColorFile.Read(s));
-        SamusChargeColours samusChargeColors = Resource(SamusChargeColorFormat.FileName, "Samus charge colors", s => SamusChargeColorFile.Read(s).ToColours());
-        CeresRidleyColorCatalog ceresRidleyColors = Resource(CeresRidleyColorFormat.FileName, "Ceres Ridley colors", s => CeresRidleyColorFile.Read(s));
-        CeresRidleyFloorColorCatalog ceresRidleyFloorColors = Resource(CeresRidleyFloorColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
-        SamusHyperBeamColours samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorFile.Read(s).ToColours());
-        installed.RequireAllManifestFilesRead();
-        var catalog = new InstalledAreaMapPresentation(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = palettes.Backdrops(), Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitleBackdrop = titlePalette.Backdrop, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainRainbowPalette = motherBrainRainbowPalette, CeresHaze = roomFxPaletteBlends.CeresHaze, PowerBombFixedColors = powerBombFixedColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
+        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, RoomPaletteFx = roomPaletteFx, MotherBrainRainbowPalette = motherBrainRainbowPalette, CeresHaze = sceneColours.CeresHaze, PowerBombFixedColors = powerBombFixedColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
             new InstalledPresentationSources(new MapCharacterArtwork(tiles, hudTiles, pauseTiles),
                 new GameplayMessageArtwork(gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices), roomFxLayer3Tilemaps, staffCredits,
                 endingText, screens, new PauseScreenArtwork(pauseBackdrops, pauseWireframes, pauseEquipmentBase, pauseEquipmentLabels, pauseReserveUi), sprites,
-                new SamusMapColourTables(samusVisorColors, samusHurtColors, samusSuitColors, samusFullBodyCycleColors, samusChargeColors, samusHyperBeamColors, crystalFlashColors),
-                titlePalette, cycle, palettes, ceresRidleyColors, ceresRidleyFloorColors, escapeTimerTiles, roomFxAnimatedTiles,
-                motherBrainHealthPalette, motherBrainRoomColors, roomFxPaletteBlends));
-        return catalog;
+                cycle, escapeTimerTiles, roomFxAnimatedTiles));
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             MultiFileResource<T>([file], description, streams => compile(streams[0]));
@@ -159,15 +201,7 @@ public static class MapPresentationFiles
         {
             ArraySegment<byte>[] contents = files.Select(installed.Read).ToArray();
             foreach (ArraySegment<byte> bytes in contents) AppendFramed(bytes);
-            try
-            {
-                return compile(contents.Select(bytes => (Stream)ReadOnlyStream(bytes)).ToArray());
-            }
-            catch (InvalidDataException error)
-            {
-                // Attribute the failure to the actual files, retaining the codec error instead of reporting only a directory.
-                throw new InvalidDataException($"Invalid {description} '{string.Join("', '", files.Select(installed.PathOf))}': {error.Message}", error);
-            }
+            return Compile(contents, files, installed, description, compile);
         }
 
         void AppendFramed(ReadOnlySpan<byte> bytes)
@@ -178,6 +212,28 @@ public static class MapPresentationFiles
             identity.AppendData(bytes);
         }
     }
+
+    /// <summary>
+    /// Compiles installed <paramref name="contents"/> read from <paramref name="files"/>, attributing a failure to the actual
+    /// files and retaining the codec error instead of reporting only a directory.
+    /// </summary>
+    private static T Compile<T>(ArraySegment<byte>[] contents, string[] files, InstalledMapReader installed, string description, Func<Stream[], T> compile)
+        where T : class
+    {
+        try
+        {
+            return compile(contents.Select(bytes => (Stream)ReadOnlyStream(bytes)).ToArray());
+        }
+        catch (InvalidDataException error)
+        {
+            throw new InvalidDataException($"Invalid {description} '{string.Join("', '", files.Select(installed.PathOf))}': {error.Message}", error);
+        }
+    }
+
+    /// <summary>What the game binds of the map presentation: its parts and the source artwork it was read with.</summary>
+    /// <param name="Parts">The parts the game reads.</param>
+    /// <param name="Sources">The source artwork only the import composes pictures from.</param>
+    private sealed record GameRead(AreaMapPresentationParts Parts, InstalledPresentationSources Sources);
 
     /// <summary>
     /// A read-only view whose buffer the JSON reader may parse in place. Compilers copy what
@@ -269,12 +325,18 @@ public static class MapPresentationFiles
             return stationCells;
         }
 
-        /// <summary>Every file the manifest lists is read by the load that uses it.</summary>
-        public void RequireAllManifestFilesRead()
+        /// <summary>
+        /// Every file the manifest lists is read by the load that uses it, except exactly <paramref name="leftUnread"/>, the
+        /// files another reader of the same presentation reads.
+        /// </summary>
+        public void RequireAllManifestFilesRead(IReadOnlyCollection<string> leftUnread)
         {
-            string[] unread = manifest.Sha256.Keys.Where(file => !read.Contains(file)).ToArray();
+            string[] unread = manifest.Sha256.Keys.Where(file => !read.Contains(file) && !leftUnread.Contains(file)).ToArray();
             if (unread.Length > 0)
                 throw new InvalidDataException($"Map catalog manifest lists files the catalog never reads: {string.Join(", ", unread)}.");
+            string[] missing = leftUnread.Where(file => !manifest.Sha256.ContainsKey(file)).ToArray();
+            if (missing.Length > 0)
+                throw new InvalidDataException($"Map catalog manifest is missing {string.Join(", ", missing)}.");
         }
     }
 }

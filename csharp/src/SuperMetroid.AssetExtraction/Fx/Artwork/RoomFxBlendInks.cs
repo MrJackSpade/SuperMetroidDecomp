@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>
 /// The installed room-FX blends selected by FX records (#1512): the import pre-colours the effect overlay pictures in
-/// each selection's three inks. The game reads only the Ceres haze tints (<see cref="CeresHaze"/>).
+/// each selection's three inks. Only the import reads them (#1544).
 /// </summary>
 public sealed class RoomFxBlendInks
 {
@@ -26,7 +26,7 @@ public sealed class RoomFxBlendInks
     /// <summary>Three installed inks for Maridia's fourth water selector.</summary>
     internal readonly RoomFxBlendColors maridiaWaterD;
 
-    /// <summary>Retains each validated room-FX ink and both Ceres haze tints.</summary>
+    /// <summary>Retains each validated room-FX ink.</summary>
     internal RoomFxBlendInks(RoomFxPaletteBlendParts parts)
     {
         lava = parts.Lava;
@@ -37,11 +37,7 @@ public sealed class RoomFxBlendInks
         maridiaWaterB = parts.MaridiaWaterB;
         maridiaWaterC = parts.MaridiaWaterC;
         maridiaWaterD = parts.MaridiaWaterD;
-        CeresHaze = new CeresHazeTints(parts.CeresHazeBlue, parts.CeresHazeRed);
     }
-
-    /// <summary>The Ceres haze's installed tints, which the game reads.</summary>
-    public CeresHazeTints CeresHaze { get; }
 
     /// <summary>
     /// The colours <paramref name="selection"/> loads for the effect overlay's three blend inks, in order (#1512): the

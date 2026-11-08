@@ -16,10 +16,11 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
-/// The installed map presentation as the import reads it (#1466): what the game reads, with the characters its screens
-/// and the HUD are pictured from, which only the import composes from.
+/// The installed map presentation as the game reads it (#1466, #1544): what the game binds, with the characters its
+/// screens and the HUD are pictured from, which only the import composes from. The game's read leaves the colours only the
+/// import reads unread; the import reads them with <see cref="ImportAreaMapPresentation"/>.
 /// </summary>
-public sealed class InstalledAreaMapPresentation : AreaMapPresentation
+public class InstalledAreaMapPresentation : AreaMapPresentation
 {
     /// <summary>Takes the presentation's parts and the source artwork it was read with, which only the import composes from.</summary>
     internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, InstalledPresentationSources sources) : base(parts)
@@ -33,34 +34,10 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
         Messages = Ensure.NotNull(sources.Messages);
         RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
         Sprites = Ensure.NotNull(sources.Sprites);
-        SamusColours = Ensure.NotNull(sources.SamusColours);
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
-        Palettes = Ensure.NotNull(sources.Palettes);
-        TitlePalette = Ensure.NotNull(sources.TitlePalette);
-        CeresRidleyColors = Ensure.NotNull(sources.CeresRidleyColors);
-        CeresRidleyFloorColors = Ensure.NotNull(sources.CeresRidleyFloorColors);
         EscapeTimerTiles = Ensure.NotNull(sources.EscapeTimerTiles);
         RoomFxAnimatedTiles = Ensure.NotNull(sources.RoomFxAnimatedTiles);
-        RoomFxPaletteBlends = Ensure.NotNull(sources.RoomFxPaletteBlends);
-        MotherBrainHealthPalette = Ensure.NotNull(sources.MotherBrainHealthPalette);
-        MotherBrainRoomColors = Ensure.NotNull(sources.MotherBrainRoomColors);
     }
-
-    /// <summary>Mother Brain's health-band colours, which only the import reads to pre-colour her sheets and body layer (#1527).</summary>
-    public MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; }
-
-    /// <summary>The Mother Brain health colours the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static MotherBrainHealthPalettePresentation MotherBrainHealthPaletteOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.MotherBrainHealthPalette
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Mother Brain health colours.");
-
-    /// <summary>Mother Brain's room colours, which only the import reads to pre-colour her room's pictures and sheets (#1527).</summary>
-    public MotherBrainRoomColorPresentation MotherBrainRoomColors { get; }
-
-    /// <summary>The Mother Brain room colours the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static MotherBrainRoomColorPresentation MotherBrainRoomColorsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.MotherBrainRoomColors
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Mother Brain room colours.");
 
     /// <summary>
     /// The animated tiles' installed characters, which only the import reads to compose room sheets and the Tourian
@@ -73,67 +50,19 @@ public sealed class InstalledAreaMapPresentation : AreaMapPresentation
     public static RoomFxAnimatedTileAtlas RoomFxAnimatedTilesOf(IGameplayPresentationContent maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.RoomFxAnimatedTiles
         ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no animated tiles.");
 
-    /// <summary>The room-FX blends, which the import pre-colours the effect overlay pictures with (#1527).</summary>
-    public RoomFxBlendInks RoomFxPaletteBlends { get; }
-
-    /// <summary>The room-FX blends the installed presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static RoomFxBlendInks RoomFxPaletteBlendsOf(IGameplayPresentationContent maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.RoomFxPaletteBlends
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no room-FX blends.");
-
     /// <summary>The escape timer's characters, which only the import reads to compose the escape encounters' sheets (#1513).</summary>
     public EscapeTimerCharacters EscapeTimerTiles { get; }
 
     /// <summary>
-    /// Ceres Ridley's colours, the shared Norfair Ridley health colours and the Ceres Baby's colours, which only the import
-    /// reads to pre-colour their sheets and Ceres Ridley's room (#1512).
+    /// The map highlight cycle with each frame's colours (#1512): only the import reads the colours, and the game takes each
+    /// frame's hold from the same frames (<see cref="AreaMapPresentation.HighlightCycle"/>).
     /// </summary>
-    public CeresRidleyColorCatalog CeresRidleyColors { get; }
-
-    /// <summary>The Ceres Ridley colours the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static CeresRidleyColorCatalog CeresRidleyColorsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.CeresRidleyColors
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Ceres Ridley colours.");
-
-    /// <summary>Ceres Ridley's Mode 7 floor colours for each getaway zoom step, which only the import reads to pre-colour the floor's shades (#1512).</summary>
-    public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
-
-    /// <summary>The Ceres Ridley floor colours the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static CeresRidleyFloorColorCatalog CeresRidleyFloorColorsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.CeresRidleyFloorColors
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Ceres Ridley floor colours.");
-
-    /// <summary>The colours each map and menu screen loads, which only the import reads to pre-colour the screens' sheets (#1512).</summary>
-    public MapStaticPalettes Palettes { get; }
-
-    /// <summary>The screen colours the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static MapStaticPalettes PalettesOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.Palettes
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no screen colours.");
-
-    /// <summary>The title's selected colours, which only the import reads to pre-colour the title's sheets (#1512).</summary>
-    public TitlePalettePresentation TitlePalette { get; }
-
-    /// <summary>The title colours the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static TitlePalettePresentation TitlePaletteOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.TitlePalette
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no title colours.");
-
-    /// <summary>The map highlight cycle with each frame's colours, which only the import reads (#1512).</summary>
     public MapPaletteCycle HighlightColours { get; }
 
     /// <summary>The highlight cycle the installed map presentation <paramref name="maps"/> was read with.</summary>
     /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
     public static MapPaletteCycle HighlightColoursOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.HighlightColours
         ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no highlight colours.");
-
-    /// <summary>Samus's selected colour tables, which only the import reads to pre-colour her sheets (#1512).</summary>
-    public SamusMapColourTables SamusColours { get; }
-
-    /// <summary>Samus's colour tables the installed map presentation <paramref name="maps"/> was read with.</summary>
-    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
-    public static SamusMapColourTables SamusColoursOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.SamusColours
-        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no Samus colour tables.");
 
     /// <summary>The installed map and menu sprites; the game draws them from the map sprite sheet, which the import composes from these (#1463).</summary>
     public MapSpriteCompositions Sprites { get; }

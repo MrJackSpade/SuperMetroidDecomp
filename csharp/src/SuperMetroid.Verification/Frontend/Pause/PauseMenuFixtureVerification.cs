@@ -39,7 +39,7 @@ internal static class PauseMenuFixtureVerification
         // The pause colours come from the constructed ROM, as the import reads them; the other screens' are stock's.
         var pauseColors = new SnesCgram();
         CartridgePaletteImporter.LoadToCgram(pauseColors, bus, MapSourceDefinitions.Artwork.PauseColors);
-        MapStaticPalettes stockPalettes = InstalledAreaMapPresentation.PalettesOf(stock);
+        MapStaticPalettes stockPalettes = ImportAreaMapPresentation.PalettesOf(stock);
         var palettes = new MapStaticPalettes(pauseColors.Colors.ToArray(), stockPalettes.FileSelect.ToArray(),
             Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
                 .ToDictionary(area => area, area => stockPalettes.World(area).ToArray()));
@@ -104,7 +104,7 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyGetawayBoostDelays = stock.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return new InstalledAreaMapPresentation(parts, new InstalledPresentationSources(new MapCharacterArtwork(
+        return new ImportAreaMapPresentation(parts, new InstalledPresentationSources(new MapCharacterArtwork(
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
             GameplayMessageArtwork.Of(stock), InstalledAreaMapPresentation.RoomFxPagesOf(stock), InstalledAreaMapPresentation.StaffCreditsOf(stock),
@@ -112,11 +112,11 @@ internal static class PauseMenuFixtureVerification
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
                 InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
                 InstalledAreaMapPresentation.PauseOf(stock).ReserveUi), MapSpriteArtwork.Read(spriteJson, spritePng),
-            InstalledAreaMapPresentation.SamusColoursOf(stock), InstalledAreaMapPresentation.TitlePaletteOf(stock),
-            InstalledAreaMapPresentation.HighlightColoursOf(stock), palettes, InstalledAreaMapPresentation.CeresRidleyColorsOf(stock),
-            InstalledAreaMapPresentation.CeresRidleyFloorColorsOf(stock), InstalledAreaMapPresentation.EscapeTimerTilesOf(stock),
-            InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock),
-            InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(stock), InstalledAreaMapPresentation.MotherBrainRoomColorsOf(stock),
-            InstalledAreaMapPresentation.RoomFxPaletteBlendsOf(stock)));
+            InstalledAreaMapPresentation.HighlightColoursOf(stock), InstalledAreaMapPresentation.EscapeTimerTilesOf(stock),
+            InstalledAreaMapPresentation.RoomFxAnimatedTilesOf(stock)),
+            new ImportPresentationColours(ImportAreaMapPresentation.SamusColoursOf(stock), ImportAreaMapPresentation.TitlePaletteOf(stock),
+                palettes, ImportAreaMapPresentation.CeresRidleyColorsOf(stock), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(stock),
+                ImportAreaMapPresentation.MotherBrainHealthPaletteOf(stock), ImportAreaMapPresentation.MotherBrainRoomColorsOf(stock),
+                ImportAreaMapPresentation.RoomFxPaletteBlendsOf(stock)));
     }
 }

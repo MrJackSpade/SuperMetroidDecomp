@@ -145,7 +145,7 @@ internal static class FileSelectMapWindowVerification
             AssertEqual(activeColors[area], foreground.StandardColours[indices[area]], $"area {area} active map color");
             if (area != 0)
                 AssertEqual(0x4a52, foreground.StandardColours[86], "another area's sheet shows Crateria inactive");
-            AssertEqual(InstalledAreaMapPresentation.PalettesOf(maps).World(areaId)[0], graphics.screen.Backdrop, $"area {area} shows its world-map backdrop");
+            AssertEqual(ImportAreaMapPresentation.PalettesOf(maps).World(areaId)[0], graphics.screen.Backdrop, $"area {area} shows its world-map backdrop");
             // The selected area's image is built once and every tilemap byte read from it.
             var shownArea = MenuScreenFixtures.Vram(graphics, maps);
             for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)

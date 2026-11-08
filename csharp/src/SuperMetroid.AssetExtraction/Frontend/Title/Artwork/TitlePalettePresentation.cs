@@ -7,8 +7,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>
 /// Editable initial title screen colours (#1464) and ambient title-screen colour frames, as the import reads them: the
-/// import pre-colours the title's sheets in these colours and in each ambient record (#1512), and the game keeps only the
-/// title's backdrop. Animation programs and destination selection remain compiled engine behaviour.
+/// import pre-colours the title's sheets in these colours and in each ambient record (#1512), and takes the title's backdrop
+/// from them once, into the scene colours the game reads (#1544); the game loads no palette document. Animation programs and
+/// destination selection remain compiled engine behaviour.
 /// </summary>
 public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
@@ -41,7 +42,10 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     public RgbColor SkipCopyrightWhite { get; }
     /// <summary>Selected copyright tint the fast skip restores to the copyright glyph's red; the legacy Red name does not restrict its channels.</summary>
     public RgbColor SkipCopyrightRed { get; }
-    /// <summary>The colour the title shows behind its floor and objects, where nothing is drawn: its first background colour (#1512).</summary>
+    /// <summary>
+    /// The colour the title shows behind its floor and objects, where nothing is drawn: its first background colour (#1512),
+    /// which the import records in the scene colours.
+    /// </summary>
     public RgbColor Backdrop => colours[0];
 
     /// <inheritdoc />

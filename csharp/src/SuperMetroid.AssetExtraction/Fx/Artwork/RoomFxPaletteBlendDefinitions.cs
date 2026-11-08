@@ -6,8 +6,11 @@ public static class RoomFxPaletteBlendDefinitions
     /// <summary>The colours one palette blend writes.</summary>
     public const int ColorCount = 3;
 
-    /// <summary>Editable JSON filename for room-FX blend inks and optional Ceres haze tints.</summary>
+    /// <summary>Editable JSON filename for room-FX blend inks.</summary>
     public const string FileName = "room-fx-blend-palettes.json";
-    /// <summary>Supported revision of the complete eight-selection blend schema; haze tint fields are optional within this revision.</summary>
-    public const int Version = 1;
+    /// <summary>
+    /// Supported revision of the complete eight-selection blend schema. Revision 2 (#1544) holds the blends alone: the
+    /// Ceres haze's tints are scene colours.
+    /// </summary>
+    public const int Version = 2;
 }

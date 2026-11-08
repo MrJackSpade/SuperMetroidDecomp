@@ -96,8 +96,8 @@ internal static class PausePictureSheet
     /// </remarks>
     internal static ComposedSpriteSheet Compose(AreaMapPresentation maps)
     {
-        MapPictureSheets.RequireCellsPicturedOnce(maps, InstalledAreaMapPresentation.PalettesOf(maps).Pause);
-        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks([.. Subjects(maps)], Characters(maps), InstalledAreaMapPresentation.PalettesOf(maps).Pause);
+        MapPictureSheets.RequireCellsPicturedOnce(maps, ImportAreaMapPresentation.PalettesOf(maps).Pause);
+        ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks([.. Subjects(maps)], Characters(maps), ImportAreaMapPresentation.PalettesOf(maps).Pause);
         PauseReserveArrowColours arrow = InstalledAreaMapPresentation.PauseOf(maps).ReserveUi.ArrowColours;
         return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. arrow.Shades()]) } };
     }

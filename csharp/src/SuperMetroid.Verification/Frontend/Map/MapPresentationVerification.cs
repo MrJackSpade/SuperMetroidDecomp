@@ -309,7 +309,47 @@ internal static class MapPresentationVerification
             AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(stock), "a corrupt installed map fails where it is decoded");
         }
         finally { File.WriteAllBytes(mapPath, installedMap); }
+        VerifyGameReadsNoImportColours(stock, original);
         Console.WriteLine("Map catalog: deterministic reload, ROM-free exploration parity, live consumers and corruption errors pass.");
+    }
+
+    /// <summary>
+    /// Checks that the game's read of the map presentation loads no palette document (#1544): with every colour document
+    /// only the import reads taken out of the copy, the game's read still reads the same presentation, and the import's read
+    /// fails on the first document it needs.
+    /// </summary>
+    private static void VerifyGameReadsNoImportColours(string stock, AreaMapPresentation original)
+    {
+        string[] importColours =
+        [
+            SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapStaticPalettesFormat.FileName,
+            SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitlePaletteFormat.FileName,
+            MotherBrainHealthPaletteFile.FileName,
+            MotherBrainRoomColorFormat.FileName,
+            SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxPaletteBlendDefinitions.FileName,
+            SuperMetroid.AssetExtraction.Samus.SamusVisorColorFile.FileName,
+            SuperMetroid.AssetExtraction.Samus.SamusHurtColorFile.FileName,
+            SuperMetroid.AssetExtraction.Samus.SamusSuitColorFile.FileName,
+            SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorFormat.FileName,
+            SuperMetroid.AssetExtraction.Samus.CrystalFlashColorFile.FileName,
+            SuperMetroid.AssetExtraction.Samus.SamusChargeColorFormat.FileName,
+            SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyColorFormat.FileName,
+            SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyFloorColorFormat.FileName,
+            SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorFormat.FileName,
+        ];
+        Dictionary<string, byte[]> installed = importColours.ToDictionary(name => name, name => File.ReadAllBytes(Path.Combine(stock, name)));
+        try
+        {
+            foreach (string name in importColours) File.Delete(Path.Combine(stock, name));
+            AreaMapPresentation game = MapPresentationFiles.Load(stock);
+            AssertEqual(original.ContentIdentity, game.ContentIdentity, "the game's read reads no colour document only the import reads");
+            AssertTrue(game is not ImportAreaMapPresentation, "the game's read holds none of the import's colours");
+            AssertThrows<FileNotFoundException>(() => MapPresentationFiles.LoadForImport(stock), "the import's read requires its colour documents");
+        }
+        finally
+        {
+            foreach (KeyValuePair<string, byte[]> document in installed) File.WriteAllBytes(Path.Combine(stock, document.Key), document.Value);
+        }
     }
 
     /// <summary>Checks that the stock map importer refuses to extract into a directory that already holds a stock catalog.</summary>
@@ -550,7 +590,7 @@ internal static class MapPresentationVerification
         {
             int band = MotherBrainHealthPalette.Band(health);
             SnesCgram native = MotherBrainLook.OfHealth(extracted, band);
-            SnesCgram installed = MotherBrainLook.OfHealth(InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(original), band);
+            SnesCgram installed = MotherBrainLook.OfHealth(ImportAreaMapPresentation.MotherBrainHealthPaletteOf(original), band);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
             AssertEqual(0, installed.Colors[MotherBrainColorDestinations.BrainColor - 1],

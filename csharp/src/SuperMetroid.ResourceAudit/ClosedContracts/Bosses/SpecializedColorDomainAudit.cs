@@ -40,9 +40,9 @@ internal static class SpecializedColorDomainAudit
         }
         if (type == typeof(DachoraColorCatalog).FullName && Constant("phase") is int phase)
         {
-            var selected = (DachoraPalettePhase)phase;
+            var selected = (DachoraColourPhase)phase;
             if (!Enum.IsDefined(selected)) return null;
-            return Outside("frame", selected == DachoraPalettePhase.Default ? 1 : DachoraColorDefinitions.AnimatedFrameCount,
+            return Outside("frame", selected == DachoraColourPhase.Default ? 1 : DachoraColorDefinitions.AnimatedFrameCount,
                 selected.ToString());
         }
         return null;

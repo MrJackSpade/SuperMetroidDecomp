@@ -18,7 +18,7 @@ public enum DachoraAiFunction
     /// <summary>Accelerates right until the tutorial launch coordinate or a wall.</summary>
     RunningRight,
 
-    /// <summary>Cycles the shine palette and counts down to the vertical launch.</summary>
+    /// <summary>Cycles the shine glow and counts down to the vertical launch.</summary>
     ChargingShinespark,
 
     /// <summary>Accelerates upward, publishes echo positions, and transitions on ceiling collision.</summary>

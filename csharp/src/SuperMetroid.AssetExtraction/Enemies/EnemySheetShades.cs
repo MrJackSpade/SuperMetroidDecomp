@@ -202,12 +202,12 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.Dachora:
             {
                 DachoraColorCatalog dachora = inputs.Enemies.DachoraColors ?? throw Missing("Dachora colours");
-                shades.Add(SheetShade.Run(DachoraShades.Of(DachoraPalettePhase.Default, 0), first, Frame(16, colour => dachora.Resolve(DachoraPalettePhase.Default, 0, colour))));
+                shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Default, 0), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Default, 0, colour))));
                 for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
                 {
                     int step = frame;
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraPalettePhase.Speed, step), first, Frame(16, colour => dachora.Resolve(DachoraPalettePhase.Speed, step, colour))));
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraPalettePhase.Shine, step), first, Frame(16, colour => dachora.Resolve(DachoraPalettePhase.Shine, step, colour))));
+                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Speed, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Speed, step, colour))));
+                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Shine, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Shine, step, colour))));
                 }
                 break;
             }

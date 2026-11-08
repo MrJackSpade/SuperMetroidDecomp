@@ -30,7 +30,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Binds the terrain and echo slots used by Dachora's AI callbacks; its glows are shades its draws name (#1512), so
-    /// it needs no palette or colour artwork.
+    /// it needs no colour artwork.
     /// </summary>
     internal DachoraBehavior(EnemyTerrain terrain, EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
@@ -210,7 +210,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = state.FacingRight
             ? DachoraAiFunction.RunningRight
             : DachoraAiFunction.RunningLeft;
-        state.SetPaletteCycle(frame: 0, ticks: 1);
+        state.SetGlowCycle(frame: 0, ticks: 1);
     }
 
     /// <summary>Runs left. Leftward speed is the exact two's complement of the whole and fractional speed.</summary>
@@ -232,10 +232,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         InstallDachoraInstruction(slot, state, DachoraProgram.RunningRight);
         state.Function = DachoraAiFunction.RunningRight;
-        state.SetPaletteCycle(frame: 0, ticks: 1);
+        state.SetGlowCycle(frame: 0, ticks: 1);
         state.FacingRight = true;
         state.Speed = SignedSixteenSixteen.Zero;
-        LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
+        ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
     }
 
     /// <summary>Runs right, including the hard-coded tutorial launch coordinate.</summary>
@@ -252,8 +252,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = DachoraAiFunction.RunningLeft;
             state.FacingRight = false;
             state.Speed = SignedSixteenSixteen.Zero;
-            state.SetPaletteCycle(frame: 0, ticks: 0);
-            LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
+            state.SetGlowCycle(frame: 0, ticks: 0);
+            ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
             return;
         }
 
@@ -264,15 +264,15 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallDachoraInstruction(slot, state, DachoraProgram.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
         state.StartCharging(DachoraChargeDuration);
-        state.SetPaletteCycle(frame: 0, ticks: 0);
+        state.SetGlowCycle(frame: 0, ticks: 0);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 8);
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraChargeSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>
     /// Accelerates the running Dachora. This intentionally retains the
-    /// strange packed palette timer: after frame three is reached, the game reloads that
-    /// brightest speed palette every sixteen frames instead of wrapping to frame zero.
+    /// speed glow's cycle (DachoraGlowCycle): after frame three is reached, the game shows that brightest
+    /// speed glow frame again every sixteen frames instead of wrapping to frame zero.
     /// </summary>
     internal int AccelerateDachora(
         RoomEnemySlot slot,
@@ -281,19 +281,19 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.Speed.WholePixels >= DachoraMaximumSpeed.WholePixels)
         {
-            if (state.PaletteFrame == 0 && state.PaletteTicks == 1)
+            if (state.GlowFrame == 0 && state.GlowTicks == 1)
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraSpeedBoosterSound, priority: SoundRequestPriority.Normal);
 
-            if (state.TickPaletteCycle())
+            if (state.TickGlowCycle())
             {
-                int paletteIndex = state.PaletteFrame;
-                if ((uint)paletteIndex >= 4)
+                int glowFrame = state.GlowFrame;
+                if ((uint)glowFrame >= 4)
                 {
                     throw new InvalidDataException(
-                        $"Dachora speed palette index {paletteIndex} exceeds the retail table.");
+                        $"Dachora speed glow frame {glowFrame} is not one of its four.");
                 }
-                LoadDachoraPalette(slot, DachoraPalettePhase.Speed, paletteIndex);
-                state.AdvanceSpeedPaletteCycle();
+                ShowDachoraColours(slot, DachoraColourPhase.Speed, glowFrame);
+                state.AdvanceSpeedGlow();
             }
         }
 
@@ -327,7 +327,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the stored-shine countdown and echo activation.</summary>
     private void RunDachoraCharging(RoomEnemySlot slot, DachoraEnemyState state)
     {
-        StepDachoraShinePalette(slot, state);
+        StepDachoraShineGlow(slot, state);
         if (--state.PhaseTimer != 0)
             return;
 
@@ -359,7 +359,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        StepDachoraShinePalette(slot, state);
+        StepDachoraShineGlow(slot, state);
         UpdateDachoraEchoPositions(slot);
 
         state.VerticalAcceleration += SamusGravity(samus);
@@ -387,8 +387,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.Function = DachoraAiFunction.Falling;
         state.Speed = SignedSixteenSixteen.Zero;
-        state.SetPaletteCycle(frame: 0, ticks: 0);
-        LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
+        state.SetGlowCycle(frame: 0, ticks: 0);
+        ShowDachoraColours(slot, DachoraColourPhase.Default, frame: 0);
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraCeilingImpactSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -471,29 +471,28 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    /// <summary>Runs the four-frame shine palette loop.</summary>
-    internal static void StepDachoraShinePalette(RoomEnemySlot slot, DachoraEnemyState state)
+    /// <summary>Runs the four-frame shine glow.</summary>
+    internal static void StepDachoraShineGlow(RoomEnemySlot slot, DachoraEnemyState state)
     {
-        int paletteIndex = state.PaletteFrame;
-        if ((uint)paletteIndex >= 4)
+        int glowFrame = state.GlowFrame;
+        if ((uint)glowFrame >= 4)
         {
             throw new InvalidDataException(
-                $"Dachora shine palette index {paletteIndex} exceeds the retail table.");
+                $"Dachora shine glow frame {glowFrame} is not one of its four.");
         }
-        LoadDachoraPalette(slot, DachoraPalettePhase.Shine, paletteIndex);
-        state.AdvanceShinePaletteCycle();
+        ShowDachoraColours(slot, DachoraColourPhase.Shine, glowFrame);
+        state.AdvanceShineGlow();
     }
 
     /// <summary>
     /// Shows Dachora in one frame of a colour phase (#1512): its normal colours, or a frame of its speed or stored-shine
-    /// glow, which the import pre-coloured its pictures in. The game copies the frame's colours into the Dachora's own
-    /// palette, which any other enemy sharing it would also have shown; only the Dachora shows it here.
+    /// glow, which the import pre-coloured its pictures in. Only the Dachora shows it (#1544).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase has no such frame.</exception>
-    internal static void LoadDachoraPalette(
-        RoomEnemySlot slot, DachoraPalettePhase phase, int frame)
+    internal static void ShowDachoraColours(
+        RoomEnemySlot slot, DachoraColourPhase phase, int frame)
     {
-        int lastFrame = phase == DachoraPalettePhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;
+        int lastFrame = phase == DachoraColourPhase.Default ? 0 : DachoraColorDefinitions.AnimatedFrameCount - 1;
         slot.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
     }
 

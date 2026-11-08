@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 
@@ -11,15 +12,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 public sealed class DachoraEnemyState
 {
-    /// <summary>
-    /// The bits of the palette cycle's tick count, below its frame. The cycle stays one count because the game
-    /// steps it as one: a tick from a cleared cycle borrows into the frame, and a speed or shine step past the top of
-    /// the ticks carries into it.
-    /// </summary>
-    private const int PaletteTickBits = 8;
-
-    /// <summary>The palette cycle: the frame shown next above the updates before it.</summary>
-    private int _paletteCycle;
+    /// <summary>The glow cycle: the speed or shine glow frame shown next and the updates before it (#1544).</summary>
+    private DachoraGlowCycle _glowCycle;
 
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<DachoraProgram> Program { get; set; }
@@ -76,53 +70,46 @@ public sealed class DachoraEnemyState
         Speed = SignedSixteenSixteen.Zero;
     }
 
-    /// <summary>The speed or shine palette frame the cycle shows next.</summary>
-    public int PaletteFrame => _paletteCycle >> PaletteTickBits;
+    /// <summary>The speed or shine glow frame the cycle shows next.</summary>
+    public int GlowFrame => _glowCycle.Frame;
 
-    /// <summary>The updates left before the speed palette cycle shows <see cref="PaletteFrame"/>.</summary>
-    [IntegerQuantity("updates left before the palette cycle advances")]
-    public int PaletteTicks => _paletteCycle % (1 << PaletteTickBits);
-
-    /// <summary>
-    /// Sets the palette cycle to show <paramref name="frame"/> after <paramref name="ticks"/> updates, each 0 through
-    /// 255, as the run, wall, launch and ceiling phases restart or clear it.
-    /// </summary>
-    internal void SetPaletteCycle(int frame, int ticks) =>
-        _paletteCycle = Ensure.BetweenInclusive(0, byte.MaxValue, frame) << PaletteTickBits |
-            Ensure.BetweenInclusive(0, byte.MaxValue, ticks);
+    /// <summary>The updates left before the glow cycle shows <see cref="GlowFrame"/>.</summary>
+    [IntegerQuantity("updates left before the glow cycle advances")]
+    public int GlowTicks => _glowCycle.UpdatesLeft;
 
     /// <summary>
-    /// Counts one update off the speed palette cycle and reports whether its ticks reached zero. The game
-    /// decrements the frame and ticks together as one count, so ticks counted down from zero borrow from the frame:
-    /// a cleared cycle becomes frame 255 with 255 ticks.
+    /// Sets the glow cycle to show <paramref name="frame"/> after <paramref name="ticks"/> updates, each 0 through 255, as
+    /// the run, wall, launch and ceiling phases restart or clear it.
     /// </summary>
-    internal bool TickPaletteCycle()
+    internal void SetGlowCycle(int frame, int ticks) => _glowCycle = DachoraGlowCycle.At(frame, ticks);
+
+    /// <summary>
+    /// Counts one update off the glow cycle and reports whether its updates reached zero; counted from a cleared cycle, it
+    /// borrows from the frame (<see cref="DachoraGlowCycle"/>).
+    /// </summary>
+    internal bool TickGlowCycle()
     {
-        _paletteCycle = WrappingCounter.DecrementWord(_paletteCycle);
-        return PaletteTicks == 0;
+        _glowCycle = _glowCycle.CountedDown();
+        return GlowTicks == 0;
     }
 
     /// <summary>
-    /// Moves the speed palette cycle to its next frame with <see cref="DachoraPaletteDefinitions.SpeedStep"/>'s ticks
-    /// added; once that passes the last frame, the cycle stays on the brightest frame instead of wrapping to frame zero.
-    /// The step and the bound are compared as the game's signed 16-bit arithmetic does.
+    /// Moves the speed glow to its next frame, sixteen updates later; once that reaches the cycle's end, the glow stays on
+    /// its brightest frame instead of starting over from frame zero.
     /// </summary>
-    internal void AdvanceSpeedPaletteCycle()
+    internal void AdvanceSpeedGlow()
     {
-        _paletteCycle = WrappingCounter.AddWord(_paletteCycle, DachoraPaletteDefinitions.SpeedStep);
-        if (!WrappingCounter.IsBehind(_paletteCycle, DachoraPaletteDefinitions.SpeedEnd))
-            _paletteCycle = DachoraPaletteDefinitions.SpeedRestart;
+        _glowCycle = _glowCycle.Stepped(DachoraGlowCycleDefinitions.SpeedStep);
+        if (!_glowCycle.IsShortOf(DachoraGlowCycleDefinitions.SpeedEnd))
+            _glowCycle = DachoraGlowCycleDefinitions.SpeedRestart;
     }
 
-    /// <summary>
-    /// Moves the shine palette cycle to its next frame; after the last frame it returns to frame zero. The step and the
-    /// bound are compared as the game's signed 16-bit arithmetic does.
-    /// </summary>
-    internal void AdvanceShinePaletteCycle()
+    /// <summary>Moves the shine glow to its next frame; past the last frame it returns to frame zero.</summary>
+    internal void AdvanceShineGlow()
     {
-        _paletteCycle = WrappingCounter.AddWord(_paletteCycle, DachoraPaletteDefinitions.ShineStep);
-        if (!WrappingCounter.IsBehind(_paletteCycle, DachoraPaletteDefinitions.ShineEnd))
-            _paletteCycle = 0;
+        _glowCycle = _glowCycle.Stepped(DachoraGlowCycleDefinitions.ShineStep);
+        if (!_glowCycle.IsShortOf(DachoraGlowCycleDefinitions.ShineEnd))
+            _glowCycle = default;
     }
 
     /// <summary>The main-AI behaviour.</summary>

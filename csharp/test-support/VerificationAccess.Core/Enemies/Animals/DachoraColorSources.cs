@@ -12,12 +12,12 @@ internal static class DachoraColorSources
     internal const int SpeedPointerTable = 0xa7f787;
 
     /// <summary>The cartridge location of the colour image for a phase and animation frame.</summary>
-    internal static int Source(DachoraPalettePhase phase, int frame) => phase switch
+    internal static int Source(DachoraColourPhase phase, int frame) => phase switch
     {
-        DachoraPalettePhase.Default when frame == 0 => EnemySpeciesSourceDefinitions.Dachora.DefaultColors,
-        DachoraPalettePhase.Speed when (uint)frame < DachoraColorDefinitions.AnimatedFrameCount =>
+        DachoraColourPhase.Default when frame == 0 => EnemySpeciesSourceDefinitions.Dachora.DefaultColors,
+        DachoraColourPhase.Speed when (uint)frame < DachoraColorDefinitions.AnimatedFrameCount =>
             EnemySpeciesSourceDefinitions.Dachora.SpeedColors + frame * EnemySpeciesSourceDefinitions.Dachora.ImageBytes,
-        DachoraPalettePhase.Shine when (uint)frame < DachoraColorDefinitions.AnimatedFrameCount =>
+        DachoraColourPhase.Shine when (uint)frame < DachoraColorDefinitions.AnimatedFrameCount =>
             EnemySpeciesSourceDefinitions.Dachora.ShineColors + frame * EnemySpeciesSourceDefinitions.Dachora.ImageBytes,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), $"Dachora phase {phase} has no frame {frame}."),
     };

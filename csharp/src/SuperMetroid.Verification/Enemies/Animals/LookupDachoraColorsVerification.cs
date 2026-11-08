@@ -27,20 +27,20 @@ internal static class LookupDachoraColorsVerification
             "Stock Dachora speed and shine frames store no colors beyond the calculation");
         Check(stock, normal, speed, shine);
 
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Speed, 4, 0), "Speed frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Default, 1, 0), "Default frame bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraPalettePhase.Shine, 0, 16), "Color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraColourPhase.Speed, 4, 0), "Speed frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraColourPhase.Default, 1, 0), "Default frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(DachoraColourPhase.Shine, 0, 16), "Color bound");
         Console.WriteLine("Dachora colors: all 144 native words, 128 calculated speed/shine colors with no stored stock values pass.");
 
         static void Check(DachoraColorCatalog catalog, ushort[] normal, ushort[][] speed, ushort[][] shine)
         {
             for (int color = 0; color < 16; color++)
             {
-                AssertEqual(normal[color], catalog.Resolve(DachoraPalettePhase.Default, 0, color), $"Normal color {color}");
+                AssertEqual(normal[color], catalog.Resolve(DachoraColourPhase.Default, 0, color), $"Normal color {color}");
                 for (int frame = 0; frame < 4; frame++)
                 {
-                    AssertEqual(speed[frame][color], catalog.Resolve(DachoraPalettePhase.Speed, frame, color), $"Speed {frame}/{color}");
-                    AssertEqual(shine[frame][color], catalog.Resolve(DachoraPalettePhase.Shine, frame, color), $"Shine {frame}/{color}");
+                    AssertEqual(speed[frame][color], catalog.Resolve(DachoraColourPhase.Speed, frame, color), $"Speed {frame}/{color}");
+                    AssertEqual(shine[frame][color], catalog.Resolve(DachoraColourPhase.Shine, frame, color), $"Shine {frame}/{color}");
                 }
             }
         }

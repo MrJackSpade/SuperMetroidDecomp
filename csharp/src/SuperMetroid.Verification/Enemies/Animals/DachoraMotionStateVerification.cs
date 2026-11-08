@@ -30,10 +30,10 @@ internal static class DachoraMotionStateVerification
 
         (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: 1);
         state.Speed = SignedSixteenSixteen.FromParts(8, 0);
-        state.SetPaletteCycle(frame: 0, ticks: 0);
+        state.SetGlowCycle(frame: 0, ticks: 0);
         enemies.DachoraBehavior.AccelerateDachora(slot, state, level);
-        AssertEqual(255, state.PaletteFrame, "a cleared palette cycle's tick borrows from its frame");
-        AssertEqual(255, state.PaletteTicks, "a cleared palette cycle's ticks wrap");
+        AssertEqual(255, state.GlowFrame, "a cleared palette cycle's tick borrows from its frame");
+        AssertEqual(255, state.GlowTicks, "a cleared palette cycle's ticks wrap");
         AssertEqual(SignedSixteenSixteen.FromParts(8, 0), state.Speed, "the run speed stays at its cap");
 
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());

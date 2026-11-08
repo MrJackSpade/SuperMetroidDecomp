@@ -52,7 +52,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("EnemyAuxiliaryColorCatalog", "Resolve", "palette") => EnemyAuxiliaryColorDefinitions.All
             .Select(definition => (int)definition.Id).ToArray(),
         ("KraidColorCatalog", "Resolve", "source") => Enum.GetValues<KraidPaletteSource>().Select(id => (int)id).ToArray(),
-        ("DachoraColorCatalog", "Resolve", "phase") => Enum.GetValues<DachoraPalettePhase>().Select(id => (int)id).ToArray(),
+        ("DachoraColorCatalog", "Resolve", "phase") => Enum.GetValues<DachoraColourPhase>().Select(id => (int)id).ToArray(),
         ("ShitroidColorCatalog", "TargetColor", "target") => Enum.GetValues<ShitroidColorTarget>().Select(id => (int)id).ToArray(),
         ("EscapeTypewriterPresentation", "Get", "id") => Enum.GetValues<EscapeTypewriterProgramId>()
             .Where(id => id != EscapeTypewriterProgramId.None).Select(id => (int)id).ToArray(),

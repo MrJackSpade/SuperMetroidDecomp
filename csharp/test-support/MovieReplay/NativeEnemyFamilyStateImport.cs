@@ -251,7 +251,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
-            dachoraRecord.SetPaletteCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
+            dachoraRecord.SetGlowCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
             dachoraRecord.Function = words.F == 0 ? null : AnimalsNativeWords.DachoraAiFunctions.Decode(words.F, "recorded DachoraAiFunction");
             // The cartridge keeps the speed's whole pixels and the countdowns in variable A, and the acceleration's
             // fraction and an echo's lifetime in variable D; each is read here as the meaning the recorded phase gives it.

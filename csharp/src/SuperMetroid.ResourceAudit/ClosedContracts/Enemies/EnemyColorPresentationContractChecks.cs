@@ -58,8 +58,8 @@ internal static class EnemyColorPresentationContractChecks
                     shitroid.NormalColor(0, ShitroidColorDefinitions.NormalColorsPerFrame);
                     shitroid.TargetColor(ShitroidColorTarget.DeadSidehopper, ShitroidColorDefinitions.TargetColorCount - 1);
                     shitroid.TargetColor((ShitroidColorTarget)int.MaxValue, 0);
-                    dachora.Resolve(DachoraPalettePhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorFormat.ColorsPerFrame - 1);
-                    dachora.Resolve(DachoraPalettePhase.Default, 1, 0);
+                    dachora.Resolve(DachoraColourPhase.Shine, DachoraColorDefinitions.AnimatedFrameCount - 1, DachoraColorFormat.ColorsPerFrame - 1);
+                    dachora.Resolve(DachoraColourPhase.Default, 1, 0);
                 }
             }
             """;

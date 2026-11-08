@@ -12,20 +12,20 @@ internal static class DachoraPaletteCycleWrapVerification
     internal static void VerifyDachoraPaletteCycleWrap()
     {
         var speed = new DachoraEnemyState();
-        speed.SetPaletteCycle(frame: 0, ticks: 0);
-        AssertTrue(!speed.TickPaletteCycle(), "a tick from a cleared cycle does not reach zero ticks");
-        AssertEqual(255, speed.PaletteFrame, "a tick from a cleared cycle borrows to frame 255");
-        AssertEqual(255, speed.PaletteTicks, "a tick from a cleared cycle leaves 255 ticks");
-        speed.AdvanceSpeedPaletteCycle();
-        AssertEqual(1, speed.PaletteFrame, "the speed step from the top of the word wraps to frame one");
-        AssertEqual(15, speed.PaletteTicks, "the speed step from the top of the word keeps the wrapped ticks");
+        speed.SetGlowCycle(frame: 0, ticks: 0);
+        AssertTrue(!speed.TickGlowCycle(), "a tick from a cleared cycle does not reach zero ticks");
+        AssertEqual(255, speed.GlowFrame, "a tick from a cleared cycle borrows to frame 255");
+        AssertEqual(255, speed.GlowTicks, "a tick from a cleared cycle leaves 255 ticks");
+        speed.AdvanceSpeedGlow();
+        AssertEqual(1, speed.GlowFrame, "the speed step from the top of the word wraps to frame one");
+        AssertEqual(15, speed.GlowTicks, "the speed step from the top of the word keeps the wrapped ticks");
 
         var shine = new DachoraEnemyState();
-        shine.SetPaletteCycle(frame: 0, ticks: 0);
-        _ = shine.TickPaletteCycle();
-        shine.AdvanceShinePaletteCycle();
-        AssertEqual(0, shine.PaletteFrame, "the shine step from the top of the word wraps to frame zero");
-        AssertEqual(255, shine.PaletteTicks, "the shine step from the top of the word keeps 255 ticks");
+        shine.SetGlowCycle(frame: 0, ticks: 0);
+        _ = shine.TickGlowCycle();
+        shine.AdvanceShineGlow();
+        AssertEqual(0, shine.GlowFrame, "the shine step from the top of the word wraps to frame zero");
+        AssertEqual(255, shine.GlowTicks, "the shine step from the top of the word keeps 255 ticks");
         Console.WriteLine("Dachora palette cycle: a cycle borrowed to the top of the word wraps on its next step.");
     }
 

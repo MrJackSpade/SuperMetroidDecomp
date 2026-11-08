@@ -23,20 +23,17 @@ internal static class FirefleaShades
         return 6 - Math.Abs(index - 6);
     }
 
-    /// <summary>Returns the capped six-step darkness fade level, plus the level past the ramp at offset 12.</summary>
-    /// <remarks>Independently checked for #1165 against all seven original physical reads
-    /// and the pinned reference sources. Even byte offsets 0..10 use min(3*offset,25).
-    /// Offset 12 lies past the ramp: its level is <see cref="FirefleaFxDefinitions.PastRampDarknessLevel"/>, not an
-    /// extrapolated ramp value. The death counter permits that offset. Reject odd offsets and offsets above 12. Every
-    /// level plus the flashing shade stays within the fade scale.</remarks>
-    internal static int DarknessShade(int byteOffset)
+    /// <summary>Returns the darkness fade level darkness step <paramref name="step"/> shows (<see cref="FirefleaFxDefinitions.DarknessLevels"/>).</summary>
+    /// <remarks>Independently checked for #1165 against all seven original shades and the pinned reference sources.
+    /// Every level plus the flashing shade stays within the fade scale.</remarks>
+    internal static int DarknessShade(int step)
     {
-        if ((byteOffset & 1) != 0 || byteOffset is < 0 or > 12)
+        if (step < 0 || step >= DarknessLevels.Length)
         {
             throw new InvalidDataException(
-                $"Fireflea darkness byte offset {byteOffset} is outside the retail 0-through-12 even domain.");
+                $"Fireflea darkness step {step} is outside the {DarknessLevels.Length} darkness steps.");
         }
 
-        return byteOffset == 12 ? PastRampDarknessLevel : Math.Min(3 * byteOffset, 25);
+        return DarknessLevels[step];
     }
 }

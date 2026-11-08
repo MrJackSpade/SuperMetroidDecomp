@@ -1,24 +1,33 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The Fireflea room effect's darkness definitions, counted on the game's fade levels. The flashing
-/// phase and enemy-death darkness level are mutable state in <see cref="FirefleaFxState"/>.
+/// phase and the darkness step the enemy deaths reach are mutable state in <see cref="FirefleaFxState"/>.
 /// </summary>
 internal static class FirefleaFxDefinitions
 {
     /// <summary>
-    /// The darkness fade level at darkness offset twelve, one entry past the six-step ramp: level two. The game read the
-    /// byte past its ramp there, whose bits above the level only name colour channels its writes set to the same level.
+    /// The darkness a sixth Fireflea death shows: the room lightens to a faint darkness of fade level two, where the
+    /// ramp's deepest step had darkened it by twenty-five. Presentation only: no gameplay reads the shade.
     /// </summary>
-    internal const int PastRampDarknessLevel = 2;
+    internal const int SixthDeathFaintDarknessLevel = 2;
+
+    /// <summary>
+    /// The darkness fade level each darkness step shows, from none (no Fireflea killed) through the deepest darkness
+    /// of five deaths, and the faint darkness a sixth death shows.
+    /// </summary>
+    internal static readonly ImmutableArray<int> DarknessLevels = [0, 6, 12, 18, 24, 25, SixthDeathFaintDarknessLevel];
+
     /// <summary>Six effect passes per flashing shade.</summary>
     internal const int FlashDuration = 6;
 
     /// <summary>Twelve entries before the flashing cycle wraps.</summary>
     internal const int FlashCount = 12;
 
-    /// <summary>Darkness byte offset at which flashing stops.</summary>
-    internal const int SteadyDarknessThreshold = 10;
+    /// <summary>The darkness step, five deaths, from which the room stops flashing.</summary>
+    internal const int SteadyDarknessStep = 5;
 
     /// <summary>Fixed flashing-table index used at maximum darkness.</summary>
     internal const int SteadyFlashIndex = 6;

@@ -40,8 +40,8 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
         // The Fireflea shades are fade levels: the high bytes of the former shade words, below their channel bits.
-        AssertEqual(2, FirefleaShades.DarknessShade(12), "darkness level past the ramp");
-        AssertEqual(25, FirefleaShades.DarknessShade(10), "last ramp darkness level");
+        AssertEqual(2, FirefleaShades.DarknessShade(6), "the sixth death's faint darkness level");
+        AssertEqual(25, FirefleaShades.DarknessShade(5), "deepest darkness level");
         AssertEqual(6, FirefleaShades.FlashingShade(6), "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.

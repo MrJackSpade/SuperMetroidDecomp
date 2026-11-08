@@ -341,7 +341,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
         if (Type == RoomFxType.Fireflea)
         {
-            Fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
+            Fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarknessStep);
             return;
         }
         if (!IsRenderable || frame.TimeIsFrozen)

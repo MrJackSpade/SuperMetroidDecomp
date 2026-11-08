@@ -120,19 +120,18 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             // placeholder, and counts a second kill.
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosion.Small);
         }
-        AdvanceFirefleaDarknessLevel();
+        AdvanceFirefleaDarkness();
     }
 
     /// <summary>
-    /// Advances the global Fireflea darkness level after one Fireflea death. Retail rooms contain at most
-    /// five, so valid progression is 0,2,4,6,8,10; the original comparison nevertheless
-    /// permits 12 and rejects 14, and that exact boundary remains visible here.
+    /// Advances the room's Fireflea darkness by one step after one Fireflea death. Retail rooms contain at most
+    /// five, so the darkness usually stops at its fifth step; the original nevertheless permits a sixth step and
+    /// stops there.
     /// </summary>
-    private void AdvanceFirefleaDarknessLevel()
+    private void AdvanceFirefleaDarkness()
     {
-        int next = _roomStatus.FirefleaDarknessLevel + 2;
-        if (next < 14)
-            _roomStatus.FirefleaDarknessLevel = next;
+        if (_roomStatus.FirefleaDarknessStep < EnemyRoomStatus.MaximumFirefleaDarknessStep)
+            _roomStatus.FirefleaDarknessStep++;
     }
 
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
@@ -144,7 +143,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (c.Enemy.Health == 0)
-                    AdvanceFirefleaDarknessLevel();
+                    AdvanceFirefleaDarkness();
             },
         });
     }
@@ -167,7 +166,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.FirefleaPowerBomb)
         {
-            BeforeGenericDeath = (_, _) => AdvanceFirefleaDarknessLevel(),
+            BeforeGenericDeath = (_, _) => AdvanceFirefleaDarkness(),
         });
     }
 
@@ -177,7 +176,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.FirefleaShot)
         {
-            BeforeGenericDeath = _ => AdvanceFirefleaDarknessLevel(),
+            BeforeGenericDeath = _ => AdvanceFirefleaDarkness(),
         });
     }
 

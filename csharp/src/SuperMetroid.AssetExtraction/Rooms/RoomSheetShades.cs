@@ -44,7 +44,7 @@ internal static class RoomSheetShades
         if (Places(rooms, EnemyDefinitionId.TourianStatue))
             shades.AddRange(TourianStatueLooks(inputs));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.MotherBrainBody)))
-            shades.AddRange(MotherBrainSheetShades.Background(inputs.Maps, inputs.Bosses));
+            shades.AddRange(MotherBrainSheetShades.Room(inputs.Maps));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley)))
             shades.AddRange(RidleySheetShades.Room(inputs.Maps, inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
         return shades;

@@ -272,7 +272,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
                 // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
                 SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
+                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses));
                 break;
             case EnemyDefinitionId.BabyMetroid:
                 SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
@@ -390,7 +390,7 @@ internal sealed class EnemySheetShades
             inks = inks.Concat(RidleySprites());
         if (enemy is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
             or EnemyDefinitionId.BabyMetroidCutscene)
-            inks = inks.Concat(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses, inputs.RoomPalettes));
+            inks = inks.Concat(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses));
         return new SheetShadeSet([.. inks], SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours, enemy));
     }
 

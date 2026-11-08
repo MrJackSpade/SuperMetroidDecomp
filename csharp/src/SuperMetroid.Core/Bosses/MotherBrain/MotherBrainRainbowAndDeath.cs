@@ -71,8 +71,8 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects &&
             step.PhaseAfter != step.PhaseBefore)
         {
-            // Her brain's colours are copied into the corpse's row, which her brain draws in from here (#1512).
-            state.Colours.CopyBrainToCorpse();
+            // Her brain is detached: it keeps the colours it shows, and only the corpse's fade changes them (#1544).
+            state.Colours.DetachBrain();
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
         }
@@ -86,7 +86,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 ? state.Body.Properties.With(EnemyProperties.Invisible)
                 : state.Body.Properties.Without(EnemyProperties.Invisible);
             if (step.PaletteRequested)
-                state.Colours.LayOverBodyAndSprites(MotherBrainShades.DeathBody(sequence.State.GreyTransitionCounter - 1));
+                state.Colours.LayOverBodyAndBrain(MotherBrainShades.DeathBody(sequence.State.GreyTransitionCounter - 1));
         }
         if (sequence.ThirdPhaseDeath.BodyClearRequested && !state.DeathBodyLayerCleared)
         {
@@ -120,12 +120,8 @@ internal sealed class MotherBrainRainbowAndDeath
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
                 ? new(presentation.Get(EscapeTypewriterProgramId.Zebes))
                 : new(EscapeTypewriterProgramId.Zebes);
-            // The typing copies two of the room's tile colours into the text's sprite colours.
-            state.Colours.Sprites.Lay(EscapeTypewriterShades.Text);
             state.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;
         }
-        if (step.ExplodedDoorPaletteRequested)
-            state.Colours.Sprites.Lay(MotherBrainShades.ExplodedDoor);
         if (step.EscapeDoorExplosion is { } doorDust)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.Animation);
@@ -308,7 +304,7 @@ internal sealed class MotherBrainRainbowAndDeath
         // The brain-slot handler runs after body AI. Its health handler is enabled during revival,
         // but the health palette waits until the corpse-state value reaches final-combat state 2.
         if (sequence.State.HealthBasedPaletteHandlingEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
-            state.Colours.LayOverBodyAndSprites(MotherBrainShades.Health(MotherBrainHealthPalette.Band(state.Head.Health)));
+            state.Colours.LayOverBodyAndBrain(MotherBrainShades.Health(MotherBrainHealthPalette.Band(state.Head.Health)));
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -402,19 +398,19 @@ internal sealed class MotherBrainRainbowAndDeath
             // The sequence increments before publishing this request. Keep the distinct
             // copy lengths: revival intentionally preserves two brain/body colors.
             int index = MotherBrainEncounterAccess.RequireLiveMotherBrainRainbowSequence(state).State.GreyTransitionCounter - 1;
-            state.Colours.LayOverBodyAndSprites(draining ? MotherBrainShades.ToGrey(index) : MotherBrainShades.FromGrey(index));
+            state.Colours.LayOverBodyAndBrain(draining ? MotherBrainShades.ToGrey(index) : MotherBrainShades.FromGrey(index));
             return;
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
             step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
         {
-            state.Colours.LayOverBodyAndSprites(MotherBrainShades.Restored);
+            state.Colours.LayOverBodyAndBrain(MotherBrainShades.Restored);
             return;
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam &&
             step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut)
         {
-            state.Colours.LayOverBodyAndSprites(MotherBrainShades.Rainbow(MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame));
+            state.Colours.LayOverBodyAndBrain(MotherBrainShades.Rainbow(MotherBrainRainbowPaletteDefinitions.DrainedRainbowFrame));
             return;
         }
         bool rainbowPhase = step.PhaseBefore is
@@ -430,6 +426,6 @@ internal sealed class MotherBrainRainbowAndDeath
 
         int frame = state.NextRainbowFrame;
         state.NextRainbowFrame = (frame + 1) % MotherBrainRainbowPaletteFormat.RainbowFrameCount;
-        state.Colours.LayOverBodyAndSprites(MotherBrainShades.Rainbow(frame));
+        state.Colours.LayOverBodyAndBrain(MotherBrainShades.Rainbow(frame));
     }
 }

@@ -20,10 +20,10 @@ using SuperMetroid.Core.Enemies.Corpses.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
-/// The shades of Mother Brain's, the Shitroid's and the Zebetites' encounters (#1512), which the import pre-colours their
-/// sprite sheets, her body layer and her room's pictures in, from each encounter's installed colours over the rows and
-/// colour groups its loads write: her brain's, attack's, legs' and the Baby's rows and the background colours her body
-/// layer shares with her room.
+/// The shades of Mother Brain's, the Shitroid's and the Zebetites' encounters (#1512, #1544), which the import pre-colours
+/// their sprite sheets, her body layer and her room's pictures in, from each encounter's installed colours over the rows
+/// and colour groups its loads write: her brain's, attack's, legs' and the Baby's rows, her body layer's colours and her
+/// room's. Each owner names only its own shades: her body layer's are not her room's.
 /// </summary>
 internal static class MotherBrainSheetShades
 {
@@ -75,9 +75,6 @@ internal static class MotherBrainSheetShades
     /// <summary>The first ink of the tube projectiles', the Baby's and the corpse's row, sprite row seven.</summary>
     private const int SeventhRow = 7 * Group;
 
-    /// <summary>The two colours of her brain's row the escape's typing copies room colours into.</summary>
-    private const int TypewriterFirstColour = 13;
-
     /// <summary>The first ink of her body's background colours, the third tile group.</summary>
     private const int BodyGroup = 4 * Group;
 
@@ -95,11 +92,10 @@ internal static class MotherBrainSheetShades
 
     /// <summary>
     /// The shades of the sheets Mother Brain's encounter draws: her brain and neck, the Baby, and the objects she
-    /// spawns, from her installed colours in <paramref name="maps"/> and <paramref name="bosses"/> and her room's tile
-    /// colours in <paramref name="roomPalettes"/>.
+    /// spawns, from her installed colours in <paramref name="maps"/> and <paramref name="bosses"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(AreaMapPresentation? maps, BossSourceArtwork bosses, RoomStaticPalettes? roomPalettes)
+    internal static IReadOnlyList<SheetShade> Sprites(AreaMapPresentation? maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
         AreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
@@ -108,7 +104,6 @@ internal static class MotherBrainSheetShades
         MotherBrainRoomColorPresentation room = InstalledAreaMapPresentation.MotherBrainRoomColorsOf(presentation);
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors ?? throw Missing("the Baby's cutscene colours");
-        RgbColor[] standardRoom = RoomStaticPaletteImage.Colours((roomPalettes ?? throw Missing("Mother Brain's room colours")).Get(RoomPaletteOf(EnemyDefinitionId.MotherBrainBody)));
 
         var shades = new List<SheetShade>([.. HealthSprites(health), .. RainbowSprites(rainbow)]);
         shades.AddRange(RoomSprites(room));
@@ -119,20 +114,13 @@ internal static class MotherBrainSheetShades
                 Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(shown, colour)),
                 Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.LegColor(shown, colour))));
         }
-        // The corpse's colours are her brain's, copied into the seventh row, so her brain's pictures show them.
+        // Her detached brain fades as a corpse over its own colours.
         for (int frame = 0; frame < death.selection.CorpseFade.FrameCount; frame++)
         {
             int shown = frame;
             shades.Add(SheetShade.Run(MotherBrainShades.CorpseFade(shown), BrainRow + FirstColour,
                 Colours(MotherBrainDeathColorFormat.CorpseColorCount, colour => death.CorpseColor(shown, colour))));
         }
-        shades.Add(SheetShade.Run(MotherBrainShades.ExplodedDoor, BrainRow + FirstColour,
-            Colours(MotherBrainDeathColorFormat.BodyColorCount, death.ExplodedDoorColor)));
-        // The escape's shutter flash recolours the exploded door's colours nine to fourteen in her brain's row.
-        shades.AddRange(PaletteFxSpriteShades.Of(PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters,
-            BrainRow, presentation.RoomPaletteFx));
-        shades.Add(SheetShade.Run(EscapeTypewriterShades.Text, BrainRow + TypewriterFirstColour,
-            standardRoom.AsSpan(7 * Group + TypewriterFirstColour, 2)));
         shades.Add(SheetShade.Run(MotherBrainShades.BabyArrives, SeventhRow + FirstColour,
             Colours(BabyMetroidCutsceneColorFormat.InitialColorCount, baby.InitialColor)));
         for (int shade = 1; shade <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; shade++)
@@ -144,18 +132,14 @@ internal static class MotherBrainSheetShades
         return shades;
     }
 
-    /// <summary>
-    /// The shades of the background colours her body layer and her room's pictures share: her body's health bands,
-    /// rainbow, grey and death fades, the room's flash and steady colours, and its lights going out and recovering.
-    /// </summary>
+    /// <summary>The shades of her body layer: her body's health bands, rainbow, grey and death fades.</summary>
     /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Background(AreaMapPresentation maps, BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> BodyLayer(AreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
         MotherBrainHealthPalettePresentation health = InstalledAreaMapPresentation.MotherBrainHealthPaletteOf(maps);
         MotherBrainRainbowPalettePresentation rainbow = maps.MotherBrainRainbowPalette;
-        MotherBrainRoomColorPresentation room = InstalledAreaMapPresentation.MotherBrainRoomColorsOf(maps);
         MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
         for (int frame = 0; frame < death.selection.BodyFade.FrameCount; frame++)
@@ -163,8 +147,14 @@ internal static class MotherBrainSheetShades
             int shown = frame;
             shades.Add(Body(MotherBrainShades.DeathBody(shown), Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(shown, colour))));
         }
-        shades.AddRange(RoomBackground(room));
         return shades;
+    }
+
+    /// <summary>The shades her fight lays over her room's pictures: its flash and steady colours, and its lights going out and recovering.</summary>
+    internal static IReadOnlyList<SheetShade> Room(AreaMapPresentation maps)
+    {
+        Ensure.NotNull(maps);
+        return RoomBackground(InstalledAreaMapPresentation.MotherBrainRoomColorsOf(maps));
     }
 
     /// <summary>The sprite shades of her health bands: her brain's and rear legs' colours in each.</summary>
@@ -349,17 +339,6 @@ internal static class MotherBrainSheetShades
     /// <summary>A shade of several runs of colours, each from its first ink, in rising order.</summary>
     private static SheetShade Rows(PictureShade shade, params ColourRun[] runs) =>
         new(shade, [.. runs.SelectMany(run => Enumerable.Range(run.FirstInk, run.Colours.Length))], [.. runs.SelectMany(run => run.Colours)]);
-
-    /// <summary>The palette of the tileset of the room that places <paramref name="enemy"/>.</summary>
-    /// <exception cref="InvalidDataException">No room, or rooms in differently coloured tilesets, place it.</exception>
-    private static RoomPaletteSet RoomPaletteOf(EnemyDefinitionId enemy)
-    {
-        RoomPaletteSet[] palettes = [.. RetailRoomHeaders.All.SelectMany(RoomStateLists.GetStates)
-            .Where(state => state.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == enemy))
-            .Select(state => RoomTilesets.Get(state.GraphicsSet).Palette).Distinct()];
-        return palettes.Length == 1 ? palettes[0]
-            : throw new InvalidDataException($"{enemy}'s room colours are those of one tileset; {palettes.Length} place it.");
-    }
 
     /// <summary><paramref name="count"/> colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Colours(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];

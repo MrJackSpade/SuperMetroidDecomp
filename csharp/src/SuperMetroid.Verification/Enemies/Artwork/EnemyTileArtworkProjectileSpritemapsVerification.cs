@@ -647,11 +647,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
 
         // The shading a spawner hands its room-graphics spawns as its room loads: Mother Brain's parts spawn theirs in her
-        // sprite colours (SharedIn(Colours.SpriteShading)), which nothing has laid shades over yet; other spawners' room-graphics
+        // own colours (SharedIn(Colours.OwnShading)), which nothing has laid shades over yet; other spawners' room-graphics
         // spawns show the enemy-projectile colours.
         static PictureShading SharedSpawnShading(EnemyDefinitionId spawner) =>
             spawner is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
-                ? new MotherBrainColours().SpriteShading
+                ? new MotherBrainColours().OwnShading
                 : EnemyShades.InEnemyProjectileColours;
 
         // The spawner's set loaded, its artwork sequences at a step where the frame is drawn.

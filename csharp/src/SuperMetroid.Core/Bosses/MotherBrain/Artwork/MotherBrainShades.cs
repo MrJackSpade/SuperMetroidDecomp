@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// The shades the import pre-colours Mother Brain's encounter in (#1512): each colour load of the encounter over her
-/// body, brain, legs and spawned objects and over her room's pictures, which gameplay lays in the order it loads them.
+/// body, brain, legs and spawned objects and over her room's pictures, which each owner lays in the order it loads them.
 /// </summary>
 public static class MotherBrainShades
 {
@@ -40,9 +40,6 @@ public static class MotherBrainShades
 
     /// <summary>Her detached brain, drawn in the corpse's colours, at step <paramref name="frame"/> of its fade to grey.</summary>
     public static PictureShade CorpseFade(int frame) => new("mother-brain-corpse-fade", frame);
-
-    /// <summary>The exploded escape door's colours, which her death loads over her brain's.</summary>
-    public static PictureShade ExplodedDoor { get; } = new("mother-brain-exploded-door", 0);
 
     /// <summary>Her room at step <paramref name="frame"/> of the fake death's flash.</summary>
     public static PictureShade Flash(int frame) => new("mother-brain-room-flash", frame);

@@ -57,7 +57,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (neckRow != NativeBrainRow || brainRow is not (NativeBrainRow or NativeCorpseRow))
             throw new InvalidDataException($"Mother Brain's neck row {neckRow} and brain row {brainRow} are not rows her encounter draws in.");
         if (brainRow == NativeCorpseRow)
-            state.Colours.CopyBrainToCorpse();
+            state.Colours.DetachBrain();
         ushort brain = W(MotherBrainMemory.BrainAnimationScript);
         // Bit 15 clear means the brain list is not live.
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];

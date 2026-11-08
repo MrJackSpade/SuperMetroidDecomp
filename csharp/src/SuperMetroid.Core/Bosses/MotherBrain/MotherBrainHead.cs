@@ -133,7 +133,7 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // The custom draw hook bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
-                (head.FlashTimer % 2 != 0) ? EnemyShades.HitFlashed : state.Colours.BrainShading),
+                (head.FlashTimer % 2 != 0) ? EnemyShades.HitFlashed : state.Colours.OwnShading),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -151,7 +151,7 @@ internal sealed class MotherBrainHead
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck, segments.Length - 1 - index),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
-                    state.Colours.SpriteShading),
+                    state.Colours.OwnShading),
                 camera);
         }
     }
@@ -408,7 +408,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             bomb,
             RoomEnemyProjectileKind.MotherBrainBomb,
-            graphics: SpriteGraphics.SharedIn(state.Colours.SpriteShading));
+            graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         RoomEnemySlot head = state.Head;
         bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
         bomb.Position = bomb.Position.WithFractionX(0).WithFractionY(0);
@@ -433,7 +433,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectileStarts.Initialize(
             ring,
             RoomEnemyProjectileKind.MotherBrainOnionRing,
-            graphics: SpriteGraphics.SharedIn(state.Colours.SpriteShading));
+            graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
         ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(

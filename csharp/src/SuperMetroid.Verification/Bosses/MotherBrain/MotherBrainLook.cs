@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -28,17 +27,22 @@ internal static class MotherBrainLook
 
     /// <summary>
     /// <paramref name="colours"/> with the shades <paramref name="state"/>'s encounter laid over them: those over her
-    /// background colours, then those over her sprites, as the import pre-colours them from <paramref name="maps"/> and
-    /// <paramref name="bosses"/>.
+    /// room and her body layer, then those over her own sprites and the Baby, as the import pre-colours them from
+    /// <paramref name="maps"/> and <paramref name="bosses"/>.
     /// </summary>
     internal static ushort[] Over(MotherBrainEnemyState state, AreaMapPresentation maps, BossSourceArtwork bosses, ushort[] colours)
     {
         ArgumentNullException.ThrowIfNull(state);
-        IReadOnlyList<SheetShade> background = MotherBrainSheetShades.Background(maps, bosses);
-        IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(maps, bosses, InstalledFixtures.RoomPalettes);
-        foreach (PictureShade shade in state.Colours.Background.Laid)
-            BossShadeColours.Lay(colours, background, shade, BossShadeColours.Room);
-        foreach (PictureShade shade in state.Colours.Sprites.Laid)
+        IReadOnlyList<SheetShade> room = MotherBrainSheetShades.Room(maps);
+        IReadOnlyList<SheetShade> body = MotherBrainSheetShades.BodyLayer(maps, bosses);
+        IReadOnlyList<SheetShade> sprites = MotherBrainSheetShades.Sprites(maps, bosses);
+        foreach (PictureShade shade in state.Colours.Room.Laid)
+            BossShadeColours.Lay(colours, room, shade, BossShadeColours.Room);
+        foreach (PictureShade shade in state.Colours.BodyLayer.Laid)
+            BossShadeColours.Lay(colours, body, shade, BossShadeColours.Room);
+        foreach (PictureShade shade in state.Colours.Own.Laid)
+            BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
+        foreach (PictureShade shade in state.Colours.Baby.Laid)
             BossShadeColours.Lay(colours, sprites, shade, BossShadeColours.Sprites);
         return colours;
     }

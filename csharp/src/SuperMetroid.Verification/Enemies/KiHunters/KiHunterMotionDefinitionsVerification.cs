@@ -56,7 +56,7 @@ internal static class KiHunterMotionDefinitionsVerification
                 $"Detached orbit at advanced angle {angle} restores the reset on an arc change or lands a slowing step on 256");
             SignedSixteenSixteen actual = SignedSixteenSixteen.FromParts(
                 unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
-            uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + (SixteenSixteen.Compose(high, low)));
+            uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + (SixteenSixteenWords.Compose(high, low)));
             AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), actual.WholeWord, "Native gravity whole carry");
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }

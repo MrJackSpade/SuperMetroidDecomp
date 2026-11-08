@@ -108,7 +108,7 @@ internal static class CompiledProjectileMathVerification
             var debris = new NoobTubeDebrisState(column: 0) { X = FixedCoordinate.FromRaw(initial), SwayPhase = phase };
             projectile.State = debris;
             arc(projectile, step);
-            if (debris.X.Whole != SixteenSixteen.WholeOf(expected) || debris.X.Fraction != SixteenSixteen.FractionOf(expected) ||
+            if (debris.X.Whole != SixteenSixteen.WholeOf(expected) || debris.X.Fraction != SixteenSixteenWords.FractionOf(expected) ||
                 debris.SwayPhase != (phase + step) % 512)
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
         }

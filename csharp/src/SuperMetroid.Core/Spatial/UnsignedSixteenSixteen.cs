@@ -93,9 +93,6 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>This speed with its whole word replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 
-    /// <summary>This speed with its fraction word replaced.</summary>
-    public UnsignedSixteenSixteen WithFraction(int fraction) => new(Whole, fraction);
-
     /// <summary>
     /// The cartridge's cap test: each word is compared with the cap's word on its own, and both differences must have
     /// the sign bit clear. This is not an unsigned 32-bit comparison; a fraction word of $8000 or more fails it even

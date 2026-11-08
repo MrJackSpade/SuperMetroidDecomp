@@ -65,9 +65,9 @@ internal static class GrappleCompiledMathVerification
             state.Grapple.Angle = RotationAngle.FromTableIndex(unchecked((byte)angle)).AddRaw(0xff);
             state.Grapple.AngularVelocity = (short)velocity;
             release(state, state.Grapple);
-            if (state.Kinematics.YSpeed.Whole != SixteenSixteen.WholeOf(expectedY) || state.Kinematics.YSpeed.Fraction != SixteenSixteen.FractionOf(expectedY) ||
+            if (state.Kinematics.YSpeed.Whole != SixteenSixteen.WholeOf(expectedY) || state.Kinematics.YSpeed.Fraction != SixteenSixteenWords.FractionOf(expectedY) ||
                 state.Kinematics.YDirection != direction || state.HorizontalSpeed.BaseSpeed.Whole != SixteenSixteen.WholeOf(expectedX) ||
-                state.HorizontalSpeed.BaseSpeed.Fraction != SixteenSixteen.FractionOf(expectedX) || state.HorizontalSpeed.AccelerationMode != SamusAccelerationMode.Decelerating)
+                state.HorizontalSpeed.BaseSpeed.Fraction != SixteenSixteenWords.FractionOf(expectedX) || state.HorizontalSpeed.AccelerationMode != SamusAccelerationMode.Decelerating)
                 throw new InvalidDataException($"Compiled grapple release differs: angle={angle:X2}, velocity={velocity}.");
             releaseCount++;
         }

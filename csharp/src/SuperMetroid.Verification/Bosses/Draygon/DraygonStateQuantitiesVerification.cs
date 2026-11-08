@@ -98,7 +98,7 @@ internal static class DraygonStateQuantitiesVerification
             unchecked((short)EnemyMath.ReadEightBitCosineProduct(new ByteAngle(angle), radiusWhole)),
             unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(new ByteAngle(angle), radiusWhole >> 2)));
         AssertEqual(expectedBody, state.Body.Position.Whole, "the body is placed from the angle and radius before they advance");
-        uint nativeRadius = unchecked(SixteenSixteen.Compose(radiusWhole, radiusFraction) + 8192u);
+        uint nativeRadius = unchecked(SixteenSixteenWords.Compose(radiusWhole, radiusFraction) + 8192u);
         AssertEqual(unchecked((int)nativeRadius), state.SpiralXRadius.RawValue, "the radius grows by one eighth of a pixel, carrying into its whole pixels");
         AssertEqual((ushort)6, state.SpiralXRadius.WholeWord, "the carried radius reaches the next whole pixel");
         ushort nativeDelta = unchecked(angleDeltaRaw - 1);
@@ -159,7 +159,7 @@ internal static class DraygonStateQuantitiesVerification
         for (int index = 0; index < expected.Count; index++)
             AssertEqual(expected[index], state.SwoopYPositions[index], $"swoop path sample {index}");
         AssertEqual(state.Body.Position.Y.Whole, state.SwoopYPositions[expected.Count], "the path ends at the body's height");
-        uint velocity = SixteenSixteen.FromWhole((uint)Math.Abs(CoordinateAxis.AsSigned(unchecked(resetX - 200)))) / (uint)expected.Count;
+        uint velocity = SixteenSixteenWords.FromWhole((uint)Math.Abs(CoordinateAxis.AsSigned(unchecked(resetX - 200)))) / (uint)expected.Count;
         AssertEqual(velocity, state.SwoopVelocity.RawValue, "swoop horizontal speed");
     }
 

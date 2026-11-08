@@ -74,6 +74,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         targets.Add(info.Symbol);
         targets.AddRange(info.CandidateSymbols);
         AddImplicitTargets(model, node, info, targets, owner);
+        AddRequiredOperatorPartners(targets);
         foreach (var target in targets)
         {
             foreach (string dispatchKey in FrameworkDispatch.CallKeys(target))
@@ -86,6 +87,38 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
             if (targetKey.EndsWith(SymbolIdentity.ImplicitConstructorSuffix, StringComparison.Ordinal))
                 graph.Edge(owner, targetKey[..^SymbolIdentity.ImplicitConstructorSuffix.Length]);
         }
+    }
+
+    /// <summary>The operator C# requires to be declared alongside each paired operator.</summary>
+    private static readonly Dictionary<string, string> RequiredOperatorPartners = new(StringComparer.Ordinal)
+    {
+        [WellKnownMemberNames.EqualityOperatorName] = WellKnownMemberNames.InequalityOperatorName,
+        [WellKnownMemberNames.InequalityOperatorName] = WellKnownMemberNames.EqualityOperatorName,
+        [WellKnownMemberNames.LessThanOperatorName] = WellKnownMemberNames.GreaterThanOperatorName,
+        [WellKnownMemberNames.GreaterThanOperatorName] = WellKnownMemberNames.LessThanOperatorName,
+        [WellKnownMemberNames.LessThanOrEqualOperatorName] = WellKnownMemberNames.GreaterThanOrEqualOperatorName,
+        [WellKnownMemberNames.GreaterThanOrEqualOperatorName] = WellKnownMemberNames.LessThanOrEqualOperatorName,
+        [WellKnownMemberNames.TrueOperatorName] = WellKnownMemberNames.FalseOperatorName,
+        [WellKnownMemberNames.FalseOperatorName] = WellKnownMemberNames.TrueOperatorName,
+    };
+
+    /// <summary>
+    /// The language requires paired operators to be declared together (CS0216), so reaching one reaches the partner with
+    /// the same parameters: the partner cannot be deleted while the reached operator is used.
+    /// </summary>
+    private static void AddRequiredOperatorPartners(List<ISymbol?> targets)
+    {
+        var partners = new List<ISymbol?>();
+        foreach (var target in targets)
+        {
+            if (target is not IMethodSymbol { MethodKind: MethodKind.UserDefinedOperator } method ||
+                !RequiredOperatorPartners.TryGetValue(method.Name, out string? partnerName))
+                continue;
+            partners.AddRange(method.ContainingType.GetMembers(partnerName).OfType<IMethodSymbol>().Where(partner =>
+                partner.Parameters.Select(parameter => parameter.Type)
+                    .SequenceEqual(method.Parameters.Select(parameter => parameter.Type), SymbolEqualityComparer.Default)));
+        }
+        targets.AddRange(partners);
     }
 
     /// <summary>Includes compiler-bound calls for iteration, patterns, conversions, await, and collection syntax.</summary>

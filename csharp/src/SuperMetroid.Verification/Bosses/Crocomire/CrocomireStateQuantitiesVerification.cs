@@ -292,16 +292,16 @@ internal static class CrocomireStateQuantitiesVerification
     /// <summary>The cartridge's split 16.16 speed update: add, then clamp the whole word and keep the fraction.</summary>
     private static void NativeAccelerate(ref ushort fraction, ref ushort whole, uint delta, ushort maximumWhole)
     {
-        uint speed = unchecked(SixteenSixteen.Compose(whole, fraction) + delta);
+        uint speed = unchecked(SixteenSixteenWords.Compose(whole, fraction) + delta);
         if (FixedCoordinate.WholeOf(unchecked((int)speed)) >= maximumWhole)
-            speed = SixteenSixteen.Compose(maximumWhole, unchecked((ushort)SixteenSixteen.FractionOf(speed)));
-        fraction = unchecked((ushort)SixteenSixteen.FractionOf(speed));
+            speed = SixteenSixteenWords.Compose(maximumWhole, unchecked((ushort)SixteenSixteenWords.FractionOf(speed)));
+        fraction = unchecked((ushort)SixteenSixteenWords.FractionOf(speed));
         whole = FixedCoordinate.WholeOf(unchecked((int)speed));
     }
 
     /// <summary>The cartridge's 32-bit position add of a split whole and fraction speed.</summary>
     private static FixedCoordinate NativeAdvance(FixedCoordinate position, ushort fraction, ushort whole) =>
-        FixedCoordinate.FromRaw(unchecked(position.RawValue + SixteenSixteen.Compose(whole, fraction)));
+        FixedCoordinate.FromRaw(unchecked(position.RawValue + SixteenSixteenWords.Compose(whole, fraction)));
 
     /// <summary>
     /// The melt shake counter starts from zero, so its first dissolve frame wraps it to the native word's maximum,

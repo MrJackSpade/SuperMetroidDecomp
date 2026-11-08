@@ -596,7 +596,7 @@ internal static class LookupStream4Verification
         {
             ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
-            return unchecked((int)(SixteenSixteen.FromWhole((uint)whole) | fraction));
+            return unchecked((int)(SixteenSixteenWords.FromWhole(whole) | fraction));
         }
         for (int index = 0; index < 16; index++)
             AssertEqual(Native(0x8BDD02 + index * 4), EndingShipShake.PlanetFastDelta(index), "native fast shake signed fixed-point value");

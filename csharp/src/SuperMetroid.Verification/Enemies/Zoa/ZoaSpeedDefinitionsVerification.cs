@@ -18,7 +18,7 @@ internal static class ZoaSpeedDefinitionsVerification
         int Record(int stage)
         {
             int address = ZoaSpeedSources.SpeedTable + stage * ZoaSpeedSources.RecordBytes;
-            return unchecked(unchecked((int)SixteenSixteen.Compose(Word(address), Word(address + 2))));
+            return unchecked(unchecked((int)SixteenSixteenWords.Compose(Word(address), Word(address + 2))));
         }
         AssertEqual(4, ZoaSpeedDefinitions.StageSpeedEighths.Length, "Zoa has four speed stages");
         for (int stage = 0; stage < ZoaSpeedDefinitions.StageSpeedEighths.Length; stage++)

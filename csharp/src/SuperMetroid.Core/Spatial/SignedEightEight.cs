@@ -50,11 +50,6 @@ public readonly record struct SignedEightEight
     /// <exception cref="ArgumentOutOfRangeException">The value is the most negative one.</exception>
     public static SignedEightEight operator -(SignedEightEight value) => FromSignedRaw(-value.SignedRawValue);
 
-    /// <summary>The velocity scaled by a whole factor; the product must lie within the type's range.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The product lies outside the type's range.</exception>
-    public static SignedEightEight operator *(SignedEightEight value, int factor) =>
-        FromSignedRaw(checked(value.SignedRawValue * factor));
-
     /// <summary>Promotes the signed word to the 16.16 delta used by native position adders.</summary>
     public SignedSixteenSixteen ToSixteenSixteenDelta() =>
         SignedSixteenSixteen.FromRaw(unchecked((short)RawValue) << 8);

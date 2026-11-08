@@ -4,7 +4,6 @@ using SuperMetroid.Core.Samus.Movement;
 using HorizontalDirection = SuperMetroid.Core.Spatial.HorizontalDirection;
 using ProjectileLaunchInheritance = SuperMetroid.Core.Compatibility.ProjectileLaunchInheritance;
 using SignedSixteenSixteen = SuperMetroid.Core.Spatial.SignedSixteenSixteen;
-using SixteenSixteen = SuperMetroid.Core.Spatial.SixteenSixteen;
 using VerticalDirection = SuperMetroid.Core.Spatial.VerticalDirection;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
@@ -93,5 +92,5 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
 
     /// <summary>The signed 16.16 distance record at <paramref name="offset"/>: its whole-pixel word, then its fraction word.</summary>
     private static SignedSixteenSixteen SnapshotDistance(ReadOnlySpan<byte> bytes, int offset) =>
-        SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteen.Compose(SnapshotWord(bytes, offset), SnapshotWord(bytes, offset + 2))));
+        SignedSixteenSixteen.FromRaw(unchecked((int)SixteenSixteenWords.Compose(SnapshotWord(bytes, offset), SnapshotWord(bytes, offset + 2))));
 }

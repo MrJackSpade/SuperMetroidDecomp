@@ -208,7 +208,7 @@ internal static class NativeEnemyFamilyStateImport
                     throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Function}.");
             }
             draygonRecord.SwoopPathEntryCount = words.C / DraygonNativeWords.SwoopEntryBytes;
-            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteen.Compose(words.D, words.E));
+            draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E));
         }
         if (slot.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
         {

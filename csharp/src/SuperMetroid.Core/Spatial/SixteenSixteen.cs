@@ -16,16 +16,8 @@ public static class SixteenSixteen
     /// <summary>The raw 16.16 value with whole part <paramref name="whole"/> and no fraction.</summary>
     public static int FromWhole(int whole) => whole << FractionBits;
 
-    /// <inheritdoc cref="FromWhole(int)"/>
-    public static uint FromWhole(uint whole) => whole << FractionBits;
-
     /// <summary>A raw 8.8 value widened to 16.16: whole units move to the whole word, 1/256ths to the fraction's high byte.</summary>
     public static int FromEightEight(int raw) => raw << (FractionBits - 8);
-
-    /// <summary>The raw 16.16 value of a whole word and a fraction word, each 0 through 65535.</summary>
-    public static uint Compose(int whole, int fraction) =>
-        (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, whole) << FractionBits |
-        (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
 
     /// <summary>The whole part of a raw 16.16 value.</summary>
     public static int WholeOf(int raw) => raw >> FractionBits;
@@ -35,7 +27,4 @@ public static class SixteenSixteen
 
     /// <summary>The fraction word of a raw 16.16 value.</summary>
     public static int FractionOf(int raw) => raw & FractionMask;
-
-    /// <inheritdoc cref="FractionOf(int)"/>
-    public static uint FractionOf(uint raw) => raw & FractionMask;
 }

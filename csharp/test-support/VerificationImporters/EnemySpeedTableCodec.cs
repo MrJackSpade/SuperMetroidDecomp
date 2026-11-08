@@ -67,6 +67,6 @@ internal static class EnemySpeedTableCodec
 
     /// <summary>A quadratic speed: the fraction word, then the whole word.</summary>
     private static int QuadraticSpeed(IImportCartridgeSource cartridge, int address) =>
-        unchecked((int)SixteenSixteen.Compose(cartridge.ReadCartridgeWord(address + SecondWordOffset),
+        unchecked((int)SixteenSixteenWords.Compose(cartridge.ReadCartridgeWord(address + SecondWordOffset),
             cartridge.ReadCartridgeWord(address)));
 }

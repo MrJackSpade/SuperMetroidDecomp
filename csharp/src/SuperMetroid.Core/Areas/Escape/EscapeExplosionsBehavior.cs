@@ -25,7 +25,7 @@ internal sealed class EscapeExplosionsBehavior
     /// <remarks>A random low nibble of eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX)
     {
-        int choice = random & 15;
+        int choice = ZebesEscapeDefinitions.ExplosionChoice.Of(random);
         // Preserve the game's unchanged-X branch, not the upstream C port's bugfix.
         if (choice < 8)
         {

@@ -9,7 +9,7 @@ public static class AtmosphereDrift
     /// </summary>
     /// <remarks>The four original velocities and every random input are independently verified against NTSC J/U v1.0
     /// and pinned reference sources (362be646929cf8e483f692b73a6561cfc2dc1d0d).</remarks>
-    public static RainWind RainWindChosenBy(int randomNumber) => ((randomNumber >> 2) & 3) switch
+    public static RainWind RainWindChosenBy(int randomNumber) => AtmosphereDriftDefinitions.RainWindChoice.Of(randomNumber) switch
     {
         0 => RainWind.StrongLeft,
         1 => RainWind.StrongRight,

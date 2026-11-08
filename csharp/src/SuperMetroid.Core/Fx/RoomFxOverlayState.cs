@@ -680,7 +680,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             Priority: SoundRequestPriority.Normal,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
         EarthquakeSoundTimer = WrappingCountdown.FromRaw(baseTimers[EarthquakeSoundSequenceIndex])
-            .AddFrames((randomNumber & 3) + earthquakeSoundDelay.ExtraFrames);
+            .AddFrames(RoomEarthquakeDefinitions.RisingLiquidSoundJitter.Of(randomNumber) + earthquakeSoundDelay.ExtraFrames);
         EarthquakeSoundSequenceIndex++;
     }
 

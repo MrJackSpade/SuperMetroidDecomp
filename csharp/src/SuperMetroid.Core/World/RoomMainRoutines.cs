@@ -113,9 +113,9 @@ internal sealed class RoomMainRoutines
             return;
 
         int random = _system.RandomNumber;
-        bool dark = SharedRandomState.IsInUpperHalf(random);
+        bool dark = CeresFallingDebrisDefinitions.Dark.IsSetIn(random);
         room.Enemies.Projectiles.SpawnCeresFallingDebris(
-            CeresFallingDebrisX(random & 15),
+            CeresFallingDebrisX(CeresFallingDebrisDefinitions.Column.Of(random)),
             dark,
             new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisProgram.Dark : CeresFallingDebrisProgram.Light),
             CeresFallingDebrisVisualDefinitions.Graphics);

@@ -705,7 +705,7 @@ public sealed class SamusLiquidPhysicsState
             2, SamusAtmosphericEffectType.Bubbles, animationFrame: 0, animationTimer: 3,
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + 6)));
         int sample = random.Generate();
-        QueueSound((sample & 1) != 0 ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, priority: SoundRequestPriority.Normal);
+        QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Starts the four-slot lava spray while Samus's top is above the surface and the previous spray has cleared.</summary>

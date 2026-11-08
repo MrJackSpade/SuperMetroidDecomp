@@ -81,7 +81,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 "A burial Evir no longer shows the white flash");
         }
 
-        enemies.DraygonBehavior.Death.MoveDraygonDeathEvirs();
+        DraygonDeath.MoveDraygonDeathEvirs(draygon);
         for (int entry = 5; entry >= 0; entry--)
         {
             // The n-th Evir spawned takes the n-th slot in the pool's processing order.

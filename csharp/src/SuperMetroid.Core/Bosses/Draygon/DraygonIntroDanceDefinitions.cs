@@ -5,21 +5,18 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>Timing and the traced path of Draygon's opening Evir dance.</summary>
 internal static class DraygonIntroDanceDefinitions
 {
-    /// <summary>The Evirs the opening dance moves: the first four sprite objects in processing order.</summary>
+    /// <summary>The Evirs the opening dance spawns and moves.</summary>
     internal const int EvirCount = 4;
 
     /// <summary>How many updates the dance lasts before Draygon starts its first swoop.</summary>
     internal const int DurationFrames = 1232;
 
-    /// <summary>The sprite-object slot of the first dancing Evir; the four dancers occupy it and the next three.</summary>
-    internal const int FirstDancerSlot = 28;
-
     /// <summary>
-    /// How many dance updates each Evir waits before it takes the path's first step, by slot from
-    /// <see cref="FirstDancerSlot"/>. Even the last Evir waits 128 updates: the original game reads its four delays
-    /// from the first half of an eight-entry table, so no Evir starts at once.
+    /// How many dance updates each Evir waits before it takes the path's first step, in the order the Evirs spawn. Even
+    /// the first Evir waits 128 updates: the original game reads its four delays from the first half of an eight-entry
+    /// table, so no Evir starts at once.
     /// </summary>
-    internal static readonly int[] StartDelays = [224, 192, 160, 128];
+    internal static readonly int[] StartDelays = [128, 160, 192, 224];
 
     /// <summary>
     /// The handwritten Keiko Love path every dancing Evir follows, one step per update. Two delete steps end each

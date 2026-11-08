@@ -5,16 +5,13 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>Draygon's opening Evir dance: how long each Evir waits and the step of the traced path it takes.</summary>
 internal static class DraygonIntroDance
 {
-    /// <summary>How many dance updates the dancing Evir in sprite-object slot <paramref name="slotIndex"/> waits before its first step.</summary>
-    /// <param name="slotIndex">The Evir's sprite-object slot, <see cref="DraygonIntroDanceDefinitions.FirstDancerSlot"/> or one of the three after it.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The slot does not hold a dancing Evir.</exception>
-    public static int StartDelayForSlot(int slotIndex)
-    {
-        int dancer = slotIndex - FirstDancerSlot;
-        if ((uint)dancer >= (uint)StartDelays.Length)
-            throw new ArgumentOutOfRangeException(nameof(slotIndex));
-        return StartDelays[dancer];
-    }
+    /// <summary>How many dance updates the dancing Evir spawned <paramref name="dancer"/>-th waits before its first step.</summary>
+    /// <param name="dancer">The Evir's place in the order the dance spawns them, from zero.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The dance spawns no Evir in that place.</exception>
+    public static int StartDelay(int dancer) =>
+        dancer is >= 0 and < EvirCount
+            ? StartDelays[dancer]
+            : throw new ArgumentOutOfRangeException(nameof(dancer), dancer, "The Draygon dance spawns four Evirs.");
 
     /// <summary>
     /// Step <paramref name="step"/> of the traced path. The dance's updates and the Evirs' delays reach every step; an

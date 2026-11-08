@@ -104,6 +104,10 @@ internal static class FamilyTrigonometryVerification
             var previous = enemies.SlotTable.Slots[0];
             var segment = enemies.SlotTable.Slots[1];
             previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
+            // The second segment finds the saw it orbits as production places it, right after the saw.
+            segment.Bind(EnemyDefinitionId.Shaktool, segment.Definition);
+            segment.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 2);
+            enemies.ShaktoolBehavior.InitializeShaktool(segment);
             var segmentState = new ShaktoolSegmentState();
             Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
             int firstAngle = block % AngleBlocks * AnglesPerBlock;

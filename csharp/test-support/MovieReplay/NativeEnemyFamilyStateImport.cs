@@ -528,7 +528,9 @@ internal static class NativeEnemyFamilyStateImport
             segment.OrbitAngle = RotationAngle.FromRaw(words.B);
             segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
             ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment), words.D);
-            segment.OwnerSlotIndex = SlotIndex(words.E, "Shaktool owner");
+            // Every segment's owner is the chain's leading saw, the first enemy its room lists.
+            if (SlotIndex(words.E, "Shaktool owner") != 0)
+                throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
             segment.FrameBehavior = words.F == 0 ? null : ShaktoolNativeWords.DecodeFrameBehavior(words.F, "recorded ShaktoolFrameBehavior");
         }
         if (enemies.ChootStates[index] is { } choot)

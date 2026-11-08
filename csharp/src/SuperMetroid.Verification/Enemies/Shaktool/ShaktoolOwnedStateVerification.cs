@@ -49,8 +49,9 @@ internal static class ShaktoolOwnedStateVerification
         }
 
         tail.Clear();
-        AssertEqual(new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(RotationAngle.Zero, RotationAngle.Zero, 0, 0), new ShaktoolOwnedStateVerifyShaktoolOwnedStateCase(states[6].TargetAngle, states[6].OrbitAngle, states[6].AngularVelocity, states[6].OwnerSlotIndex),
-            "a kill empties the segment's angles, rate and owner");
+        AssertEqual(RotationAngle.Zero, states[6].TargetAngle, "a kill empties the segment's target angle");
+        AssertEqual(RotationAngle.Zero, states[6].OrbitAngle, "a kill empties the segment's orbit angle");
+        AssertEqual(0, states[6].AngularVelocity, "a kill empties the segment's rate");
         AssertEqual(null, states[6].FrameBehavior, "a kill empties the segment's motion");
 
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).

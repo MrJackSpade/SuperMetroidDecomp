@@ -11,7 +11,7 @@ internal sealed class PipeBugsEntity(PipeBugsBehavior species, RoomEnemySlot slo
     public EnemyInitializationAiHandler? FindInitialization() => PipeBugsPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         PipeBugsPart.Zeb or PipeBugsPart.Zebbo => PipeBugsBehavior.InitializeBrinstarPipeBug,
-        PipeBugsPart.Gamet => PipeBugsBehavior.InitializeNorfairPipeBug,
+        PipeBugsPart.Gamet => species.InitializeNorfairPipeBug,
         PipeBugsPart.Geega => PipeBugsBehavior.InitializeYellowPipeBug,
         _ => throw new InvalidOperationException($"PipeBugs entity bound to {Slot.DefinitionId}."),
     };

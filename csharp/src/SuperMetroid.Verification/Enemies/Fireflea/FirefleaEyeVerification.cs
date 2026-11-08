@@ -38,8 +38,10 @@ internal static class FirefleaEyeVerification
         runtime.Enemies.Drawing.DrawLayers(sprites, new(cameraX, cameraY), 0, 7);
         sprites.FinalizeFrame();
         AssertTrue(sprites.Draws.Length > 0, "retail rock eye emits sprites");
-        // The colours the frame's pictures show, composed from their published shading and the import's colours (#1512).
-        var memory = FramePaint.FromNativeGameplay(GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources), sprites.Draws);
+        // The eye shows its own picture's colours under the shading its draw publishes (#1512, #1544). The gameplay colour
+        // image verification composes holds the room's, the HUD's and Samus's colours only, so an enemy's draw painted from
+        // it would show black: its colours are its own, not a row of that image.
+        var memory = runtime.PublishDisplayFrame().Paint.WithShownDraws(sprites.Draws);
         var source = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var actualDarkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, actualDarkness.Blend.Blended,

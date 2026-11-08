@@ -27,6 +27,12 @@ public static class InstalledPictureColours
     /// <summary>Where each loaded picture's colours came from, as its manifest names it.</summary>
     private static readonly ConditionalWeakTable<SpriteImage, InstalledPictureColourSources> Loaded = [];
 
+    /// <summary>
+    /// Where each loaded frame whose holder composed its colours elsewhere than its sheet's record says came from, as the
+    /// enemy sheet manifest names it (#1544).
+    /// </summary>
+    private static readonly ConditionalWeakTable<SpriteSheetFrame, InstalledFrameSource> LoadedFrames = [];
+
     /// <summary>The sprite rows a sprite sheet's palette bits select among.</summary>
     private const int SpriteRows = 8;
 
@@ -70,4 +76,40 @@ public static class InstalledPictureColours
     internal static InstalledPictureColourSources SetsOf(SpriteImage picture) =>
         Loaded.TryGetValue(Ensure.NotNull(picture), out InstalledPictureColourSources? sets) ? sets
             : throw new InvalidOperationException($"Picture {picture.Name} was not loaded from an installed sheet manifest.");
+
+    /// <summary>
+    /// Keeps where the holder drawing <paramref name="frame"/> composed the colours it shows, which
+    /// <paramref name="source"/> names because they lie elsewhere than the record of the frame's sheet says (#1544): a
+    /// picture held once is sourced as its first holder composed it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The frame's sheet was not loaded from an installed sheet manifest.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The frame's sheet is not a sprite sheet, the record's palette bits lie past the sprite rows, it does not name one
+    /// composed palette index of the holder's for each of the sheet's, or it names a sheet's index the sheet has no colour
+    /// of, or one twice.
+    /// </exception>
+    internal static void RecordFrame(SpriteSheetFrame frame, InstalledFrameSource source)
+    {
+        Ensure.NotNull(frame);
+        Ensure.NotNull(source);
+        SpriteImage sheet = frame.Sheet;
+        InstalledPictureColourSources sheetSources = SetsOf(sheet);
+        if (sheetSources.Palette != SpriteImageColours.Sprite || source.PaletteBits is < 0 or >= SpriteRows)
+            throw new InvalidDataException($"A frame of {sheet.Name} names palette bits {source.PaletteBits} for a {sheetSources.Palette} image.");
+        int half = ImageColourGroup.ColourCountOf(sheetSources.Palette);
+        if (source.SheetInks.Length != source.Inks.Length || source.Inks.Any(ink => ink < 0 || ink >= half))
+            throw new InvalidDataException($"A frame of {sheet.Name} does not name one composed palette index of its holder's for each of the sheet's.");
+        // The frame's pixels are not read here: a sheet's image loads when it is first drawn.
+        int[] places = [.. source.SheetInks.Select(ink => sheetSources.Inks.IndexOf(ink))];
+        if (places.Any(place => place < 0) || places.Distinct().Count() != places.Length)
+            throw new InvalidDataException($"A frame of {sheet.Name} names the sources of colours its sheet does not have, or of one colour twice.");
+        LoadedFrames.AddOrUpdate(frame, source);
+    }
+
+    /// <summary>
+    /// Where the holder drawing <paramref name="frame"/> composed the colours it shows, as the loader kept it, or none when
+    /// they came from where the record of the frame's sheet says.
+    /// </summary>
+    internal static InstalledFrameSource? FrameSourceOf(SpriteSheetFrame frame) =>
+        LoadedFrames.TryGetValue(Ensure.NotNull(frame), out InstalledFrameSource? source) ? source : null;
 }

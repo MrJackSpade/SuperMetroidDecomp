@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 22;
+    public const int ManifestVersion = 23;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -117,7 +117,9 @@ public static class EnemySheetFiles
                 Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.SpawnedCorpsePictures, set, ownerName, pictures);
                 HashSet<string> blank = Empty(entry.Empty, $"{set} {ownerName}", pictures);
                 string resolution = $"{entry.Sheet}/{string.Join("/", entry.CommonPictures.OrderBy(held => held.Key, StringComparer.Ordinal)
-                    .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}/{string.Join(",", blank.Order(StringComparer.Ordinal))}";
+                    .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}/{string.Join(",", blank.Order(StringComparer.Ordinal))}/{string.Join("/",
+                    (entry.FrameSources ?? []).OrderBy(source => source.Key, StringComparer.Ordinal).Select(source =>
+                        $"{source.Key}:{source.Value.PaletteBits}:{string.Join(",", source.Value.SheetInks)}:{string.Join(",", source.Value.Inks)}"))}";
                 HashSet<string> shown = [.. pictures.Where(picture => !blank.Contains(picture))];
                 if (!resolved.TryGetValue(resolution, out SpawnedObjectSheet? sheet))
                     resolved.Add(resolution, sheet = SpawnedPictures(entry, loaded, shown, blank, $"{set} {ownerName}"));
@@ -162,7 +164,18 @@ public static class EnemySheetFiles
         SpriteSheet? own = entry.Sheet is { } name ? loaded[name] : null;
         if (own is null ? particular.Length > 0 : !own.HoldsExactly(particular))
             throw new InvalidDataException($"Spawned-object sheet {entry.Sheet ?? "(none)"} does not hold exactly the pictures particular to {owner}'s objects.");
-        return new SpawnedObjectSheet(own, common, empty);
+        var pictures = new SpawnedObjectSheet(own, common, empty);
+        // A picture held once is sourced as its first holder composed it; where this owner's set composed it elsewhere, the
+        // set draws its own frame of the same rectangle, which keeps where the set composed it from (#1544).
+        foreach ((string picture, InstalledFrameSource source) in entry.FrameSources ?? [])
+        {
+            if (!pictures.frames.TryGetValue(picture, out SpriteSheetFrame? held))
+                throw new InvalidDataException($"Enemy sheet manifest names where {owner} composed picture {picture} from, but draws no such picture.");
+            SpriteSheetFrame drawn = held with { };
+            pictures.frames[picture] = drawn;
+            InstalledPictureColours.RecordFrame(drawn, source);
+        }
+        return pictures;
     }
 
     /// <summary>

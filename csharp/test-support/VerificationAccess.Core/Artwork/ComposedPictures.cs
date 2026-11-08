@@ -43,7 +43,6 @@ internal static class ComposedPictures
         Ensure.LengthEqual(table, ImageColourGroup.ColourCountOf(palette));
         return new SpriteSheetDocument
         {
-            Version = SpriteSheetFile.Version,
             Palette = palette,
             Colours = [.. table.ToArray().Select(colour => colour.ToWord())],
             Frames = [],

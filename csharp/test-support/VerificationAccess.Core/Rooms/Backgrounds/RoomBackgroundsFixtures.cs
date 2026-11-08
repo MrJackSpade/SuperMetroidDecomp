@@ -347,7 +347,6 @@ internal static class RoomBackgroundsFixtures
         }
         var document = new SpriteSheetDocument
         {
-            Version = SpriteSheetFile.Version,
             Palette = kind,
             Colours = standard,
             // A room's seeded sheets are gameplay background images, whose groups the import pipeline names in the

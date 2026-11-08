@@ -9,9 +9,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 public sealed record SpriteSheetDocument
 {
-    /// <summary>The schema revision of the manifest the sheet installs, <see cref="SpriteSheetFile.Version"/>.</summary>
-    public required int Version { get; init; }
-
     /// <summary>Which half of the colour table the sheet's palette indices and colours name.</summary>
     public required SpriteImageColours Palette { get; init; }
 

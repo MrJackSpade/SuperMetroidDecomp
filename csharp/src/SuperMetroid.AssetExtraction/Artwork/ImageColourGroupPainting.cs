@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
-/// How the import pipeline records the colour groups it paints an installed image with (#1464): the group each ink was
+/// How the import pipeline records the colour groups it composes a sheet with (#1464): the group each palette index was
 /// coloured from and the groups a frame's pixels use.
 /// </summary>
 internal static class ImageColourGroupPainting

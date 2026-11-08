@@ -37,6 +37,21 @@ internal static class TorizoRandomDefinitions
     /// </summary>
     internal static readonly RandomSampleField EyeBeamSpread = new(1, 4);
 
+    /// <summary>The initial drool's height jitter below Torizo's Y, 0 through 3 pixels: the sample's bits 0-1.</summary>
+    internal static readonly RandomSampleField InitialDroolYJitter = new(0, 2);
+
+    /// <summary>The initial drool's side jitter to the right of Torizo's X, 0 through 3 pixels: the sample's bits 0-1.</summary>
+    internal static readonly RandomSampleField InitialDroolXJitter = new(0, 2);
+
+    /// <summary>
+    /// The low-health drool's delay entry, 0 through 7 of the eight-entry list whose entries repeat the no-delay,
+    /// two-frame and four-frame lists: the sample's bits 2-4.
+    /// </summary>
+    internal static readonly RandomSampleField LowHealthDroolDelay = new(2, 3);
+
+    /// <summary>Whether a sonic boom flies high, twelve pixels above Torizo's Y rather than twenty below: the sample's bit zero.</summary>
+    internal static readonly RandomSampleField SonicBoomHigh = new(0, 1);
+
     /// <summary>Golden Torizo's dying drop scatter: the low byte across its 256-pixel strip.</summary>
     internal const int GoldenDropXMask = 0b1111_1111;
 

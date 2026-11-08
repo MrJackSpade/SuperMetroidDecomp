@@ -337,11 +337,11 @@ internal sealed class MotherBrainHead
             // Retail contains an unconditional BRA where the adjacent commentary might suggest a
             // carry branch: low-twelve random values below $EC0 hold the phase-three pose again.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
-                return (_room.Random.Read() & 4095) < 3776 ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
+                return MotherBrainRandomDefinitions.NeutralPhase3HoldRoll.Of(_room.Random.Read()) < 3776 ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
             // The drool hold returns its destination: only low-twelve random values
             // 4064 through 4095 burst into more drool; every other value keeps the one-frame loop.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
-                return (_room.Random.Read() & 4095) >= 4064 ? MotherBrainHeadProgram.DyingDroolBurst : null;
+                return MotherBrainRandomDefinitions.DroolBurstRoll.Of(_room.Random.Read()) >= 4064 ? MotherBrainHeadProgram.DyingDroolBurst : null;
             default:
                 throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
         }

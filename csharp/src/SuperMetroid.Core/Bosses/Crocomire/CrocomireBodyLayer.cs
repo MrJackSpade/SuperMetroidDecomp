@@ -111,15 +111,15 @@ internal sealed class CrocomireBodyLayer
         int random = _access.ReadCrocomireRandom();
         // The offset is complemented, not negated, when bit one is clear; the smoke's X keeps
         // sixteen bits where the offset is added.
-        int xOffset = random & 63;
-        if ((random & 2) == 0)
+        int xOffset = CrocomireRandomDefinitions.AcidSmokeXOffset.Of(random);
+        if (!CrocomireRandomDefinitions.AcidSmokeOnRight.IsSetIn(random))
             xOffset = ~xOffset;
         // Crocomire's room always has its acid surface, which its tide only moves.
         int acidY = samus is null
             ? 224
             : samus.LiquidPhysics.LavaAcidSurfaceY ?? throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
         _spriteObjects.SpawnRoomSpriteObject(
-            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - (SharedRandomState.UpperByte(random) & 31))),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,
             graphics: default);
     }

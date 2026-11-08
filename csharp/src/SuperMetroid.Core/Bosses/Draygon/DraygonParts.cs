@@ -315,7 +315,7 @@ internal sealed class DraygonParts
         RoomSpriteObjectKind kind)
     {
         int random = _room.Random.Generate();
-        Offset16<RoomPixels> scatter = new((random & 127) - 64, (SharedRandomState.UpperByte(random) & 127) - 64);
+        Offset16<RoomPixels> scatter = new(DraygonRandomDefinitions.DyingScatterX.Of(random) - 64, DraygonRandomDefinitions.DyingScatterY.Of(random) - 64);
         if (_spriteObjects.SpawnRoomSpriteObject(
                 state.Body.Position.Whole + scatter,
                 kind,
@@ -370,7 +370,7 @@ internal sealed class DraygonParts
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 
         int random = _room.Random.Generate();
-        ByteAngle angle = new((random & 63) + (movingRight ? 192 : 128));
+        ByteAngle angle = new(DraygonRandomDefinitions.GoopAngleSpread.Of(random) + (movingRight ? 192 : 128));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }

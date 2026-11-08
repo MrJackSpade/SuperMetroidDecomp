@@ -20,6 +20,9 @@ internal static class CeresRidleyAttackDefinitions
         RidleyAiFunction.CeresSwoopSetup, RidleyAiFunction.CeresFireballMoveToPosition,
     ];
 
-    /// <summary>The attack the table selects for a random word; only its low nibble indexes the table.</summary>
-    internal static RidleyAiFunction SelectAttack(int random) => AttackByRandomNibble[random & 0b1111];
+    /// <summary>The attack choice, one of sixteen: the sample's bits 0-3.</summary>
+    private static readonly RandomSampleField AttackChoice = new(0, 4);
+
+    /// <summary>The attack the table selects for a random word; only its <see cref="AttackChoice"/> indexes the table.</summary>
+    internal static RidleyAiFunction SelectAttack(int random) => AttackByRandomNibble[AttackChoice.Of(random)];
 }

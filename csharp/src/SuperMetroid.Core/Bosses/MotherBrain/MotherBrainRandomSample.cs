@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The room's random number as one Mother Brain update reads it without advancing the generator. Mother Brain's
-/// choices test the number's sign, its low byte and its low bits, so the sample answers those questions by name; the
+/// choices test the number's sign, its low byte and its named fields, so the sample answers those questions by name; the
 /// sixteen-bit range is the generator's own and is load-bearing, because each test reads a different part of the
 /// same number.
 /// </summary>
@@ -32,9 +32,11 @@ public readonly record struct MotherBrainRandomSample
     /// <summary>The number's low byte, from zero through 255.</summary>
     public int LowByte => Value % ByteValueCount;
 
-    /// <summary>The number's lowest <paramref name="bitCount"/> bits, from zero through two to that power minus one.</summary>
-    public int LowBits(int bitCount) => Value % (1 << bitCount);
+    /// <summary>The value <paramref name="field"/> reads from the number.</summary>
+    /// <param name="field">The choice the number makes.</param>
+    internal int Read(RandomSampleField field) => field.Of(Value);
 
-    /// <summary>Whether bit <paramref name="bit"/> (zero for the lowest) of the number is set.</summary>
-    public bool HasBit(int bit) => (Value >> bit) % 2 != 0;
+    /// <summary>Whether <paramref name="field"/>, a single bit, is set in the number.</summary>
+    /// <param name="field">The single-bit choice the number makes.</param>
+    internal bool IsSet(RandomSampleField field) => field.IsSetIn(Value);
 }

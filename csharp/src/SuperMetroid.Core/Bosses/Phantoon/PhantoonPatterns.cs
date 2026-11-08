@@ -42,7 +42,7 @@ internal sealed class PhantoonPatterns
         state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
         state.BodyState.Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         state.BodyState.SpeedPhase = 0;
-        if ((_room.Random.Generate() & 1) != 0)
+        if (PhantoonRandomDefinitions.FigureEightReversed.IsSetIn(_room.Random.Generate()))
         {
             state.BodyState.FigureEightSpeed = SignedSixteenSixteen.Zero;
             state.EyeState.FigureEightReversed = true;
@@ -218,7 +218,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        state.MouthState.CasualFlamePattern = _room.Random.Generate() & 3;
+        state.MouthState.CasualFlamePattern = _room.Random.Next(PhantoonRandomDefinitions.CasualFlamePattern);
         PhantoonCasualFlameSchedule pattern = PhantoonCasualFlames.Pattern(state.MouthState.CasualFlamePattern);
         state.MouthState.CasualFlameCount = pattern.FlameCount;
         state.MouthState.CasualFlameHold = pattern.IntervalBefore(pattern.FlameCount);
@@ -326,7 +326,7 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if ((_room.Random.Generate() & 1) != 0)
+        if (PhantoonRandomDefinitions.FigureEightStartsRight.IsSetIn(_room.Random.Generate()))
         {
             state.BodyState.PathCursor = 136;
             body.Position = body.Position.WithWholeX(208);
@@ -419,7 +419,7 @@ internal sealed class PhantoonPatterns
             return;
 
         state.BodyState.Function = PhantoonAiFunction.SpawnFlameRain;
-        state.BodyState.FunctionTimer = PhantoonTimerDefinitions.RainHiding[_room.Random.Generate() & 7];
+        state.BodyState.FunctionTimer = PhantoonTimerDefinitions.RainHiding[_room.Random.Next(PhantoonRandomDefinitions.RainHidingChoice)];
     }
 
     /// <summary>Emits the scheduled rain pattern while Phantoon is hidden.</summary>
@@ -430,7 +430,7 @@ internal sealed class PhantoonPatterns
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.BodyState))
             return;
 
-        int pattern = _room.Random.Generate() & 7;
+        int pattern = _room.Random.Next(PhantoonRandomDefinitions.FlameRainPattern);
         var placement = PhantoonFlameRain.RainPlacement(pattern);
         state.BodyState.PathCursor = placement.Cursor;
         body.Position = body.Position.WithWhole(placement.Position);
@@ -676,7 +676,7 @@ internal sealed class PhantoonPatterns
         PhantoonEnemyState state)
     {
         state.BodyState.FunctionTimer = 60;
-        state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Generate() & 7];
+        state.EyeState.ClosedTimer = PhantoonTimerDefinitions.EyeClosed[_room.Random.Next(PhantoonRandomDefinitions.EyeClosedChoice)];
         if ((_frameContext.FrameCounter & 1) != 0)
         {
             if (!state.EyeState.FigureEightReversed)

@@ -1,0 +1,35 @@
+namespace SuperMetroid.Core.Bosses.Crocomire;
+
+/// <summary>The random choices of Crocomire's fight and death: its dust, its acid smoke and its bridge's fragments.</summary>
+internal static class CrocomireRandomDefinitions
+{
+    /// <summary>A dying Crocomire's acid smoke offset from its body's X, 0 through 63 pixels: the sample's bits 0-5.</summary>
+    internal static readonly RandomSampleField AcidSmokeXOffset = new(0, 6);
+
+    /// <summary>
+    /// Whether the acid smoke keeps its offset to the right of the body, bit one; when clear the offset is complemented
+    /// and the smoke rises to the left.
+    /// </summary>
+    internal static readonly RandomSampleField AcidSmokeOnRight = new(1, 1);
+
+    /// <summary>
+    /// How far above the acid surface's line sixteen pixels down the smoke starts, 0 through 31 pixels: the sample's
+    /// bits 8-12, from its upper random byte.
+    /// </summary>
+    internal static readonly RandomSampleField AcidSmokeRise = new(8, 5);
+
+    /// <summary>A crumbling bridge fragment's added fall speed, 0 through 63 in 256ths of a pixel: the sample's bits 0-5.</summary>
+    internal static readonly RandomSampleField BridgeFragmentFallSpeed = new(0, 6);
+
+    /// <summary>A foot dust puff's jitter to the right of its offset, 0 through 7 pixels: the sample's bits 0-2.</summary>
+    internal static readonly RandomSampleField DustJitter = new(0, 3);
+
+    /// <summary>
+    /// The spread of the dust Crocomire raises walking toward the spike wall, 0 through 15 pixels added to its side's
+    /// offset: the sample's bits 0-3.
+    /// </summary>
+    internal static readonly RandomSampleField SpikeWallDustSpread = new(0, 4);
+
+    /// <summary>A random foot dust puff's distance from the body, 0 through 31 pixels on either side: the sample's bits 0-4.</summary>
+    internal static readonly RandomSampleField FootDustOffset = new(0, 5);
+}

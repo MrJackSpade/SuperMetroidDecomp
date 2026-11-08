@@ -116,7 +116,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the RNG. Use the read callback when available and reserve NextRandom for older
         // isolated callers that did not expose that seam.
         int random = ReadFakeKraidRandomNumber();
-        int seedDelay = (random & 3) + 2;
+        int seedDelay = KraidRandomDefinitions.FakeKraidStartDelay.Of(random) + 2;
         state.WalkStepTimer = seedDelay;
         state.SpitDecisionTimer = seedDelay;
         state.SpikeTimers[FakeKraidSpikeRow.Top] = seedDelay + 64;

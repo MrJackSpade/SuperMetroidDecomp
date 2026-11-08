@@ -261,7 +261,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(
-                new(random % 64 + 96, SharedRandomState.UpperByte(random) % 16 + 480),
+                new(SporeSpawnRandomDefinitions.IdleDustX.Of(random) + 96, SporeSpawnRandomDefinitions.IdleDustY.Of(random) + 480),
                 RoomSpriteObjectKind.DustCloud,
                 graphics: default);
         }
@@ -616,7 +616,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + random % 128 - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 128 - 64)),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + SporeSpawnRandomDefinitions.HardeningDustX.Of(random) - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SporeSpawnRandomDefinitions.HardeningDustY.Of(random) - 64)),
             MiscDustAnimation.BigDustCloud);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.HardeningDust);
     }
@@ -626,7 +626,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
         _ = _spriteObjects.SpawnRoomSpriteObject(
-            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + random % 128 - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 64 - 32)),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + SporeSpawnRandomDefinitions.DyingExplosionX.Of(random) - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SporeSpawnRandomDefinitions.DyingExplosionY.Of(random) - 32)),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
             graphics: default);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
@@ -638,7 +638,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int index = 0; index < 16; index++)
         {
             int random = _room.Random.Generate();
-            Position16<RoomPixels> drop = new(random % 128 + 64, SharedRandomState.UpperByte(random) % 64 + 528);
+            Position16<RoomPixels> drop = new(SporeSpawnRandomDefinitions.DropX.Of(random) + 64, SporeSpawnRandomDefinitions.DropY.Of(random) + 528);
             SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(drop, EnemyDefinitionId.SporeSpawn);
         }
@@ -736,7 +736,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (emitter.ReleaseWait.IsZero)
         {
             spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerRelease));
-            emitter.ReleaseWait = WrappingCountdown.Start(_room.Random.Generate() % 512);
+            emitter.ReleaseWait = WrappingCountdown.Start(_room.Random.Next(SporeSpawnRandomDefinitions.SporeReleaseWait));
         }
         emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;
     }

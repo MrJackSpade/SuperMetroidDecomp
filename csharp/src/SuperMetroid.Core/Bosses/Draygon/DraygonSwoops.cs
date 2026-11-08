@@ -151,7 +151,7 @@ internal sealed class DraygonSwoops
         {
             state.SwoopEntry = 0;
             int random = _room.Random.Read();
-            state.Function = (random & 1) != 0
+            state.Function = DraygonRandomDefinitions.SwoopRatherThanGoop.IsSetIn(random)
                 ? DraygonAiFunction.SwoopLeftSetup
                 : DraygonAiFunction.GoopLeftSetup;
             return;
@@ -159,7 +159,7 @@ internal sealed class DraygonSwoops
 
         int choice = _room.Random.Read();
         body.Position = body.Position.WithWholeX(state.LeftSideReset.X);
-        if ((choice & 1) != 0)
+        if (DraygonRandomDefinitions.SwoopRatherThanGoop.IsSetIn(choice))
         {
             state.SwoopEntry = 0;
             body.Position = body.Position.WithWholeY(state.LeftSideReset.Y);

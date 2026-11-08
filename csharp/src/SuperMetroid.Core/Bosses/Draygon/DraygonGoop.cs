@@ -105,7 +105,7 @@ internal sealed class DraygonGoop
         }
 
         int random = _room.Random.Read();
-        if ((random & 15) == 0)
+        if (DraygonRandomDefinitions.GoopVolleyStep.Of(random) == 0)
         {
             if (--state.GoopCounter == 0)
             {

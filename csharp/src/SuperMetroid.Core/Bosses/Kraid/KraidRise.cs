@@ -290,7 +290,7 @@ internal sealed class KraidRise
     {
         state.RiseRockSpawnRequestCount++;
         int random = _access.ReadKraidRandomNumber();
-        RoomEnemyProjectileKind kind = (random & 16) != 0
+        RoomEnemyProjectileKind kind = KraidRandomDefinitions.RisingRockRight.IsSetIn(random)
             ? RoomEnemyProjectileKind.KraidRisingRockRight
             : RoomEnemyProjectileKind.KraidRisingRockLeft;
         RoomEnemyProjectileSlot? rock = _projectiles.AllocateEnemyProjectile();
@@ -302,11 +302,11 @@ internal sealed class KraidRise
             ? KraidRockProgram.RisingRightPose
             : KraidRockProgram.SharedPose));
         // The rock initializer tests bit zero: clear complements the offset to the left.
-        int randomOffset = random & 63;
-        if ((random & 1) == 0)
+        int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
+        if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
             randomOffset = CoordinateAxis.AsSigned(~randomOffset);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
-        rock.Velocity = new(SignedEightEight.FromSignedRaw(random & 1008), SignedEightEight.FromSignedRaw(-1280));
+        rock.Velocity = new(SignedEightEight.FromSignedRaw(KraidRandomDefinitions.RisingRockXSpeedSteps.Of(random) * KraidRandomDefinitions.RisingRockXSpeedStep), SignedEightEight.FromSignedRaw(-1280));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         state.SpawnedRiseRockCount++;
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);

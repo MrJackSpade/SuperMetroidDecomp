@@ -64,7 +64,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // 32nd enemy frame that idle route may ask the posture helper to alternate
         // between standing and leaning down. This is visible body bytecode, not a
         // direct pose assignment, so retain the separate instruction-stage delay.
-        if (frame.RandomNumberSeed.LowBits(12) < 4000)
+        if (frame.RandomNumberSeed.Read(MotherBrainRandomDefinitions.FinishOffAttackRoll) < 4000)
         {
             if ((frame.EnemyFrameCounter & 31) == 0)
                 requests.BodyPostureRequested = _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
@@ -75,7 +75,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // rings. Only when Samus is above it does the top 16/4096 RNG band choose a
         // bomb; all remaining admitted values still choose two onion rings.
         if (CalculateFinishOffHealthThreshold(samus, 160) >= samus.Health ||
-            frame.RandomNumberSeed.LowBits(12) < 4080)
+            frame.RandomNumberSeed.Read(MotherBrainRandomDefinitions.FinishOffAttackRoll) < 4080)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.TwoOnionRingsPhase2);
         }

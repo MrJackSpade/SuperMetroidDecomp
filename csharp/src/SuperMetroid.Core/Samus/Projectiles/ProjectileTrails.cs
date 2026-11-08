@@ -23,19 +23,11 @@ internal sealed class ProjectileTrails
     /// <summary>Selects trail animations and positions both sides from the shot's current animation record.</summary>
     internal void SpawnTrail(SamusProjectileSlot projectile)
     {
-        int trailEntry;
         switch (projectile.Type.Family)
         {
             case SamusProjectileFamily.Beam:
-                // Beams select by their beam-table row, so charged plain power selects
-                // the charged row, not ordinary power's.
-                trailEntry = projectile.Type.BeamTableRow;
-                break;
             case SamusProjectileFamily.Missile:
-                trailEntry = ProjectileTrailDefinitions.FirstSpecialSelection;
-                break;
             case SamusProjectileFamily.SuperMissile:
-                trailEntry = ProjectileTrailDefinitions.FirstSpecialSelection + 1;
                 break;
             case SamusProjectileFamily.PowerBomb:
             case SamusProjectileFamily.Bomb:
@@ -47,8 +39,8 @@ internal sealed class ProjectileTrails
                 throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectile.Type.Family}.");
         }
 
-        ProjectileTrailProgram left = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Left);
-        ProjectileTrailProgram right = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Right);
+        // Beams select by their beams and charge, so charged plain power selects the charged trail, not ordinary power's.
+        ProjectileTrailPrograms programs = ProjectileTrailSelection.Select(projectile.Type);
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
@@ -74,8 +66,8 @@ internal sealed class ProjectileTrails
 
         trail.Left.FrameHold = 1;
         trail.Right.FrameHold = 1;
-        trail.Left.Cursor = new ProjectileTrailCursor(left, 0);
-        trail.Right.Cursor = new ProjectileTrailCursor(right, 0);
+        trail.Left.Cursor = new ProjectileTrailCursor(programs.Left, 0);
+        trail.Right.Cursor = new ProjectileTrailCursor(programs.Right, 0);
         trail.Left.Position = trail.Left.Position.WithX(AddOffset(projectile.Position.X.Whole, placement.Left.X))
             .WithY(AddOffset(projectile.Position.Y.Whole, placement.Left.Y));
         trail.Right.Position = trail.Right.Position.WithX(AddOffset(projectile.Position.X.Whole, placement.Right.X))

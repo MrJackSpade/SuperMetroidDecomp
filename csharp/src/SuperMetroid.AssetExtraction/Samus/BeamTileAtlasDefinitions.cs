@@ -21,7 +21,7 @@ public static class BeamTileAtlasDefinitions
     /// <exception cref="ArgumentOutOfRangeException">The artwork ordinal is outside 0..13.</exception>
     public static SamusBeamCombination SelectionAt(int index) => index == SelectionCount ? SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection :
         index == SelectionCount + 1 ? SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection : (uint)index < SelectionCount
-            ? SamusBeamCombinations.FromTableIndex(index) : throw new ArgumentOutOfRangeException(nameof(index));
+            ? SamusBeamCombinationTableOrder.FromTableIndex(index) : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>The artwork-catalog ordinal of a combination's sheet: the inverse of <see cref="SelectionAt"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork.</exception>

@@ -11,28 +11,13 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 internal static class ProjectileTrailDefinitionsVerification
 {
     /// <summary>
-    /// Compares both selector tables' words and every trailing shot's spawn choices with retail data, and requires a
-    /// selection past the tables, which no trailing shot makes, to be rejected (#1500).
+    /// Compares every trailing shot's spawn choices with the selector words the trail spawner reads for it, and requires
+    /// the Shinespark crash's echo, which spawns no trail, to be rejected (#1500).
     /// </summary>
     internal static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailCoordinates), () => VerifyProjectileTrailCoordinates(bus));
         int start = SamusProjectileRomDataTrailsConstants.LeftInstructionPointers;
-        int end = SamusProjectileRomDataTrailsConstants.RightInstructionPointers +
-            SamusProjectileRomDataTrailsConstants.InstructionPointerCount * sizeof(ushort);
-        for (int address = start; address < end; address += sizeof(ushort))
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailDefinitions.ReadSelector(address),
-                "Trail selectors retain every aligned native word of both tables");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the word past the right table");
-        // The game indexes both tables with six bits, but no trailing shot's selection passes the tables' thirty-nine.
-        for (int selection = SamusProjectileRomDataTrailsConstants.InstructionPointerCount; selection < 64; selection++)
-        {
-            foreach (HorizontalDirection side in (HorizontalDirection[])[HorizontalDirection.Left, HorizontalDirection.Right])
-                AssertThrows<ArgumentOutOfRangeException>(() => ProjectileTrailSelection.Select(selection, side),
-                    $"Trail selection {selection} past the {side} table is rejected");
-        }
         int spawned = 0;
         for (int selection = 0; selection < 64; selection++)
         {
@@ -66,6 +51,6 @@ internal static class ProjectileTrailDefinitionsVerification
             Position = new(new(100, 0), new(200, 0)),
         };
         AssertThrows<ArgumentOutOfRangeException>(() => echoProjectiles.Trails.SpawnTrail(echo), "A Shinespark echo's selection past the trail tables is rejected");
-        Console.WriteLine($"Trail selectors: both tables' native words, the rejected selections past them and {spawned} real spawn selections pass.");
+        Console.WriteLine($"Trail selectors: {spawned} real spawn selections and the rejected echo pass.");
     }
 }

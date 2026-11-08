@@ -1,45 +1,15 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The acceleration each projectile reads from its motion table.</summary>
+/// <summary>The acceleration each projectile takes by its direction.</summary>
 internal static class SamusProjectileAccelerations
 {
     /// <summary>
-    /// The signed acceleration, in 8.8 pixels per update per update, of the missile, Super Missile and beam acceleration
-    /// table entry at <paramref name="offset"/>.
+    /// The accelerations of a projectile moving in <paramref name="direction"/>. A projectile's direction is always one
+    /// of the ten firing directions, so no read passes the tables.
     /// </summary>
-    /// <param name="offset">The entry's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
-    internal static int Read(int offset)
-    {
-        // The stored data starts at an odd offset. Only aligned words in that layout belong to this catalog.
-        int tableOffset = offset - SamusFiringTableDefinitions.MissileAccelerations;
-        if (tableOffset >= 0 && (tableOffset & 1) == 0)
-        {
-            int index = tableOffset / 2;
-            if (index < 20)
-                return Acceleration(index / 2, (index & 1) != 0, 64, 54);
-            index = (offset - SamusFiringTableDefinitions.SuperMissileAccelerations) / 2;
-            if (offset >= SamusFiringTableDefinitions.SuperMissileAccelerations && index < 20)
-                return Acceleration(index / 2, (index & 1) != 0, 256, 182);
-            index = (offset - SamusFiringTableDefinitions.BeamXAccelerations) / 2;
-            if (offset >= SamusFiringTableDefinitions.BeamXAccelerations && index < 20)
-                return Acceleration(index % 10, index >= 10, 16, 16);
-        }
-        throw new InvalidDataException(
-            $"Projectile motion word at firing-table offset {offset} is outside the compiled definitions.");
-    }
-
-    /// <summary>
-    /// The ten facing-dependent directions cover eight compass
-    /// octants, with duplicated down and up directions. Project each acceleration
-    /// magnitude onto the selected signed axis; diagonal magnitudes remain the
-    /// missile54 / super182, while beam acceleration uses16 on either axis.
-    /// </summary>
-    private static int Acceleration(int direction, bool yAxis, int cardinal, int diagonal)
-    {
-        int octant = (direction - (direction >= 5 ? 1 : 0)) & 7;
-        int sign = yAxis
-            ? octant is 0 or 1 or 7 ? -1 : octant is 3 or 4 or 5 ? 1 : 0
-            : octant is >= 1 and <= 3 ? 1 : octant is >= 5 and <= 7 ? -1 : 0;
-        return sign * ((octant & 1) == 0 ? cardinal : diagonal);
-    }
+    /// <exception cref="InvalidDataException">The direction is not one of the ten firing directions.</exception>
+    internal static SamusDirectionAccelerations For(SamusProjectileDirection direction) =>
+        SamusProjectileMotionDefinitions.Accelerations.TryGetValue(direction, out SamusDirectionAccelerations? accelerations)
+            ? accelerations
+            : throw new InvalidDataException($"Projectile direction {direction} is not a firing direction.");
 }

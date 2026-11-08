@@ -102,7 +102,8 @@ internal sealed class BeamCombos
                     : kind == SamusComboKind.Spazer && i >= 2 ? BeamComboData.Echo : BeamComboData.Combo);
             }
             _slotTable.ProjectileCounter = 4;
-            shared.SetSharedCooldown(SamusProjectileCooldowns.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + _slotTable.Slots[0].Type.BeamTableRow));
+            // The attack waits the cooldown of its first slot's projectile: the combination's charged shot.
+            shared.SetSharedCooldown(SamusProjectileCooldowns.Read(beam, BeamShotCooldowns.Shot.Charged));
             ComboState = kind == SamusComboKind.Spazer ? 0
                 : kind == SamusComboKind.Wave || SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? 4 : -4;
             sound = kind switch

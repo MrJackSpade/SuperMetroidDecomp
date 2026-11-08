@@ -17,7 +17,7 @@ internal static class SamusPaletteRecognition
         var palettes = new Dictionary<TableColourPlace, RgbColor>();
         for (int index = 0; index < selections.Length; index++)
             for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
-                if (selections[index][color] != BeamPaint.Color(SamusBeamCombinations.FromTableIndex(index), color))
+                if (selections[index][color] != BeamPaint.Color(SamusBeamCombinationTableOrder.FromTableIndex(index), color))
                     palettes.Add(new TableColourPlace(index, color), selections[index][color]);
         return new(palettes);
     }

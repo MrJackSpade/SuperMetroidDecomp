@@ -378,7 +378,7 @@ public static class SamusArmCannonArtworkFormat
         {
             int costOffset = position - AdjacentCostStart;
             int cost = SamusComboMechanics.GetPowerBombCost(
-                SamusBeamCombinations.FromTableIndex(costOffset / sizeof(ushort)));
+                SamusBeamCombinationTableOrder.FromTableIndex(costOffset / sizeof(ushort)));
             value = (byte)(cost >> ((costOffset & 1) * 8));
             return true;
         }

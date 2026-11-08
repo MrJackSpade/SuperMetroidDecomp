@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Progression;
 /// <summary>
 /// The combination of beams a beam projectile carries, which selects its damage, speed, trails, sounds and enemy
 /// vulnerability. Retail equipment never pairs Spazer with Plasma; the four combinations that do are reachable only
-/// through glitched equipment. Its values are arbitrary; <see cref="SamusBeamCombinations"/> owns the order the game's
-/// tables index combinations by.
+/// through glitched equipment. Its values are arbitrary and nothing reads them; <see cref="SamusBeamCombinations"/> owns
+/// each combination's beam components.
 /// </summary>
 public enum SamusBeamCombination
 {

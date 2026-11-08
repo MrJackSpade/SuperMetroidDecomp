@@ -7,8 +7,9 @@ public static class RgbColorFadeLevels
     extension(RgbColor colour)
     {
         /// <summary>
-        /// The colour's levels: exact for every colour the game authored, which each lie on the scale; any other colour
-        /// is rejected (<see cref="FadeLevelColour.Of"/>).
+        /// The colour's levels: exact for every colour the game shows, which each lie on the fade scale; any other colour
+        /// is rejected (<see cref="FadeLevelColour.Of"/>). Each read looks the levels up again, so code that reads several
+        /// of a colour's levels takes them once.
         /// </summary>
         public FadeLevelColour FadeLevels => FadeLevelColour.Of(colour);
     }

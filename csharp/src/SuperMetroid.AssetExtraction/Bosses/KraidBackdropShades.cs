@@ -161,10 +161,10 @@ internal static class KraidBackdropShades
         var faded = new RgbColor[from.Length];
         for (int colour = 0; colour < faded.Length; colour++)
         {
-            RgbColor current = from[colour];
+            FadeLevelColour current = from[colour].FadeLevels, toward = to[colour].FadeLevels;
             foreach (int step in Values(steps))
-                current = GradualColourFade.Step(step, current, to[colour], Denominator);
-            faded[colour] = current;
+                current = GradualColourFade.Step(step, current, toward, Denominator);
+            faded[colour] = current.ToColour();
         }
         return faded;
     }

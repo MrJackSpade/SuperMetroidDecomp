@@ -89,10 +89,10 @@ internal static class PhantoonSheetShades
         var faded = new RgbColor[start.Length];
         for (int ink = 0; ink < faded.Length; ink++)
         {
-            RgbColor current = start[ink];
+            FadeLevelColour current = start[ink].FadeLevels, toward = goal[ink].FadeLevels;
             for (int step = first; step <= last; step++)
-                current = GradualColourFade.Step(step, current, goal[ink], denominator);
-            faded[ink] = current;
+                current = GradualColourFade.Step(step, current, toward, denominator);
+            faded[ink] = current.ToColour();
         }
         return faded;
     }

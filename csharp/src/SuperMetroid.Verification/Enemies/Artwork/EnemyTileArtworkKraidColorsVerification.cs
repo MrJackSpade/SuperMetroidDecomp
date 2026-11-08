@@ -206,7 +206,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             }
             AssertTrue(value % 2 == 0, $"the fade back takes every other counter value during the door's fade, not {value}");
             for (int colour = 0; colour < expected.Length; colour++)
-                expected[colour] = GradualColourFade.Step(value, expected[colour], fixture.Kraid[colour], denominator);
+                expected[colour] = GradualColourFade.Step(value, expected[colour].FadeLevels, fixture.Kraid[colour].FadeLevels, denominator).ToColour();
             AssertKraidBackdropShows(fixture, expected, $"Kraid's fade back during the door's fade at counter {value}");
         }
     }
@@ -260,7 +260,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 return;
             }
             for (int colour = 0; colour < expected.Length; colour++)
-                expected[colour] = GradualColourFade.Step(value, expected[colour], goal[colour], denominator);
+                expected[colour] = GradualColourFade.Step(value, expected[colour].FadeLevels, goal[colour].FadeLevels, denominator).ToColour();
             AssertKraidBackdropShows(fixture, expected, $"{label} at counter {value}");
             AssertTrue(++steps <= KraidShades.BackdropFadeShades, $"{label} completes after its shades");
             if (value == untilCounter)

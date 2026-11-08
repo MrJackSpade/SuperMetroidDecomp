@@ -1,23 +1,24 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Frontend;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Assets;
 
 /// <summary>
-/// Checks the plain colour, the game's colour levels and the import's colour word (#627, #1544): every stored word decodes
+/// Checks the plain colour, the game's fade scale and the import's colour word (#627, #1544): every stored word decodes
 /// to its levels and shows each level spread by bit replication, so pictures imported from the cartridge show as before;
-/// a plain colour's channels are bounded and its blend, scale and addition are plain fractions; levels round-trip and the
-/// nearest levels of any plain colour are the closest the scale comes to it.
+/// a plain colour's channels are bounded; levels round-trip, a colour off the scale has no levels and no stored word, and
+/// the fades step on the levels as the game does.
 /// </summary>
 internal static class RgbColorDomainVerification
 {
     /// <summary>
     /// #1544: the import's colour word, the levels and the plain colour agree. Every 15-bit word round-trips through its
     /// plain colour and decodes to its levels; bit 15 is rejected except where it is dropped; each level shows its
-    /// bit-replicated eight-bit value; a colour off the scale is rejected by its exact levels and stored at its nearest;
-    /// plain colour channels are 0-255 and the colour operations are the fractions they name.
+    /// bit-replicated eight-bit value; a colour off the scale has no levels and no stored word; plain colour channels are
+    /// 0-255; a level fade, the opening's cross-fade and the white wash show the colours of the levels they step to.
     /// </summary>
     internal static void VerifyRgbColorDomain()
     {
@@ -30,7 +31,6 @@ internal static class RgbColorDomainVerification
             AssertEqual(word >> 5 & 31, levels.Green, $"word ${word:X4} green level");
             AssertEqual(word >> 10 & 31, levels.Blue, $"word ${word:X4} blue level");
             AssertEqual(color, levels.ToColour(), $"word ${word:X4} levels show its colour");
-            AssertEqual(levels, FadeLevelColour.Nearest(color), $"word ${word:X4} is its own nearest levels");
             AssertEqual(color, RgbColor.FromWordIgnoringTopBit((ushort)(word | 0x8000)), $"a dropped bit 15 leaves ${word:X4}");
         }
         for (int word = 0x8000; word <= 0xffff; word += 0x111)
@@ -43,7 +43,7 @@ internal static class RgbColorDomainVerification
         {
             RgbaPixel rgba = new FadeLevelColour(level, level, level).ToColour().ToRgbaPixel();
             int expanded = level << 3 | level >> 2;
-            AssertEqual(expanded, FadeLevelColour.ChannelOf(level), $"level {level} spreads by bit replication");
+            AssertEqual(expanded, new FadeLevelColour(level, 0, 0).ToColour().Red, $"level {level} spreads by bit replication");
             AssertTrue(rgba.R == expanded && rgba.G == expanded && rgba.B == expanded && rgba.A == 255,
                 $"level {level} shows its plain value in every component, opaquely");
         }
@@ -51,31 +51,26 @@ internal static class RgbColorDomainVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new FadeLevelColour(0, -1, 0), "negative green level");
         AssertThrows<ArgumentOutOfRangeException>(() => _ = RgbColor.White.FadeLevels[(ColorChannel)3], "undefined channel");
 
-        // A plain colour off the scale has no exact levels and is stored at its nearest.
+        // A plain colour off the scale has no levels and no stored word: every colour the game shows lies on the scale.
+        var levelChannels = new HashSet<int>(Enumerable.Range(0, FadeLevelColour.FullLevel + 1).Select(level => new FadeLevelColour(level, 0, 0).ToColour().Red));
         for (int channel = 0; channel <= RgbColor.FullChannel; channel++)
         {
+            if (levelChannels.Contains(channel))
+                continue;
             var plain = new RgbColor(channel, 0, 0);
-            int nearest = FadeLevelColour.Nearest(plain).Red;
-            for (int level = 0; level <= FadeLevelColour.FullLevel; level++)
-                AssertTrue(Math.Abs(FadeLevelColour.ChannelOf(level) - channel) >= Math.Abs(FadeLevelColour.ChannelOf(nearest) - channel),
-                    $"channel {channel}'s nearest level {nearest} is no farther than level {level}");
-            AssertEqual(nearest, RgbColor.FromWord(plain.ToWord()).FadeLevels.Red, $"channel {channel} is stored at its nearest level");
-            if (FadeLevelColour.ChannelOf(nearest) != channel)
-                AssertThrows<ArgumentException>(() => _ = plain.FadeLevels, $"channel {channel} has no exact level");
+            AssertThrows<ArgumentException>(() => _ = plain.FadeLevels, $"channel {channel} has no level");
+            AssertThrows<ArgumentException>(() => _ = plain.ToWord(), $"channel {channel} has no stored word");
         }
 
-        // Plain colours: bounded channels and plain fractions.
+        // Plain colours: bounded channels.
         AssertThrows<ArgumentOutOfRangeException>(() => new RgbColor(256, 0, 0), "red above full");
         AssertThrows<ArgumentOutOfRangeException>(() => new RgbColor(0, -1, 0), "negative green");
-        var from = new RgbColor(10, 100, 250);
-        var to = new RgbColor(250, 0, 10);
-        AssertEqual(from, from.Blend(to, 0, 7), "a blend none of the way is the colour");
-        AssertEqual(to, from.Blend(to, 7, 7), "a blend all of the way is the far colour");
-        AssertEqual(new RgbColor(130, 50, 130), from.Blend(to, 1, 2), "a blend halfway");
-        AssertEqual(new RgbColor(44, 86, 216), from.Blend(to, 1, 7), "a blend rounds toward the colour");
-        AssertEqual(RgbColor.Black, from.Scaled(0, 5), "a colour scaled to none is black");
-        AssertEqual(new RgbColor(4, 40, 100), from.Scaled(2, 5), "a scaled colour rounds down");
-        AssertEqual(new RgbColor(255, 100, 255), from.Plus(to), "an added colour holds each channel at full");
+
+        // The fades step on the levels: half of full white's level 31 is level 15, which shows 123, not half of 255.
+        AssertEqual(new FadeLevelColour(15, 15, 15).ToColour(), new ColourLevel(1, 2).Apply(RgbColor.White),
+            "the cross-fade halves each level, rounding down");
+        AssertEqual(new RgbColor(123, 123, 123), new ColourLevel(1, 2).Apply(RgbColor.White), "level 15 shows 123");
+        AssertEqual(new RgbColor(33, 33, 33), WhiteWash.Colour(4), "a white wash with four steps left shows level four");
 
         // CGRAM: the port boundary keeps fifteen bits, typed writes store exactly.
         RgbColor sample = new FadeLevelColour(3, 9, 27).ToColour();
@@ -94,6 +89,6 @@ internal static class RgbColorDomainVerification
         AssertTrue(cgram.Colors.ToArray().All(colour => fade.Toward(RgbColor.White).Apply(colour) == RgbColor.White),
             "typed gradual fade shows its exact target");
 
-        Console.WriteLine("RgbColor domain: all 32768 words, levels, nearest levels, plain channel bounds, colour operations, and CGRAM agree.");
+        Console.WriteLine("RgbColor domain: all 32768 words, levels, off-scale rejection, plain channel bounds, level fades, and CGRAM agree.");
     }
 }

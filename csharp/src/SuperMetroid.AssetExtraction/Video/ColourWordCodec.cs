@@ -64,12 +64,12 @@ internal static class ColourWordCodec
     {
         /// <summary>
         /// The packed 15-bit word, for the cartridge's, colour memory's and installed documents' stores: the colour's own
-        /// levels when it lies on the scale, as every authored colour does, and its nearest levels when a plain blend or
-        /// scale made it (<see cref="FadeLevelColour.Nearest"/>), so an installed fade's step keeps the closest stored colour.
+        /// levels, as every colour the game shows, its fades' steps among them, lies on the fade scale.
         /// </summary>
+        /// <exception cref="ArgumentException">The colour is off the fade scale (<see cref="FadeLevelColour.Of"/>).</exception>
         internal ushort ToWord()
         {
-            FadeLevelColour levels = FadeLevelColour.Nearest(colour);
+            FadeLevelColour levels = colour.FadeLevels;
             return (ushort)(levels.Red | (levels.Green << GreenShift) | (levels.Blue << BlueShift));
         }
     }

@@ -23,4 +23,13 @@ internal static class RidleyRandomDefinitions
 
     /// <summary>Ceres Ridley's new tail curliness, 0 through 15 added to eight: the sample's bits 0-3.</summary>
     internal static readonly RandomSampleField TailCurliness = new(0, 4);
+
+    /// <summary>Norfair Ridley's roll for fireballing out of his pogo, taken at 128 or more: the sample's low byte.</summary>
+    internal static readonly RandomSampleField PogoFireballRoll = new(0, 8);
+
+    /// <summary>Ridley's roll for a tail whip, taken at 240 or more: the sample's low byte.</summary>
+    internal static readonly RandomSampleField TailWhipRoll = new(0, 8);
+
+    /// <summary>Ceres Ridley's roll for changing his tail's curliness, taken only at 255: the sample's upper byte.</summary>
+    internal static readonly RandomSampleField TailCurlinessRoll = new(8, 8);
 }

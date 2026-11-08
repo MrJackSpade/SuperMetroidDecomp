@@ -46,12 +46,6 @@ public readonly record struct SharedRandomState
     public static byte UpperByte(int sample) => unchecked((byte)(RequireSample(sample) >> ByteBits));
 
     /// <summary>
-    /// Whether a sample, 0 through 65535, lies in the upper half of the random range (32768 or more): a coin flip the
-    /// game takes from the sample's top bit.
-    /// </summary>
-    public static bool IsInUpperHalf(int sample) => RequireSample(sample) >= StateSpan / 2;
-
-    /// <summary>
     /// The state after one advance (<c>$80:8111</c>): roughly the state times five plus 273. Each byte of the state is
     /// multiplied by five on its own, and the upper byte's product keeps only its own low byte; the products plus 256
     /// form the next state, plus 17, plus one more when the products plus 256 pass the end of the state's sixteen bits.

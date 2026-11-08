@@ -503,7 +503,7 @@ internal sealed class MotherBrainProjectiles
         state.HandBeamNextPosition = beam.Position;
 
         int angleRandom = _room.Random.Generate();
-        ByteAngle scatterAngle = new ByteAngle(state.HandBeamNextAngle).AddTableUnits(SharedRandomState.LowerByte(angleRandom));
+        ByteAngle scatterAngle = new ByteAngle(state.HandBeamNextAngle).AddTableUnits(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
         int speedRandom = _room.Random.Generate();
         int scatterSpeed = UnsignedEightEight.FromParts(whole: MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom), fraction: 0);
         beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
@@ -760,14 +760,14 @@ internal sealed class MotherBrainProjectiles
     /// <summary>Restarts the turret's wait before it chooses another firing direction.</summary>
     internal void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
-        int sample = SharedRandomState.LowerByte(_room.Random.Generate());
+        int sample = _room.Random.Next(MotherBrainRandomDefinitions.TurretRotationWait);
         turret.StateOf<MotherBrainTurretState>().RotationWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay);
     }
 
     /// <summary>Restarts the turret's pause between fired bullets.</summary>
     internal void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
-        int sample = SharedRandomState.LowerByte(_room.Random.Generate());
+        int sample = _room.Random.Next(MotherBrainRandomDefinitions.TurretFiringWait);
         turret.StateOf<MotherBrainTurretState>().FiringWait = Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown);
     }
 

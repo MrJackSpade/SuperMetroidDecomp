@@ -215,7 +215,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         // The pogo choice uses the existing RNG byte; it does not advance the generator.
-        if (SharedRandomState.LowerByte(_room.Random.Read()) >= 128 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
+        if (RidleyRandomDefinitions.PogoFireballRoll.Of(_room.Random.Read()) >= 128 && !state.Roaring && state.FacingDirection != RidleyFacing.Turning)
             CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
 
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))

@@ -32,4 +32,7 @@ internal static class DraygonRandomDefinitions
     /// random byte.
     /// </summary>
     internal static readonly RandomSampleField DyingScatterY = new(8, 7);
+
+    /// <summary>The roll that inserts a tail whip while Draygon holds Samus, which a zero value does: the sample's low byte.</summary>
+    internal static readonly RandomSampleField TailWhipRoll = new(0, 8);
 }

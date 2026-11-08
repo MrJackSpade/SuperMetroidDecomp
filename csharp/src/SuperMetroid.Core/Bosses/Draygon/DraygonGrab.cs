@@ -159,7 +159,7 @@ internal sealed class DraygonGrab
 
         // The current RNG word is sampled without advancing it. Turret cadence and other
         // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
-        if (SharedRandomState.LowerByte(_room.Random.Read()) == 0)
+        if (DraygonRandomDefinitions.TailWhipRoll.Of(_room.Random.Read()) == 0)
         {
             state.TailWhipTimer = DraygonBehavior.DraygonTailWhipDuration;
             state.Function = DraygonAiFunction.TailWhipWithSamus;

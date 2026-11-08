@@ -174,7 +174,7 @@ internal sealed class MotherBrainAttacks
         state.AttackCooldown = 64;
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
-        int randomLow = SharedRandomState.LowerByte(_room.Random.Read());
+        int randomLow = MotherBrainRandomDefinitions.AttackRoll.Of(_room.Random.Read());
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if (!Enum.IsDefined(movementType))
         {

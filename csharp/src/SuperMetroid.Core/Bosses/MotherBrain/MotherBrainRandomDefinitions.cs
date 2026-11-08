@@ -35,4 +35,16 @@ internal static class MotherBrainRandomDefinitions
 
     /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels: the sample's bits 8-10, from its upper random byte.</summary>
     internal static readonly RandomSampleField HandBeamScatterSpeed = new(8, 3);
+
+    /// <summary>The roll her attack choice compares against its thresholds: the sample's low byte.</summary>
+    internal static readonly RandomSampleField AttackRoll = new(0, 8);
+
+    /// <summary>A fired hand beam's scatter turn, in byte-angle units: the sample's low byte.</summary>
+    internal static readonly RandomSampleField HandBeamScatterTurn = new(0, 8);
+
+    /// <summary>A turret's wait before it chooses another direction, raised to its minimum: the sample's low byte.</summary>
+    internal static readonly RandomSampleField TurretRotationWait = new(0, 8);
+
+    /// <summary>A turret's pause between bullets, raised to its minimum: the sample's low byte.</summary>
+    internal static readonly RandomSampleField TurretFiringWait = new(0, 8);
 }

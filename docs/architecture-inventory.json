@@ -39453,6 +39453,32 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Assets.BlendOperation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/BlendOperation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.BlendedLayers",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/BlendedLayers.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Assets.CharacterSpriteDraw",
       "kind": "record",
       "scope": "test",
@@ -52663,19 +52689,6 @@
       "disposition": "constructor-parameters"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBlendingState",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBlendingState.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyFade",
       "kind": "record struct",
       "scope": "product",
@@ -52684,6 +52697,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyFade.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyLayer",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyLayer.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -52723,6 +52749,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyVisibility",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyVisibility.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyVisibilityEffect",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyVisibilityEffect.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBodyWaveEffect",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonBodyWaveEffect.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -53224,19 +53289,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonLayerControl",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonLayerControl.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonMotionDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -53659,19 +53711,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonWaveEffect",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonWaveEffect.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonWaveLength",
       "kind": "enum",
       "scope": "product",
@@ -53974,6 +54013,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresGetawayChamberWallDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresGetawayChamberWallDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresRidleyAfterburnDefinitions",
@@ -96642,19 +96694,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Fx.LayerBlendingConfiguration",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/LayerBlendingConfiguration.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.LiquidEffects",
       "kind": "static class",
       "scope": "product",
@@ -100407,19 +100446,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RenderingDiscriminantExtensions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/RenderingDiscriminantExtensions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.RoomEarthquake",
       "kind": "class",
       "scope": "product",
@@ -100446,17 +100472,30 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Fx.RoomFixedColor",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Fx.RoomEffectBlend",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFixedColor.cs"
+        "csharp/src/SuperMetroid.Core/Fx/RoomEffectBlend.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.RoomEffectBlendDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/RoomEffectBlendDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.RoomFxAnimatedTileFrameDefinitionAccess",
@@ -101365,6 +101404,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.RoomVisorAnimation",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/RoomVisorAnimation.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.ScrollingSkyBandDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -101735,19 +101787,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Gameplay.GameplayLatchedFixedColors",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/GameplayLatchedFixedColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Gameplay.GameplayLatchedScene",
       "kind": "record struct",
       "scope": "product",
@@ -101756,6 +101795,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Gameplay/GameplayLatchedScene.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.GameplayLatchedTints",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/GameplayLatchedTints.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -101850,6 +101902,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Gameplay.PerspectiveFloorScenery",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Gameplay/PerspectiveFloorScenery.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Gameplay.RoomBackgrounds",
@@ -105880,32 +105945,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rendering.BlendOperation",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/BlendOperation.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rendering.BlendedLayers",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/BlendedLayers.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rendering.BossLineScrolls",
       "kind": "static class",
       "scope": "product",
@@ -106894,6 +106933,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.TurningRoomScenery",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rendering/TurningRoomScenery.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Rendering.VramWordRange",
@@ -129670,11 +129722,7 @@
         "csharp/src/SuperMetroid.Core/World/AcceptedFrameBoundaryDependencies.cs"
       ],
       "partial": "none",
-      "disposition": "constructor-parameters",
-      "flags": [
-        "wide-dependencies"
-      ],
-      "justified": true
+      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.World.ActiveRoomState",

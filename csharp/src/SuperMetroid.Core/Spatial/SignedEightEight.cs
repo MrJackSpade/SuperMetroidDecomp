@@ -32,6 +32,25 @@ public readonly record struct SignedEightEight
     /// <summary>Whether the velocity points toward decreasing coordinates, leftward or upward.</summary>
     public bool IsNegative => SignedRawValue < 0;
 
+    /// <summary>The velocity's whole pixels, its fraction dropped toward negative infinity.</summary>
+    [IntegerQuantity("whole-pixel part of a signed 8.8 velocity")]
+    public int WholePixels => SignedRawValue >> 8;
+
+    /// <summary>The velocity halved, its lowest fraction bit dropped toward negative infinity.</summary>
+    public SignedEightEight Halved() => FromSignedRaw(SignedRawValue >> 1);
+
+    /// <summary>Whether <paramref name="left"/> is the slower velocity, comparing signed values.</summary>
+    public static bool operator <(SignedEightEight left, SignedEightEight right) => left.SignedRawValue < right.SignedRawValue;
+
+    /// <summary>Whether <paramref name="left"/> is the faster velocity, comparing signed values.</summary>
+    public static bool operator >(SignedEightEight left, SignedEightEight right) => left.SignedRawValue > right.SignedRawValue;
+
+    /// <summary>Whether <paramref name="left"/> is no faster than <paramref name="right"/>, comparing signed values.</summary>
+    public static bool operator <=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue <= right.SignedRawValue;
+
+    /// <summary>Whether <paramref name="left"/> is no slower than <paramref name="right"/>, comparing signed values.</summary>
+    public static bool operator >=(SignedEightEight left, SignedEightEight right) => left.SignedRawValue >= right.SignedRawValue;
+
     /// <summary>
     /// A velocity changed by an acceleration, as the game's velocity arithmetic adds them: a sum past the largest
     /// positive value continues from the most negative one and the reverse (<see cref="Wrapped"/>).

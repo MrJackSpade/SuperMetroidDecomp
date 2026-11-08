@@ -77,11 +77,13 @@ public sealed class SamusSuitPickupState
     private Position16<ScreenPixels> _lightBeamRight;
 
     /// <summary>
-    /// The unsigned 8.8 speed, in screen pixels per update, at which the beam's edges move apart or its wipe
-    /// advances; only X is meaningful. It starts at one pixel, accelerates during the curved widening, is halved at
-    /// the reveal and decelerates to a one-pixel minimum while the beam shrinks.
+    /// The speed, in screen pixels per update, at which the beam's edges move apart or its wipe advances. It starts at
+    /// one pixel, accelerates during the curved widening, is halved at the reveal and decelerates to a one-pixel minimum
+    /// while the beam shrinks. It stays positive and far below the sign of its 8.8 form: the curved widening moves the
+    /// left edge from column 108 by at least one pixel an update, so it accelerates for at most 108 updates and the speed
+    /// stays below 256 + 108 * 96 = 10624 256ths of a pixel.
     /// </summary>
-    public EightEightVector<ScreenPixels> LightBeamWideningVelocity { get; private set; }
+    private SignedEightEight _lightBeamSpeed;
 
     /// <summary>The colour the light beam adds inside its window.</summary>
     public RgbColor FixedColor { get; private set; }
@@ -112,7 +114,7 @@ public sealed class SamusSuitPickupState
         _lightBeamRight = Position16<ScreenPixels>.Zero;
         _frameBehaviorInstallCallsRemaining = 2;
         PublishSharedScratch(samus);
-        LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.InitialWideningSpeed);
+        _lightBeamSpeed = SuitPickupBeamDefinitions.InitialWideningSpeed;
         Beam = SamusSuitPickupBeam.None;
 
         // The suit pickup cancels every independent speed component before
@@ -261,7 +263,7 @@ public sealed class SamusSuitPickupState
     {
         // The widening speed stays a few pixels per update, so the edges stay inside the screen row: the left one
         // stops below 97 long before it would pass zero.
-        int amount = EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
+        int amount = _lightBeamSpeed.WholePixels;
         int left = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) - amount;
         int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) + amount;
         _lightBeamLeft = ScreenColumn(left);
@@ -280,7 +282,7 @@ public sealed class SamusSuitPickupState
     {
         AdvanceColorTowardWhite();
 
-        int amount = EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
+        int amount = _lightBeamSpeed.WholePixels;
         int oldLeft = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X);
         int left = oldLeft - amount;
         int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X);
@@ -301,12 +303,12 @@ public sealed class SamusSuitPickupState
         // Stage two widens this column by the authored curve on each scanline.
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
-        LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
+        _lightBeamSpeed += SuitPickupBeamDefinitions.WideningAcceleration;
         if (SuitPickupBeamEdges.Columns(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
-            // The unsigned speed halves, truncating its lowest fraction bit.
-            LightBeamWideningVelocity = WideningVelocity(LightBeamWideningVelocity.X.RawValue / 2);
+            // The speed halves, truncating its lowest fraction bit.
+            _lightBeamSpeed = _lightBeamSpeed.Halved();
             _lightBeamScanlines = 0;
         }
     }
@@ -339,14 +341,16 @@ public sealed class SamusSuitPickupState
 
         // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128, so it
         // stays far inside the range where the game's signed comparison is this ordinary one.
-        _lightBeamScanlines += EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
+        _lightBeamScanlines += _lightBeamSpeed.WholePixels;
         // The final curved column is wiped by this many scanlines from the top. The game's
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 
         // The speed never falls below its minimum, so one deceleration stays far above zero.
-        int decelerated = LightBeamWideningVelocity.X.RawValue - SuitPickupBeamDefinitions.ShrinkingDeceleration;
-        LightBeamWideningVelocity = WideningVelocity(Math.Max(decelerated, SuitPickupBeamDefinitions.MinimumShrinkingSpeed));
+        SignedEightEight decelerated = _lightBeamSpeed - SuitPickupBeamDefinitions.ShrinkingDeceleration;
+        _lightBeamSpeed = decelerated < SuitPickupBeamDefinitions.MinimumShrinkingSpeed
+            ? SuitPickupBeamDefinitions.MinimumShrinkingSpeed
+            : decelerated;
         if (_lightBeamScanlines >= 128)
         {
             Stage = SamusSuitPickupStage.LightBeamDissipates;
@@ -398,10 +402,6 @@ public sealed class SamusSuitPickupState
 
     /// <summary>The screen column <paramref name="column"/> wraps to within the row.</summary>
     private static int WrappedColumn(int column) => (column % RowColumns + RowColumns) % RowColumns;
-
-    /// <summary>A horizontal unsigned 8.8 speed from its raw word; the vertical axis is unused.</summary>
-    private static EightEightVector<ScreenPixels> WideningVelocity(int speed) =>
-        new(new SignedEightEight(speed), new SignedEightEight(0));
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>

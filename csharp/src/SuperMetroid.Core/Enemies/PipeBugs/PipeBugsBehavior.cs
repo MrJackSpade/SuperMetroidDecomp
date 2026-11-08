@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>The pipe bugs species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -14,8 +16,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PipeBugsEntity(this, slot, common);
 
-    /// <summary>Provides the consecutive physical slots used by Norfair's five-bug formation.</summary>
+    /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>
+    /// The five-bug formation each Norfair leader found when it was placed: itself, then the four bugs its room lists
+    /// right after it.
+    /// </summary>
+    private readonly EnemyPartLinks<RoomEnemySlot[]> _formations = new();
 
     /// <summary>Binds the shared enemy pool needed to validate Norfair formation membership.</summary>
     internal PipeBugsBehavior(EnemySlotTable slotTable)
@@ -62,8 +69,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Norfair Pipe Bug.</summary>
-    internal static void InitializeNorfairPipeBug(RoomEnemySlot slot)
+    internal void InitializeNorfairPipeBug(RoomEnemySlot slot)
     {
+        // Only the formation's first bug has a trigger width; it leads the four its room lists after it.
+        if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth != 0)
+            _formations.Place(slot, [slot, .. _slotTable.ListedRunAfter(slot, NorfairFormationSize - 1)]);
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -430,20 +440,17 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
     }
 
-    /// <summary>Finds the leader's four following physical slots and rejects an incomplete or unrelated formation.</summary>
+    /// <summary>The formation the leader found when it was placed, rejecting an incomplete or unrelated formation.</summary>
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
     {
-        if (leader.SlotIndex + NorfairFormationSize > EnemySlotOrder.Capacity)
-            throw new InvalidDataException("Norfair Pipe Bug formation overruns the physical enemy pool.");
-        var formation = new RoomEnemySlot[NorfairFormationSize];
-        for (int index = 0; index < formation.Length; index++)
+        RoomEnemySlot[] formation = _formations.Of(leader);
+        foreach (RoomEnemySlot member in formation)
         {
-            RoomEnemySlot member = _slotTable.Slots[leader.SlotIndex + index];
             PipeBugEnemyState? state = member.SpeciesState<PipeBugEnemyState>();
             if (state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet)
             {
                 throw new InvalidDataException(
-                    $"Norfair Pipe Bug formation slot {leader.SlotIndex + index} is " +
+                    $"Norfair Pipe Bug formation slot {member.SlotIndex} is " +
                     $"owned by initialized enemy {state?.DefinitionAtInitialization.ToString() ?? "none"}, " +
                     $"expected {EnemyDefinitionId.Gamet}.");
             }
@@ -451,7 +458,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             // write five consecutive 64-byte records even after generic death has changed
             // one member's definition to zero. Retaining the initialized typed owner here
             // preserves that raw alias without accepting an unrelated never-Pipe-Bug slot.
-            formation[index] = member;
         }
         return formation;
     }

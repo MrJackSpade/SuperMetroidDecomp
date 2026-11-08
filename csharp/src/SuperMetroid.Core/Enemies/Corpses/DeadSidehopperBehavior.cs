@@ -22,7 +22,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles level collision after the scripted opening movement reaches the terrain boundary.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Exposes the companion enemy slot whose invisibility suppresses the initial victim.</summary>
+    /// <summary>The room's enemy places, whose first, the Shitroid, suppresses the victim when it starts hidden.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Supplies the enemy counter used to pace dust sound effects.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -99,7 +99,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.Properties = slot.Properties.Replace(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessOffScreen,
             EnemyProperties.ProcessOffScreen);
-        if (_slotTable.Slots[0].Properties.HasAny(EnemyProperties.Invisible))
+        // The victim's room lists the Shitroid first; a Shitroid that starts hidden has already fed, so the victim is gone.
+        if (_slotTable.ListedFirst().Properties.HasAny(EnemyProperties.Invisible))
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
 
         slot.Position = slot.Position.WithWhole(new(488, 184));

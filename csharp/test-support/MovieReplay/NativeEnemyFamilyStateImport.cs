@@ -339,7 +339,9 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
         {
             babyTurtleRecord.Function = words.A == 0 ? null : MamaTurtlesNativeWords.BabyTurtleAiFunctions.Decode(words.A, "recorded BabyTurtleAiFunction");
-            babyTurtleRecord.ParentSlotIndex = SlotIndex(words.B, "Baby Turtle parent offset");
+            // Every Baby Turtle's parent is the room's Mama Turtle, the first enemy her room lists.
+            if (SlotIndex(words.B, "Baby Turtle parent offset") != 0)
+                throw new InvalidDataException($"Recorded Baby Turtle parent offset ${words.B:X4} does not name the first enemy, where Mama Turtle is placed.");
             babyTurtleRecord.SpawnTopCenter = new(words.C, words.D);
             babyTurtleRecord.Velocity = new(unchecked((short)words.E), babyTurtleRecord.Velocity.Y);
         }
@@ -534,7 +536,9 @@ internal static class NativeEnemyFamilyStateImport
             segment.OrbitAngle = RotationAngle.FromRaw(words.B);
             segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
             ImportShaktoolOrientation(segment, Array.IndexOf(ShaktoolSegmentDefinitions.Segments, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment), words.D);
-            segment.OwnerSlotIndex = SlotIndex(words.E, "Shaktool owner");
+            // Every segment's owner is the chain's leading saw, the first enemy its room lists.
+            if (SlotIndex(words.E, "Shaktool owner") != 0)
+                throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
             segment.FrameBehavior = words.F == 0 ? null : ShaktoolNativeWords.DecodeFrameBehavior(words.F, "recorded ShaktoolFrameBehavior");
         }
         if (enemies.ChootStates[index] is { } choot)

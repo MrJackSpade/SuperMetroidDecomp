@@ -20,8 +20,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Provides the four physical echo slots immediately after Dachora's body.</summary>
+    /// <summary>The room's enemy places, where the Dachora finds its four echoes when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The four speed-boost echoes each Dachora found when it was placed, which its room lists right after it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot[]> _echoes = new();
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -57,6 +59,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int DachoraShinesparkMaximumWholeSpeed = 15;
     /// <summary>The fall's speed cap: ten pixels per update.</summary>
     private static readonly SignedSixteenSixteen DachoraMaximumFallSpeed = SignedSixteenSixteen.FromParts(10, 0);
+    /// <summary>How many speed-boost echoes trail a Dachora.</summary>
+    private const int DachoraEchoCount = 4;
     /// <summary>Scripted room X where Dachora reverses its leftward run.</summary>
     private const int DachoraLeftTurnX = 96;
     /// <summary>Scripted room X where Dachora begins its stored-shine demonstration.</summary>
@@ -82,7 +86,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemySoundEffectDefinitions.DachoraCeilingImpactSound;
 
     /// <summary>Initializes the Dachora.</summary>
-    internal static void InitializeDachora(RoomEnemySlot slot)
+    internal void InitializeDachora(RoomEnemySlot slot)
     {
         DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
         var state = new DachoraEnemyState
@@ -108,6 +112,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
+        _echoes.Place(slot, _slotTable.ListedRunAfter(slot, DachoraEchoCount));
         state.Program = AnimationProgramCursor<DachoraProgram>.Start(settings.Facing == HorizontalDirection.Right
             ? DachoraProgram.IdleRight
             : DachoraProgram.IdleLeft);
@@ -430,14 +435,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         first.EchoPositionTimer = DachoraEchoPositionInterval;
-        foreach (RoomEnemySlot echo in echoes)
+        for (int trailPlace = 0; trailPlace < echoes.Length; trailPlace++)
         {
+            RoomEnemySlot echo = echoes[trailPlace];
             DachoraEnemyState echoState = echo.RequireSpeciesState<DachoraEnemyState>();
             if (echoState.EchoLifetime != 0)
                 continue;
 
             echo.Position = echo.Position.WithWhole(body.Position.Whole);
             echoState.EchoLifetime = DachoraEchoLifetime;
+            // Neighbouring echoes flicker on alternate updates, the first on odd ones.
+            echoState.ShowsOnOddFrames = trailPlace % 2 == 0;
             return;
         }
     }
@@ -451,8 +459,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.EchoLifetime != 0)
         {
             state.EchoLifetime--;
-            bool oddSlot = (slot.SlotIndex & 1) != 0;
-            bool visible = oddSlot
+            bool visible = state.ShowsOnOddFrames
                 ? (frameCounterByte & 1) != 0
                 : (frameCounterByte & 1) == 0;
             slot.Properties = visible
@@ -490,22 +497,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Shading = PictureShading.Shaded(DachoraShades.Of(phase, Ensure.BetweenInclusive(0, lastFrame, frame)));
     }
 
-    /// <summary>Finds the four consecutive Dachora echoes following the body and rejects a malformed formation.</summary>
+    /// <summary>The four echoes the Dachora found when it was placed, rejecting a malformed formation.</summary>
     private RoomEnemySlot[] RequireDachoraEchoSlots(RoomEnemySlot body)
     {
-        if (body.SlotIndex + 4 >= EnemySlotOrder.Capacity)
-            throw new InvalidDataException("Dachora body does not have four following physical echo slots.");
-
-        var echoes = new RoomEnemySlot[4];
+        RoomEnemySlot[] echoes = _echoes.Of(body);
         for (int echoIndex = 0; echoIndex < echoes.Length; echoIndex++)
         {
-            RoomEnemySlot echo = _slotTable.Slots[body.SlotIndex + echoIndex + 1];
-            if (echo.DefinitionId != EnemyDefinitionId.Dachora)
+            if (echoes[echoIndex].DefinitionId != EnemyDefinitionId.Dachora)
             {
                 throw new InvalidDataException(
-                    $"Dachora echo {echoIndex} is enemy {echo.DefinitionId}, expected Dachora.");
+                    $"Dachora echo {echoIndex} is enemy {echoes[echoIndex].DefinitionId}, expected Dachora.");
             }
-            echoes[echoIndex] = echo;
         }
         return echoes;
     }

@@ -1,10 +1,12 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Kzan.Artwork;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>The Kzan species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -13,13 +15,15 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KzanEntity(this, slot, common);
 
-    /// <summary>Lets the lower actor mirror the immediately preceding top actor's position.</summary>
+    /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The top each bottom found when it was placed, which its room lists right before it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _tops = new();
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Uses slot adjacency to couple each Kzan bottom to its top.</summary>
+    /// <summary>Couples each Kzan bottom to the top its room lists before it.</summary>
     internal KzanBehavior(EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -72,11 +76,12 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // The bottom follows whatever enemy precedes it. Every retail Kzan population (the Wasteland and the
         // Wrecked Ship's main shaft) places each bottom directly after its top, so that enemy is its top; any
         // other placement is refused rather than followed.
-        if (slot.SlotIndex == 0 || _slotTable.Slots[slot.SlotIndex - 1].DefinitionId != EnemyDefinitionId.KzanTop)
+        if (_slotTable.ListedBeforeOrNone(slot, 1) is not { DefinitionId: EnemyDefinitionId.KzanTop } top)
         {
             throw new InvalidDataException(
                 $"Kzan bottom in slot {slot.SlotIndex} does not directly follow a Kzan top, as every retail Kzan population places it.");
         }
+        _tops.Place(slot, top);
         FollowKzanTop(slot);
     }
 
@@ -84,16 +89,13 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunKzanBottomMain(RoomEnemySlot slot) => FollowKzanTop(slot);
 
     /// <summary>
-    /// Follows the enemy placed directly before the bottom, which setup requires to be its top: every retail population
-    /// places the bottom immediately after its top.
+    /// Follows the top the bottom found when it was placed, the enemy its room lists directly before it, whatever that
+    /// place holds now.
     /// </summary>
     private void FollowKzanTop(RoomEnemySlot bottom)
     {
-        if (bottom.SlotIndex == 0)
-            throw new InvalidDataException("Kzan bottom cannot occupy enemy slot zero.");
-
-        RoomEnemySlot precedingSlot = _slotTable.Slots[bottom.SlotIndex - 1];
-        bottom.Position = bottom.Position.WithWhole(new(precedingSlot.Position.X.Whole, CoordinateAxis.Wrap(precedingSlot.Position.Y.Whole + 12)));
+        RoomEnemySlot top = _tops.Of(bottom);
+        bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, CoordinateAxis.Wrap(top.Position.Y.Whole + 12)));
     }
 
     /// <summary>Dispatches the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>

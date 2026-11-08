@@ -20,8 +20,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates the linked Shaktool attack circles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Physical enemy slots containing the seven-segment chain.</summary>
+    /// <summary>The room's enemy places, where each segment finds its chain when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The chain and neighbours each segment found when it was placed.</summary>
+    private readonly EnemyPartLinks<ShaktoolChainPlaces> _chains = new();
     /// <summary>Runs common contact behavior for the segment hitboxes.</summary>
     private readonly EnemyCollision _collision;
 
@@ -57,16 +59,23 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TargetAngle = RotationAngle.Zero;
         state.ResetOrientation();
         slot.Properties = slot.Properties.With(definition.PropertyMask);
-        state.OwnerSlotIndex = slot.SlotIndex - definition.OwnerSlotDistance;
-        // A kill empties the struck segment's owner, and the chain's death then deletes the seven slots from the
-        // first. Both retail Shaktool room states place the chain in the first seven slots, so those are its own
-        // segments; a chain anywhere else would delete unrelated enemies, which no retail room reaches.
-        if (state.OwnerSlotIndex != 0)
+        // The segment's definition names how far after the chain's leading saw the room lists it. A kill empties the
+        // struck segment's owner to the first enemy, and the chain's death then deletes the seven enemies from the
+        // first. Both retail Shaktool room states list the chain first, so those are its own segments; a chain
+        // anywhere else would delete unrelated enemies, which no retail room reaches.
+        RoomEnemySlot? owner = definition.OwnerSlotDistance == 0
+            ? slot
+            : _slotTable.ListedBeforeOrNone(slot, definition.OwnerSlotDistance);
+        if (owner is null || !owner.IsListedFirst())
         {
             throw new InvalidDataException(
-                $"Shaktool's chain starts in enemy slot {state.OwnerSlotIndex}; its death deletes the first seven slots, " +
+                $"Shaktool's chain starts in enemy slot {slot.SlotIndex - definition.OwnerSlotDistance}; its death deletes the first seven slots, " +
                 "where both retail Shaktool room states place it.");
         }
+        _chains.Place(slot, new ShaktoolChainPlaces(
+            Chain: [owner, .. _slotTable.ListedRunAfter(owner, ShaktoolSegmentCount - 1)],
+            Previous: _slotTable.ListedBeforeOrNone(slot, 1),
+            Next: _slotTable.ListedAfterOrNone(slot, 1)));
         state.FrameBehavior = definition.FrameBehavior;
         // Initialization subtracts the parallel all-zero table; synchronization
         // uses the same authored velocity directly.
@@ -124,10 +133,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         ShaktoolSegmentState state)
     {
-        if (slot.SlotIndex == 0)
-            throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
-
-        RoomEnemySlot previous = _slotTable.Slots[slot.SlotIndex - 1];
+        RoomEnemySlot previous = _chains.Of(slot).Previous
+            ?? throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
         // The segment placement reads the preceding physical record, without
         // testing its header. A lethal shot clears the head and marks the group
         // deleted, but EnemyMain still visits later entries in this frame's
@@ -271,7 +278,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ResetOrientation();
-        RoomEnemySlot owner = OwnerSlot(state);
+        RoomEnemySlot owner = OwnerSlot(slot);
         RotationAngle target = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(slot.Position.X.Whole, owner.Position.X.Whole), CoordinateAxis.Difference(slot.Position.Y.Whole, owner.Position.Y.Whole))).ToMirroredTableAngle().ToAngle();
         target = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
@@ -365,53 +372,32 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             RequireShaktoolState(segment).MotionFlags = flags;
     }
 
-    /// <summary>The slot of the chain's first segment, which must be one of the room's enemy slots.</summary>
-    private RoomEnemySlot OwnerSlot(ShaktoolSegmentState state)
-    {
-        if (state.OwnerSlotIndex is < 0 or >= EnemySlotOrder.Capacity)
-            throw new ArgumentOutOfRangeException(nameof(state), $"Shaktool owner slot {state.OwnerSlotIndex} is not an enemy slot.");
-        return _slotTable.Slots[state.OwnerSlotIndex];
-    }
+    /// <summary>The chain's leading saw, which the segment found when it was placed.</summary>
+    private RoomEnemySlot OwnerSlot(RoomEnemySlot segment) => _chains.Of(segment).Chain[0];
 
-    /// <summary>Resolves and validates seven consecutive slots from a segment's owner slot.</summary>
+    /// <summary>The seven segments of the chain a segment found when it was placed, each validated as initialized.</summary>
     private RoomEnemySlot[] GetShaktoolGroup(RoomEnemySlot anySegment)
     {
-        ShaktoolSegmentState state = RequireShaktoolState(anySegment);
-        int ownerSlotIndex = state.OwnerSlotIndex;
-        if (ownerSlotIndex < 0 ||
-            ownerSlotIndex + ShaktoolSegmentCount > _slotTable.Slots.Count)
-        {
-            throw new InvalidDataException(
-                $"Shaktool owner slot {ownerSlotIndex} is invalid.");
-        }
-
-        var group = new RoomEnemySlot[ShaktoolSegmentCount];
+        _ = RequireShaktoolState(anySegment);
+        RoomEnemySlot[] group = _chains.Of(anySegment).Chain;
         for (int index = 0; index < group.Length; index++)
         {
-            RoomEnemySlot segment = _slotTable.Slots[ownerSlotIndex + index];
             // Group helpers also run during the remainder of the lethal frame.
             // The segment's state survives common-slot clearing with its record
             // values emptied; a cleared header is not a missing record.
-            if (segment.SpeciesState<ShaktoolSegmentState>() is null)
+            if (group[index].SpeciesState<ShaktoolSegmentState>() is null)
             {
                 throw new InvalidDataException(
-                    $"Shaktool group rooted at slot {ownerSlotIndex} is missing segment {index}.");
+                    $"Shaktool group rooted at slot {group[0].SlotIndex} is missing segment {index}.");
             }
-            group[index] = segment;
         }
         return group;
     }
 
-    /// <summary>Requires a following physical slot for a linked segment center.</summary>
-    private RoomEnemySlot GetNextShaktoolSegment(RoomEnemySlot slot)
-    {
-        if (slot.SlotIndex + 1 >= _slotTable.Slots.Count)
-        {
-            throw new InvalidDataException(
-                $"Shaktool center slot {slot.SlotIndex} has no following segment.");
-        }
-        return _slotTable.Slots[slot.SlotIndex + 1];
-    }
+    /// <summary>The enemy listed after a linked segment center, which it found when it was placed.</summary>
+    private RoomEnemySlot GetNextShaktoolSegment(RoomEnemySlot slot) =>
+        _chains.Of(slot).Next ?? throw new InvalidDataException(
+            $"Shaktool center slot {slot.SlotIndex} has no following segment.");
 
     /// <summary>Requires an initialized extension for the given physical segment slot.</summary>
     private static ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
@@ -497,14 +483,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (struckSegment.Health != 0)
             return;
-        // The generic death clears the entire common slot, which empties the segment's owner to the first slot.
-        // Initialization requires the chain to start there, so the seven slots from it are the chain's own segments.
-        int ownerSlotIndex = RequireShaktoolState(struckSegment).OwnerSlotIndex;
-        if (ownerSlotIndex < 0 ||
-            ownerSlotIndex + ShaktoolSegmentCount > _slotTable.Slots.Count)
-            throw new InvalidDataException($"Shaktool post-shot owner slot {ownerSlotIndex} is invalid.");
-        for (int index = 0; index < ShaktoolSegmentCount; index++)
-            _slotTable.Slots[ownerSlotIndex + index].Properties = EnemyProperties.Deleted;
+        // The generic death clears the entire common slot, which empties the segment's owner to the first enemy.
+        // Initialization requires the chain to start there, so the seven enemies from it are the chain's own segments.
+        _ = RequireShaktoolState(struckSegment);
+        foreach (RoomEnemySlot segment in _chains.Of(struckSegment).Chain)
+            segment.Properties = EnemyProperties.Deleted;
     }
 
     /// <summary>Runs the post-common lethal-shot tail for bomb hits.</summary>

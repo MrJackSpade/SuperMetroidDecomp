@@ -44,8 +44,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
             AssertEqual(EnemyProperties.BlocksPlasmaBeam | definition.PropertyMask,
                 slot.Properties, $"Shaktool production properties {index}");
-            AssertEqual(0, state.OwnerSlotIndex,
-                $"Shaktool production owner {index}");
             AssertEqual(definition.FrameBehavior, state.FrameBehavior,
                 $"Shaktool production callback {index}");
             AssertEqual(definition.AngularVelocity, state.AngularVelocity,

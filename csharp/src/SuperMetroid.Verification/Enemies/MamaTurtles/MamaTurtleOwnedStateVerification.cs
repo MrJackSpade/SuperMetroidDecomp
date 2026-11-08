@@ -42,7 +42,7 @@ internal static class MamaTurtleOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot misplaced = enemies.SlotTable.Slots[1];
         misplaced.Bind(EnemyDefinitionId.MamaTurtle, misplaced.Definition);
-        AssertThrows<InvalidDataException>(() => MamaTurtleBehavior.InitializeMamaTurtle(misplaced),
+        AssertThrows<InvalidDataException>(() => enemies.MamaTurtleBehavior.InitializeMamaTurtle(misplaced),
             "a Mama Turtle after the first slot is refused");
         Console.WriteLine("Mama Turtle owned state: the hover add, cap, wall reversal quirk, cleared record and first-slot placement match.");
     }

@@ -33,8 +33,6 @@ public sealed class ShaktoolSegmentState
     /// from 0 through 62459. Reaching 61440 starts the chain straightening, which stops the accumulation.
     /// </summary>
     public int CurlProgress { get; internal set; }
-    /// <summary>The slot of the first segment of the seven-segment chain, whose segments occupy consecutive slots.</summary>
-    public int OwnerSlotIndex { get; internal set; }
     /// <summary>The segment motion run by Shaktool's main AI; collision-response animations temporarily replace it with the idle attack motion, and none once a kill has emptied the record.</summary>
     public ShaktoolFrameBehavior? FrameBehavior { get; internal set; }
     /// <summary>The chain's reversal, straightening and orbit-direction flags, written to every segment together.</summary>
@@ -55,7 +53,6 @@ public sealed class ShaktoolSegmentState
         OrbitAngle = RotationAngle.Zero;
         AngularVelocity = 0;
         ResetOrientation();
-        OwnerSlotIndex = 0;
         FrameBehavior = null;
         MotionFlags = 0;
     }

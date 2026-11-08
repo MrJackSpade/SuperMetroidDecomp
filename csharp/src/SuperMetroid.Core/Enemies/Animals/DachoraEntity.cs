@@ -8,7 +8,7 @@ internal sealed class DachoraEntity(DachoraBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => DachoraBehavior.InitializeDachora;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDachora;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunDachoraMainAi;

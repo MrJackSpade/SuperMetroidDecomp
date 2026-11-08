@@ -336,7 +336,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The Metroid's shot reaction intentionally reads projectile position slot zero, not the current
+        // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the current
         // collision slot. The overlapping byte stores encode delta/8 as signed 16.16.
         StoreMetroidXVelocity(
             state,
@@ -450,14 +450,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMetroidBombReactions(EnemySharedReactions table)
     {
         // Metroid shot AI ignores bombs while frozen, detaches an attached body for family 0x0500, or applies its
-        // peculiar slot-zero recoil otherwise.
+        // peculiar recoil from the first projectile otherwise (MetroidRecoilOrigin).
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metroid &&
                                   EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.MetroidShot,
             c =>
             {
                 if (c.Enemy.FrozenTimer == 0)
                 {
-                    SamusProjectileSlot recoilOrigin = c.OrdinaryProjectiles.Slots[0];
+                    SamusProjectileSlot recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Slots);
                     ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.BetweenInclusive(0, ushort.MaxValue, c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
                 }
             });
@@ -538,7 +538,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Custom Metroid shot AI does not call normal shot AI. Preserve the collision prelude, then apply recoil/ice
         // or attached power-bomb escape without inventing vulnerability-based health damage.
         c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.BetweenInclusive(0, ushort.MaxValue, c.Projectile.Damage), c.Projectiles.Slots[0].Position.Whole, c.Samus);
+        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.BetweenInclusive(0, ushort.MaxValue, c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Slots).Position.Whole, c.Samus);
         return true;
     }
 

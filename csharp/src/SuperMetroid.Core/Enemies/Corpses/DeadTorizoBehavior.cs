@@ -50,7 +50,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the dead Torizo.</summary>
     internal void InitializeDeadTorizo(RoomEnemySlot slot)
     {
-        if (slot.SlotIndex != 0)
+        if (!slot.IsListedFirst())
         {
             throw new InvalidDataException(
                 $"Dead Torizo requires enemy slot zero, not slot {slot.SlotIndex}.");

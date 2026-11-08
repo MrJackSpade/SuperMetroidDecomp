@@ -17,8 +17,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Resolves the cosmetic wing in the physical enemy slot following its body.</summary>
+    /// <summary>The room's enemy places, where each part finds its partners when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The partners each Dragon part found when it was placed.</summary>
+    private readonly EnemyPartLinks<DragonPartners> _partners = new();
     /// <summary>Performs common Samus touch resolution before Dragon's body and wing synchronization.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Receives each fireball's sound in call order, as the game queues it.</summary>
@@ -58,7 +60,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Initializes the Dragon.</summary>
-    internal static void InitializeDragon(RoomEnemySlot slot)
+    internal void InitializeDragon(RoomEnemySlot slot)
     {
         DragonEnemyState state = CreateDragonState(slot);
         state.AnimationFinished = false;
@@ -240,7 +242,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The follow-up reaches the enemy placed after whichever part was hit: the body's own wing, or,
         // for a power bomb hitting the intangible wing, the next enemy (FollowUpAfterStruckPart).
-        RoomEnemySlot following = FollowUpAfterStruckPart.Recipients(_slotTable.Slots, actor.SlotIndex, reach: 1)[0];
+        RoomEnemySlot following = _partners.Of(actor).FollowUpRecipient;
         if (actor.Health == 0)
         {
             following.Properties = following.Properties.With(EnemyProperties.Deleted);
@@ -269,13 +271,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Requires Dragon's authored body/wing population pair in adjacent physical slots.</summary>
+    /// <summary>Requires the wing the Dragon body found when it was placed, still holding its authored wing record.</summary>
     private RoomEnemySlot GetDragonWing(RoomEnemySlot body)
     {
-        if (body.SlotIndex >= EnemySlotOrder.Capacity - 1)
-            throw new InvalidDataException("Dragon body occupies the final physical enemy slot.");
-
-        RoomEnemySlot wing = _slotTable.Slots[body.SlotIndex + 1];
+        RoomEnemySlot wing = _partners.Of(body).Wing
+            ?? throw new InvalidDataException($"Dragon enemy {body.SlotIndex} is a wing, not a body with a wing.");
         if (body.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing || wing.DefinitionId != EnemyDefinitionId.Dragon ||
             wing.SpawnSettings<DragonSpawnSettings>().Part != DragonPart.Wing)
         {
@@ -285,10 +285,17 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         return wing;
     }
 
-    /// <summary>Creates one Dragon slot's state, selecting body or wing from population parameter one.</summary>
-    private static DragonEnemyState CreateDragonState(RoomEnemySlot slot)
+    /// <summary>
+    /// Creates one Dragon slot's state, selecting body or wing from population parameter one. A body finds its wing,
+    /// which its room lists right after it, and every part finds the enemy its follow-up to a hit reaches.
+    /// </summary>
+    private DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
-        var state = new DragonEnemyState { IsWing = slot.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing };
+        bool isWing = slot.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing;
+        _partners.Place(slot, new DragonPartners(
+            Wing: isWing ? null : _slotTable.ListedAfter(slot, 1),
+            FollowUpRecipient: FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfter(slot, distance), reach: 1)[0]));
+        var state = new DragonEnemyState { IsWing = isWing };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }

@@ -137,7 +137,7 @@ internal static class PipeBugBehaviorVerification
                 PipeBugsBehavior.InitializeBrinstarPipeBug(slot);
                 break;
             case EnemyDefinitionId.Gamet:
-                PipeBugsBehavior.InitializeNorfairPipeBug(slot);
+                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 break;
             case EnemyDefinitionId.None:
             case EnemyDefinitionId.Boyon:

@@ -55,6 +55,12 @@ internal static class EvirInstructionProgramDefinitionsVerification
             // The regeneration cues read Evir.instList-$80,X: the body record two slots before the projectile, as the
             // retail population lays them out.
             RoomEnemySlot slot = enemies.SlotTable.Slots[2];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
+            body.Bind(EnemyDefinitionId.Evir, body.Definition);
+            body.SetSpeciesState(new EvirEnemyState { InstalledProgram = EvirProgram.BodyFacingLeft });
+            // The spit finds its body as production places it, two places after the body.
+            slot.Bind(EnemyDefinitionId.EvirProjectile, slot.Definition);
+            enemies.EvirBehavior.InitializeEvirProjectile(slot);
             EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileRegenerating);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.

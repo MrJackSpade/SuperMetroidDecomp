@@ -21,8 +21,10 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves horizontal and vertical contact during the dive and return.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Resolves each flame follower's immediately preceding parent slot.</summary>
+    /// <summary>The room's enemy places, where each flame follower finds its parent when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _parents = new();
 
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -54,6 +56,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.IsFollower)
         {
+            _parents.Place(slot, _slotTable.ListedBefore(slot, 1));
             ValidateNorfairRioParent(slot);
             state.InstalledProgram = NorfairRioProgram.FlamesAscending;
             state.Program = AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending);
@@ -293,13 +296,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Program = AnimationProgramCursor<NorfairRioProgram>.Start(installed);
         });
 
-    /// <summary>Returns the physical slot immediately before a follower, rejecting slot zero.</summary>
-    private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower)
-    {
-        if (follower.SlotIndex == 0)
-            throw new InvalidDataException("A Norfair Rio follower cannot occupy enemy slot zero.");
-        return _slotTable.Slots[follower.SlotIndex - 1];
-    }
+    /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
+    private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower) => _parents.Of(follower);
 
     /// <summary>Requires a flame follower to directly follow a primary Geruta population record.</summary>
     private void ValidateNorfairRioParent(RoomEnemySlot follower)

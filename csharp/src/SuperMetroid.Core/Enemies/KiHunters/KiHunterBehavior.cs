@@ -27,8 +27,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues the acid-spit sound under the enemy queue limit.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Resolves each body's physically adjacent wing record.</summary>
+    /// <summary>The room's enemy places, where a body and its wings find each other when they are placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The wings each body found when it was placed, which its room lists right after it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _wingsOfBody = new();
+    /// <summary>The body each pair of wings found when it was placed, which its room lists right before them.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _bodyOfWings = new();
 
     /// <summary>Connects Ki-Hunter AI to room collision, projectile, audio and slot services.</summary>
     internal KiHunterBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable)
@@ -90,8 +94,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
     /// <summary>Initializes the Ki-Hunter body.</summary>
-    internal static void InitializeKiHunter(RoomEnemySlot body)
+    internal void InitializeKiHunter(RoomEnemySlot body)
     {
+        _wingsOfBody.Place(body, _slotTable.ListedAfter(body, 1));
         KiHunterEnemyState state = CreateKiHunterState(body);
 
         // Every Ki-Hunter list is interpreted by the common enemy bytecode engine. The
@@ -117,9 +122,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Initializes the Ki-Hunter's wings, including their preceding-slot aliases.</summary>
+    /// <summary>Initializes the Ki-Hunter's wings, which find their body listed right before them.</summary>
     internal void InitializeKiHunterWings(RoomEnemySlot wings)
     {
+        _bodyOfWings.Place(wings, _slotTable.ListedBefore(wings, 1));
         RoomEnemySlot body = GetKiHunterBody(wings);
         KiHunterEnemyState state = CreateKiHunterState(wings);
 
@@ -736,14 +742,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // therefore valid until the callback finishes; revalidating only the mutable header
         // converts the ordinary fatal-shot path into a host exception.
         bool initializedBody = body.SpeciesState<KiHunterEnemyState>() is { IsWing: false };
-        if ((!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody) ||
-            body.SlotIndex >= EnemySlotOrder.Capacity - 1)
-        {
-            throw new InvalidDataException(
-                $"Enemy slot {body.SlotIndex} is not a Ki-Hunter body with a following slot.");
-        }
+        if (!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody)
+            throw new InvalidDataException($"Enemy slot {body.SlotIndex} is not a Ki-Hunter body.");
 
-        RoomEnemySlot wings = _slotTable.Slots[body.SlotIndex + 1];
+        RoomEnemySlot wings = _wingsOfBody.Of(body);
         if (body.DefinitionId == EnemyDefinitionId.None && initializedBody)
             return wings;
 
@@ -771,13 +773,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         return wings;
     }
 
-    /// <summary>Resolves a wing's preceding body record and validates its color pairing.</summary>
+    /// <summary>Resolves the body the wings found when they were placed and validates its colour pairing.</summary>
     private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings)
     {
-        if (!IsKiHunterWingDefinition(wings.DefinitionId) || wings.SlotIndex == 0)
+        if (!IsKiHunterWingDefinition(wings.DefinitionId))
             throw new InvalidDataException($"Enemy slot {wings.SlotIndex} is not a linked Ki-Hunter wing.");
-        RoomEnemySlot body = _slotTable.Slots[wings.SlotIndex - 1];
-        _ = GetKiHunterWings(body); // Performs the exact body/variant adjacency validation.
+        RoomEnemySlot body = _bodyOfWings.Of(wings);
+        if (!ReferenceEquals(GetKiHunterWings(body), wings)) // Performs the exact body/variant pairing validation.
+            throw new InvalidDataException($"Ki-Hunter wings {wings.SlotIndex} are not the wings of body {body.SlotIndex}.");
         return body;
     }
 

@@ -100,8 +100,8 @@ internal static class DragonAnimationDefinitionsVerification
         wing.Position = wing.Position.WithWholeY(0x0100);
         body.Position = body.Position.WithWholeY(0x0100);
 
-        DragonBehavior.InitializeDragon(body);
-        DragonBehavior.InitializeDragon(wing);
+        enemies.DragonBehavior.InitializeDragon(body);
+        enemies.DragonBehavior.InitializeDragon(wing);
         DragonEnemyState bodyState = (enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[0]."));
         DragonEnemyState wingState = (enemies.DragonStates[1] ?? throw new InvalidOperationException("Verification requires enemies.DragonStates[1]."));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())

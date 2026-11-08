@@ -24,6 +24,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The eye responds to collected Morph Ball even when it is unequipped.</summary>
     /// <summary>Strict horizontal range for starting the opening animation.</summary>
     private const int EyeActivateXDistance = 128;
+    /// <summary>The place, second in its room's listing, of the eye the game's beam always follows.</summary>
+    private const int BeamFollowedEyePlace = 1;
     /// <summary>Wider strict horizontal range that keeps an active beam open.</summary>
     private const int EyeDeactivateXDistance = 176;
     /// <summary>Strict vertical range for initial activation.</summary>
@@ -181,16 +183,16 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ToMirroredTableAngle().ToAngle();
 
-    /// <summary>Requires the body in retail slot one before scheduling the room-global beam to appear next frame.</summary>
+    /// <summary>Requires the body to be the room's second enemy before scheduling the room-global beam to appear next frame.</summary>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {
-        // The game's beam always follows the enemy in the room's second slot, whichever eye
+        // The game's beam always follows the enemy its room lists second, whichever eye
         // requested it. Refusing a different layout catches a malformed or custom population
         // instead of quietly aiming the beam from an eye the game would not follow.
-        if (eye.SlotIndex != 1 || eye.DefinitionId != EnemyDefinitionId.Eye)
+        if (!eye.IsListedAt(BeamFollowedEyePlace) || eye.DefinitionId != EnemyDefinitionId.Eye)
         {
             throw new InvalidDataException(
-                $"Morph-ball eye beam requires the body in retail enemy slot 1, got {eye.SlotIndex}.");
+                $"Morph-ball eye beam requires the body listed second in its room, got enemy {eye.SlotIndex}.");
         }
 
         MorphBallEyeBeam.Reset();

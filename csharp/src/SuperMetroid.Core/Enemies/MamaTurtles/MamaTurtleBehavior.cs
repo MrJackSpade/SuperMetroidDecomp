@@ -25,8 +25,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Records the wall-impact shake from Mama Turtle's hover collision.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Links the four physically adjacent babies to their parent slot.</summary>
+    /// <summary>The room's enemy places, where Mama finds her four babies when she is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>
+    /// The room's Mama Turtle, the parent of every Baby Turtle: the first enemy her room lists, which her placement
+    /// requires; null until she is placed.
+    /// </summary>
+    private RoomEnemySlot? _mama;
+    /// <summary>The four babies Mama found when she was placed, which her room lists right after her; null until then.</summary>
+    private RoomEnemySlot[]? _babies;
     /// <summary>Applies touch damage for Mama's expanded body or exposed shell.</summary>
     private readonly EnemyCollision _collision;
 
@@ -113,20 +120,25 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int MamaTurtleMaximumFallingSpeed = 4;
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const int MamaTurtleMaximumHoveringSpeed = 3;
+    /// <summary>How many Baby Turtles crawl on Mama's shell.</summary>
+    private const int BabyTurtleCount = 4;
 
     /// <summary>Initializes the Mama Turtle.</summary>
     /// <exception cref="InvalidDataException">Mama is not in the first enemy slot.</exception>
-    internal static void InitializeMamaTurtle(RoomEnemySlot slot)
+    internal void InitializeMamaTurtle(RoomEnemySlot slot)
     {
         // The fall's speed cap and the expanded contact box read the first enemy slot's values, not the
-        // current enemy's. The one retail Mama Turtle population places Mama in that slot, so they are her own;
-        // anywhere else she would take another enemy's speed and bounds, which no retail room reaches.
-        if (slot.SlotIndex != 0)
+        // current enemy's, and every baby's parent is the first enemy. The one retail Mama Turtle population places
+        // Mama in that slot, so they are her own; anywhere else she would take another enemy's speed and bounds, which
+        // no retail room reaches.
+        if (!slot.IsListedFirst())
         {
             throw new InvalidDataException(
                 $"Mama Turtle occupies enemy slot {slot.SlotIndex}; her fall and contact box read the first slot, " +
                 "where the one retail Mama Turtle population places her.");
         }
+        _mama = slot;
+        _babies = _slotTable.ListedRunAfter(slot, BabyTurtleCount);
 
         var state = new MamaTurtleEnemyState
         {
@@ -217,15 +229,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs the first-frame parent/child setup.</summary>
+    /// <summary>Runs the first-frame parent/child setup on the four babies Mama found when she was placed.</summary>
     private void LinkMamaTurtleChildren(RoomEnemySlot mama, MamaTurtleEnemyState state)
     {
-        if (mama.SlotIndex + 4 >= EnemySlotOrder.Capacity)
-            throw new InvalidDataException("Mama Turtle does not have four following physical slots.");
-
-        for (int childOffset = 1; childOffset <= 4; childOffset++)
+        RoomEnemySlot[] babies = _babies ?? throw new InvalidOperationException("Mama Turtle links her babies before she was placed.");
+        foreach (RoomEnemySlot child in babies)
         {
-            RoomEnemySlot child = _slotTable.Slots[mama.SlotIndex + childOffset];
             if (child.DefinitionId != EnemyDefinitionId.BabyTurtle)
             {
                 throw new InvalidDataException(
@@ -233,9 +242,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"slot {child.SlotIndex}, found {child.DefinitionId}.");
             }
 
-            BabyTurtleEnemyState childState = child.RequireSpeciesState<BabyTurtleEnemyState>();
+            _ = child.RequireSpeciesState<BabyTurtleEnemyState>();
             child.Shading = mama.Shading;
-            childState.ParentSlotIndex = mama.SlotIndex;
         }
 
         state.Function = MamaTurtleAiFunction.Asleep;
@@ -507,7 +515,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The prologue requires the child's parent to be a Mama Turtle. The game also clears and republishes a
         // carried-height word on the parent here, which nothing reads.
-        _ = RequireMamaTurtleParent(state);
+        _ = RequireMamaTurtleParent();
         switch (state.Function)
         {
             case BabyTurtleAiFunction.CrawlingNotCarryingSamus:
@@ -622,7 +630,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SixteenSixteen.FromWhole(state.Velocity.X));
 
-        RoomEnemySlot parentSlot = _slotTable.Slots[state.ParentSlotIndex];
+        RoomEnemySlot parentSlot = RoomMama();
         MamaTurtleEnemyState parent = parentSlot.RequireSpeciesState<MamaTurtleEnemyState>();
         if (parent.Function != MamaTurtleAiFunction.Asleep)
             return;
@@ -750,17 +758,17 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SixteenSixteen.FromWhole(state.Velocity.X));
-        WakeMamaTurtle(state);
+        WakeMamaTurtle();
     }
 
     /// <summary>Private tail of the Baby Turtle's shot AI.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(BabyTurtleEnemyState state) =>
-        WakeMamaTurtle(state);
+    private void ResolveBabyTurtleShotAfterCommon() =>
+        WakeMamaTurtle();
 
     /// <summary>Decrements the parent's asleep flag after a baby touch or shot reaction.</summary>
-    private void WakeMamaTurtle(BabyTurtleEnemyState child)
+    private void WakeMamaTurtle()
     {
-        MamaTurtleEnemyState parent = RequireMamaTurtleParent(child);
+        MamaTurtleEnemyState parent = RequireMamaTurtleParent();
         parent.AsleepFlag = Math.Max(0, parent.AsleepFlag - 1);
     }
 
@@ -799,18 +807,23 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision.ResolveNormalEnemyTouch(mama, samus);
     }
 
-    /// <summary>Resolves the child's parent slot and rejects a non-Mama occupant.</summary>
-    private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
+    /// <summary>The babies' parent, the room's Mama Turtle's place, rejecting a non-Mama occupant.</summary>
+    private MamaTurtleEnemyState RequireMamaTurtleParent()
     {
-        RoomEnemySlot parent = _slotTable.Slots[child.ParentSlotIndex];
+        RoomEnemySlot parent = RoomMama();
         if (parent.DefinitionId != EnemyDefinitionId.MamaTurtle)
         {
             throw new InvalidDataException(
-                $"Baby Turtle parent slot {child.ParentSlotIndex} names enemy " +
+                $"Baby Turtle parent slot {parent.SlotIndex} names enemy " +
                 $"{parent.DefinitionId}, not Mama Turtle.");
         }
         return parent.RequireSpeciesState<MamaTurtleEnemyState>();
     }
+
+    /// <summary>The room's Mama Turtle's place, every baby's parent.</summary>
+    /// <exception cref="InvalidOperationException">No Mama Turtle has been placed in the room.</exception>
+    private RoomEnemySlot RoomMama() =>
+        _mama ?? throw new InvalidOperationException("A Baby Turtle reached its parent in a room where no Mama Turtle was placed.");
 
     /// <summary>Selects the left or right crawl list from the child's signed X velocity.</summary>
     private static void InstallBabyTurtleCrawlingInstruction(
@@ -850,7 +863,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
                                                        c.SelectedShotAi == EnemyReaction.BabyTurtleShot)
         {
-            AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
+            AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(),
         });
     }
 
@@ -901,7 +914,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.BabyTurtleShot)
         {
-            AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
+            AfterCommon = _ => ResolveBabyTurtleShotAfterCommon(),
         });
     }
 

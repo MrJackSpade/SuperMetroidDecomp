@@ -721,9 +721,9 @@ internal static class RoomObjectPopulationVerification
             "third lava stage clamps maximum FX Y");
         active.Step(activeLevel);
         AssertTrue(activeSystem.HasEvent(EventNumber.OutranSpeedBoosterLavaquake),
-            "stage-table terminator marks event $15");
+            "passing the last rise marks the escape's event");
         AssertEqual(1, active.SlotTable.ActiveCount,
-            "native terminator leaves B8AC resident until room reload");
+            "the finished escape leaves B8AC resident until room reload");
     }
 
     /// <summary>

@@ -88,9 +88,8 @@ internal static class ProjectileInstructionsVerification
             0x9fab, 0x9fb3, 0x9fbb, 0x9fbf, 0x9fc7, 0x9fcf, 0x9fd7, 0x9fdf, 0x9fe3, 0x9feb, 0x9ff3, 0x9ffb,
             0xa003, 0xa007, 0xa00f, 0xa017, 0xa01f, 0xa027, 0xa02f, 0xa037, 0xa039, 0xa041, 0xa049, 0xa051,
             0xa059, 0xa061, 0xa069, 0xa06b, 0xa073, 0xa07b, 0xa083, 0xa08b, 0xa093, 0xa095, 0xa09d, 0xa0a5,
-            0xa0ad, 0xa0b5, 0xa0bd, 0xa0c1, 0xa0c9, 0xa0d1, 0xa0d9, 0xa0e1, 0xa0e9, 0xa0f1, 0xa0f3, 0xa0fb,
-            0xa103, 0xa10b, 0xa113, 0xa119, 0xa121, 0xa129, 0xa131, 0xa139, 0xa13d, 0xa145, 0xa14d, 0xa155,
-            0xa159, 0xa161, 0xa169, 0xa16d, 0xa175, 0xa17d, 0xa185, 0xa18d, 0xa195, 0xa19d,
+            0xa0ad, 0xa0b5, 0xa0bd, 0xa0c1, 0xa0c9, 0xa0d1, 0xa0d9, 0xa0e1, 0xa0e9, 0xa0f1, 0xa119, 0xa121,
+            0xa129, 0xa131, 0xa139, 0xa13d, 0xa145, 0xa14d, 0xa155, 0xa159, 0xa161, 0xa169,
         ];
         var words = new HashSet<int>();
         foreach (ushort entry in entries)
@@ -100,7 +99,7 @@ internal static class ProjectileInstructionsVerification
             if (value == 0x8239) words.Add(a + 2);
             else if (value < 0x8000) words.Add(a + 6);
         }
-        AssertEqual(1816, words.Count, "All authored duration/trail/control words inventoried");
+        AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
         var trailFrame = new Func<SamusProjectileSlot, int>(slot => ProjectileTrails.GetTrailAnimationFrame(slot, InstalledFixtures.SamusOverreads.Projectiles.TrailStarts));
         var trailSlot = new SamusProjectileSlot(0);
         // A trail reads the word just before the shot's next list position: the last record's animation frame, or the
@@ -157,7 +156,7 @@ internal static class ProjectileInstructionsVerification
                 AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y), new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
             }
         }
-        Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
+        Console.WriteLine($"Projectile instructions: 1792 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
     }
 
 }

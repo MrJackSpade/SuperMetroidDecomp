@@ -13,8 +13,8 @@ public static class EvirInitDefinitions
     /// </summary>
     public static IReadOnlyList<EvirFirstHalfCycleSource> FirstHalfCycleSources { get; } =
     [
-        new(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8), SlotIndex: 1, EvirHalfCycleSourceField.DirectionChangePeriod),
-        new(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(12), SlotIndex: 2, EvirHalfCycleSourceField.SpitColours),
+        new(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(8), LenderPlace: 1, EvirHalfCycleSourceField.DirectionChangePeriod),
+        new(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(12), LenderPlace: 2, EvirHalfCycleSourceField.SpitColours),
     ];
 
     /// <summary>

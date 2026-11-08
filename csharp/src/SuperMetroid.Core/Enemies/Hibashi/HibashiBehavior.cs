@@ -1,8 +1,10 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, AI routines and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -11,8 +13,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new HibashiEntity(this, slot, common);
 
-    /// <summary>Locates the hitbox record immediately after each visible geyser record.</summary>
+    /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>The hitbox part each visible geyser found when it was placed, which its room lists right after it.</summary>
+    private readonly EnemyPartLinks<RoomEnemySlot> _hitboxes = new();
     /// <summary>Receives each eruption's sound in call order, as the game queues it.</summary>
     private readonly EnemyAudioQueue _audio;
 
@@ -45,7 +49,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Hibashi.</summary>
-    internal static void InitializeHibashi(RoomEnemySlot slot)
+    internal void InitializeHibashi(RoomEnemySlot slot)
     {
         var state = new HibashiEnemyState
         {
@@ -62,6 +66,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsCollisionPart)
             return;
 
+        _hitboxes.Place(slot, _slotTable.ListedAfter(slot, 1));
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
         state.Function = HibashiEnemyFunction.Inactive;
         state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
@@ -166,16 +171,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         hitbox.Properties = hitbox.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>
-    /// Resolves the <c>Enemy[1]</c> operand. Retail populations always pair part zero
-    /// with a following part-one record; reject only states that cannot represent that read.
-    /// </summary>
-    private RoomEnemySlot GetFollowingHibashiPart(RoomEnemySlot graphics)
-    {
-        if (graphics.SlotIndex >= EnemySlotOrder.Capacity - 1)
-            throw new InvalidDataException("Hibashi graphics part has no following enemy slot.");
-        return _slotTable.Slots[graphics.SlotIndex + 1];
-    }
+    /// <summary>The hitbox part the visible geyser found when it was placed; retail populations always list one right after it.</summary>
+    private RoomEnemySlot GetFollowingHibashiPart(RoomEnemySlot graphics) => _hitboxes.Of(graphics);
 
     /// <summary>Ports Hibashi's main AI.</summary>
     internal void RunHibashiMainAi(RoomEnemySlot slot, IEnemyAiFrame _)

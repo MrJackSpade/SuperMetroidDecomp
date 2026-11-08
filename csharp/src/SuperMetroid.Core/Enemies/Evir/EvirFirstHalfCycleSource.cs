@@ -5,6 +5,6 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// in the room's population, whatever that enemy is when the body initializes.
 /// </summary>
 /// <param name="Speed">The body's bobbing speed.</param>
-/// <param name="SlotIndex">The zero-based position, in the room's enemy population, of the enemy whose value is read.</param>
+/// <param name="LenderPlace">The zero-based position, in the room's enemy population, of the enemy whose value is read.</param>
 /// <param name="Field">Which of that enemy's values is read.</param>
-public readonly record struct EvirFirstHalfCycleSource(SignedSixteenSixteen Speed, int SlotIndex, EvirHalfCycleSourceField Field);
+public readonly record struct EvirFirstHalfCycleSource(SignedSixteenSixteen Speed, int LenderPlace, EvirHalfCycleSourceField Field);

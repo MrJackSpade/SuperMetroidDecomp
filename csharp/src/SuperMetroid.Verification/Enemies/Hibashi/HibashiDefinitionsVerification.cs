@@ -20,7 +20,7 @@ internal static class HibashiDefinitionsVerification
         const int yRadiusTable = 0xa68de7;
 
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot> initialize = HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemySlot> initialize = enemies.HibashiBehavior.InitializeHibashi;
         Action<RoomEnemySlot, int> applyFrame = enemies.HibashiBehavior.ApplyHibashiActivityFrame;
 
         RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
@@ -61,7 +61,7 @@ internal static class HibashiDefinitionsVerification
 
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot> initializeProgram = HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemySlot> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
 
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);

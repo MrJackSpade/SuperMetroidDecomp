@@ -40,7 +40,7 @@ internal static class BeamPaletteArtworkVerification
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
             // The beams name the selection's shade (#1512); the import resolves it from the extracted catalog.
-            SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)selection);
+            SamusProjectileSystem.LoadBeamPalette(actual, SamusEquipmentWordCodec.FromBeamWord(selection));
             RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog });
             for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
                 AssertEqual(expected.Colors[SamusColourNative.BeamFirstCgram + i], shown[i], "Extracted beam palette matches the native beam colours");

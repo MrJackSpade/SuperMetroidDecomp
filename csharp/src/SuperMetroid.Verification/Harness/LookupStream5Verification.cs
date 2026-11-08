@@ -630,7 +630,7 @@ internal static class LookupStream5Verification
         {
             var system = new SharedGameState();
             if (downloaded) system.SetAreaMapAcquired(area);
-            if (defeated) system.SetBossBits(area, (BossBits)1);
+            if (defeated) system.SetBossBits(area, BossBits.AreaBoss);
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(layout); icons.BindSprites(MenuSheetFixtures.MapSprites(sprites));
             var actual = ScreenSpritesFixtures.Blank(); var expected = ScreenSpritesFixtures.Blank();

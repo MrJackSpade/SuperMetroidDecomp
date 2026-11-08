@@ -22,9 +22,6 @@ internal static class RoomFxRecordEncoding
     /// <summary>The record byte naming <paramref name="blend"/>.</summary>
     internal static byte PaletteBlendByte(RoomFxPaletteBlend blend) => (byte)RoomFxRecordWords.PaletteBlends.Word(blend);
 
-    /// <summary>The record byte <paramref name="options"/> encode to.</summary>
-    internal static byte LiquidOptionsByte(RoomLiquidOptions options) => (byte)options;
-
     /// <summary>
     /// The palette-effect byte that starts <paramref name="effects"/> in a room of <paramref name="area"/>: each effect's
     /// bit in the area's list (#1526).

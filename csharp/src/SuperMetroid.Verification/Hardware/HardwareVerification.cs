@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
@@ -167,10 +168,10 @@ internal static void VerifyBossBitfield()
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(-1, BossBits.AreaBoss), "negative area rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(AreaIds.RetailCount, BossBits.AreaBoss), "area past the game's rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => state.SetBossBits(0, (BossBits)0x80),
+        () => state.SetBossBits(0, ~BossBitMasks.AllKnown),
         "unnamed boss bit rejected by typed API");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => BossBitMasksConstants.FromCartridge(0x80, "constructed selector"),
+    AssertThrows<InvalidDataException>(
+        () => ProgressionTableCodec.DecodeBossMask(0x80, "constructed selector"),
         "unnamed cartridge boss mask rejected");
     Console.WriteLine("  Boss state: all seven areas keep independent flags.");
 }

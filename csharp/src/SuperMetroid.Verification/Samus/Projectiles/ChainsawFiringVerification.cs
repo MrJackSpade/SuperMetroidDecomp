@@ -39,7 +39,7 @@ internal static class ChainsawFiringVerification
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
-            CollectedBeams = (SamusBeamFlags)0x100f,
+            CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = (SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
         };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
@@ -73,7 +73,7 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = (SamusBeamFlags)0x000d,
+            EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             SelectedHudItem = HudItem.Beam,
         };
         AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = reactiveLevel }, reactiveSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = ControllerButton.X }, new(0, 0), CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
@@ -97,7 +97,7 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = (SamusBeamFlags)0x000d,
+            EquippedBeams = SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             SelectedHudItem = HudItem.Beam,
         };
         var doorObjects = RoomObjectFixtures.Unbound();
@@ -248,7 +248,7 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = (SamusBeamFlags)0x100d,
+            EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
         };
         var chargedShared = CreateBombFixture();
         var chargedProjectiles = CreateProjectileFixture();

@@ -55,8 +55,8 @@ internal static class SpacetimeBeamVerification
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
-            CollectedBeams = (SamusBeamFlags)0x100f,
-            EquippedBeams = (SamusBeamFlags)0x1006,
+            CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
+            EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
         };
         var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
@@ -220,8 +220,8 @@ internal static class SpacetimeBeamVerification
                 MaxSuperMissiles = 10,
                 PowerBombs = 3,
                 MaxPowerBombs = 5,
-                EquippedBeams = (SamusBeamFlags)0x100e,
-                CollectedBeams = (SamusBeamFlags)0x100f,
+                EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
+                CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
                 EquippedItems = SamusEquipmentFlags.GravitySuit,
                 CollectedItems = SamusEquipmentFlags.GravitySuit,
                 StartupRoute = SaveLoadingGameState.OpeningCinematic,
@@ -315,7 +315,7 @@ internal static class SpacetimeBeamVerification
         // The page SpaceTime's equipped word binds shows the bytes its native DMA reads.
         var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
             InstalledFixtures.Projectiles.TrailTiles);
-        ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)0x100e)).Characters;
+        ReadOnlySpan<byte> page = pages.For(SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma).Characters;
         int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
         for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");
         foreach (int seed in new[] { 5, 19 })
@@ -323,7 +323,7 @@ internal static class SpacetimeBeamVerification
             // The palette is a defined one (#1318), whatever the enemy-projectile WRAM it once aliased holds.
             for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
             var samusColours = new SamusColours();
-            SamusProjectileSystem.LoadBeamPalette(samusColours, (SamusBeamFlags)0x100e);
+            SamusProjectileSystem.LoadBeamPalette(samusColours, SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
             RgbColor[] spacetime = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
             for (int i = 0; i < 16; i++) AssertEqual(RgbColor.Black, spacetime[i],
                 "SpaceTime colors are its defined palette");

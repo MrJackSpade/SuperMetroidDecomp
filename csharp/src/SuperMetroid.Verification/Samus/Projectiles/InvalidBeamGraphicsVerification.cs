@@ -49,7 +49,7 @@ internal static class InvalidBeamGraphicsVerification
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SamusColours();
-            SamusProjectileSystem.LoadBeamPalette(ordinary, (SamusBeamFlags)beam);
+            SamusProjectileSystem.LoadBeamPalette(ordinary, SamusEquipmentWordCodec.FromBeamWord(beam));
             RgbColor[] ordinaryBeams = ordinary.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = artwork.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") });
             int table = SamusSourceDefinitions.PalettePointers.Value + beam * 2;
             int source = (int)new SnesAddress(0x90, LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
@@ -63,12 +63,12 @@ internal static class InvalidBeamGraphicsVerification
             0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
         {
             var samusColours = new SamusColours();
-            SamusProjectileSystem.LoadBeamPalette(samusColours, (SamusBeamFlags)0x000d);
+            SamusProjectileSystem.LoadBeamPalette(samusColours, SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
             RgbColor[] chainsawBeams = samusColours.ShownBeams(InstalledFixtures.SamusShadeSources);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
                 InstalledFixtures.Projectiles.TrailTiles);
-            ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)0x000d).Characters;
+            ReadOnlySpan<byte> page = pages.For(SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma).Characters;
             int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
             for (int offset = 0; offset < 256; offset++)
                 AssertEqual(CpuBusRegionRead.Read(bus, 0x9ac421 + offset), page[first + offset], $"Chainsaw native DMA byte {offset}");

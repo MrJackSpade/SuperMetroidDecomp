@@ -46,14 +46,14 @@ internal static class BeamTileArtworkVerification
             var paletteSources = InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog.Palettes ?? throw new InvalidDataException("Beam palettes are installed.") };
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
-            SamusProjectileSystem.LoadBeamPalette(actualPaletteColours, (SamusBeamFlags)selection);
+            SamusProjectileSystem.LoadBeamPalette(actualPaletteColours, SamusEquipmentWordCodec.FromBeamWord(selection));
             var legacyVram = new SnesVram();
             nativeQueue.DrainTo(legacyVram, new BeamTileTransfers(catalog), null, BgArtworkFixtures.For(legacyVram));
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
             // The page the selection binds shows the native beam characters at their DMA destination.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, catalog,
                 InstalledFixtures.Projectiles.TrailTiles);
-            AssertTrue(pages.For((SamusBeamFlags)selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
+            AssertTrue(pages.For(SamusEquipmentWordCodec.FromBeamWord(selection)).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
                     BeamTileAtlasDefinitions.ByteCount).SequenceEqual(native.Bytes.Slice(ObjCharacterNativeWords.Of(ProjectileObjectPageDefinitions.BeamFirstCharacter) * 2, BeamTileAtlasDefinitions.ByteCount)),
                 "The bound projectile page shows the native beam characters");
             RgbColor[] shownBeams = actualPaletteColours.ShownBeams(paletteSources);

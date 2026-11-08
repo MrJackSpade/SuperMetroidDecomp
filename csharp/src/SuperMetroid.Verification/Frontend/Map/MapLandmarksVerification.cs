@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -22,11 +23,12 @@ internal static class MapLandmarksVerification
         int cases = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         foreach (bool downloaded in new[] { false, true })
-        for (int bits = 0; bits <= (int)BossBitMasks.AllKnown; bits++)
+        for (int bits = 0; bits < 1 << BossBitMasks.InMarkerOrder.Count; bits++)
         {
             // Every combination of the named boss flags; no routine tests any other (#1475).
             var system = new SharedGameState();
-            system.Progress.SetDefeatedBosses(area, (BossBits)bits);
+            BossBits bosses = ProgressionTableCodec.DecodeBossMask(bits, "landmark boss combination");
+            system.Progress.SetDefeatedBosses(area, bosses);
             if (downloaded) system.SetAreaMapAcquired(area);
             var native = new FileSelectMapIcons(system, area);
             var installed = new FileSelectMapIcons(system, area);
@@ -35,7 +37,7 @@ internal static class MapLandmarksVerification
             installed.BindLandmarks(original.Landmarks);
             installed.BindSprites(MenuSheetFixtures.MapSprites(InstalledAreaMapPresentation.SpritesOf(original)));
             AssertTrue(Draw(native, area).SequenceEqual(Draw(installed, area)), $"landmark OAM {area}/{bits}/{downloaded}");
-            AssertEqual((BossBits)bits, system.GetBossBits(area), "landmark drawing preserves boss state");
+            AssertEqual(bosses, system.GetBossBits(area), "landmark drawing preserves boss state");
             AssertEqual(downloaded, system.HasAreaMap(area), "landmark drawing preserves map acquisition");
             cases++;
         }

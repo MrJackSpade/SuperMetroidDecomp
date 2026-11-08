@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using System.Globalization;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
@@ -118,7 +119,7 @@ internal static class RoomMainCodeCatalogVerification
         {
             contexts.Add(new RoomStateSelectionContext(
                 null,
-                unchecked((BossBits)(1 << bit)),
+                ProgressionTableCodec.StoredBosses(1 << bit),
                 false,
                 false));
         }

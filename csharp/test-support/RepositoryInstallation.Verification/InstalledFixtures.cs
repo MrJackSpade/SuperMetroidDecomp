@@ -171,8 +171,8 @@ internal static class InstalledFixtures
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
 
     /// <summary>Projectile draw artwork showing the installed gameplay projectile sheet of <paramref name="equippedBeams"/>.</summary>
-    internal static ProjectileDrawArtwork ProjectileArtwork(ushort equippedBeams = 0) =>
-        new(ProjectileSheets.Gameplay(SpriteSheets), (SamusBeamFlags)equippedBeams);
+    internal static ProjectileDrawArtwork ProjectileArtwork(SamusBeamFlags equippedBeams = SamusBeamFlags.None) =>
+        new(ProjectileSheets.Gameplay(SpriteSheets), equippedBeams);
 
     /// <summary>The installation's grapple sheet.</summary>
     internal static SpriteSheet GrappleSheet => SpriteSheets.Get(SpriteSheetId.Grapple);

@@ -63,7 +63,7 @@ internal static class WrapShotsVerification
             {
                 PoseId = left != 0 ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left != 0 ? 32 : 992), 128)),
-                EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : 5)),
+                EquippedBeams = beam == 0 ? SamusBeamFlags.None : beam == 1 ? SamusBeamFlags.Wave : SamusBeamFlags.Wave | SamusBeamFlags.Spazer,
             };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();

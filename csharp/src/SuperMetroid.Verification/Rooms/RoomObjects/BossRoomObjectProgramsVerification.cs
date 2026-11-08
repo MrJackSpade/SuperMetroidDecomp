@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Audio;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -201,7 +202,7 @@ internal static class BossRoomObjectProgramsVerification
         switch (instruction)
         {
             case RoomObjectInstruction.GotoIfAreaBossBitSet:
-                AssertEqual((byte)BossBits.AreaBoss, ReadOperandByte(cartridge, cursor + 2), "glass area-boss bit");
+                AssertEqual(ProgressionTableCodec.EncodeBossMask(BossBits.AreaBoss), ReadOperandByte(cartridge, cursor + 2), "glass area-boss bit");
                 AssertEqual(MotherBrainGlassObjectProgram.BossDead, Entry(Word(3)), "glass boss-dead target");
                 cue = MotherBrainGlassObjectCue.Of(MotherBrainGlassObjectCueKind.SkipIfBossDead);
                 length = 5;

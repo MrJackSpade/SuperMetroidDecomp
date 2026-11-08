@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
@@ -79,7 +80,7 @@ internal static class LookupTourianProgramVerification
             {
                 case AnimatedTileInstruction.SetTourianStatueAnimationState:
                 {
-                    var flags = (TourianStatueAnimationState)operand;
+                    TourianStatueAnimationState flags = TourianStatueNativeWords.AnimationState(operand, at);
                     if (flags == TourianStatueAnimationState.ReleaseInProgress)
                         steps.Add(Cue(TourianStatueTileCueKind.ClaimRelease));
                     else
@@ -91,8 +92,8 @@ internal static class LookupTourianProgramVerification
                 }
                 case AnimatedTileInstruction.ResetTourianStatueAnimationState:
                 {
-                    var flags = (TourianStatueAnimationState)operand;
-                    if ((flags & TourianStatueAnimationState.ReleaseInProgress) != 0)
+                    TourianStatueAnimationState flags = TourianStatueNativeWords.AnimationState(operand, at);
+                    if ((flags & TourianStatueAnimationState.ReleaseInProgress) != TourianStatueAnimationState.None)
                     {
                         AssertEqual(TourianStatueAnimationState.ReleaseInProgress | definition.AnimatingFlag, flags,
                             $"{at}: release finish clears the turn with the statue's flag");
@@ -112,7 +113,7 @@ internal static class LookupTourianProgramVerification
                     break;
                 case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
                     AssertEqual(definition.BossArea, (AreaId)LittleEndianBytes.HighByte(operand), $"{at}: boss area");
-                    AssertEqual(definition.DefeatedBossBits, (BossBits)LittleEndianBytes.LowByte(operand), $"{at}: boss bits");
+                    AssertEqual(definition.DefeatedBossBits, ProgressionTableCodec.DecodeBossMask(LittleEndianBytes.LowByte(operand), at), $"{at}: boss bits");
                     steps.Add(Cue(TourianStatueTileCueKind.GoToIfBossDefeated,
                         Label(labels, Word(rom, instruction.Cursor + 4), at)));
                     break;

@@ -41,8 +41,8 @@ internal static class AttractDemoSceneImporter
             AttractDemoNativeWords.SamusSetups.Decode(setup, "demo Samus setup"),
             SamusEquipmentWordCodec.FromEquipmentWord(Equipment(AttractDemoSceneEquipmentFields.Items)), Equipment(AttractDemoSceneEquipmentFields.Missiles),
             Equipment(AttractDemoSceneEquipmentFields.SuperMissiles), Equipment(AttractDemoSceneEquipmentFields.PowerBombs),
-            Equipment(AttractDemoSceneEquipmentFields.Health), (SamusBeamFlags)(Equipment(AttractDemoSceneEquipmentFields.CollectedBeams)),
-            (SamusBeamFlags)(Equipment(AttractDemoSceneEquipmentFields.EquippedBeams)),
+            Equipment(AttractDemoSceneEquipmentFields.Health), SamusEquipmentWordCodec.FromBeamWord(Equipment(AttractDemoSceneEquipmentFields.CollectedBeams)),
+            SamusEquipmentWordCodec.FromBeamWord(Equipment(AttractDemoSceneEquipmentFields.EquippedBeams)),
             DemoInputObjectDefinitions.FromNativeHeader(Equipment(AttractDemoSceneEquipmentFields.InputObject)));
     }
 

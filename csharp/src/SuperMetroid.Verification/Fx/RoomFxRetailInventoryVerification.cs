@@ -289,7 +289,7 @@ internal static class RoomFxRetailInventoryVerification
 
         bool liquid = expectedType is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
         // The audit report prints the record's liquid-options byte as the cartridge stores it.
-        ushort liquidOptions = actual.LiquidOptions.ToNativeWord();
+        ushort liquidOptions = RoomFxRecordCodec.LiquidOptionsByte(actual.LiquidOptions);
         RetailLiquidClassification classification = !liquid
             ? expectedType == RoomFxType.None
                 ? RetailLiquidClassification.None

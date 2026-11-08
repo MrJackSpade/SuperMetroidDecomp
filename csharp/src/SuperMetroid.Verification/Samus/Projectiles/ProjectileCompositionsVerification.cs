@@ -165,7 +165,7 @@ internal static class ProjectileCompositionsVerification
             {
                 SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(sheetId);
                 if (sheet.frames.ContainsKey(frame) || sheet.blanks.Contains(frame))
-                    return InstalledFixtures.ProjectileArtwork(combination.Components.ToEquipmentWord());
+                    return InstalledFixtures.ProjectileArtwork(combination.Components);
             }
             return null;
         }

@@ -129,7 +129,7 @@ internal static class LookupRoomFxFieldsVerification
     }
 
     /// <summary>Checks liquid rendering flags at offset twelve.</summary>
-    private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordEncoding.LiquidOptionsByte(record.LiquidOptions));
+    private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => RoomFxRecordCodec.LiquidOptionsByte(record.LiquidOptions));
     /// <summary>Checks the palette effects, encoded through the header's area's list, against the bits at offset thirteen.</summary>
     private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1,
         record => RoomFxRecordEncoding.PaletteEffectsByte(record.PaletteEffects, record.HeaderArea));

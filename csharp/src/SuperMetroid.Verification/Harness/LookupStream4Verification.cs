@@ -1360,7 +1360,7 @@ internal static class LookupStream4Verification
         {
             var actual = new SamusColours();
             // The beams name the selection's shade (#1512); the import resolves it from the selected palettes.
-            SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)((ushort)(selection | 0x1000)));
+            SamusProjectileSystem.LoadBeamPalette(actual, SamusEquipmentWordCodec.FromBeamWord(checked((ushort)selection)) | SamusBeamFlags.Charge);
             int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
             RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = stock });
             for (int color = 0; color < 16; color++)
@@ -2551,7 +2551,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), expected.Length, "Bound beam characters span native immediate0100");
             int first = (CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.TrailTiles);
-            ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)selection)).Characters;
+            ReadOnlySpan<byte> page = pages.For(SamusEquipmentWordCodec.FromBeamWord(checked((ushort)selection))).Characters;
             AssertTrue(expected.SequenceEqual(page.Slice(first * SpriteArtwork.CharacterByteCount, expected.Length).ToArray()),
                 "The bound page shows the current calculated pixels at native destination6300 without cartridge reads");
             AssertEqual((byte)0, page[first * SpriteArtwork.CharacterByteCount - 1], "Beam characters leave the preceding character alone");

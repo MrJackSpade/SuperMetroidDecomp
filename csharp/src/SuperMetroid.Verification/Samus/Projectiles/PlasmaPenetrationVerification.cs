@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -17,7 +18,7 @@ internal static class PlasmaPenetrationVerification
             var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var slot = shots.Slots[0];
             SamusProjectileType type = SamusProjectileType.Beam(
-                SamusBeamCombinations.Of((SamusBeamFlags)combination | SamusBeamFlags.Plasma), charged);
+                SamusBeamCombinations.Of(SamusEquipmentWordCodec.FromBeamWord(combination) | SamusBeamFlags.Plasma), charged);
             slot.Type = type;
             slot.Damage = 100;
             slot.Direction = SamusProjectileDirection.Right;

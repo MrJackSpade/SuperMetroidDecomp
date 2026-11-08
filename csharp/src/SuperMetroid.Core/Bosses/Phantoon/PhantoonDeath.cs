@@ -208,9 +208,9 @@ internal sealed class PhantoonDeath
             EnemyDefinitionId.PhantoonBody,
             count: 16,
             xBase: 64,
-            xMask: 127,
+            xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 96,
-            yMask: 63);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         state.ItemDropRequested = true;
         EnemyProperties deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;

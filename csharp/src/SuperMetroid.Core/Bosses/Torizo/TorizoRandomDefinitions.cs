@@ -51,13 +51,4 @@ internal static class TorizoRandomDefinitions
 
     /// <summary>Whether a sonic boom flies high, twelve pixels above Torizo's Y rather than twenty below: the sample's bit zero.</summary>
     internal static readonly RandomSampleField SonicBoomHigh = new(0, 1);
-
-    /// <summary>Golden Torizo's dying drop scatter: the low byte across its 256-pixel strip.</summary>
-    internal const int GoldenDropXMask = 0b1111_1111;
-
-    /// <summary>Bomb Torizo's dying drop scatter: seven low bits across its 128-pixel region.</summary>
-    internal const int BombDropXMask = 0b111_1111;
-
-    /// <summary>Both statues' dying drop scatter: six bits of the sample's upper random byte down a 64-pixel band.</summary>
-    internal const int DropYMask = 0b11_1111;
 }

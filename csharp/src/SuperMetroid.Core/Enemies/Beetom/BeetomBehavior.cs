@@ -224,11 +224,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Uses the shared RNG's low three bits to choose an idle or hop branch.</summary>
+    /// <summary>Uses one random sample's <see cref="BeetomDecisions.NextAction"/> to choose an idle or hop branch.</summary>
     internal void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
         int random = _room.Random.Generate();
-        state.Function = (random & 7) switch
+        state.Function = BeetomDecisions.NextAction.Of(random) switch
         {
             0 or 1 => BeetomEnemyFunction.StartIdling,
             2 or 4 => BeetomEnemyFunction.StartShortHopLeft,
@@ -236,7 +236,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             5 => BeetomEnemyFunction.StartShortHopRight,
             _ => BeetomEnemyFunction.StartLongHopLeft,
         };
-        state.FacingRight = (random & 1) != 0;
+        state.FacingRight = BeetomDecisions.FaceRight.IsSetIn(random);
     }
 
     /// <summary>Starts side-specific crawl AI and animation.</summary>

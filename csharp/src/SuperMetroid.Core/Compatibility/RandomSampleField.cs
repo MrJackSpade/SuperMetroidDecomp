@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// mask, and this type is the one place that reads a field from a sample.
 /// </summary>
 /// <param name="Shift">The position of the field's lowest bit in the sample.</param>
-/// <param name="Width">How many bits the field holds, 1 through 16.</param>
+/// <param name="Width">How many bits the field holds, 0 through 16; a field of no bits reads zero, a choice with one outcome.</param>
 [EncodingOwner("random sample bit fields")]
 [CompatibilityService("which bits of the shared random sample each choice reads, exactly as the original masked and shifted its random word")]
 public readonly record struct RandomSampleField(int Shift, int Width)

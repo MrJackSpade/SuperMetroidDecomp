@@ -270,9 +270,9 @@ internal sealed class KraidDeath
             EnemyDefinitionId.Kraid,
             count: 16,
             xBase: 128,
-            xMask: byte.MaxValue,
+            xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
             yBase: 352,
-            yMask: 63);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         state.DeathDropRequestCount = 16;
         // The death continues into DrawKraidsRoomBackground, which restarts the shared fade step count.
         _presentation.FadeStepCount.Reset();

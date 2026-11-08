@@ -186,9 +186,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyDefinitionId.BombTorizo,
             count: 16,
             xBase: state.IsGolden ? 128 : 64,
-            xMask: state.IsGolden ? TorizoRandomDefinitions.GoldenDropXMask : TorizoRandomDefinitions.BombDropXMask,
+            xScatter: state.IsGolden ? EnemyDropScatterDefinitions.WideArenaHorizontalScatter : EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: state.IsGolden ? 288 : 96,
-            yMask: TorizoRandomDefinitions.DropYMask);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         state.ItemDropRequested = true;
         RequestBombTorizoMusic(MusicRequest.SelectTrack(3));
     }

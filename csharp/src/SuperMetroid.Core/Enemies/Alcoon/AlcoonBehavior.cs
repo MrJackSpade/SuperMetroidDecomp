@@ -351,8 +351,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AlcoonProgram StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
-        Func<int> readRandomNumber = _room.Random.Read;
-        int count = readRandomNumber() & 3;
+        int count = AlcoonWalkDefinitions.StepCount.Of(_room.Random.Read());
         state.StepCounter = count == 0 ? 2 : count;
         return state.Velocity.X.WholePixels < 0
             ? AlcoonProgram.WalkingLeft

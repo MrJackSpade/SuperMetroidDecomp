@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Semantic return identities of the six item-drop probability columns.</summary>
+/// <summary>Semantic return identities of the six item-drop probability columns, and the random roll compared with them.</summary>
 internal static class EnemyDropSelectionDefinitions
 {
     /// <summary>
@@ -18,4 +18,10 @@ internal static class EnemyDropSelectionDefinitions
         EnemyPickupKind.SuperMissile,
         EnemyPickupKind.PowerBomb,
     ];
+
+    /// <summary>
+    /// The random field a drop's chance roll reads: the low byte, bits zero to seven, drawn again while it is zero, then
+    /// compared with the accumulated column chances.
+    /// </summary>
+    internal static readonly RandomSampleField DropRoll = new(0, 8);
 }

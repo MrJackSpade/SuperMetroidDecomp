@@ -69,7 +69,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Position += moveBy.Offset;
                 return null;
             case YardCue.Command { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
-                if (state.Behavior != YardBehavior.Hiding && (_room.Random.Generate() & 1) == 0)
+                if (state.Behavior != YardBehavior.Hiding && !YardDecisions.RepeatPreviousPose.IsSetIn(_room.Random.Generate()))
                     return null;
                 // The pose record sits immediately before this cue in every authored list.
                 AnimationProgramCursor<YardProgram> previous = continuation with { Position = continuation.Position - 2 };

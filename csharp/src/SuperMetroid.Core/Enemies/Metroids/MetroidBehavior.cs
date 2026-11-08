@@ -398,8 +398,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = _room.Random.Generate();
             // Each axis adds a five-bit random selection minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
-                EnemyDropMasks.HorizontalScatter.Of(random) - 16,
-                EnemyDropMasks.VerticalScatter.Of(random) - 16);
+                EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
+                EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);
             MetroidDropRequests.Add(new MetroidDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }

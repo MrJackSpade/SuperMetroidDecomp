@@ -216,9 +216,9 @@ internal sealed class CrocomireSkeleton
             EnemyDefinitionId.Crocomire,
             count: 16,
             xBase: 576,
-            xMask: 127,
+            xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
             yBase: 96,
-            yMask: 63);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         _access.RequireCrocomireDeath().ItemDropRequested = true;
         state.DeathPhase = state.DeathPhase.Next();
     }

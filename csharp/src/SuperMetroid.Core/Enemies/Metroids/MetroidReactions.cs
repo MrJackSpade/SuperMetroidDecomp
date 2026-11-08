@@ -7,6 +7,7 @@ internal static class MetroidReactions
     internal static Offset16<RoomPixels> EscapeDisplacement(int countdown) =>
         MetroidBehaviorDefinitions.EscapeDisplacements[countdown & 3];
 
-    /// <summary>The cry <paramref name="random"/>'s low three bits select.</summary>
-    internal static SoundEffectId RandomCrySoundEffect(int random) => MetroidBehaviorDefinitions.RandomCries[random & 7];
+    /// <summary>The cry <paramref name="random"/>'s <see cref="MetroidBehaviorDefinitions.CrySlot"/> selects.</summary>
+    internal static SoundEffectId RandomCrySoundEffect(int random) =>
+        MetroidBehaviorDefinitions.RandomCries[MetroidBehaviorDefinitions.CrySlot.Of(random)];
 }

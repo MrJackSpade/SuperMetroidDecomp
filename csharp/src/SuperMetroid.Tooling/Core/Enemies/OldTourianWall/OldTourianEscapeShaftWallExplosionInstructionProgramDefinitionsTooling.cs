@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Tooling;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 
@@ -30,8 +31,8 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
         new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
         new(0xb447, checked(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.BurstCount)),
         new(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
-        new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.X, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.X)),
-        new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.Y, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.Y)),
+        new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.XRange, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.X)),
+        new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.YRange, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.Y)),
         new(0xb44f, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
         .. FrameOperands.Select((operand, frame) => new InstructionMechanicsWord(
             (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.FrameDurations[frame])),
@@ -40,8 +41,12 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
         new(0xb46e, (ushort)EnemyProjectileInstruction.Delete),
     ];
 
-    /// <summary>The scatter command's packed operand word for one axis: its mask in the low byte, its centre in the high.</summary>
-    private static ushort ScatterWord(int mask, int center) => LittleEndianBytes.Word(checked((byte)mask), checked((byte)center));
+    /// <summary>
+    /// The scatter command's packed operand word for one axis: the mask of the bits its range field reads in the low
+    /// byte, its centre in the high.
+    /// </summary>
+    private static ushort ScatterWord(RandomSampleField range, int center) =>
+        LittleEndianBytes.Word(checked((byte)((range.Outcomes - 1) << range.Shift)), checked((byte)center));
 
     /// <summary>Includes fixed control words and one duration before each wall-explosion pose.</summary>
     public static int MechanicsWordCount => Words.Length;

@@ -278,10 +278,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         SbugEnemyFunction movement)
     {
-        // Masking to a byte, subtracting 64 and masking again creates an unsigned byte delta; the later
+        // Reading a byte, subtracting a quarter turn and wrapping again creates an unsigned byte delta; the later
         // trigonometry reads only the heading's low byte, which the turn wraps within.
-        int randomLow = SharedRandomState.LowerByte(_room.Random.Generate());
-        int angleDelta = ByteAngle.Wrapped(randomLow - EnemyByteAngleDefinitions.QuarterTurn).RawValue;
+        int randomTurn = _room.Random.Next(SbugMovementDefinitions.RandomTurn);
+        int angleDelta = ByteAngle.Wrapped(randomTurn - EnemyByteAngleDefinitions.QuarterTurn).RawValue;
         state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = SbugMovementSegmentFrames;

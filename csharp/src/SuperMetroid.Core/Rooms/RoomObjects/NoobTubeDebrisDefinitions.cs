@@ -43,6 +43,12 @@ public static class NoobTubeDebrisDefinitions
     /// <summary>The downward speed a glass shard takes when it enters its falling arc: three quarters of a pixel per update.</summary>
     public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromSignedRaw(192);
 
+    /// <summary>
+    /// The random field a glass shard or air bubble starts its swaying fall from: the high byte, bits eight to fifteen,
+    /// as the sway phase in half-angle units.
+    /// </summary>
+    internal static readonly RandomSampleField FallingSwayPhase = new(8, 8);
+
     /// <summary>The whole-pixel X a hidden actor is moved to: 4608 pixels left of the room, far off screen.</summary>
     private const int HiddenX = -4608;
 

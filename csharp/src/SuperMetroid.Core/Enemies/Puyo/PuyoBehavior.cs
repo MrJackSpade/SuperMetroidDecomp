@@ -285,11 +285,11 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Generates a random number, then adds the
-    /// enemy's frame counter before keeping the low three bits.
+    /// Draws <see cref="PuyoHopDefinitions.HopRoll"/> from a new random number, then adds the enemy's frame counter,
+    /// continuing past the roll's last value from zero.
     /// </summary>
     private int NextPuyoRandom0To7(RoomEnemySlot slot) =>
-        (_room.Random.Generate() + slot.FrameCounter) & 7;
+        (_room.Random.Next(PuyoHopDefinitions.HopRoll) + slot.FrameCounter) % PuyoHopDefinitions.HopRoll.Outcomes;
 
     /// <summary>Runs the post-drop bounce wrapper.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)

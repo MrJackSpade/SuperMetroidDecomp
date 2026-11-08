@@ -109,9 +109,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case HopperEnemyFunction.ChooseHopSize:
                 // The game consumes an entire frame choosing one of two setup functions.
-                state.Function = (_room.Random.Generate() & 1) == 0
-                    ? HopperEnemyFunction.PrepareSmallHop
-                    : HopperEnemyFunction.PrepareBigHop;
+                state.Function = HopperDecisions.BigHop.IsSetIn(_room.Random.Generate())
+                    ? HopperEnemyFunction.PrepareBigHop
+                    : HopperEnemyFunction.PrepareSmallHop;
                 return;
             case HopperEnemyFunction.PrepareSmallHop:
                 PrepareHopperHop(state, HopperHopSize.Small);

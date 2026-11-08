@@ -13,6 +13,12 @@ public static class KiHunterMotionDefinitions
     /// <summary>The falling wings' arc radius, used by detached-wing setup and both arcs.</summary>
     public const int DetachedWingRadius = 48;
 
+    /// <summary>
+    /// The random bit that takes one pixel per update off a grounded Ki-Hunter's upward jump speed: bit zero, added to
+    /// the jump's eight pixels upward.
+    /// </summary>
+    internal static readonly RandomSampleField ShallowerGroundJump = new(0, 1);
+
 
 
     /// <summary>A leftward swoop's angular acceleration: minus an eighth of a table step per frame.</summary>

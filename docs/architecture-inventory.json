@@ -29912,19 +29912,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectBombTorizoHandVisualFiles.extension(SuperMetroid.Core.Bosses.Torizo.BombTorizoHandDraws.Draw)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectBombTorizoHandVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectBombTorizoHandVisualFilesConstants",
       "kind": "static class",
       "scope": "test",
@@ -30790,6 +30777,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectPresentationIdentity.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectRunContinuationCodec",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectRunContinuationCodec.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -34066,6 +34066,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusBeamCombinationTableOrder",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBeamCombinationTableOrder.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusBeamCombinationTableOrder.extension(SuperMetroid.Core.Progression.SamusBeamCombination)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusBeamCombinationTableOrder.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles",
@@ -38993,6 +39019,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueEye",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueEye.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueInstruction",
       "kind": "enum",
       "scope": "tool",
@@ -39019,7 +39058,7 @@
         "csharp/test-support/VerificationAccess.Core/Areas/Tourian/TourianStatueNativeWords.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatuePaletteConstants",
@@ -39315,32 +39354,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueUnlock",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueUnlock.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueUnlockDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueUnlockDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianUnlockBehavior",
@@ -56677,19 +56690,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoHandStrip",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandStrip.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoMovement",
       "kind": "static class",
       "scope": "product",
@@ -58122,6 +58122,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.AbsentLiquidSurfaceDepth",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/AbsentLiquidSurfaceDepth.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.AbsentWaterSurfaceLine",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/AbsentWaterSurfaceLine.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.AimAngleSlope",
       "kind": "static class",
       "scope": "product",
@@ -58334,6 +58360,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.CrystalFlashReadsAsStoredShine",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/CrystalFlashReadsAsStoredShine.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.DachoraGlowCycle",
@@ -64385,19 +64424,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Choot.ChootFallingPathPoint",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootFallingPathPoint.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Choot.ChootFalls",
       "kind": "static class",
       "scope": "product",
@@ -68641,6 +68667,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyPickupNativeWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyPickupNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyPickupState",
       "kind": "class",
       "scope": "product",
@@ -71142,19 +71184,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipDust",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipDust.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Gunship.GunshipDustAnimation",
@@ -80110,6 +80139,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Sbug.SbugFacing",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugFacing.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Sbug.SbugFrame",
       "kind": "record struct",
       "scope": "product",
@@ -84222,6 +84264,32 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFlickerStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostFlickerStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFlickerVisibility",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostFlickerVisibility.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFrame",
@@ -100446,6 +100514,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Fx.RainWind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/RainWind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.RoomEarthquake",
       "kind": "class",
       "scope": "product",
@@ -100691,6 +100772,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.RoomFxDoorRecord",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/RoomFxDoorRecord.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.RoomFxEarthquakeRequest",
       "kind": "record struct",
       "scope": "product",
@@ -100825,6 +100919,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.RoomFxOverlayStateAccess.extension(SuperMetroid.Core.Fx.RoomFxOverlayRenderSnapshot)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/RoomFxOverlayStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Fx.RoomFxOverlayStateAccess.extension(SuperMetroid.Core.Fx.RoomFxOverlayState)",
@@ -115227,10 +115337,9 @@
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectScrollProgramDefinitions.Generated.cs",
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectScrollProgramDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectScrollProgramDefinitions.Generated.cs"
       ],
-      "partial": "generated-boundary",
+      "partial": "generated",
       "disposition": "generated-boundary"
     },
     {
@@ -116512,6 +116621,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.SpeedBoosterEscapeObjectState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SpeedBoosterEscapeObjectState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.SpeedBoosterEscapeObjects",
       "kind": "class",
       "scope": "product",
@@ -116575,19 +116697,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.SpeedBoosterEscapeStages",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SpeedBoosterEscapeStages.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.SpeedBoosterPickupDefinitions",
@@ -117438,6 +117547,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollAuthoredBytes",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomScrollAuthoredBytes.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinition",
@@ -122375,6 +122500,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Grapple.GrappleFlareStage",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleFlareStage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Grapple.GrappleLaunchDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -127135,6 +127273,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusDirectionAccelerations",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusDirectionAccelerations.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusFiringStance",
       "kind": "record struct",
       "scope": "product",
@@ -127146,19 +127297,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusFiringTableDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringTableDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusMissileIgnition",
@@ -127851,32 +127989,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/SamusProjectileSystemAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileTableRows",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileTableRows.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileTableRows.extension(SuperMetroid.Core.Progression.SamusProjectileType)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileTableRows.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -158976,19 +159088,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.VerifyCompiledQuadraticEnemySpeedsCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/VerifyCompiledQuadraticEnemySpeedsCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.VerifyCorpseMetadataDefinitionsCase",
       "kind": "record struct",
       "scope": "test",
@@ -159439,19 +159538,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/VerifyYappingMawBodyProjectileBehaviorCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.YappingMaws.VerifyYappingMawExtensionCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/YappingMaws/VerifyYappingMawExtensionCase.cs"
       ],
       "partial": "none",
       "disposition": "value"

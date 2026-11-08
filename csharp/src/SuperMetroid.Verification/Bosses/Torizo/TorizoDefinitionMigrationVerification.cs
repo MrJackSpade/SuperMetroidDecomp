@@ -28,11 +28,12 @@ internal static class TorizoDefinitionMigrationVerification
         AssertEqual(TorizoBehaviorFlags.CaughtSuperMissile, TorizoParameterFlagWords.BehaviorOf(0x1000), "caught Super Missile bit");
         AssertEqual(TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp, TorizoParameterFlagWords.BehaviorOf(0xc00f), "blown-up bits");
 
-        // The random decisions test the masks the cartridge does.
-        AssertEqual(0x8142, TorizoRandomDefinitions.LowHealthDrool.Mask, "low-health drool mask");
-        AssertEqual(0x0102, TorizoRandomDefinitions.LowHealthCall.Mask, "low-health call mask");
-        AssertEqual(0x0110, TorizoRandomDefinitions.MediumRangeAttack.Mask, "medium-range attack mask");
-        AssertEqual(0x0101, TorizoRandomDefinitions.ForwardLeap.Mask, "forward leap mask");
+        // The random decisions test the bits the cartridge's masks do.
+        static int MaskOf(TorizoRandomBits decision) => decision.Bits.Aggregate(0, (mask, bit) => mask | (bit.Outcomes - 1) << bit.Shift);
+        AssertEqual(0x8142, MaskOf(TorizoRandomDefinitions.LowHealthDrool), "low-health drool mask");
+        AssertEqual(0x0102, MaskOf(TorizoRandomDefinitions.LowHealthCall), "low-health call mask");
+        AssertEqual(0x0110, MaskOf(TorizoRandomDefinitions.MediumRangeAttack), "medium-range attack mask");
+        AssertEqual(0x0101, MaskOf(TorizoRandomDefinitions.ForwardLeap), "forward leap mask");
 
         // The code's inventory is the cartridge's two immediates.
         AssertEqual(0xf337, GoldenTorizoCodeDefinitions.Items.ToEquipmentWord(), "code items word");

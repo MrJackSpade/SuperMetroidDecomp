@@ -41,8 +41,8 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The statue with its three eye colours blacked out, which it shows from the start of its release (#1512).</summary>
     public required PictureShade ClearedShade { get; init; }
 
-    /// <summary>The even statue selector passed to the eye-glow and soul spawners.</summary>
-    public required int UnlockEffectParameter { get; init; }
+    /// <summary>The statue's eye, where its release's eye glow and soul appear, and the glow it lights.</summary>
+    public required TourianStatueEye Eye { get; init; }
 
     /// <summary>The palette-FX object spawned during release.</summary>
     public required PaletteFxObject PaletteFx { get; init; }

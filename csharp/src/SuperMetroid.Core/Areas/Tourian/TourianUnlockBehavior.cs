@@ -54,30 +54,28 @@ internal sealed class TourianUnlockBehavior
         }
     }
 
-    /// <summary>Spawns a statue eye's glow from the definition and lights the eye's colours.</summary>
-    public void SpawnTourianEyeGlow(int parameter)
+    /// <summary>Spawns the glow of a statue's <paramref name="eye"/> and lights the eye's colours.</summary>
+    public void SpawnTourianEyeGlow(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, parameter) is null) return;
-        if (parameter > 6 || (parameter & 1) != 0)
-            throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "A statue eye glow names Phantoon 0, Ridley 2, Draygon 4 or Kraid 6.");
-        _statue.ShowEyeGlow(parameter >> 1);
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, eye) is null) return;
+        _statue.ShowEyeGlow(eye.Glow);
     }
 
-    /// <summary>Spawns a statue's released soul from the definition, rising from the eye.</summary>
-    public void SpawnTourianSoul(int parameter)
+    /// <summary>Spawns a statue's released soul, rising from its <paramref name="eye"/>.</summary>
+    public void SpawnTourianSoul(TourianStatueEye eye)
     {
-        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, parameter) is not { } soul) return;
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, eye) is not { } soul) return;
         soul.Velocity = soul.Velocity.WithY(SignedEightEight.Wrapped(-1024));
     }
 
-    /// <summary>Allocates an unlock effect at the statue's eye position; null when every slot is busy.</summary>
-    private RoomEnemyProjectileSlot? SpawnAtStatueEye(RoomEnemyProjectileKind kind, int parameter)
+    /// <summary>Allocates an unlock effect at a statue's <paramref name="eye"/>; null when every slot is busy.</summary>
+    private RoomEnemyProjectileSlot? SpawnAtStatueEye(RoomEnemyProjectileKind kind, TourianStatueEye eye)
     {
-        Position16<RoomPixels> position = TourianStatueUnlock.EyePosition(parameter);
+        Ensure.NotNull(eye);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return null;
         TourianStatueProjectileStarts.Initialize(projectile, kind, _statue.SceneGraphics);
-        projectile.Position = projectile.Position.WithWhole(position);
+        projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
     }
 

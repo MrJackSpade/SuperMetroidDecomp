@@ -231,10 +231,10 @@ public sealed class TourianStatueSequence
                     _enemies.TourianStatue.ShowStatueLook(definition.ClearedShade);
                     return null;
                 case TourianStatueTileCueKind.SpawnEyeGlow:
-                    statue.SpawnEyeGlow(definition.UnlockEffectParameter);
+                    statue.SpawnEyeGlow(definition.Eye);
                     return null;
                 case TourianStatueTileCueKind.SpawnSoul:
-                    statue.SpawnSoul(definition.UnlockEffectParameter);
+                    statue.SpawnSoul(definition.Eye);
                     return null;
                 case TourianStatueTileCueKind.SpawnGreyPaletteFx:
                     _roomPaletteFx.SpawnDefinition(definition.PaletteFx, _player.IntroducedSamus.EquippedItems);

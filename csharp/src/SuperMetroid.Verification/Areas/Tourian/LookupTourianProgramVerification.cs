@@ -124,11 +124,11 @@ internal static class LookupTourianProgramVerification
                     steps.Add(Cue(TourianStatueTileCueKind.ClearThreeColors));
                     break;
                 case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
-                    AssertEqual(definition.UnlockEffectParameter, operand, $"{at}: eye-glow statue selector");
+                    AssertEqual(definition.Eye, TourianStatueNativeWords.Eye(operand), $"{at}: eye-glow statue selector names the statue's eye");
                     steps.Add(Cue(TourianStatueTileCueKind.SpawnEyeGlow));
                     break;
                 case AnimatedTileInstruction.SpawnTourianStatueSoul:
-                    AssertEqual(definition.UnlockEffectParameter, operand, $"{at}: soul statue selector");
+                    AssertEqual(definition.Eye, TourianStatueNativeWords.Eye(operand), $"{at}: soul statue selector names the statue's eye");
                     steps.Add(Cue(TourianStatueTileCueKind.SpawnSoul));
                     break;
                 case AnimatedTileInstruction.SpawnPaletteFxObject:

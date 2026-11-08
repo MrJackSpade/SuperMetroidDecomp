@@ -1,19 +1,24 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// One entry of a room's enemy population (#1472): which enemy spawns, where, with which engine properties, and the
-/// settings its species starts from.
+/// One entry of a room's enemy population (#1472): which enemy spawns, where, how it meets Samus, what the room's enemy
+/// passes run for it, whether it is present and how it draws, and the settings its species starts from.
 /// </summary>
 /// <param name="DefinitionId">The enemy that spawns.</param>
 /// <param name="Position">The initial room position in whole pixels, each coordinate wrapping at sixteen bits.</param>
-/// <param name="Properties">The enemy's properties governing interaction, processing and visibility.</param>
-/// <param name="ExtraProperties">The enemy's additional properties, including extended-spritemap selection.</param>
+/// <param name="Contact">How the enemy starts out meeting Samus and her shots.</param>
+/// <param name="Processing">What the room's enemy passes start out running for the enemy.</param>
+/// <param name="Presence">Whether the enemy starts hidden or deleted, and whether it returns after a kill.</param>
+/// <param name="DrawsExtendedFrames">Whether the enemy draws extended frames.</param>
 /// <param name="SpawnSettings">What the entry tells its species about how to start, decoded by the import (#1471, #1472).</param>
+[IndependentFlag("whether an authored placement draws extended frames, a fact of the population data")]
 public readonly record struct RoomEnemyPopulationRecord(
     EnemyDefinitionId DefinitionId,
     Position16<RoomPixels> Position,
-    EnemyProperties Properties,
-    EnemyExtraProperties ExtraProperties,
+    EnemyContact Contact,
+    EnemyProcessing Processing,
+    EnemyPresence Presence,
+    bool DrawsExtendedFrames,
     EnemySpawnSettings SpawnSettings)
 {
     /// <summary>What the entry tells its species about how to start.</summary>

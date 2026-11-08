@@ -88,10 +88,19 @@ public sealed class RoomEnemySlot
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
-    /// <summary>The occupant's properties controlling collision, drawing and animation, initially the population entry's.</summary>
-    public EnemyProperties Properties { get; internal set; }
-    /// <summary>The occupant's additional properties, including whether it draws extended frames.</summary>
-    public EnemyExtraProperties ExtraProperties { get; internal set; }
+    /// <summary>How the occupant meets Samus and her shots, initially the population entry's.</summary>
+    public EnemyContact Contact { get; internal set; }
+    /// <summary>What the room's enemy passes run for the occupant, initially the population entry's.</summary>
+    public EnemyProcessing Processing { get; internal set; }
+    /// <summary>Whether the occupant is drawn, still occupies the slot and returns after a kill, initially the population entry's.</summary>
+    public EnemyPresence Presence { get; internal set; }
+    /// <summary>
+    /// Whether the occupant draws extended frames, which also admits it to drawing when its ordinary radius-based
+    /// visibility test would reject it; initially the population entry's.
+    /// </summary>
+    public bool DrawsExtendedFrames { get; internal set; }
+    /// <summary>Set when the occupant's animation program installs a new timed frame.</summary>
+    public bool NewInstructionFrame { get; internal set; }
     /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update dispatches to.</summary>
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>
@@ -156,8 +165,11 @@ public sealed class RoomEnemySlot
         Spawn = default;
         Position = FixedPosition<RoomPixels>.Zero;
         Radius = Extent16<RoomPixels>.Zero;
-        Properties = default;
-        ExtraProperties = default;
+        Contact = EnemyContact.None;
+        Processing = EnemyProcessing.None;
+        Presence = EnemyPresence.None;
+        DrawsExtendedFrames = false;
+        NewInstructionFrame = false;
         Health = 0;
         AiStates = EnemyAiStates.None;
         FrameHold = WrappingCountdown.Start(0);

@@ -511,12 +511,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
                 // The native words also hold species bits that species code writes and nothing reads (#1472); the port
                 // keeps the engine flags, which are compared.
-                CheckValue(owner + " Properties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(actor.Properties),
-                    SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(
-                        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineFlagsOf(W(address + 14))));
-                CheckValue(owner + " ExtraProperties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(actor.ExtraProperties),
-                    SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(
-                        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf(W(address + 16))));
+                var nativeProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineStateOf(W(address + 14), W(address + 16));
+                CheckValue(owner + " Properties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(actor),
+                    SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(nativeProperties));
+                CheckValue(owner + " ExtraProperties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(actor),
+                    SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(nativeProperties));
                 Check(owner + " AiStates", SuperMetroid.AssetExtraction.Enemies.EnemyAiStatesWordCodec.Encode(actor.AiStates), address + 18);
                 Check(owner + " Timer", actor.Timer.RawValue, address + 24);
                 // The port holds the colouring; the row holding it is compared as the native palette word that row is stored as.
@@ -534,7 +533,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 W(NativeSnapshotMemory.EnemyBase) == SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.Ridley))
             {
                 bool expectedGate = (W(NativeSnapshotMemory.EnemyBase + 14) & 0x0400) != 0;
-                if (runtime.Enemies.SlotTable.Slots[0].Properties.HasAny(EnemyProperties.IgnoreSamusCollision) != expectedGate)
+                if (runtime.Enemies.SlotTable.Slots[0].Contact.HasAny(EnemyContact.IgnoresSamus) != expectedGate)
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 // Ridley's AI function is an identity (#1413): the native routine word is translated and the identities compared.
                 ushort nativeFunctionWord = W(NativeSnapshotMemory.RidleyFunction);

@@ -82,7 +82,7 @@ internal static class RoomEnemySystemAccess
             var kraid = self.KraidBehavior.Access.Kraid;
             RoomEnemySlot body = self.SlotTable.Slots[0];
             if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
-                body.Properties.HasAny(EnemyProperties.Deleted))
+                body.Presence.HasAny(EnemyPresence.Deleted))
                 return 0;
             var shots = new KraidBehavior.KraidShotSlots(projectiles, sharedProjectiles);
             return self.KraidBehavior.Combat.ResolveKraidMouthProjectileHits(body, kraid, shots) +

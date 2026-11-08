@@ -283,7 +283,7 @@ internal sealed class NorfairRidleyCombat
         if (samus is not null && SamusMovementUsesRidleyGrab(samus) &&
             RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(4, 4)))
         {
-            state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-int.Max(
+            state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(-int.Max(
                 512,
                 Math.Abs(state.Velocity.Y.SignedRawValue))));
             state.TailFunctionIndex = RidleyTailFunction.Neutral;
@@ -293,7 +293,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoDownwardAcceleration;
-        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(Math.Min(nextVertical, 1536)));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(Math.Min(nextVertical, 1536)));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state, level))
             return;
@@ -342,7 +342,7 @@ internal sealed class NorfairRidleyCombat
         }
         else
         {
-            state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(nextVertical));
+            state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(nextVertical));
         }
     }
 

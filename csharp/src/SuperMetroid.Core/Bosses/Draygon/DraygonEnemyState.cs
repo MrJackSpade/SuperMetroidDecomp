@@ -229,6 +229,6 @@ public sealed class DraygonEnemyState
         set => field = Ensure.BetweenInclusive(0, SwoopPathCapacity, value);
     }
 
-    /// <summary>The unsigned 16.16 horizontal speed the swoop and goop passes add to or subtract from the body's X.</summary>
-    internal uint SwoopVelocity { get; set; }
+    /// <summary>The horizontal speed the swoop and goop passes move the body's X by, toward their side.</summary>
+    internal UnsignedSixteenSixteen SwoopVelocity { get; set; }
 }

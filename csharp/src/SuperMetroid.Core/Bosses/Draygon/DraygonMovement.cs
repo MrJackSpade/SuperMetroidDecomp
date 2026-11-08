@@ -17,12 +17,13 @@ internal sealed class DraygonMovement
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Moves Draygon right or left by the current 16.16 velocity without losing its fraction.</summary>
+    /// <summary>Moves Draygon right or left by the current swoop speed without losing its fraction.</summary>
     internal static void MoveDraygonHorizontally(DraygonEnemyState state, bool rightward)
     {
         RoomEnemySlot body = state.Body;
-        int velocity = unchecked((int)state.SwoopVelocity);
-        body.Position = body.Position.WithX(body.Position.X.MovedBy(SignedSixteenSixteen.FromRaw(rightward ? velocity : unchecked(-velocity))));
+        body.Position = body.Position.WithX(rightward
+            ? body.Position.X.MovedForward(state.SwoopVelocity)
+            : body.Position.X.MovedBack(state.SwoopVelocity));
     }
 
     /// <summary>Emits a breath bubble every 128 body frames when a sprite slot is available.</summary>
@@ -39,13 +40,24 @@ internal sealed class DraygonMovement
         }
     }
 
-    /// <summary>Adds or subtracts a sine-derived magnitude with 16.16 wraparound.</summary>
+    /// <summary>
+    /// The distance one axis of an angled move covers: the unsigned sine sample <paramref name="phase"/> ahead of
+    /// <paramref name="angle"/> times <paramref name="speed"/> whole pixels, a quarter turn ahead for the horizontal axis
+    /// and a half turn for the vertical, whose direction the caller takes from the angle.
+    /// </summary>
+    /// <param name="angle">The movement angle.</param>
+    /// <param name="speed">The speed, 0 through 65535 pixels an update.</param>
+    /// <param name="phase">The turn the sample is read ahead of the angle.</param>
+    internal static UnsignedSixteenSixteen AngleMagnitude(ByteAngle angle, int speed, RotationAngle phase) =>
+        UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
+            angle,
+            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
+            angleOffset: phase.TableIndex)));
+
+    /// <summary>Moves one axis of the body back or forward by a sine-derived distance.</summary>
     internal static FixedCoordinate AddDraygonAngleMagnitude(
         FixedCoordinate position,
-        uint magnitude,
-        bool subtract)
-    {
-        int displacement = unchecked((int)magnitude);
-        return position.MovedBy(SignedSixteenSixteen.FromRaw(subtract ? unchecked(-displacement) : displacement));
-    }
+        UnsignedSixteenSixteen magnitude,
+        bool subtract) =>
+        subtract ? position.MovedBack(magnitude) : position.MovedForward(magnitude);
 }

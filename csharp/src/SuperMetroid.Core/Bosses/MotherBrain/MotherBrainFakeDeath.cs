@@ -332,7 +332,8 @@ internal sealed class MotherBrainFakeDeath
     private static MotherBrainFallingTubeState AccelerateMotherBrainTube(RoomEnemySlot tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        tubeState.FallSpeed = SignedEightEight.Wrapped(tubeState.FallSpeed.RawValue + 6);
+        // A tube falls to its floor and explodes there, so its speed stays a few pixels an update.
+        tubeState.FallSpeed += SignedEightEight.FromSignedRaw(6);
         tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
         return tubeState;
     }

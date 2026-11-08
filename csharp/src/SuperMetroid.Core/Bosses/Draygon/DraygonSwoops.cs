@@ -223,7 +223,7 @@ internal sealed class DraygonSwoops
     /// <param name="distance">The whole-pixel distance, 0 through 65535.</param>
     /// <param name="frameCount">The path's entries.</param>
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
-        state.SwoopVelocity = SixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
+        state.SwoopVelocity = UnsignedSixteenSixteen.Covering(distance, frameCount);
 
     /// <summary>Ports the regional four-pixel upward retreat.</summary>
     internal void FlyDraygonStraightUp(

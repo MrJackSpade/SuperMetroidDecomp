@@ -16,11 +16,7 @@ internal sealed class MotherBrainFallingTubeState
     public MotherBrainTubeFunction? Function { get; internal set; }
 
     /// <summary>The room Y, in pixels, at which a non-main tube explodes.</summary>
-    public int FloorY
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int FloorY { get; internal set; }
 
     /// <summary>The signed 8.8 fall speed per update, increased by six 256ths each update.</summary>
     public SignedEightEight FallSpeed { get; internal set; }

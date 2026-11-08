@@ -573,17 +573,18 @@ internal sealed class PhantoonPatterns
         }
         int targetX = tentaclePart.SwoopTargetX;
 
-        int swoopX = tentaclePart.SwoopVelocity.X.RawValue;
+        // Each pull stops past its threshold, so the swoop's speeds stay within about eight pixels an update either way.
+        SignedEightEight swoopX = tentaclePart.SwoopVelocity.X;
         if (CoordinateAxis.Difference(targetX, body.Position.X.Whole) < 0)
         {
-            if (CoordinateAxis.Difference(swoopX, PhantoonMotionDefinitions.SwoopNegativeXThreshold) >= 0)
-                swoopX = CoordinateAxis.Wrap(swoopX - 32);
+            if (swoopX.SignedRawValue >= PhantoonMotionDefinitions.SwoopNegativeXThreshold)
+                swoopX -= PhantoonMotionDefinitions.SwoopHorizontalPull;
         }
-        else if (CoordinateAxis.Difference(swoopX, 2048) < 0)
+        else if (swoopX.SignedRawValue < 2048)
         {
-            swoopX = CoordinateAxis.Wrap(swoopX + 32);
+            swoopX += PhantoonMotionDefinitions.SwoopHorizontalPull;
         }
-        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithX(new SignedEightEight(swoopX));
+        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithX(swoopX);
         body.Position = body.Position.AdvanceX(tentaclePart.SwoopVelocity.X.ToSixteenSixteenDelta());
         if (CoordinateAxis.Difference(body.Position.X.Whole, PhantoonMotionDefinitions.SwoopMinimumX) < 0)
             body.Position = body.Position.WithWholeX(CoordinateAxis.Wrap(PhantoonMotionDefinitions.SwoopMinimumX));
@@ -591,17 +592,17 @@ internal sealed class PhantoonPatterns
             body.Position = body.Position.WithWholeX(PhantoonMotionDefinitions.SwoopMaximumX);
 
         int targetY = target == PhantoonSwoopTarget.DeathHeight ? 112 : CoordinateAxis.Wrap(samus.Position.Y.Whole - 48);
-        int swoopY = tentaclePart.SwoopVelocity.Y.RawValue;
+        SignedEightEight swoopY = tentaclePart.SwoopVelocity.Y;
         if (CoordinateAxis.Difference(targetY, body.Position.Y.Whole) < 0)
         {
-            if (CoordinateAxis.Difference(swoopY, PhantoonMotionDefinitions.SwoopNegativeYThreshold) >= 0)
-                swoopY = CoordinateAxis.Wrap(swoopY - 64);
+            if (swoopY.SignedRawValue >= PhantoonMotionDefinitions.SwoopNegativeYThreshold)
+                swoopY -= PhantoonMotionDefinitions.SwoopVerticalPull;
         }
-        else if (CoordinateAxis.Difference(swoopY, 1536) < 0)
+        else if (swoopY.SignedRawValue < 1536)
         {
-            swoopY = CoordinateAxis.Wrap(swoopY + 64);
+            swoopY += PhantoonMotionDefinitions.SwoopVerticalPull;
         }
-        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithY(new SignedEightEight(swoopY));
+        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithY(swoopY);
         body.Position = body.Position.AdvanceY(tentaclePart.SwoopVelocity.Y.ToSixteenSixteenDelta());
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 64) < 0)
             body.Position = body.Position.WithWholeY(64);

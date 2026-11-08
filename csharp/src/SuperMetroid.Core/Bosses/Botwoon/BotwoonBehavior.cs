@@ -993,11 +993,13 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         int randomEnemyCounter)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(segment.Velocity.Y.RawValue)).Positive;
+        int displacement = EnemyQuadraticSpeeds.Row(EightEight.WholeOf(segment.Velocity.Y.SignedRawValue)).Positive;
         segment.Position = segment.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
         if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {
-            segment.Velocity = segment.Velocity.WithY(SignedEightEight.Wrapped(segment.Velocity.Y.RawValue + 192));
+            // The fall speed selects a row of the quadratic speeds, which rejects a speed past its rows long before the
+            // speed could leave its range.
+            segment.Velocity = segment.Velocity.WithY(segment.Velocity.Y + SignedEightEight.FromSignedRaw(192));
             segment.FrameHold = WrappingCountdown.Start(0);
             ShowBotwoonBodyHurtFlash(segment, randomEnemyCounter);
             return;

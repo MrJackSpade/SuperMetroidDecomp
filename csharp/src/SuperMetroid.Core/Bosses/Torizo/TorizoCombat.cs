@@ -93,7 +93,7 @@ internal sealed class TorizoCombat
     {
         // The health gradient selects one of eight health bands using bits 11..14 of health, clamping
         // the upper half to the last band; each band resolves its colours from the installed health palettes.
-        int healthBand = Ensure.BetweenInclusive(0, ushort.MaxValue, health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
+        int healthBand = Ensure.AtLeastZero(health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenHealth, band));
     }

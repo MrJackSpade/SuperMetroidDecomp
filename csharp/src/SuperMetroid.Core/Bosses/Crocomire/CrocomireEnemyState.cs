@@ -100,13 +100,9 @@ public sealed class CrocomireEnemyState
 
     /// <summary>
     /// While the body sinks or rises: the vertical acceleration in 1/256 pixel per frame per frame. The sink clamps its
-    /// whole part at forty-eight and the rise at thirty-one.
+    /// whole part at forty-eight and the rise at thirty-one, and both start from none.
     /// </summary>
-    public int VerticalAcceleration
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int VerticalAcceleration { get; internal set; }
 
     /// <summary>
     /// During combat: the shot and power-bomb reaction timer, cleared at wake-up and set to ten by every reaction. No
@@ -118,11 +114,7 @@ public sealed class CrocomireEnemyState
     /// While the body sinks or rises: the vertical speed in 1/256 pixel per frame. The sink clamps its whole part at
     /// three and the rise stops it at zero, so it stays below four pixels per frame.
     /// </summary>
-    public int VerticalSpeed
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int VerticalSpeed { get; internal set; }
 
     /// <summary>
     /// During the projectile attack: the even spawn parameter, cleared when the attack starts and advanced by two
@@ -136,11 +128,14 @@ public sealed class CrocomireEnemyState
     /// </summary>
     internal CrocomireFightFunction SavedFightFunction { get; set; }
 
-    /// <summary>While the body sinks or rises: the 1/256-pixel vertical position carried between frames.</summary>
+    /// <summary>
+    /// While the body sinks or rises: the vertical position below a whole pixel carried between frames, in 256ths of a
+    /// pixel, less than one pixel.
+    /// </summary>
     public int VerticalSubpixel
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(0, EightEight.FromWhole(1) - 1, value);
     }
 
     /// <summary>

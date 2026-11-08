@@ -590,7 +590,7 @@ public sealed class BabyMetroidCutsceneState
                 // `ShakeBabyMetroidCutscene` first adds -1 to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(SignedEightEight.Wrapped(Velocity.Y.RawValue - 1));
+                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromSignedRaw(1));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
                 if (--FunctionTimer < 0)
@@ -782,13 +782,14 @@ public sealed class BabyMetroidCutsceneState
     private void AccelerateDownwardsForDeath()
     {
         // The slowing step subtracts 32 from the magnitude, clamps at zero, reapplies the old
-        // sign, and independently adds two to vertical 8.8 velocity with 16-bit wrap.
+        // sign, and independently adds two to vertical 8.8 velocity. The fall ends 63 updates after the Baby reaches
+        // line 128, so even a fall across the whole coordinate space leaves the speed below 33 pixels an update.
         // The slowed magnitude is at most 32736, so it always fits a signed 8.8 velocity.
         int xVelocity = Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(xVelocity) - 32);
         Velocity = new(
             SignedEightEight.FromSignedRaw(xVelocity < 0 ? -magnitude : magnitude),
-            SignedEightEight.Wrapped(Velocity.Y.RawValue + 2));
+            Velocity.Y + SignedEightEight.FromSignedRaw(2));
     }
 
     /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=128, selecting the shade it shows.</summary>
@@ -981,7 +982,7 @@ public sealed class BabyMetroidCutsceneState
         if (difference < 0)
         {
             int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithY(SignedEightEight.Wrapped(velocity));
+            Velocity = Velocity.WithY(SignedEightEight.FromSignedRaw(velocity));
             int prediction = CoordinateAxis.Wrap(Position.Y.Whole + EightEight.WholeOf(Velocity.Y.SignedRawValue));
             if (CoordinateAxis.Difference(prediction, targetY) < 0)
                 return false;
@@ -989,7 +990,7 @@ public sealed class BabyMetroidCutsceneState
         else
         {
             int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithY(SignedEightEight.Wrapped(velocity));
+            Velocity = Velocity.WithY(SignedEightEight.FromSignedRaw(velocity));
             int prediction = CoordinateAxis.Wrap(Position.Y.Whole + EightEight.WholeOf(Velocity.Y.SignedRawValue));
             int predictedDifference = CoordinateAxis.Difference(prediction, targetY);
             if (predictedDifference > 0)
@@ -1007,7 +1008,7 @@ public sealed class BabyMetroidCutsceneState
         if (difference < 0)
         {
             int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithX(SignedEightEight.Wrapped(velocity));
+            Velocity = Velocity.WithX(SignedEightEight.FromSignedRaw(velocity));
             int prediction = CoordinateAxis.Wrap(Position.X.Whole + EightEight.WholeOf(Velocity.X.SignedRawValue));
             if (CoordinateAxis.Difference(prediction, targetX) < 0)
                 return false;
@@ -1017,7 +1018,7 @@ public sealed class BabyMetroidCutsceneState
             // Deliberately sends exact equality through the left branch; unlike Y,
             // there is no BEQ before BPL.
             int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithX(SignedEightEight.Wrapped(velocity));
+            Velocity = Velocity.WithX(SignedEightEight.FromSignedRaw(velocity));
             int prediction = CoordinateAxis.Wrap(Position.X.Whole + EightEight.WholeOf(Velocity.X.SignedRawValue));
             int predictedDifference = CoordinateAxis.Difference(prediction, targetX);
             if (predictedDifference > 0)

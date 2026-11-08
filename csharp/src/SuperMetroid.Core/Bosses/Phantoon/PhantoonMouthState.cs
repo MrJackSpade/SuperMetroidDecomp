@@ -23,7 +23,7 @@ public sealed class PhantoonMouthState
     public int CasualFlameCount
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, short.MaxValue, value);
+        internal set => field = Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, int.MaxValue, value);
     }
 
     /// <summary>The mouth's wave amplitude.</summary>

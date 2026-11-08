@@ -275,7 +275,7 @@ internal sealed class KraidProjectiles
         // A sibling killed since it was set up holds its place without its state, and launches nothing.
         bool siblingKilled = !ReferenceEquals(sibling.SpeciesState<KraidPartState>(), siblingPart);
         part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(
-            KilledFingernailStops.SiblingSpeed(siblingPart.NailVelocity.Y.WholeWord, stopped: 0, siblingKilled));
+            KilledFingernailStops.SiblingSpeed(siblingPart.NailVelocity.Y.WholePixels, stopped: 0, siblingKilled));
         part.NailLaunched = true;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
@@ -311,7 +311,7 @@ internal sealed class KraidProjectiles
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
 
         if (_terrain.MoveEnemyVertically(level, nail, part.NailVelocity.Y.RawValue))
-            part.NailVelocity = part.NailVelocity.WithY(SignedSixteenSixteen.FromRaw(unchecked(-part.NailVelocity.Y.RawValue)));
+            part.NailVelocity = part.NailVelocity.WithY(SignedSixteenSixteen.Zero - part.NailVelocity.Y);
     }
 
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
@@ -480,10 +480,8 @@ internal sealed class KraidProjectiles
         {
             SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X +
                 SignedSixteenSixteen.FromRaw(KraidPlatformMovement.FiringDisplacement);
-            int whole = carry.WholePixels;
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(carry.WithWholePixels(CoordinateAxis.AsSigned(
-                CoordinateAxis.Difference(whole, KraidPlatformMovement.MinimumCarryWholePixels) < 0
-                    ? KraidPlatformMovement.MinimumCarryWholePixels : whole)));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
+                carry.WithWholePixelsAtLeast(KraidPlatformMovement.MinimumCarryWholePixels));
         }
     }
 
@@ -507,11 +505,11 @@ internal sealed class KraidProjectiles
             return;
         }
 
-        int horizontal = rock.Velocity.X.SignedRawValue + 8;
-        if (horizontal >= 256)
-            horizontal = -256;
-        rock.Velocity = rock.Velocity.WithX(SignedEightEight.Wrapped(horizontal));
-        rock.Velocity = rock.Velocity.WithY(SignedEightEight.Wrapped(rock.Velocity.Y.RawValue + 64));
+        SignedEightEight horizontal = rock.Velocity.X + KraidRockLaunchDefinitions.RockDrift;
+        if (horizontal.SignedRawValue >= KraidRockLaunchDefinitions.RockDriftRestart.SignedRawValue)
+            horizontal = -KraidRockLaunchDefinitions.RockDriftRestart;
+        rock.Velocity = rock.Velocity.WithX(horizontal);
+        rock.Velocity = rock.Velocity.WithY(rock.Velocity.Y + KraidRockLaunchDefinitions.RockGravity);
     }
 
     /// <summary>Updates a falling ceiling rock and its contact with room terrain.</summary>
@@ -524,7 +522,8 @@ internal sealed class KraidProjectiles
             rock.Clear();
             return;
         }
-        rock.Velocity = rock.Velocity.WithY(SignedEightEight.Wrapped((rock.Velocity.Y.RawValue + 24) & 16383));
+        rock.Velocity = rock.Velocity.WithY(
+            RestartingFallSpeed.Accelerate(rock.Velocity.Y, KraidRockLaunchDefinitions.CeilingRockGravity));
     }
 
     /// <summary>Binds nail touch callbacks and their shared contact-damage path.</summary>

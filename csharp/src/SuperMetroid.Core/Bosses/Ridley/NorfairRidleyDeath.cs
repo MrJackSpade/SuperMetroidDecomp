@@ -277,9 +277,10 @@ internal sealed class NorfairRidleyDeath
             ?? throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no state.");
         int horizontal = fragmentState.Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(horizontal) - 4);
+        // A fragment falls only for its part's authored lifetime, so its gravity adds a few pixels an update at most.
         var velocity = new EightEightVector<RoomPixels>(
-            SignedEightEight.Wrapped(horizontal < 0 ? -magnitude : magnitude),
-            SignedEightEight.Wrapped(fragmentState.Velocity.Y.RawValue + 4));
+            SignedEightEight.FromSignedRaw(horizontal < 0 ? -magnitude : magnitude),
+            fragmentState.Velocity.Y + SignedEightEight.FromSignedRaw(4));
         fragmentState.Velocity = velocity;
         fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 

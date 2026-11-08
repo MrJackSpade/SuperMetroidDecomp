@@ -23,6 +23,12 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// <summary>The eleven floor columns begin at X1808 with16-pixel spacing.</summary>
     private const int FirstColumnX = 1808;
 
+    /// <summary>
+    /// The gravity on a falling bridge fragment, in 256ths of a pixel an update, each update; the fall restarts as
+    /// <see cref="RestartingFallSpeed"/> states.
+    /// </summary>
+    internal static readonly SignedEightEight Gravity = SignedEightEight.FromSignedRaw(24);
+
     /// <summary>The number of bridge fragments the collapse launches, one per authored column.</summary>
     internal const int FragmentCount = 11;
 

@@ -172,7 +172,7 @@ internal sealed class CrocomireSkeleton
             return;
         if (--death.RumbleCooldown != 0)
             return;
-        state.SkeletonVelocity = state.SkeletonVelocity.WithFraction(0);
+        state.SkeletonVelocity = state.SkeletonVelocity.WithoutFraction();
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFalling);
         state.DeathPhase = state.DeathPhase.Next();
     }
@@ -270,9 +270,7 @@ internal sealed class CrocomireSkeleton
     {
         SignedSixteenSixteen accelerated =
             velocity + SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(accelerationEightEight));
-        return accelerated.WholePixels >= maximumWhole
-            ? accelerated.WithWholePixels(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, maximumWhole))
-            : accelerated;
+        return accelerated.WithWholePixelsAtMost(maximumWhole);
     }
 
     /// <summary>

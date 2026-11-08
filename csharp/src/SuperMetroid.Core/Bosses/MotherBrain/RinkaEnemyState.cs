@@ -21,11 +21,7 @@ public sealed class RinkaEnemyState
     /// Reservation token of the spawn location a special Mother Brain Rinka holds: one of the even tokens 2 through 22
     /// from the spawn-point table, or zero when it holds none.
     /// </summary>
-    public int SpawnResourceToken
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int SpawnResourceToken { get; internal set; }
 
     /// <summary>Updates left before flight or before a special respawn, counted down past zero.</summary>
     public int DelayTimer { get; internal set; }

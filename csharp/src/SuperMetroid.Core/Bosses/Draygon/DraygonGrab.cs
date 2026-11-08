@@ -167,22 +167,24 @@ internal sealed class DraygonGrab
         }
 
         RoomEnemySlot body = state.Body;
+        // The radius starts at none and grows until it reaches its maximum of 160 pixels, so its whole pixels are never
+        // negative.
         body.Position = body.Position.WithWhole(state.SpiralCenter.Whole + new Offset16<RoomPixels>(
-            CoordinateAxis.AsSigned(EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.ToByteAngle(), state.SpiralXRadius.WholeWord)),
-            CoordinateAxis.AsSigned(EnemyMath.ReadEightBitNegativeSineProduct(
+            EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.ToByteAngle(), state.SpiralXRadius.WholePixels),
+            EnemyMath.ReadEightBitNegativeSineProduct(
                 state.SpiralAngle.ToByteAngle(),
-                CoordinateAxis.Wrap(state.SpiralXRadius.WholeWord >> 2)))));
+                state.SpiralXRadius.WholePixels / 4)));
 
         if ((body.FrameCounter & 7) == 0)
         {
             _spriteObjects.SpawnRoomSpriteObject(
-                body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
+                body.Position.Whole + new Offset16<RoomPixels>(state.FacingRight ? 32 : -32, -16),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
                 graphics: default);
         }
 
         state.SpiralXRadius += DraygonBehavior.DraygonSpiralRadiusGrowth;
-        if (CoordinateAxis.Difference(state.SpiralXRadius.WholeWord, DraygonBehavior.DraygonMaximumSpiralRadius) >= 0)
+        if (state.SpiralXRadius.WholePixels >= DraygonBehavior.DraygonMaximumSpiralRadius)
         {
             state.Function = DraygonAiFunction.FinalTailWhips;
             return;
@@ -294,14 +296,8 @@ internal sealed class DraygonGrab
     {
         ByteAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTableAngle();
 
-        uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            movementAngle,
-            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
-            angleOffset: RotationAngle.QuarterTurn.TableIndex));
-        uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            movementAngle,
-            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
-            angleOffset: RotationAngle.HalfTurn.TableIndex));
+        UnsignedSixteenSixteen xMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.QuarterTurn);
+        UnsignedSixteenSixteen yMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.HalfTurn);
 
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
             body.Position.X,

@@ -23,29 +23,18 @@ public sealed class ShitroidEnemyState
     /// <summary>Signed 8.8 velocity: X, Y.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Membrane palette-cycle phase, 0 through 7, held in a byte.</summary>
-    public int PalettePhase
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    /// <summary>Membrane palette-cycle phase, 0 through 7: each advance moves to the next of the eight phases.</summary>
+    public int PalettePhase { get; internal set; }
 
     /// <summary>
     /// Updates left before the membrane palette advances to its next phase; each update decrements it until zero, and
-    /// the advance reloads it from <see cref="PaletteDelay"/>. It is held in a byte.
+    /// the advance reloads it from <see cref="PaletteDelay"/>. The decrement is guarded by the zero test, so it never
+    /// passes zero.
     /// </summary>
-    public int PaletteTimer
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
-    }
+    public int PaletteTimer { get; internal set; }
 
     /// <summary>Updates between palette-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
-    public int PaletteDelay
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public int PaletteDelay { get; internal set; }
 
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>
     public int StateTimer { get; internal set; }

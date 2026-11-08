@@ -23,6 +23,29 @@ public static class KraidRockLaunchDefinitions
     /// </remarks>
     public static SignedEightEight FromRandom(int random) => Speeds[random & ChoiceMask];
 
+    /// <summary>
+    /// The gravity on a spat or rising rock, in 256ths of a pixel an update, each update. A rock is removed when its
+    /// terrain probe finds a block, which it does at the latest as it leaves the room, at most fifty screens tall
+    /// (<see cref="Rooms.Scrolling.RoomScrollGrid.StorageByteCount"/>); from its steepest launch, five pixels an update
+    /// upward, its fall speed therefore stays below 96 pixels an update.
+    /// </summary>
+    internal static SignedEightEight RockGravity { get; } = SignedEightEight.FromSignedRaw(64);
+
+    /// <summary>
+    /// The gravity on a rock falling from the ceiling, each update; the fall restarts as <see cref="RestartingFallSpeed"/>
+    /// states.
+    /// </summary>
+    internal static SignedEightEight CeilingRockGravity { get; } = SignedEightEight.FromSignedRaw(24);
+
+    /// <summary>The horizontal speed a spat rock gains each update, drifting back toward Kraid's side.</summary>
+    internal static SignedEightEight RockDrift { get; } = SignedEightEight.FromSignedRaw(8);
+
+    /// <summary>
+    /// The horizontal speed at which a spat rock's drift starts again: reaching one pixel an update rightward, it
+    /// drifts on from one pixel an update leftward.
+    /// </summary>
+    internal static SignedEightEight RockDriftRestart { get; } = SignedEightEight.FromSignedRaw(256);
+
     /// <summary>Keeps RNG bits 1..3, the eight even launch choices.</summary>
     private const int ChoiceMask = 0b1110;
 

@@ -15,11 +15,14 @@ internal sealed class CrocomireSpikeWallPieceState(int piece) : EnemyProjectileS
     /// <summary>The piece's starting vertical speed: just under five pixels per update upward.</summary>
     private static readonly SignedSixteenSixteen LaunchFallSpeed = SignedSixteenSixteen.FromParts(-5, 34816);
 
-    /// <summary>The piece's sideways acceleration, in 1/256 pixel per update per update; it grows to its piece's cap.</summary>
+    /// <summary>
+    /// The piece's sideways acceleration, in 1/256 pixel per update per update; it starts at none and grows to its piece's
+    /// cap.
+    /// </summary>
     internal int Acceleration
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        set => field = Ensure.AtLeastZero(value);
     }
 
     /// <summary>The piece's vertical speed, pixels per update; it starts rising and gravity pulls it down.</summary>

@@ -124,8 +124,9 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.CeresLiftoffAccelerating:
-                // The rising step adds -16 to the 8.8 Y velocity before the common movement pass.
-                state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue - 16));
+                // The rising step adds -16 to the 8.8 Y velocity before the common movement pass. Ridley rises from rest
+                // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - SignedEightEight.FromSignedRaw(16));
                 if (CoordinateAxis.Difference(slot.Position.Y.Whole, 112) < 0)
                 {
                     state.Function = RidleyAiFunction.CeresLiftoffDecelerating;

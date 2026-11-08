@@ -38,6 +38,17 @@ public readonly record struct UnsignedSixteenSixteen
     public static UnsignedSixteenSixteen operator +(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
         FromRaw(unchecked(left.RawValue + right.RawValue));
 
+    /// <summary>
+    /// The speed that covers <paramref name="wholePixels"/> pixels in <paramref name="updates"/> updates: the distance in
+    /// 65536ths of a pixel divided by the updates, the remainder dropped.
+    /// </summary>
+    /// <param name="wholePixels">The distance, 0 through 65535 pixels.</param>
+    /// <param name="updates">The updates, one or more.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The distance or the update count is out of range.</exception>
+    public static UnsignedSixteenSixteen Covering(int wholePixels, int updates) =>
+        FromRaw(checked((uint)(((long)Ensure.BetweenInclusive(0, ushort.MaxValue, wholePixels) << 16) /
+            Ensure.BetweenInclusive(1, int.MaxValue, updates))));
+
     /// <summary>This speed with its whole word replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 

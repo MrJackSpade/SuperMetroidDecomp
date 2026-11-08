@@ -306,7 +306,7 @@ internal sealed class KraidRise
         if ((random & 1) == 0)
             randomOffset = CoordinateAxis.AsSigned(~randomOffset);
         rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
-        rock.Velocity = new(SignedEightEight.Wrapped(random & 1008), SignedEightEight.FromSignedRaw(-1280));
+        rock.Velocity = new(SignedEightEight.FromSignedRaw(random & 1008), SignedEightEight.FromSignedRaw(-1280));
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         state.SpawnedRiseRockCount++;
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);

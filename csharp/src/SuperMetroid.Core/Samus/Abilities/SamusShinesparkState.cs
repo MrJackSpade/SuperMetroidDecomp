@@ -1090,7 +1090,7 @@ false,             CrashSequenceFinished: true);
             enemyProbeDistance.Whole, enemyProbeDistance.Fraction);
         samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemySlot);
         if (enemy.Collided)
-            return new BlockMoveResult(0, true, EnemyCollision: enemy);
+            return new BlockMoveResult(SignedSixteenSixteen.Zero, true, EnemyCollision: enemy);
 
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (frameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }

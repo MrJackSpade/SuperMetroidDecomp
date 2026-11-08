@@ -613,13 +613,13 @@ public sealed class SamusState
         BlockMoveResult upward = ProbeChangedPoseVertical(
 
             level,
-            displacement: unchecked(SixteenSixteen.FromWhole(-radiusDifference)),
+            displacement: SignedSixteenSixteen.FromWholePixels(-radiusDifference),
             scanLeftToRight: (frameCounter & 1) == 0,
             targetPose, roomObjects);
         BlockMoveResult downward = ProbeChangedPoseVertical(
 
             level,
-            displacement: SixteenSixteen.FromWhole(radiusDifference),
+            displacement: SignedSixteenSixteen.FromWholePixels(radiusDifference),
             scanLeftToRight: (frameCounter & 1) == 0,
             targetPose, roomObjects);
 
@@ -639,7 +639,7 @@ public sealed class SamusState
         {
             // Move away from the floor by
             // radiusDifference-spaceToMoveDown, preserving the old bottom boundary.
-            int freeWholePixels = Math.Max(0, SixteenSixteen.WholeOf(downward.AcceptedDisplacement));
+            int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement.WholePixels);
             centerAdjustment = -(radiusDifference - freeWholePixels);
 
             // Checks the proposed upward correction against the opposite side.
@@ -647,7 +647,7 @@ public sealed class SamusState
             // the crouch selector because the initial flags were not both set.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
-                displacement: SixteenSixteen.FromWhole(centerAdjustment),
+                displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: (frameCounter & 1) == 0,
                 targetPose, roomObjects: roomObjects);
             if (opposite.Collided)
@@ -659,14 +659,13 @@ level,
         {
             // Is the mirror: move down only as far as necessary to clear the
             // ceiling while admitting the enlarged body.
-            int acceptedWhole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(upward.AcceptedDisplacement));
-            int freeWholePixels = Math.Max(0, -acceptedWhole);
+            int freeWholePixels = Math.Max(0, -upward.AcceptedDisplacement.WholePixels);
             centerAdjustment = radiusDifference - freeWholePixels;
 
             // Is the downward mirror of the opposite-side check above.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
 level,
-                displacement: SixteenSixteen.FromWhole(centerAdjustment),
+                displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: (frameCounter & 1) == 0,
                 targetPose, roomObjects: roomObjects);
             if (opposite.Collided)
@@ -722,26 +721,26 @@ level,
     internal BlockMoveResult ProbeChangedPoseVertical(
 
         RoomLevelData level,
-        int displacement,
+        SignedSixteenSixteen displacement,
         bool scanLeftToRight,
         SamusPoseId targetPose,
         ISamusRoomObjects? roomObjects)
     {
-        int wholePixels = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement));
-        if ((Math.Abs(wholePixels) & ~7) != 0)
+        int wholePixels = displacement.WholePixels;
+        if (Math.Abs(wholePixels) >= 8)
         {
             // Computes `(signedWhole & 65520) | 8`. Retain the literal
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
-            int intermediateWhole = CoordinateAxis.AsSigned((wholePixels & ~15) | 8);
-            BlockMoveResult intermediate = Probe(SixteenSixteen.FromWhole(intermediateWhole));
+            // The whole pixels lie within -32768 through 32767, and so does the intermediate boundary.
+            BlockMoveResult intermediate = Probe(SignedSixteenSixteen.FromWholePixels((wholePixels & ~15) | 8));
             if (intermediate.Collided)
                 return intermediate;
         }
 
         return Probe(displacement);
 
-        BlockMoveResult Probe(int amount)
+        BlockMoveResult Probe(SignedSixteenSixteen amount)
         {
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.CollisionPose = targetPose;

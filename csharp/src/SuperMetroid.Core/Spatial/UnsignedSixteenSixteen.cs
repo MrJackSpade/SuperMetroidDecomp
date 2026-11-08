@@ -24,6 +24,15 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>Both words as one unsigned 32-bit value, the whole word high.</summary>
     public uint RawValue => ((uint)Whole << 16) | (uint)Fraction;
 
+    /// <summary>Whether the speed is no motion at all: zero whole pixels and zero fraction.</summary>
+    public bool IsZero => Whole == 0 && Fraction == 0;
+
+    /// <summary>
+    /// The speed counted in 256ths of a pixel, the finer part of the fraction dropped: the precision at which the game
+    /// compares Samus's speed with the quicksand surface's upward cap.
+    /// </summary>
+    public int InTwoFiftySixths => (int)(RawValue >> 8);
+
     /// <summary>Splits an unsigned 32-bit value into its whole and fraction words.</summary>
     public static UnsignedSixteenSixteen FromRaw(uint rawValue) =>
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));

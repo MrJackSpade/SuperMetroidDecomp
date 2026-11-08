@@ -324,7 +324,7 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1))),
                     BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareRoom }, rightToLeft, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(1 << 16), ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
-                    AssertEqual(ltr.AcceptedDisplacement, rtl.AcceptedDisplacement,
+                    AssertEqual(ltr.AcceptedDisplacement.RawValue, rtl.AcceptedDisplacement.RawValue,
                         $"square slope {shape}/{orientation} X={x} displacement scan parity");
                 }
             }

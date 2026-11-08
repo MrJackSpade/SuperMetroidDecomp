@@ -217,10 +217,10 @@ internal static class SamusPosturePoseTransitions
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
+level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 (frameCounter & 1) == 0, targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
-                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)));
+                samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
@@ -329,10 +329,10 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
                     $"Morph entry {targetPose} expanded radius {previousRadius} -> {samus.Kinematics.Radius.Y}.");
             }
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
-level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
+level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 (frameCounter & 1) == 0, targetPose, roomObjects);
             samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
-                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)));
+                samus.Kinematics.Position.Y.Whole + alignment.AcceptedDisplacement.WholePixels);
             // Command seven replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);

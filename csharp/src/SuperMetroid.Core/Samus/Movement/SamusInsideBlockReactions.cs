@@ -92,9 +92,9 @@ public static class SamusInsideBlockReactions
                             break;
                         case SamusVerticalDirection.Up:
                             SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
-                            // The original compares the middle words of the 16.16 speed and limit, then
+                            // The original compares the speed and limit in 256ths of a pixel, then
                             // replaces the speed's whole pixels and fraction with the limit's.
-                            if (EightEight.WholeOf(body.VerticalSpeedFixed) > EightEight.WholeOf(limit.RawValue))
+                            if (body.YSpeed.InTwoFiftySixths > limit.InTwoFiftySixths)
                             {
                                 body.YSpeed = UnsignedSixteenSixteen.FromDisplacement(limit);
                             }
@@ -164,7 +164,7 @@ public static class SamusInsideBlockReactions
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>
     internal static bool ReactCollision(SamusCollisionContact contact,
-        RoomCollisionBlock block, Axis axis, ref int displacement, out bool surfaceContact,
+        RoomCollisionBlock block, Axis axis, ref SignedSixteenSixteen displacement, out bool surfaceContact,
         SamusCollisionDirection? blockReactionDirection = null,
         ISamusRoomObjects? roomObjects = null)
     {
@@ -197,8 +197,8 @@ public static class SamusInsideBlockReactions
         if (setup != SpecialAirReactionSetup.QuicksandSurfaceCollision) return false;
         SamusCollisionDirection reactionDirection = blockReactionDirection ??
             (axis == Axis.Vertical
-                ? displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down
-                : displacement < 0 ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
+                ? displacement.IsNegative ? SamusCollisionDirection.Up : SamusCollisionDirection.Down
+                : displacement.IsNegative ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
         // The bit-one direction test accepts vertical scans AND direction $F.
         // Ordinary horizontal movement rejects the surface callback entirely.
         if (reactionDirection is SamusCollisionDirection.Left or SamusCollisionDirection.Right) return false;
@@ -220,11 +220,15 @@ public static class SamusInsideBlockReactions
         }
         if (contact.ContactDamage == SamusContactDamageIndex.SpeedBooster)
         {
-            displacement = 0;
+            displacement = SignedSixteenSixteen.Zero;
             return true;
         }
-        if (body.YDirection == SamusVerticalDirection.None && CoordinateAxis.Wrap(EightEight.WholeOf((uint)displacement)) > EightEight.WholeOf(QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue))
-            displacement = (displacement & ~(ushort.MaxValue << 8)) | QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue;
+        // A stationary Samus's probe is compared with the surface limit and limited to it in its near reading alone,
+        // in 256ths of a pixel below 256 whole pixels (SignedSixteenSixteen.NearTwoFiftySixths); the limit, a multiple
+        // of a sixteenth of a pixel below one pixel, is exactly its own near reading.
+        if (body.YDirection == SamusVerticalDirection.None &&
+            displacement.NearTwoFiftySixths > QuicksandDefinitions.StationarySurfaceProbeLimit.NearTwoFiftySixths)
+            displacement = displacement.WithNearTwoFiftySixths(QuicksandDefinitions.StationarySurfaceProbeLimit.NearTwoFiftySixths);
         surfaceContact = true;
         return false;
     }

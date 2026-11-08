@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal readonly record struct VerticalTerrainProbe
 {
     /// <summary>Signed vertical displacement to probe.</summary>
-    public required int Displacement { get; init; }
+    public required SignedSixteenSixteen Displacement { get; init; }
 
     /// <summary>Whether the probed columns are scanned left to right.</summary>
     public required bool ScanLeftToRight { get; init; }

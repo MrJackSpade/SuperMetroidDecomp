@@ -26,16 +26,20 @@ internal static class SpeedBoosterObjectProgramsVerification
         var exported = RoomObjectSpeedBoosterVisualFiles.All.ToArray();
         AssertEqual(1,exported.Length,"speed reveal export count");
         AssertEqual(pointer,RoomObjectDrawAddressCodec.Of(exported[0].Draw),"speed reveal export identity");
+        // Every address but the reveal's yields the one unowned draw, so the visual-identity rejection is one case,
+        // checked once; each address asserts that it yields that draw.
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = SpeedBoosterBlockObjectDrawDefinitions.TryGet(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(address),out var draw);
+            RoomObjectDraw atAddress = NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(address);
+            bool found = SpeedBoosterBlockObjectDrawDefinitions.TryGet(atAddress,out var draw);
             AssertEqual(address == pointer,found,"speed reveal full pointer domain");
             if (!found)
             {
                 AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList),draw,"speed reveal missing draw cleared");
-                AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>((ushort)address)),"speed reveal rejects unknown visual identity");
+                AssertEqual(NativeObjectDraws.Unowned,atAddress,"speed reveal unknown address yields the unowned draw");
             }
         }
+        AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.Unowned),"speed reveal rejects unknown visual identity");
         AssertEqual("bomb-reveal",RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
         AssertTrue(RoomObjectSpeedBoosterVisualFiles.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})

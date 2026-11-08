@@ -50,11 +50,50 @@ internal static class WrittenPictureSheetComposer
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(uploads);
-        List<WrittenSubject> subjects = [.. Ensure.NotNull(writers).Order().SelectMany(writer => Subjects(inputs, writer))];
+        TileWordWriter[] ordered = [.. Ensure.NotNull(writers).Order()];
+        List<WrittenSubject> subjects = [.. ordered.SelectMany(writer => Subjects(inputs, writer))];
         // Pictures over the sprites' artwork show only what its load and encounters place there, never the tileset's.
         return Compose(inputs, tileset, WrittenPictureLayer.WrittenOverRoom, new WrittenSubjects(subjects, [], []), content, new WrittenOptions(
-            new AppearanceOptions(uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options), BgCharacterSet.Tiles, uploads.WordUploads));
+            new AppearanceOptions(uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options), BgCharacterSet.Tiles, uploads.WordUploads),
+            WritersColours(ordered, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
     }
+
+    /// <summary>
+    /// The colours the pictures <paramref name="writers"/> write show (#1544), over their room's standard colours
+    /// <paramref name="standard"/>: each writer's own, which every writer of one sheet shares.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two writers of the sheet show different colours, or a writer is undefined.</exception>
+    private static RgbColor[] WritersColours(TileWordWriter[] writers, RgbColor[] standard)
+    {
+        RgbColor[]? shared = null;
+        TileWordWriter first = default;
+        foreach (TileWordWriter writer in writers)
+        {
+            RgbColor[] own = ColoursOf(writer, standard);
+            if (shared is null)
+            {
+                shared = own;
+                first = writer;
+            }
+            else if (!shared.AsSpan().SequenceEqual(own))
+            {
+                throw new InvalidDataException($"The pictures {first} and {writer} write share a sheet but show different colours.");
+            }
+        }
+        return shared ?? standard;
+    }
+
+    /// <summary>
+    /// The colours the pictures <paramref name="writer"/> writes show over their room's standard colours
+    /// <paramref name="standard"/>: the self-destruct warning's own, the Zebes typewriter the room's.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The writer is undefined.</exception>
+    private static RgbColor[] ColoursOf(TileWordWriter writer, RgbColor[] standard) => writer switch
+    {
+        TileWordWriter.ZebesEscapeText => standard,
+        TileWordWriter.CeresEscapeText => SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresWarningColours(standard),
+        _ => throw new InvalidDataException($"Undefined tile word writer {writer}."),
+    };
 
     /// <summary>
     /// Composes the sheet of the BG3 pictures a room of <paramref name="tileset"/> shows: each of the HUD's images as its own
@@ -75,7 +114,8 @@ internal static class WrittenPictureSheetComposer
                 Rows(BackgroundTileWords.ToWords(InstalledAreaMapPresentation.RoomFxPagesOf(inputs.Maps).Resolve(type).Span))))];
         return Compose(inputs, tileset, WrittenPictureLayer.FxOverlayAndHud, new WrittenSubjects(subjects, [.. HudShelves(hud)], [.. HudFrames(hud)]),
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
-            new WrittenOptions(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, []));
+            new WrittenOptions(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, []),
+            RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette)));
     }
 
     /// <summary>The name of the part holding shelf <paramref name="shelf"/> of the HUD's images.</summary>
@@ -110,14 +150,15 @@ internal static class WrittenPictureSheetComposer
     /// Composes <paramref name="layer"/>'s sheet: <paramref name="written"/>'s fixed parts as the room loads them, each of
     /// its part frames cut from within its part, and each of its subjects pictured once for each
     /// value of the inputs whose options reach any of its characters, over <paramref name="content"/>, which binds the
-    /// options' bound artwork beyond the room's load, each word's character read in the options' set.
+    /// options' bound artwork beyond the room's load, each word's character read in the options' set, coloured in
+    /// <paramref name="colours"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">
     /// A picture reads a character nothing the room loads is bound over, or a fixed part reads a character an option shows
     /// other artwork at.
     /// </exception>
     private static ComposedWrittenPictureSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset, WrittenPictureLayer layer,
-        WrittenSubjects written, BgArtworkBindings content, WrittenOptions options)
+        WrittenSubjects written, BgArtworkBindings content, WrittenOptions options, RgbColor[] colours)
     {
         Ensure.NotNull(content);
         (List<WrittenSubject> subjects, List<WrittenSubject> fixedParts, IReadOnlyList<PartFrame> partFrames) = written;
@@ -127,7 +168,6 @@ internal static class WrittenPictureSheetComposer
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs))
             .Concat(options.Options.All.Select(option => option.Upload)).Concat(options.Bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
-        RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
 
         var pictures = new List<ShownPicture>();
         // A fixed part, such as a shelf of the HUD's images, is one picture no appearance input may show otherwise.

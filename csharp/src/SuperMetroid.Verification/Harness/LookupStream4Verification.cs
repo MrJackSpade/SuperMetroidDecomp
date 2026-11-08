@@ -516,7 +516,7 @@ internal static class LookupStream4Verification
 
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
         }
-        IReadOnlyList<SheetShade> room = RidleySheetShades.CeresRoom(stock, floor, new RgbColor[BossShadeColours.Sprites]);
+        IReadOnlyList<SheetShade> room = [.. RidleySheetShades.CeresRoom(stock, floor), .. RidleySheetShades.CeresWarning(stock)];
         Action<RidleyEnemyState, int> update = CeresRidleyGetaway.UpdateCeresSelfDestructPalette;
         var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
         for (ushort nmi = 0; nmi < 64; nmi++)
@@ -2669,7 +2669,7 @@ internal static class LookupStream4Verification
         {
             var selected = stock;
             ushort[] cgram = BossShadeColours.Filled(0x1234);
-            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, floor, new RgbColor[BossShadeColours.Sprites]);
+            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, floor);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
             // Ridley's sprites keep their own colours through the retreat (#1544): only the room's colours change.
@@ -2700,7 +2700,7 @@ internal static class LookupStream4Verification
         {
             var selected = zoomStock;
             var ridley = new RidleyEnemyState();
-            IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected, new RgbColor[BossShadeColours.Sprites]);
+            IReadOnlyList<SheetShade> zoomRoom = RidleySheetShades.CeresRoom(ceresStock, selected);
             Action<ushort> apply = appliedZoom => CeresRidleyGetaway.UpdateCeresRidleyFloorPalette(ridley, appliedZoom);
             for (int row = 0; row < 9; row++)
             {
@@ -2723,7 +2723,7 @@ internal static class LookupStream4Verification
         {
             var selected = stock;
             ushort[] cgram = BossShadeColours.Filled(0x1234);
-            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, zoomStock, new RgbColor[BossShadeColours.Sprites]);
+            IReadOnlyList<SheetShade> retreatRoom = RidleySheetShades.CeresRoom(selected, zoomStock);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatRoom, BossShadeColours.Room);
             BossShadeColours.Lay(cgram, retreatRoom, RidleyShades.RetreatShared, BossShadeColours.Room);
             for (int color = 0; color < 256; color++)

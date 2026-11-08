@@ -482,7 +482,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             PlacedWrittenPicture placed = pictures[index];
             int record = offset + 1 + index * 2;
-            upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.Room)];
+            upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.WrittenOverRoom)];
             upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
         }
     }
@@ -546,7 +546,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             }
         }
         foreach (PlacedWrittenPicture placed in (frame.WrittenOverBackground?.Pictures ?? []).Concat(frame.WrittenOverForeground?.Pictures ?? []))
-            yield return new(placed.Picture, D3D11PictureColouring.Room);
+            yield return new(placed.Picture, D3D11PictureColouring.WrittenOverRoom);
         if (frame.FxOverlay is { } overlay)
             yield return new(overlay.Picture, D3D11PictureColouring.FxOverlay);
     }

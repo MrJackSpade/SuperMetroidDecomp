@@ -7,10 +7,16 @@ namespace SuperMetroid.Core.Assets;
 public enum GameplayPictures
 {
     /// <summary>
-    /// The room the frame shows: its tileset's block pictures on layers 1 and 2, its library background or sky, the
-    /// pictures written over its layers, its X-ray reveal and its turning floor.
+    /// The room the frame shows: its tileset's block pictures on layers 1 and 2, its library background or sky, its X-ray
+    /// reveal and its turning floor.
     /// </summary>
     Room,
+
+    /// <summary>
+    /// The pictures written over the room's layers (#1544): an escape's warning and typed text, each in its writer's own
+    /// colours, which no colour effect of the room recolours.
+    /// </summary>
+    WrittenOverRoom,
 
     /// <summary>The room a door leaves, shown beside the room it enters while the door scrolls.</summary>
     DoorSourceRoom,

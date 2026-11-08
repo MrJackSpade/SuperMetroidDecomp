@@ -867,9 +867,9 @@ internal static void VerifyCeresRidleyRoomEntry()
     SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyColorCatalog ceresColours = CeresRidleyColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorExtractor.Extract(bus)));
     var ridleySprites = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(ceresColours);
-    var ridleyRoom = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresRoom(ceresColours,
-        CeresRidleyMode7ColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus))),
-        new RgbColor[BossShadeColours.Sprites]);
+    SuperMetroid.AssetExtraction.Artwork.SheetShade[] ridleyRoom = [.. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresRoom(ceresColours,
+        CeresRidleyMode7ColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(bus)))),
+        .. SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresWarning(ceresColours)];
     ushort[] Shown() => SuperMetroid.Verification.Bosses.Ridley.RidleyLaidColours.Of(state, ridleySprites, ridleyRoom, 0);
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");

@@ -272,7 +272,7 @@ public sealed class SamusShinesparkState
     public void BeginWindup(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (SamusInputSnapshot.SharedShineTimer(samus) == 0)
+        if (!SamusInputSnapshot.HoldsShine(samus))
             throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
 
         InitializeWindup(samus);

@@ -48,7 +48,8 @@ public sealed class SamusCrystalFlashState
     internal void RelinquishPaletteHandler()
     {
         SpecialPaletteKind = SamusSpecialPaletteType.None;
-        SpecialPaletteTimer = WrappingCountdown.Start(0);
+        BubbleTimer = 0;
+        BeamPaletteRestoreRequested = false;
     }
 
     /// <summary>
@@ -73,15 +74,28 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public int BubbleStep { get; private set; }
 
-    /// <summary>The special-palette timer; 65535 requests beam-palette restoration at finish.</summary>
-    public WrappingCountdown SpecialPaletteTimer { get; internal set; }
+    /// <summary>
+    /// The palette updates until the bubble shows its next colour step, one through five while Crystal Flash's palette
+    /// runs (it is reloaded on reaching zero), and zero once it stops; other values are rejected.
+    /// </summary>
+    public int BubbleTimer
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, BubbleStepUpdates, value);
+    }
+
+    /// <summary>The palette updates each bubble colour step shows for.</summary>
+    private const int BubbleStepUpdates = 5;
+
+    /// <summary>
+    /// Whether the flash has finished and asks its next palette update to show the equipped beams' colours again and
+    /// release the palette.
+    /// </summary>
+    public bool BeamPaletteRestoreRequested { get; internal set; }
 
     /// <summary>
     /// The step of the body's colour pulse shown next, zero through nine (#1512): activation starts it at the first, and
-    /// each body-timer expiry shows it and advances it, wrapping to the first after the last. It replaces the game's
-    /// byte offset into four-byte pointer and timer records, which activation inherited from the palette timer the Speed
-    /// Booster shares and mirrored back into it; that sharing only chose which colours showed first and is deleted as
-    /// incidental representation.
+    /// each body-timer expiry shows it and advances it, wrapping to the first after the last.
     /// </summary>
     public int BodyStep { get; private set; }
 
@@ -180,7 +194,8 @@ public sealed class SamusCrystalFlashState
         CrystalPaletteTimer = 1;
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         BubbleStep = 0;
-        SpecialPaletteTimer = WrappingCountdown.Start(1);
+        BubbleTimer = 1;
+        BeamPaletteRestoreRequested = false;
         BodyStep = 0;
         BubbleEffectRequested = false;
         ActivationSoundRequested = false;
@@ -326,7 +341,7 @@ public sealed class SamusCrystalFlashState
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
             return;
 
-        SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
+        BeamPaletteRestoreRequested = true;
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the return path.
@@ -352,7 +367,7 @@ public sealed class SamusCrystalFlashState
         if (SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash)
             return false;
 
-        if (SpecialPaletteTimer.IsNegative)
+        if (BeamPaletteRestoreRequested)
         {
             // Completion reloads the equipped combination's beam palette with the loader equipping a beam uses, so a Spazer
             // and Plasma combination takes the colours read past the palette table as everywhere else (#1506).
@@ -361,18 +376,16 @@ public sealed class SamusCrystalFlashState
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             BubbleStep = 0;
             BodyStep = 0;
-            SpecialPaletteTimer = WrappingCountdown.Start(0);
+            BubbleTimer = 0;
+            BeamPaletteRestoreRequested = false;
             CrystalPaletteTimer = 0;
             return true;
         }
 
-        // The countdown treats both reaching zero and wrapping negative as expiry.
-        CountdownStep specialPaletteTimer =
-            SpecialPaletteTimer.Decrement();
-        SpecialPaletteTimer = specialPaletteTimer.Remaining;
-        if (specialPaletteTimer.IsZeroOrNegative)
+        // The bubble countdown runs one through five while the palette runs, so its decrement reaches zero, never past it.
+        if (--BubbleTimer == 0)
         {
-            SpecialPaletteTimer = WrappingCountdown.Start(5);
+            BubbleTimer = BubbleStepUpdates;
             colours.LayOverBeams(SamusShades.CrystalFlashBubble(BubbleStep));
 
             // The step was validated below the set count above, so this advance stays far below any wrap.

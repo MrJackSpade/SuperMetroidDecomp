@@ -375,7 +375,7 @@ internal sealed class SamusPresentation
         // stricter rule and may still disappear on that same odd frame.
         bool bodyVisible = samus.KnockbackTimer != 0 ||
             samus.InvincibilityTimer.IsZero ||
-            SamusInputSnapshot.SharedShineTimer(samus) != 0 ||
+            SamusInputSnapshot.HoldsShine(samus) ||
             (frameCounter & 1) == 0;
         if (!bodyVisible)
         {

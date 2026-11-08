@@ -22,9 +22,6 @@ public static class SixteenSixteen
     /// <summary>The whole part of a raw 16.16 value.</summary>
     public static int WholeOf(int raw) => raw >> FractionBits;
 
-    /// <inheritdoc cref="WholeOf(int)"/>
-    public static uint WholeOf(uint raw) => raw >> FractionBits;
-
     /// <summary>The fraction word of a raw 16.16 value.</summary>
     public static int FractionOf(int raw) => raw & FractionMask;
 }

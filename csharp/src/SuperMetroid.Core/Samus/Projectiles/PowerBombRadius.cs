@@ -23,12 +23,6 @@ public readonly record struct PowerBombRadius
     /// <summary>Whether <paramref name="left"/> is the larger radius or speed.</summary>
     public static bool operator >(PowerBombRadius left, PowerBombRadius right) => left.RawValue > right.RawValue;
 
-    /// <summary>Whether <paramref name="left"/> is no larger than <paramref name="right"/>.</summary>
-    public static bool operator <=(PowerBombRadius left, PowerBombRadius right) => left.RawValue <= right.RawValue;
-
-    /// <summary>Whether <paramref name="left"/> is no smaller than <paramref name="right"/>.</summary>
-    public static bool operator >=(PowerBombRadius left, PowerBombRadius right) => left.RawValue >= right.RawValue;
-
     /// <summary>A zero radius or a stationary speed.</summary>
     public static PowerBombRadius Zero => default;
 

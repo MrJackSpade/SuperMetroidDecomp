@@ -17,6 +17,9 @@ internal static class SixteenSixteenWords
         (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, whole) << FractionBits |
         (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
 
+    /// <summary>The whole word of a 16.16 word pair.</summary>
+    internal static uint WholeOf(uint raw) => raw >> FractionBits;
+
     /// <summary>The fraction word of a 16.16 word pair.</summary>
     internal static uint FractionOf(uint raw) => raw & ushort.MaxValue;
 }

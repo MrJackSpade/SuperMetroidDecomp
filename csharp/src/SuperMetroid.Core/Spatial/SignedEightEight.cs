@@ -141,9 +141,6 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     /// <summary>The larger of two velocities, read signed.</summary>
     public static SignedEightEight Max(SignedEightEight left, SignedEightEight right) => left >= right ? left : right;
 
-    /// <summary>The velocity held within <paramref name="minimum"/> through <paramref name="maximum"/>, read signed.</summary>
-    public SignedEightEight Clamped(SignedEightEight minimum, SignedEightEight maximum) => Max(minimum, Min(maximum, this));
-
     /// <summary>Orders velocities by their signed value.</summary>
     public int CompareTo(SignedEightEight other) => SignedRawValue.CompareTo(other.SignedRawValue);
 

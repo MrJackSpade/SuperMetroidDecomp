@@ -74,13 +74,13 @@ internal static class YardAirborneVerification
                 {
                     x = unchecked(x + vx);
                     uint changed = unchecked(vx + ((vx & 0x80000000) != 0 ? 0x1000u : 0xFFFFF000u));
-                    vx = SixteenSixteen.WholeOf(changed) == 0
-                        ? SixteenSixteenWords.Compose((ushort)SixteenSixteen.WholeOf(vx), (ushort)SixteenSixteenWords.FractionOf(changed)) : changed;
+                    vx = SixteenSixteenWords.WholeOf(changed) == 0
+                        ? SixteenSixteenWords.Compose((ushort)SixteenSixteenWords.WholeOf(vx), (ushort)SixteenSixteenWords.FractionOf(changed)) : changed;
                 }
                 y = unchecked(y + vy);
                 uint accelerated = unchecked(vy + 0x2000);
-                vy = unchecked((short)(SixteenSixteen.WholeOf(accelerated) - 4)) < 0
-                    ? accelerated : SixteenSixteenWords.Compose((ushort)SixteenSixteen.WholeOf(vy), (ushort)SixteenSixteenWords.FractionOf(accelerated));
+                vy = unchecked((short)(SixteenSixteenWords.WholeOf(accelerated) - 4)) < 0
+                    ? accelerated : SixteenSixteenWords.Compose((ushort)SixteenSixteenWords.WholeOf(vy), (ushort)SixteenSixteenWords.FractionOf(accelerated));
                 enemies.StepFrame(new RoomEnemyFrame { Camera = new(384, 384), TimeIsFrozen = false, Samus = samus, Level = level });
                 AssertEqual(x, actor.Position.X.RawValue, "Yard airborne X trajectory");
                 AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");

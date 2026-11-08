@@ -183,13 +183,14 @@ internal static class NoobTubeObjectVerification
         AssertEqual(17, projectiles.Count,
             "break burst contains one crack, ten shards, and six bubbles");
         AssertEqual(NoobTubeProjectileDefinition.Shard,
-            projectiles[1].Definition, "burst begins with shard parameter zero");
-        AssertEqual(0x12, projectiles[10].Parameter,
-            "tenth shard retains the final even ROM parameter");
+            projectiles[1].Definition, "burst begins with the first shard");
+        AssertEqual<int?>(0, projectiles[1].Piece, "the first shard names the burst's first piece");
+        AssertEqual<int?>(9, projectiles[10].Piece,
+            "the tenth shard names the burst's last shard");
         AssertEqual(NoobTubeProjectileDefinition.ReleasedAirBubble,
             projectiles[11].Definition, "six bubbles follow all shards");
-        AssertEqual(0x0a, projectiles[^1].Parameter,
-            "sixth bubble retains the final even ROM parameter");
+        AssertEqual<int?>(5, projectiles[^1].Piece,
+            "the sixth bubble names the burst's last bubble");
         AssertEqual(2, earthquakes.Count,
             "break burst writes both earthquake type and timer");
         AssertEqual(NoobTubeObjectDefinitions.EarthquakeType, earthquakes[0],

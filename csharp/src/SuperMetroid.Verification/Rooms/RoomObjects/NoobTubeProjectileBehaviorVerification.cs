@@ -34,7 +34,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, NoobTubeProjectileNativeListAddresses.Extent, "n00b tube projectile");
 
         RoomEnemySystem crackSystem = NewSystem();
-        RoomEnemyProjectileSlot crack = Spawn(crackSystem, RoomEnemyProjectileKind.NoobTubeCrack, parameter: 0);
+        RoomEnemyProjectileSlot crack = Spawn(crackSystem, RoomEnemyProjectileKind.NoobTubeCrack, piece: null);
         AssertTrue(crack.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.Crack },
             "real n00b-tube crack producer starts the crack program");
         AssertEqual(48, RunThroughDeletion(crackSystem, crack, maximumTicks: 64),
@@ -47,24 +47,24 @@ internal static class NoobTubeProjectileBehaviorVerification
             NoobTubeProjectileProgram.Shard6, NoobTubeProjectileProgram.Shard7, NoobTubeProjectileProgram.Shard8,
             NoobTubeProjectileProgram.Shard9,
         ];
-        for (ushort parameter = 0; parameter <= 18; parameter += 2)
+        for (int piece = 0; piece < shards.Length; piece++)
         {
             RoomEnemySystem shardSystem = NewSystem();
-            RoomEnemyProjectileSlot shard = Spawn(shardSystem, RoomEnemyProjectileKind.NoobTubeShard, parameter);
-            AssertTrue(shard.Animation is NoobTubeProjectileAnimation animation && animation.Cursor.Program == shards[parameter / 2],
-                $"real n00b-tube shard producer selects parameter ${parameter:X2} program");
+            RoomEnemyProjectileSlot shard = Spawn(shardSystem, RoomEnemyProjectileKind.NoobTubeShard, piece);
+            AssertTrue(shard.Animation is NoobTubeProjectileAnimation animation && animation.Cursor.Program == shards[piece],
+                $"real n00b-tube shard producer selects shard {piece}'s program");
             AssertEqual(305, RunThroughDeletion(shardSystem, shard, maximumTicks: 320),
-                $"n00b-tube shard ${parameter:X2} completes both counted flicker phases");
+                $"n00b-tube shard {piece} completes both counted flicker phases");
         }
 
-        for (ushort parameter = 0; parameter <= 10; parameter += 2)
+        for (int piece = 0; piece < 6; piece++)
         {
             RoomEnemySystem bubbleSystem = NewSystem();
-            RoomEnemyProjectileSlot bubble = Spawn(bubbleSystem, RoomEnemyProjectileKind.NoobTubeReleasedAirBubble, parameter);
+            RoomEnemyProjectileSlot bubble = Spawn(bubbleSystem, RoomEnemyProjectileKind.NoobTubeReleasedAirBubble, piece);
             AssertTrue(bubble.Animation is NoobTubeProjectileAnimation { Cursor.Program: NoobTubeProjectileProgram.ReleasedAirBubble },
-                $"real released-air-bubble producer parameter ${parameter:X2} starts the bubble program");
+                $"real released-air-bubble producer for bubble {piece} starts the bubble program");
             AssertEqual(16, RunThroughDeletion(bubbleSystem, bubble, maximumTicks: 24),
-                $"released-air bubble ${parameter:X2} completes fifteen frames and deletion");
+                $"released-air bubble {piece} completes fifteen frames and deletion");
         }
 
         AssertEqual(NoobTubeProjectileFrameDefinitions.PoseCount, executedOperands.Count, "every native visual operand is shown");
@@ -84,7 +84,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             return system;
         }
 
-        RoomEnemyProjectileSlot Spawn(RoomEnemySystem system, RoomEnemyProjectileKind kind, ushort parameter)
+        RoomEnemyProjectileSlot Spawn(RoomEnemySystem system, RoomEnemyProjectileKind kind, int? piece)
         {
             NoobTubeProjectileDefinition definition = kind switch
             {
@@ -215,7 +215,7 @@ internal static class NoobTubeProjectileBehaviorVerification
                 _ => throw new ArgumentOutOfRangeException(nameof(kind)),
             };
             system.NoobTubeBehavior.SpawnNoobTubeProjectile(
-                new NoobTubeProjectileRequest(definition, parameter, RoomObjectBlockIndex: 42),
+                new NoobTubeProjectileRequest(definition, piece, RoomObjectBlockIndex: 42),
                 roomWidthInBlocks: 16);
             return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }

@@ -104,7 +104,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// The arena reveal advances an area-two-only fourteen-color fade every third dispatcher call.
-    /// A null entry terminates the table and activates the shared tail/wing composition.
+    /// The step after the last palette activates the shared tail/wing composition.
     /// </summary>
     internal void TickNorfairRidleyArenaReveal(RoomEnemySlot slot, RidleyEnemyState state)
     {
@@ -115,7 +115,7 @@ internal sealed class NorfairRidleyCombat
         int step = state.FadeStep;
         bool hasPalette;
         if (step > NorfairRidleyPaletteDefinitions.RevealStepCount)
-            throw new InvalidDataException($"Norfair Ridley reveal step {step} escaped its terminator.");
+            throw new InvalidDataException($"Norfair Ridley reveal step {step} is past the reveal's end.");
         hasPalette = step < NorfairRidleyPaletteDefinitions.RevealStepCount;
         if (hasPalette)
             state.Colours.Room.Lay(RidleyShades.NorfairReveal(step));

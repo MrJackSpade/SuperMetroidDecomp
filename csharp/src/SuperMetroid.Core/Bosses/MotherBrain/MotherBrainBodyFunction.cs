@@ -140,7 +140,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseDrainedByBabyGoIntoLowPowerMode,
     /// <summary>Expires a 64-count crouch pause, clears the palette counter, and immediately begins the 16-count grey-transition cadence.</summary>
     SecondPhaseDrainedByBabyPrepareTransitionToGrey,
-    /// <summary>Steps eight drained-grey palettes plus the terminator, restores head health 36,000, and enters the inanimate revival setup.</summary>
+    /// <summary>Steps through eight drained-grey palettes and one step past the last, restores head health 36,000, and enters the inanimate revival setup.</summary>
     SecondPhaseDrainedByBabyTransitionToGrey,
     /// <summary>Installs the $300-count revival wait and returns without decrementing it on this setup call.</summary>
     SecondPhaseReviveInanimateGrey,

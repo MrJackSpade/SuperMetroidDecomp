@@ -19,12 +19,12 @@ internal static class CeresFlightActorMetadataVerification
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;
         ushort frontDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe57);
         Suite(nameof(VerifyActor), () => VerifyActor(retail, front, frontDefinition, "front stars"));
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe84), front.InitialTimer, "front stars initial timer");
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe84), front.InitialVelocity.RawValue, "front stars initial speed");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), front.Position.X, "front stars X");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), front.Position.Y, "front stars Y");
         PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), CeresSheetInks.SpriteSet(front.Colouring), "front stars attributes");
         AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbec3),
-            CeresFlightActorDefinitions.FrontStarAcceleration,
+            CeresFlightActorDefinitions.FrontStarAcceleration.RawValue,
             "front stars acceleration");
 
         for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
@@ -34,7 +34,7 @@ internal static class CeresFlightActorMetadataVerification
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native rear spawn LDY");
             ushort definition = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]);
             VerifyActor(retail, actor, definition, $"rear actor {index}");
-            AssertEqual(0, actor.InitialTimer, "rear initializer leaves cleared timer");
+            AssertEqual(SignedEightEight.Zero, actor.InitialVelocity, "rear initializer leaves cleared timer");
             if (index != 4)
                 AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (definition + 2))),
                     actor.ActiveFrameBehavior.NativeAddress, "rear initializer preserves the definition callback");

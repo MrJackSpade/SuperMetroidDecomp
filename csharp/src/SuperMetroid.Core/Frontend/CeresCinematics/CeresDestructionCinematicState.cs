@@ -80,6 +80,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         ? SpriteSheetId.ZebesRevealSprites : SpriteSheetId.CeresDestructionSprites));
     /// <summary>Live asteroid, blast, planet, star, and title objects in update order.</summary>
     internal readonly List<IntroDiscoverySprite> actors = [];
+    /// <summary>Each sliding reveal actor's upward speed, from rest when the slide starts; a deleted actor's is dropped.</summary>
+    private readonly Dictionary<IntroDiscoverySprite, SignedEightEight> slideSpeeds = [];
     /// <summary>
     /// The small asteroids and the vortex, which the Ceres scene draws after every other actor, so the large asteroid and
     /// the blasts overlap them.
@@ -700,9 +702,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // by ownership, not their mutable list index: actors delete as they
                 // cross -128, so indexes necessarily shift during this loop.
                 // The slide speed grows by at most 64 a frame and the actor is deleted within a few dozen frames, once
-                // it crosses -128, so the speed never nears the word's wrap.
-                actor.GeneralTimer += definition.SlideAcceleration;
-                SubtractEightEightY(actor, actor.GeneralTimer);
+                // it crosses -128, so the speed stays far inside its range.
+                SignedEightEight slideSpeed = slideSpeeds.GetValueOrDefault(actor) + SignedEightEight.FromSignedRaw(definition.SlideAcceleration);
+                slideSpeeds[actor] = slideSpeed;
+                actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(-slideSpeed.ToSixteenSixteenDelta()));
                 if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)
                 {
                     // Each reveal object deletes itself before its 8-bit
@@ -716,6 +719,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
                     actor.Delete();
                     actors.RemoveAt(index);
+                    slideSpeeds.Remove(actor);
                     continue;
                 }
             }
@@ -791,14 +795,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
-    /// <summary>Subtracts an unsigned 8.8 slide velocity from the actor's 16.16 Y position with borrow.</summary>
-    private static void SubtractEightEightY(IntroDiscoverySprite actor, int velocity)
-    {
-        // The cinematic frame behaviours split an unsigned 8.8 velocity into
-        // whole/subposition words before a 16-bit subtraction with borrow.
-        actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(
-            SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromEightEight(Ensure.BetweenInclusive(0, ushort.MaxValue, velocity)))));
-    }
 
     /// <summary>
     /// Captures the scene's ordered layers (#1514): over Ceres, the station's turning floor with the asteroids and blasts

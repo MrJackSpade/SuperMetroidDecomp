@@ -39,8 +39,8 @@ internal static class PhantoonDefinitionMigrationVerification
         // Motion: each signed value is the word the cartridge held.
         AssertEqual(0xfffe, unchecked((ushort)PhantoonMotionDefinitions.ReverseSlowCap), "reverse slow cap word");
         AssertEqual(0xfff9, unchecked((ushort)PhantoonMotionDefinitions.ReverseFastCap), "reverse fast cap word");
-        AssertEqual(0xf801, unchecked((ushort)PhantoonMotionDefinitions.SwoopNegativeXThreshold), "horizontal swoop threshold word");
-        AssertEqual(0xfa01, unchecked((ushort)PhantoonMotionDefinitions.SwoopNegativeYThreshold), "vertical swoop threshold word");
+        AssertEqual(0xf801, PhantoonMotionDefinitions.SwoopNegativeXThreshold.RawValue, "horizontal swoop threshold word");
+        AssertEqual(0xfa01, PhantoonMotionDefinitions.SwoopNegativeYThreshold.RawValue, "vertical swoop threshold word");
         AssertEqual(0xffc0, unchecked((ushort)PhantoonMotionDefinitions.SwoopMinimumX), "swoop minimum X word");
         AssertEqual(0xffff, unchecked((ushort)PhantoonCasualFlameDefinitions.NoActiveSchedule), "no-schedule flame count word");
 

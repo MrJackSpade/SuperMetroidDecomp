@@ -240,7 +240,7 @@ public sealed class BabyMetroidCutsceneState
         {
             bool reachedLatchPoint = AccelerateTowardsPoint(
                 samus.Position.Whole + SamusLatchOffset,
-                acceleration: 16);
+                acceleration: SignedEightEight.FromSignedRaw(16));
             if (reachedLatchPoint)
             {
                 Velocity = default;
@@ -317,7 +317,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody:
             {
                 Position16<RoomPixels> target = head + BrainLatchOffset;
-                bool reachedTarget = AccelerateTowardsPoint(target, acceleration: 512);
+                bool reachedTarget = AccelerateTowardsPoint(target, acceleration: SignedEightEight.FromSignedRaw(512));
                 if (reachedTarget)
                 {
                     // The helper predicts whole-pixel overshoot but does not itself store
@@ -778,18 +778,22 @@ public sealed class BabyMetroidCutsceneState
         }
     }
 
-    /// <summary>Reduces horizontal 8.8 speed magnitude by 32 and adds two raw units of downward velocity.</summary>
+    /// <summary>The drag the Baby's death fall takes from its sideways speed each update.</summary>
+    private static readonly SignedEightEight DeathFallDrag = SignedEightEight.FromSignedRaw(32);
+
+    /// <summary>The gravity the Baby's death fall adds to its vertical speed each update.</summary>
+    private static readonly SignedEightEight DeathFallGravity = SignedEightEight.FromSignedRaw(2);
+
+    /// <summary>The fastest the Baby approaches a point, on each axis, in either direction: five pixels an update.</summary>
+    private static readonly SignedEightEight ApproachMaximumSpeed = SignedEightEight.FromSignedRaw(1280);
+
+    /// <summary>Slows the horizontal speed by the death fall's drag and adds its gravity to the vertical speed.</summary>
     private void AccelerateDownwardsForDeath()
     {
-        // The slowing step subtracts 32 from the magnitude, clamps at zero, reapplies the old
-        // sign, and independently adds two to vertical 8.8 velocity. The fall ends 63 updates after the Baby reaches
+        // The slowing step takes the drag from the speed, stopping at rest and keeping its direction, and
+        // independently adds the gravity to the vertical velocity. The fall ends 63 updates after the Baby reaches
         // line 128, so even a fall across the whole coordinate space leaves the speed below 33 pixels an update.
-        // The slowed magnitude is at most 32736, so it always fits a signed 8.8 velocity.
-        int xVelocity = Velocity.X.SignedRawValue;
-        int magnitude = Math.Max(0, Math.Abs(xVelocity) - 32);
-        Velocity = new(
-            SignedEightEight.FromSignedRaw(xVelocity < 0 ? -magnitude : magnitude),
-            Velocity.Y + SignedEightEight.FromSignedRaw(2));
+        Velocity = new(Velocity.X.SlowedBy(DeathFallDrag), Velocity.Y + DeathFallGravity);
     }
 
     /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=128, selecting the shade it shows.</summary>
@@ -857,13 +861,13 @@ public sealed class BabyMetroidCutsceneState
         RotationAngle candidateAngle = Angle.AddRaw(angleDelta);
         if (angleDelta < 0)
         {
-            Angle = CoordinateAxis.Difference(candidateAngle.RawValue, targetAngle.RawValue) >= 0
+            Angle = candidateAngle.TurnFrom(targetAngle) >= 0
                 ? candidateAngle
                 : targetAngle;
         }
         else
         {
-            Angle = CoordinateAxis.Difference(candidateAngle.RawValue, targetAngle.RawValue) < 0
+            Angle = candidateAngle.TurnFrom(targetAngle) < 0
                 ? candidateAngle
                 : targetAngle;
         }
@@ -871,7 +875,7 @@ public sealed class BabyMetroidCutsceneState
         ByteAngle angle = new(Angle.TableIndex);
         Velocity = new(
             CalculateVelocityComponent(Speed, angle),
-            CalculateVelocityComponent(Speed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+            CalculateVelocityComponent(Speed, angle.TurnedBy(ByteAngle.QuarterTurn)));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the game's bit-8-to-23 result.</summary>
@@ -963,7 +967,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Predicts both axis crossings and reports arrival only when X and Y reach their targets together.</summary>
-    private bool AccelerateTowardsPoint(Position16<RoomPixels> target, int acceleration)
+    private bool AccelerateTowardsPoint(Position16<RoomPixels> target, SignedEightEight acceleration)
     {
         // The prediction counts axes whose next whole-pixel prediction reaches/crosses target,
         // then shifts the count twice. Carry is set only for count two.
@@ -973,25 +977,24 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Accelerates Y toward its target at at most five pixels per frame and zeroes velocity on crossing.</summary>
-    private bool AccelerateTowardsYPosition(int targetY, int acceleration)
+    private bool AccelerateTowardsYPosition(int targetY, SignedEightEight acceleration)
     {
         int difference = CoordinateAxis.Difference(Position.Y.Whole, targetY);
         if (difference == 0)
             return true;
 
+        // Each step clamps the speed to five pixels an update, so adding the acceleration stays far inside its range.
         if (difference < 0)
         {
-            int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithY(SignedEightEight.FromSignedRaw(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + EightEight.WholeOf(Velocity.Y.SignedRawValue));
+            Velocity = Velocity.WithY(SignedEightEight.Min(Velocity.Y + acceleration, ApproachMaximumSpeed));
+            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + Velocity.Y.WholePixels);
             if (CoordinateAxis.Difference(prediction, targetY) < 0)
                 return false;
         }
         else
         {
-            int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithY(SignedEightEight.FromSignedRaw(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + EightEight.WholeOf(Velocity.Y.SignedRawValue));
+            Velocity = Velocity.WithY(SignedEightEight.Max(Velocity.Y - acceleration, -ApproachMaximumSpeed));
+            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + Velocity.Y.WholePixels);
             int predictedDifference = CoordinateAxis.Difference(prediction, targetY);
             if (predictedDifference > 0)
                 return false;
@@ -1002,14 +1005,13 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>Accelerates X toward its target with equality choosing the left branch and zeroes velocity on crossing.</summary>
-    private bool AccelerateTowardsXPosition(int targetX, int acceleration)
+    private bool AccelerateTowardsXPosition(int targetX, SignedEightEight acceleration)
     {
         int difference = CoordinateAxis.Difference(Position.X.Whole, targetX);
         if (difference < 0)
         {
-            int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithX(SignedEightEight.FromSignedRaw(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.X.Whole + EightEight.WholeOf(Velocity.X.SignedRawValue));
+            Velocity = Velocity.WithX(SignedEightEight.Min(Velocity.X + acceleration, ApproachMaximumSpeed));
+            int prediction = CoordinateAxis.Wrap(Position.X.Whole + Velocity.X.WholePixels);
             if (CoordinateAxis.Difference(prediction, targetX) < 0)
                 return false;
         }
@@ -1017,9 +1019,8 @@ public sealed class BabyMetroidCutsceneState
         {
             // Deliberately sends exact equality through the left branch; unlike Y,
             // there is no BEQ before BPL.
-            int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithX(SignedEightEight.FromSignedRaw(velocity));
-            int prediction = CoordinateAxis.Wrap(Position.X.Whole + EightEight.WholeOf(Velocity.X.SignedRawValue));
+            Velocity = Velocity.WithX(SignedEightEight.Max(Velocity.X - acceleration, -ApproachMaximumSpeed));
+            int prediction = CoordinateAxis.Wrap(Position.X.Whole + Velocity.X.WholePixels);
             int predictedDifference = CoordinateAxis.Difference(prediction, targetX);
             if (predictedDifference > 0)
                 return false;

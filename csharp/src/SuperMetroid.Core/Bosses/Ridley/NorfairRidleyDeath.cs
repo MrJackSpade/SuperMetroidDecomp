@@ -13,6 +13,12 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class NorfairRidleyDeath
 {
+    /// <summary>The drag a breakup fragment's sideways speed loses each update, stopping at rest.</summary>
+    private static readonly SignedEightEight BreakupFragmentDrag = SignedEightEight.FromSignedRaw(4);
+
+    /// <summary>The gravity a breakup fragment's fall gains each update.</summary>
+    private static readonly SignedEightEight BreakupFragmentGravity = SignedEightEight.FromSignedRaw(4);
+
     /// <summary>Enemy dispatcher used for Ridley's registered callbacks.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
@@ -275,12 +281,10 @@ internal sealed class NorfairRidleyDeath
 
         RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
             ?? throw new InvalidOperationException($"Ridley breakup fragment in slot {fragment.SlotIndex} has no state.");
-        int horizontal = fragmentState.Velocity.X.SignedRawValue;
-        int magnitude = Math.Max(0, Math.Abs(horizontal) - 4);
         // A fragment falls only for its part's authored lifetime, so its gravity adds a few pixels an update at most.
         var velocity = new EightEightVector<RoomPixels>(
-            SignedEightEight.FromSignedRaw(horizontal < 0 ? -magnitude : magnitude),
-            fragmentState.Velocity.Y + SignedEightEight.FromSignedRaw(4));
+            fragmentState.Velocity.X.SlowedBy(BreakupFragmentDrag),
+            fragmentState.Velocity.Y + BreakupFragmentGravity);
         fragmentState.Velocity = velocity;
         fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 

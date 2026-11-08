@@ -141,7 +141,7 @@ internal sealed class EnemyFramePhase
                 // The Shitroid writes the camera X position during EnemyMain, before the ordinary
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
-                _room.Camera.SetCameraXFromEnemyAi(Ensure.BetweenInclusive(0, ushort.MaxValue, shitroidCameraX));
+                _room.Camera.SetCameraXFromEnemyAi(shitroidCameraX);
                 _backgroundScroll.ForegroundPosition = _backgroundScroll.ForegroundPosition.WithX(shitroidCameraX);
             }
             // The landing tube stops the liquid surface's motion; the next frame shows it still.

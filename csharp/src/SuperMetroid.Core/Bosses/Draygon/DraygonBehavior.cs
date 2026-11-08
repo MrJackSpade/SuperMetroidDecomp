@@ -219,8 +219,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The swoop acceleration each eye hit adds, 8/256 pixel per frame per frame, while below the limit.</summary>
     internal static readonly EightEightVector<RoomPixels> DraygonShotSwoopAccelerationStep = new(0, 8);
 
-    /// <summary>The swoop acceleration, in 1/256 pixel per frame per frame, an eye hit may not reach (a signed compare of the difference).</summary>
-    internal const int DraygonSwoopAccelerationLimit = 160;
+    /// <summary>The swoop acceleration, 160/256 pixel per frame per frame, an eye hit may not reach.</summary>
+    internal static readonly SignedEightEight DraygonSwoopAccelerationLimit = SignedEightEight.FromSignedRaw(160);
 
     /// <summary>The swoop path entry at which the arms reach for the swoop's apex, and return to rest on the climb.</summary>
     internal const int DraygonSwoopApexArmsEntry = 26;

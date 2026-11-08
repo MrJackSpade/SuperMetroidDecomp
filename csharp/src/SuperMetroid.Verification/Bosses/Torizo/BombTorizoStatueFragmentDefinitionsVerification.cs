@@ -89,7 +89,7 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
     {
         for (int fragment = 0, parameter = 0; fragment < BombTorizoStatueFragmentDefinitions.FragmentCount; fragment++, parameter += 2)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86a80b + (parameter & 15))),
-                BombTorizoStatueFragments.ForFragment(fragment).Acceleration, "statue native constant acceleration field");
+                BombTorizoStatueFragments.ForFragment(fragment).Acceleration.RawValue, "statue native constant acceleration field");
     }
     /// <summary>Forbids production rereads of the five compiled statue-fragment physical tables.</summary>
     private static CartridgeReadGuard NewBombTorizoStatueFragmentReadGuard(ISnesAddressSpace source) =>

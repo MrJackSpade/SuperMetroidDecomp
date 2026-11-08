@@ -16,6 +16,6 @@ public interface IRoomFxMotion
     void SetLiquidMotion(
         int? baseYPosition = null,
         int? targetYPosition = null,
-        int? packedYVelocity = null,
+        SignedEightEight? yVelocity = null,
         int? timer = null);
 }

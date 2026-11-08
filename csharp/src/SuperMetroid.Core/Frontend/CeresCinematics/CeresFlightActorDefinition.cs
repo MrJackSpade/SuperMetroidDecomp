@@ -9,6 +9,6 @@ internal readonly record struct CeresFlightActorDefinition(
     CinematicSpriteProgram Program,
     Position16<ScreenPixels> Position,
     CeresSpriteColouring Colouring,
-    int InitialTimer,
+    SignedEightEight InitialVelocity,
     int HorizontalDelta,
     bool WrapX);

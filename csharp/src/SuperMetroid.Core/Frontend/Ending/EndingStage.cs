@@ -171,7 +171,7 @@ internal sealed class EndingStage
             case EndingSpriteRole.ExplosionStarsLeft:
                 // The right starfield runs no flyaway frame behaviour until its animation installs one.
                 if (sprite.FrameBehavior is CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway or CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving)
-                    StepFlyawayStars(sprite, sprite.FrameBehavior.Value);
+                    StepFlyawayStars(wrapper, sprite.FrameBehavior.Value);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
@@ -202,28 +202,22 @@ internal sealed class EndingStage
         }
     }
 
-    /// <summary>Starts starfield motion at flyaway and advances its aliased Y-fraction velocity word.</summary>
-    private void StepFlyawayStars(IntroDiscoverySprite sprite, CinematicSpriteFrameBehavior frameBehavior)
+    /// <summary>Starts starfield motion at flyaway and advances its velocity, which slows on every update.</summary>
+    private void StepFlyawayStars(EndingSprite stars, CinematicSpriteFrameBehavior frameBehavior)
     {
+        IntroDiscoverySprite sprite = stars.Sprite;
         switch (frameBehavior)
         {
             case CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway:
                 if (Phase == EndingCreditsPhase.PlanetEscapeFast)
                 {
                     sprite.InstallFrameBehavior(CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving);
-                    // The Y subposition word doubles as the low velocity word.
-                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction(CoordinateAxis.Wrap(SixteenSixteen.FromWhole(1) / 4)));
-                    sprite.GeneralTimer = 0;
+                    stars.FlyawayVelocity = EndingMotionDefinitions.StarsFlyawayInitialVelocity;
                 }
                 break;
             case CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving:
-                // The velocity's whole pixels live in the timer and its fraction in the Y subposition.
-                SignedSixteenSixteen velocity = SignedSixteenSixteen.FromParts(
-                    CoordinateAxis.AsSigned(sprite.GeneralTimer), sprite.Position.Y.Fraction) - SignedSixteenSixteen.FromRaw(32);
-                sprite.GeneralTimer = velocity.WholeWord;
-                sprite.Position = new(
-                    sprite.Position.X.MovedBy(velocity),
-                    sprite.Position.Y.WithFraction(velocity.Fraction));
+                stars.FlyawayVelocity -= EndingMotionDefinitions.StarsFlyawayDeceleration;
+                sprite.Position = sprite.Position.WithX(sprite.Position.X.MovedBy(stars.FlyawayVelocity));
                 break;
             case CinematicSpriteFrameBehavior.NoOp:
             case CinematicSpriteFrameBehavior.MetroidEgg:

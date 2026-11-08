@@ -165,12 +165,16 @@ internal sealed class CeresRidleyFlight
         state.HoverCounter = 0;
     }
 
+    /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position.</summary>
+    private static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromSignedRaw(128);
+
     /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball instruction stream.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        int verticalVelocity = state.Velocity.Y.SignedRawValue;
-        int magnitude = Math.Max(128, Math.Abs(verticalVelocity));
-        state.Velocity = state.Velocity.WithY(SignedEightEight.FromSignedRaw(verticalVelocity < 0 ? -magnitude : magnitude));
+        // Every acceleration clamps Ridley to five pixels an update, so his speed always has a magnitude.
+        SignedEightEight verticalVelocity = state.Velocity.Y;
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Max(FireballMoveMinimumSpeed, verticalVelocity.Magnitude())
+            .AlongDirectionOf(verticalVelocity));
         AccelerateRidleyToward(slot, state, new(slot.Position.X.Whole, 88), 16);
 
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
@@ -293,13 +297,14 @@ internal sealed class CeresRidleyFlight
         RotationAngle angle = state.SwoopAngleAccumulator.AddRaw(angleDelta);
         // CMP branches on N, not signed less-than (N xor V). The heading wraps around the
         // turn, particularly onto the half-turn recovery target after a rightward swoop.
-        bool negativeDifference = CoordinateAxis.Difference(angle.RawValue, targetAngle) < 0;
+        RotationAngle target = RotationAngle.NormalizeRaw(targetAngle);
+        bool negativeDifference = angle.TurnFrom(target) < 0;
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
-            angle = RotationAngle.NormalizeRaw(targetAngle);
+            angle = target;
         state.SwoopAngleAccumulator = angle;
         ByteAngle phase = angle.ToByteAngle();
         state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(magnitude, phase));
-        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(magnitude, phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(magnitude, phase.TurnedBy(ByteAngle.QuarterTurn)));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
@@ -429,28 +434,23 @@ internal sealed class CeresRidleyFlight
         int step = Math.Max(1, Math.Abs(difference) / divisor);
         var run = new SeekingVelocityRun(velocity, position, target);
 
-        int speed;
         if (difference < 0)
         {
-            if (velocity.SignedRawValue < 0)
+            if (velocity.IsNegative)
             {
                 run.Raise(step);
                 run.Raise(step);
             }
             run.Raise(step);
-            speed = Math.Min(run.Velocity.SignedRawValue, CeresRidleyBehavior.CeresRidleyMaximumSpeed);
+            return SignedEightEight.Min(run.Velocity, CeresRidleyBehavior.CeresRidleyMaximumSpeed);
         }
-        else
+        if (!velocity.IsNegative)
         {
-            if (velocity.SignedRawValue >= 0)
-            {
-                run.Lower(step);
-                run.Lower(step);
-            }
             run.Lower(step);
-            speed = Math.Max(run.Velocity.SignedRawValue, CeresRidleyBehavior.CeresRidleyMinimumSpeed);
+            run.Lower(step);
         }
-        return SignedEightEight.FromSignedRaw(speed);
+        run.Lower(step);
+        return SignedEightEight.Max(run.Velocity, CeresRidleyBehavior.CeresRidleyMinimumSpeed);
     }
 
     /// <summary>Applies Ridley's 8.8 motion and arena clamps, invoking impact only at the strict left bound.</summary>
@@ -469,25 +469,24 @@ internal sealed class CeresRidleyFlight
             CoordinateAxis.Difference(proposedY.Whole, state.MovementMinimum.Y) < 0 ||
             CoordinateAxis.Difference(proposedY.Whole, state.MovementMaximum.Y) >= 0;
         if (wallImpact == RidleyWallImpact.CeresWall && CoordinateAxis.Difference(proposedX.Whole, state.MovementMinimum.X) < 0 &&
-            Math.Max(Math.Abs(state.Velocity.X.SignedRawValue),
-                Math.Abs(state.Velocity.Y.SignedRawValue)) >= RidleyWallImpactDefinitions.MinimumSpeed)
+            SignedEightEight.Max(state.Velocity.X.Magnitude(), state.Velocity.Y.Magnitude()) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
             _earthquake.EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(RidleyWallImpactDefinitions.Duration);
         }
-        (FixedCoordinate x, int xVelocity) = IntegrateAxis(
+        (FixedCoordinate x, SignedEightEight xVelocity) = IntegrateAxis(
             slot.Position.X,
             state.Velocity.X,
             state.MovementMinimum.X,
             state.MovementMaximum.X);
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(xVelocity));
+        state.Velocity = state.Velocity.WithX(xVelocity);
         slot.Position = slot.Position.WithX(x);
-        (FixedCoordinate y, int yVelocity) = IntegrateAxis(
+        (FixedCoordinate y, SignedEightEight yVelocity) = IntegrateAxis(
             slot.Position.Y,
             state.Velocity.Y,
             state.MovementMinimum.Y,
             state.MovementMaximum.Y);
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(yVelocity));
+        state.Velocity = state.Velocity.WithY(yVelocity);
         slot.Position = slot.Position.WithY(y);
     }
 
@@ -503,10 +502,10 @@ internal sealed class CeresRidleyFlight
         FixedCoordinate moved = position.MovedBy(velocity);
 
         if (CoordinateAxis.Difference(moved.Whole, minimum) < 0)
-            return new CeresRidleyAxisMotion(moved.WithWhole(minimum), 0);
+            return new CeresRidleyAxisMotion(moved.WithWhole(minimum), SignedEightEight.Zero);
         if (CoordinateAxis.Difference(moved.Whole, maximum) >= 0)
-            return new CeresRidleyAxisMotion(moved.WithWhole(maximum), 0);
-        return new CeresRidleyAxisMotion(moved, velocity.RawValue);
+            return new CeresRidleyAxisMotion(moved.WithWhole(maximum), SignedEightEight.Zero);
+        return new CeresRidleyAxisMotion(moved, velocity);
     }
 
     /// <summary>Adds an 8.8 velocity to a position before boundary checks.</summary>
@@ -545,20 +544,19 @@ internal sealed class CeresRidleyFlight
     /// <summary>Animates Ridley's wings after the common Ridley movement pass.</summary>
     internal static void TickRidleyWingAnimation(RidleyEnemyState state)
     {
-        int absoluteXVelocity = Math.Abs(state.Velocity.X.SignedRawValue);
-        int absoluteYVelocity = Math.Abs(state.Velocity.Y.SignedRawValue);
-        int largestAxisVelocity = Math.Max(absoluteXVelocity, absoluteYVelocity);
-        if (largestAxisVelocity == 0)
+        // Every acceleration clamps Ridley to five pixels an update, so his speed on each axis has a magnitude.
+        SignedEightEight largestAxisVelocity = SignedEightEight.Max(state.Velocity.X.Magnitude(), state.Velocity.Y.Magnitude());
+        if (largestAxisVelocity.IsZero)
         {
             state.WingAnimationTimerDelta = 0;
         }
         else
         {
-            // The wing animation isolates bits 8..11 after multiplying the 8.8 velocity by four,
-            // converts the result to a table index, and clamps that index to 14.
-            int tableIndex = Math.Min(7, EightEight.WholeOf(largestAxisVelocity << 2) % 16);
+            // The wing animation reads the speed's quarter pixels within a cycle of sixteen as a table index and clamps
+            // that index to seven.
+            int tableIndex = Math.Min(7, largestAxisVelocity.WholeQuarterPixels % 16);
             int delta = CeresRidleyWingDefinitions.AnimationTimerSteps[tableIndex];
-            if (state.Velocity.Y.SignedRawValue >= 0)
+            if (!state.Velocity.Y.IsNegative)
                 delta >>= 1;
             state.WingAnimationTimerDelta = delta;
         }

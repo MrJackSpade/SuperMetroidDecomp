@@ -377,7 +377,7 @@ internal sealed class MotherBrainHead
     {
         RoomEnemySlot head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
-        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue).RawValue;
+        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn).RawValue;
 
         // The clamp performs two signed-flag comparisons in 8-bit mode. The
         // wraparound half maps 192..255 and 0..15 to 16; the opposite half maps
@@ -390,8 +390,8 @@ internal sealed class MotherBrainHead
         };
     }
 
-    /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, in 1/256 pixel per update.</summary>
-    private const int MotherBrainBombBounceSpeed = 112;
+    /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, without its direction.</summary>
+    private static readonly SignedEightEight MotherBrainBombBounceSpeed = SignedEightEight.FromSignedRaw(112);
 
     /// <summary>Updates an onion ring stays at Mother Brain's mouth before it flies.</summary>
     private const int MotherBrainOnionRingAttachDelay = 8;
@@ -438,7 +438,7 @@ internal sealed class MotherBrainHead
         ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(
             1104,
-            angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+            angle.TurnedBy(ByteAngle.QuarterTurn)));
 
         // The ring's initializer falls through into its attachment step, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.

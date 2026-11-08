@@ -27,7 +27,7 @@ internal static class RidleyPogoDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2)));
             reference[pattern, stage] = native;
             RidleyPogoDefinition compiled = RidleyPogo.Read(pattern, stage);
-            AssertTrue(native == new RidleyPogoDefinitionsReference(compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, checked((ushort)compiled.UpwardAcceleration), checked((ushort)compiled.DownwardAcceleration)),
+            AssertTrue(native == new RidleyPogoDefinitionsReference(compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, compiled.UpwardAcceleration.RawValue, compiled.DownwardAcceleration.RawValue),
                 "All indirect native pogo records and accelerations");
         }
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
@@ -55,8 +55,8 @@ internal static class RidleyPogoDefinitionsVerification
             AssertEqual(1, reads, "Native Ridley pogo initializer reads current RNG once");
             AssertEqual(unchecked((ushort)((short)previous < 0 ? -expected.X : expected.X)), state.Velocity.X.RawValue, "Pogo selected horizontal magnitude/sign");
             AssertEqual(expected.Y, state.Velocity.Y.RawValue, "Pogo selected vertical speed");
-            AssertEqual(expected.Up, state.PogoUpwardAcceleration, "Pogo upward acceleration");
-            AssertEqual(expected.Down, state.PogoDownwardAcceleration, "Pogo downward acceleration");
+            AssertEqual(expected.Up, state.PogoUpwardAcceleration.RawValue, "Pogo upward acceleration");
+            AssertEqual(expected.Down, state.PogoDownwardAcceleration.RawValue, "Pogo downward acceleration");
             AssertEqual(health, state.HealthStage, "Pogo preserves health-stage state");
             AssertEqual(0x1234, state.FunctionTimer, "Pogo preserves caller timer");
             cases++;

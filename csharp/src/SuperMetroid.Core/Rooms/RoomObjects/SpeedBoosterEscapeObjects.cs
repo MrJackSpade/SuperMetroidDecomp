@@ -96,7 +96,7 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
         {
             fx.RemoveLiquidTarget();
             fx.SetLiquidMotion(
-                packedYVelocity: 0,
+                yVelocity: SignedEightEight.Zero,
                 timer: 0);
             (_earthquake ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
@@ -112,7 +112,7 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
         }
 
         fx.SetLiquidMotion(
-            packedYVelocity: SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity.RawValue);
+            yVelocity: SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity);
         WakeAtNextInstruction(slot);
     }
 
@@ -142,7 +142,7 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
             baseYPosition: stage.MaximumFxY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole)
                 ? stage.MaximumFxY
                 : null,
-            packedYVelocity: stage.YVelocity.RawValue);
+            yVelocity: stage.YVelocity);
         escape.PassRise();
     }
 

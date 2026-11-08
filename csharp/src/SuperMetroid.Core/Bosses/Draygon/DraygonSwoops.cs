@@ -53,7 +53,9 @@ internal sealed class DraygonSwoops
         while (true)
         {
             speed += state.SwoopAcceleration;
-            int candidate = CoordinateAxis.Wrap(yPosition - (EightEight.WholeOf(speed.Y.RawValue)));
+            // The path ends once it rises past the reset height, at most 384 pixels up, so the rising speed stays a few
+            // pixels an update.
+            int candidate = CoordinateAxis.Wrap(yPosition - speed.Y.WholePixels);
             if (CoordinateAxis.Difference(candidate, state.LeftSideReset.Y) < 0)
                 break;
 

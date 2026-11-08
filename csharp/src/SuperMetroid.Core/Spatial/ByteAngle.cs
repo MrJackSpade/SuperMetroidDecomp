@@ -40,6 +40,9 @@ public readonly record struct ByteAngle
     /// <summary>Adds signed table units with the cartridge's byte wraparound.</summary>
     public ByteAngle AddTableUnits(int delta) => Wrapped(RawValue + delta);
 
+    /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
+    public ByteAngle TurnedBy(ByteAngle turn) => Wrapped(RawValue + turn.RawValue);
+
     /// <summary>
     /// This angle carried into the half turn from zero up to (not including) <see cref="HalfTurn"/>, keeping its
     /// position within the half turn: an angle in the other half turns back by a half turn.

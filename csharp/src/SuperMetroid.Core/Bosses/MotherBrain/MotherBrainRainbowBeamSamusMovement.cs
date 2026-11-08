@@ -94,6 +94,9 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         CustomVelocity = new(-256, 0);
     }
 
+    /// <summary>How much the leftward push slows on each update of Samus's fall from the beam.</summary>
+    private static readonly SignedEightEight FallingPushSlowing = SignedEightEight.FromSignedRaw(2);
+
     /// <summary>
     /// Steps Samus's fall: ease horizontal speed toward zero by 2/256, add
     /// 24/256 vertical speed, then move through the two hardcoded arena clamps.
@@ -109,8 +112,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         // The leftward speed slows by two units each update; as soon as it reaches zero or above it is
         // clamped to exact zero.
-        int acceleratedX = CustomVelocity.X.SignedRawValue + 2;
-        CustomVelocity = CustomVelocity.WithX(SignedEightEight.FromSignedRaw(Math.Min(acceleratedX, 0)));
+        CustomVelocity = CustomVelocity.WithX(SignedEightEight.Min(CustomVelocity.X + FallingPushSlowing, SignedEightEight.Zero));
         MoveHorizontallyTowardWall(samus, cameraCheckpoint, CustomVelocity.X);
 
         CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
@@ -134,7 +136,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // The sine multiply multiplies unsigned speed by the magnitude, selects product bits 8..23,
         // then reapplies the table entry's sign with 16-bit two's-complement negation.
         return Trigonometry.MultiplySignedSine(
-            speed, angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle());
+            speed, (angle + RotationAngle.QuarterTurn).ToByteAngle());
     }
 
     /// <summary>Applies 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=48..192.</summary>

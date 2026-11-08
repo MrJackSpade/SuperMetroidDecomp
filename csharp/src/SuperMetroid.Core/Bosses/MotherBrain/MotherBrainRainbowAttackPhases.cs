@@ -137,7 +137,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // rainbow beam's anti-clockwise-down convention with `-angle + half turn`.
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
             samus.Position.Whole - (_state.BrainPosition + new Offset16<RoomPixels>(16, 4)));
-        _movement.RainbowBeamAngle = RotationAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
+        _movement.RainbowBeamAngle = RotationAngle.HalfTurn - sourceAngle;
     }
 
     /// <summary>Emits the next cyclic beam explosion offset when the eight-frame countdown underflows.</summary>

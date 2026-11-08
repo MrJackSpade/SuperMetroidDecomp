@@ -63,7 +63,7 @@ internal sealed class EndingFlyaway
             _stage.PhaseTimer--;
         else StepFlyawayFade();
         _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-4);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingShipShake.PlanetFastDelta(PlanetMotionIndex)));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetFastDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetFastPatternLength;
         _stage.FloorZoom -= 8;
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetFastEndScale)
@@ -79,7 +79,7 @@ internal sealed class EndingFlyaway
         StepFlyawayFade();
         if (_stage.FloorAngle != EndingMotionDefinitions.PlanetSlowTargetAngle)
             _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-1);
-        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, EndingShipShake.PlanetSlowDelta(PlanetMotionIndex)));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetSlowDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetSlowPatternLength;
         _stage.FloorZoom -= 2;
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndScale)
@@ -106,7 +106,7 @@ internal sealed class EndingFlyaway
     {
         StepFlyawayFade();
         PlanetVelocity -= EndingMotionDefinitions.PlanetAcceleration;
-        _stage.FloorPosition = _stage.FloorPosition.WithX(AddSignedFixed(_stage.FloorPosition.X, PlanetVelocity.RawValue));
+        _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(PlanetVelocity));
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetTurnStartScale &&
             (CinematicFrame & 3) == 0 &&
             _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)
@@ -126,12 +126,6 @@ internal sealed class EndingFlyaway
             _stage.FloorZoom -= 4;
         }
     }
-
-    /// <summary>Adds a signed 16.16 motion delta to a turning-floor coordinate with sixteen-bit wrapping.</summary>
-    private static FixedCoordinate AddSignedFixed(FixedCoordinate position, int delta) =>
-        SignedSixteenSixteen
-            .FromRaw(delta)
-            .AddTo(position.Whole, position.Fraction);
 
     /// <summary>The steps left of the white wash over the planet escape (<see cref="WhiteWash"/>), from full white fading to none, where it stays.</summary>
     private int flyawayWhite;

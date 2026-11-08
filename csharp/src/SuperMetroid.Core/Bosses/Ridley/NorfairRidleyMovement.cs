@@ -65,7 +65,7 @@ internal sealed class NorfairRidleyMovement
 
         if (distance > 0)
         {
-            if (axisVelocity.SignedRawValue >= 0)
+            if (!axisVelocity.IsNegative)
             {
                 run.StartFresh();
                 run.Lower(reversalBoost);
@@ -75,11 +75,11 @@ internal sealed class NorfairRidleyMovement
             }
             run.Lower(step);
             SignedEightEight lowered = run.Velocity;
-            return lowered.SignedRawValue < RidleyInertiaDefinitions.MinimumVelocity.SignedRawValue
+            return lowered < RidleyInertiaDefinitions.MinimumVelocity
                 ? RidleyInertiaDefinitions.MinimumVelocity
                 : lowered;
         }
-        if (axisVelocity.SignedRawValue < 0)
+        if (axisVelocity.IsNegative)
         {
             run.StartFresh();
             run.Raise(reversalBoost);
@@ -89,7 +89,7 @@ internal sealed class NorfairRidleyMovement
         }
         run.Raise(step);
         SignedEightEight raised = run.Velocity;
-        return raised.SignedRawValue >= RidleyInertiaDefinitions.MaximumVelocity.SignedRawValue
+        return raised >= RidleyInertiaDefinitions.MaximumVelocity
             ? RidleyInertiaDefinitions.MaximumVelocity
             : raised;
     }

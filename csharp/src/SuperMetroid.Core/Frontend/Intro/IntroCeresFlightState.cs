@@ -21,9 +21,12 @@ internal sealed class IntroCeresFlightState
     private CinematicSpriteSheet? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
     private CeresFlightActorPlacements? actorLayout;
-    /// <summary>Front-view star actor whose timer also drives the diagonal background rush.</summary>
+    /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
+
+    /// <summary>The front stars' speed on each axis, which the background rush shares.</summary>
+    private SignedEightEight starsVelocity = CeresFlightActorDefinitions.FrontStars.InitialVelocity;
 
     /// <summary>The floor point the scene places at the screen's top-left, advanced with the star actor or rear-view drift.</summary>
     private FixedPosition<FloorPixels> background = new(new(CoordinateAxis.Wrap(-72), 0), new(CoordinateAxis.Wrap(-104), 0));
@@ -269,10 +272,7 @@ internal sealed class IntroCeresFlightState
         var actor = new IntroDiscoverySprite(
             definition.Position,
             CeresShades.Drawn(definition.Colouring),
-            definition.Program)
-        {
-            GeneralTimer = definition.InitialTimer,
-        };
+            definition.Program);
         actor.InstallFrameBehavior(definition.ActiveFrameBehavior);
         return actor;
     }
@@ -405,11 +405,10 @@ internal sealed class IntroCeresFlightState
                 $"Ceres front stars name invalid pre-instruction " +
                 $"{stars.FrameBehavior}.");
         }
-        // The stars' timer holds their speed. The rush lasts while the zoom falls from 512 by 16 an update, about 32
-        // updates, so the speed rises from four pixels an update one way to at most twelve the other.
-        SignedEightEight velocity = new SignedEightEight(stars.GeneralTimer) +
-            SignedEightEight.FromSignedRaw(CeresFlightActorDefinitions.FrontStarAcceleration);
-        stars.GeneralTimer = velocity.RawValue;
+        // The rush lasts while the zoom falls from 512 by 16 an update, about 32 updates, so the speed rises from four
+        // pixels an update one way to at most twelve the other.
+        starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;
+        SignedEightEight velocity = starsVelocity;
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));

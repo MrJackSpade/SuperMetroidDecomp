@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 8.8 fixed-point velocity: eight whole bits and eight fraction bits, kept exactly.</summary>
 [EncodingOwner("signed 8.8 fixed-point number")]
-public readonly record struct SignedEightEight
+public readonly record struct SignedEightEight : IComparable<SignedEightEight>
 {
     /// <summary>The value whose two's-complement word is <paramref name="rawValue"/>, 0 through 65535.</summary>
     /// <param name="rawValue">The unchanged two's-complement word containing eight whole and eight fractional bits.</param>
@@ -110,4 +110,83 @@ public readonly record struct SignedEightEight
     /// <summary>Promotes the signed word to the 16.16 delta used by native position adders.</summary>
     public SignedSixteenSixteen ToSixteenSixteenDelta() =>
         SignedSixteenSixteen.FromRaw(unchecked((short)RawValue) << 8);
+
+    /// <summary>No velocity at all.</summary>
+    public static SignedEightEight Zero => default;
+
+    /// <summary>Whether the velocity is no movement at all.</summary>
+    public bool IsZero => RawValue == 0;
+
+    /// <summary>The velocity of <paramref name="wholePixels"/> pixels, -128 through 127, and <paramref name="fraction"/> 256ths, 0 through 255, an update.</summary>
+    public static SignedEightEight FromParts(int wholePixels, int fraction) =>
+        FromSignedRaw(Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, wholePixels) * 256 + Ensure.BetweenInclusive(0, byte.MaxValue, fraction));
+
+    /// <summary>The velocity's whole pixels an update, rounded toward decreasing coordinates, as the game reads a speed's whole byte.</summary>
+    [IntegerQuantity("whole pixels of a signed 8.8 speed")]
+    public int WholePixels => SignedRawValue >> 8;
+
+    /// <summary>
+    /// The velocity's whole quarter pixels an update, rounded toward decreasing coordinates, as the game reads a speed's
+    /// quarter pixels from its word.
+    /// </summary>
+    [IntegerQuantity("whole quarter pixels of a signed 8.8 speed")]
+    public int WholeQuarterPixels => SignedRawValue >> 6;
+
+    /// <summary>
+    /// The velocity with its whole pixels lowered to <paramref name="maximumWhole"/>, -128 through 127, when they lie above
+    /// it, its fraction kept, as routines that cap only a speed's whole byte do.
+    /// </summary>
+    public SignedEightEight WithWholePixelsAtMost(int maximumWhole) =>
+        WholePixels > maximumWhole ? FromParts(maximumWhole, SignedRawValue - WholePixels * 256) : this;
+
+    /// <summary>The velocity's speed regardless of direction; the most negative value has none within the type's range and fails.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The value is the most negative one.</exception>
+    public SignedEightEight Magnitude() => IsNegative ? -this : this;
+
+    /// <summary>This speed pointed the way <paramref name="direction"/> points: reversed when that velocity is negative.</summary>
+    public SignedEightEight AlongDirectionOf(SignedEightEight direction) => direction.IsNegative ? -this : this;
+
+    /// <summary>
+    /// The velocity slowed by <paramref name="drag"/>: its speed lowered by the drag, stopping at rest, and its direction kept,
+    /// as the game applies drag to a speed's magnitude.
+    /// </summary>
+    public SignedEightEight SlowedBy(SignedEightEight drag)
+    {
+        int speed = Math.Max(0, Math.Abs(SignedRawValue) - drag.SignedRawValue);
+        return FromSignedRaw(IsNegative ? -speed : speed);
+    }
+
+    /// <summary>
+    /// The velocity divided by <paramref name="divisor"/>, a positive whole number, rounding toward decreasing coordinates,
+    /// as the game halves or quarters a velocity by shifting its word.
+    /// </summary>
+    public SignedEightEight DividedRoundingDown(int divisor)
+    {
+        int quotient = Math.DivRem(SignedRawValue, Ensure.BetweenInclusive(1, int.MaxValue, divisor), out int remainder);
+        return FromSignedRaw(remainder < 0 ? quotient - 1 : quotient);
+    }
+
+    /// <summary>The smaller of two velocities, read signed.</summary>
+    public static SignedEightEight Min(SignedEightEight left, SignedEightEight right) => left <= right ? left : right;
+
+    /// <summary>The larger of two velocities, read signed.</summary>
+    public static SignedEightEight Max(SignedEightEight left, SignedEightEight right) => left >= right ? left : right;
+
+    /// <summary>The velocity held within <paramref name="minimum"/> through <paramref name="maximum"/>, read signed.</summary>
+    public SignedEightEight Clamped(SignedEightEight minimum, SignedEightEight maximum) => Max(minimum, Min(maximum, this));
+
+    /// <summary>Orders velocities by their signed value.</summary>
+    public int CompareTo(SignedEightEight other) => SignedRawValue.CompareTo(other.SignedRawValue);
+
+    /// <summary>Whether <paramref name="left"/> is the lesser velocity, read signed.</summary>
+    public static bool operator <(SignedEightEight left, SignedEightEight right) => left.CompareTo(right) < 0;
+
+    /// <summary>Whether <paramref name="left"/> is the greater velocity, read signed.</summary>
+    public static bool operator >(SignedEightEight left, SignedEightEight right) => left.CompareTo(right) > 0;
+
+    /// <summary>Whether <paramref name="left"/> is no greater than <paramref name="right"/>, read signed.</summary>
+    public static bool operator <=(SignedEightEight left, SignedEightEight right) => left.CompareTo(right) <= 0;
+
+    /// <summary>Whether <paramref name="left"/> is no less than <paramref name="right"/>, read signed.</summary>
+    public static bool operator >=(SignedEightEight left, SignedEightEight right) => left.CompareTo(right) >= 0;
 }

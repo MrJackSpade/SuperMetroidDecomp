@@ -5,4 +5,4 @@ internal readonly record struct BombTorizoStatueFragmentDefinition(
     TorizoProjectileProgram Program,
     Offset16<RoomPixels> Offset,
     int YVelocity,
-    int Acceleration);
+    SignedEightEight Acceleration);

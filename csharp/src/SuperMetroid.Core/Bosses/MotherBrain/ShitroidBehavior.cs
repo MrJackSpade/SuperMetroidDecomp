@@ -49,6 +49,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _slotTable = slotTable;
     }
 
+    /// <summary>The acceleration of the Shitroid's approach to a latch, on each axis.</summary>
+    private static readonly SignedEightEight LatchAcceleration = SignedEightEight.FromSignedRaw(512);
+
+    /// <summary>The fastest the Shitroid approaches a latch, on each axis, in either direction.</summary>
+    private static readonly SignedEightEight LatchMaximumSpeed = SignedEightEight.FromSignedRaw(1280);
+
     /// <summary>Four authored feeding jitter offsets indexed by <c>frameCounter &amp; 6</c>.</summary>
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
@@ -384,7 +390,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
         Position16<RoomPixels> latch = victim.Position.Whole + new Offset16<RoomPixels>(0, -32);
-        if (!AccelerateShitroidExactly(state, 512, latch))
+        if (!AccelerateShitroidExactly(state, LatchAcceleration, latch))
             return;
 
         state.Velocity = default;
@@ -565,7 +571,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates both axes toward a latch target and reports arrival only when both cross it.</summary>
     private static bool AccelerateShitroidExactly(
         ShitroidEnemyState state,
-        int acceleration,
+        SignedEightEight acceleration,
         Position16<RoomPixels> target)
     {
         (bool xArrived, SignedEightEight xVelocity) = AccelerateShitroidAxis(
@@ -588,18 +594,20 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int current,
         int target,
         SignedEightEight velocity,
-        int acceleration)
+        SignedEightEight acceleration)
     {
         int delta = CoordinateAxis.Difference(current, target);
         if (delta == 0)
             return new ShitroidAxisStep(true, velocity);
 
-        int speed = delta >= 0
-            ? Math.Max(-1280, velocity.SignedRawValue - acceleration)
-            : Math.Min(1280, velocity.SignedRawValue + acceleration);
-        int predicted = CoordinateAxis.Difference(current + EightEight.WholeOf(speed), target);
+        // Every approach clamps the speed to five pixels an update and a hit's recoil adds less than one, so the step
+        // stays far inside the velocity's range.
+        SignedEightEight speed = delta >= 0
+            ? SignedEightEight.Max(-LatchMaximumSpeed, velocity - acceleration)
+            : SignedEightEight.Min(LatchMaximumSpeed, velocity + acceleration);
+        int predicted = CoordinateAxis.Difference(current + speed.WholePixels, target);
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
-        return new ShitroidAxisStep(crossed, crossed ? default : SignedEightEight.FromSignedRaw(speed));
+        return new ShitroidAxisStep(crossed, crossed ? default : speed);
     }
 
     /// <summary>Tests inclusive-radius overlap between two enemy rectangles using signed coordinate deltas.</summary>
@@ -633,12 +641,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
                 CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole),
                 CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
-            RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
+            RotationAngle angle = RotationAngle.Zero - sourceAngle;
             state.Velocity += new EightEightVector<RoomPixels>(
                 EnemyMath.MultiplySineSample(64, angle.ToByteAngle()),
                 EnemyMath.MultiplySineSample(
                     64,
-                    angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
+                    (angle + RotationAngle.QuarterTurn).ToByteAngle()));
             return;
         }
 
@@ -646,7 +654,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (AccelerateShitroidExactly(
                 state,
-                512,
+                LatchAcceleration,
                 samus.Position.Whole + new Offset16<RoomPixels>(0, -32)))
             {
                 SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
@@ -676,7 +684,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
             CoordinateAxis.Difference(firstShot.Position.X.Whole, slot.Position.X.Whole),
             CoordinateAxis.Difference(firstShot.Position.Y.Whole, slot.Position.Y.Whole)));
-        RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
+        RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is eight times the damage, capped at 240; no beam, missile or bomb deals the 8192
         // damage whose multiple would pass a sixteen-bit quantity.
         int magnitude = Math.Min(8 * collisionDamage, 240);
@@ -684,7 +692,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.MultiplySineSample(magnitude, angle.ToByteAngle()),
             EnemyMath.MultiplySineSample(
                 magnitude,
-                angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
+                (angle + RotationAngle.QuarterTurn).ToByteAngle()));
     }
 
     /// <summary>Resolves a power bomb's hit on the Shitroid.</summary>

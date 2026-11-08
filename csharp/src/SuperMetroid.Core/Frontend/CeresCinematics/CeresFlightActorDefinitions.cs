@@ -8,12 +8,12 @@ internal static class CeresFlightActorDefinitions
     /// <summary>Number of actors allocated for the flight.</summary>
     public const int RearViewActorCount = 5;
 
-    /// <summary>Signed-8.8 acceleration applied to the opening star field.</summary>
-    public const int FrontStarAcceleration = 128;
+    /// <summary>The acceleration applied to the opening star field on each update.</summary>
+    public static readonly SignedEightEight FrontStarAcceleration = SignedEightEight.FromSignedRaw(128);
 
     /// <summary>
-    /// The star definition with initializer parameter zero: opening star field and its
-    /// signed-8.8 motion accumulator.
+    /// The star definition with initializer parameter zero: opening star field and the speed its rush starts at, four
+    /// pixels an update toward the top-left.
     /// </summary>
     /// <remarks>
     /// Issues #625 and #1014: front stars and RearViewActor(4) alias the
@@ -31,7 +31,7 @@ internal static class CeresFlightActorDefinitions
         Program: CinematicSpriteProgram.CeresStars,
         Position: new(112, 87),
         Colouring: CeresSpriteColouring.SpaceObjects,
-        InitialTimer: 64512,
+        InitialVelocity: SignedEightEight.FromSignedRaw(-1024),
         HorizontalDelta: 0,
         WrapX: false);
 
@@ -40,28 +40,28 @@ internal static class CeresFlightActorDefinitions
     /// its animation is the large-asteroid loop. The destruction scene substitutes its own definition and animation.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresLargeAsteroids, CinematicSpriteProgram.CeresLargeAsteroid,
-            new(80, 159), CeresSpriteColouring.SpaceObjects, 0, 16384, true);
+            new(80, 159), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, 16384, true);
 
     /// <summary>The space station under attack.
     /// Its initializer places it at (116,160), palette0C00; its callback adds 1/16 pixel with nine-bit X wrap;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpriteFrameBehavior.CeresUnderAttack, CinematicSpriteProgram.CeresUnderAttack,
-            new(116, 160), CeresSpriteColouring.Station, 0, 4096, true);
+            new(116, 160), CeresSpriteColouring.Station, SignedEightEight.Zero, 4096, true);
 
     /// <summary>The small asteroids around Ceres.
     /// Its initializer places it at (128,96), palette0800; its callback adds 1/32 pixel with nine-bit X wrap;
     /// its animation is the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CinematicSpriteFrameBehavior.CeresSmallAsteroid, CinematicSpriteProgram.CeresSmallAsteroid,
-            new(128, 96), CeresSpriteColouring.SpaceObjects, 0, 2048, true);
+            new(128, 96), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, 2048, true);
 
     /// <summary>The purple space vortex, parameter1.
     /// Its initializer takes the nonzero branch to (224,87), palette0800, preserving the moving callback;
     /// its animation alternates two frames. Parameter0 is the stationary destruction-scene variant.</summary>
     internal static CeresFlightActorDefinition MovingVortex =>
         new(CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex, CinematicSpriteProgram.CeresVortex,
-            new(224, 87), CeresSpriteColouring.SpaceObjects, 0, VortexHorizontalDelta, false);
+            new(224, 87), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, VortexHorizontalDelta, false);
 
     /// <summary>The stars around Ceres, parameter1.
     /// Its initializer takes the nonzero branch: X=-32, Y87, palette0800, timer remains cleared;
@@ -70,7 +70,7 @@ internal static class CeresFlightActorDefinitions
     {
         ActiveFrameBehavior = CinematicSpriteFrameBehavior.CeresPurpleSpaceVortex,
         Position = FrontStars.Position.WithX(CoordinateAxis.Wrap(-32)),
-        InitialTimer = 0,
+        InitialVelocity = SignedEightEight.Zero,
         HorizontalDelta = VortexHorizontalDelta,
     };
 

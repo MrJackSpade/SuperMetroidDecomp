@@ -4,9 +4,18 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoMotionDefinitions
 {
     /// <summary>
-    /// A raw 8.8 speed of sixteen pixels per frame: a falling projectile at this speed and below twice it has run away.
+    /// A speed of sixteen pixels per frame: a falling projectile at this speed and below twice it has run away.
     /// </summary>
-    internal const int RunawaySpeed = 4096;
+    internal static readonly SignedEightEight RunawaySpeed = SignedEightEight.FromParts(16, 0);
+
+    /// <summary>Twice <see cref="RunawaySpeed"/>, thirty-two pixels per frame: the top of the runaway range.</summary>
+    internal static readonly SignedEightEight TwiceRunawaySpeed = SignedEightEight.FromSignedRaw(8192);
+
+    /// <summary>The drag a falling drool's sideways speed loses each update.</summary>
+    internal static readonly SignedEightEight DroolDrag = SignedEightEight.FromSignedRaw(4);
+
+    /// <summary>The sideways speed a drool keeps when its drag would carry it past rest: three 256ths of a pixel rightward.</summary>
+    internal static readonly SignedEightEight DroolPastRestDrift = SignedEightEight.FromSignedRaw(3);
 
     /// <summary>
     /// The gravity on Bomb Torizo's Chozo orb, in 256ths of a pixel an update, each update. A falling orb that reaches
@@ -53,9 +62,9 @@ internal static class TorizoMotionDefinitions
     internal static readonly SignedEightEight EggBounceDrag = SignedEightEight.FromSignedRaw(32);
 
     /// <summary>
-    /// The upward raw 8.8 speed, half a pixel per frame, below which a bounced Chozo orb's rebound has settled.
+    /// The upward speed, half a pixel per frame, below which a bounced Chozo orb's rebound has settled.
     /// </summary>
-    internal const int SettledBounceSpeed = 128;
+    internal static readonly SignedEightEight SettledBounceSpeed = SignedEightEight.FromSignedRaw(128);
 
     /// <summary>The pixels of one room block: a landing projectile is placed relative to its block's top.</summary>
     internal const int BlockPixels = 16;

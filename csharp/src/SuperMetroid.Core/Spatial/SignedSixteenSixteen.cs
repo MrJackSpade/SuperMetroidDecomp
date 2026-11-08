@@ -87,6 +87,12 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>The displacement reversed: whole and fraction negated together, wrapping at 32 bits.</summary>
     public static SignedSixteenSixteen operator -(SignedSixteenSixteen value) => new(unchecked(-value.RawValue));
 
+    /// <summary>
+    /// The displacement split into <paramref name="parts"/> equal parts, a positive whole number, each part rounded toward
+    /// no movement in 65536ths of a pixel.
+    /// </summary>
+    public SignedSixteenSixteen DividedBy(int parts) => new(RawValue / Ensure.BetweenInclusive(1, int.MaxValue, parts));
+
     /// <summary>Whether the displacement points backward along its axis: its whole pixels are negative.</summary>
     public bool IsNegative => RawValue < 0;
 

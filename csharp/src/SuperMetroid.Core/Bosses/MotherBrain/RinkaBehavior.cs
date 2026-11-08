@@ -240,12 +240,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                     .With(EnemyProperties.ProcessOffScreen);
 
                 ByteAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue);
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn);
                 state.Velocity = new(
                     EnemyMath.MultiplySineSample(RinkaSpeed, velocityAngle),
                     EnemyMath.MultiplySineSample(
                         RinkaSpeed,
-                        velocityAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+                        velocityAngle.TurnedBy(ByteAngle.QuarterTurn)));
                 return;
 
             case RinkaEnemyFunction.Flying:

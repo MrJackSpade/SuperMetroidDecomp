@@ -384,13 +384,12 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.WholePosition.Y,
             targetY,
             BabyVelocity.Y,
-            positiveLimit: 544,
-            negativeLimit: -544));
+            limit: VerticalSpeedLimit));
         AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
 
         // The first non-negative velocity marks the top of the initial arc. The game
         // then holds for 128 frames before enabling the two-axis dance around Samus.
-        if (BabyVelocity.Y.SignedRawValue >= 0)
+        if (!BabyVelocity.Y.IsNegative)
         {
             BabyIdleTimer = 128;
             confusedBaby.InstallFrameBehavior(
@@ -423,10 +422,9 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.WholePosition.X,
             Samus.Position.X.Whole,
             BabyVelocity.X,
-            positiveLimit: 640,
-            negativeLimit: -640));
+            limit: HorizontalSpeedLimit));
         // A baby moving left draws over Samus; otherwise Samus draws first.
-        SamusDisplay = BabyVelocity.X.SignedRawValue < 0
+        SamusDisplay = BabyVelocity.X.IsNegative
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
@@ -436,26 +434,31 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.WholePosition.Y,
             targetY,
             BabyVelocity.Y,
-            positiveLimit: 544,
-            negativeLimit: -544));
+            limit: VerticalSpeedLimit));
         AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
     }
 
-    /// <summary>Adjusts an 8.8 velocity toward a target by one 32 step without exceeding its limits.</summary>
+    /// <summary>The hatched baby's fastest vertical speed either way.</summary>
+    private static readonly SignedEightEight VerticalSpeedLimit = SignedEightEight.FromSignedRaw(544);
+
+    /// <summary>The dancing baby's fastest horizontal speed either way.</summary>
+    private static readonly SignedEightEight HorizontalSpeedLimit = SignedEightEight.FromSignedRaw(640);
+
+    /// <summary>How much the baby's speed changes toward its target on each update.</summary>
+    private static readonly SignedEightEight BabyAcceleration = SignedEightEight.FromSignedRaw(32);
+
+    /// <summary>
+    /// Adjusts an 8.8 velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
+    /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range.
+    /// </summary>
     private static SignedEightEight AccelerateToward(
         int position,
         int target,
         SignedEightEight current,
-        int positiveLimit,
-        int negativeLimit)
-    {
-        int velocity = current.SignedRawValue;
-        if (CoordinateAxis.Difference(target, position) >= 0)
-            velocity = Math.Min(positiveLimit, velocity + 32);
-        else
-            velocity = Math.Max(negativeLimit, velocity - 32);
-        return SignedEightEight.FromSignedRaw(velocity);
-    }
+        SignedEightEight limit) =>
+        CoordinateAxis.Difference(target, position) >= 0
+            ? SignedEightEight.Min(limit, current + BabyAcceleration)
+            : SignedEightEight.Max(-limit, current - BabyAcceleration);
 
     /// <summary>Integrates one 8.8 velocity component into the actor's subpixel position.</summary>
     private static void AddEightEightVelocity(

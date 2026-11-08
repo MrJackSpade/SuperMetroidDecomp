@@ -18,9 +18,9 @@ public static class FirstSlotFallAcceleration
     /// <param name="firstSlotActive">Whether the first enemy-projectile slot holds a live projectile.</param>
     /// <param name="firstSlotPieceAcceleration">The acceleration of the statue piece in the first slot, or null when no piece is there.</param>
     /// <exception cref="InvalidOperationException">The first slot holds a projectile that is not a statue piece.</exception>
-    public static int Of(bool firstSlotActive, int? firstSlotPieceAcceleration) =>
+    public static SignedEightEight Of(bool firstSlotActive, SignedEightEight? firstSlotPieceAcceleration) =>
         firstSlotPieceAcceleration ?? (firstSlotActive
             ? throw new InvalidOperationException(
                 "A falling statue piece read the first projectile slot while it held a projectile that is not a statue piece.")
-            : 0);
+            : SignedEightEight.Zero);
 }

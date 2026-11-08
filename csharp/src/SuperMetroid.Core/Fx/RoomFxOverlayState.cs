@@ -210,7 +210,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     private void SelectRecord(RoomFxLoadSource source)
     {
         if (source.Room is { } room && RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room))
-            EarthquakeSoundTimer = WrappingCountdown.Start(ushort.MaxValue);
+            EarthquakeSoundTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
@@ -447,7 +447,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal void SetLiquidMotion(
         int? baseYPosition = null,
         int? targetYPosition = null,
-        int? packedYVelocity = null,
+        SignedEightEight? yVelocity = null,
         int? timer = null)
     {
         // Each value is a line or word the writer copies; the checks reject anything outside a room's lines or wider.
@@ -455,8 +455,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             BaseY = SurfaceAt(baseY);
         if (targetYPosition is int targetY)
             TargetSurface = SurfaceLine(targetY);
-        if (packedYVelocity is int velocity)
-            YVelocity = new(velocity);
+        if (yVelocity is { } velocity)
+            YVelocity = velocity;
         if (timer is int newTimer)
             Timer = WrappingCountdown.FromRaw(newTimer);
     }
@@ -597,13 +597,12 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         {
             case LiquidRisePhase.Dormant:
             {
-                int velocity = YVelocity.SignedRawValue;
                 // A missing surface or target lies below every line (AbsentLiquidSurfaceDepth).
                 int surface = AbsentLiquidSurfaceDepth.Of(BaseLine);
                 int target = AbsentLiquidSurfaceDepth.Of(TargetSurface);
-                bool movesTowardTarget = velocity > 0
+                bool movesTowardTarget = YVelocity > SignedEightEight.Zero
                     ? target > surface
-                    : velocity < 0 && target < surface;
+                    : YVelocity.IsNegative && target < surface;
                 if (movesTowardTarget)
                     liquidRisePhase = LiquidRisePhase.Waiting;
                 return;
@@ -699,15 +698,13 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (TargetSurface is not int target)
             return true;
 
-        int velocity = YVelocity.SignedRawValue;
-        int delta = SixteenSixteen.FromEightEight(velocity);
         FixedCoordinate moved = (BaseY ?? new FixedCoordinate(AbsentLiquidSurfaceDepth.Of(null), LoadedSurfaceFraction))
-            .MovedBy(SignedSixteenSixteen.FromRaw(delta));
+            .MovedBy(YVelocity.ToSixteenSixteenDelta());
         int candidate = moved.Whole;
 
         // Moving down, the surface reaches the target once it passes it, or passes the deepest line a surface can hold;
         // moving up, once it reaches it or rises past the room's top.
-        bool reached = velocity >= 0
+        bool reached = !YVelocity.IsNegative
             ? candidate > target
             : CoordinateAxis.AsSigned(candidate) < 0 || candidate <= target;
         if (!reached)

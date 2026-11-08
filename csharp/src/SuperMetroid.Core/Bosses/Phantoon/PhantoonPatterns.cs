@@ -577,10 +577,10 @@ internal sealed class PhantoonPatterns
         SignedEightEight swoopX = tentaclePart.SwoopVelocity.X;
         if (CoordinateAxis.Difference(targetX, body.Position.X.Whole) < 0)
         {
-            if (swoopX.SignedRawValue >= PhantoonMotionDefinitions.SwoopNegativeXThreshold)
+            if (swoopX >= PhantoonMotionDefinitions.SwoopNegativeXThreshold)
                 swoopX -= PhantoonMotionDefinitions.SwoopHorizontalPull;
         }
-        else if (swoopX.SignedRawValue < 2048)
+        else if (swoopX < PhantoonMotionDefinitions.SwoopPositiveXLimit)
         {
             swoopX += PhantoonMotionDefinitions.SwoopHorizontalPull;
         }
@@ -595,10 +595,10 @@ internal sealed class PhantoonPatterns
         SignedEightEight swoopY = tentaclePart.SwoopVelocity.Y;
         if (CoordinateAxis.Difference(targetY, body.Position.Y.Whole) < 0)
         {
-            if (swoopY.SignedRawValue >= PhantoonMotionDefinitions.SwoopNegativeYThreshold)
+            if (swoopY >= PhantoonMotionDefinitions.SwoopNegativeYThreshold)
                 swoopY -= PhantoonMotionDefinitions.SwoopVerticalPull;
         }
-        else if (swoopY.SignedRawValue < 1536)
+        else if (swoopY < PhantoonMotionDefinitions.SwoopPositiveYLimit)
         {
             swoopY += PhantoonMotionDefinitions.SwoopVerticalPull;
         }

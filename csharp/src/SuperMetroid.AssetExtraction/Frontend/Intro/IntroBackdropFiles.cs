@@ -49,8 +49,8 @@ public static class IntroBackdropFiles
         return new IntroBackdrops(Colour(document.Opening, "opening backdrop"), Colour(document.CeresFlight, "Ceres flight backdrop"));
 
         static RgbColor Colour(PaletteRgb5? colour, string name) =>
-            colour is { Red: >= 0 and <= RgbColor.MaxChannel, Green: >= 0 and <= RgbColor.MaxChannel, Blue: >= 0 and <= RgbColor.MaxChannel }
+            colour is { Red: >= 0 and <= FadeLevelColour.FullLevel, Green: >= 0 and <= FadeLevelColour.FullLevel, Blue: >= 0 and <= FadeLevelColour.FullLevel }
                 ? colour.ToRgbColor()
-                : throw new InvalidDataException($"Opening backdrops: the {name} requires red, green and blue in 0..{RgbColor.MaxChannel}.");
+                : throw new InvalidDataException($"Opening backdrops: the {name} requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
     }
 }

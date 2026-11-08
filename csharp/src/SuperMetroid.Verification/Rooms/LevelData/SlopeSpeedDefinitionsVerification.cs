@@ -31,8 +31,12 @@ internal static class SlopeSpeedDefinitionsVerification
                 : (uint)product));
         }
 
+        // The cartridge's word arithmetic agrees with plain scaling wherever the truncated displacement fits a word,
+        // under 256 pixels an update either way; beyond that the word wrap is not part of the slope rule (#1565).
+        static long PlainScale(int displacement, ushort multiplier) => (long)(displacement >> 8) * multiplier;
+
         int cases = 0;
-        uint[] highBytes = [0, 0x7f000000, 0x80000000, 0xff000000];
+        uint[] highBytes = [0, 0xff000000];
         for (int shape = 0; shape < 32; shape++)
         for (int operand = 0; operand <= ushort.MaxValue; operand++)
         foreach (uint high in highBytes)
@@ -40,25 +44,35 @@ internal static class SlopeSpeedDefinitionsVerification
             // Vary discarded low bits across every operand while exercising both signs
             // and discarded high-byte boundaries independently of the middle word.
             int displacement = unchecked((int)(high | (uint)(operand << 8) | (uint)(operand & 255)));
-            AssertEqual(NativeScale(displacement, multipliers[shape]),
-                SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)shape, displacement, 0),
+            // The leftmost operand truncates to -65536, a magnitude no word holds; the boundaries below cover it.
+            if (displacement >> 8 < -ushort.MaxValue)
+                continue;
+            int native = NativeScale(displacement, multipliers[shape]);
+            AssertEqual(native, PlainScale(displacement, multipliers[shape]), "Native word arithmetic is plain scaling within a word");
+            AssertEqual(native, SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)shape, displacement, 0),
                 "Native byte truncation, sign and multiplier through real slope movement");
             cases++;
         }
 
-        int[] boundaries = [int.MinValue, int.MinValue + 1, -0x10001, -0x10000, -257, -256, -255, -1,
+        int[] boundaries = [int.MinValue, int.MinValue + 1, -0x1000000, -0x10001, -0x10000, -257, -256, -255, -1,
             0, 1, 255, 256, 257, 0xffff, 0x10000, 0x10001, int.MaxValue];
         uint[] verticalSpeeds = [0, 1, 0xffff, 0x10000, 0x80000000, uint.MaxValue];
         for (int raw = 0; raw < 256; raw++)
         foreach (int displacement in boundaries)
         foreach (uint vertical in verticalSpeeds)
         {
-            int expected = (raw & 128) != 0 || vertical != 0
-                ? displacement : NativeScale(displacement, multipliers[raw & 31]);
+            long expected = (raw & 128) != 0 || vertical != 0
+                ? displacement : PlainScale(displacement, multipliers[raw & 31]);
+            if (expected is < int.MinValue or > int.MaxValue)
+            {
+                AssertThrows<OverflowException>(() => { _ = SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)raw, displacement, vertical); },
+                    "A displacement whose scaled amount does not fit fails loudly");
+                continue;
+            }
             AssertEqual(expected, SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)raw, displacement, vertical),
                 "Every BTS orientation and whole/fractional airborne early return");
         }
-        AssertEqual(8388608, cases, "Exhaustive slope multiplier operand coverage");
-        Console.WriteLine("Slope speeds: 32 native multipliers, 8388608 signed byte-packed operands and 26112 BTS/airborne boundary cases pass without ROM reads.");
+        AssertEqual(4194272, cases, "Exhaustive slope multiplier operand coverage");
+        Console.WriteLine("Slope speeds: 32 native multipliers, 4194272 signed byte-packed operands and 27648 BTS/airborne boundary cases pass without ROM reads.");
     }
 }

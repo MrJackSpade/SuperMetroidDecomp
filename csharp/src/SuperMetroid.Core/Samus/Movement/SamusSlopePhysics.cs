@@ -47,19 +47,9 @@ public static class SamusSlopePhysics
 
         int multiplier = SlopeSpeeds.HorizontalMultiplier(behavior.SlopeShape);
 
-        // The game discards the displacement's lowest eight fractional bits before the
-        // unsigned 16×16 multiply. For negative values it negates that truncated 16-bit
-        // magnitude, multiplies, and negates the 32-bit result afterward.
-        if (displacement >= 0)
-        {
-            int truncated = CoordinateAxis.Wrap(EightEight.WholeOf(displacement));
-            return unchecked((int)((uint)truncated * multiplier));
-        }
-        else
-        {
-            int magnitude = -EightEight.WholeOf(displacement);
-            return unchecked(-(int)((uint)magnitude * multiplier));
-        }
+        // The lowest eight fractional bits are discarded before scaling, rounding toward negative
+        // infinity, so a leftward displacement scales by the same rule as a rightward one.
+        return checked(EightEight.WholeOf(displacement) * multiplier);
     }
 
     /// <summary>Typed behaviour overload used by live room collision.</summary>

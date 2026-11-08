@@ -230,7 +230,7 @@ level, right, unchecked((ushort)(frame + 1))),
         bool paletteWritten = left.Drained.HyperBeamPaletteFx.FrameHold == 1;
         left.Drained.HyperBeamPaletteFx.Step(drainedColours);
         int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
-        AssertEqual(expectedFrame, left.Drained.HyperBeamPaletteFx.CurrentFrameIndex,
+        AssertEqual((int?)expectedFrame, left.Drained.HyperBeamPaletteFx.CurrentFrameIndex,
             $"Hyper Beam palette-FX call {call + 1} frame index");
         AssertEqual((call & 1) == 0, paletteWritten,
             $"Hyper Beam palette-FX call {call + 1} write cadence");

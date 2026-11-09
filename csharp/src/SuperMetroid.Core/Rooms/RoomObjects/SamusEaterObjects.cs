@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Samus-eater plant PLMs: their spawn, the held Samus position and the pre-instruction that runs the bite.</summary>
+/// <summary>The Brinstar plants that catch Samus: their spawn, and what they do to the held Samus.</summary>
 [RoomLifetime]
 internal sealed class SamusEaterObjects
 {
@@ -33,11 +33,9 @@ internal sealed class SamusEaterObjects
 
         slot.Header = header;
         slot.BlockIndex = block.Index;
-        slot.StartAnimation(new SamusEaterObjectAnimation(definition.Program));
-        slot.FrameHold = 1;
-        slot.PlantHeldPosition = new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)));
+        slot.Become(new SamusEaterObject(this, definition,
+            new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1)))));
         level.SetTerrain(block.Index, block.Terrain.Deactivated());
-        return;
     }
 
     /// <summary>The plant one supported header places, without interpreting adjacent data.</summary>
@@ -50,11 +48,11 @@ internal sealed class SamusEaterObjects
     internal IRoomSamus RequirePlantSamus() => _samus?.Current
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
-    /// <summary>Repositions held Samus after normal movement and ORs in the invincibility bit.</summary>
-    internal void RunSamusEaterFrameBehavior(RoomObjectSlot slot)
+    /// <summary>Holds Samus at <paramref name="held"/> after her normal movement and ORs in the invincibility bit.</summary>
+    internal void HoldSamus(Position16<RoomPixels> held)
     {
         var samus = RequirePlantSamus();
-        samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
+        samus.Position = samus.Position.WithWhole(new(held.X, held.Y));
         // TSB is bitwise OR, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving interactions.
         samus.InvincibilityTimer = samus.InvincibilityTimer.MergedWith(SamusEaterObjectDefinitions.HeldInvincibilityBit);

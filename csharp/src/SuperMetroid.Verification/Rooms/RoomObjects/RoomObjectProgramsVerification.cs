@@ -829,87 +829,58 @@ internal static class RoomObjectProgramsVerification
         }
     }
 
-    /// <summary>The Brinstar plants' programs equal their native lists.</summary>
-    internal static void VerifySamusEaterPrograms(ISnesAddressSpace rom)
+    /// <summary>
+    /// A Brinstar plant's native list plays as its typed plant does (#1554): it installs the hold and counts its chews;
+    /// each chew's images, and the sound and damage before them, repeat while the count runs; then the release immunity,
+    /// the end of the hold, the closed mouth and the idle plant, and the end. Every image, count and bite is compared
+    /// with <paramref name="plant"/>.
+    /// </summary>
+    internal static void VerifySamusEaterList(ISnesAddressSpace rom, int list, SamusEaterObjectDefinition plant)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SamusEaterObjectProgramDefinitions.Programs, SamusEaterEntries,
-            draw => RoomObjectDraw.Of(draw), SamusEaterCueAt, "Brinstar plant");
-        Console.WriteLine($"  Brinstar plant programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The plants' hold, chew-sound, damage, release and clear instructions.</summary>
-    private static bool SamusEaterCueAt(IImportCartridgeSource cartridge, ushort cursor, out SamusEaterCue cue, out int length)
-    {
-        (bool known, cue, length) = InstructionAt<RoomObjectInstruction>(cartridge, cursor) switch
+        ArgumentNullException.ThrowIfNull(plant);
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, SamusEaterDraw image, int updates, string at)
         {
-            RoomObjectInstruction.InstallFrameBehavior => new SamusEaterCueAtCase(true, SamusEaterCue.HoldSamus, 4),
-            RoomObjectInstruction.QueueSoundLibrary2Maximum6 => new SamusEaterCueAtCase(true, SamusEaterCue.QueueChewSound, 3),
-            RoomObjectInstruction.SamusEaterDamage => new SamusEaterCueAtCase(true, SamusEaterCue.DamageSamus, 2),
-            RoomObjectInstruction.SamusEaterReleaseImmunity => new SamusEaterCueAtCase(true, SamusEaterCue.ReleaseSamus, 2),
-            RoomObjectInstruction.ClearFrameBehavior => new SamusEaterCueAtCase(true, SamusEaterCue.ClearFrameBehavior, 2),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.LinkInstruction or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.GotoIfEventSet or
-                RoomObjectInstruction.SetEvent or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary3Maximum6 or
-                RoomObjectInstruction.ClearDownwardGateTrigger or
-                RoomObjectInstruction.SpawnDownwardGateProjectile or
-                RoomObjectInstruction.WakeDownwardGateProjectile or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.DamageDraygonCannonFacingRight or
-                RoomObjectInstruction.DamageDraygonCannonFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.EnableNoobTubeWaterPhysics or
-                RoomObjectInstruction.SpawnNoobTubeCrack or
-                RoomObjectInstruction.TriggerNoobTubeEarthquake or
-                RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles or
-                RoomObjectInstruction.LockSamus or
-                RoomObjectInstruction.UnlockSamus or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new SamusEaterCueAtCase(false, default, 0),
-            _ => new SamusEaterCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        if (cue == SamusEaterCue.HoldSamus)
-            AssertEqual(SamusEaterObjectDefinitionsConstants.HoldFrameBehavior, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
-        if (cue == SamusEaterCue.QueueChewSound)
-        {
-            AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
-            AssertEqual(SoundRequestPriority.Normal, SamusEaterObjectProgramDefinitions.ChewSoundPriority, "plant chew sound priority");
+            AssertEqual(updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
-        return true;
+
+        string plantName = plant.Ceiling ? "ceiling plant" : "floor plant";
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list), $"{plantName} first holds Samus");
+        AssertEqual(SamusEaterObjectDefinitionsConstants.HoldFrameBehavior, Word(list + 2), $"{plantName} hold");
+        AssertEqual(RoomObjectInstruction.SetEightBitTimer, At(list + 4), $"{plantName} counts its chews");
+        AssertEqual(plant.Chews, (int)ReadOperandByte(cartridge, list + 6), $"{plantName} chews");
+        int chew = list + 7;
+        int cursor = chew;
+        for (int index = 0; index < plant.Chew.Count; index++)
+        {
+            SamusEaterChewFrame frame = plant.Chew[index];
+            string at = $"{plantName} chew image {index}";
+            if (frame.BiteBefore == SamusEaterBite.SoundAndDamage)
+            {
+                AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), $"{at} chew sound");
+                AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
+                    $"{at} chew sound identity");
+                AssertEqual(SoundRequestPriority.Normal, SamusEaterObjectDefinitions.ChewSoundPriority, $"{at} chew sound priority");
+                cursor += 3;
+            }
+            if (frame.BiteBefore != SamusEaterBite.None)
+            {
+                AssertEqual(RoomObjectInstruction.SamusEaterDamage, At(cursor), $"{at} damage");
+                cursor += 2;
+            }
+            AssertShown(cursor, frame.Image, frame.Updates, at);
+            cursor += 4;
+        }
+        AssertEqual(RoomObjectInstruction.DecrementTimerAndGoto, At(cursor), $"{plantName} repeats its chew");
+        AssertEqual(chew, (int)Word(cursor + 2), $"{plantName} repeats from its first chew image");
+        AssertEqual(RoomObjectInstruction.SamusEaterReleaseImmunity, At(cursor + 4), $"{plantName} releases Samus");
+        AssertEqual(RoomObjectInstruction.ClearFrameBehavior, At(cursor + 6), $"{plantName} stops holding");
+        AssertShown(cursor + 8, plant.Released, SamusEaterObjectDefinitions.ReleaseDuration, $"{plantName} closed mouth");
+        AssertShown(cursor + 12, plant.Idle, 1, $"{plantName} idle");
+        AssertEqual(RoomObjectInstruction.Delete, At(cursor + 16), $"{plantName} ends");
     }
 
     /// <summary>The n00b tube's native instructions, with their event, link, pre-instruction and sound operands.</summary>

@@ -43,7 +43,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
         var routines = new Dictionary<IRoomObjectFrameBehavior, ushort>
         {
             [RoomObjectFrameBehaviors.Inert] = RoomObjectFrameBehaviorDefinitions.SpawnDefault,
-            [SamusEaterFrameBehaviors.Hold] = SamusEaterObjectDefinitionsConstants.HoldFrameBehavior,
             [ColoredDoorFrameBehaviors.WakeOnPowerBomb] = DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorFrameBehavior.WakeOnPowerBomb),
             [ColoredDoorFrameBehaviors.WakeOnMissile] = DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorFrameBehavior.WakeOnMissile),
             [ColoredDoorFrameBehaviors.WakeOnSuperMissile] = DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorFrameBehavior.WakeOnSuperMissile),

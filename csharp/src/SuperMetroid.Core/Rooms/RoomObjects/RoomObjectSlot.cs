@@ -14,8 +14,6 @@ internal sealed class RoomObjectSlot
     /// below; null for a free place or one running a not-yet-converted family.
     /// </summary>
     internal RoomObjectBehaviour? Behaviour { get; private set; }
-    /// <summary>Samus position saved by the Brinstar plant setup.</summary>
-    public Position16<RoomPixels> PlantHeldPosition { get; set; }
     /// <summary>
     /// Whether this slot holds a PLM and participates in the room update. Only <see cref="RoomObjectSlotTable"/>'s
     /// spawn operations claim a slot; <see cref="Delete"/> and <see cref="Clear"/> free it.
@@ -64,7 +62,6 @@ internal sealed class RoomObjectSlot
     internal void Clear()
     {
         Active = false;
-        PlantHeldPosition = Position16<RoomPixels>.Zero;
         Header = 0;
         BlockIndex = 0;
         RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;

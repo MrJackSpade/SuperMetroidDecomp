@@ -20,15 +20,6 @@ internal static class RoomObjectNativeListAddresses
         new NativeProgramEntry<NoobTubeProgram>(NoobTubeProgram.AlreadyBroken, 0xd521),
     ];
 
-    /// <summary>The Brinstar plants' lists (<c>InstList_PLM_BrinstarFloorPlant_0..1</c>, <c>..CeilingPlant_0..1</c>, $84:ACB8..AD37).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<SamusEaterProgram>> SamusEaterEntries { get; } =
-    [
-        new NativeProgramEntry<SamusEaterProgram>(SamusEaterProgram.FloorBite, 0xacb8),
-        new NativeProgramEntry<SamusEaterProgram>(SamusEaterProgram.FloorChew, 0xacbf),
-        new NativeProgramEntry<SamusEaterProgram>(SamusEaterProgram.CeilingBite, 0xacf8),
-        new NativeProgramEntry<SamusEaterProgram>(SamusEaterProgram.CeilingChew, 0xacff),
-    ];
-
     /// <summary>The shared one-instruction lists (<c>InstList_PLM_Delete</c> $84:AAE3, the metroids-cleared sleep $84:DB42).</summary>
     internal static IReadOnlyList<NativeProgramEntry<RoomObjectSharedProgram>> SharedEntries { get; } =
     [

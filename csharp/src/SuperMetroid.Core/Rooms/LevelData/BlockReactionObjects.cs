@@ -13,6 +13,11 @@ internal sealed class BlockReactionObjects
     private readonly ICrittersEscapeReaction _escapeAnimals;
     /// <summary>Allocates reaction room objects in descending slot order.</summary>
     private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>
+    /// The blocks broken open: each is the block a breakup started at, whose breakup has shown its last stage and has not
+    /// grown back since.
+    /// </summary>
+    private readonly HashSet<int> _brokenOpenBlocks = [];
 
     /// <summary>Connects block reactions to the active room, escape-animal branch, and shared room-object pool.</summary>
     internal BlockReactionObjects(AreaId area, ICrittersEscapeReaction escapeAnimals, RoomObjectSlotTable slotTable)
@@ -407,4 +412,24 @@ internal sealed class BlockReactionObjects
         slot.Become(new BlockReactionObject(change));
         return true;
     }
+
+    /// <summary>
+    /// Records the image a block reaction has just shown at its block: a breakup's last stage breaks the block open, and
+    /// any other image, or the block's saved terrain restored as it grows back, closes it again.
+    /// </summary>
+    /// <param name="blockIndex">The reaction's block.</param>
+    /// <param name="draw">The image's draw; null when the image restored the block's saved terrain.</param>
+    internal void RecordImageShown(int blockIndex, RoomObjectDraw? draw)
+    {
+        if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame.BreaksOpen: true })
+            _brokenOpenBlocks.Add(blockIndex);
+        else
+            _brokenOpenBlocks.Remove(blockIndex);
+    }
+
+    /// <summary>
+    /// Whether a breakup that started at <paramref name="blockIndex"/> has shown its last stage, breaking the block open,
+    /// and the block has not grown back since.
+    /// </summary>
+    internal bool IsBrokenOpen(int blockIndex) => _brokenOpenBlocks.Contains(blockIndex);
 }

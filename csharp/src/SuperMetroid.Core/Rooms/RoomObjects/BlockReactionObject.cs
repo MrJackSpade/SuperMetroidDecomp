@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// breaking up and perhaps growing back, a Speed Booster block crumbling, or a bombed block's reveal. It waits its
 /// reaction's first delay, then shows each image in turn for that image's updates, requesting the image's sound as it
 /// shows and restoring the block's saved terrain where an image asks for it, and leaves the room on the update after its
-/// last image.
+/// last image. Each image it shows tells the room's block reactions whether its block now stands broken open.
 /// </summary>
 /// <param name="change">The reaction's authored timing.</param>
 internal class BlockReactionObject(BlockReactionChange change) : RoomObjectBehaviour
@@ -43,6 +43,9 @@ internal class BlockReactionObject(BlockReactionChange change) : RoomObjectBehav
         {
             RestoreBlock(place, context);
         }
+        // The owner of the room's block reactions learns as each image shows whether the block now stands broken open,
+        // which a room object waiting on a block's breakup observes.
+        context.RoomObjects.BlockReactions.RecordImageShown(place.BlockIndex, frame.Draw);
         _updatesBeforeNextStep = frame.Updates;
     }
 

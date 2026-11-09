@@ -583,52 +583,45 @@ internal sealed class ProjectileTerrainCollision
         if (sharedProjectiles.CooldownTimer.IsAtLeast(21))
             sharedProjectiles.SetSharedCooldown(20);
     }
-    /// <summary>Preserves the horizontal scan's byte indexing and chained-add carry.</summary>
+    /// <summary>
+    /// Scans the rows a Wave shot's leading edge spans for block reactions, one row per step from its top row; where the
+    /// scan runs past the room's ceiling it reads what <see cref="StraddledBlockRead"/> finds there.
+    /// </summary>
     internal static void ScanHorizontalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomObjects? roomObjects)
     {
         int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
-        int remaining = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
-        int span = remaining;
+        int span = CoordinateAxis.Wrap(bottom - (top & ~15)) >> 4;
         int targetX = CoordinateAxis.Wrap(slot.Velocity.X.IsNegative
             ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
         // The game's sign test reads the original coordinate's high-byte sign, not bit 7
         // of its pixel offset. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
-        if (remaining >= 16 || CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0 ||
+        if (span >= 16 || CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0 ||
             (EightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
             RoomGridConversions.PixelToScreen(targetX) >= (level.Size.X + 15) / 16)
             return;
 
-        // The row lookup takes both the top row and the room's width within the scan cycle.
-        int product = BlockScanCycle.Within(top >> 4) * BlockScanCycle.Within(level.Size.X);
-        int byteOffset = CoordinateAxis.Wrap((product + (targetX >> 4)) * 2);
-        do
+        for (int step = 0; step <= span; step++)
         {
-            int index = byteOffset >> 1;
-            if (level.IsLogicalBlockIndex(index))
+            WaveScanRead read = StraddledBlockRead.WaveScanReadAt(top >> 4, targetX >> 4, level.Size.X, step);
+            if (!level.IsLogicalBlockIndex(read.Block))
+                continue;
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(read.Block);
+            if (read.StraddlesNext)
             {
-                RoomCollisionBlock block = level.GetCollisionBlockByIndex(index);
-                if ((byteOffset & 1) != 0)
-                {
-                    if (!level.IsLogicalBlockIndex(index + 1))
-                        throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
-                    RoomTerrainBlock next = level.GetCollisionBlockByIndex(index + 1).Terrain;
-                    // Dispatch consumes the straddled block; the behaviour and room-object setup
-                    // still use floor(byteOffset / 2), including aligned writes.
-                    block = block with { Terrain = Straddling(block.Terrain, next) };
-                }
-                RunShotReaction(level, slot, block, roomObjects, new ShotSpan(span, remaining, targetX), out bool endSpan);
-                // Wave discards collision carry, but still honors PLM scan termination.
-                if (endSpan) return;
+                if (!level.IsLogicalBlockIndex(read.Block + 1))
+                    throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
+                RoomTerrainBlock next = level.GetCollisionBlockByIndex(read.Block + 1).Terrain;
+                // Dispatch consumes the straddled block; the behaviour and room-object setup
+                // still use the block the read starts in, as aligned reads do.
+                block = block with { Terrain = Straddling(block.Terrain, next) };
             }
-
-            // The second of the two adds includes the first one's overflow. Do not simplify this
-            // to offset += width * 2: the first carry causes ceiling odd reads.
-            int first = byteOffset + level.Size.X;
-            byteOffset = CoordinateAxis.Wrap(first + level.Size.X + (first > ushort.MaxValue ? 1 : 0));
-        } while (--remaining >= 0);
+            RunShotReaction(level, slot, block, roomObjects, new ShotSpan(span, span - step, targetX), out bool endSpan);
+            // Wave discards collision carry, but still honors PLM scan termination.
+            if (endSpan) return;
+        }
     }
 
     /// <summary>
@@ -639,9 +632,8 @@ internal sealed class ProjectileTerrainCollision
     {
         int left = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
         int right = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
-        int remaining = CoordinateAxis.Wrap(right - (left & ~15)) >> 4;
-        if (remaining >= 16) return;
-        int span = remaining;
+        int span = CoordinateAxis.Wrap(right - (left & ~15)) >> 4;
+        if (span >= 16) return;
         int targetY = CoordinateAxis.Wrap(slot.Velocity.Y.IsNegative
             ? slot.Position.Y.Whole - slot.Radius.Y
             : slot.Position.Y.Whole + slot.Radius.Y - 1);
@@ -655,18 +647,16 @@ internal sealed class ProjectileTerrainCollision
         // starts 4095 tiles forward while the center remains inside the room.
         // The block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual tile span.
-        int rowOffset = BlockScanCycle.RowStart(targetY >> 4, level.Size.X);
-        int byteOffset = CoordinateAxis.Wrap((rowOffset + (left >> 4)) * 2);
-        do
+        int firstBlock = BlockScanCycle.RowStart(targetY >> 4, level.Size.X) + (left >> 4);
+        for (int step = 0; step <= span; step++)
         {
-            int index = byteOffset >> 1;
+            int index = BlockScanCycle.BlockAlongRows(firstBlock, step);
             if (index < level.Size.X * level.Size.Y)
             {
                 RunShotReaction(level, slot, level.GetCollisionBlock(new(CoordinateAxis.Wrap(index % level.Size.X), CoordinateAxis.Wrap(index / level.Size.X))), roomObjects,
-                    new ShotSpan(span, remaining, targetY), out bool endSpan, axis: Axis.Vertical);
+                    new ShotSpan(span, span - step, targetY), out bool endSpan, axis: Axis.Vertical);
                 if (endSpan) return;
             }
-            byteOffset = CoordinateAxis.Wrap(byteOffset + 2);
-        } while (--remaining >= 0);
+        }
     }
 }

@@ -39,7 +39,7 @@ internal static class ScrollObjectsVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(5, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(5, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
         AssertEqual(1, roomObjects.Scrolls.Snapshots.Count,
             "extension setup consumes no persistent PLM slot");
@@ -76,7 +76,7 @@ internal static class ScrollObjectsVerification
             { new VerifyRoomScrollObjectsCase(40, 21, false), new VerifyRoomScrollObjectsCase(72, 21, false),
               new VerifyRoomScrollObjectsCase(56, 7, false), new VerifyRoomScrollObjectsCase(56, 21, true) })
         {
-            var insideSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
+            var insideSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
             SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, roomObjects: roomObjects);
             AssertEqual(shouldWake, roomObjects.ScrollObjectTriggered(origin),
@@ -121,7 +121,7 @@ internal static class ScrollObjectsVerification
         scrolls.SetCell(1, RoomScrollState.RedBoundary);
         WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.MorphBallGroundRightPose),
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-        var ball = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var ball = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
@@ -149,7 +149,7 @@ internal static class ScrollObjectsVerification
         // Ordinary Morph Ball movement already forwards that owner; this assertion guards
         // the special movement-handler composition seam used only during bomb-jump ascent.
         scrolls.SetCell(1, RoomScrollState.RedBoundary);
-        var bombJump = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var bombJump = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.Bombs,

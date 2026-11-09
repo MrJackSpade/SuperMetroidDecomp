@@ -21,11 +21,11 @@ internal static class BombSpreadLaunchDefinitionsVerification
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
         var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
-        var samus=new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        var samus=new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         for(int hold=0;hold<=MorphBallBombDefinitions.DownChargeTimeoutUpdates;hold++)
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
-            samus.ProjectileFlareCounter=MorphBallBombDefinitions.RequiredChargeFrames;
+            samus.BeamChargeCount.Publish(MorphBallBombDefinitions.RequiredChargeFrames);
             samus.Position = samus.Position.WithWhole(new((ushort)hold, unchecked((ushort)~hold)));
             spawn(bombs,samus);
             for(int i=0;i<reference.Length;i++)
@@ -44,7 +44,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 AssertEqual(samus.Position.Y.Whole,slot.Position.Y.Whole,"Spread launch Y wraps with Samus");
             }
             AssertEqual(MorphBallBombDefinitions.SlotCount,bombs.BombCounter,"Spread allocates all five slots");
-            AssertEqual(0, samus.ProjectileFlareCounter,"Spread consumes charge");
+            AssertEqual(0, samus.BeamChargeCount.Count,"Spread consumes charge");
             AssertEqual(0, samus.BombSpreadChargeTimeoutCounter,"Spread clears hold counter");
         }
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");

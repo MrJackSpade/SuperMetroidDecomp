@@ -24,9 +24,10 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// window shapes the backend draws (#1468).
 /// </para>
 /// <para>
-/// The stage and the light beam's progress share two scratch words with the shinespark's
-/// vertical acceleration, Crystal Flash's ammunition timer and Draygon's escape counter.
-/// <see cref="PublishSharedScratch"/> writes the exact values those owners read after every stage call.
+/// The pickup leaves its stage and its light beam's progress at its setup and after every stage call
+/// (<see cref="LeaveProgress"/>): both in the shinespark's upward acceleration (<see cref="SuitPickupSparkCarryover"/>),
+/// and the stage on the count Crystal Flash's ammunition drain and Draygon's escape share
+/// (<see cref="SharedEscapeAndDrainCount"/>).
 /// </para>
 /// </remarks>
 public sealed class SamusSuitPickupState
@@ -113,7 +114,7 @@ public sealed class SamusSuitPickupState
         _lightBeamLeft = Position16<ScreenPixels>.Zero;
         _lightBeamRight = Position16<ScreenPixels>.Zero;
         _frameBehaviorInstallCallsRemaining = 2;
-        PublishSharedScratch(samus);
+        LeaveProgress(samus);
         _lightBeamSpeed = SuitPickupBeamDefinitions.InitialWideningSpeed;
         Beam = SamusSuitPickupBeam.None;
 
@@ -194,26 +195,39 @@ public sealed class SamusSuitPickupState
             default:
                 throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
         }
-        PublishSharedScratch(samus);
+        LeaveProgress(samus);
     }
 
     /// <summary>
-    /// Publishes suit writes to the other owners of the two shared scratch words: the stage number, and the light beam's
-    /// progress word (its scanline count, or its left column in the low byte and right column in the high byte).
+    /// Leaves the current stage and the light beam's progress for a later shinespark windup and the stage for Crystal
+    /// Flash's drain and Draygon's escape: the lines grown or wiped while the beam appears, during the reveal and while it
+    /// shrinks; its edges while it is a column or centre line. A Crystal Flash drain the pickup suspended counts on from
+    /// the stage.
     /// </summary>
-    private void PublishSharedScratch(SamusState samus)
+    private void LeaveProgress(SamusState samus)
     {
-        int stageNumber = SharedScratchStageNumber(Stage);
-        samus.Shinespark.ApplySuitPickupScratch(stageNumber, SharedScratchLightBeamWord());
-        // Suit setup and each light-beam stage write the same word Flash later reads as
-        // its ammo-decrement counter. Suspending Flash's movement does not give it
-        // a private copy of that word; Draygon's escape counter aliases it too.
-        samus.CrystalFlash.SetSharedAmmoCounter(stageNumber);
-        samus.DraygonGrabbed.SetSharedEscapeCounter(stageNumber);
+        int stage = StageOrder(Stage);
+        switch (Stage)
+        {
+            case SamusSuitPickupStage.LightBeamAppears:
+            case SamusSuitPickupStage.RevealSuit:
+            case SamusSuitPickupStage.LightBeamShrinks:
+                samus.SparkCarryover.LeaveLines(stage, _lightBeamScanlines);
+                break;
+            case SamusSuitPickupStage.UniformWidening:
+            case SamusSuitPickupStage.CurvedWidening:
+            case SamusSuitPickupStage.LightBeamDissipates:
+            case SamusSuitPickupStage.Finish:
+                samus.SparkCarryover.LeaveEdges(stage, _lightBeamLeft.X, _lightBeamRight.X);
+                break;
+            default:
+                throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
+        }
+        samus.EscapeAndDrainCount.LeaveSuitPickupStage(stage);
     }
 
-    /// <summary>The number, 0 through 6 in stage order, the shared scratch word holds for <paramref name="stage"/>.</summary>
-    private static int SharedScratchStageNumber(SamusSuitPickupStage stage) => stage switch
+    /// <summary>The place of <paramref name="stage"/> in the stage order, 0 through 6.</summary>
+    private static int StageOrder(SamusSuitPickupStage stage) => stage switch
     {
         SamusSuitPickupStage.LightBeamAppears => 0,
         SamusSuitPickupStage.UniformWidening => 1,
@@ -223,21 +237,6 @@ public sealed class SamusSuitPickupState
         SamusSuitPickupStage.LightBeamDissipates => 5,
         SamusSuitPickupStage.Finish => 6,
         _ => throw new InvalidDataException($"Unknown suit-pickup stage {stage}."),
-    };
-
-    /// <summary>
-    /// The light beam's progress the shared scratch holds for a later shinespark (<see cref="SuitPickupSparkCarryover"/>):
-    /// the lines grown or wiped while the beam appears, during the reveal and while it shrinks; its edges while it is a
-    /// column or centre line.
-    /// </summary>
-    private int SharedScratchLightBeamWord() => Stage switch
-    {
-        SamusSuitPickupStage.LightBeamAppears or SamusSuitPickupStage.RevealSuit or
-            SamusSuitPickupStage.LightBeamShrinks => SuitPickupSparkCarryover.OfLines(_lightBeamScanlines),
-        SamusSuitPickupStage.UniformWidening or SamusSuitPickupStage.CurvedWidening or
-            SamusSuitPickupStage.LightBeamDissipates or SamusSuitPickupStage.Finish =>
-            SuitPickupSparkCarryover.OfEdges(_lightBeamLeft.X, _lightBeamRight.X),
-        _ => throw new InvalidDataException($"Unknown suit-pickup stage {Stage}."),
     };
 
     /// <summary>Extends the narrow beam inward from both screen edges until 128 rows are covered.</summary>

@@ -92,7 +92,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 bool translatedRecord = true;
                 try
                 {
-                    EnemySlotDispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) });
+                    EnemySlotDispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) });
                 }
                 catch (Exception exception)
                     when (IsUntranslatedEnemyInitializer(

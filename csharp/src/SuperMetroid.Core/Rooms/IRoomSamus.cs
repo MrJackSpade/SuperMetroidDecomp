@@ -56,8 +56,8 @@ public interface IRoomSamus
     /// <summary>Items collected.</summary>
     SamusEquipmentFlags CollectedItems { get; set; }
 
-    /// <summary>The charge flare's frame counter, which an item pickup clears.</summary>
-    int ProjectileFlareCounter { get; set; }
+    /// <summary>The beam charge as Samus's movement, bombs and sounds read it, which a suit item's pickup clears.</summary>
+    SharedBeamChargeCount BeamChargeCount { get; }
 
     /// <summary>The remaining invincibility frames.</summary>
     WrappingCountdown InvincibilityTimer { get; set; }

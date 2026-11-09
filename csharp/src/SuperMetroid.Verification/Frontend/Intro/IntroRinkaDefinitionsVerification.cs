@@ -47,7 +47,7 @@ internal static class IntroRinkaDefinitionsVerification
 
         var guarded = NewIntroRinkaDefinitionGuard(retail);
         var system = new IntroRinkaSystem();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)),
         };

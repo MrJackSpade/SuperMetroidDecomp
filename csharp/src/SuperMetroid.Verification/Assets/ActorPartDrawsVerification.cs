@@ -23,7 +23,7 @@ internal static class ActorPartDrawsVerification
     /// <summary>Samus standing facing right, drawn once over the installed body and sheets.</summary>
     internal static void VerifySamusPartDraws()
     {
-        SamusState samus = InstalledFixtures.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence())
+        SamusState samus = InstalledFixtures.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

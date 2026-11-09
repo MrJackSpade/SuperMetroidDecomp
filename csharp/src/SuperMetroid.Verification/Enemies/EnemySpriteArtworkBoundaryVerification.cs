@@ -84,7 +84,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             Equal(expected, actual, $"direct projectile {composition}");
         }
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
         var elevator = new CeresElevatorArrivalState(samus);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();

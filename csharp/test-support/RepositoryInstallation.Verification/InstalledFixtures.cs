@@ -265,7 +265,7 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
-    internal static SamusState CreateSamus() => BindSamus(new SamusState(AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+    internal static SamusState CreateSamus() => BindSamus(new SamusState(AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()));
 
     /// <summary>Creates Ceres destruction with installed cinematic art and fixed colors.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(AudioQueues? audio = null, IntroCinematicArtwork? artwork = null) =>

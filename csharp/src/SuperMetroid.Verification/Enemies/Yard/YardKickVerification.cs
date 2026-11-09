@@ -28,7 +28,7 @@ internal static class YardKickVerification
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram())));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Health = 999, MaxHealth = 999,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = pose, Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });

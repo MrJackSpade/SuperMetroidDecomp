@@ -93,7 +93,7 @@ internal static class BotwoonAnimationsVerification
             (RoomEnemySystem spitEnemies, RoomEnemySlot spitHead, BotwoonEnemyState spitState) = NewBotwoonHead();
             spitState.Function = BotwoonEnemyFunction.SpitWhileHidden;
             spitHead.Position = spitHead.Position.WithWhole(new(1000, 1000));
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
             };

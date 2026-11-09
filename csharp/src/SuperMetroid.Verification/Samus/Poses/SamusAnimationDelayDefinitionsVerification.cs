@@ -50,7 +50,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
 
         VerifyAnimationContinuation(cartridge);
 
-        var flashbackSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var flashbackSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
         };

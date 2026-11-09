@@ -139,14 +139,14 @@ public sealed class SamusState
     /// Its fields map to the reused words documented on
     /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
-    public SamusShinesparkState Shinespark { get; } = new();
+    public SamusShinesparkState Shinespark { get; }
 
     /// <summary>
     /// Crystal Flash initiation, ammo cadence, energy restoration, and installed handler
     /// state. It is deliberately separate from <see cref="Shinespark"/> even though the
     /// original aliases a few words between the mutually exclusive effects.
     /// </summary>
-    public SamusCrystalFlashState CrystalFlash { get; } = new();
+    public SamusCrystalFlashState CrystalFlash { get; }
 
     /// <summary>
     /// X-ray admission, dedicated pose input/movement, beam-angle state, visor palette, and
@@ -170,7 +170,7 @@ public sealed class SamusState
     /// The grabbed-pose hack handler and the narrow owner-position seam.
     /// Draygon's enemy AI owns its own flight path; this child owns every Samus-side word.
     /// </summary>
-    public SamusDraygonGrabbedState DraygonGrabbed { get; } = new();
+    public SamusDraygonGrabbedState DraygonGrabbed { get; }
 
     /// <summary>
     /// Ceres Ridley's dedicated push/fall handler. This is not ordinary damage
@@ -300,17 +300,11 @@ public sealed class SamusState
     public SamusBeamFlags CollectedBeams { get; set; }
 
     /// <summary>
-    /// The projectile flare counter. Values at least 60 mean the charge
-    /// beam is fully charged; spin and wall-jump movement use that producer-owned word to
-    /// publish contact-damage index four without owning the projectile charge lifecycle. It mirrors the projectile
-    /// charge's flare counter, 0 through <see cref="Projectiles.BeamChargeState.HyperBeamFlareCounter"/>; the setter
-    /// rejects any other value.
+    /// The beam charge as her movement, bombs and sounds read it: at least 60 is a full charge, which makes her spin and
+    /// wall jump a pseudo Screw Attack. The projectile pass publishes the beam's charge into it, and her other sequences
+    /// clear it.
     /// </summary>
-    public int ProjectileFlareCounter
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, Projectiles.BeamChargeState.HyperBeamFlareCounter, value);
-    }
+    public SharedBeamChargeCount BeamChargeCount { get; }
 
     /// <summary>
     /// The shared bomb-spread charge timeout. The game clears this
@@ -387,21 +381,10 @@ public sealed class SamusState
     public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }
 
     /// <summary>
-    /// The shared hurt-flash palette counter. Ordinary knockback starts
-    /// it at one, while an active shinespark repeatedly publishes eight and its crash
-    /// handler clears it. The hurt-flash palette is the sole ordinary consumer: values one
-    /// through six alternate hurt and suit palettes, value forty restores interrupted
-    /// movement audio, and value sixty ends the lifetime.
+    /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt-flash
+    /// palette advances it and clears it on reaching sixty (<see cref="Palettes.SamusHurtFlashPalette.EndingCall"/>).
     /// </summary>
-    /// <remarks>
-    /// This word belongs to Samus rather than the shinespark child state. Keeping it here
-    /// preserves the game's intentional sharing between unrelated damage, palette,
-    /// and special-movement producers. Its value is 0 through 60: its producers store zero, one or eight, and the
-    /// hurt-flash palette advances it by one and clears it on reaching sixty
-    /// (<see cref="Palettes.SamusHurtFlashPalette.EndingCall"/>), so it never passes that; the setter rejects any other
-    /// value.
-    /// </remarks>
-    public int HurtFlashCounter { get; set => field = Ensure.BetweenInclusive(0, Palettes.SamusHurtFlashPalette.EndingCall, value); }
+    public SharedHurtFlashCount HurtFlash { get; }
 
     /// <summary>
     /// <c>ResumeChargingBeamSFXFlag</c>. Hurt-flash recovery sets one at counter forty
@@ -508,7 +491,19 @@ public sealed class SamusState
     /// The motion her movement and the camera record and her shots inherit at launch. A new Samus starts with it zeroed;
     /// the movement records are zero between frames too, and the camera records its subspeed again every frame.
     /// </summary>
-    public ProjectileLaunchInheritance ProjectileInheritance { get; } = new();
+    public ProjectileLaunchInheritance ProjectileInheritance { get; }
+
+    /// <summary>
+    /// Her shinespark's upward acceleration, which a suit pickup transforming her overwrites with its light beam's
+    /// progress.
+    /// </summary>
+    internal SuitPickupSparkCarryover SparkCarryover { get; }
+
+    /// <summary>
+    /// The count her Crystal Flash's ammunition drain and her escape from Draygon share, on which a suit pickup
+    /// transforming her leaves its stage.
+    /// </summary>
+    internal SharedEscapeAndDrainCount EscapeAndDrainCount { get; }
 
     /// <summary>
     /// The session's unauthored Speed Booster cadence, which times her run when a full sound queue sends the boost onto
@@ -526,10 +521,21 @@ public sealed class SamusState
     /// <remarks>Construction performs no reads of the original data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
     /// <param name="animationContinuation">What an animation frame past her pose's program reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
-    internal SamusState(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence)
+    /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
+    internal SamusState(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence,
+        SamusCompatibility compatibility)
     {
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
+        Ensure.NotNull(compatibility);
+        ProjectileInheritance = compatibility.LaunchInheritance;
+        SparkCarryover = compatibility.SparkCarryover;
+        EscapeAndDrainCount = compatibility.EscapeAndDrainCount;
+        HurtFlash = compatibility.HurtFlash;
+        BeamChargeCount = compatibility.BeamChargeCount;
+        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover);
+        CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount);
+        DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         HudSelection = new SamusHudSelection();
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation();

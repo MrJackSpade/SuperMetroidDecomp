@@ -33,22 +33,20 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Preserves grab gamma while a newer movement callback replaces the empty handler.</summary>
     internal void RelinquishMovementHandler() => MovementHandlerReplaced = true;
 
-    /// <summary>
-    /// D-pad presses counted toward escaping, 0 through 65535. The counter shares one storage word with Crystal
-    /// Flash's ammo countdown and the suit pickup's stage number, which mirror their writes into it, so it holds any
-    /// value those owners leave, including a wrapped countdown. It advances as a sixteen-bit counter and the release
-    /// test is the game's signed comparison against the target; other values are rejected.
-    /// </summary>
-    public int EscapeButtonCounter { get; private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
+    /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
+    private readonly SharedEscapeAndDrainCount _escapePresses;
 
-    /// <summary>Mirrors another owner's write to the shared counter word: Crystal Flash's countdown or a suit pickup stage.</summary>
-    internal void SetSharedEscapeCounter(int value) => EscapeButtonCounter = value;
+    /// <summary>Creates a Draygon-held owner whose escape presses count on Samus's shared escape and drain count.</summary>
+    /// <param name="escapePresses">Samus's shared escape and drain count.</param>
+    internal SamusDraygonGrabbedState(SharedEscapeAndDrainCount escapePresses) => _escapePresses = Ensure.NotNull(escapePresses);
 
     /// <summary>
-    /// The counter after one counted press. A count another owner left at the top of the counter's range continues from
-    /// zero, as the shared counter does.
+    /// D-pad presses counted toward escaping, 0 through 65535, on the count Crystal Flash's ammunition drain and the suit
+    /// pickup's stage share (<see cref="SharedEscapeAndDrainCount"/>), so it holds any value those leave, including a
+    /// wrapped countdown. A press continues from zero past 65535, and the release test is the game's signed comparison
+    /// against the target.
     /// </summary>
-    private static int CountPress(int counter) => WrappingCounter.IncrementWord(counter);
+    public int EscapeButtonCounter => _escapePresses.EscapePresses;
 
     /// <summary>
     /// Whether a counted press reached the target. The game compares the shared word with a signed subtraction,
@@ -90,8 +88,7 @@ public sealed class SamusDraygonGrabbedState
 
         IsActive = true;
         MovementHandlerReplaced = false;
-        EscapeButtonCounter = 0;
-        samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
+        _escapePresses.ClearEscapePresses();
         // Grab installs an empty movement handler, but leaves the Flash palette and its shared
         // shine-timer word alive. A later release must not resume Flash draining.
         samus.CrystalFlash.RelinquishMovementHandler();
@@ -167,8 +164,7 @@ public sealed class SamusDraygonGrabbedState
         if (dpad != ControllerButton.None && dpad != PreviousDpadInput)
         {
             PreviousDpadInput = dpad;
-            EscapeButtonCounter = CountPress(EscapeButtonCounter);
-            samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
+            _escapePresses.CountEscapePress();
             counted = true;
         }
 

@@ -58,7 +58,7 @@ internal static class SamusHurtColorsVerification
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         InstalledSamusHurtColors catalog, bool cinematic)
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HurtFlashCounter = 1 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()).WithHurtFlashCount(1);
         // The flash names shades (#1512); the import resolves them from the catalog and the cartridge's suits.
         var sources = InstalledFixtures.SamusShadeSources with
         {
@@ -76,7 +76,7 @@ internal static class SamusHurtColorsVerification
             samusColours.ShowSuit(sentinel);
             SamusHurtFlashPalette.Update(
                 samusColours, samus, 0);
-            AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
+            AssertEqual((ushort)(call + 1), samus.HurtFlash.Count,
                 $"{(cinematic ? "intro" : "ordinary")} hurt call {call} counter");
             if (call == 7)
             {

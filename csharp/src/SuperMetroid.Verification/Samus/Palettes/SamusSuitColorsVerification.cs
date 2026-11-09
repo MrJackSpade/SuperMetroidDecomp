@@ -120,7 +120,7 @@ internal static class SamusSuitColorsVerification
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         var guard = NewSuitColorReadGuard(bus);
         var samusColours = new SamusColours();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         // The installed catalog reaches Samus through the shades the import makes from it (#1512).
         var installedSources = InstalledFixtures.SamusShadeSources with { Suits = ImportAreaMapPresentation.SamusColoursOf(original).Suits };
         ushort[] equipment =
@@ -147,7 +147,7 @@ internal static class SamusSuitColorsVerification
             samusColours.ShownSuit(installedSources)[1],
             "momentum cancellation restores the installed Varia color");
 
-        samus.HurtFlashCounter = 2;
+        samus.HurtFlash.HoldAt(2);
         // Show another shade first so only a real normal-suit reload passes.
         samusColours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
         SamusHurtFlashPalette.Update(

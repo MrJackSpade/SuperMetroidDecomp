@@ -59,7 +59,7 @@ internal static class PauseSelectorsVerification
         Console.WriteLine("Pause selectors: sixteen anchors/672 native OAM cases and 1600 guarded native frames pass.");
         static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentation content, PauseEquipmentCategory category, int item)
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
             if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
             else
             {

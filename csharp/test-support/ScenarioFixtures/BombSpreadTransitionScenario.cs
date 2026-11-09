@@ -103,7 +103,7 @@ internal sealed class BombSpreadTransitionScenario
 
     /// <summary>Samus row after <paramref name="frame"/> ran with <paramref name="input"/>.</summary>
     internal string Row(int frame, ControllerButton input) =>
-        $"{(Left ? 1 : 0)},{Delay},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(Samus.Pose):X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.ProjectileFlareCounter:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.Room.LoadedScope.BombProjectiles.BombCounter:X4}";
+        $"{(Left ? 1 : 0)},{Delay},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(Samus.Pose):X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.BeamChargeCount.Count:X4},{Samus.BombSpreadChargeTimeoutCounter:X4},{Runtime.Room.LoadedScope.BombProjectiles.BombCounter:X4}";
 
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;

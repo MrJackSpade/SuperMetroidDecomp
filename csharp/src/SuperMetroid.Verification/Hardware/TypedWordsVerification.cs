@@ -515,7 +515,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(!RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger).TryGetStationAccess(out _),
         "non-station BTS rejects station view");
 
-    var typedPose = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+    var typedPose = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     typedPose.PoseId = SamusPoseId.ScrewAttackLeftPose;
     AssertEqual(SamusPoseId.ScrewAttackLeftPose, typedPose.Pose,
         "typed Samus pose writes the native byte");

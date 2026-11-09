@@ -75,7 +75,7 @@ internal static class CollectiblesVerification
             AssertEqual(CollectiblePresentation.Exposed, fixture.RoomObjects.CollectiblePresentations[0],
                 $"{kind} exposed presentation");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
-                fixture.Samus.ProjectileFlareCounter = 60;
+                fixture.Samus.BeamChargeCount.Publish(60);
 
             fixture.RoomObjects.Step(fixture.Level);
             if (kind >= InWorldCollectibleKind.Bombs)
@@ -133,7 +133,7 @@ internal static class CollectiblesVerification
                 $"{kind} reused slot cannot republish its pickup message");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
             {
-                AssertEqual(0, fixture.Samus.ProjectileFlareCounter,
+                AssertEqual(0, fixture.Samus.BeamChargeCount.Count,
                     $"{kind} PLM clears charge counter before its message");
             }
         }
@@ -153,7 +153,7 @@ internal static class CollectiblesVerification
         // location rather than confusing the projectile type with an item bit.
         CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 91, precollected: false);
         orb.RoomObjects.Step(orb.Level);
-        var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
@@ -292,7 +292,7 @@ internal static class CollectiblesVerification
             system.SetCollectedItemBit(roomArgument);
         if (preopenedChozo)
             system.SetRoomChozoBit(roomArgument);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Health = 99,
             MaxHealth = 99,
@@ -483,7 +483,7 @@ internal static class CollectiblesVerification
         sourceSystem.SetOpenedDoorBit(511);
         sourceSystem.SetEvent(EventNumber.TourianUnlocked);
         sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
-        var sourceSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var sourceSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice),
             EquippedBeams = SamusBeamFlags.Ice,
@@ -496,7 +496,7 @@ internal static class CollectiblesVerification
             ?? throw new InvalidOperationException("collectible save slot checksum failed");
 
         var restoredSystem = new SharedGameState(new SharedRandom());
-        var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         slot.ApplyTo(restoredSamus, restoredSystem);
         AssertTrue(restoredSystem.HasCollectedItemBit(0), "first physical item bit round-trips");
         AssertTrue(restoredSystem.HasCollectedItemBit(91), "middle physical item bit round-trips");
@@ -705,14 +705,13 @@ internal static class CollectiblesVerification
         Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory());
         // Samus's suit colours are the suit shade she names, which the import pre-colours from the suit tables (#1512).
         var suitColours = new SamusColours();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(500, 600)),
-            ProjectileFlareCounter = 60,
             EquippedItems = SamusEquipmentFlags.VariaSuit,
             CollectedItems = SamusEquipmentFlags.VariaSuit,
-        };
+        }.WithBeamChargeCount(60);
         SamusNormalSuitPalette.LoadPower(suitColours);
 
         var pickup = new SamusSuitPickupState();
@@ -879,7 +878,7 @@ internal static class CollectiblesVerification
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedItems = otherSuit
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { EquippedItems = otherSuit
                 ? (kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : SamusEquipmentFlags.None };
             var history = samus.PoseHistory;

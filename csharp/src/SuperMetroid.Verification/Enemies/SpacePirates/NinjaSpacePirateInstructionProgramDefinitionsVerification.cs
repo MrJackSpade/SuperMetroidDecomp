@@ -237,7 +237,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             slot.Radius = new(8, 16);
             slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyNinja, 0x0080);
             NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
-            return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
+            return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 
         // Advances production enemy instructions for the requested number of updates.

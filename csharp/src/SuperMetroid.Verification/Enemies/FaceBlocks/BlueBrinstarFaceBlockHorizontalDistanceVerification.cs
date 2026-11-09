@@ -46,7 +46,7 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
         enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, null);
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
             ?? throw new InvalidOperationException("The face block has no state.");
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)samusX), RowY)),

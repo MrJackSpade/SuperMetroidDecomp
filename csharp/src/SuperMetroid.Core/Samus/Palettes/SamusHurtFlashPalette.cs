@@ -38,7 +38,7 @@ public static class SamusHurtFlashPalette
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
 
-        int counterBefore = samus.HurtFlashCounter;
+        int counterBefore = samus.HurtFlash.Count;
         if (counterBefore == 0)
         {
             return new SamusHurtFlashPaletteStepResult();
@@ -77,15 +77,14 @@ public static class SamusHurtFlashPalette
 
         // The game stores the increment before either comparison. The counter starts at one or eight and is
         // cleared at sixty, so it never leaves 0 through 60.
-        int counterAfter = counterBefore + 1;
-        samus.HurtFlashCounter = counterAfter;
+        int counterAfter = samus.HurtFlash.Advance();
 
         if (counterAfter == 40)
             RecoverInterruptedSound(samus, controllerInput);
 
         if (counterAfter >= EndingCall)
         {
-            samus.HurtFlashCounter = 0;
+            samus.HurtFlash.Clear();
         }
 
         return new SamusHurtFlashPaletteStepResult();
@@ -135,7 +134,7 @@ public static class SamusHurtFlashPalette
                         : SamusHurtFlashRecoveryAction.SpinJumpSound;
             }
 
-            if (samus.ProjectileFlareCounter >= 16 &&
+            if (samus.BeamChargeCount.Count >= 16 &&
                 (controllerInput & ControllerButton.X) != ControllerButton.None)
             {
                 samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;

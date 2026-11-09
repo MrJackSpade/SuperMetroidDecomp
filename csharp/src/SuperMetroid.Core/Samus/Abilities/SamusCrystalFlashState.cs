@@ -34,12 +34,15 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public CrystalFlashAmmoKind DrainingAmmo { get; private set; }
 
-    /// <summary>Reloaded to ten between the three ammunition families.</summary>
-    public WrappingCountdown AmmoDecrementTimer { get; private set; }
+    /// <summary>
+    /// The updates until the next unit of ammunition drains, reloaded to ten between the three ammunition families, on the
+    /// count Draygon's escape and the suit pickup's stage share, so it counts on from whatever they last left.
+    /// </summary>
+    private readonly SharedEscapeAndDrainCount _ammoCountdown;
 
-    /// <summary>Mirrors another owner's write, 0 through 65535, to the shared ammo-countdown word; other values are rejected.</summary>
-    internal void SetSharedAmmoCounter(int value) =>
-        AmmoDecrementTimer = WrappingCountdown.FromRaw(value);
+    /// <summary>Creates a Crystal Flash owner whose ammunition countdown runs on Samus's shared escape and drain count.</summary>
+    /// <param name="ammoCountdown">Samus's shared escape and drain count.</param>
+    internal SamusCrystalFlashState(SharedEscapeAndDrainCount ammoCountdown) => _ammoCountdown = Ensure.NotNull(ammoCountdown);
 
     /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
@@ -188,8 +191,7 @@ public sealed class SamusCrystalFlashState
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
         RaiseTimer = 9;
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
-        AmmoDecrementTimer = WrappingCountdown.Start(10);
-        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RemainingFrames);
+        _ammoCountdown.StartAmmoCountdown(10);
         RaisedPosition = Position16<RoomPixels>.Zero;
         CrystalPaletteTimer = 1;
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
@@ -303,17 +305,14 @@ public sealed class SamusCrystalFlashState
         }
 
         SamusEnergyRestoration.Restore(samus, 50);
-        CountdownStep ammoTimer = AmmoDecrementTimer.Decrement();
-        AmmoDecrementTimer = ammoTimer.Remaining;
-        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RemainingFrames);
+        CountdownStep ammoTimer = _ammoCountdown.CountDownAmmo();
         bool timerExpired = ammoTimer.IsZeroOrNegative;
         if (!timerExpired)
             return;
 
         if (DrainingAmmo != CrystalFlashAmmoKind.PowerBombs)
         {
-            AmmoDecrementTimer = WrappingCountdown.Start(10);
-            samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RemainingFrames);
+            _ammoCountdown.StartAmmoCountdown(10);
             DrainingAmmo = DrainingAmmo == CrystalFlashAmmoKind.Missiles
                 ? CrystalFlashAmmoKind.SuperMissiles
                 : CrystalFlashAmmoKind.PowerBombs;

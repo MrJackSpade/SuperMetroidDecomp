@@ -32,7 +32,7 @@ internal static class GrappleFiringDefinitionsVerification
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
-        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose });
+        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = SamusPoseId.FacingRightNormalPose });
         var grapple = samus.Grapple;
         // Exercise each compiled movement family with a real pose instead of rewriting
         // the immutable movement byte of standing pose $01.

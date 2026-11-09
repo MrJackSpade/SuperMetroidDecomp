@@ -57,7 +57,7 @@ internal static class PauseReserveRowToggleVerification
     internal static void VerifyReserveRowToggleThroughPauseScreen()
     {
         var catalog = RetailPresentationFixture();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge, Health = 99, MaxHealth = 99,
             MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,

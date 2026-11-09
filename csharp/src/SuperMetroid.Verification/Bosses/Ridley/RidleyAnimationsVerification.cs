@@ -89,7 +89,7 @@ internal static class RidleyAnimationsVerification
         (_, RidleyEnemyState state, RoomEnemySlot body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         state.Roaring = true;
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
-        Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 29 });
+        Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 29 });
         AssertEqual(RidleyBodyProgram.FireballingEnd, state.BodyProgram.Program, "low energy in Ceres skips to the fireballing tail");
         AssertEqual(8, state.FunctionTimer, "low energy shortens the hover to eight updates");
         AssertTrue(!state.Roaring, "the fireballing tail clears the roaring flag");
@@ -97,12 +97,12 @@ internal static class RidleyAnimationsVerification
 
         (_, state, body) = NewRidley(EnemyDefinitionId.RidleyCeres, RidleyFacing.Left);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
-        Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 30 });
+        Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 30 });
         AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "thirty energy keeps the full fireballing");
 
         (_, state, body) = NewRidley(EnemyDefinitionId.Ridley, RidleyFacing.Left);
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.Fireballing);
-        Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 1 });
+        Pass(body, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 1 });
         AssertEqual(RidleyBodyProgram.Fireballing, state.BodyProgram.Program, "Lower Norfair Ridley ignores Samus's energy");
     }
 

@@ -1198,10 +1198,10 @@ internal static class LookupStream4Verification
                 var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],"All twelve stock AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
-                hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
+                hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
-            ushort[] before=hud.TileWords.ToArray();hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()){Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
+            ushort[] before=hud.TileWords.ToArray();hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()){Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
             for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudStockCells.AutoReserveCellIndex(cell)],hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
             hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
         }
@@ -1397,7 +1397,7 @@ internal static class LookupStream4Verification
             // A record no gameplay path gives Samus names no pose (#1517), so it has no grab policy to check.
             if (!SamusPoseNumbering.NamesPose(pose))
                 continue;
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseNumbering.FromNumber(pose) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
             var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = 99 };

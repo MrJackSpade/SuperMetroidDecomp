@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
@@ -8,81 +7,81 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Game-driven owner for the eight palette-FX slots created by room FX.
+/// The colour effects a room, or a frontend screen, runs (#1554): its glows, flashes, fades and Samus's heat shimmer,
+/// each a <see cref="ColourEffect"/> that keeps its own step, countdown, colours and condition.
 /// </summary>
 /// <remarks>
-/// Room graphics load a useful static palette, but many rooms immediately replace part of
-/// it with programs selected by the active FX record. Landing Site is one of them:
-/// its lightning effect flashes the scrolling-sky horizon's colours. Keeping the
-/// programs, timers, and the colours each object animates here avoids encoding a
-/// screenshot's colors as a room-specific correction.
+/// <para>
+/// Room graphics load a useful static palette, but many rooms immediately animate part of it with the effects the
+/// active FX record starts. Landing Site is one of them: its lightning flashes the scrolling-sky horizon's colours.
+/// </para>
+/// <para>
+/// Turn order (a compatibility rule): each update the effects take their turns from the lowest turn up, and a starting
+/// effect takes the lowest of the eight turns no running effect holds; while all eight are held, a start is ignored. The
+/// original handler visits its eight effects from the last down and a new effect takes the last free one, so this is
+/// that order. It is observable: Samus's heat shimmer (<see cref="PaletteFxObject.SamusInHeat"/>, started first in every
+/// heated room) takes its turn before the Norfair glow that publishes the heat phase, so the shimmer follows a new phase
+/// one update late; and where two effects show the same colours in one update, the later turn's record is the one that
+/// shows, as when Mother Brain's death starts Tourian's escape red flash over the room's glowing Arkanoid blocks and orbs.
+/// </para>
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomPaletteFxSystem : IGameplayShadingSource
 {
-    /// <summary>Palette-FX pool capacity and descending handler range.</summary>
-    private const int SlotCount = 8;
+    /// <summary>The turns there are: at most this many effects run at once, and a start while all are held is ignored.</summary>
+    private const int TurnCount = 8;
 
-    /// <summary>Persistent interpreter state for the eight palette-FX objects.</summary>
-    internal readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
-        .Select(_ => new PaletteFxSlot())
-        .ToArray();
+    /// <summary>The running effects, in turn order.</summary>
+    internal readonly List<ColourEffect> effects = [];
     /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
     internal readonly PaletteFxShown shown = new();
-    /// <summary>The records Samus's suit groups showed during the current handler pass, in order (#1512).</summary>
+    /// <summary>The records Samus's suit groups showed during the current update, in order (#1512).</summary>
     private readonly List<ShownPaletteFxRecord> suitShown = [];
-    /// <summary>The records the enemies' groups showed during the current handler pass, in order (#1512).</summary>
+    /// <summary>The records the enemies' groups showed during the current update, in order (#1512).</summary>
     private readonly List<ShownPaletteFxRecord> enemyShown = [];
-    /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
+    /// <summary>Momentary sound publications cleared at the start of each update.</summary>
     private readonly List<SoundRequest> soundRequests = [];
-    /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
+    /// <summary>Live Power Bomb state used to suppress colour-effect sound requests.</summary>
     private IActivePowerBomb? audioPowerBomb;
-    /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
+    /// <summary>Momentary music publications cleared at the start of each update.</summary>
     private readonly List<DelayedMusicRequest> musicRequests = [];
-    /// <summary>The handler enable bit and heat palette phases, which outlive each room's slots.</summary>
+    /// <summary>Whether the effects run at all and the heat phases, which outlive each room's effects.</summary>
     private readonly PaletteFxSessionState _session;
 
-    /// <summary>Creates one room's eight empty palette-FX slots over the session's handler state.</summary>
-    /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
+    /// <summary>Creates one room's colour effects, none running yet, over the session's lasting state.</summary>
+    /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     public RoomPaletteFxSystem(PaletteFxSessionState session) => _session = Ensure.NotNull(session);
 
-    /// <summary>
-    /// Whether the palette effects run at all, checked first by every handler pass; it lives on the session.
-    /// </summary>
+    /// <summary>Whether the colour effects run at all, checked first each update; it lives on the session.</summary>
     public bool HandlerEnabled => _session.HandlerEnabled;
 
-    /// <summary>Sound calls published by palette programs during the current frame.</summary>
+    /// <summary>Sound calls the colour effects published during the current update.</summary>
     public IReadOnlyList<SoundRequest> SoundRequests => soundRequests;
 
-    /// <summary>Music calls published by palette programs during the current frame.</summary>
+    /// <summary>Music calls the colour effects published during the current update.</summary>
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => musicRequests;
 
-    /// <summary>Whether a particular definition currently owns a slot.</summary>
-    public bool IsDefinitionActive(PaletteFxObject definition) =>
-        slots.Any(slot => slot.Object == definition);
+    /// <summary>Whether <paramref name="effect"/> is running.</summary>
+    public bool IsRunning(PaletteFxObject effect) => effects.Exists(running => running.Effect == effect);
 
     /// <summary>
-    /// Spawns a non-room palette object through the same allocator/interpreter used
-    /// by room FX. Samus's load appearance uses its own three definitions and must not
-    /// be reimplemented as a host-side tint.
+    /// Starts an effect outside the room's FX record: Samus's load appearance, a Torizo's belly, a statue's grey-out, the
+    /// escape's flashes or a screen's effects. It must start: the start is rejected loudly when it does not.
     /// </summary>
-    public void SpawnDefinition(
-        PaletteFxObject definition,
+    /// <exception cref="InvalidOperationException">The effect did not start: every turn is held or its start skips it.</exception>
+    public void Start(
+        PaletteFxObject effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
-        Spawn(definition, equippedItems, areaMiniBossDefeated);
-        if (!IsDefinitionActive(definition))
-        {
-            throw new InvalidOperationException(
-                $"Palette-FX object {definition} could not acquire a slot.");
-        }
+        if (!TryStart(effect, equippedItems, areaMiniBossDefeated))
+            throw new InvalidOperationException($"Colour effect {effect} could not start.");
     }
 
     /// <summary>
-    /// Builds one room's palette-FX objects: exactly the palette effects the matching FX record starts.
+    /// Builds one room's colour effects: exactly the effects the matching FX record starts.
     /// </summary>
-    /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
+    /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
@@ -95,8 +94,8 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         bool areaMiniBossDefeated) =>
         ForRecord(session, fx, door, equippedItems, areaMiniBossDefeated, null);
 
-    /// <summary>Builds one room's palette-FX objects from the palette effects the selected or supplied FX record starts.</summary>
-    /// <param name="session">The handler enable bit and heat palette phases, which room loading never clears.</param>
+    /// <summary>Builds one room's colour effects from the effects the selected or supplied FX record starts.</summary>
+    /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="equippedItems">Samus's equipment, which selects suit-dependent programs.</param>
@@ -107,213 +106,164 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         RoomFxRecordDefinition? suppliedDefinition)
     {
         var system = new RoomPaletteFxSystem(session);
-        system.SpawnRecordObjects(fx, door, equippedItems, areaMiniBossDefeated, suppliedDefinition);
+        if ((suppliedDefinition ?? fx?.Select(door)) is { } record)
+        {
+            // Colour effects and animated tiles have separate owners and lists; the record's effects start in its order.
+            foreach (PaletteFxObject effect in record.PaletteEffects)
+                system.TryStart(effect, equippedItems, areaMiniBossDefeated);
+        }
         return system;
     }
 
-    /// <summary>Spawns the palette effects the selected or supplied FX record starts, in the record's order.</summary>
-    private void SpawnRecordObjects(RoomFxHeader? fx, DoorDefinition? door,
-        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
-        RoomFxRecordDefinition? suppliedDefinition)
-    {
-        if ((suppliedDefinition ?? fx?.Select(door)) is not { } record)
-            return;
-
-        // Palette FX and animated tiles have separate owners and lists.
-        foreach (PaletteFxObject definition in record.PaletteEffects)
-            Spawn(definition, equippedItems, areaMiniBossDefeated);
-    }
-
-    /// <summary>Runs one palette-effect handler pass in descending slot order during gameplay.</summary>
+    /// <summary>Runs one update of the colour effects during gameplay, each in its turn.</summary>
     /// <remarks>
     /// No colour is written (#1512): each record shown is recorded as its colour group's last, which the room's pictures
     /// take as a shade, and the records of Samus's and the enemies' groups are handed to their owners through
     /// <see cref="SuitShown"/> and <see cref="EnemyShown"/>, whose colourings the import pre-colours per record.
     /// </remarks>
-    /// <param name="conditions">The frame's handler inputs.</param>
-    /// <param name="powerBomb">The live Power Bomb, which suppresses palette-FX sounds while it is active.</param>
+    /// <param name="conditions">The update's conditions the effects watch.</param>
+    /// <param name="powerBomb">The live Power Bomb, which suppresses colour-effect sounds while it is active.</param>
     /// <exception cref="InvalidOperationException">A record is shown in colours no gameplay picture shows.</exception>
     public void Step(PaletteFxConditions conditions, IActivePowerBomb? powerBomb = null)
     {
         audioPowerBomb = powerBomb;
-        RunHandler(conditions, ShowPaletteRecord);
+        RunTurns(conditions, ShowPaletteRecord);
     }
 
     /// <summary>
-    /// Runs one palette-effect handler pass for a frontend screen (#1512): each record shown is recorded as its colour
-    /// group's last, which the screen shades its pictures with, and no owner's colours are written.
+    /// Runs one update of a frontend screen's colour effects (#1512): each record shown is recorded as its colour group's
+    /// last, which the screen shades its pictures with, and no owner's colours are written.
     /// </summary>
     /// <exception cref="InvalidOperationException">A record is shown in colours no frontend screen shows.</exception>
     internal void StepScreen(PaletteFxConditions conditions)
     {
         audioPowerBomb = null;
-        RunHandler(conditions, ShowScreenRecord);
+        RunTurns(conditions, ShowScreenRecord);
     }
 
     /// <summary>
-    /// Runs one palette-effect handler pass for a frontend screen that orders each record shown among its own colour
-    /// loads (#1512): each record is recorded as its colour group's last and handed to <paramref name="shown"/> as it is shown,
-    /// so a record shown again after a load overwrote its colours shows over that load, as the handler's write does.
+    /// Runs one update of a frontend screen's colour effects that orders each record shown among its own colour loads
+    /// (#1512): each record is recorded as its colour group's last and handed to <paramref name="shown"/> as it is shown,
+    /// so a record shown again after a load overwrote its colours shows over that load.
     /// </summary>
     /// <exception cref="InvalidOperationException">A record is shown in colours no frontend screen shows.</exception>
     internal void StepScreen(PaletteFxConditions conditions, Action<PaletteFxColours, PaletteFxFrame> shown)
     {
         Ensure.NotNull(shown);
         audioPowerBomb = null;
-        RunHandler(conditions, (slot, frame) =>
+        RunTurns(conditions, (effect, frame) =>
         {
-            ShowScreenRecord(slot, frame);
-            shown(slot.Target ?? throw new InvalidOperationException($"Palette-FX object {slot.Object} named no colours."), frame);
+            ShowScreenRecord(effect, frame);
+            shown(effect.Colours ?? throw new InvalidOperationException($"Colour effect {effect.Effect} named no colours."), frame);
         });
     }
 
-    /// <summary>Runs the slots in descending order, handing each record a slot's program shows to <paramref name="show"/>.</summary>
-    private void RunHandler(PaletteFxConditions conditions, Action<PaletteFxSlot, PaletteFxFrame> show)
+    /// <summary>
+    /// Gives each running effect its turn, from the lowest turn up: it checks its condition, counts down, and when its
+    /// next step is due runs its steps to the next record, which goes to <paramref name="show"/>. Effects that end are
+    /// dropped once every turn has run.
+    /// </summary>
+    private void RunTurns(PaletteFxConditions conditions, Action<ColourEffect, PaletteFxFrame> show)
     {
-        // Each handler pass owns a new publication window on every game frame.
-        // Requests are momentary calls into the shared queues, not persistent object state.
+        // Each update owns a new publication window: requests are momentary calls into the shared queues.
         soundRequests.Clear();
         musicRequests.Clear();
         suitShown.Clear();
         enemyShown.Clear();
 
-        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        foreach (ColourEffect effect in effects)
         {
-            PaletteFxSlot slot = slots[slotIndex];
-            if (slot.Object is null)
+            CheckCondition(effect, conditions);
+            if (effect.Ended || !effect.CountDown())
                 continue;
-
-            RunFrameBehavior(slot, conditions);
-            if (slot.Object is null)
-                continue;
-
-            // The timer decrements before comparing with one; every colour record lasts at least one update and a
-            // spawned or redirected object starts at one, so a running object's timer never steps from zero.
-            if (--slot.FrameHold != 0)
-                continue;
-
-            ExecuteProgram(slot, show);
+            if (effect.Advance(cue => CarryOut(effect, cue)) is { } frame)
+                show(effect, frame);
         }
+        effects.RemoveAll(effect => effect.Ended);
     }
 
-    /// <summary>Allocates the highest free slot and applies definition-specific setup for Intro, Norfair, or Brinstar.</summary>
-    private void Spawn(
-        PaletteFxObject definition,
+    /// <summary>Starts <paramref name="effect"/> on the lowest free turn, unless every turn is held or its start skips it.</summary>
+    /// <returns>Whether the effect started.</returns>
+    /// <exception cref="InvalidOperationException">The effect names a start of no defined kind.</exception>
+    private bool TryStart(
+        PaletteFxObject effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
-        // Spawning searches the slots from the highest down. A full pool silently rejects
-        // another spawn; this is a documented allocation result, not a failed translation
-        // that should be hidden by an exception.
-        PaletteFxSlot? slot = null;
-        for (int index = SlotCount - 1; index >= 0; index--)
+        if (LowestFreeTurn() is not { } turn)
+            return false;
+
+        RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(effect);
+        PaletteFxProgram program;
+        switch (definition.Start)
         {
-            if (slots[index].Object is null)
-            {
-                slot = slots[index];
+            case ColourEffectStart.Plain:
+                program = definition.InitialProgram;
                 break;
-            }
-        }
-        if (slot is null)
-            return;
-
-        RoomPaletteFxDefinition compiled = RoomPaletteFxSelection.Get(definition);
-        slot.Object = definition;
-        slot.Target = null;
-        slot.FrameBehavior = PaletteFxFrameBehavior.Null;
-        slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
-        slot.FrameHold = 1;
-        slot.Timer = WrappingCountdown.Start(0);
-
-        PaletteFxSetup setup = compiled.SetupCallback;
-        switch (setup)
-        {
-            case PaletteFxSetup.Null:
-                return;
-
-            case PaletteFxSetup.Intro:
-                slot.FrameBehavior = PaletteFxFrameBehavior.Intro;
-                return;
-
-            case PaletteFxSetup.Norfair:
-                // The heat object chooses the complete program from the same live suit bits
-                // used by Samus. Gravity has priority when both bits are present.
-                slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(
-                    PaletteFxHeatPrograms.Start(PaletteFxHeatPrograms.SuitFor(equippedItems)));
-                return;
-
-            case PaletteFxSetup.Brinstar:
+            case ColourEffectStart.ChoosesHeatProgramForSuit:
+                // The heat shimmer chooses its whole program from the same live suit Samus wears; Gravity before Varia.
+                program = PaletteFxHeatPrograms.Start(PaletteFxHeatPrograms.SuitFor(equippedItems));
+                break;
+            case ColourEffectStart.SkippedOnceAreaMiniBossIsDead:
                 if (areaMiniBossDefeated)
-                    slot.Clear();
-                return;
-
+                    return false;
+                program = definition.InitialProgram;
+                break;
             default:
-                throw new InvalidOperationException(
-                    $"Palette-FX object {definition} has undefined setup {setup}.");
+                throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
+
+        int place = effects.FindIndex(running => running.Turn > turn);
+        effects.Insert(place < 0 ? effects.Count : place, new ColourEffect(effect, turn, program));
+        return true;
     }
 
-    /// <summary>Runs the slot's condition handler before its timer and program run, including room heat and cutscene gates.</summary>
-    private void RunFrameBehavior(PaletteFxSlot slot, PaletteFxConditions conditions)
+    /// <summary>The lowest turn no running effect holds, or null while every turn is held.</summary>
+    private int? LowestFreeTurn()
     {
-        if (slot.FrameBehavior is not { } frameBehavior || !Enum.IsDefined(frameBehavior))
+        for (int turn = 0; turn < TurnCount; turn++)
         {
-            throw new NotSupportedException(
-                $"Room palette-FX pre-instruction {slot.FrameBehavior} is not translated " +
-                $"for object {slot.Object} (Samus Y={conditions.SamusY}, items={conditions.EquippedItems}).");
+            if (!effects.Exists(running => running.Turn == turn))
+                return turn;
         }
-        switch (frameBehavior)
+        return null;
+    }
+
+    /// <summary>Checks the condition <paramref name="effect"/> watches, before its countdown runs.</summary>
+    /// <exception cref="InvalidOperationException">The effect watches a condition of no defined kind.</exception>
+    private void CheckCondition(ColourEffect effect, PaletteFxConditions conditions)
+    {
+        switch (effect.Condition)
         {
-            case PaletteFxFrameBehavior.Null:
-            case PaletteFxFrameBehavior.Cleared:
-            case PaletteFxFrameBehavior.Intro:
+            case null:
                 return;
-
-            case PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies:
-                if (conditions.EnemyZeroIsDead)
-                    slot.Clear();
+            case ColourEffectCondition.EndsWhenTorizoDies:
+                if (conditions.TorizoIsDead)
+                    effect.End();
                 return;
-
-            case PaletteFxFrameBehavior.SwitchAboveY380:
-                if (conditions.SamusY <
-                    CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
-                {
-                    slot.FrameHold = 1;
-                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaLightningCycle);
-                }
-                return;
-
-            case PaletteFxFrameBehavior.SwitchAboveY380Second:
-                if (conditions.SamusY <
-                    CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
-                {
-                    slot.FrameHold = 1;
-                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.UnusedDarkLightningCycle);
-                }
-                return;
-
-            case PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies:
+            case ColourEffectCondition.EndsWhenAreaMiniBossDies:
                 if (conditions.AreaMiniBossDefeated)
-                    slot.Clear();
+                    effect.End();
                 return;
-
-            case PaletteFxFrameBehavior.Heat:
-                RunHeatFrameBehavior(slot, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
+            case ColourEffectCondition.RestartsWhileSamusIsHigh high:
+                if (conditions.SamusY < high.Height)
+                    effect.Restart(high.Restart);
                 return;
-
+            case ColourEffectCondition.BurnsSamusInHeat:
+                BurnSamusInHeat(effect, conditions.EquippedItems, conditions.Samus, conditions.FrameCounter);
+                return;
             default:
-                throw new InvalidOperationException($"Undefined palette-FX pre-instruction {frameBehavior}.");
+                throw new InvalidOperationException($"Colour effect {effect.Effect} watches undefined condition {effect.Condition}.");
         }
     }
 
     /// <summary>
-    /// Runs the Samus-in-heat per-frame behaviour step. The palette
-    /// object deliberately owns both presentation and damage: an unprotected Samus gains
-    /// one quarter-unit of 16.16 damage per frame, while a second Norfair object publishes
-    /// the animation index consumed here on the following descending-slot pass.
+    /// The heat shimmer's condition. The shimmer deliberately owns both its look and the heat's damage: an unprotected
+    /// Samus takes one quarter-unit of 16.16 damage per update, and the shimmer restarts on the heat phase the Norfair glow
+    /// published, which that glow, taking its turn after the shimmer, publishes for the following update.
     /// </summary>
-    private void RunHeatFrameBehavior(
-        PaletteFxSlot slot,
+    private void BurnSamusInHeat(
+        ColourEffect effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         IRoomSamus? samus,
         int frameCounter)
@@ -339,67 +289,30 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             return;
 
         _session.PreviousSamusInHeatPaletteIndex = _session.SamusInHeatPaletteIndex;
-        slot.FrameHold = 1;
-        slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxHeatPrograms.Phase(
+        effect.Restart(PaletteFxHeatPrograms.Phase(
             PaletteFxHeatPrograms.SuitFor(equippedItems),
             _session.SamusInHeatPaletteIndex));
     }
 
-    /// <summary>Runs the slot's typed program until it shows its next timed colour record or deletes the object.</summary>
-    private void ExecuteProgram(PaletteFxSlot slot, Action<PaletteFxSlot, PaletteFxFrame> show)
-    {
-        AnimationProgramCursor<PaletteFxProgram> cursor = slot.Cursor;
-        WrappingCountdown timer = slot.Timer;
-        AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref timer,
-            (cue, _) =>
-            {
-                Publish(slot, cue);
-                return null;
-            });
-        slot.Cursor = cursor;
-        slot.Timer = timer;
-        switch (advance)
-        {
-            case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
-                slot.FrameHold = shown.Duration;
-                show(slot, shown.Frame);
-                return;
-            case AnimationProgramAdvance<PaletteFxFrame>.Stop:
-                slot.Clear();
-                return;
-            case AnimationProgramAdvance<PaletteFxFrame>.Wait or AnimationProgramAdvance<PaletteFxFrame>.Hold:
-                throw new InvalidOperationException($"Palette-FX program {cursor.Program} reached a {advance}, which no palette program has.");
-            default:
-                throw new InvalidOperationException($"Undefined animation program advance {advance}.");
-        }
-    }
-
-    /// <summary>Carries out one palette-FX program command.</summary>
-    private void Publish(PaletteFxSlot slot, PaletteFxCue cue)
+    /// <summary>Carries out a step of <paramref name="effect"/>'s program that reaches beyond it: a heat phase or a sound.</summary>
+    /// <exception cref="InvalidDataException">A sound step names no sound.</exception>
+    /// <exception cref="InvalidOperationException">The step is of a kind the effect keeps itself, or of no defined kind.</exception>
+    private void CarryOut(ColourEffect effect, PaletteFxCue cue)
     {
         switch (cue)
         {
-            case PaletteFxCue.SetColours setColours:
-                slot.Target = setColours.Target;
-                return;
-            case PaletteFxCue.SetFrameBehavior setFrameBehavior:
-                slot.FrameBehavior = setFrameBehavior.FrameBehavior;
-                return;
-            case PaletteFxCue.Command { Kind: PaletteFxCueKind.ClearFrameBehavior }:
-                slot.FrameBehavior = PaletteFxFrameBehavior.Cleared;
-                return;
             case PaletteFxCue.SetHeatPaletteIndex setHeatPaletteIndex:
                 _session.SamusInHeatPaletteIndex = setHeatPaletteIndex.HeatPhase;
                 return;
             case PaletteFxCue.QueueSound queueSound:
                 soundRequests.Add(new SoundRequest(
                     queueSound.Sound ?? throw new InvalidDataException(
-                        $"Palette-FX object {slot.Object} queued a sound cue without a sound."),
+                        $"Colour effect {effect.Effect} queued a sound step without a sound."),
                     PaletteFxSoundPriorities.InstructionSound,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(PaletteFxCueKind)} {cue}.");
+                throw new InvalidOperationException($"Colour effect {effect.Effect} handed on step {cue}, which it keeps itself.");
         }
     }
 
@@ -408,23 +321,23 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// its colours before its first record, so a record shown before that is a defect in the program.
     /// </summary>
     /// <exception cref="InvalidOperationException">The record is shown before its colours are named, or in colours no screen shows.</exception>
-    private void ShowScreenRecord(PaletteFxSlot slot, PaletteFxFrame frame)
+    private void ShowScreenRecord(ColourEffect effect, PaletteFxFrame frame)
     {
-        PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
-            $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
+        PaletteFxColours animated = effect.Colours ?? throw new InvalidOperationException(
+            $"Colour effect {effect.Effect} showed record {frame.Record} before its program named the colours it animates.");
         if (!PaletteFxScreenColourDefinitions.FrontendScreenGroups.Contains(animated))
-            throw new InvalidOperationException($"Palette-FX object {slot.Object} showed {animated}, which no frontend screen shows.");
+            throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no frontend screen shows.");
         shown.Show(animated, frame);
     }
 
     /// <summary>
-    /// The records Samus's suit groups showed during the last handler pass, in order (#1512): she lays the shade of each over
+    /// The records Samus's suit groups showed during the last update, in order (#1512): she lays the shade of each over
     /// her suit, as each record overwrote her suit's colours then.
     /// </summary>
     internal IReadOnlyList<ShownPaletteFxRecord> SuitShown => suitShown;
 
     /// <summary>
-    /// The records the enemies' groups showed during the last handler pass, in order (#1512): each enemy lays the shade of
+    /// The records the enemies' groups showed during the last update, in order (#1512): each enemy lays the shade of
     /// each over its draws, as each record overwrote its colours then.
     /// </summary>
     internal IReadOnlyList<ShownPaletteFxRecord> EnemyShown => enemyShown;
@@ -447,7 +360,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Shows one timed colour record in the colours the slot animates during gameplay (#1512): the record becomes its
+    /// Shows one timed colour record in the colours the effect shows during gameplay (#1512): the record becomes its
     /// group's last, which the room's pictures take as a shade, and a record of Samus's or an enemy's group is also kept
     /// for that owner, which lays its shade over its own draws. A program names its colours before its first record, so
     /// a record shown before that is a defect in the program.
@@ -455,10 +368,10 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">
     /// The record is shown before its colours are named, or in colours no room picture, Samus nor enemy shows.
     /// </exception>
-    private void ShowPaletteRecord(PaletteFxSlot slot, PaletteFxFrame frame)
+    private void ShowPaletteRecord(ColourEffect effect, PaletteFxFrame frame)
     {
-        PaletteFxColours animated = slot.Target ?? throw new InvalidOperationException(
-            $"Palette-FX object {slot.Object} showed record {frame.Record} before its program named the colours it animates.");
+        PaletteFxColours animated = effect.Colours ?? throw new InvalidOperationException(
+            $"Colour effect {effect.Effect} showed record {frame.Record} before its program named the colours it animates.");
         shown.Show(animated, frame);
         if (PaletteFxRoomColourDefinitions.RoomColours.Contains(animated))
             return;
@@ -472,40 +385,6 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             enemyShown.Add(new ShownPaletteFxRecord(animated, frame));
             return;
         }
-        throw new InvalidOperationException($"Palette-FX object {slot.Object} showed {animated}, which no gameplay picture shows.");
-    }
-
-    /// <summary>Object state retained between palette-FX handler passes.</summary>
-    internal sealed class PaletteFxSlot
-    {
-        /// <summary>The palette-FX object the slot runs; null marks an available slot.</summary>
-        public PaletteFxObject? Object { get; set; }
-        /// <summary>
-        /// The colours the most recent <see cref="PaletteFxCue.SetColours"/> cue selected; none until the object's
-        /// program names them.
-        /// </summary>
-        public PaletteFxColours? Target { get; set; }
-        /// <summary>
-        /// Pre-instruction evaluated before this slot's program timer; none while the slot is free, which never runs
-        /// because the slot is skipped while free.
-        /// </summary>
-        public PaletteFxFrameBehavior? FrameBehavior { get; set; }
-        /// <summary>Where this object's typed program resumes.</summary>
-        public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
-        /// <summary>Frames remaining before this object's next program step.</summary>
-        public int FrameHold { get; set; }
-        /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
-        public WrappingCountdown Timer { get; set; }
-
-        /// <summary>Releases the object and clears all of its program state for reuse.</summary>
-        public void Clear()
-        {
-            Object = null;
-            Target = null;
-            FrameBehavior = null;
-            Cursor = default;
-            FrameHold = 0;
-            Timer = WrappingCountdown.Start(0);
-        }
+        throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no gameplay picture shows.");
     }
 }

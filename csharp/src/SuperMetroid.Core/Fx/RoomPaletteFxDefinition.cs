@@ -2,9 +2,9 @@ using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>One four-byte <c>PalFxDef</c> record.</summary>
-/// <param name="SetupCallback">Setup callback invoked when the object acquires a slot.</param>
-/// <param name="InitialProgram">The program the object starts.</param>
+/// <summary>How one colour effect starts and the program it starts (#1554).</summary>
+/// <param name="Start">How the effect starts.</param>
+/// <param name="InitialProgram">The program the effect starts.</param>
 internal readonly record struct RoomPaletteFxDefinition(
-    PaletteFxSetup SetupCallback,
+    ColourEffectStart Start,
     PaletteFxProgram InitialProgram);

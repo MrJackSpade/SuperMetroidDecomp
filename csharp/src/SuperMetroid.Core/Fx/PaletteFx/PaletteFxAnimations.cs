@@ -4,9 +4,9 @@ using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgram;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The palette-FX objects' programs (#1298). Generated from the verified animation scripts:
-/// each timed colour record shows a <see cref="PaletteFxFrame"/> and each command becomes a <see cref="PaletteFxCue"/>,
-/// a counter step or a branch; the object's loop timer is the program counter.
+/// The colour effects' programs (#1298, #1554): each effect's named steps, read by the effect that runs them.
+/// A timed colour record shows a <see cref="PaletteFxFrame"/> for its duration, a <see cref="PaletteFxCue"/> names the
+/// colours, a condition, a heat phase or a sound, and a counted repeat counts down the running effect's own repeats.
 /// </summary>
 public static class PaletteFxAnimations
 {
@@ -588,7 +588,7 @@ public static class PaletteFxAnimations
         [P.BombTorizoBelly0] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.EndsWhenTorizoDies.Instance)),
             FallInto(P.BombTorizoBelly1),
         ],
         [P.BombTorizoBelly1] =
@@ -604,7 +604,7 @@ public static class PaletteFxAnimations
         [P.GoldenTorizoBelly0] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.EndsWhenTorizoDies.Instance)),
             FallInto(P.GoldenTorizoBelly1),
         ],
         [P.GoldenTorizoBelly1] =
@@ -619,7 +619,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatPowerSuit0] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatPowerSuit1),
         ],
@@ -705,7 +705,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatVariaSuit0] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatVariaSuit2),
         ],
@@ -791,7 +791,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatGravitySuit0] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatGravitySuit2),
         ],
@@ -894,7 +894,7 @@ public static class PaletteFxAnimations
         ],
         [P.CrateriaLightning] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.SwitchAboveY380)),
+            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, P.CrateriaLightningCycle))),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.LandingSiteLightning)),
             FallInto(P.CrateriaLightningCycle),
         ],
@@ -929,7 +929,7 @@ public static class PaletteFxAnimations
         ],
         [P.UnusedDarkLightning] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.SwitchAboveY380Second)),
+            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, P.UnusedDarkLightningCycle))),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.UnusedDarkLightning)),
             FallInto(P.UnusedDarkLightningCycle),
         ],
@@ -988,7 +988,7 @@ public static class PaletteFxAnimations
         ],
         [P.SporeSpawnBlueBackgroundSpores] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarBlueSpores)),
             FallInto(P.SporeSpawnBlueBackgroundSporesCycle),
         ],

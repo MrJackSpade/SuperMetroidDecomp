@@ -248,7 +248,7 @@ internal sealed class RoomLoader
                     ? SavedGameAppearanceDefinitions.VariaSuitGlow
                     : SavedGameAppearanceDefinitions.PowerSuitGlow;
         _player.BeginLoadAppearance(loadAppearance, SavedGameAppearanceDefinitions.FrameCount);
-        _room.LoadedScope.PaletteFx.SpawnDefinition(
+        _room.LoadedScope.PaletteFx.Start(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));

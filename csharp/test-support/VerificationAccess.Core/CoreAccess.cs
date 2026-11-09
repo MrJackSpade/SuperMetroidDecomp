@@ -158,11 +158,11 @@ internal static class CoreAccess
         }
     }
 
-    /// <summary>Counts occupied room palette-FX slots in the private effect pool.</summary>
+    /// <summary>Counts the room's running colour effects.</summary>
     extension(RoomPaletteFxSystem fx)
     {
-        /// <summary>Counts palette FX slots whose native ID word is nonzero.</summary>
-        internal int ActiveCount => fx.slots.Count(slot => slot.Id != 0);
+        /// <summary>The colour effects running.</summary>
+        internal int ActiveCount => fx.effects.Count;
     }
 
 

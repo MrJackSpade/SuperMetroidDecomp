@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
 /// The Norfair heat object's programs (#1298): a start per suit, and the sixteen phase programs per suit the heat
-/// pre-instruction restarts when the published heat palette index changes.
+/// shimmer's condition restarts when the published heat palette index changes.
 /// </summary>
 public static class PaletteFxHeatPrograms
 {

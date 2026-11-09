@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The palette-FX objects' programs (#1298), one per entry point an object, a setup, a frame behaviour or a branch
+/// The colour effects' programs (#1298), one per entry point an effect, a start, a condition or a branch
 /// enters, in authored order. Generated from the verified animation scripts; see <see cref="PaletteFxAnimations"/>.
 /// </summary>
 public enum PaletteFxProgram

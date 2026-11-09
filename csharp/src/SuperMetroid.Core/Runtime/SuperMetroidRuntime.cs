@@ -591,17 +591,17 @@ internal sealed class SuperMetroidRuntime
         // Baby during that later enemy phase, so a newly spawned Hyper Beam palette object naturally
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
         // first StepFrame get the same handler-first behavior immediately.
-        // The game has one descending palette-FX object pool. Room FX is spawned first and
-        // therefore occupies its highest slots; Hyper Beam later takes the next free slot.
-        // Running the room owner before the specialized Hyper Beam owner preserves that
-        // ordering until both are consolidated behind one allocator.
+        // The room's colour effects take their turns first (RoomPaletteFxSystem's turn order): room FX starts first,
+        // and Hyper Beam's effect, which starts later, takes the next free turn after them.
+        // Running the room's effects before the separately owned Hyper Beam effect keeps that
+        // order.
         // Door destination drawing borrows this frame path, but the door's destination
         // fade does not call the palette-FX handler. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive &&
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
-            Room.LoadedScope.PaletteFx.Step(new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
+            Room.LoadedScope.PaletteFx.Step(new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, TorizoIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, FrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
             // Her heat glow and her suit's loading show over her suit as the records that wrote it (#1512).
             foreach ((PaletteFxColours colours, PaletteFxFrame record) in Room.LoadedScope.PaletteFx.SuitShown)

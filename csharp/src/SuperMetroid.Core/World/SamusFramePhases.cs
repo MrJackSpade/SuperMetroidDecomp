@@ -1364,7 +1364,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         if (!_player.AdvanceLoadAppearance())
             return;
-        if (_player.LoadAppearancePaletteFx is { } loadAppearance && room.PaletteFx.IsDefinitionActive(loadAppearance))
+        if (_player.LoadAppearancePaletteFx is { } loadAppearance && room.PaletteFx.IsRunning(loadAppearance))
         {
             throw new InvalidDataException(
                 $"Samus load palette FX {loadAppearance} " +

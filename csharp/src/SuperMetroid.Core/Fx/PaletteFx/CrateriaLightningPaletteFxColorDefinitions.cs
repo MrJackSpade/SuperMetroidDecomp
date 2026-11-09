@@ -30,7 +30,7 @@ public static class CrateriaLightningPaletteFxColorDefinitions
         };
     /// <summary>The live and unused-dark programs in definition order.</summary>
     public static IReadOnlyList<CrateriaLightningPaletteFxColorDefinition> All { get; } = [Surface, Dark];
-    /// <summary>Both programs restart the neutral record when Samus is above Y=896.</summary>
-    public const int VerticalSwitchSamusY = 896;
+    /// <summary>The room height Samus must stand above for both lightning programs to stay calm (<see cref="ColourEffectCondition.RestartsWhileSamusIsHigh"/>).</summary>
+    public const int SamusHighOnSurfaceHeight = 896;
 
 }

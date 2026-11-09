@@ -44,8 +44,8 @@ internal sealed class EndingFlyaway
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
-        _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
-        _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
+        _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
+        _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWrappedWhole(-72), new(CoordinateAxis.Wrap(-104), 0));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialScale;
         _stage.FloorAngle = RotationAngle.NormalizeTableIndex(-112);

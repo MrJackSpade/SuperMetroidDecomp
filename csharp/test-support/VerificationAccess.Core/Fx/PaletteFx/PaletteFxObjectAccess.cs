@@ -92,26 +92,22 @@ internal static class PaletteFxObjectAccess
     /// <summary>Every object, in definition-address order.</summary>
     internal static IEnumerable<PaletteFxObject> All => Addresses.Keys;
 
-    /// <summary>Spawning and querying objects by definition address.</summary>
+    /// <summary>Starting and querying effects by definition address.</summary>
     extension(RoomPaletteFxSystem self)
     {
-        /// <summary>Spawns the object whose definition is at <paramref name="definition"/>.</summary>
-        internal void SpawnDefinition(ushort definition, SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated = false) =>
-            self.SpawnDefinition(FromNative(definition), equippedItems, areaMiniBossDefeated);
+        /// <summary>Starts the effect whose definition is at <paramref name="definition"/>.</summary>
+        internal void Start(ushort definition, SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated = false) =>
+            self.Start(FromNative(definition), equippedItems, areaMiniBossDefeated);
 
-        /// <summary>Whether the object whose definition is at <paramref name="definition"/> owns a slot.</summary>
-        internal bool IsDefinitionActive(ushort definition) => self.IsDefinitionActive(FromNative(definition));
+        /// <summary>Whether the effect whose definition is at <paramref name="definition"/> is running.</summary>
+        internal bool IsRunning(ushort definition) => self.IsRunning(FromNative(definition));
     }
 
-    /// <summary>A slot's native definition word.</summary>
-    extension(RoomPaletteFxSystem.PaletteFxSlot slot)
+    /// <summary>A running effect's native definition word.</summary>
+    extension(ColourEffect effect)
     {
-        /// <summary>The definition address of the slot's object, zero for a free slot.</summary>
-        internal ushort Id
-        {
-            get => slot.Object is { } paletteFxObject ? NativeAddress(paletteFxObject) : (ushort)0;
-            set => slot.Object = value == 0 ? null : FromNative(value);
-        }
+        /// <summary>The definition address of the effect.</summary>
+        internal ushort Id => NativeAddress(effect.Effect);
     }
 
     /// <summary>Definitions by address.</summary>

@@ -36,12 +36,12 @@ internal static class LookupPaletteFxDispatchVerification
         }
     }
 
-    /// <summary>Compares each compiled setup callback with the first word of its retail object record.</summary>
+    /// <summary>Compares how each compiled effect starts with the setup routine the first word of its retail object record names.</summary>
     internal static void VerifyPaletteFxSetupSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer),
-                FxNativeWords.PaletteFxSetups.Word(RoomPaletteFxSelection.Get(pointer).SetupCallback), "Native palette-FX setup callback");
+            AssertEqual(FxNativeWords.StartOf(FxNativeWords.PaletteFxSetups.Decode(ReadVerificationWord(rom, 0x8d0000 | pointer), "palette-FX setup")),
+                RoomPaletteFxSelection.Get(pointer).Start, "Native palette-FX setup");
     }
 
     /// <summary>Compares each compiled initial instruction pointer with the record's second word.</summary>

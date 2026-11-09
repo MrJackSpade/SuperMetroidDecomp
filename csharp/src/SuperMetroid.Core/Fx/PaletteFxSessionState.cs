@@ -1,26 +1,27 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The palette-FX words room loading never clears: the handler enable bit and the Norfair heat palette phases. Each
-/// room's <see cref="RoomPaletteFxSystem"/> reads and writes them here.
+/// The colour-effect state room loading never clears: whether the effects run, and the Norfair heat phases. Each room's
+/// <see cref="RoomPaletteFxSystem"/> reads and writes them here.
 /// </summary>
 public sealed class PaletteFxSessionState
 {
     /// <summary>
-    /// Bit 15 of the palette-FX enable word, checked first by the handler. Game
-    /// data loading sets it; the escape timer's expiry clears it.
+    /// Whether the colour effects run, checked first each update. Loading a game turns them on; the escape timer's
+    /// expiry turns them off.
     /// </summary>
     public bool HandlerEnabled { get; private set; } = true;
 
     /// <summary>
-    /// Heat palette phase published by the Norfair object for the next descending-slot pass. Only compared for
-    /// equality and used to select a heat program, so it is held as a plain phase number.
+    /// The heat phase the Norfair glow published, which Samus's heat shimmer, taking its turn before the glow, follows on
+    /// the next update. Only compared for equality and used to select a heat program, so it is held as a plain phase
+    /// number.
     /// </summary>
     internal int SamusInHeatPaletteIndex { get; set; }
 
-    /// <summary>Last heat palette phase applied to Samus; prevents redundant program restarts.</summary>
+    /// <summary>The heat phase Samus's heat shimmer last restarted on; it restarts only when the published phase differs.</summary>
     internal int PreviousSamusInHeatPaletteIndex { get; set; }
 
-    /// <summary>Disables the palette-FX objects.</summary>
+    /// <summary>Stops the colour effects from running.</summary>
     public void DisableHandler() => HandlerEnabled = false;
 }

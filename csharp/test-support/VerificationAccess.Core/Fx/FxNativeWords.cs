@@ -74,43 +74,74 @@ internal static class FxNativeWords
         [SpecialAirReactionSetup.WreckedShipChozoHand] = 0xd620,
     });
 
-    /// <summary>The bank-$8D pre-instruction routine naming each <see cref="PaletteFxFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<PaletteFxFrameBehavior> PaletteFxFrameBehaviors = new(new Dictionary<PaletteFxFrameBehavior, ushort>
+    /// <summary>The bank-$8D pre-instruction routine of each <see cref="NativePaletteFxPreInstruction"/>.</summary>
+    internal static readonly NativeWordIdentities<NativePaletteFxPreInstruction> PaletteFxPreInstructions = new(new Dictionary<NativePaletteFxPreInstruction, ushort>
     {
-        [PaletteFxFrameBehavior.Null] = 0xc526,
-        [PaletteFxFrameBehavior.Cleared] = 0xc5e3,
-        [PaletteFxFrameBehavior.Intro] = 0xe20b,
-        [PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies] = 0xe2e0,
-        [PaletteFxFrameBehavior.Heat] = 0xe379,
-        [PaletteFxFrameBehavior.SwitchAboveY380] = 0xec59,
-        [PaletteFxFrameBehavior.SwitchAboveY380Second] = 0xed84,
-        [PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies] = 0xeec5,
+        [NativePaletteFxPreInstruction.Null] = 0xc526,
+        [NativePaletteFxPreInstruction.Cleared] = 0xc5e3,
+        [NativePaletteFxPreInstruction.Intro] = 0xe20b,
+        [NativePaletteFxPreInstruction.DeleteWhenEnemyZeroDies] = 0xe2e0,
+        [NativePaletteFxPreInstruction.Heat] = 0xe379,
+        [NativePaletteFxPreInstruction.SwitchAboveY380] = 0xec59,
+        [NativePaletteFxPreInstruction.SwitchAboveY380Second] = 0xed84,
+        [NativePaletteFxPreInstruction.DeleteWhenAreaMiniBossDies] = 0xeec5,
     });
+
+    /// <summary>
+    /// The colour effect condition <paramref name="preInstruction"/> stands for (#1554): the three routines that do
+    /// nothing stand for none, and each lightning switch for its program's restart while Samus is high.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="preInstruction"/> is not a defined routine.</exception>
+    internal static ColourEffectCondition? ConditionOf(NativePaletteFxPreInstruction preInstruction) => preInstruction switch
+    {
+        NativePaletteFxPreInstruction.Null or NativePaletteFxPreInstruction.Cleared or NativePaletteFxPreInstruction.Intro => null,
+        NativePaletteFxPreInstruction.DeleteWhenEnemyZeroDies => ColourEffectCondition.EndsWhenTorizoDies.Instance,
+        NativePaletteFxPreInstruction.Heat => ColourEffectCondition.BurnsSamusInHeat.Instance,
+        NativePaletteFxPreInstruction.SwitchAboveY380 => new ColourEffectCondition.RestartsWhileSamusIsHigh(
+            CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.CrateriaLightningCycle),
+        NativePaletteFxPreInstruction.SwitchAboveY380Second => new ColourEffectCondition.RestartsWhileSamusIsHigh(
+            CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.UnusedDarkLightningCycle),
+        NativePaletteFxPreInstruction.DeleteWhenAreaMiniBossDies => ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance,
+        _ => throw new ArgumentOutOfRangeException(nameof(preInstruction), preInstruction, "Undefined palette-FX pre-instruction."),
+    };
 
     /// <summary>
     /// The bank-$8D pre-instruction routine of the deleted adjacent-slot inspection (#1526): Tourian's glowing blocks and
     /// orbs set it to delete their object when the slot two below holds one. It only decided whether the glow kept
-    /// showing, a presentation quirk the port does not reproduce, so no <see cref="PaletteFxFrameBehavior"/> names it.
+    /// showing, a presentation quirk the port does not reproduce, so no <see cref="NativePaletteFxPreInstruction"/> names it.
     /// </summary>
     internal const ushort DeletedSlotInspectionPreInstruction = 0xf621;
 
     /// <summary>
-    /// The frame behaviour a recorded pre-instruction routine <paramref name="word"/> stands for in the port: the deleted
-    /// adjacent-slot inspection stands for <see cref="PaletteFxFrameBehavior.Null"/>, which the port's glow program keeps
-    /// from its spawn; any other word must name a behaviour.
+    /// The condition a recorded pre-instruction routine <paramref name="word"/> stands for in the port: the deleted
+    /// adjacent-slot inspection stands for none, which the port's glow keeps from its start; any other word must name a
+    /// routine.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="word"/> names no behaviour and is not the deleted inspection.</exception>
-    internal static PaletteFxFrameBehavior RecordedPaletteFxFrameBehavior(ushort word) =>
+    /// <exception cref="InvalidDataException"><paramref name="word"/> names no routine and is not the deleted inspection.</exception>
+    internal static ColourEffectCondition? RecordedColourEffectCondition(ushort word) =>
         word == DeletedSlotInspectionPreInstruction
-            ? PaletteFxFrameBehavior.Null
-            : PaletteFxFrameBehaviors.Decode(word, "palette-FX pre-instruction");
+            ? null
+            : ConditionOf(PaletteFxPreInstructions.Decode(word, "palette-FX pre-instruction"));
 
-    /// <summary>The bank-$8D setup routine naming each <see cref="PaletteFxSetup"/>.</summary>
-    internal static readonly NativeWordIdentities<PaletteFxSetup> PaletteFxSetups = new(new Dictionary<PaletteFxSetup, ushort>
+    /// <summary>The bank-$8D setup routine of each <see cref="NativePaletteFxSetup"/>.</summary>
+    internal static readonly NativeWordIdentities<NativePaletteFxSetup> PaletteFxSetups = new(new Dictionary<NativePaletteFxSetup, ushort>
     {
-        [PaletteFxSetup.Null] = 0xc685,
-        [PaletteFxSetup.Intro] = 0xe204,
-        [PaletteFxSetup.Norfair] = 0xe440,
-        [PaletteFxSetup.Brinstar] = 0xf730,
+        [NativePaletteFxSetup.Null] = 0xc685,
+        [NativePaletteFxSetup.Intro] = 0xe204,
+        [NativePaletteFxSetup.Norfair] = 0xe440,
+        [NativePaletteFxSetup.Brinstar] = 0xf730,
     });
+
+    /// <summary>
+    /// How an effect whose native setup is <paramref name="setup"/> starts (#1554): the intro's setup only installs a
+    /// pre-instruction that does nothing, so it starts plainly.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="setup"/> is not a defined setup.</exception>
+    internal static ColourEffectStart StartOf(NativePaletteFxSetup setup) => setup switch
+    {
+        NativePaletteFxSetup.Null or NativePaletteFxSetup.Intro => ColourEffectStart.Plain,
+        NativePaletteFxSetup.Norfair => ColourEffectStart.ChoosesHeatProgramForSuit,
+        NativePaletteFxSetup.Brinstar => ColourEffectStart.SkippedOnceAreaMiniBossIsDead,
+        _ => throw new ArgumentOutOfRangeException(nameof(setup), setup, "Undefined palette-FX setup."),
+    };
 }

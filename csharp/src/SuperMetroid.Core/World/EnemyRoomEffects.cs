@@ -66,11 +66,11 @@ internal sealed class EnemyRoomEffects
         ApplyPendingTorizoBellyGlow(requests, roomPaletteFx);
     }
 
-    /// <summary>Spawns the belly glow a Torizo's fight start asked for in the palette-FX handler's pool.</summary>
+    /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects.</summary>
     internal void ApplyPendingTorizoBellyGlow(EnemyRoomEffectRequests requests, RoomPaletteFxSystem roomPaletteFx)
     {
         if (requests.TorizoBellyGlow is { } glow)
-            roomPaletteFx.SpawnDefinition(glow, _player.IntroducedSamus.EquippedItems);
+            roomPaletteFx.Start(glow, _player.IntroducedSamus.EquippedItems);
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ internal sealed class EnemyRoomEffects
         if (requests.MotherBrainDeathStep is { } death)
         {
             foreach (PaletteFxObject definition in death.EscapePaletteFxRequests)
-                roomPaletteFx.SpawnDefinition(definition, _player.IntroducedSamus.EquippedItems);
+                roomPaletteFx.Start(definition, _player.IntroducedSamus.EquippedItems);
             if (death.TimerHandlingEnableRequested)
                 _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)

@@ -63,7 +63,7 @@ internal sealed class EndingEscapeScenes
     internal void SetupEscapeSceneB()
     {
         _stage.ResetPaletteFx();
-        _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GreyClouds, 0);
+        _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.GreyClouds, 0);
         _stage.RequireFloorArtwork();
         _artwork.RequireEscapeCloudArtwork();
         sprites.Clear();
@@ -116,7 +116,7 @@ internal sealed class EndingEscapeScenes
         switch (cue)
         {
             case CinematicSpriteCueKind.FadeExplosionPalette:
-                _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.FadePlanet, 0);
+                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.FadePlanet, 0);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
                 return;
 
@@ -129,9 +129,9 @@ internal sealed class EndingEscapeScenes
 
             case CinematicSpriteCueKind.StartZebesExplosion:
                 ExplosionBurstDisplay = true;
-                _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.Supernova, 0);
-                _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.Explosion, 0);
-                _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.WideExplosion, 0);
+                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Supernova, 0);
+                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Explosion, 0);
+                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.WideExplosion, 0);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
@@ -142,7 +142,7 @@ internal sealed class EndingEscapeScenes
 
             case CinematicSpriteCueKind.ExplosionFinale:
                 ExplosionFinaleDisplay = true;
-                _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.SupernovaFinale, 0);
+                _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.SupernovaFinale, 0);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);

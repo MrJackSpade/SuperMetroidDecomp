@@ -259,14 +259,14 @@ internal static class LookupStream2Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new PaletteFxSessionState();
             var actual = new RoomPaletteFxSystem(actualSession);
-            actual.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
+            actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
             int frameIndex = 0, elapsed = 0;
             for (int tick = 0; tick <= cycle; tick++)
             {
                 if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
-                actual.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                actual.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(actual, cgram, colors);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),

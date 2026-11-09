@@ -6,6 +6,8 @@ internal static class NativeSnapshotMemory
     /// <summary>$90:C3C9: equipped-beam palette pointer table used by $90:ACCD.</summary>
     public const int BeamPalettePointers = 0x90c3c9;
 
+    /// <summary>The palette FX slot arrays' length: eight objects.</summary>
+    public const int PaletteFxObjectCount = 8;
     /// <summary>$1E7D/$1E8D/$1EAD/$1EBD/$1ECD/$1EDD: eight palette FX slot arrays.</summary>
     public const int PaletteFxId = 0x1e7d, PaletteFxColor = 0x1e8d, PaletteFxFrameBehavior = 0x1ead,
         PaletteFxInstruction = 0x1ebd, PaletteFxFrameHold = 0x1ecd, PaletteFxTimer = 0x1edd;

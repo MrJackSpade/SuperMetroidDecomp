@@ -137,8 +137,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.WaitForEscapeMusic:
                 if (!audio.HasQueuedMusic)
                 {
-                    Stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.Lava, 0);
-                    Stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.Crust, 0);
+                    Stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Lava, 0);
+                    Stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.Crust, 0);
                     Stage.Brightness = 0;
                     Stage.RestartFadeCadence();
                     Stage.Phase = EndingCreditsPhase.FadeInEscapeSceneA;
@@ -423,11 +423,11 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
         }
 
-        // The cinematic invokes the shared palette-FX interpreter after actors; each record shown shows over the colours
+        // The cinematic runs its colour effects after actors; each record shown shows over the colours
         // the scenes loaded before it, as its write does (#1512).
         IPaletteFxColorSource paletteFxColours = InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
             "Ending palette FX requires installed palette colors.");
-        Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+        Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
             (colours, record) => screen.Colours.PaletteFx(colours, record, PaletteFxBackdrop(colours, record, paletteFxColours)));
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");

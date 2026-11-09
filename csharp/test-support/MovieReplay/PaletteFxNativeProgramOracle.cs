@@ -106,13 +106,12 @@ internal static class PaletteFxNativeProgramOracle
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetFrameBehavior:
-                    AssertCue(step, new PaletteFxCue.SetFrameBehavior(FrameBehavior: FxNativeWords.PaletteFxFrameBehaviors.Decode(operandWord, "palette-FX pre-instruction")), at);
+                    AssertCue(step, new PaletteFxCue.Watch(FxNativeWords.ConditionOf(FxNativeWords.PaletteFxPreInstructions.Decode(operandWord, "palette-FX pre-instruction"))
+                        ?? throw new InvalidDataException($"{at}: the native list installs a pre-instruction that does nothing, which no typed program watches.")), at);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.ClearFrameBehavior:
-                    AssertCue(step, new PaletteFxCue.Command(PaletteFxCueKind.ClearFrameBehavior), at);
-                    cursor = unchecked((ushort)(cursor + 2));
-                    continue;
+                    throw new InvalidDataException($"{at}: the native list clears its pre-instruction, which no colour effect's program does.");
                 case PaletteFxInstruction.SetPaletteFxIndex:
                     AssertCue(step, new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: operandByte), at);
                     cursor = unchecked((ushort)(cursor + 3));

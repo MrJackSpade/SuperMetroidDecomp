@@ -36,9 +36,9 @@ internal static class PaletteFxContractTests
         // step shows the flicker's first record in the engine's colours.
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
-        fx.SpawnDefinition(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
+        fx.Start(PaletteFxObject.CutsceneGunshipEngineFlicker, 0);
         var shown = new List<(PaletteFxColours Colours, PaletteFxFrame Record)>();
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
             (colours, record) => shown.Add((colours, record)));
         PaletteFxFrame first = PaletteFxColorFrames.Of(PaletteFxProgram.CutsceneGunshipEngineFlicker1, colorsPerFrame: 1).Color(0, 0).Frame;
         if (shown.Count != 1 || shown[0] != (PaletteFxColours.CutsceneGunshipEngine, first)

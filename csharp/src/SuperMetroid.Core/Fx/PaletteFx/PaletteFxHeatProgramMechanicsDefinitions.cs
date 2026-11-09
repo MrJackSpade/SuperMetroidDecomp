@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// Each timed record contains fifteen colours between its duration and terminal
 /// wait command. Those 720 color words remain live presentation data; this catalog owns
 /// only program setup, timing, waits, and loop control.
-/// The Power, Varia, and Gravity programs each install the heat frame behaviour
+/// The Power, Varia, and Gravity programs each watch the heat shimmer's condition
 /// and the same colour index.
 /// Their sixteen records are 34 bytes apart,
 /// p=0..15, and each ends in a wait. Each final goto

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The palette-FX objects, named by what each animates. Each selects a setup
-/// and an initial program (<see cref="RoomPaletteFxSelection"/>); a slot holds the object it runs.
+/// The colour effects, named by what each shows. Each names how it starts
+/// and an initial program (<see cref="RoomPaletteFxSelection"/>); a running <see cref="ColourEffect"/> shows one.
 /// </summary>
 public enum PaletteFxObject
 {

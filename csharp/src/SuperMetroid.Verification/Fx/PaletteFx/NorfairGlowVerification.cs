@@ -27,13 +27,13 @@ internal static class NorfairGlowVerification
             var fxSession = new PaletteFxSessionState();
             var fx = new RoomPaletteFxSystem(fxSession);
             var colors = new SnesCgram();
-            fx.SpawnDefinition(stream.Definition, 0);
+            fx.Start(stream.Definition, 0);
             ushort[] ramp = stream.Definition == 0xf791 ? red : orange;
             for (int cycle = 0; cycle < 3; cycle++)
             for (int phase = 0; phase < holds.Length; phase++)
             for (int tick = 0; tick < holds[phase]; tick++)
             {
-                fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 // The glow's groups show their records over the room's pictures as the import's shades of them (#1512).
                 PaletteFxRoomLook.LayRoomShades(fx, colors, new ReferencePaletteFxColorSource(bus));
                 int rampIndex = phase < 8 ? phase : 15 - phase;

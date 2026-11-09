@@ -152,14 +152,14 @@ internal enum RoomSpriteObjectFrame
     BigExplosion4,
     /// <summary>Big explosion, frame 5.</summary>
     BigExplosion5,
-    /// <summary>Unused small energy drop, frame 0.</summary>
-    SmallEnergyDrop0CE1E,
-    /// <summary>Unused small energy drop, frame 1.</summary>
-    SmallEnergyDrop1CE25,
-    /// <summary>Unused small energy drop, frame 2.</summary>
-    SmallEnergyDrop2CE2C,
-    /// <summary>Unused small energy drop, frame 3.</summary>
-    SmallEnergyDrop3,
+    /// <summary>Unused small energy drop of sprite object 13, frame 0.</summary>
+    SmallEnergyDropObject13Frame0,
+    /// <summary>Unused small energy drop of sprite object 13, frame 1.</summary>
+    SmallEnergyDropObject13Frame1,
+    /// <summary>Unused small energy drop of sprite object 13, frame 2.</summary>
+    SmallEnergyDropObject13Frame2,
+    /// <summary>Unused small energy drop of sprite object 13, frame 3.</summary>
+    SmallEnergyDropObject13Frame3,
     /// <summary>Unused big energy drop, frame 0.</summary>
     BigEnergyDrop0,
     /// <summary>Unused big energy drop, frame 1.</summary>
@@ -176,12 +176,12 @@ internal enum RoomSpriteObjectFrame
     Bomb2,
     /// <summary>Unused bomb, frame 3.</summary>
     Bomb3,
-    /// <summary>Unused small energy drop, frame 0.</summary>
-    SmallEnergyDrop0CF87,
-    /// <summary>Unused small energy drop, frame 1.</summary>
-    SmallEnergyDrop1CF8E,
-    /// <summary>Unused small energy drop, frame 2.</summary>
-    SmallEnergyDrop2CF95,
+    /// <summary>Unused small energy drop of sprite object 16, frame 0.</summary>
+    SmallEnergyDropObject16Frame0,
+    /// <summary>Unused small energy drop of sprite object 16, frame 1.</summary>
+    SmallEnergyDropObject16Frame1,
+    /// <summary>Unused small energy drop of sprite object 16, frame 2.</summary>
+    SmallEnergyDropObject16Frame2,
     /// <summary>Unused rock particles, frame 0.</summary>
     RockParticles0,
     /// <summary>Unused rock particles, frame 1.</summary>
@@ -202,18 +202,18 @@ internal enum RoomSpriteObjectFrame
     RockParticles8,
     /// <summary>Unused rock particles, frame 9.</summary>
     RockParticles9,
-    /// <summary>Unused rock particles a frame.</summary>
-    RockParticlesA,
-    /// <summary>Unused rock particles b frame.</summary>
-    RockParticlesB,
-    /// <summary>Unused rock particles c frame.</summary>
-    RockParticlesC,
-    /// <summary>Unused rock particles d frame.</summary>
-    RockParticlesD,
-    /// <summary>Unused rock particles e frame.</summary>
-    RockParticlesE,
-    /// <summary>Unused rock particles f frame.</summary>
-    RockParticlesF,
+    /// <summary>Unused rock particles, frame 10.</summary>
+    RockParticles10,
+    /// <summary>Unused rock particles, frame 11.</summary>
+    RockParticles11,
+    /// <summary>Unused rock particles, frame 12.</summary>
+    RockParticles12,
+    /// <summary>Unused rock particles, frame 13.</summary>
+    RockParticles13,
+    /// <summary>Unused rock particles, frame 14.</summary>
+    RockParticles14,
+    /// <summary>Unused rock particles, frame 15.</summary>
+    RockParticles15,
     /// <summary>Big dust cloud, frame 0.</summary>
     BigDustCloud0,
     /// <summary>Big dust cloud, frame 1.</summary>
@@ -230,22 +230,22 @@ internal enum RoomSpriteObjectFrame
     BigDustCloud6,
     /// <summary>Big dust cloud, frame 7.</summary>
     BigDustCloud7,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC8AC,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC8B3,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC8BA,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC8C6,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC8D2,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC8E3,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC8F4,
-    /// <summary>Unused dust cloud beam frame.</summary>
-    DustCloudBeamC90A,
+    /// <summary>Unused dust cloud beam, frame 0.</summary>
+    DustCloudBeam0,
+    /// <summary>Unused dust cloud beam, frame 1.</summary>
+    DustCloudBeam1,
+    /// <summary>Unused dust cloud beam, frame 2.</summary>
+    DustCloudBeam2,
+    /// <summary>Unused dust cloud beam, frame 3.</summary>
+    DustCloudBeam3,
+    /// <summary>Unused dust cloud beam, frame 4.</summary>
+    DustCloudBeam4,
+    /// <summary>Unused dust cloud beam, frame 5.</summary>
+    DustCloudBeam5,
+    /// <summary>Unused dust cloud beam, frame 6.</summary>
+    DustCloudBeam6,
+    /// <summary>Unused dust cloud beam, frame 7.</summary>
+    DustCloudBeam7,
     /// <summary>Short Draygon breath bubbles, frame 0.</summary>
     ShortDraygonBreathBubbles0,
     /// <summary>Short Draygon breath bubbles, frame 1.</summary>
@@ -472,42 +472,42 @@ internal enum RoomSpriteObjectFrame
     MetroidElectricity4,
     /// <summary>Metroid electricity, frame 5.</summary>
     MetroidElectricity5,
-    /// <summary>Metroid electricity c frame.</summary>
-    MetroidElectricityC,
-    /// <summary>Metroid electricity d frame.</summary>
-    MetroidElectricityD,
-    /// <summary>Metroid electricity e frame.</summary>
-    MetroidElectricityE,
-    /// <summary>Metroid electricity, frame 9.</summary>
-    MetroidElectricity9,
-    /// <summary>Metroid electricity a frame.</summary>
-    MetroidElectricityA,
-    /// <summary>Metroid electricity b frame.</summary>
-    MetroidElectricityB,
-    /// <summary>Metroid electricity f frame.</summary>
-    MetroidElectricityF,
-    /// <summary>Metroid electricity, frame 10.</summary>
-    MetroidElectricity10,
-    /// <summary>Metroid electricity, frame 11.</summary>
-    MetroidElectricity11,
     /// <summary>Metroid electricity, frame 12.</summary>
     MetroidElectricity12,
     /// <summary>Metroid electricity, frame 13.</summary>
     MetroidElectricity13,
     /// <summary>Metroid electricity, frame 14.</summary>
     MetroidElectricity14,
-    /// <summary>Metroid electricity, frame 6.</summary>
-    MetroidElectricity6,
-    /// <summary>Metroid electricity, frame 7.</summary>
-    MetroidElectricity7,
-    /// <summary>Metroid electricity, frame 8.</summary>
-    MetroidElectricity8,
+    /// <summary>Metroid electricity, frame 9.</summary>
+    MetroidElectricity9,
+    /// <summary>Metroid electricity, frame 10.</summary>
+    MetroidElectricity10,
+    /// <summary>Metroid electricity, frame 11.</summary>
+    MetroidElectricity11,
     /// <summary>Metroid electricity, frame 15.</summary>
     MetroidElectricity15,
     /// <summary>Metroid electricity, frame 16.</summary>
     MetroidElectricity16,
     /// <summary>Metroid electricity, frame 17.</summary>
     MetroidElectricity17,
+    /// <summary>Metroid electricity, frame 18.</summary>
+    MetroidElectricity18,
+    /// <summary>Metroid electricity, frame 19.</summary>
+    MetroidElectricity19,
+    /// <summary>Metroid electricity, frame 20.</summary>
+    MetroidElectricity20,
+    /// <summary>Metroid electricity, frame 6.</summary>
+    MetroidElectricity6,
+    /// <summary>Metroid electricity, frame 7.</summary>
+    MetroidElectricity7,
+    /// <summary>Metroid electricity, frame 8.</summary>
+    MetroidElectricity8,
+    /// <summary>Metroid electricity, frame 21.</summary>
+    MetroidElectricity21,
+    /// <summary>Metroid electricity, frame 22.</summary>
+    MetroidElectricity22,
+    /// <summary>Metroid electricity, frame 23.</summary>
+    MetroidElectricity23,
     /// <summary>Metroid shell, frame 0.</summary>
     MetroidShell0,
     /// <summary>Metroid shell, frame 1.</summary>

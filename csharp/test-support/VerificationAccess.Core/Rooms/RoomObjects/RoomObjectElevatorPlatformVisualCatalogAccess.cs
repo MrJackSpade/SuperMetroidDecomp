@@ -3,13 +3,13 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Verification access to <see cref="RoomObjectElevatorPlatformVisualCatalog"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="InstalledRoomObjectElevatorPlatformVisuals"/> members production does not use.</summary>
 internal static class RoomObjectElevatorPlatformVisualCatalogAccess
 {
     /// <summary>The catalog the repository installation holds.</summary>
-    extension(RoomObjectElevatorPlatformVisualCatalog)
+    extension(InstalledRoomObjectElevatorPlatformVisuals)
     {
         /// <summary>Every frame's picture as the repository installation holds it.</summary>
-        internal static RoomObjectElevatorPlatformVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomObjectElevatorPlatformVisuals();
+        internal static InstalledRoomObjectElevatorPlatformVisuals Stock() => RepositoryInstallation.Installation.LoadRoomObjectElevatorPlatformVisuals();
     }
 }

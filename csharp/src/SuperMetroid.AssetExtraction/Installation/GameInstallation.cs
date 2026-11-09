@@ -182,7 +182,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for elevator-platform frames under the replaceable content tree.</summary>
     public string RoomObjectElevatorPlatformVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectElevatorPlatformVisualDirectoryName);
     /// <summary>Editable elevator frames; physical blocks and the instruction loop stay compiled.</summary>
-    public RoomObjectElevatorPlatformVisualCatalog LoadRoomObjectElevatorPlatformVisuals() =>
+    public InstalledRoomObjectElevatorPlatformVisuals LoadRoomObjectElevatorPlatformVisuals() =>
         RoomObjectElevatorPlatformVisualFiles.Load(RoomObjectElevatorPlatformVisualDirectory);
     /// <summary>Stock definitions for closing escape-gate appearances under the replaceable content tree.</summary>
     public string RoomObjectEscapeGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName);
@@ -192,7 +192,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for Bomb Torizo hand appearances under the replaceable content tree.</summary>
     public string RoomObjectBombTorizoHandVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName);
     /// <summary>Editable Bomb Torizo hand art; its physical block words stay compiled.</summary>
-    public RoomObjectBombTorizoHandVisualCatalog LoadRoomObjectBombTorizoHandVisuals() =>
+    public InstalledRoomObjectBombTorizoHandVisuals LoadRoomObjectBombTorizoHandVisuals() =>
         RoomObjectBombTorizoHandVisualFiles.Load(RoomObjectBombTorizoHandVisualDirectory);
     /// <summary>Stock definitions for reachable Draygon cannon appearances under the replaceable content tree.</summary>
     public string RoomObjectDraygonCannonVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName);
@@ -202,7 +202,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for Chozo hand and slope-access appearances under the replaceable content tree.</summary>
     public string RoomObjectChozoStatueVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName);
     /// <summary>Editable Chozo hand and slope-access art; physical blocks remain compiled.</summary>
-    public RoomObjectChozoStatueVisualCatalog LoadRoomObjectChozoStatueVisuals() =>
+    public InstalledRoomObjectChozoStatueVisuals LoadRoomObjectChozoStatueVisuals() =>
         RoomObjectChozoStatueVisualFiles.Load(RoomObjectChozoStatueVisualDirectory);
     /// <summary>Stock definitions for linked-block restoration appearances under the replaceable content tree.</summary>
     public string RoomObjectLinkedRestoreVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectLinkedRestoreVisualDirectoryName);
@@ -227,7 +227,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for Spore Spawn ceiling tiles under the replaceable content tree.</summary>
     public string RoomObjectSporeSpawnCeilingVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectSporeSpawnCeilingVisualDirectoryName);
     /// <summary>Editable Spore Spawn ceiling tiles; physical draw words stay compiled.</summary>
-    public RoomObjectSporeSpawnCeilingVisualCatalog LoadRoomObjectSporeSpawnCeilingVisuals() =>
+    public InstalledRoomObjectSporeSpawnCeilingVisuals LoadRoomObjectSporeSpawnCeilingVisuals() =>
         RoomObjectSporeSpawnCeilingVisualFiles.Load(RoomObjectSporeSpawnCeilingVisualDirectory);
     /// <summary>Stock definitions for floor and ceiling plant tiles under the replaceable content tree.</summary>
     public string RoomObjectSamusEaterVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectSamusEaterVisualDirectoryName);
@@ -247,7 +247,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Stock definitions for Crocomire bridge and wall appearances under the replaceable content tree.</summary>
     public string RoomObjectCrocomireVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectCrocomireVisualDirectoryName);
     /// <summary>Editable Crocomire bridge/wall art; collision and timing stay compiled.</summary>
-    public RoomObjectCrocomireVisualCatalog LoadRoomObjectCrocomireVisuals() =>
+    public InstalledRoomObjectCrocomireVisuals LoadRoomObjectCrocomireVisuals() =>
         RoomObjectCrocomireVisualFiles.Load(RoomObjectCrocomireVisualDirectory);
     /// <summary>Stock definitions for Mother Brain fake-death terrain appearances under the replaceable content tree.</summary>
     public string RoomObjectMotherBrainFakeDeathVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectMotherBrainFakeDeathVisualDirectoryName);

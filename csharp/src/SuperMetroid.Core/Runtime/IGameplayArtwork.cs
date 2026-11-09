@@ -74,19 +74,19 @@ internal interface IGameplayArtwork
     InstalledRoomObjectDownwardGateVisuals? RoomObjectDownwardGateVisuals { get; }
 
     /// <summary>Room PLM elevator platform visuals.</summary>
-    RoomObjectElevatorPlatformVisualCatalog? RoomObjectElevatorPlatformVisuals { get; }
+    InstalledRoomObjectElevatorPlatformVisuals? RoomObjectElevatorPlatformVisuals { get; }
 
     /// <summary>Room PLM escape gate visuals.</summary>
     InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; }
 
     /// <summary>Room PLM bomb torizo hand visuals.</summary>
-    RoomObjectBombTorizoHandVisualCatalog? RoomObjectBombTorizoHandVisuals { get; }
+    InstalledRoomObjectBombTorizoHandVisuals? RoomObjectBombTorizoHandVisuals { get; }
 
     /// <summary>Room PLM draygon cannon visuals.</summary>
     InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; }
 
     /// <summary>Room PLM chozo statue visuals.</summary>
-    RoomObjectChozoStatueVisualCatalog? RoomObjectChozoStatueVisuals { get; }
+    InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; }
 
     /// <summary>Room PLM linked restore visuals.</summary>
     InstalledRoomObjectLinkedRestoreVisuals? RoomObjectLinkedRestoreVisuals { get; }
@@ -101,7 +101,7 @@ internal interface IGameplayArtwork
     InstalledRoomObjectMaridiaElevatubeVisuals? RoomObjectMaridiaElevatubeVisuals { get; }
 
     /// <summary>Room PLM spore spawn ceiling visuals.</summary>
-    RoomObjectSporeSpawnCeilingVisualCatalog? RoomObjectSporeSpawnCeilingVisuals { get; }
+    InstalledRoomObjectSporeSpawnCeilingVisuals? RoomObjectSporeSpawnCeilingVisuals { get; }
 
     /// <summary>Room PLM samus eater visuals.</summary>
     InstalledRoomObjectSamusEaterVisuals? RoomObjectSamusEaterVisuals { get; }
@@ -113,7 +113,7 @@ internal interface IGameplayArtwork
     InstalledRoomObjectKraidVisuals? RoomObjectKraidVisuals { get; }
 
     /// <summary>Room PLM crocomire visuals.</summary>
-    RoomObjectCrocomireVisualCatalog? RoomObjectCrocomireVisuals { get; }
+    InstalledRoomObjectCrocomireVisuals? RoomObjectCrocomireVisuals { get; }
 
     /// <summary>Room PLM mother brain fake death visuals.</summary>
     InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; }

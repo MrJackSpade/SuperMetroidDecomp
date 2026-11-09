@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Spatial;
 using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Rooms;

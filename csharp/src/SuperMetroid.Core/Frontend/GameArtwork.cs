@@ -95,19 +95,19 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledRoomObjectDownwardGateVisuals? RoomObjectDownwardGateVisuals { get; init; }
 
     /// <summary>Room PLM elevator platform visuals.</summary>
-    public RoomObjectElevatorPlatformVisualCatalog? RoomObjectElevatorPlatformVisuals { get; init; }
+    public InstalledRoomObjectElevatorPlatformVisuals? RoomObjectElevatorPlatformVisuals { get; init; }
 
     /// <summary>Room PLM escape gate visuals.</summary>
     public InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; init; }
 
     /// <summary>Room PLM bomb torizo hand visuals.</summary>
-    public RoomObjectBombTorizoHandVisualCatalog? RoomObjectBombTorizoHandVisuals { get; init; }
+    public InstalledRoomObjectBombTorizoHandVisuals? RoomObjectBombTorizoHandVisuals { get; init; }
 
     /// <summary>Room PLM draygon cannon visuals.</summary>
     public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; init; }
 
     /// <summary>Room PLM chozo statue visuals.</summary>
-    public RoomObjectChozoStatueVisualCatalog? RoomObjectChozoStatueVisuals { get; init; }
+    public InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; init; }
 
     /// <summary>Room PLM linked restore visuals.</summary>
     public InstalledRoomObjectLinkedRestoreVisuals? RoomObjectLinkedRestoreVisuals { get; init; }
@@ -122,7 +122,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledRoomObjectMaridiaElevatubeVisuals? RoomObjectMaridiaElevatubeVisuals { get; init; }
 
     /// <summary>Room PLM spore spawn ceiling visuals.</summary>
-    public RoomObjectSporeSpawnCeilingVisualCatalog? RoomObjectSporeSpawnCeilingVisuals { get; init; }
+    public InstalledRoomObjectSporeSpawnCeilingVisuals? RoomObjectSporeSpawnCeilingVisuals { get; init; }
 
     /// <summary>Room PLM samus eater visuals.</summary>
     public InstalledRoomObjectSamusEaterVisuals? RoomObjectSamusEaterVisuals { get; init; }
@@ -134,7 +134,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledRoomObjectKraidVisuals? RoomObjectKraidVisuals { get; init; }
 
     /// <summary>Room PLM crocomire visuals.</summary>
-    public RoomObjectCrocomireVisualCatalog? RoomObjectCrocomireVisuals { get; init; }
+    public InstalledRoomObjectCrocomireVisuals? RoomObjectCrocomireVisuals { get; init; }
 
     /// <summary>Room PLM mother brain fake death visuals.</summary>
     public InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; init; }

@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.Artwork;
-using System.Text.Json;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;

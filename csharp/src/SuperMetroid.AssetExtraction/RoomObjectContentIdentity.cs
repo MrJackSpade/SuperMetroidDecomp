@@ -1,18 +1,12 @@
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
@@ -148,11 +142,11 @@ internal static class RoomObjectContentIdentity
         public string ContentIdentity => FrameImagesIdentity("RoomObjectTourianAccessVisualCatalog", visuals.Images, RoomObjectTourianAccessVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectCrocomireVisualCatalog"/>.</summary>
-    extension(RoomObjectCrocomireVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectCrocomireVisuals"/>.</summary>
+    extension(InstalledRoomObjectCrocomireVisuals visuals)
     {
         /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectCrocomireVisualCatalog), visuals.Images, RoomObjectCrocomireVisualFiles.Family);
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectCrocomireVisuals), visuals.Images, RoomObjectCrocomireVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledDraygonCannonFrames"/>.</summary>
@@ -207,31 +201,31 @@ internal static class RoomObjectContentIdentity
             }
         });
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectSporeSpawnCeilingVisualCatalog"/>.</summary>
-    extension(RoomObjectSporeSpawnCeilingVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSporeSpawnCeilingVisuals"/>.</summary>
+    extension(InstalledRoomObjectSporeSpawnCeilingVisuals visuals)
     {
         /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectSporeSpawnCeilingVisualCatalog), visuals.Images, RoomObjectSporeSpawnCeilingVisualFiles.Family);
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectSporeSpawnCeilingVisuals), visuals.Images, RoomObjectSporeSpawnCeilingVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectBombTorizoHandVisualCatalog"/>.</summary>
-    extension(RoomObjectBombTorizoHandVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBombTorizoHandVisuals"/>.</summary>
+    extension(InstalledRoomObjectBombTorizoHandVisuals visuals)
     {
         /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectBombTorizoHandVisualCatalog), visuals.Images, RoomObjectBombTorizoHandVisualFiles.Family);
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectBombTorizoHandVisuals), visuals.Images, RoomObjectBombTorizoHandVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectChozoStatueVisualCatalog"/>.</summary>
-    extension(RoomObjectChozoStatueVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectChozoStatueVisuals"/>.</summary>
+    extension(InstalledRoomObjectChozoStatueVisuals visuals)
     {
         /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectChozoStatueVisualCatalog), visuals.Images, RoomObjectChozoStatueVisualFiles.Family);
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectChozoStatueVisuals), visuals.Images, RoomObjectChozoStatueVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectElevatorPlatformVisualCatalog"/>.</summary>
-    extension(RoomObjectElevatorPlatformVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectElevatorPlatformVisuals"/>.</summary>
+    extension(InstalledRoomObjectElevatorPlatformVisuals visuals)
     {
         /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectElevatorPlatformVisualCatalog), visuals.Images, RoomObjectElevatorPlatformVisualFiles.Family);
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectElevatorPlatformVisuals), visuals.Images, RoomObjectElevatorPlatformVisualFiles.Family);
     }
 }

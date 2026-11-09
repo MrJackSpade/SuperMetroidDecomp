@@ -3,11 +3,8 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAs
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Verification.Areas.Escape;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
@@ -16,10 +13,10 @@ internal static class LookupChozoStockVerification
 {
     /// <summary>Compares the three statue frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     internal static void VerifyChozoStatueStockMapping(SuperMetroidAddressSpace rom,
-        RoomObjectChozoStatueVisualCatalog installed)
+        InstalledRoomObjectChozoStatueVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa2b5,"lower-norfair-cleared-hand"),new LookupEscapeGateStockFrame(0x9cc5,"wrecked-ship-clear-slope-access"),new LookupEscapeGateStockFrame(0x9d0f,"wrecked-ship-block-slope-access")];
-        foreach (RoomObjectChozoStatueVisualCatalog pictures in new[] { RoomObjectChozoStatueVisualCatalog.Stock(), installed })
+        foreach (InstalledRoomObjectChozoStatueVisuals pictures in new[] { InstalledRoomObjectChozoStatueVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectChozoStatueVisualFiles.Family, frames, WrittenCells(RoomObjectChozoStatueVisualFiles.Family));
         }

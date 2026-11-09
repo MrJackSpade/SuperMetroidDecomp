@@ -47,19 +47,19 @@ internal sealed class RoomObjectVisuals
     public InstalledRoomObjectDownwardGateVisuals? RoomObjectDownwardGateVisuals { get; set; }
 
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
-    public RoomObjectElevatorPlatformVisualCatalog? RoomObjectElevatorPlatformVisuals { get; set; }
+    public InstalledRoomObjectElevatorPlatformVisuals? RoomObjectElevatorPlatformVisuals { get; set; }
 
     /// <summary>The installed pictures of Mother Brain's escape-gate frames; collision stays with the draws.</summary>
     public InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; set; }
 
     /// <summary>Bomb Torizo hand art; physical draw words stay compiled.</summary>
-    public RoomObjectBombTorizoHandVisualCatalog? RoomObjectBombTorizoHandVisuals { get; set; }
+    public InstalledRoomObjectBombTorizoHandVisuals? RoomObjectBombTorizoHandVisuals { get; set; }
 
     /// <summary>The installed pictures of Draygon's cannon frames; collision stays with the draws.</summary>
     public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; set; }
 
     /// <summary>Chozo statue PLM art; physical draw words stay compiled.</summary>
-    public RoomObjectChozoStatueVisualCatalog? RoomObjectChozoStatueVisuals { get; set; }
+    public InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; set; }
 
     /// <summary>Linked-block restoration art; collision stays compiled.</summary>
     public InstalledRoomObjectLinkedRestoreVisuals? RoomObjectLinkedRestoreVisuals { get; set; }
@@ -77,7 +77,7 @@ internal sealed class RoomObjectVisuals
 
     /// <summary>Gets or replaces artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their physical words or sequence timing.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    public RoomObjectSporeSpawnCeilingVisualCatalog? RoomObjectSporeSpawnCeilingVisuals { get; set; }
+    public InstalledRoomObjectSporeSpawnCeilingVisuals? RoomObjectSporeSpawnCeilingVisuals { get; set; }
 
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
     public InstalledRoomObjectSamusEaterVisuals? RoomObjectSamusEaterVisuals { get; set; }
@@ -92,7 +92,7 @@ internal sealed class RoomObjectVisuals
 
     /// <summary>Gets or replaces Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    public RoomObjectCrocomireVisualCatalog? RoomObjectCrocomireVisuals { get; set; }
+    public InstalledRoomObjectCrocomireVisuals? RoomObjectCrocomireVisuals { get; set; }
 
     /// <summary>The installed pictures of Mother Brain's fake-death room wall, door, mural rows, fill rows and tube clears; geometry, collision and timing stay with the draws.</summary>
     public InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; set; }

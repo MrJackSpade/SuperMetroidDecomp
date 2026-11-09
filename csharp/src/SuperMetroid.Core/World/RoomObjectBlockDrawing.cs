@@ -54,13 +54,13 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     public InstalledRoomObjectDownwardGateVisuals? DownwardGateVisuals => _visuals.RoomObjectDownwardGateVisuals;
 
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
-    public RoomObjectElevatorPlatformVisualCatalog? ElevatorPlatformVisuals => _visuals.RoomObjectElevatorPlatformVisuals;
+    public InstalledRoomObjectElevatorPlatformVisuals? ElevatorPlatformVisuals => _visuals.RoomObjectElevatorPlatformVisuals;
 
     /// <summary>Bomb Torizo hand art; the draw's terrain stays compiled.</summary>
-    public RoomObjectBombTorizoHandVisualCatalog? BombTorizoHandVisuals => _visuals.RoomObjectBombTorizoHandVisuals;
+    public InstalledRoomObjectBombTorizoHandVisuals? BombTorizoHandVisuals => _visuals.RoomObjectBombTorizoHandVisuals;
 
     /// <summary>Chozo statue PLM art; the draw's terrain stays compiled.</summary>
-    public RoomObjectChozoStatueVisualCatalog? ChozoStatueVisuals => _visuals.RoomObjectChozoStatueVisuals;
+    public InstalledRoomObjectChozoStatueVisuals? ChozoStatueVisuals => _visuals.RoomObjectChozoStatueVisuals;
 
     /// <summary>Linked-block restoration art; collision stays compiled.</summary>
     public InstalledRoomObjectLinkedRestoreVisuals? LinkedRestoreVisuals => _visuals.RoomObjectLinkedRestoreVisuals;
@@ -75,7 +75,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     public InstalledRoomObjectMaridiaElevatubeVisuals? MaridiaElevatubeVisuals => _visuals.RoomObjectMaridiaElevatubeVisuals;
 
     /// <summary>The installed pictures of the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their terrain or sequence timing.</summary>
-    public RoomObjectSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals => _visuals.RoomObjectSporeSpawnCeilingVisuals;
+    public InstalledRoomObjectSporeSpawnCeilingVisuals? SporeSpawnCeilingVisuals => _visuals.RoomObjectSporeSpawnCeilingVisuals;
 
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
     public InstalledRoomObjectSamusEaterVisuals? SamusEaterVisuals => _visuals.RoomObjectSamusEaterVisuals;
@@ -87,7 +87,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     public InstalledRoomObjectKraidVisuals? KraidVisuals => _visuals.RoomObjectKraidVisuals;
 
     /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; compiled draw runs still own block placement and collision.</summary>
-    public RoomObjectCrocomireVisualCatalog? CrocomireVisuals => _visuals.RoomObjectCrocomireVisuals;
+    public InstalledRoomObjectCrocomireVisuals? CrocomireVisuals => _visuals.RoomObjectCrocomireVisuals;
 
     /// <summary>Collectible art; compiled terrain retains collision.</summary>
     public InstalledRoomObjectCollectibleVisuals? CollectibleVisuals => _visuals.RoomObjectCollectibleVisuals;

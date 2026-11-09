@@ -1,11 +1,8 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.RoomObjects.CollectibleVisualsVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;

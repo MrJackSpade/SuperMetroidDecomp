@@ -61,7 +61,7 @@ internal static class LookupColoredCapVerification
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Colored cap ID identity");
                 AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), dto.Runs.Span[0].Direction, 4, "Colored cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 10)), "Colored cap native final offset");
-                foreach (var frame in new[] {dto,exported[index],byId})
+                foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                 {
                     AssertEqual(1, frame.Runs.Length, "Colored cap one run");
                     AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Colored cap DTO geometry");

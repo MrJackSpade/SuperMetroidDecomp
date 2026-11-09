@@ -95,7 +95,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                     // The cartridge ends each strip with the next strip's start, and the last with no offset.
                     Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
                     AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "ElevatorPlatform layout native calculated continuation");
-                    foreach (var frame in new[] {dto,exported[index],byId})
+                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "ElevatorPlatform layout native DTO geometry");
@@ -116,7 +116,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 {
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     AssertTerrainField(field, expected, shape.BlockAt(run, cell), "ElevatorPlatform layout original calculated field");
-                    foreach (var frame in new[] {dto,exported[index],byId})
+                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                         AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "ElevatorPlatform layout original DTO field");
                 }
                 cells += count;

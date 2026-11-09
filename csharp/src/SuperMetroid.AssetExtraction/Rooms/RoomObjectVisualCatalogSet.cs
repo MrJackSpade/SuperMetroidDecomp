@@ -46,19 +46,19 @@ public sealed record RoomObjectVisualCatalogSet
     public required InstalledRoomObjectDownwardGateVisuals DownwardGate { get; init; }
 
     /// <summary>Elevator platform.</summary>
-    public required RoomObjectElevatorPlatformVisualCatalog ElevatorPlatform { get; init; }
+    public required InstalledRoomObjectElevatorPlatformVisuals ElevatorPlatform { get; init; }
 
     /// <summary>Escape gate.</summary>
     public required InstalledEscapeGateFrames EscapeGate { get; init; }
 
     /// <summary>Bomb torizo hand.</summary>
-    public required RoomObjectBombTorizoHandVisualCatalog BombTorizoHand { get; init; }
+    public required InstalledRoomObjectBombTorizoHandVisuals BombTorizoHand { get; init; }
 
     /// <summary>Draygon cannon.</summary>
     public required InstalledDraygonCannonFrames DraygonCannon { get; init; }
 
     /// <summary>Chozo statue.</summary>
-    public required RoomObjectChozoStatueVisualCatalog ChozoStatue { get; init; }
+    public required InstalledRoomObjectChozoStatueVisuals ChozoStatue { get; init; }
 
     /// <summary>Linked restore.</summary>
     public required InstalledRoomObjectLinkedRestoreVisuals LinkedRestore { get; init; }
@@ -73,7 +73,7 @@ public sealed record RoomObjectVisualCatalogSet
     public required InstalledRoomObjectMaridiaElevatubeVisuals MaridiaElevatube { get; init; }
 
     /// <summary>Spore spawn ceiling.</summary>
-    public required RoomObjectSporeSpawnCeilingVisualCatalog SporeSpawnCeiling { get; init; }
+    public required InstalledRoomObjectSporeSpawnCeilingVisuals SporeSpawnCeiling { get; init; }
 
     /// <summary>Samus eater.</summary>
     public required InstalledRoomObjectSamusEaterVisuals SamusEater { get; init; }
@@ -85,7 +85,7 @@ public sealed record RoomObjectVisualCatalogSet
     public required InstalledRoomObjectKraidVisuals Kraid { get; init; }
 
     /// <summary>Crocomire.</summary>
-    public required RoomObjectCrocomireVisualCatalog Crocomire { get; init; }
+    public required InstalledRoomObjectCrocomireVisuals Crocomire { get; init; }
 
     /// <summary>Mother brain fake death.</summary>
     public required InstalledMotherBrainFakeDeathFrames MotherBrainFakeDeath { get; init; }

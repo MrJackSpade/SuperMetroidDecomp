@@ -1,8 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
-using SuperMetroid.AssetExtraction;
-using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;

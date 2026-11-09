@@ -42,7 +42,7 @@ public static class RoomObjectCrocomireVisualFiles
     /// <summary>Loads the installed Crocomire arena pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static RoomObjectCrocomireVisualCatalog Load(string directory) =>
+    public static InstalledRoomObjectCrocomireVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of every bridge and wall draw.</summary>

@@ -27,7 +27,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// <summary>Loads the installed Spore Spawn ceiling pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static RoomObjectSporeSpawnCeilingVisualCatalog Load(string directory) =>
+    public static InstalledRoomObjectSporeSpawnCeilingVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>

@@ -25,9 +25,9 @@ internal static class ElevatorPlatformVisualsVerification
     /// <summary>Checks the real PLM draws its stock physical block and streams its native tile.</summary>
     internal static void VerifyElevatorPlatformVisuals()
     {
-        RoomObjectElevatorPlatformVisualCatalog stock =
-            RoomObjectElevatorPlatformVisualCatalog.Stock();
-        RenderResult Render(RoomObjectElevatorPlatformVisualCatalog visuals)
+        InstalledRoomObjectElevatorPlatformVisuals stock =
+            InstalledRoomObjectElevatorPlatformVisuals.Stock();
+        RenderResult Render(InstalledRoomObjectElevatorPlatformVisuals visuals)
         {
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();

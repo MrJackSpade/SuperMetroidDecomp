@@ -3,13 +3,13 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Verification access to <see cref="RoomObjectSporeSpawnCeilingVisualCatalog"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="InstalledRoomObjectSporeSpawnCeilingVisuals"/> members production does not use.</summary>
 internal static class RoomObjectSporeSpawnCeilingVisualCatalogAccess
 {
     /// <summary>The catalog the repository installation holds.</summary>
-    extension(RoomObjectSporeSpawnCeilingVisualCatalog)
+    extension(InstalledRoomObjectSporeSpawnCeilingVisuals)
     {
         /// <summary>Every frame's picture as the repository installation holds it.</summary>
-        internal static RoomObjectSporeSpawnCeilingVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomObjectSporeSpawnCeilingVisuals();
+        internal static InstalledRoomObjectSporeSpawnCeilingVisuals Stock() => RepositoryInstallation.Installation.LoadRoomObjectSporeSpawnCeilingVisuals();
     }
 }

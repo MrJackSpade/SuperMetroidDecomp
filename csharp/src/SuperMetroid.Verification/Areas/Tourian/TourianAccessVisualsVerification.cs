@@ -1,11 +1,8 @@
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
-using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;

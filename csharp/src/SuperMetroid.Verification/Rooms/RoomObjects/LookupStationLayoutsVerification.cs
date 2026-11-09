@@ -94,7 +94,7 @@ internal static class LookupStationLayoutsVerification
                     // The cartridge ends each run with the next run's start, and the last with no offset.
                     Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
                     AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "Station layout native calculated continuation");
-                    foreach (var frame in new[] {dto,exported[index],byId})
+                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Station layout native DTO geometry");
@@ -112,10 +112,11 @@ internal static class LookupStationLayoutsVerification
                         AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Station layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
-                {
+                {
+
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
                     AssertEqual(expected, shape.BlockAt(run, cell), "Station layout original calculated field");
-                    foreach (var frame in new[] {dto,exported[index],byId})
+                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                         AssertEqual(expected, frame.Runs.Span[run].Blocks.Span[cell], "Station layout original DTO field");
                 }
                 cells += count;

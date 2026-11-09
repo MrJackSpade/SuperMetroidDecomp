@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Rooms.RoomObjects.DownwardGateObjectsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupDownwardGateStockVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

@@ -3,13 +3,13 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Verification access to <see cref="RoomObjectChozoStatueVisualCatalog"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="InstalledRoomObjectChozoStatueVisuals"/> members production does not use.</summary>
 internal static class RoomObjectChozoStatueVisualCatalogAccess
 {
     /// <summary>The catalog the repository installation holds.</summary>
-    extension(RoomObjectChozoStatueVisualCatalog)
+    extension(InstalledRoomObjectChozoStatueVisuals)
     {
         /// <summary>Every frame's picture as the repository installation holds it.</summary>
-        internal static RoomObjectChozoStatueVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomObjectChozoStatueVisuals();
+        internal static InstalledRoomObjectChozoStatueVisuals Stock() => RepositoryInstallation.Installation.LoadRoomObjectChozoStatueVisuals();
     }
 }

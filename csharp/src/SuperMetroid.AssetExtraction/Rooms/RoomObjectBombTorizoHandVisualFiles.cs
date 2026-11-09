@@ -26,7 +26,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
     /// <summary>Loads the installed Bomb Torizo hand pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static RoomObjectBombTorizoHandVisualCatalog Load(string directory) =>
+    public static InstalledRoomObjectBombTorizoHandVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The intact and cleared hand draw lists, in authored order.</summary>

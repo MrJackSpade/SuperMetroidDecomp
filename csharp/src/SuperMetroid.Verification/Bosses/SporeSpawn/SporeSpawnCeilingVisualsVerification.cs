@@ -2,15 +2,12 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Bosses.SporeSpawn;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
@@ -48,11 +45,11 @@ internal static class SporeSpawnCeilingVisualsVerification
 
     /// <summary>Compares the four ceiling frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     private static void VerifySporeSpawnCeilingStockMapping(SuperMetroidAddressSpace rom,
-        RoomObjectSporeSpawnCeilingVisualCatalog installed)
+        InstalledRoomObjectSporeSpawnCeilingVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9413,"clear-ceiling"), new LookupEscapeGateStockFrame(0x9423,"crumble-frame-0"),
             new LookupEscapeGateStockFrame(0x9433,"crumble-frame-1"), new LookupEscapeGateStockFrame(0x9443,"crumble-frame-2")];
-        foreach (RoomObjectSporeSpawnCeilingVisualCatalog pictures in new[] { RoomObjectSporeSpawnCeilingVisualCatalog.Stock(), installed })
+        foreach (InstalledRoomObjectSporeSpawnCeilingVisuals pictures in new[] { InstalledRoomObjectSporeSpawnCeilingVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectSporeSpawnCeilingVisualFiles.Family, frames, WrittenCells(RoomObjectSporeSpawnCeilingVisualFiles.Family));
         }

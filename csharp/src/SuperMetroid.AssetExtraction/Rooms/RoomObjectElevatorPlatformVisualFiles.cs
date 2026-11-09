@@ -1,12 +1,7 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
-using SuperMetroid.Core;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -31,7 +26,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
     /// <summary>Loads the installed elevator-platform pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static RoomObjectElevatorPlatformVisualCatalog Load(string directory) =>
+    public static InstalledRoomObjectElevatorPlatformVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the three platform frames in order.</summary>

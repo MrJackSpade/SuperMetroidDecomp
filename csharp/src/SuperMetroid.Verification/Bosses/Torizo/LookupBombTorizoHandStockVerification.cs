@@ -3,13 +3,10 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAs
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Verification.Areas.Escape;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>Checks the installed pictures of the intact and cleared Bomb Torizo hand frames against the cartridge (#1557).</summary>
@@ -17,10 +14,10 @@ internal static class LookupBombTorizoHandStockVerification
 {
     /// <summary>Compares both frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections.</summary>
     internal static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
-        RoomObjectBombTorizoHandVisualCatalog installed)
+        InstalledRoomObjectBombTorizoHandVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9877,"intact"),new LookupEscapeGateStockFrame(0x989d,"cleared")];
-        foreach (RoomObjectBombTorizoHandVisualCatalog pictures in new[] { RoomObjectBombTorizoHandVisualCatalog.Stock(), installed })
+        foreach (InstalledRoomObjectBombTorizoHandVisuals pictures in new[] { InstalledRoomObjectBombTorizoHandVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectBombTorizoHandVisualFiles.Family, frames, WrittenCells(RoomObjectBombTorizoHandVisualFiles.Family));
         }

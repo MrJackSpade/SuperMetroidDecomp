@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// The installed pictures of Spore Spawn's ceiling frames: the three crumble frames and the final clear (#1557). The
 /// frames' terrain and two-by-two geometry stay the game's.
 /// </summary>
-public sealed class RoomObjectSporeSpawnCeilingVisualCatalog
+public sealed class InstalledRoomObjectSporeSpawnCeilingVisuals
 {
     /// <summary>Holds the pictures the import made of every ceiling frame.</summary>
     /// <param name="images">Every ceiling frame's picture, keyed by its draw.</param>
-    internal RoomObjectSporeSpawnCeilingVisualCatalog(RoomObjectFrameImages<RoomObjectDraw> images) => Images = Ensure.NotNull(images);
+    internal InstalledRoomObjectSporeSpawnCeilingVisuals(RoomObjectFrameImages<RoomObjectDraw> images) => Images = Ensure.NotNull(images);
 
     /// <summary>Every ceiling frame's picture, keyed by its draw.</summary>
     internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }

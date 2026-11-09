@@ -67,7 +67,7 @@ internal static class LookupBombTorizoHandDrawVerification
                     AssertEqual(count, shape.BlockCount(run), "Torizo hand native run width");
                     AssertEqual(x, shape.Start(run).X, "Torizo hand original origin-relative X");
                     AssertEqual(y, shape.Start(run).Y, "Torizo hand original origin-relative Y");
-                    foreach (var frame in new[] {dto,exported[index],byId})
+                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                     {
                         AssertRunHeader(count, frame.Runs.Span[run], "Torizo hand DTO direction/count");
                         AssertEqual(count, frame.Runs.Span[run].Blocks.Length, "Torizo hand DTO width");
@@ -90,7 +90,7 @@ internal static class LookupBombTorizoHandDrawVerification
                 y = unchecked((sbyte)BombTorizoHandDrawFieldRomByte(rom, 0x840000 | cursor++));
                 if (field == 0)
                 {
-                    foreach (var frame in new[] {dto,exported[index],byId})
+                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
                     {
                         AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(frame, run), "Torizo hand DTO next X");
                         AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(frame, run), "Torizo hand DTO next Y");

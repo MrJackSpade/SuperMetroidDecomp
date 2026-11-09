@@ -1200,7 +1200,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             AssertEqual<int?>(index - 2, CeresWarningTextPageConstants.ForTransfer(expected.SourceAddress, expected.SizeInBytes),
                 $"Ceres page {index} names its installed warning page");
     }
-    CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
+    CeresEscapeWarningPicture emergency = CeresEscapeWarningPictures.Emergency;
     AssertTrue((InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
             "Verification requires installed Ceres overlay tilemaps.")).TryResolve(emergency,
             out ReadOnlyMemory<BackgroundTile> emergencyTiles),

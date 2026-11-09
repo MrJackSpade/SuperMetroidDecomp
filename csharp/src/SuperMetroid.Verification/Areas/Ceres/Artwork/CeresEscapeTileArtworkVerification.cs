@@ -120,7 +120,7 @@ internal static class CeresEscapeTileArtworkVerification
     internal static CartridgeReadGuard NewCeresEscapeArtworkReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
-                CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||
+                CeresEscapeWarningPictures.ContainsByteAddress(address) ||
                 CeresEscapeTileArtworkDefinitionsTooling.Contains(address, 1) ||
                 address >= EscapeTimerTileSourceConstants.FirstSourceAddress &&
                 address < EscapeTimerTileSourceConstants.FirstSourceAddress + EscapeTimerTileAtlasFormat.TotalByteCount,

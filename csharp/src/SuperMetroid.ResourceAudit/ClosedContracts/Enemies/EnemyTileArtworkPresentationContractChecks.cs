@@ -81,7 +81,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         ReadOnlyMemory<byte> bytes;
         Require(ceres.TryResolve(0, 1, 1, out bytes) && bytes.Length == 1,
             "bounded Ceres tile slice");
-        CeresEscapeOverlayTilemapDefinition overlay = CeresEscapeOverlayTilemapDefinitions.Emergency;
+        CeresEscapeWarningPicture overlay = CeresEscapeWarningPictures.Emergency;
         Require(overlays.TryResolve(overlay, out ReadOnlyMemory<BackgroundTile> tiles) &&
             tiles.Length == overlay.WordCount, "exact Ceres overlay source");
         var vram = new SnesVram();

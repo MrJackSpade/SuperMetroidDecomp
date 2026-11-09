@@ -14,7 +14,7 @@ internal static class CeresEscapeNativeSources
     internal static int PageSource(int page) => (int)EscapeSourceDefinitions.CeresEscapePages[page];
 
     /// <summary>Where overlay <paramref name="page"/>'s words start on the bus.</summary>
-    internal static int OverlaySource(CeresEscapeOverlayTilemapDefinition page) => (int)CeresEscapeOverlayTilemapFiles.Source(page);
+    internal static int OverlaySource(CeresEscapeWarningPicture page) => (int)CeresEscapeOverlayTilemapFiles.Source(page);
 
     /// <summary>Resolves a native transfer from the bus against the installed Ceres escape character pages.</summary>
     extension(CeresEscapeTileArtwork self)
@@ -36,7 +36,7 @@ internal static class CeresEscapeNativeSources
         /// <summary>The installed words a native transfer of <paramref name="byteCount"/> bytes from <paramref name="sourceAddress"/> copies, when it is exactly one overlay page.</summary>
         internal bool TryResolveNative(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
         {
-            foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayPages.All)
+            foreach (CeresEscapeWarningPicture page in CeresEscapeOverlayPages.All)
                 if (OverlaySource(page) == sourceAddress && page.WordCount * sizeof(ushort) == byteCount)
                 {
                     bool resolved = self.TryResolve(page, out ReadOnlyMemory<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles);

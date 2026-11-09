@@ -59,7 +59,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0xb7da00, (int)EscapeSourceDefinitions.TextCharacters, "warning text source");
         AssertEqual(0xb0ba00, (int)EscapeSourceDefinitions.CeresEscapeDoorCharacters, "escape door source");
         AssertEqual(0xb0c000, (int)EscapeSourceDefinitions.TimerCharacters, "timer character source");
-        AssertEqual(0xa6c43a, CeresEscapeNativeSources.OverlaySource(CeresEscapeOverlayTilemapDefinitions.JapaneseFourth), "last subtitle row source");
+        AssertEqual(0xa6c43a, CeresEscapeNativeSources.OverlaySource(CeresEscapeWarningPictures.JapaneseFourth), "last subtitle row source");
         AssertEqual(0x0800, EscapeTextPages.PageOffset(4), "fifth escape text page offset");
 
         // MaridiaElevatubeRomData and MaridiaElevatubeObjectRomData.

@@ -24,7 +24,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         CeresEscapeOverlays stockOverlay =
             stock.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
                 "Installed Ceres escape overlay tilemaps are absent.");
-        foreach (CeresEscapeOverlayTilemapDefinition page in
+        foreach (CeresEscapeWarningPicture page in
                  CeresEscapeOverlayPages.All)
         {
             AssertTrue(stockOverlay.TryResolve(page, out ReadOnlyMemory<BackgroundTile> tiles) && tiles.Length == page.WordCount,
@@ -45,8 +45,8 @@ internal static class CeresEscapeOverlayTilemapsVerification
         // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1. The getaway writes
         // each page's picture by name (#1466); its words are the installed page's.
         int[] native = [.. Enumerable.Repeat(RoomWrittenOverlay.Unwritten, TwoScreenTilemapCells.Count)];
-        CeresEscapeOverlayTilemapDefinition title =
-            CeresEscapeOverlayTilemapDefinitions.Emergency;
+        CeresEscapeWarningPicture title =
+            CeresEscapeWarningPictures.Emergency;
         // $A6:C136 writes the title at BG1 tilemap word $50CB.
         WriteNativeWords(CeresEscapeNativeSources.OverlaySource(title), title.WordCount * sizeof(ushort), 0x50cb);
         int nativeTransfers = 1;
@@ -78,7 +78,9 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var shownEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: shownOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         shownEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
-        int titleWord = TwoScreenTilemapCells.IndexOf(CeresEscapeOverlayTilemapDefinitions.Emergency.Cell);
+        Position16<RoomPixels> titleCorner = CeresEscapeWarningPictures.Emergency.Corner;
+        int titleWord = TwoScreenTilemapCells.IndexOf(new Position16<TilemapCells>(titleCorner.X / ScreenGeometry.BackgroundTileSizePixels,
+            titleCorner.Y / ScreenGeometry.BackgroundTileSizePixels));
         AssertEqual(native[titleWord], shownOverlay.Overlay.WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
             "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.

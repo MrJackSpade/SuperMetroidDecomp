@@ -1,15 +1,14 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Physical projectile-origin corrections, separate from editable Samus graphics offsets.</summary>
+/// <summary>Each authored pose's physical projectile-origin height, separate from editable Samus graphics offsets.</summary>
 /// <remarks>
-/// Only FD..FF retain the exact adjacent X-ray cone code bytes documented below.
-/// They have no managed pose-origin meaning; deriving them as physical corrections would
-/// be nonsense. This narrow compatibility exception does not cover any real pose 00..FC.
+/// The pose numbers past the authored poses read their heights from what follows the definitions
+/// (<see cref="SamusUnauthoredPoseDefinitions"/>).
 /// </remarks>
 internal static class SamusPoseProjectileOriginDefinitions
 {
-    /// <summary>The value each key selects; ReadYOffset looks it up.</summary>
-    internal static readonly IReadOnlyDictionary<SamusPoseId, byte> YOffsets = new Dictionary<SamusPoseId, byte>
+    /// <summary>How far above Samus's centre each authored pose's projectiles start, in pixels; <see cref="SamusPoseProjectileOrigins.ReadYOffset"/> looks it up.</summary>
+    internal static readonly IReadOnlyDictionary<SamusPoseId, int> YOffsets = new Dictionary<SamusPoseId, int>
     {
         [SamusPoseId.SpinJumpRightPose] = 0,
         [SamusPoseId.SpinJumpLeftPose] = 0,
@@ -244,8 +243,5 @@ internal static class SamusPoseProjectileOriginDefinitions
         [SamusPoseId.DrainedCrouchingLeftPose] = 252,
         [SamusPoseId.DrainedStandingRightPose] = 252,
         [SamusPoseId.DrainedStandingLeftPose] = 252,
-        [SamusPoseId.AdjacentCodePoseFD] = 194,
-        [SamusPoseId.AdjacentCodePoseFE] = 22,
-        [SamusPoseId.AdjacentCodePoseFF] = 133,
     };
 }

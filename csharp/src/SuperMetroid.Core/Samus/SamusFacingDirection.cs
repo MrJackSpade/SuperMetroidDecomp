@@ -1,15 +1,12 @@
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>
-/// The way a pose faces. This is not a flags enum: a pose has one facing. The pose-definition record's facing byte
-/// belongs to <see cref="Poses.SamusPoseRecordCodec"/>.
-/// </summary>
+/// <summary>The way a pose faces. This is not a flags enum: a pose has one facing.</summary>
 public enum SamusFacingDirection
 {
-    /// <summary>Pose-definition value zero, used by front-view artwork and poses without ordinary left/right facing.</summary>
-    ForwardOrSpecial = 0,
-    /// <summary>Pose-definition value four, selecting left-facing metadata and artwork.</summary>
-    Left = 4,
-    /// <summary>Pose-definition value eight, selecting right-facing metadata and artwork.</summary>
-    Right = 8,
+    /// <summary>Facing neither left nor right: the front views, and the pose numbers past the authored poses that face neither way.</summary>
+    ForwardOrSpecial,
+    /// <summary>Facing left, selecting left-facing movement and artwork.</summary>
+    Left,
+    /// <summary>Facing right, selecting right-facing movement and artwork.</summary>
+    Right,
 }

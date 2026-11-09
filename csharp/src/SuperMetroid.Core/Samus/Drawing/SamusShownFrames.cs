@@ -406,7 +406,7 @@ internal sealed class SamusShownFrames
         // A spin jump starts on its second frame; a standing pose aiming up entered from one keeps the gun raised on it.
         if (SamusPoseMetadata.IsSpinJumpPose(pose) ||
             (SamusPoseMetadata.ReadMovementType(pose) == SamusMovementType.Standing &&
-             SamusPoseMetadata.ReadShotDirection(pose) is 0 or 9))
+             SamusPoseMetadata.ReadAim(pose).AimsStraightUp))
             yield return 1;
         if (pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {

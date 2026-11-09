@@ -1,17 +1,14 @@
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Pose-specific physical half-height, independent of editable artwork and display offsets.</summary>
+/// <summary>Each authored pose's physical half-height, independent of editable artwork and display offsets.</summary>
 /// <remarks>
-/// Poses 00..FC use semantic cases. FD..FF retain only the bounded byte observations
-/// of the unrelated X-ray cone code stored beside the pose table. Those instruction encodings
-/// have no managed pose-policy meaning; re-deriving them as pose data would be nonsense.
-/// Exact addresses, instructions and the byte-only consumer contract were reviewed in
-/// #1165 (stream 1, Batch 30). This exemption covers no ordinary pose value.
+/// The pose numbers past the authored poses read their radii from what follows the definitions
+/// (<see cref="SamusUnauthoredPoseDefinitions"/>).
 /// </remarks>
 internal static class SamusPoseCollisionDefinitions
 {
-    /// <summary>The value each key selects; ReadVerticalRadius looks it up.</summary>
-    internal static readonly IReadOnlyDictionary<SamusPoseId, byte> VerticalRadii = new Dictionary<SamusPoseId, byte>
+    /// <summary>The vertical collision radius of each authored pose, in pixels; <see cref="SamusPoseCollisionRadii.ReadVerticalRadius"/> looks it up.</summary>
+    internal static readonly IReadOnlyDictionary<SamusPoseId, int> VerticalRadii = new Dictionary<SamusPoseId, int>
     {
         [SamusPoseId.MorphBallGroundRightPose] = 7,
         [SamusPoseId.MorphBallMovingRightPose] = 7,
@@ -246,8 +243,5 @@ internal static class SamusPoseCollisionDefinitions
         [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = 21,
         [SamusPoseId.ForwardFacingPowerSuitPose] = 24,
         [SamusPoseId.ForwardFacingSuitedPose] = 24,
-        [SamusPoseId.AdjacentCodePoseFD] = 138,
-        [SamusPoseId.AdjacentCodePoseFE] = 24,
-        [SamusPoseId.AdjacentCodePoseFF] = 16,
     };
 }

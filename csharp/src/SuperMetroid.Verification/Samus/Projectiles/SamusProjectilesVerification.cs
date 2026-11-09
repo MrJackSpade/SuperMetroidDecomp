@@ -146,7 +146,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         // aim metadata are compiled definition data, so a synthetic bank-$91 record can
         // no longer override gameplay direction merely to simplify a fixture.
         SamusPoseId pose = nativePosesByShotDirection[direction];
-        AssertEqual(direction, SamusPoseMetadata.ReadShotDirection(pose),
+        AssertEqual(SamusPoseAim.Aiming(SamusProjectileDirectionCodec.FromAimIndex(direction)), SamusPoseMetadata.ReadAim(pose),
             $"native projectile fixture pose ${(int)SamusPoseNumbers.Number(pose):X2} aim");
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
@@ -569,7 +569,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: ControllerButton.X);
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(2), bridgeSamus.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SamusProjectileDirection.Right), bridgeSamus.PendingTransitionShot,
         "normal-jump initializer hands over the new pose's shot direction");
     bridgeBombs.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();

@@ -71,7 +71,8 @@ internal static class GrappleDoorsVerification
     {
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Grapple.Phase = GrapplePhase.Firing;
-        samus.Grapple.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)SamusPoseMetadata.ReadShotDirection(samus);
+        samus.Grapple.FireDirection = SamusPoseMetadata.ReadAimDirection(samus)
+            ?? throw new InvalidOperationException("The grapple probe's standing pose aims in a direction.");
     }
 
     /// <summary>Runs door opening and grapple pose-refire checks together.</summary>

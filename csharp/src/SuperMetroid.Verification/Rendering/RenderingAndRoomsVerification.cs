@@ -597,18 +597,17 @@ internal static void VerifyMovedSamusCameraTracking()
     AssertEqual(1, verticalCamera.Speed.Y.WholeWord, "stationary camera Y speed still includes one");
     AssertEqual(0x0023, verticalCamera.PixelPosition.Y, "$80:A731 red-cell downward drift");
 
-    // Whether Samus is knocked back, and her native acceleration-mode and pose-facing values, decode to the context the
-    // camera reads: a knockback reverses the target, only the turn mode keeps the old momentum, and
-    // the pose byte is the facing.
-    AssertTrue(new HorizontalCameraContext(true, SamusMovementType.Standing, SamusAccelerationMode.Accelerating, 8, CameraDistanceMode.NormalTracking).KnockedBack,
+    // Whether Samus is knocked back, her acceleration mode and her pose's facing build the context the camera reads:
+    // a knockback reverses the target, only the turn mode keeps the old momentum, and only a left-facing pose faces left.
+    AssertTrue(new HorizontalCameraContext(true, SamusMovementType.Standing, SamusAccelerationMode.Accelerating, SamusFacingDirection.Right, CameraDistanceMode.NormalTracking).KnockedBack,
         "a knockback reverses the camera target");
-    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Turning, 8, CameraDistanceMode.NormalTracking).TurningAgainstMomentum,
+    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Turning, SamusFacingDirection.Right, CameraDistanceMode.NormalTracking).TurningAgainstMomentum,
         "the turning acceleration mode is the momentum-keeping turn");
-    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Decelerating, 8,
+    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Decelerating, SamusFacingDirection.Right,
         CameraDistanceMode.NormalTracking).TurningAgainstMomentum, "plain deceleration does not reverse the camera target");
-    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, 0, 4, CameraDistanceMode.NormalTracking).FacesLeft,
-        "pose facing four is left");
-    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, 0, 0, CameraDistanceMode.NormalTracking).FacesLeft,
+    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Accelerating, SamusFacingDirection.Left, CameraDistanceMode.NormalTracking).FacesLeft,
+        "a left-facing pose faces left");
+    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Accelerating, SamusFacingDirection.ForwardOrSpecial, CameraDistanceMode.NormalTracking).FacesLeft,
         "a front-view pose takes the right-facing target");
 
     // The scrollers are distances: a negative one is rejected.

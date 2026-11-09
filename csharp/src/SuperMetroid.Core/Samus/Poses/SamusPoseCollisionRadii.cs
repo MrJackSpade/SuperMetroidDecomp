@@ -5,7 +5,13 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>The vertical collision radius of each pose.</summary>
 internal static class SamusPoseCollisionRadii
 {
-    /// <summary>PoseDefinitions column with eight-byte stride; FD..FF preserve bounded adjacent instruction bytes.</summary>
-    internal static byte ReadVerticalRadius(SamusPoseId pose) =>
-        VerticalRadii.ContainsKey(pose) ? VerticalRadii[pose] : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
+    /// <summary>
+    /// The vertical collision radius of <paramref name="pose"/>, in pixels: its authored radius, or what a pose number
+    /// past the authored poses reads (<see cref="SamusUnauthoredPoseDefinitions"/>).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
+    internal static int ReadVerticalRadius(SamusPoseId pose) =>
+        SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored) ? unauthored.VerticalRadius
+        : VerticalRadii.TryGetValue(pose, out int radius) ? radius
+        : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Poses;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
@@ -14,22 +16,11 @@ public static class ChargeFlarePlacementDefinitions
 
     /// <summary>
     /// The selections the standing beam flare is placed by: the ten named aiming directions, then the turning placements.
-    /// A turning pose's shot direction selects a turning placement by its low four bits. No pose selects past them, and
-    /// no running pose selects past the named directions, so those selections are rejected (#1500).
+    /// A turning pose selects the turning placement of the aim it holds. No pose selects past them, and no running pose
+    /// selects past the named directions, so those selections are rejected (#1500).
     /// </summary>
     public const int StandingDirectionCount = DirectionCount + TurningPlacementCount;
 
-    /// <summary>The aim a turning pose holds, which selects the beam flare's turning placement.</summary>
-    internal enum TurningAim
-    {
-        /// <summary>Turning while aiming up or diagonally up.</summary>
-        Up,
-        /// <summary>Turning with neutral aim.</summary>
-        Neutral,
-        /// <summary>Turning while aiming down or diagonally down.</summary>
-        Down,
-    }
-
     /// <summary>The turning placements in selection order after the named aiming directions.</summary>
-    internal static readonly TurningAim[] TurningPlacements = [TurningAim.Up, TurningAim.Neutral, TurningAim.Down];
+    internal static readonly SamusTurningAim[] TurningPlacements = [SamusTurningAim.Up, SamusTurningAim.Neutral, SamusTurningAim.Down];
 }

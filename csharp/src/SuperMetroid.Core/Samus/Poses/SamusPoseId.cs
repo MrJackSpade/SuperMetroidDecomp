@@ -291,14 +291,14 @@ public enum SamusPoseId
     DraygonGrabbedMovingRightPose,
 
     /// <summary>
-    /// This pose is the visually left-facing damage boost; its X-direction byte is the
-    /// deliberately reversed value eight that drives the boost to the right.
+    /// This pose is the visually left-facing damage boost; its facing is the deliberately
+    /// reversed right, which drives the boost to the right.
     /// </summary>
     DamageBoostLeftPose,
 
     /// <summary>
-    /// This pose is the visually right-facing damage boost; its X-direction byte is the
-    /// deliberately reversed value four that drives the boost to the left.
+    /// This pose is the visually right-facing damage boost; its facing is the deliberately
+    /// reversed left, which drives the boost to the left.
     /// </summary>
     DamageBoostRightPose,
 

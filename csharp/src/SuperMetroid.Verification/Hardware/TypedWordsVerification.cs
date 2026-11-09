@@ -106,8 +106,8 @@ internal static void VerifyTypedNativeWords()
         "typed right-facing pose query");
     AssertEqual(SamusFacingDirection.ForwardOrSpecial, SamusPoseMetadata.ReadFacingDirection(SamusPoseNumbering.FromNumber(0xfe)),
         "typed facing query faces an unnamed adjacent-code record neither way");
-    AssertEqual(41, SamusPoseMetadata.ReadPoseXDirection(SamusPoseNumbering.FromNumber(0xfe)),
-        "pose-record facing byte preserves the compiled unnamed adjacent-code byte");
+    AssertEqual(41, SamusPoseRecordCodecTooling.FacingByte(SamusPoseNumbering.FromNumber(0xfe)),
+        "pose-record codec writes the unnamed adjacent-code record's own facing byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would
     // incorrectly cross from bank $91 into $92 and read unrelated cartridge data.

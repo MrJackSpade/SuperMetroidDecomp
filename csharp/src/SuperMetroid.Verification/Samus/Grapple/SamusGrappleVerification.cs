@@ -489,7 +489,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
             // aim/movement combinations. Immutable mechanics metadata is not test input.
             int sourcePoseIndex = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).FirstOrDefault(pose =>
                 SamusPoseDispatch.ReadMovement(SamusPoseNumbering.FromNumber(pose)) == sourceMovementType &&
-                SamusPoseAimRestrictions.Read(SamusPoseNumbering.FromNumber(pose)) == direction,
+                SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(pose)).Direction == SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(direction),
                 -1);
             if (sourcePoseIndex < 0)
                 continue;

@@ -4,9 +4,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal readonly record struct ChargeFlarePose
 {
     /// <summary>
-    /// Shot-direction table index, 0 through 15. The draw path already rejects larger values, and the flare
-    /// placement table is indexed by it directly, so indices beyond the ten projectile directions select the
-    /// table's adjacent entries exactly as the game does.
+    /// The flare's placement selection (<see cref="Artwork.ChargeFlarePlacements.Selection"/>): one of the ten aims'
+    /// muzzles, 0 through 9, or a turning placement after them.
     /// </summary>
     public required int Direction { get; init; }
 

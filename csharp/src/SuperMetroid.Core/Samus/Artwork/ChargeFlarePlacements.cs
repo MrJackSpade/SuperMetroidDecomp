@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Immutable visual muzzle offsets; never used for projectile physics or Grapple connection.</summary>
@@ -40,6 +43,17 @@ public sealed class ChargeFlarePlacements
     internal static int DirectionsFor(ChargeFlareSource source, bool running) => source == ChargeFlareSource.Grapple || running
         ? ChargeFlarePlacementDefinitions.DirectionCount
         : ChargeFlarePlacementDefinitions.StandingDirectionCount;
+
+    /// <summary>
+    /// The placement selection a pose's flare aim takes: its muzzle's aim, 0 through 9, or, while turning, the turning
+    /// placement of the aim the turn holds, after the ten muzzles.
+    /// </summary>
+    /// <exception cref="ArgumentException">The flare aim names neither a muzzle nor a turn.</exception>
+    internal static int Selection(SamusFlareAim flare) =>
+        flare.Muzzle is { } muzzle ? muzzle.ToAimIndex()
+        : flare.Turning is { } turning
+            ? ChargeFlarePlacementDefinitions.DirectionCount + Array.IndexOf(ChargeFlarePlacementDefinitions.TurningPlacements, turning)
+            : throw new ArgumentException("A flare is placed at a muzzle or while turning.", nameof(flare));
 
     /// <summary>Where a movement mode's direction is kept: the standing directions first, then the running ones.</summary>
     internal static int Slot(bool running, int direction) =>

@@ -18,6 +18,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="MotherBrainHealthPalette">Mother Brain's health-band colours, which her sheets and body layer are pre-coloured from (#1527).</param>
 /// <param name="MotherBrainRoomColors">Mother Brain's room colours, which her room's pictures and sheets are pre-coloured from (#1527).</param>
 /// <param name="RoomFxPaletteBlends">The room-FX blends, which the effect overlay pictures are pre-coloured with (#1527).</param>
+/// <param name="RoomPaletteFx">
+/// The palette-effect colours, which the sheets each palette-effect record shows are pre-coloured from (#1512, #1583); the
+/// game's read keeps only the backdrops of the space behind the exploding planet taken from them.
+/// </param>
 internal sealed record ImportPresentationColours(
     SamusMapColourTables SamusColours,
     TitlePalettePresentation TitlePalette,
@@ -26,4 +30,5 @@ internal sealed record ImportPresentationColours(
     CeresRidleyFloorColorCatalog CeresRidleyFloorColors,
     MotherBrainHealthPalettePresentation MotherBrainHealthPalette,
     MotherBrainRoomColorPresentation MotherBrainRoomColors,
-    RoomFxBlendInks RoomFxPaletteBlends);
+    RoomFxBlendInks RoomFxPaletteBlends,
+    RoomPaletteFxPresentation RoomPaletteFx);

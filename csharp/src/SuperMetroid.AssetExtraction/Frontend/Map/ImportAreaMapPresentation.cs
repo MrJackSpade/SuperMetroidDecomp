@@ -29,7 +29,19 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
         MotherBrainHealthPalette = Ensure.NotNull(colours.MotherBrainHealthPalette);
         MotherBrainRoomColors = Ensure.NotNull(colours.MotherBrainRoomColors);
         RoomFxPaletteBlends = Ensure.NotNull(colours.RoomFxPaletteBlends);
+        RoomPaletteFx = Ensure.NotNull(colours.RoomPaletteFx);
     }
+
+    /// <summary>
+    /// The palette-effect colours, which the import pre-colours the sheets each palette-effect record shows from (#1512,
+    /// #1583). The game keeps only the backdrops of the space behind the exploding planet taken from them
+    /// (<see cref="AreaMapPresentation.EndingSpaceBackdrops"/>).
+    /// </summary>
+    public RoomPaletteFxPresentation RoomPaletteFx { get; }
+
+    /// <summary>The palette-effect colours the import's map presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read for the import.</exception>
+    public static RoomPaletteFxPresentation RoomPaletteFxOf(IGameplayPresentationContent maps) => Imported(maps, "palette-effect colours").RoomPaletteFx;
 
     /// <summary>Mother Brain's health-band colours, which the import pre-colours her sheets and body layer from (#1527).</summary>
     public MotherBrainHealthPalettePresentation MotherBrainHealthPalette { get; }

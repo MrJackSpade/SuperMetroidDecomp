@@ -15,6 +15,8 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -160,13 +162,13 @@ internal static class EndingPaletteArtworkVerification
         bool rejectAllCartridgeReads = false;
         var guardedBus = NewEndingPaletteSourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
-            maps.RoomPaletteFx, () => rejectAllCartridgeReads);
+            ImportAreaMapPresentation.RoomPaletteFxOf(MapPresentationFiles.LoadForImport(installation.MapDirectory)), () => rejectAllCartridgeReads);
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
         var installedState = CreateRetailEndingFixture(installedAudio, 2, 59);
         installedState.InstalledArtwork.BindBackdrops(backdrops);
-        installedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
+        installedState.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
         installedState.InstalledArtwork.BindEndingText(maps.EndingText);
         installedState.Stage.BindEndingFont(maps.EndingFont);
         installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
@@ -234,7 +236,7 @@ internal static class EndingPaletteArtworkVerification
     {
         // The import pre-colours the logo's first sprite colours and each crossfade step from the decoded colours
         // (#1512, #1544): each shade holds the cartridge's colours, the step's background colours before its sprite colours.
-        IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(decoded, InstalledFixtures.Maps.RoomPaletteFx);
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(decoded, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps));
         byte[] nativeInitial = EndingPaletteImport.ReadNativePalette(nativeBus,
             EndingPaletteId.LogoInitial, EndingPaletteImport.ColorCount(EndingPaletteId.LogoInitial));
         SheetShade initial = shades.Single(shade => shade.Shade == EndingShades.Loaded(EndingColourLoad.LogoInitial));

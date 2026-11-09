@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -17,16 +17,17 @@ internal static class InterfacePresentationContractDefinitions
     /// </remarks>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource", "palette-interface-total-membership-query", ["TryReadColor"],
-            [new("csharp/src/SuperMetroid.Core/Fx/Artwork/IPaletteFxColorSource.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomPaletteFxPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteInputView.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteColorDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteColors.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/HeatPaletteColors.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColorFrames.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/HeatPaletteInputView.cs"),
+        new("SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource", "palette-interface-total-membership-query", ["TryReadColor"],
+            [new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/IPaletteFxColorSource.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxColorKey.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomPaletteFxPresentation.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteInputView.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteColorDefinitions.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteColors.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/HeatPaletteColors.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxColorFrames.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/HeatPaletteInputView.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitlePalettePresentation.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColors.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Frontend/Title/Artwork/TitleAmbientColorDefinitions.cs"),
@@ -64,7 +65,7 @@ internal static class InterfacePresentationContractDefinitions
     /// <summary>Lists the source-owned implementations for audited palette or cinematic dispatch, returning null for contracts outside this closed set.</summary>
     internal static string[]? Implementations(string type) => type switch
     {
-        "SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource" => [ContractTypeNames.MetadataName(typeof(RoomPaletteFxPresentation)), ContractTypeNames.MetadataName(typeof(TitlePalettePresentation))],
+        "SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource" => [ContractTypeNames.MetadataName(typeof(RoomPaletteFxPresentation)), ContractTypeNames.MetadataName(typeof(TitlePalettePresentation))],
         "SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation" =>
             [ContractTypeNames.MetadataName(typeof(CinematicSpriteSheet)),
              ContractTypeNames.MetadataName(typeof(CeresSceneSpriteSheet)),

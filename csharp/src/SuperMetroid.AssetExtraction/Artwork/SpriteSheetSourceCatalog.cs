@@ -102,7 +102,7 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites =>
-            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes, maps.Value.EndingFont, maps.Value.RoomPaletteFx),
+            EndingSpriteSheetComposer.Sources(sheet, ending.Value, endingPalettes, maps.Value.EndingFont, ImportAreaMapPresentation.RoomPaletteFxOf(maps.Value)),
         SpriteSheetId.Grapple or SpriteSheetId.SamusBody or
             SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or SpriteSheetId.SamusDeath or
             SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or

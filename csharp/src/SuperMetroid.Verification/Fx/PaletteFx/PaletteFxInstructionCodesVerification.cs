@@ -1643,7 +1643,7 @@ internal static class PaletteFxInstructionCodesVerification
     /// Runs one handler pass of a frontend screen's palette FX and lays each record as it is shown, coloured from
     /// <paramref name="colours"/> as the screen's pictures are, so each record's colours are read once, when it is shown.
     /// </summary>
-    private static void StepScreenShowing(RoomPaletteFxSystem fx, SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource colours)
+    private static void StepScreenShowing(RoomPaletteFxSystem fx, SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource colours)
     {
         var cgram = new SnesCgram();
         fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
@@ -1655,15 +1655,15 @@ internal static class PaletteFxInstructionCodesVerification
     /// as the pictures that show it are pre-coloured from <paramref name="colours"/> (#1512), so each record's colours are
     /// read from the source once, when it is shown.
     /// </summary>
-    private static void StepShowing(RoomPaletteFxSystem fx, SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource colours) =>
+    private static void StepShowing(RoomPaletteFxSystem fx, SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource colours) =>
         StepShowing(fx, colours, new SnesCgram());
 
     /// <summary>
     /// Runs one gameplay handler pass of <paramref name="fx"/> and lays each record it newly shows over
-    /// <paramref name="cgram"/> as <see cref="StepShowing(RoomPaletteFxSystem, SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource)"/>
+    /// <paramref name="cgram"/> as <see cref="StepShowing(RoomPaletteFxSystem, SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource)"/>
     /// lays it, so the table holds the colours the records shown so far leave.
     /// </summary>
-    private static void StepShowing(RoomPaletteFxSystem fx, SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource colours, SnesCgram cgram)
+    private static void StepShowing(RoomPaletteFxSystem fx, SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource colours, SnesCgram cgram)
     {
         PaletteFxColours[] groups = Enum.GetValues<PaletteFxColours>();
         PaletteFxFrame?[] before = [.. groups.Select(fx.RecordOf)];

@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleAmbientColorDefinitions;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 

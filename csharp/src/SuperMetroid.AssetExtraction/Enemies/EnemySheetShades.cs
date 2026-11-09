@@ -30,6 +30,7 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -265,7 +266,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.ShutterDestroyable:
                 // The first escape room's shutters show the escape's red flash over their own row.
                 shades.AddRange(PaletteFxSpriteShades.Of(PaletteFxObject.TourianShutterRedFlashing, PaletteFxColours.TourianShutters,
-                    first, inputs.Maps?.RoomPaletteFx ?? throw Missing("Tourian shutter flash colours")));
+                    first, ImportAreaMapPresentation.RoomPaletteFxOf(inputs.Maps ?? throw Missing("Tourian shutter flash colours"))));
                 break;
             case EnemyDefinitionId.Coven:
                 foreach (ShadeColours step in GhostFadeSteps())
@@ -274,7 +275,7 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.BombTorizoOrb or EnemyDefinitionId.GoldenTorizoOrb:
                 // The Torizos' colourings over their own rows (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours"),
-                    inputs.Maps?.RoomPaletteFx ?? throw Missing("Torizo belly glow colours"),
+                    ImportAreaMapPresentation.RoomPaletteFxOf(inputs.Maps ?? throw Missing("Torizo belly glow colours")),
                     enemy is EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.GoldenTorizoOrb ? PaletteFxObject.GoldenTorizoBelly : PaletteFxObject.BombTorizoBelly));
                 break;
             case EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
@@ -493,7 +494,7 @@ internal sealed class EnemySheetShades
         yield return SheetShade.Run(TourianStatueShades.RidleyCleared, ridley + 9, Frame(3, _ => RgbColor.Black));
         yield return SheetShade.Run(TourianStatueShades.RidleyGrey, ridley, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
         // The sprite statues grey out through palette-FX records over their own rows, Ridley's and the statue body's.
-        IPaletteFxColorSource paletteFx = inputs.Maps?.RoomPaletteFx ?? throw Missing("Tourian statue grey-out colours");
+        IPaletteFxColorSource paletteFx = ImportAreaMapPresentation.RoomPaletteFxOf(inputs.Maps ?? throw Missing("Tourian statue grey-out colours"));
         foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(PaletteFxObject.GreyOutTourianStatueRidley, PaletteFxColours.RidleyStatue,
                      ridley, paletteFx))
             yield return greyOut;

@@ -17,6 +17,7 @@ using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>
@@ -30,7 +31,7 @@ internal static class EndingSnapshotTestsVerification
         // The shades the import pre-colours the ending's sheets in, which the screen names (#1512), read once for every
         // reward branch.
         EndingPaletteSet installedPalettes = InstalledFixtures.EndingColours;
-        IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, InstalledFixtures.Maps.RoomPaletteFx);
+        IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps));
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);

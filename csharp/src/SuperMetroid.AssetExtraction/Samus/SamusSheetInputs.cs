@@ -60,7 +60,7 @@ internal sealed record SamusSheetInputs(InstalledProjectilePresentation Projecti
             tables.CrystalFlash,
             projectiles.BeamTiles.HyperBeamFxColors ?? throw new InvalidDataException("Samus's sheets require the installed Hyper Beam colours."),
             SamusDeathPaletteArtworkFiles.Load(samusBody),
-            maps.RoomPaletteFx);
+            ImportAreaMapPresentation.RoomPaletteFxOf(maps));
         return new(
             projectiles,
             LoadStandardObjects(content),

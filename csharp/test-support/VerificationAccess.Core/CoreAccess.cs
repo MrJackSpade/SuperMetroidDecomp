@@ -26,6 +26,7 @@ using SuperMetroid.AssetExtraction.Audio.Synthesis;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.Core;
 

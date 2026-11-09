@@ -59,7 +59,7 @@ internal static class EndingPictureSheetComposer
     {
         PictureSheet pictures = Ensure.Listed(PictureSheets, sheet);
         ComposedSpriteSheet composed = pictures.Compose(Ensure.NotNull(sources));
-        IReadOnlyList<SheetShade> shades = EndingScreenShades.Pictures(EndingScreenShades.Screen(sources.EndingPalettes, sources.Maps.RoomPaletteFx),
+        IReadOnlyList<SheetShade> shades = EndingScreenShades.Pictures(EndingScreenShades.Screen(sources.EndingPalettes, ImportAreaMapPresentation.RoomPaletteFxOf(sources.Maps)),
             pictures.Scenery);
         return composed with { Manifest = composed.Manifest with { Shades = SheetShade.Documents(shades) } };
     }

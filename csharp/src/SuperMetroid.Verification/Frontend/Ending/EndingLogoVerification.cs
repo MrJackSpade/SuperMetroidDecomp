@@ -20,6 +20,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Verification.Frontend.Ending;
 
@@ -37,7 +38,7 @@ internal static class EndingLogoVerification
         int landings = 0;
         EndingPaletteSet palettes = InstalledFixtures.EndingColours;
         stage.BindBackdrops(InstalledFixtures.EndingBackdrops);
-        IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(palettes, InstalledFixtures.Maps.RoomPaletteFx);
+        IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(palettes, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps));
         var logoSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites);
         var logo = new EndingLogo(stage, () => landings++);
         AssertTrue(screen.Colours.Shading.Shades.SequenceEqual([EndingShades.Flashed(EndingFlash.LogoBackground), EndingShades.Loaded(EndingColourLoad.LogoInitial)]),

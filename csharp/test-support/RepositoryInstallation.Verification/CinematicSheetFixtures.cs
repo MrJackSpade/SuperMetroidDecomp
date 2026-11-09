@@ -13,6 +13,8 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -90,7 +92,7 @@ internal static class CinematicSheetFixtures
                     CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
                     FrontendFloorSheetComposer.Ceres(key, IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).CeresDestructionMaps,
-                        ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).FlightPalette, InstalledFixtures.Maps.RoomPaletteFx), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
+                        ImportIntroCinematicArtwork.Imported(InstalledFixtures.IntroArtwork).FlightPalette, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps)), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }
@@ -102,7 +104,7 @@ internal static class CinematicSheetFixtures
     internal static SpriteSheet CeresFloor(IPaletteFxColorSource paletteFx)
     {
         ArgumentNullException.ThrowIfNull(paletteFx);
-        return ReferenceEquals(paletteFx, InstalledFixtures.Maps.RoomPaletteFx)
+        return ReferenceEquals(paletteFx, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps))
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.CeresFloor)
             : LoadTiles(SpriteSheetId.CeresFloor, FrontendFloorSheetComposer.Ceres(InstalledFixtures.IntroArtwork, paletteFx),
                 $"engine-{RuntimeHelpers.GetHashCode(paletteFx):X8}");
@@ -137,7 +139,7 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
                     CeresCinematicPictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
-                    FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.Maps.RoomPaletteFx), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                    FrontendFloorSheetComposer.Ceres(key, ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps)), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }

@@ -86,7 +86,7 @@ internal static class CrocomirePresentation1193Verification
             else
             {
                 ushort expected = unchecked((ushort)(runtime.BackgroundScroll.ForegroundPosition.Y +
-                    runtime.BackgroundScroll.ForegroundOffset.Y + (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset));
+                    (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset));
                 AssertEqual(expected, runtime.BackgroundScroll.ForegroundScroll.Y,
                     $"Comeback frame {frame} applies current enemy rumble to foreground scroll");
                 if (frame != 0)
@@ -126,24 +126,23 @@ internal static class CrocomirePresentation1193Verification
         {
             var scroll = runtime.BackgroundScroll;
             scroll.ForegroundPosition = scroll.ForegroundPosition.WithY(100);
-            scroll.ForegroundOffset = scroll.ForegroundOffset.WithY(3);
             scroll.CalculateLayerScrolls();
             ushort bg2 = scroll.BackgroundScroll.Y;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = -4;
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
-            AssertEqual((ushort)99, scroll.ForegroundScroll.Y, "Native rumble includes BG1's ordinary Y offset");
+            AssertEqual((ushort)96, scroll.ForegroundScroll.Y, "The rumble shifts the foreground's view from the camera");
             AssertEqual(bg2, scroll.BackgroundScroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
             AssertEqual((ushort)100, scroll.ForegroundPosition.Y, "Rumble does not move the camera or streaming origin");
             (boss ?? throw new InvalidOperationException("Verification requires boss.")).Body.Presence = boss.Body.Presence.With(EnemyPresence.Hidden);
             scroll.CalculateLayerScrolls();
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
-            AssertEqual((ushort)103, scroll.ForegroundScroll.Y, "Invisible body suppresses the native room callback");
+            AssertEqual((ushort)100, scroll.ForegroundScroll.Y, "Invisible body suppresses the native room callback");
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
             boss.DeathPhase = CrocomireDeathPhase.BreakSpikeWall;
             death.RumbleYOffset = 0x8080;
             scroll.CalculateLayerScrolls();
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
-            AssertEqual((ushort)103, scroll.ForegroundScroll.Y, "Leaving phase 40 restores ordinary scroll and excludes the terminator word");
+            AssertEqual((ushort)100, scroll.ForegroundScroll.Y, "Leaving phase 40 restores ordinary scroll and excludes the terminator word");
         }
         Console.WriteLine(spikes ? "Crocomire spike cadence and NMI artwork verified." : "Crocomire comeback scroll and NMI ordering verified.");
         return 0;

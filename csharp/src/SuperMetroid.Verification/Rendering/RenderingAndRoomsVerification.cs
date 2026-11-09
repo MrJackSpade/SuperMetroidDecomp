@@ -621,8 +621,8 @@ internal static void VerifyMovedSamusCameraTracking()
 }
 
 /// <summary>
-/// Checks the exact parallax multiply, scroll-register wrapping, frozen frames and door-setup offsets of
-/// $80:A2F9-$80:A527 and $80:AE29.
+/// Checks the exact parallax multiply, the views following their positions, frozen frames and the door's opening views
+/// (#1555): the layers' views carry no offset of their own.
 /// </summary>
 internal static void VerifyBackgroundScrollState()
 {
@@ -630,30 +630,28 @@ internal static void VerifyBackgroundScrollState()
     {
         ForegroundPosition = new(0x1234, 0x0200),
         BackgroundScrollModes = BackgroundScrollModes.FromHeader(0x80, 0), // Horizontal 128/256 = one-half parallax.
-        ForegroundOffset = new(0x0010, unchecked((short)0xfff0)),
-        BackgroundOffset = new(3, 4),
     };
 
     state.StepScrolling();
-    AssertEqual(0x1244, state.ForegroundScroll.X, "$80:A3B7 BG1 X plus offset");
-    AssertEqual(0x01f0, state.ForegroundScroll.Y, "$80:A3C0 BG1 Y wrapping offset");
-    AssertEqual(0x091a, state.BackgroundPosition.X, "$80:A2F9 half-speed X parallax");
-    AssertEqual(0x0200, state.BackgroundPosition.Y, "$80:A33A zero mode copies layer 1");
-    AssertEqual(0x091d, state.BackgroundScroll.X, "$80:A3CF BG2 X plus offset");
+    AssertEqual(0x1234, state.ForegroundScroll.X, "the foreground's view follows the camera across");
+    AssertEqual(0x0200, state.ForegroundScroll.Y, "the foreground's view follows the camera down");
+    AssertEqual(0x091a, state.BackgroundPosition.X, "half-speed X parallax");
+    AssertEqual(0x0200, state.BackgroundPosition.Y, "zero mode copies the foreground");
+    AssertEqual(0x091a, state.BackgroundScroll.X, "the background's view follows its parallax position");
 
-    // Mode one preserves both the layer-2 position and its PPU scroll mirror.
+    // Mode one preserves both the background's position and its view.
     ushort oldLayer2X = state.BackgroundPosition.X;
     ushort oldBg2X = state.BackgroundScroll.X;
     state.BackgroundScrollModes = BackgroundScrollModes.FromHeader(1, 1);
     state.ForegroundPosition = new(0x1300, 0x0300);
     state.StepScrolling();
     AssertEqual(oldLayer2X, state.BackgroundPosition.X, "fixed BG2 X position remains unchanged");
-    AssertEqual(oldBg2X, state.BackgroundScroll.X, "fixed BG2 X register remains unchanged");
+    AssertEqual(oldBg2X, state.BackgroundScroll.X, "fixed BG2 X view remains unchanged");
 
     ushort frozenBg1X = state.ForegroundScroll.X;
     state.ForegroundPosition = state.ForegroundPosition.WithX(0x4444);
     state.StepScrolling(timeIsFrozen: true);
-    AssertEqual(frozenBg1X, state.ForegroundScroll.X, "$80:A3AB frozen scroll registers");
+    AssertEqual(frozenBg1X, state.ForegroundScroll.X, "a frozen frame keeps the views");
 
     var destinationParallax = new BackgroundScrollState
     {
@@ -675,56 +673,50 @@ internal static void VerifyBackgroundScrollState()
     AssertEqual(new Position16<RoomPixels>(0x0400, 0x0220), upwardParallax.ForegroundPosition,
         "upward door setup keeps the destination layer-one position");
 
-    // `$80:AE29` first derives four offsets from the retained source BG1 registers, the
-    // cleared BG2 registers, and the destination's staged +/-$100 coordinate. The first
-    // built-in four-pixel IRQ step must therefore move BG1 by exactly four pixels from the
-    // source image while BG2 starts four pixels from its cleared origin.
+    // A door's opening scroll begins with both views where the source screen lies on the destination, the destination's
+    // staged origin; the setup's first four-pixel step then moves the views with the layers by exactly four pixels.
     var rightDoor = new BackgroundScrollState
     {
         ForegroundPosition = new(0xff04, 0), // destination $0000 - $00FC
         BackgroundPosition = new(0xff04, 0),
     };
-    rightDoor.ConfigureDoorOpeningOffsets(
-        retainedForegroundScroll: new(0x0120, 0x0340),
-        stagedForeground: new(0xff00, 0x0000));
-    AssertEqual(new Offset16<RoomPixels>(0x0220, 0x0340), rightDoor.ForegroundOffset,
-        "$80:AE29 BG1 offsets are the retained registers minus the staged layer-one origin");
-    AssertEqual(new Offset16<BackgroundPixels>(0x0100, 0), rightDoor.BackgroundOffset,
-        "$80:AE3B BG2 offsets negate the staged layer-one origin on both axes");
+    rightDoor.BeginDoorOpeningViews(stagedForeground: new(0xff00, 0x0000));
+    AssertEqual(new Position16<RoomPixels>(0xff00, 0), rightDoor.ForegroundScroll,
+        "the door's foreground view begins at the staged destination origin");
+    AssertEqual(new Position16<BackgroundPixels>(0xff00, 0), rightDoor.BackgroundScroll,
+        "the door's background view begins at the staged destination origin");
     rightDoor.CalculateLayerScrolls();
-    AssertEqual((ushort)0x0124, rightDoor.ForegroundScroll.X,
-        "$80:AE29 right-door BG1 retains source plus first step");
-    AssertEqual((ushort)0x0004, rightDoor.BackgroundScroll.X,
-        "$80:AE29 right-door BG2 advances from cleared register");
+    AssertEqual((ushort)0xff04, rightDoor.ForegroundScroll.X,
+        "right-door foreground view moves four pixels with its first step");
+    AssertEqual((ushort)0xff04, rightDoor.BackgroundScroll.X,
+        "right-door background view moves four pixels with its first step");
 
     var leftDoor = new BackgroundScrollState
     {
         ForegroundPosition = new(0x00fc, 0), // destination $0000 + $00FC
         BackgroundPosition = new(0x00fc, 0),
     };
-    leftDoor.ConfigureDoorOpeningOffsets(
-        retainedForegroundScroll: new(0x0120, 0x0340),
-        stagedForeground: new(0x0100, 0x0000));
+    leftDoor.BeginDoorOpeningViews(stagedForeground: new(0x0100, 0x0000));
     leftDoor.CalculateLayerScrolls();
-    AssertEqual((ushort)0x011c, leftDoor.ForegroundScroll.X,
-        "$80:AE29 left-door BG1 retains source minus first step");
-    AssertEqual((ushort)0xfffc, leftDoor.BackgroundScroll.X,
-        "$80:AE29 left-door BG2 retreats from cleared register");
+    AssertEqual((ushort)0x00fc, leftDoor.ForegroundScroll.X,
+        "left-door foreground view retreats four pixels with its first step");
+    AssertEqual((ushort)0x00fc, leftDoor.BackgroundScroll.X,
+        "left-door background view retreats four pixels with its first step");
 
-    // Upward setup presents destination+$FB after the built-in first moving call.
+    // Upward setup shows the destination five pixels above its staged origin after the built-in first moving call.
     var upwardDestination = new BackgroundScrollState
     {
         ForegroundPosition = new(0, 0x02fb),
         BackgroundPosition = new(0, 0x01dc),
     };
-    upwardDestination.ConfigureDoorOpeningOffsets(
-        retainedForegroundScroll: new(0x0120, 0x0340),
-        stagedForeground: new(0, 0x0300));
+    upwardDestination.BeginDoorOpeningViews(stagedForeground: new(0, 0x0300));
+    AssertEqual((ushort)0x0300, upwardDestination.ForegroundScroll.Y,
+        "upward setup's view begins at the staged origin");
     upwardDestination.CalculateLayerScrolls();
-    AssertEqual((ushort)0x033b, upwardDestination.ForegroundScroll.Y,
-        "$80:AF89 upward setup preserves source BG1 minus five pixels");
+    AssertEqual((ushort)0x02fb, upwardDestination.ForegroundScroll.Y,
+        "upward setup's first moving call shows the source screen five pixels lower");
 
-    Console.WriteLine("  BG scroll: parallax, frozen frames and door setup offsets agree.");
+    Console.WriteLine("  BG scroll: parallax, frozen frames and the door's opening views agree.");
 }
 
 /// <summary>Checks all four branches shared by $80:AA95 and $80:AC57.</summary>

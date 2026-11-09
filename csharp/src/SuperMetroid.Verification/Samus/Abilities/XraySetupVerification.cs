@@ -68,7 +68,7 @@ internal static class XraySetupVerification
         // The reveal the room gives now: the foreground it shows, its terrain reveals and its overlays (#1514).
         RevealedBlock?[] Expected()
         {
-            RevealedBlock?[] built = XrayRevealMap.Build(level, scroll.ForegroundPosition, scroll.ForegroundOffset, room.AreaIndex,
+            RevealedBlock?[] built = XrayRevealMap.Build(level, scroll.ForegroundPosition, room.AreaIndex,
                 runtime.Xray.XrayRevealVisuals);
             XrayRevealOverlays.Apply(level, built, runtime.RoomObjects.CollectibleObjects.Collectibles, runtime.System,
                 room.State.XrayOverlay, scroll.ForegroundPosition, runtime.Xray.XrayRevealVisuals);
@@ -88,7 +88,7 @@ internal static class XraySetupVerification
             block.Value.Definition >= CommonRoomElementBlocks && !itemPictures.Contains(block.Value.Definition));
         AssertTrue(stray is null,
             $"every revealed block is the shown foreground block as the level shows it, a reveal or overlay metatile, or an uncollected item's own picture (first other: {stray}, at {Array.IndexOf(expected, stray)})");
-        AssertEqual(XrayRevealMap.OriginOf(scroll.ForegroundPosition, scroll.ForegroundOffset), Shown().Origin,
+        AssertEqual(XrayRevealMap.OriginOf(scroll.ForegroundPosition), Shown().Origin,
             "the reveal lies over the room's own blocks");
         ShowEverywhere(3);
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(held);

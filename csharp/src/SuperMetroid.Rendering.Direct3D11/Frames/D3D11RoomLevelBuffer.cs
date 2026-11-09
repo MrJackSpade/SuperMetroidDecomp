@@ -25,8 +25,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 internal sealed class D3D11RoomLevelBuffer : IDisposable
 {
     /// <summary>
-    /// Words per plane record: block offset, width, height, scroll offset X and Y, and the offset of the picture each
-    /// block shows.
+    /// Words per plane record: block offset, width, height, the layer pixel the plane's first block lies on, X and Y (zero
+    /// for the room's own planes; where the door's source screen shows its room), and the offset of the picture each block
+    /// shows.
     /// </summary>
     private const int RecordWords = 6;
 
@@ -37,7 +38,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Header words: the plane records, the door window origin, and the offsets of the foreground overlay, the sky rows,
     /// the effect overlay, the background overlay and the other tables.</summary>
     private const int HeaderWords = PlaneSlots * RecordWords + 12;
-    /// <summary>Header word of the door window's scrolled origin.</summary>
+    /// <summary>Header word of the door window's origin on the destination's foreground.</summary>
     private const int DoorWindowWord = PlaneSlots * RecordWords;
     /// <summary>
     /// Header word of the pictures written over the foreground (#1403, #1514), or zero without any: their count, then two
@@ -295,8 +296,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[record] = (uint)blockOffsets[slot];
             upload[record + 1] = blocks.Size.X;
             upload[record + 2] = blocks.Size.Y;
-            upload[record + 3] = unchecked((ushort)layer.ScrollOffset.X);
-            upload[record + 4] = unchecked((ushort)layer.ScrollOffset.Y);
+            // The door's source room lies on the destination so that its screen's window origin shows its source origin (#1555).
+            Offset16<PlanePixels> origin = slot == PlaneSlots - 1 && door is not null ? door.WindowOrigin - door.SourceOrigin : Offset16<PlanePixels>.Zero;
+            upload[record + 3] = unchecked((ushort)origin.X);
+            upload[record + 4] = unchecked((ushort)origin.Y);
             upload[record + 5] = (uint)pictureTables[slot];
             RoomBlockPictureTable table = layer.Pictures ?? throw new InvalidOperationException("A room plane is drawn once its pictures are resolved.");
             for (int block = 0; block < table.Blocks; block++)

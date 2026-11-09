@@ -12,12 +12,6 @@ public static class PlaneConversions
     /// <summary>The background plane pixel a background scroll shows at the screen's top-left.</summary>
     public static Position16<PlanePixels> AsPlaneScroll(this Position16<BackgroundPixels> scroll) => new(scroll.X, scroll.Y);
 
-    /// <summary>A foreground scroll offset in plane pixels.</summary>
-    public static Offset16<PlanePixels> AsPlaneOffset(this Offset16<RoomPixels> offset) => new(offset.X, offset.Y);
-
-    /// <summary>A background scroll offset in plane pixels.</summary>
-    public static Offset16<PlanePixels> AsPlaneOffset(this Offset16<BackgroundPixels> offset) => new(offset.X, offset.Y);
-
     /// <summary>The plane pixel an area-map scroll shows at the screen's top-left (pause and file-select map views).</summary>
     public static Position16<PlanePixels> AsPlaneScroll(this Position16<MapPixels> scroll) => new(scroll.X, scroll.Y);
 }

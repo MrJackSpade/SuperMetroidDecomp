@@ -205,7 +205,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room backgrounds this frame boundary displays (#1346): foreground from the level plane through the foreground offset, background from the
+    /// The room backgrounds this frame boundary displays (#1346, #1555): foreground from the level plane, background from the
     /// background plane when that layer streams (otherwise the background shows the tilemap its owner loaded), the source screen of a
     /// door's opening scroll, and the room's foreground overlay. The planes are shared until gameplay changes level data.
     /// </summary>
@@ -218,9 +218,9 @@ internal sealed class AcceptedFrameBoundary
         BackgroundScrollModes backgroundModes = _backgroundScroll.BackgroundScrollModes;
         // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsPlaneOffset(), null),
+            new RoomBackgroundLayer(level.ForegroundPlane.Cells, null),
             backgroundModes.Horizontal.Streams || backgroundModes.Vertical.Streams
-                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsPlaneOffset(), null)
+                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, null)
                 : null,
             null,
             _room.DoorSourceBackground,

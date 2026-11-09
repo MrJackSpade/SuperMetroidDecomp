@@ -236,7 +236,7 @@ internal sealed class KraidHead
     {
         _ = ProcessKraidHeadInstruction(state);
         // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
-        if (state.Colours.EyeGlow.Glow())
+        if (state.Colours.GlowEyes())
             state.BodyState.Function = KraidAiFunction.UnglowEye;
     }
 
@@ -244,7 +244,7 @@ internal sealed class KraidHead
     internal void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         // The eyes' colours, read back, reaching the band's ends the fade and starts the roar (#1512).
-        bool unglowed = state.Colours.EyeGlow.Unglow(BandEyes(HealthBand(body, state)));
+        bool unglowed = state.Colours.UnglowEyes(BandEyes(HealthBand(body, state)));
         if (unglowed)
         {
             state.BodyState.Function = KraidAiFunction.MouthOpenReaction;

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
@@ -19,8 +20,8 @@ internal sealed class KraidColours : IGameplayShadingSource
     /// <summary>The colours his band's shade shows his eyes in, which his eyes' glow replaces.</summary>
     private RgbColor[] shadedEyes = [];
 
-    /// <summary>His eyes' glow, which his AI reads back.</summary>
-    internal KraidEyeGlow EyeGlow { get; } = new();
+    /// <summary>His eyes' glow, which his AI reads back: a compatibility value his colours own (#1552).</summary>
+    internal KraidEyeGlow EyeGlow { get; private set; } = KraidEyeGlow.Unlit;
 
     /// <summary>The shading his ceiling rocks and spat rocks draw in.</summary>
     internal static PictureShading RocksShading { get; } = PictureShading.Shaded(KraidShades.Rocks);
@@ -35,8 +36,28 @@ internal sealed class KraidColours : IGameplayShadingSource
     internal void ShowBand(int band, ReadOnlySpan<RgbColor> bandEyes, ReadOnlySpan<RgbColor> shaded)
     {
         Band = band;
-        shadedEyes = shaded.ToArray();
-        EyeGlow.ShowBand(bandEyes);
+        shadedEyes = Ensure.LengthEqual(shaded, KraidEyeGlow.Eyes).ToArray();
+        ShowBandEyes(bandEyes);
+    }
+
+    /// <summary>Shows <paramref name="bandEyes"/>, his health band's eye colours, in his eyes at once.</summary>
+    internal void ShowBandEyes(ReadOnlySpan<RgbColor> bandEyes) => EyeGlow = KraidEyeGlow.Showing(bandEyes);
+
+    /// <summary>Steps his eyes' glow one level.</summary>
+    /// <returns>Whether the glow has peaked, which ends it.</returns>
+    internal bool GlowEyes()
+    {
+        EyeGlow = EyeGlow.Glowed();
+        return EyeGlow.HasPeaked;
+    }
+
+    /// <summary>Steps his eyes' fade one level toward <paramref name="bandEyes"/>, his health band's eye colours.</summary>
+    /// <returns>Whether his eyes already showed the band's, which ends the fade.</returns>
+    internal bool UnglowEyes(ReadOnlySpan<RgbColor> bandEyes)
+    {
+        bool showedBand = EyeGlow.ShowsBand(bandEyes);
+        EyeGlow = EyeGlow.Unglowed(bandEyes);
+        return showedBand;
     }
 
     /// <summary>Shows his death colours on his body.</summary>
@@ -54,7 +75,9 @@ internal sealed class KraidColours : IGameplayShadingSource
         if (Band is not { } band)
             return;
         frame.Shade(GameplayPictures.BossBody, KraidShades.Health(band));
-        if (EyeGlow.Effect(shadedEyes) is { } eyes)
-            frame.Affect(GameplayPictures.BossBody, eyes);
+        // His body's shades show his eyes in one set of colours; the glow's colours are shown in their place.
+        ImmutableArray<RgbColor> eyes = EyeGlow.Shown;
+        if (!eyes.SequenceEqual(shadedEyes))
+            frame.Affect(GameplayPictures.BossBody, new ColourSubstitution([.. shadedEyes], [.. eyes]));
     }
 }

@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Tooling;
 using System.Text.Json;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Hardware.ColorWordsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidPaletteDefinitionsVerification;
@@ -397,7 +398,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 Lay(colours, BossSheetShades.OwnRow(artwork.Bosses, EnemyDefinitionId.Kraid, KraidPartsRow * 16), KraidShades.Health(band),
                     ImageColourGroup.HalfColours);
                 // Every body shade draws his eyes in one set of colours, which his eye glow replaces with the band's or the flash's.
-                ReadOnlySpan<RgbColor> glow = state.Colours.EyeGlow.Shown;
+                ImmutableArray<RgbColor> glow = state.Colours.EyeGlow.Shown;
                 for (int eye = 0; eye < glow.Length; eye++)
                     colours[113 + eye] = glow[eye];
                 break;
@@ -405,9 +406,9 @@ internal static class EnemyTileArtworkKraidColorsVerification
             case KraidPaletteConsumer.EyeUnglow:
             {
                 // The glow's raised red and green channels, then one step of the fade: the eye glow service owns the colours.
-                state.Colours.EyeGlow.ShowBand([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
+                state.Colours.ShowBandEyes([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
                 new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
-                ReadOnlySpan<RgbColor> eyes = state.Colours.EyeGlow.Shown;
+                ImmutableArray<RgbColor> eyes = state.Colours.EyeGlow.Shown;
                 for (int eye = 0; eye < eyes.Length; eye++)
                     colours[113 + eye] = eyes[eye];
                 break;

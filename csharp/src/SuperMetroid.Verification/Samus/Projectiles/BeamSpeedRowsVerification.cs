@@ -104,7 +104,7 @@ internal static class BeamSpeedRowsVerification
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                SelectedHudItem = HudItems.Decode(weapon), Missiles = 10, SuperMissiles = 10 };
+                SelectedHudItem = SuperMetroid.Core.Saves.SaveSlotNumbering.SavedHudItem(weapon), Missiles = 10, SuperMissiles = 10 };
             var projectiles = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             int vx = direction is 1 or 2 or 3 ? 0x100 : direction is 6 or 7 or 8 ? -0x100 : 0;

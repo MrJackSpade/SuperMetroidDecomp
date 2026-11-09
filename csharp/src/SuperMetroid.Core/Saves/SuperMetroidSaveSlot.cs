@@ -118,6 +118,6 @@ public sealed record SuperMetroidSaveSlot(
         Ensure.NotNull(system);
         system.Progress.CopyFrom(Progression);
         system.LoadSavedStartupRoute(StartupRoute);
-        system.LoadedItemCount = SaveFieldValue.Encode(LoadedItemCount, nameof(LoadedItemCount));
+        system.LoadedItemCount = SaveFieldValue.Require(LoadedItemCount, nameof(LoadedItemCount));
     }
 }

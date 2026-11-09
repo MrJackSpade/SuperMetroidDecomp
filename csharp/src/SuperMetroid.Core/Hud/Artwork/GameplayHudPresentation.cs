@@ -80,8 +80,8 @@ public class GameplayHudPresentation
             2 => new HudAmmoField(parts.PowerBombAmmoAnchor, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
         };
-        // The digits divide the stored word, so a count the game has drained below zero draws as its word.
-        return Digits(SamusQuantity.Encode(value), anchor, digits).Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Cell));
+        // A count the game has drained below zero shows as SamusQuantity.HudShown describes.
+        return Digits(SamusQuantity.HudShown(value), anchor, digits).Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Cell));
     }
 
     /// <summary>The AUTO reserve indicator's cells as <paramref name="indicator"/> shows them; a cleared indicator shows blank cells.</summary>

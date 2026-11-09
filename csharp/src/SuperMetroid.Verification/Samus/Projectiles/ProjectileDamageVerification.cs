@@ -63,7 +63,7 @@ internal static class ProjectileDamageVerification
         }
         foreach (ushort item in new ushort[] { 1, 2 })
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
+            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads); var samus = Samus(); samus.SelectedHudItem = SuperMetroid.Core.Saves.SaveSlotNumbering.SavedHudItem(item);
             var result = system.Firing.TryFireMissile(samus, ControllerButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual(0, result.Slot, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());

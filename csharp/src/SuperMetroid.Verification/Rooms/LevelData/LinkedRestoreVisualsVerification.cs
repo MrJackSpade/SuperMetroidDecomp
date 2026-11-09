@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core;
@@ -18,51 +20,17 @@ internal static class LinkedRestoreVisualsVerification
     private static RoomObjectDraw LinkedAt(int pointer) => NativeObjectDraws.IsDrawAt<BombBlockRestoreDraw>(pointer)
         ? NativeObjectDraws.At<BombBlockRestoreDraw>(pointer) : NativeObjectDraws.At<ContactCrumbleRestoreDraw>(pointer);
 
-    /// <summary>Compares six flattened stock layouts with bank-$84 draw words and checks catalog bounds and rejection.</summary>
+    /// <summary>Compares the six restoration frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0xa4c7,"bomb-horizontal"), new LookupEscapeGateStockFrame(0xa4cf,"bomb-vertical"),
             new LookupEscapeGateStockFrame(0xa4d7,"bomb-square"), new LookupEscapeGateStockFrame(0xa4a1,"crumble-horizontal"), new LookupEscapeGateStockFrame(0xa4a9,"crumble-vertical"), new LookupEscapeGateStockFrame(0xa4b1,"crumble-square")];
-        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
-        foreach (var frame in frames)
-        {
-            var words = new List<RoomBlockAppearance>();
-            int cursor = frame.Pointer;
-            while (true)
-            {
-                int count = ReadRomWord(rom, 0x840000 | cursor) & 0x7fff;
-                for (int block = 0; block < count; block++)
-                    words.Add(RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom, 0x840000 | (cursor + 2 + block * 2))));
-                cursor += 2 + count * 2;
-                ushort offset = ReadRomWord(rom, 0x840000 | cursor);
-                cursor += 2;
-                if (offset == 0) break;
-            }
-            native.Add(frame.Pointer, words.ToArray());
-        }
-        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = InstalledRoomObjectLinkedRestoreVisuals.Stock();
-        var imported = RoomObjectLinkedRestoreVisualFiles.Create(entries);
-        string expectedHash = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomObjectLinkedRestoreVisuals), native.ToDictionary(pair => RoomObjectLinkedRestoreVisualFiles.VisualId(LinkedAt(pair.Key)), pair => pair.Value));
-        AssertEqual(expectedHash, stock.ContentIdentity, "linked restore calculated stock preserves original flattened hash");
-        AssertEqual(expectedHash, imported.ContentIdentity, "linked restore imported stock hash");
-        foreach (var frame in frames)
-        {
-            for (int word = 0; word < native[frame.Pointer].Length; word++)
-            {
-                AssertEqual(native[frame.Pointer][word], stock.GetAppearance(LinkedAt(frame.Pointer), word / 2, word % 2), "linked restore native stock word");
-                AssertEqual(native[frame.Pointer][word], imported.GetAppearance(LinkedAt(frame.Pointer), word / 2, word % 2), "linked restore imported native word");
-            }
-            foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length / 2,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => stock.GetAppearance(LinkedAt(frame.Pointer),bad,0), "linked restore stock run bounds");
-            foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => stock.GetAppearance(LinkedAt(frame.Pointer),0,bad), "linked restore stock block bounds");
-        }
+        InstalledRoomObjectLinkedRestoreVisuals stock = InstalledRoomObjectLinkedRestoreVisuals.Stock();
+        AssertPicturedAsNative(rom, stock.Images, RoomObjectLinkedRestoreVisualFiles.Family, frames, WrittenCells(RoomObjectLinkedRestoreVisualFiles.Family));
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(LinkedAt(pointer),0,0), "linked restore rejects unknown frame");
-        AssertThrows<InvalidDataException>(() => RoomObjectLinkedRestoreVisualFiles.Create(entries[..5]), "linked restore rejects incomplete stock");
-        AssertThrows<InvalidDataException>(() => RoomObjectLinkedRestoreVisualFiles.Create(entries.Append(entries[0])), "linked restore rejects duplicate stock");
+            if (frames.All(frame => frame.Pointer != pointer))
+                AssertThrows<InvalidDataException>(() => stock.Image(LinkedAt(pointer)), "linked restore rejects unknown frame");
+        AssertImportAndRejections(rom, stock.Images, RoomObjectLinkedRestoreVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectLinkedRestoreVisualDirectory);
     }
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
@@ -77,18 +45,13 @@ internal static class LinkedRestoreVisualsVerification
         RoomObjectLinkedRestoreVisualFilesConstants.ValidateStock(
             installation.RoomObjectLinkedRestoreVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x058),
-            installation.LoadRoomObjectLinkedRestoreVisuals().GetAppearance(
-                RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
+            installation.LoadRoomObjectLinkedRestoreVisuals().Image(
+                RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal)).At(Offset16<RoomBlocks>.Zero),
             "stock bomb restore selects cartridge block 058");
         AssertEqual(RoomBlockAppearance.Of(0x0bc),
-            installation.LoadRoomObjectLinkedRestoreVisuals().GetAppearance(
-                RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 0, 0),
+            installation.LoadRoomObjectLinkedRestoreVisuals().Image(
+                RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Horizontal)).At(Offset16<RoomBlocks>.Zero),
             "stock crumble restore selects cartridge block 0BC");
-        AssertThrows<InvalidDataException>(
-            () => RoomObjectLinkedRestoreVisualFiles.Create(
-                [new RoomObjectVisualEntry("bomb-horizontal",
-                    new RoomBlockAppearance[2])]),
-            "restore catalog rejects missing linked layouts");
 
         string stockPath = Path.Combine(
             installation.RoomObjectLinkedRestoreVisualDirectory,
@@ -99,5 +62,4 @@ internal static class LinkedRestoreVisualsVerification
                 installation.RoomObjectLinkedRestoreVisualDirectory),
             "tampered restore stock fails loudly where it is read");
     }
-
 }

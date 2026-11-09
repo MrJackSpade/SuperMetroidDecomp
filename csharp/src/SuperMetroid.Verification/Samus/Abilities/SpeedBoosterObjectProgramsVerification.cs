@@ -41,12 +41,9 @@ internal static class SpeedBoosterObjectProgramsVerification
         }
         AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.Unowned),"speed reveal rejects unknown visual identity");
         AssertEqual("bomb-reveal",RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
-        AssertTrue(RoomObjectSpeedBoosterVisualFiles.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
+        RoomObjectShotBlockDrawDefinitions.DrawList byId = RoomObjectSpeedBoosterVisualFiles.All.Single(draw => RoomObjectSpeedBoosterVisualFiles.Family.Ids[draw.Draw] == "bomb-reveal");
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
-        {
-            AssertTrue(!RoomObjectSpeedBoosterVisualFiles.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
-            AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
-        }
+            AssertTrue(!RoomObjectSpeedBoosterVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal),"speed reveal ordinal ID rejection");
         RoomTerrainBlock nativeTerrain = RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2)));
         AssertEqual(nativeTerrain,SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain,"speed reveal calculated physical terrain");
         foreach (var draw in new[] {exported[0],byId,RoomObjectSpeedBoosterVisualFiles.BombReveal})

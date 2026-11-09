@@ -41,10 +41,7 @@ internal static class LookupTubeDrawsVerification
                 }
             }
             foreach (string id in new[] { "INTACT", "broken", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectNoobTubeVisualFiles.TryGetByVisualId(id, out var missing), "Tube ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Tube rejected ID output");
-            }
+                AssertTrue(!RoomObjectNoobTubeVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Tube ordinal ID domain");
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
@@ -52,12 +49,12 @@ internal static class LookupTubeDrawsVerification
             ushort pointer = pointers[index];
             NoobTubeObjectDraws.TryDescribe(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var shape);
             RoomObjectNoobTubeVisualFiles.TryGet(NativeObjectDraws.At<NoobTubeDraw>(pointer), out var dto);
-            RoomObjectNoobTubeVisualFiles.TryGetByVisualId(ids[index], out var byId);
+            RoomObjectDraw byId = RoomObjectNoobTubeVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
             if (field == 0)
             {
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Tube original export order");
                 AssertEqual(ids[index], RoomObjectNoobTubeVisualFiles.VisualId(NativeObjectDraws.At<NoobTubeDraw>(pointer)), "Tube published ID");
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Tube reverse ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Tube reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Tube run bounds");

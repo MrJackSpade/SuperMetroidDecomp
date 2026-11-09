@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -44,50 +46,20 @@ internal static class TourianAccessVisualsVerification
             "Tourian access visuals: five native layouts and strict failures pass.");
     }
 
-    /// <summary>Compares every stock visual word and content identity with cartridge draw lists.</summary>
+    /// <summary>Compares the five access-floor frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     private static void VerifyTourianAccessStockMapping(SuperMetroidAddressSpace rom,
         RoomObjectTourianAccessVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9297,"crumble-empty-row"), new LookupEscapeGateStockFrame(0x92a3,"crumble-frame-0"),
             new LookupEscapeGateStockFrame(0x92af,"crumble-frame-1"), new LookupEscapeGateStockFrame(0x92bb,"crumble-frame-2"), new LookupEscapeGateStockFrame(0x92c7,"clear-six-rows")];
-        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
-        foreach (var frame in frames)
+        foreach (RoomObjectTourianAccessVisuals pictures in new[] { RoomObjectTourianAccessVisuals.Stock(), installed })
         {
-            var words = new RoomBlockAppearance[frame.Pointer == 0x92c7 ? 24 : 4];
-            for (int index = 0; index < words.Length; index++)
-                words[index] = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterObjectWord(rom,
-                    0x840000 | (frame.Pointer + index / 4 * 12 + index % 4 * 2 + 2)));
-            native.Add(frame.Pointer, words);
+            AssertPicturedAsNative(rom, pictures.Images, RoomObjectTourianAccessVisualFiles.Family, frames, WrittenCells(RoomObjectTourianAccessVisualFiles.Family));
         }
-        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = RoomObjectTourianAccessVisuals.Stock();
-        var imported = RoomObjectTourianAccessVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
-            "RoomObjectTourianAccessVisualCatalog", words.ToDictionary(pair => RoomObjectTourianAccessVisualFiles.VisualId(NativeObjectDraws.At<TourianAccessDraw>(pair.Key)), pair => pair.Value));
-        foreach (var catalog in new[] {stock, imported, installed})
-        {
-            AssertEqual(Hash(native), catalog.ContentIdentity, "Tourian access original flattened hash");
-            foreach (var frame in frames)
-            {
-                for (int index = 0; index < native[frame.Pointer].Length; index++)
-                    AssertEqual(native[frame.Pointer][index], catalog.GetAppearance(NativeObjectDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access native stock word");
-                foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length / 4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<TourianAccessDraw>(frame.Pointer),bad,0), "Tourian access run bounds");
-                foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                for (int run = 0; run < native[frame.Pointer].Length / 4; run++)
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<TourianAccessDraw>(frame.Pointer),run,bad), "Tourian access block bounds");
-            }
-        }
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<TourianAccessDraw>((ushort)pointer),0,0), "Tourian access unknown pointer");
-        AssertThrows<InvalidDataException>(() => RoomObjectTourianAccessVisualFiles.Create(entries[..4]), "Tourian access missing frame");
-        AssertThrows<InvalidDataException>(() => RoomObjectTourianAccessVisualFiles.Create(entries.Append(entries[0])), "Tourian access duplicate frame");
-        var invalid = entries.ToArray();
-        invalid[0] = new("CRUMBLE-EMPTY-ROW", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => RoomObjectTourianAccessVisualFiles.Create(invalid), "Tourian access ordinal identity");
-        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => RoomObjectTourianAccessVisualFiles.Create(invalid), "Tourian access exact frame shape");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            if (frames.All(frame => frame.Pointer != raw))
+                AssertThrows<InvalidDataException>(() => installed.Image(NativeObjectDraws.At<TourianAccessDraw>((ushort)raw)), "Tourian access unknown pointer");
+        AssertImportAndRejections(rom, installed.Images, RoomObjectTourianAccessVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectTourianAccessVisualDirectory);
     }
 
     /// <summary>Runs Tourian access visual extraction and PLM isolation checks.</summary>
@@ -97,5 +69,4 @@ internal static class TourianAccessVisualsVerification
         Suite(nameof(VerifyTourianAccessVisuals), () => VerifyTourianAccessVisuals());
         return 0;
     }
-
 }

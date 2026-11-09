@@ -17,7 +17,7 @@ internal static class LookupElevatubeVerification
         AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)), MaridiaElevatubeObjectDefinitions.Terrain, "Elevatube native terrain");
         var all = RoomObjectMaridiaElevatubeVisualFiles.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
-        AssertTrue(RoomObjectMaridiaElevatubeVisualFiles.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
+        RoomObjectShotBlockDrawDefinitions.DrawList selected = all.Single(draw => RoomObjectMaridiaElevatubeVisualFiles.Family.Ids[draw.Draw] == "elevatube-block");
         foreach (var draw in new[] {RoomObjectMaridiaElevatubeVisualFiles.BlockDrawList,all[0],selected})
         {
             AssertEqual((ushort)0x9367, RoomObjectDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");
@@ -30,10 +30,7 @@ internal static class LookupElevatubeVerification
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936c)), RoomObjectRunContinuationCodec.Y(draw, 0), "Elevatube original Y");
         }
         foreach (string id in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
-        {
-            AssertTrue(!RoomObjectMaridiaElevatubeVisualFiles.TryGetDrawByVisualId(id, out var missing), "Elevatube unknown visual ID");
-            AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Elevatube missing DTO");
-        }
+            AssertTrue(!RoomObjectMaridiaElevatubeVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Elevatube unknown visual ID");
     }
 
     /// <summary>Reads a native elevatube draw byte for the independent geometry comparison.</summary>

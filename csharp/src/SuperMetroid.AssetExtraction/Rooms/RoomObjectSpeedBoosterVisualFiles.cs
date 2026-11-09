@@ -10,41 +10,26 @@ public static class RoomObjectSpeedBoosterVisualFiles
     /// <summary>Editable Speed Booster bomb-reveal visual JSON filename.</summary>
     public const string VisualFileName = "speed-booster.json";
 
-    /// <summary>Verifies the native Speed Booster bomb-reveal draw and creates stock JSON plus the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time bank-$84 comparison.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Speed Booster", All, VisualId);
+    /// <summary>The Speed Booster reveal as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Speed Booster", All, VisualId);
 
-    /// <summary>Validates the installed Speed Booster manifest's provenance and loads the installed Speed Booster JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Speed Booster JSON.</param>
-    /// <returns>The immutable Speed Booster visual catalog.</returns>
+    /// <summary>Pictures every Speed Booster reveal frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Speed Booster reveal pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectSpeedBoosterVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<InstalledRoomObjectSpeedBoosterVisuals>(VisualFileName, "Speed Booster", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The artwork identity of the bomb reveal of one Speed Booster block.</summary>
     internal const string BombRevealVisualId = "bomb-reveal";
-
-    /// <summary>Validates and captures the single bomb-reveal appearance, building the visuals while preserving compiled Speed Booster collision and timing.</summary>
-    /// <param name="entries">Exactly one <c>bomb-reveal</c> entry containing one valid appearance; its value is captured, so later input-array edits do not affect the catalog.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Entry count, identity, or block count do not match the compiled reveal.</exception>
-    internal static InstalledRoomObjectSpeedBoosterVisuals Create(IEnumerable<RoomObjectVisualEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        RoomObjectVisualEntry[] selected = entries.ToArray();
-        if (selected.Length != 1 || selected[0] is null ||
-            !TryGetByVisualId(selected[0].Id, out _) ||
-            selected[0].Blocks is not { Length: 1 } blocks)
-            throw new InvalidDataException(
-                "Speed Booster visuals require exactly one bomb-reveal visual block.");
-        return new(blocks[0]);
-    }
 
     /// <summary>The one-block reveal's draw list, built from the block the game writes.</summary>
     internal static RoomObjectShotBlockDrawDefinitions.DrawList BombReveal =>
@@ -58,8 +43,4 @@ public static class RoomObjectSpeedBoosterVisualFiles
     internal static string VisualId(RoomObjectDraw request) => request == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw
         ? BombRevealVisualId
         : throw new InvalidDataException($"Speed Booster draw {request} has no visual ID.");
-
-    /// <summary>Resolves the one exported visual identity to its draw list.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId([BombReveal], _ => BombRevealVisualId, id, out list);
 }

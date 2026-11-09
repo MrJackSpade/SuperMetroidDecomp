@@ -14,34 +14,23 @@ public static class RoomObjectRevealAndWallVisualFiles
     /// <summary>The installed JSON filename of the reveal and wall pictures.</summary>
     public const string VisualFileName = "reveals-and-walls.json";
 
-    /// <summary>The family's name in diagnostics.</summary>
-    private const string Family = "Reveal and wall";
+    /// <summary>The reveal and wall as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Reveal and wall", All, VisualId);
 
-    /// <summary>Verifies every native reveal and wall draw and pictures each from the cartridge, with the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time comparisons.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    /// <exception cref="InvalidDataException">A native draw differs from the game's shape, terrain or offsets.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, Family, All, VisualId);
+    /// <summary>Pictures every reveal and wall frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
 
-    /// <summary>Validates the installed manifest's provenance and loads the installed reveal and wall pictures as the player left them, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and the reveal and wall JSON.</param>
-    /// <returns>Every reveal and wall frame's picture.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance, document version, identities, coverage or shapes are invalid.</exception>
+    /// <summary>Loads the installed reveal and wall pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectRevealAndWallVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<InstalledRoomObjectRevealAndWallVisuals>(VisualFileName, Family, entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates every reveal and wall frame and builds the visuals from every frame's picture as installed.</summary>
-    /// <param name="entries">Exactly one entry for each reveal and wall frame, with its cells in run then cell order.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats a frame, changes a frame's shape, or a frame is missing.</exception>
-    internal static InstalledRoomObjectRevealAndWallVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, Family, TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Every reveal and wall frame's draw list, built from the terrain the game writes.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
@@ -70,15 +59,12 @@ public static class RoomObjectRevealAndWallVisualFiles
         RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Frame1 } => "escape-animal-wall-frame-1",
         RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Frame2 } => "escape-animal-wall-frame-2",
         RoomObjectFrameDraw<EscapeAnimalDraw> { Frame: EscapeAnimalDraw.Blank } => "escape-animal-wall-blank",
-        _ => throw new InvalidDataException($"{Family} draw {draw} has no visual ID."),
+        _ => throw new InvalidDataException($"Reveal and wall draw {draw} has no visual ID."),
     };
 
-    /// <summary>Resolves an installed identity to its frame's draw list.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>The draw list a frame's own family describes.</summary>
     /// <exception cref="InvalidOperationException">The family does not describe the frame.</exception>
     private static RoomObjectShotBlockDrawDefinitions.DrawList Required(bool described, RoomObjectShotBlockDrawDefinitions.DrawList draw) =>
-        described ? draw : throw new InvalidOperationException($"{Family} frame {draw.Draw} has no draw list.");
+        described ? draw : throw new InvalidOperationException($"Reveal and wall frame {draw.Draw} has no draw list.");
 }

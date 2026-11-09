@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.Core.Bosses.Kraid;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomObjectsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualSelectionVerification;
@@ -29,18 +31,14 @@ internal static class KraidRoomVisualsVerification
                 installation.RoomObjectKraidVisualDirectory);
             InstalledRoomObjectKraidVisuals stock =
                 installation.LoadRoomObjectKraidVisuals();
-            foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in
-                     RoomObjectKraidVisualFiles.All)
-            {
-                for (int block = 0; block < draw.Runs.Span[0].Count;
-                     block++)
-                    AssertEqual(draw.Runs.Span[0].Blocks.Span[block].Appearance,
-                        stock.GetAppearance(draw.Draw, 0, block),
-                        $"Kraid stock draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4}, block {block}");
-            }
-            AssertThrows<InvalidDataException>(
-                () => RoomObjectKraidVisualFiles.Create([]),
-                "Kraid visual catalog rejects missing frames");
+            LookupEscapeGateStockFrame[] frames = [
+                new LookupEscapeGateStockFrame(0x9367, "crumble-first"), new LookupEscapeGateStockFrame(0x936d, "crumble-second"),
+                new LookupEscapeGateStockFrame(0x9373, "crumble-third"), new LookupEscapeGateStockFrame(0x9379, "ceiling-background-one"),
+                new LookupEscapeGateStockFrame(0x937f, "ceiling-background-two"), new LookupEscapeGateStockFrame(0x9385, "ceiling-background-three"),
+                new LookupEscapeGateStockFrame(0x9391, "spike-first"), new LookupEscapeGateStockFrame(0x9397, "spike-second"),
+                new LookupEscapeGateStockFrame(0x939d, "clear-ceiling"), new LookupEscapeGateStockFrame(0x93bf, "clear-spikes")];
+            AssertPicturedAsNative(rom, stock.Images, RoomObjectKraidVisualFiles.Family, frames, WrittenCells(RoomObjectKraidVisualFiles.Family));
+            AssertImportAndRejections(rom, stock.Images, RoomObjectKraidVisualFiles.Family, installation.RoomObjectKraidVisualDirectory);
             Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(KraidRoomMutation.CrumbleCeilingIntoBackground1, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x180)));
 
             string stockPath = Path.Combine(
@@ -90,5 +88,4 @@ internal static class KraidRoomVisualsVerification
         Suite(nameof(VerifyKraidRoomVisuals), () => VerifyKraidRoomVisuals());
         return 0;
     }
-
 }

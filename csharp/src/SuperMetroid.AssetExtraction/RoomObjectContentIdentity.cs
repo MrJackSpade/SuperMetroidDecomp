@@ -22,18 +22,6 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>The installed content identities of the room objects' visual catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
 internal static class RoomObjectContentIdentity
 {
-    /// <summary>
-    /// Kraid's ten draw roles: the three ceiling-crumble stages, the three ceiling background draws of Kraid's room
-    /// sequence, the two floor-spike appearances, and the two room-clearing layouts that replace the ceiling blocks and
-    /// the floor spikes after Kraid is defeated.
-    /// </summary>
-    private static readonly KraidRoomDraw[] KraidDraws =
-    [
-        KraidRoomDraw.CrumbleFirst, KraidRoomDraw.CrumbleSecond, KraidRoomDraw.CrumbleThird,
-        KraidRoomDraw.CeilingBackground1, KraidRoomDraw.CeilingBackground2, KraidRoomDraw.CeilingBackground3,
-        KraidRoomDraw.SpikeFirst, KraidRoomDraw.SpikeSecond, KraidRoomDraw.ClearCeiling, KraidRoomDraw.ClearSpikes,
-    ];
-
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBlueDoorVisuals"/>.</summary>
     extension(InstalledRoomObjectBlueDoorVisuals visuals)
     {
@@ -44,36 +32,15 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectRevealAndWallVisuals"/>.</summary>
     extension(InstalledRoomObjectRevealAndWallVisuals visuals)
     {
-        /// <summary>Canonical identity of every installed reveal and wall frame's pictures, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectRevealAndWallVisuals), content =>
-        {
-            foreach (var frame in RoomObjectRevealAndWallVisualFiles.All.OrderBy(item => RoomObjectRevealAndWallVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                int cells = 0;
-                foreach (RoomObjectShotBlockDrawDefinitions.Run run in frame.Runs.Span)
-                    cells += run.Count;
-                var appearances = new RoomBlockAppearance[cells];
-                for (int cell = 0; cell < cells; cell++)
-                    appearances[cell] = visuals.GetAppearance(frame.Draw, cell);
-                content.AppendName("frame", RoomObjectRevealAndWallVisualFiles.VisualId(frame.Draw));
-                content.Append("runs", frame.Runs.Length);
-                content.AppendAppearances("blocks", appearances);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectRevealAndWallVisuals), visuals.Images, RoomObjectRevealAndWallVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBotwoonWallVisuals"/>.</summary>
     extension(InstalledRoomObjectBotwoonWallVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectBotwoonWallVisuals),
-            content =>
-            {
-                Span<RoomBlockAppearance> selected = stackalloc RoomBlockAppearance[BotwoonWallObjectDrawDefinitions.BlockCount];
-                for (int index = 0; index < selected.Length; index++)
-                    selected[index] = visuals.GetAppearance(BotwoonWallObjectDrawDefinitions.Clear, 0, index);
-                content.AppendAppearances("blocks", selected);
-            });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectBotwoonWallVisuals), visuals.Images, RoomObjectBotwoonWallVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectCollectibleVisuals"/>.</summary>
@@ -156,44 +123,15 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectNoobTubeVisuals"/>.</summary>
     extension(InstalledRoomObjectNoobTubeVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectNoobTubeVisuals), content =>
-        {
-            Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[48];
-            foreach (var frame in RoomObjectNoobTubeVisualFiles.All.OrderBy(item => RoomObjectNoobTubeVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                NoobTubeObjectDraws.TryDescribe(frame.Draw, out var shape);
-                int count = 0;
-                for (int run = 0; run < shape.RunCount; run++)
-                    for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                        appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell);
-                content.AppendName("frame", RoomObjectNoobTubeVisualFiles.VisualId(frame.Draw));
-                // Preserve the flattened single-run framing of installed tube artwork.
-                content.Append("runs", 1);
-                content.AppendAppearances("blocks", appearances[..count]);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectNoobTubeVisuals), visuals.Images, RoomObjectNoobTubeVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSamusEaterVisuals"/>.</summary>
     extension(InstalledRoomObjectSamusEaterVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectSamusEaterVisuals), content =>
-        {
-            Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[8];
-            foreach (var draw in RoomObjectSamusEaterVisualFiles.All.OrderBy(item => RoomObjectSamusEaterVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                int index = 0;
-                for (int run = 0; run < 3; run++)
-                    for (int block = 0; block < SamusEaterObjectDraws.Draw.Count(run); block++)
-                        appearances[index++] = visuals.GetAppearance(draw.Draw, run, block);
-                content.AppendName("frame", RoomObjectSamusEaterVisualFiles.VisualId(draw.Draw));
-                // Preserve the original flattened-frame hash, not the three physical runs.
-                content.Append("runs", 1);
-                content.AppendAppearances("blocks", appearances);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectSamusEaterVisuals), visuals.Images, RoomObjectSamusEaterVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectShotBlockVisuals"/>.</summary>
@@ -242,79 +180,36 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectKraidVisuals"/>.</summary>
     extension(InstalledRoomObjectKraidVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectKraidVisuals), content =>
-        {
-            foreach (KraidRoomDraw draw in KraidDraws.OrderBy(draw => RoomObjectKraidVisualFiles.VisualId(RoomObjectDraw.Of(draw)), StringComparer.Ordinal))
-                Append(draw, visuals.frames[draw]);
-
-            void Append(KraidRoomDraw draw, RoomBlockAppearance[] appearances)
-            {
-                content.AppendName("frame", RoomObjectKraidVisualFiles.VisualId(RoomObjectDraw.Of(draw)));
-                content.Append("runs", 1);
-                content.AppendAppearances("blocks", appearances);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectKraidVisuals), visuals.Images, RoomObjectKraidVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectLinkedRestoreVisuals"/>.</summary>
     extension(InstalledRoomObjectLinkedRestoreVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectLinkedRestoreVisuals), content =>
-        {
-            Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
-            foreach (var draw in RoomObjectLinkedRestoreVisualFiles.All.OrderBy(item => RoomObjectLinkedRestoreVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                InstalledRoomObjectLinkedRestoreVisuals.Describe(draw.Draw, out int runs);
-                for (int run = 0; run < runs; run++)
-                    for (int block = 0; block < 2; block++)
-                        appearances[run * 2 + block] = visuals.GetAppearance(draw.Draw, run, block);
-                content.AppendName("frame", RoomObjectLinkedRestoreVisualFiles.VisualId(draw.Draw));
-                // The original catalog hashes each flattened frame as one run.
-                content.Append("runs", 1);
-                content.AppendAppearances("blocks", appearances[..(runs * 2)]);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectLinkedRestoreVisuals), visuals.Images, RoomObjectLinkedRestoreVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectMaridiaElevatubeVisuals"/>.</summary>
     extension(InstalledRoomObjectMaridiaElevatubeVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectMaridiaElevatubeVisuals),
-            content => content.AppendAppearances("block", [visuals.GetAppearance(MaridiaElevatubeObjectDefinitions.BlockDraw, 0, 0)]));
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectMaridiaElevatubeVisuals), visuals.Images, RoomObjectMaridiaElevatubeVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSpeedBoosterVisuals"/>.</summary>
     extension(InstalledRoomObjectSpeedBoosterVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectSpeedBoosterVisuals),
-            content => content.AppendAppearances("block", [visuals.GetAppearance(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, 0, 0)]));
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectSpeedBoosterVisuals), visuals.Images, RoomObjectSpeedBoosterVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="RoomObjectTourianAccessVisuals"/>.</summary>
     extension(RoomObjectTourianAccessVisuals visuals)
     {
-        /// <summary>
-        /// Canonical identity of the selected visual frames, excluding mechanics. The identity keeps the name it was
-        /// introduced under, so installed content identities do not change.
-        /// </summary>
-        public string ContentIdentity => SelectedPresentationHash.Create("RoomObjectTourianAccessVisualCatalog", content =>
-        {
-            Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[24];
-            foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>().OrderBy(RoomObjectTourianAccessVisualFiles.VisualId, StringComparer.Ordinal))
-            {
-                TourianAccessDraws.Describe(draw, out int rows, out _);
-                for (int index = 0; index < rows * 4; index++)
-                    appearances[index] = visuals.GetAppearance(RoomObjectDraw.Of(draw), index / 4, index % 4);
-                content.AppendName("frame", RoomObjectTourianAccessVisualFiles.VisualId(draw));
-                // Preserve the original flattened-frame hash, including the six-row clear.
-                content.Append("runs", 1);
-                content.AppendAppearances("blocks", appearances[..(rows * 4)]);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity("RoomObjectTourianAccessVisualCatalog", visuals.Images, RoomObjectTourianAccessVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="RoomObjectCrocomireVisualCatalog"/>.</summary>

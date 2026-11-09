@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.Verification.Areas.Escape;
@@ -43,67 +45,21 @@ internal static class SamusEaterVisualsVerification
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists and stock integrity pass.");
     }
 
-    /// <summary>Matches each installed visual frame to its native draw-list words while checking clone and ID validation rules.</summary>
+    /// <summary>Compares the eight plant frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     private static void VerifySamusEaterStockVisualMapping(SuperMetroidAddressSpace rom,
         InstalledRoomObjectSamusEaterVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9e0d,"floor-idle"), new LookupEscapeGateStockFrame(0x9e45,"floor-chew-1"),
             new LookupEscapeGateStockFrame(0x9e61,"floor-chew-2"), new LookupEscapeGateStockFrame(0x9e7d,"floor-chew-3"), new LookupEscapeGateStockFrame(0x9e99,"ceiling-idle"),
             new LookupEscapeGateStockFrame(0x9ed1,"ceiling-chew-1"), new LookupEscapeGateStockFrame(0x9eed,"ceiling-chew-2"), new LookupEscapeGateStockFrame(0x9f09,"ceiling-chew-3")];
-        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
-        var counts = new Dictionary<ushort, int[]>();
-        foreach (var frame in frames)
+        foreach (InstalledRoomObjectSamusEaterVisuals pictures in new[] { InstalledRoomObjectSamusEaterVisuals.Stock(), installed })
         {
-            var appearances = new List<RoomBlockAppearance>();
-            var runs = new List<int>();
-            int cursor = 0x840000 | frame.Pointer;
-            while (true)
-            {
-                int count = ReadSamusEaterObjectWord(rom, cursor) & 0x7fff;
-                runs.Add(count);
-                for (int block = 0; block < count; block++)
-                    appearances.Add(RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterObjectWord(rom, cursor + 2 + block * 2)));
-                cursor += 2 + count * 2;
-                ushort offset = ReadSamusEaterObjectWord(rom, cursor);
-                cursor += 2;
-                if (offset == 0) break;
-            }
-            native.Add(frame.Pointer, appearances.ToArray());
-            counts.Add(frame.Pointer, runs.ToArray());
+            AssertPicturedAsNative(rom, pictures.Images, RoomObjectSamusEaterVisualFiles.Family, frames, WrittenCells(RoomObjectSamusEaterVisualFiles.Family));
         }
-        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = InstalledRoomObjectSamusEaterVisuals.Stock();
-        var imported = RoomObjectSamusEaterVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(InstalledRoomObjectSamusEaterVisuals), words.ToDictionary(pair => RoomObjectSamusEaterVisualFiles.VisualId(NativeObjectDraws.At<SamusEaterDraw>(pair.Key)), pair => pair.Value));
-        foreach (var catalog in new[] {stock, imported, installed})
-        {
-            AssertEqual(Hash(native), catalog.ContentIdentity, "plant native flattened stock hash");
-            foreach (var frame in frames)
-            {
-                int index = 0;
-                for (int run = 0; run < counts[frame.Pointer].Length; run++)
-                {
-                    int count = counts[frame.Pointer][run];
-                    for (int block = 0; block < count; block++)
-                        AssertEqual(native[frame.Pointer][index++], catalog.GetAppearance(NativeObjectDraws.At<SamusEaterDraw>(frame.Pointer), run, block), "plant native stock appearance");
-                    foreach (int bad in new[] {int.MinValue, -1, count, int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<SamusEaterDraw>(frame.Pointer),run,bad), "plant stock block bounds");
-                }
-                foreach (int bad in new[] {int.MinValue, -1, counts[frame.Pointer].Length, int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<SamusEaterDraw>(frame.Pointer),bad,0), "plant stock run bounds");
-            }
-        }
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<SamusEaterDraw>((ushort)pointer),0,0), "plant stock rejects unknown pointer");
-        AssertThrows<InvalidDataException>(() => RoomObjectSamusEaterVisualFiles.Create(entries[..7]), "plant missing frame rejected");
-        AssertThrows<InvalidDataException>(() => RoomObjectSamusEaterVisualFiles.Create(entries.Append(entries[0])), "plant duplicate frame rejected");
-        var badEntries = entries.ToArray();
-        badEntries[0] = new("FLOOR-IDLE", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => RoomObjectSamusEaterVisualFiles.Create(badEntries), "plant IDs remain ordinal");
-        badEntries[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
-        AssertThrows<InvalidDataException>(() => RoomObjectSamusEaterVisualFiles.Create(badEntries), "plant wrong shape rejected");
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            if (frames.All(frame => frame.Pointer != raw))
+                AssertThrows<InvalidDataException>(() => installed.Image(NativeObjectDraws.At<SamusEaterDraw>((ushort)raw)), "plant stock unknown pointer");
+        AssertImportAndRejections(rom, installed.Images, RoomObjectSamusEaterVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectSamusEaterVisualDirectory);
     }
 
     /// <summary>Checks the run sizes and signed offsets of each compiled Samus Eater draw.</summary>

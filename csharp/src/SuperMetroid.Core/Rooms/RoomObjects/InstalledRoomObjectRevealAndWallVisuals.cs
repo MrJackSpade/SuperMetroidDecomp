@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
@@ -9,19 +7,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 public sealed class InstalledRoomObjectRevealAndWallVisuals
 {
-    /// <summary>The installed pictures of every reveal and wall frame.</summary>
-    private readonly RoomObjectFramePictures pictures;
+    /// <summary>Holds the pictures the import made of every reveal and wall frame.</summary>
+    /// <param name="images">Every reveal and wall frame's picture, keyed by its draw.</param>
+    internal InstalledRoomObjectRevealAndWallVisuals(RoomObjectFrameImages<RoomObjectDraw> images) => Images = Ensure.NotNull(images);
 
-    /// <summary>Holds the installed pictures of every reveal and wall frame.</summary>
-    /// <param name="pictures">Each frame's cell pictures in run then cell order, keyed by frame.</param>
-    internal InstalledRoomObjectRevealAndWallVisuals(RoomObjectFramePictures pictures) =>
-        this.pictures = Ensure.NotNull(pictures);
+    /// <summary>Every reveal and wall frame's picture, keyed by its draw.</summary>
+    internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
-    /// <summary>The installed picture of cell <paramref name="cell"/> of a reveal or wall frame, counted in run then cell order.</summary>
-    /// <param name="draw">The reveal or wall frame.</param>
-    /// <param name="cell">The cell, counted across the frame's runs in order.</param>
-    /// <returns>The block picture and its mirroring.</returns>
-    /// <exception cref="InvalidDataException">The installation holds no such frame.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The frame has no such cell.</exception>
-    internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int cell) => pictures.At(draw, cell);
+    /// <summary>The picture <paramref name="draw"/> shows.</summary>
+    /// <exception cref="InvalidDataException">The installation holds no picture of the draw.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) => Images.Image(draw);
 }

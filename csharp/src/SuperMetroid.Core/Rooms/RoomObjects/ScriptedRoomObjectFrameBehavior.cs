@@ -5,6 +5,4 @@ internal enum ScriptedRoomObjectFrameBehavior
 {
     /// <summary>Shaktool's room controller.</summary>
     ShaktoolRoomController,
-    /// <summary>The old Tourian escape wall waiting for Samus.</summary>
-    OldTourianWallWaitForSamus,
 }

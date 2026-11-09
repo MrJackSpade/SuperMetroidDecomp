@@ -154,7 +154,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
         GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds, DoorObjects);
-        Tourian = new TourianObjects(services.Samus, services.Events, services.Enemies, SlotTable);
+        Tourian = new TourianObjects(services.Samus, services.Enemies, SlotTable);
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
@@ -305,7 +305,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     IRoomObjectFrameBehavior IScriptedRoomObjectHooks.FrameBehavior(ScriptedRoomObjectFrameBehavior frameBehavior) => frameBehavior switch
     {
         ScriptedRoomObjectFrameBehavior.ShaktoolRoomController => ShaktoolRoomFrameBehaviors.Controller,
-        ScriptedRoomObjectFrameBehavior.OldTourianWallWaitForSamus => TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus,
         _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomObjectFrameBehavior)} {frameBehavior}."),
     };
 }

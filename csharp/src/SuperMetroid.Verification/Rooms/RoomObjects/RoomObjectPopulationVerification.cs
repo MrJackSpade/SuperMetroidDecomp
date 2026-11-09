@@ -33,6 +33,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -997,10 +998,10 @@ internal static class RoomObjectPopulationVerification
                 $"Metroids-cleared {eventNumber} is marked at quota");
         }
         AssertEqual(5, roomObjects.SlotTable.ActiveCount,
-            "Metroids-cleared observers remain resident on their sleep instruction");
-        AssertTrue(roomObjects.PopulationSlots.All(slot =>
-                slot.Animation is RoomObjectSharedAnimation { Program: RoomObjectSharedProgram.Sleep }),
-            "Metroids-cleared observers sleep in the shared typed program");
+            "Metroids-cleared observers stay in the room after their quota is met");
+        AssertTrue(roomObjects.PopulationSlots.OrderBy(slot => slot.ProcessingPosition).Select(slot => slot.Behaviour is MetroidRoomClearanceObject watch ? watch.Cleared : null).SequenceEqual(
+                [null, StoryEvent.FirstMetroidHallCleared, StoryEvent.FirstMetroidShaftCleared, StoryEvent.SecondMetroidHallCleared, StoryEvent.SecondMetroidShaftCleared]),
+            "Metroids-cleared observers are typed watches, each marking its entry's event");
 
         const ushort invalidPopulation = 0x9580;
         SeedRoomObjectPopulation(bus, invalidPopulation,

@@ -14,10 +14,6 @@ internal sealed class ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram prog
     private protected override RoomObjectDraw DrawList(ScriptedRoomObjectFrame frame) => ScriptedRoomObjectDrawDefinitions.DrawLists[frame];
 
     /// <inheritdoc/>
-    private protected override ScriptedRoomObjectProgram? ProgramAfterSleep(ScriptedRoomObjectProgram program) =>
-        program == ScriptedRoomObjectProgram.OldTourianWallWait ? ScriptedRoomObjectProgram.OldTourianWallOpen : null;
-
-    /// <inheritdoc/>
     private protected override ScriptedRoomObjectProgram? Publish(ScriptedRoomObjectCue cue, RoomObjectSlot slot, RoomObjectStepContext context)
     {
         switch (cue)

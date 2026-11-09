@@ -14,6 +14,7 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.OldTourianWall;
+using SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>Checks the old Tourian escape shaft wall PLM's trigger, explosion, and cleared blocks.</summary>
 internal static class OldTourianEscapeShaftWallVerification
@@ -24,6 +25,7 @@ internal static class OldTourianEscapeShaftWallVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         VerifyWallExplosionProgramAgainstRom(bus);
+        VerifyWallListAgainstRom(bus);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -110,6 +112,26 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(OldTourianWallExplosionCue.Delete, AssertIs<AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.CueStep>(burst[9], "the burst publishes a cue").Cue, "the burst deletes the explosion");
         AssertTrue(burst[10] is AnimationProgramStep<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>.HoldStep, "the deleted explosion holds");
         AssertEqual(11, burst.Count, "the burst has eleven steps");
+    }
+
+    /// <summary>
+    /// The wall's native list does what <see cref="OldTourianWallObject"/> does (#1554): it installs its wait for Samus
+    /// and sleeps; past the sleep it clears the wait, draws the open wall for one update and ends.
+    /// </summary>
+    private static void VerifyWallListAgainstRom(SuperMetroidAddressSpace rom)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(0x840000 | address);
+        RoomObjectInstruction InstructionWord(int address) => (RoomObjectInstruction)Word(address);
+        ushort entry = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.OldTourianEscapeShaftFakeWall) + 2);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionWord(entry), "the wall first installs its wait");
+        AssertEqual(OldTourianEscapeShaftWallObjectDefinitionsConstants.WaitForSamusFrameBehavior, Word(entry + 2), "the wall waits for Samus");
+        AssertEqual(RoomObjectInstruction.Sleep, InstructionWord(entry + 4), "the wall sleeps while it waits");
+        AssertEqual(RoomObjectInstruction.ClearFrameBehavior, InstructionWord(entry + 6), "past its sleep the wall stops waiting");
+        AssertEqual(1, (int)Word(entry + 8), "the open wall shows for one update");
+        AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw),
+            (int)Word(entry + 10), "the open wall's draw");
+        AssertEqual(RoomObjectInstruction.Delete, InstructionWord(entry + 12), "the wall ends after it opens");
     }
 
     /// <summary>Runs the focused old Tourian escape shaft wall verification command.</summary>

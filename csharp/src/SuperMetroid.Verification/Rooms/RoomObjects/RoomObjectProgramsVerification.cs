@@ -145,7 +145,6 @@ internal static class RoomObjectProgramsVerification
                 ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
                 ScriptedRoomObjectFrameBehavior installed =
                     routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomFrameBehaviors.Controller) ? ScriptedRoomObjectFrameBehavior.ShaktoolRoomController
-                    : routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomObjectFrameBehavior.OldTourianWallWaitForSamus
                     : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
                 cue = new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: installed);
                 length = 4;

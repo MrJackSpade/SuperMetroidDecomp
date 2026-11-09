@@ -16,8 +16,6 @@ internal static class ScriptedRoomObjectProgramDefinitions
         {
             [P.ElevatorPlatform] = [Step.Show(F.ElevatorPlatform0, 4), Step.Show(F.ElevatorPlatform1, 4), Step.Show(F.ElevatorPlatform2, 4), Step.Show(F.ElevatorPlatform1, 4), Step.GoTo(P.ElevatorPlatform)],
             [P.ShaktoolRoomController] = [Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.ShaktoolRoomController)), Step.Hold],
-            [P.OldTourianWallWait] = [Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.OldTourianWallWaitForSamus)), Step.Hold],
-            [P.OldTourianWallOpen] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.ClearFrameBehavior)), Step.Show(F.OldTourianWallOpen, 1), Step.Stop],
             [P.MotherBrainEscapeGate] = [Step.Show(F.MotherBrainGateClosed, 6), Step.Stop],
             [P.MotherBrainEscapeGateClosing] = [Step.Show(F.MotherBrainGateOpen, 2), Step.Show(F.MotherBrainGateHalfClosed, 2), Step.Show(F.MotherBrainGateClosed, 2), Step.Stop],
         });

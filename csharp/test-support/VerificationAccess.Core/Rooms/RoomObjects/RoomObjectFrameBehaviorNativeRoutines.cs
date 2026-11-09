@@ -43,7 +43,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
         var routines = new Dictionary<IRoomObjectFrameBehavior, ushort>
         {
             [RoomObjectFrameBehaviors.Inert] = RoomObjectFrameBehaviorDefinitions.SpawnDefault,
-            [TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus] = OldTourianEscapeShaftWallObjectDefinitionsConstants.WaitForSamusFrameBehavior,
             [DraygonCannonFrameBehaviors.MissileHit] = DraygonNativeWords.MissileHitFrameBehavior,
             [MotherBrainGlassFrameBehaviors.Hit] = MotherBrainGlassObjectProgramDefinitionsConstants.HitFrameBehavior,
             [BombTorizoHandFrameBehaviors.WakeIfSamusHasBombs] = BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior,
@@ -67,8 +66,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
         foreach (SpeedBoosterEscapeFrameBehavior routine in Enum.GetValues<SpeedBoosterEscapeFrameBehavior>()
                      .Where(routine => routine != SpeedBoosterEscapeFrameBehavior.None))
             routines.Add(SpeedBoosterEscapeFrameBehaviors.Of(routine), RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Word(routine));
-        for (ushort roomArgument = 0; roomArgument < 26; roomArgument += 2)
-            routines.Add(TourianFrameBehaviors.MetroidsClearedFor(roomArgument / 2), MetroidsCleared(roomArgument));
         return routines;
     }
 }

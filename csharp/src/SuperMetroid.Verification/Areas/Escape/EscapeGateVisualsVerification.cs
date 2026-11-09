@@ -1,14 +1,10 @@
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Areas.Escape.LookupEscapeGateStockVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Escape;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Mother Brain escape gate visuals against PLM collision and install contracts.</summary>
 internal static class EscapeGateVisualsVerification

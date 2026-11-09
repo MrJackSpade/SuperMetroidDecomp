@@ -204,5 +204,6 @@ internal static class RoomObjectFrameImageFiles
     private sealed record FrameEntry(string Id, FrameCell[] Cells);
 
     /// <summary>One pictured cell: its place from the object's origin, the block it shows and how that block is mirrored.</summary>
+    [SpatialComponents("External format: a room object's frame document stores each pictured cell's offset from the object's origin as x/y blocks.")]
     private sealed record FrameCell(int X, int Y, int Block, BlockMirroring Mirroring);
 }

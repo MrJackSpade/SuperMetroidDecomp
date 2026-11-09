@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -24,6 +25,6 @@ internal static class LookupMotherBrainStockVerification
             new(0x96ef, "clear-bottom-left-tube"), new(0x9703, "clear-bottom-right-tube")];
         foreach (InstalledMotherBrainFakeDeathFrames pictures in new[] { InstalledMotherBrainFakeDeathFrames.Stock(), installed })
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectMotherBrainFakeDeathVisualFiles.Family, frames, 230);
-        AssertImportAndRejections(rom, installed.Images, RoomObjectMotherBrainFakeDeathVisualFiles.Family);
+        AssertImportAndRejections(rom, installed.Images, RoomObjectMotherBrainFakeDeathVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectMotherBrainFakeDeathVisualDirectory);
     }
 }

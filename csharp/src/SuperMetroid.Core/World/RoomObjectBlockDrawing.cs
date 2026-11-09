@@ -14,8 +14,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Bosses.Draygon.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 
@@ -323,9 +321,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))
         {
-            RoomObjectFrameImage gate = Installed(_visuals.RoomObjectEscapeGateVisuals, "Mother Brain escape gate").Images.Image(escapeGate.Frame);
+            RoomObjectFrameImage gateImage = Installed(_visuals.RoomObjectEscapeGateVisuals, "Mother Brain escape gate").Images.Image(escapeGate.Frame);
             for (int row = 0; row < MotherBrainEscapeGateObjectDrawDefinitions.Height; row++)
-                DrawImageCell(level, draw, origin, gate, new Offset16<RoomBlocks>(0, row), MotherBrainEscapeGateDraws.Draw.CollisionAt(row));
+                DrawImageCell(level, draw, origin, gateImage, new Offset16<RoomBlocks>(0, row), MotherBrainEscapeGateDraws.Draw.CollisionAt(row));
             return;
         }
         if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -18,6 +19,6 @@ internal static class LookupMotherBrainGlassStockVerification
             new(0x978f, "shatter-1"), new(0x97b7, "shatter-2"), new(0x97e7, "shatter-3"), new(0x9817, "cleared")];
         foreach (InstalledMotherBrainGlassFrames pictures in new[] { InstalledMotherBrainGlassFrames.Stock(), installed })
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectMotherBrainGlassVisualFiles.Family, frames, 92);
-        AssertImportAndRejections(rom, installed.Images, RoomObjectMotherBrainGlassVisualFiles.Family);
+        AssertImportAndRejections(rom, installed.Images, RoomObjectMotherBrainGlassVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectMotherBrainGlassVisualDirectory);
     }
 }

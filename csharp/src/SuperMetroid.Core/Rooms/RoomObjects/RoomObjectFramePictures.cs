@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// One room-object family's installed frame pictures (#1557): for every frame the family draws, keyed by the frame, the
 /// pre-coloured block picture each of its cells shows, in run then cell order, exactly as installed. The import pictures
-/// every frame from the cartridge's own draws, and the game shows what is installed: Core keeps no picture of its own and
+/// every frame at install, and the game shows what is installed: Core keeps no picture of its own and
 /// nothing stands in for a frame the installation lacks. A frame's terrain, the collision and block behaviour it writes
 /// into the level, stays the game's; only what each cell shows comes from here.
 /// </summary>

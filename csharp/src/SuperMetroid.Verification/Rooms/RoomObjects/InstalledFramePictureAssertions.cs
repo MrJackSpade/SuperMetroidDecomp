@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 
@@ -118,8 +117,12 @@ internal static class InstalledFramePictureAssertions
     /// Requires the importer's pictures of every frame, read from <paramref name="rom"/>, to equal the installed ones, and
     /// the installed file to be rejected when a frame is missing, repeated, misnamed or misshapen.
     /// </summary>
+    /// <param name="rom">The cartridge the importer pictures the frames from.</param>
+    /// <param name="installed">The family's installed pictures.</param>
+    /// <param name="family">The family's frames and installed file.</param>
+    /// <param name="installedDirectory">The repository installation's directory of the family's pictures.</param>
     internal static void AssertImportAndRejections<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameImages<TFrame> installed,
-        RoomObjectFrameFamily<TFrame> family) where TFrame : struct, Enum
+        RoomObjectFrameFamily<TFrame> family, string installedDirectory) where TFrame : struct, Enum
     {
         foreach (TFrame frame in Enum.GetValues<TFrame>())
         {
@@ -132,10 +135,11 @@ internal static class InstalledFramePictureAssertions
         string directory = Path.Combine(Path.GetTempPath(), "sm-1557-" + Guid.NewGuid().ToString("N"));
         try
         {
-            RoomObjectFrameImageFiles.Extract(rom, directory, SupportedCartridge.Sha256, family);
+            // The edited copies are written beside each other in a scratch directory; the stock file is the installation's.
+            Directory.CreateDirectory(directory);
+            string stock = File.ReadAllText(Path.Combine(installedDirectory, family.FileName));
             string path = Path.Combine(directory, family.FileName);
-            string stock = File.ReadAllText(path);
-            AssertEqual(installed.All.Count, RoomObjectFrameImageFiles.Load(directory, family).All.Count, family.Name + " extracted file loads");
+            AssertEqual(installed.All.Count, RoomObjectFrameImageFiles.Load(installedDirectory, family).All.Count, family.Name + " installed file loads");
             var document = System.Text.Json.Nodes.JsonNode.Parse(stock)!.AsObject();
             var frames = document["frames"]!.AsArray();
 

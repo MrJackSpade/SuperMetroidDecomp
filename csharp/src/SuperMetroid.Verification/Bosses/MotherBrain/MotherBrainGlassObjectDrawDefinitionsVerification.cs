@@ -23,7 +23,6 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks compiled Mother Brain glass draw layouts through the guarded production PLM path.</summary>
 internal static class MotherBrainGlassObjectDrawDefinitionsVerification

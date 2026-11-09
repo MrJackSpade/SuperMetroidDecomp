@@ -4,8 +4,6 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 namespace SuperMetroid.Verification.Areas.Escape;
 

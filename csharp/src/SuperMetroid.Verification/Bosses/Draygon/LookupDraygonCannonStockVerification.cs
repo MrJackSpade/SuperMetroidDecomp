@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
@@ -19,6 +20,6 @@ internal static class LookupDraygonCannonStockVerification
             new(0xa1a1, "left-damaged-d")];
         foreach (InstalledDraygonCannonFrames pictures in new[] { InstalledDraygonCannonFrames.Stock(), installed })
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectDraygonCannonVisualFiles.Family, frames, 48);
-        AssertImportAndRejections(rom, installed.Images, RoomObjectDraygonCannonVisualFiles.Family);
+        AssertImportAndRejections(rom, installed.Images, RoomObjectDraygonCannonVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectDraygonCannonVisualDirectory);
     }
 }

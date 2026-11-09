@@ -9,21 +9,19 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 public sealed class RoomObjectFrameImage
 {
-    /// <summary>What the frame shows at each cell it covers, by the cell's place from the object's origin.</summary>
-    private readonly IReadOnlyDictionary<Offset16<RoomBlocks>, RoomBlockAppearance> cells;
 
     /// <summary>Holds a frame's picture, which the import has checked covers exactly the frame's cells.</summary>
     /// <param name="cells">What the frame shows at each cell, owned by the picture.</param>
     internal RoomObjectFrameImage(IReadOnlyDictionary<Offset16<RoomBlocks>, RoomBlockAppearance> cells) =>
-        this.cells = Ensure.NotNull(cells);
+        Cells = Ensure.NotNull(cells);
 
     /// <summary>Every cell the frame shows, by its place from the object's origin.</summary>
-    internal IReadOnlyDictionary<Offset16<RoomBlocks>, RoomBlockAppearance> Cells => cells;
+    internal IReadOnlyDictionary<Offset16<RoomBlocks>, RoomBlockAppearance> Cells { get; }
 
     /// <summary>What the frame shows at <paramref name="cell"/>, a place from the object's origin.</summary>
     /// <exception cref="InvalidDataException">The frame's picture covers no cell there.</exception>
     internal RoomBlockAppearance At(Offset16<RoomBlocks> cell) =>
-        cells.TryGetValue(cell, out RoomBlockAppearance shown)
+        Cells.TryGetValue(cell, out RoomBlockAppearance shown)
             ? shown
             : throw new InvalidDataException($"The installed room-object frame covers no cell at ({cell.X},{cell.Y}).");
 }

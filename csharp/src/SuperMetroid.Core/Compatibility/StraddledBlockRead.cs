@@ -8,15 +8,57 @@ namespace SuperMetroid.Core.Compatibility;
 /// it as the block to restore, so the straddled block is gameplay-observable.
 /// </summary>
 /// <remarks>
-/// Consulted by the horizontal Wave-shot reaction scan, for each block it reaches at a straddling position. The straddled
-/// block takes the first block's two highest block-number bits, its reflections and its collision family as the low eight
-/// bits of its block number; the second block's low eight block-number bits give the rest of its block number (two bits),
-/// its reflections (two bits) and its collision family (four bits). Evidence: the original scan (<c>$94:A352</c>) adds the
-/// room width twice to a byte offset with one carry clear, and reads the unaligned word at an odd offset.
+/// <para>
+/// Consulted by the horizontal Wave-shot reaction scan during the projectile pass, once for each step of its scan
+/// (<see cref="WaveScanReadAt"/>). The scan counts its place in halves of a block, within a cycle of 65536 halves: it
+/// starts at the target column of the shot's top row (the row and the room's width taken within the
+/// <see cref="BlockScanCycle"/>), and each step adds the room's width twice, the second addition taking one more half
+/// when the first ran past the cycle. A place on a half that is not a block's first half straddles that block and the
+/// next.
+/// </para>
+/// <para>
+/// The straddled block takes the first block's two highest block-number bits, its reflections and its collision family as
+/// the low eight bits of its block number; the second block's low eight block-number bits give the rest of its block
+/// number (two bits), its reflections (two bits) and its collision family (four bits). Evidence: the original scan
+/// (<c>$94:A352</c>) adds the room width twice to a byte offset with one carry clear, and reads the unaligned word at an
+/// odd offset.
+/// </para>
 /// </remarks>
 [CompatibilityService("a Wave shot's scan past the room's ceiling reads a block straddling two neighbouring blocks")]
 public static class StraddledBlockRead
 {
+    /// <summary>The halves of a block the scan counts its place in.</summary>
+    private const int HalvesPerBlock = 2;
+
+    /// <summary>The halves the scan's place counts before it continues from zero.</summary>
+    private const int HalfPlaces = 65536;
+
+    /// <summary>
+    /// Where a Wave shot's horizontal reaction scan reads at <paramref name="step"/>: from the shot's top row, one row
+    /// further for each step until the walk wraps past the cycle, where the carried half makes it straddle two blocks.
+    /// </summary>
+    /// <param name="topRow">The row of the shot's top edge, which may lie outside the scan cycle.</param>
+    /// <param name="column">The column of the shot's leading edge.</param>
+    /// <param name="roomWidth">The room's width in blocks.</param>
+    /// <param name="step">The scan's step, zero for the top row.</param>
+    public static WaveScanRead WaveScanReadAt(int topRow, int column, int roomWidth, int step)
+    {
+        Ensure.AtLeastZero(column);
+        Ensure.AtLeastZero(roomWidth);
+        Ensure.AtLeastZero(step);
+        int place = WithinPlaces(
+            (BlockScanCycle.Within(topRow) * BlockScanCycle.Within(roomWidth) + column) * HalvesPerBlock);
+        for (int taken = 0; taken < step; taken++)
+        {
+            int first = place + roomWidth;
+            place = WithinPlaces(first + roomWidth + (first >= HalfPlaces ? 1 : 0));
+        }
+        return new WaveScanRead(place / HalvesPerBlock, place % HalvesPerBlock != 0);
+    }
+
+    /// <summary>A place of the scan within its cycle of halves.</summary>
+    private static int WithinPlaces(int halves) => halves % HalfPlaces;
+
     /// <summary>The block-number bits the straddled block takes from each half.</summary>
     private const int HalfBits = 8;
 

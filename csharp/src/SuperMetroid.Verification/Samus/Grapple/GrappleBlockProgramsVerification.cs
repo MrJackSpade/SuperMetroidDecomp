@@ -84,8 +84,8 @@ internal static class GrappleBlockProgramsVerification
             AssertEqual(1, layout.Runs.Length, "Grapple frame is one run");
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),layout.Runs.Span[0].Direction,layout.Runs.Span[0].Count,"Grapple native single-block geometry");
             AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))),draw.Terrain,"Grapple native terrain");
-            AssertEqual((int)unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),layout.NextStart(0).X,"Grapple native terminal X");
-            AssertEqual((int)unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),layout.NextStart(0).Y,"Grapple native terminal Y");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),layout.NextStart(0).X,"Grapple native terminal X");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),layout.NextStart(0).Y,"Grapple native terminal Y");
             AssertEqual(draw,exported.Single(entry => NativeObjectDraws.AddressOf(RoomObjectDraw.Of(entry.Frame)) == pointer),"Grapple exported draw matches calculation");
         }
     }

@@ -82,7 +82,7 @@ public sealed record SuperMetroidSaveSlot(
     public bool JapaneseText { get; init; }
 
     /// <summary>
-    /// The cumulative item-PLM setup count, not a completion percentage. Gameplay wraps it to zero after
+    /// The cumulative count of item room objects set up, not a completion percentage. Gameplay wraps it to zero after
     /// <see cref="SaveFieldValue.MaximumValue"/>; the slot only carries the value it reached.
     /// </summary>
     public int LoadedItemCount { get; init; }

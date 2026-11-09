@@ -149,8 +149,8 @@ public sealed class AudioQueues
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
     public void QueueRoomMusic(RoomMusic music)
     {
-        // LoadRoomMusic first silences the current track and loads a changed room data set.
-        // LoadNewMusicTrackIfChanged then queues the room's selected track.
+        // Loading a room's music first silences the current track and loads a changed room data set, then queues the
+        // room's selected track if it changed.
         bool changesMusicData = QueueRoomMusicData(music.DataSet);
         // A door into a room that inherits its track leaves the music alone. Most post-Ridley Ceres
         // states deliberately inherit so the escape song and its alarm bed continue through
@@ -211,7 +211,7 @@ public sealed class AudioQueues
     /// two before its pickup step schedules the room track's return.
     /// That step snapshots the currently playing room track, queues silence after 360
     /// frames, then restores that snapshot eight frames later. Queue clearing is part of
-    /// the first opcode: retaining an older delayed room command can pre-empt the fanfare.
+    /// the first step: retaining an older delayed room command can pre-empt the fanfare.
     /// </remarks>
     public void QueuePermanentItemFanfare()
     {

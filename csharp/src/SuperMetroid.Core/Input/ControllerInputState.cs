@@ -47,7 +47,7 @@ public sealed class ControllerInputState
     /// <summary>The controller buttons that were down on the previous update.</summary>
     public ControllerButton Previous { get; private set; }
 
-    /// <summary>The current 16-bit countdown to the next auto-repeat.</summary>
+    /// <summary>The current countdown to the next auto-repeat, 0 through 65535.</summary>
     public WrappingCountdown RepeatTimer { get; private set; }
 
     /// <summary>
@@ -84,14 +84,14 @@ public sealed class ControllerInputState
     {
         Current = input;
 
-        // EOR previous followed by AND current is a compact rising-edge detector. Released
-        // edges disappear because their bits are absent from Current.
+        // The buttons that changed since the previous read, kept only where they are now held, are the newly pressed
+        // ones. Released buttons drop out because they are absent from Current.
         NewlyPressed = Current & (Previous ^ Current);
         NewlyPressedWithRepeat = NewlyPressed;
 
         if (Current != ControllerButton.None && Current == Previous)
         {
-            // The decrement is 16-bit and wraps. If RepeatTimer is zero, it becomes 65535 and does
+            // The decrement wraps below zero. If RepeatTimer is zero, it becomes 65535 and does
             // not pulse—a detail retained because the retail repeat delays remain zero in
             // the known initialization paths and this output is marked unused.
             RepeatTimer = RepeatTimer.Decrement().Remaining;

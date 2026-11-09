@@ -19,7 +19,7 @@ public sealed class AudioSession
     public const int SampleRate = 48_000;
     /// <summary>Two interleaved PCM channels per stereo frame: left followed by right.</summary>
     public const int ChannelCount = 2;
-    /// <summary>Eight hundred stereo frames generated for each 60-Hz update, yielding 1,600 signed 16-bit channel samples.</summary>
+    /// <summary>Eight hundred stereo frames generated for each 60-Hz update, yielding 1,600 signed channel samples from -32768 through 32767.</summary>
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
     /// <summary>Interleaved left/right samples in one update's PCM frame.</summary>
     public const int PcmSamplesPerFrame = StereoFramesPerVideoFrame * ChannelCount;

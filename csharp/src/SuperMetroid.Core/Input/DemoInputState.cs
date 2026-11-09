@@ -102,7 +102,7 @@ public sealed class DemoInputState
         if (!Enabled || Cursor is not { } cursor)
             return;
 
-        // The countdown is a wrapping 16-bit word. In particular, a zero duration wraps and lasts
+        // The countdown wraps below zero to 65535. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
         // intentionally unusual recorded input data.
         CountdownStep frameHold = FrameHold.Decrement();

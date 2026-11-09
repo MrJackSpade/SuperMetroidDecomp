@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// The game's sine and cosine samples over byte angles and the multiplications that use them (#1422): the signed 8.8
-/// and sixteen-bit sine waves, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
+/// The game's sine and cosine samples over trigonometry angles and the multiplications that use them (#1422): the signed
+/// 8.8 sine wave and the one peaking at 32767, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
 /// projectile and screen effect samples them. These are engine math definitions, not editable presentation assets.
 /// </summary>
 public static class Trigonometry
 {
-    /// <summary>The game's 16-bit sine table and its three
+    /// <summary>The game's sine table peaking at 32767 and its three
     /// quadrant continuations. These signed samples peak at +/-32767, unlike
     /// the sign-extended 8.8 table. The positive half equals the stored unsigned
     /// half-wave shifted right once; sign is restored only after that truncation.</summary>
@@ -26,7 +26,7 @@ public static class Trigonometry
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>CalculateSine/Cosine: multiply unsigned speed by
+    /// <summary>The sine or cosine product: multiply unsigned speed by
     /// the signed 8.8 sample, keep product bits 8..23, then restore the sign.
     /// Callers add a quarter-turn themselves when selecting cosine.</summary>
     public static SignedEightEight MultiplySignedSine(int speed, TrigonometryAngle angle)

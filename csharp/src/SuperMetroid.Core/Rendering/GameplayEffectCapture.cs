@@ -88,8 +88,8 @@ public static class GameplayEffectCapture
 
     /// <summary>
     /// The rotating sixteen-sample heat haze over every gameplay line (#1468). The haze is sixteen one-line
-    /// entries repeated through the frame: it starts at the background's vertical scroll's low nibble, while each frame
-    /// the sixteen resident words backward through A, so the first gameplay line reaches the sample at that nibble plus the
+    /// entries repeated through the frame: it starts at the background's vertical scroll's last four bits, while each
+    /// frame rotates the sixteen samples backward, so the first gameplay line reaches the sample at that remainder plus the
     /// wave's phase.
     /// </summary>
     private static SampledScrollWave HeatHaze(int baseScroll, int backgroundVerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>

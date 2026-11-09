@@ -242,9 +242,6 @@ public static class GameplayDisplayCapture
         return new(frame.Paint, new DisplayLayer[] { layer, Hud(latched) }, DisplayBrightness.Full);
     }
 
-    /// <summary>The cells along each side of the plane a turning room's scenery lies on: wider and taller than the screen, so the plane never shows a repeat.</summary>
-    private const int SceneryPlaneCells = 64;
-
     /// <summary>
     /// The pictures fixed in the room around a turning floor (#1545), each placed so its origin lands on its room point,
     /// on a plane scrolled with <paramref name="camera"/> as the actors are drawn; null when there are none.
@@ -254,19 +251,10 @@ public static class GameplayDisplayCapture
     private static TurningRoomScenery? Scenery(ImmutableArray<PerspectiveFloorScenery> scenery, Position16<RoomPixels> camera)
     {
         if (scenery.IsDefaultOrEmpty) return null;
-        var size = new Extent16<TilemapCells>(SceneryPlaneCells, SceneryPlaneCells);
         ImmutableArray<PlacedPlanePicture> placed = [.. scenery.Select(picture => new PlacedPlanePicture(picture.Picture,
-            new Position16<PlanePixels>(OnSceneryPlane(picture.Point.X - picture.Picture.Origin.X),
-                OnSceneryPlane(picture.Point.Y - picture.Picture.Origin.Y)),
+            Offset16<PlanePixels>.Of(picture.Point.X - picture.Picture.Origin.X, picture.Point.Y - picture.Picture.Origin.Y),
             picture.Shading))];
-        return new(new PicturedPlane(size, placed), camera.AsPlaneScroll());
-    }
-
-    /// <summary>Where room coordinate <paramref name="coordinate"/> lies on the scenery's repeating plane, 0 up to its side in pixels.</summary>
-    private static int OnSceneryPlane(int coordinate)
-    {
-        const int side = SceneryPlaneCells * ScreenGeometry.BackgroundTileSizePixels;
-        return ((coordinate % side) + side) % side;
+        return new(new PicturedPlane(placed), camera.AsPlaneOffset());
     }
 
     /// <summary>

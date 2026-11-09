@@ -92,10 +92,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Words of a placed HUD picture's record.</summary>
     private const int HudPictureWords = 2;
     /// <summary>
-    /// Words of a pictured plane's table before its pictures (#1467): its size in cells, x below y, then its count of pictures;
-    /// each picture follows in drawing order as two words, its picture's offset and its upper-left plane pixel, x below y.
+    /// Words of a pictured plane's table before its pictures (#1467, #1555): its count of pictures; each picture follows in
+    /// drawing order as two words, its picture's offset and its upper-left plane pixel, x below y, each a signed sixteen-bit
+    /// half.
     /// </summary>
-    private const int PlaneTableHeaderWords = 2;
+    private const int PlaneTableHeaderWords = 1;
     /// <summary>Words of a placed plane picture's record.</summary>
     private const int PlanePictureWords = 2;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
@@ -424,19 +425,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 
     /// <summary>
     /// Packs <paramref name="plane"/>'s table from <paramref name="offset"/>, as <see cref="PlaneTableHeaderWords"/>
-    /// describes: its size in cells, the count of its pictures, then each picture's offset and its upper-left plane pixel.
+    /// describes: the count of its pictures, then each picture's offset and its upper-left plane pixel.
     /// </summary>
     private static void PackPlane(Span<uint> upload, PicturedPlane plane, int offset, Dictionary<ShownPicture, int> pictureWords)
     {
         ImmutableArray<PlacedPlanePicture> pictures = plane.Pictures;
-        upload[offset] = D3D11ConstantPacking.Halves(plane.Size.X, plane.Size.Y);
-        upload[offset + 1] = (uint)pictures.Length;
+        upload[offset] = (uint)pictures.Length;
         for (int index = 0; index < pictures.Length; index++)
         {
             PlacedPlanePicture placed = pictures[index];
             int record = offset + PlaneTableHeaderWords + index * PlanePictureWords;
             upload[record] = (uint)pictureWords[new(placed.Picture, D3D11PictureColouring.OwnShading, placed.Shading)];
-            upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
+            upload[record + 1] = D3D11ConstantPacking.SignedHalves(placed.Corner.X, placed.Corner.Y);
         }
     }
 

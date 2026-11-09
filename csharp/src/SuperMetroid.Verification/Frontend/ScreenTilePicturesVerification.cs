@@ -303,7 +303,7 @@ internal static class ScreenTilePicturesVerification
         byte[] vram = pause.ShownVram();
         var pageSize = new Extent16<TilemapCells>(AreaMapSize.WidthInTiles, AreaMapSize.HeightInTiles);
         BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles, pageSize);
-        BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles, MenuScreen.PageSize);
+        BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles, PauseFramePageSize);
         PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
         // The colours the pause screen's pictures show, in the cartridge's order (#1512).
         RgbColor[] pauseColours = PauseShownColours.Of(pause);
@@ -313,7 +313,7 @@ internal static class ScreenTilePicturesVerification
             ShownTilemap? tilemap = layer switch
             {
                 PictureGridLayer grid => new ShownTilemap(page, pageSize, grid.Scroll),
-                PicturedPlaneLayer plane when plane.Plane.Equals(shownFrame) => new ShownTilemap(frame, MenuScreen.PageSize, CartridgePageScroll(plane)),
+                PicturedPlaneLayer plane when plane.Plane.Equals(shownFrame) => new ShownTilemap(frame, PauseFramePageSize, CartridgePageScroll(plane)),
                 PicturedPlaneLayer plane => new ShownTilemap(page, pageSize, CartridgePageScroll(plane)),
                 _ => null,
             };
@@ -337,8 +337,11 @@ internal static class ScreenTilePicturesVerification
     /// shows them, while the cartridge leaves the page's tilemap unscrolled and the hardware shows a background from the row
     /// below its scroll, so the oracle reads the tilemap one row down.
     /// </summary>
-    private static Position16<PlanePixels> CartridgePageScroll(PicturedPlaneLayer plane) =>
+    private static Offset16<PlanePixels> CartridgePageScroll(PicturedPlaneLayer plane) =>
         plane.Scroll + new Offset16<PlanePixels>(0, 1);
+
+    /// <summary>The cells of the tilemap the cartridge lays the pause frame out in: one 32-cell screen.</summary>
+    private static readonly Extent16<TilemapCells> PauseFramePageSize = new(32, 32);
 
     /// <summary>
     /// The turning floor the cartridge's floor map and tile characters in <paramref name="vram"/> compose, in the native
@@ -356,7 +359,7 @@ internal static class ScreenTilePicturesVerification
     /// <param name="Rows">The tilemap's cells, row by row from the top-left cell.</param>
     /// <param name="Size">The tilemap's size in cells.</param>
     /// <param name="Scroll">The layer's scroll.</param>
-    private sealed record ShownTilemap(BackgroundTile[] Rows, Extent16<TilemapCells> Size, Position16<PlanePixels> Scroll);
+    private sealed record ShownTilemap(BackgroundTile[] Rows, Extent16<TilemapCells> Size, Offset16<PlanePixels> Scroll);
 
     /// <summary>Asserts <paramref name="pictured"/> and <paramref name="characters"/> are the same screen, naming the first pixel where they differ.</summary>
     private static void AssertSamePixels(RgbaPixel[] pictured, RgbaPixel[] characters, string property)

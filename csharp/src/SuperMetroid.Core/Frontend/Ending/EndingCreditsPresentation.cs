@@ -26,7 +26,7 @@ internal static class EndingCreditsPresentation
             bool crossfading = ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted;
             if (crossfading)
                 layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo, EndingScenery.LogoPicture),
-                    Position16<PlanePixels>.Zero));
+                    Offset16<PlanePixels>.Zero));
             // While the logo's picture fades in, its sprites glow over it. The logo is drawn from the shooting scene's
             // sheet, which holds it.
             layers.Add(Sprites(ending, EndingObjectSheet.RewardFalling, blend: crossfading ? SpriteBlend.Glows : SpriteBlend.Drawn));
@@ -43,7 +43,7 @@ internal static class EndingCreditsPresentation
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
             // Credits intentionally do not run the sprite draw routine.
-            layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), ending.Credits.ScrollPosition));
+            layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), ending.Credits.ScrollPosition.AsPlaneOffset()));
             return new(paint, layers.ToArray(), ending.Stage.Brightness);
         }
         bool waiting = ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop;
@@ -60,8 +60,8 @@ internal static class EndingCreditsPresentation
             {
                 // The wavy Samus glows over the waiting backdrop where it is drawn.
                 int age = EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer;
-                layers.Add(new AddedPicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus, EndingScenery.WavySamus),
-                    PostCreditsLayer(ending), VerticalScroll: EndingWavySamus.VerticalScrollAtAge(age))
+                layers.Add(new AddedPicturedPlaneLayer(ending.WavySamusTexture(), PostCreditsLayer(ending),
+                    VerticalScroll: EndingWavySamus.VerticalScrollAtAge(age))
                 {
                     HorizontalWave = EndingWavySamus.WaveAtAge(age),
                 });
@@ -144,9 +144,10 @@ internal static class EndingCreditsPresentation
     private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending)
     {
         var size = new Extent16<TilemapCells>(EndingScreenDefinitions.TilemapWidth, ending.CreditsRoll.PostCreditsPageHeight);
+        Offset16<PlanePixels> scroll = ending.Stage.PostCreditsScroll.AsPlaneOffset();
         return UsesWaitingBackground(ending)
-            ? new(ending.WaitingPlane(size), ending.Stage.PostCreditsScroll)
-            : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextPage, size), ending.Stage.PostCreditsScroll);
+            ? new(ending.WaitingPlane(), scroll)
+            : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextPage, size), scroll);
     }
 
     /// <summary>What the ending paints with: its backdrop; its sprites are drawn by its sprite layers (#1514).</summary>

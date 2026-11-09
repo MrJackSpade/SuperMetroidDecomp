@@ -133,7 +133,7 @@ internal static class ObjSubscreenVerification
         colors[0] = 31;
         colors[20] = 31 << 10;
         // The subscreen and its coverage picture the one-screen maps at a tilemap word, read as the fixture stands when drawn.
-        PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, AddedPicturedPlaneLayer.MapSize);
+        PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32));
         var memory = FramePaint.FromNative(ToColors(colors), []);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
             new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, 15));
@@ -152,7 +152,7 @@ internal static class ObjSubscreenVerification
             var shown = new SpritesLayer(sprites.SpriteDraws);
             var masked = new DisplayPacket(0, new LayeredScene(new FramePaint(sprites.Backdrop),
                 new DisplayLayer[] { shown, new AddedPicturedPlaneLayer(Plane(0x7000),
-                    new PicturedPlaneLayer(Plane(0x6800), new Position16<PlanePixels>(0, 0)), shown) }, 15));
+                    new PicturedPlaneLayer(Plane(0x6800), Offset16<PlanePixels>.Zero), shown) }, 15));
             var pixels = DisplayRendering.Render(masked);
             AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "a glow over a plane does not add to the backdrop");
             AssertEqual(palette == 4 ? new RgbaPixel(0, 255, 255) : new RgbaPixel(0, 255, 0), pixels[8 * 256 + 8],

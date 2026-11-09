@@ -60,13 +60,12 @@ public static class IntroNarrationPictures
     }
 
     /// <summary>The plane position of the cell at <paramref name="column"/> of <paramref name="row"/>.</summary>
-    private static Position16<PlanePixels> At(int column, int row) =>
+    private static Offset16<PlanePixels> At(int column, int row) =>
         new(column * ScreenGeometry.BackgroundTileSizePixels, row * ScreenGeometry.BackgroundTileSizePixels);
 
     /// <summary>The installed narration picture sheet.</summary>
     private static SpriteSheet Sheet(InstalledSpriteSheets sheets) => Ensure.NotNull(sheets).Get(SpriteSheetId.IntroNarrationPictures);
 
     /// <summary>A narration plane holding <paramref name="placed"/>.</summary>
-    private static PicturedPlane Plane(ImmutableArray<PlacedPlanePicture> placed) =>
-        new(new Extent16<TilemapCells>(PlaneCells, PlaneCells), placed);
+    private static PicturedPlane Plane(ImmutableArray<PlacedPlanePicture> placed) => new(placed);
 }

@@ -35,7 +35,7 @@ public static class IntroScenePictures
         Ensure.NotNull(shading);
         placed.Add(new(sheet.Frame(Portrait), default, shading));
         if (eye is { } frame)
-            placed.Add(new(sheet.Frame(Eye(frame)), new Position16<PlanePixels>(
+            placed.Add(new(sheet.Frame(Eye(frame)), new Offset16<PlanePixels>(
                 IntroEyeAnimationDefinitions.PortraitCell.X * ScreenGeometry.BackgroundTileSizePixels,
                 IntroEyeAnimationDefinitions.PortraitCell.Y * ScreenGeometry.BackgroundTileSizePixels), shading));
         return Plane(placed.ToImmutable());
@@ -45,6 +45,5 @@ public static class IntroScenePictures
     private static SpriteSheet Sheet(InstalledSpriteSheets sheets) => Ensure.NotNull(sheets).Get(SpriteSheetId.IntroScenePictures);
 
     /// <summary>A scene plane holding <paramref name="placed"/>.</summary>
-    private static PicturedPlane Plane(ImmutableArray<PlacedPlanePicture> placed) =>
-        new(new Extent16<TilemapCells>(PlaneCells, PlaneCells), placed);
+    private static PicturedPlane Plane(ImmutableArray<PlacedPlanePicture> placed) => new(placed);
 }

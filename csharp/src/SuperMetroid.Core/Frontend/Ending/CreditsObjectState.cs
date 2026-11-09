@@ -18,8 +18,6 @@ internal sealed class CreditsObjectState
 {
     /// <summary>The rows the screen holds: one screen of eight-pixel rows, which the newest rows replace as they are taken.</summary>
     internal const int RowsHeld = 32;
-    /// <summary>The roll's plane in cells: a screen wide, and as tall as the sixteen-bit scroll reaches.</summary>
-    private static readonly Extent16<TilemapCells> PlaneCells = new(32, PicturedPlane.MaximumCells);
     /// <summary>16.16 credits scroll; only the vertical axis moves, half a pixel per accepted update, wrapping at sixteen bits.</summary>
     private FixedPosition<PlanePixels> scroll;
     /// <summary>Last whole scroll position that caused a row to be taken.</summary>
@@ -81,8 +79,8 @@ internal sealed class CreditsObjectState
             if (pictures[row] is not { } picture)
                 continue;
             int top = (row + RowsHeld) * ScreenGeometry.BackgroundTileSizePixels;
-            placed.Add(new PlacedPlanePicture(rows.Frame(picture), new Position16<PlanePixels>(0, top), shading));
+            placed.Add(new PlacedPlanePicture(rows.Frame(picture), Offset16<PlanePixels>.Of(0, top), shading));
         }
-        return new PicturedPlane(PlaneCells, placed.ToImmutable());
+        return new PicturedPlane(placed.ToImmutable());
     }
 }

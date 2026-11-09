@@ -149,10 +149,11 @@ public sealed class FileSelectAreaMapGraphics
         // The foreground and the area's background are their pictures in the area's world-map colours (#1467, #1512).
         InstalledSpriteSheets sheets = worldSheets ?? throw new InvalidOperationException("The world map's pictures are bound when the game is bound to its installed content.");
         AreaId area = AreaIds.At(SelectedArea);
-        var foreground = new PicturedPlaneLayer(new PicturedPlane(MenuScreen.PageSize,
-            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), default, PictureShading.Standard)]), default);
-        var background = new PicturedPlane(MenuScreen.PageSize,
-            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[area]).Frame(AreaMapPictures.WorldBackgroundFrame), default, PictureShading.Standard)]);
+        var foreground = new PicturedPlaneLayer(new PicturedPlane(
+            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapForegrounds[area]).Frame(AreaMapPictures.WorldForegroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]),
+            Offset16<PlanePixels>.Zero);
+        var background = new PicturedPlane(
+            [new PlacedPlanePicture(sheets.Get(ScreenTileSheetDefinitions.AreaMapBackgrounds[area]).Frame(AreaMapPictures.WorldBackgroundFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
         return new(screen.Paint(), new DisplayLayer[] {
             foreground,
             new AddedPicturedPlaneLayer(background, GlowsOver(glow, foreground)) }, DisplayBrightness.Full);

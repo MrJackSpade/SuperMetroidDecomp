@@ -12,4 +12,10 @@ internal static class D3D11ConstantPacking
 
     /// <summary>Two sixteen-bit halves in one constant word, <paramref name="low"/> in the lower half.</summary>
     public static uint Halves(ushort low, ushort high) => low | (uint)high << 16;
+
+    /// <summary>
+    /// Two signed sixteen-bit halves in one constant word, <paramref name="low"/> in the lower half (#1555): the shader
+    /// reads each half back as signed.
+    /// </summary>
+    public static uint SignedHalves(short low, short high) => Halves(unchecked((ushort)low), unchecked((ushort)high));
 }

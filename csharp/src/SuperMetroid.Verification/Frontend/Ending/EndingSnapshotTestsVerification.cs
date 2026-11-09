@@ -214,7 +214,7 @@ internal static class EndingSnapshotTestsVerification
                     var textPlane = flash.LayersOf<PicturedPlaneLayer>().Single();
                     // E48A clears the copyright before the final page is first shown, so the final page shows no text yet.
                     AssertTrue(textPlane.Plane.Pictures.IsEmpty, "final text page starts cleared");
-                    AssertEqual(64, (int)textPlane.Plane.Size.Y, "final text map is two screens tall");
+                    AssertEqual(64, legacy.CreditsRoll.PostCreditsPageHeight, "final text page is two screens tall");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)), "post-shot flash begins fully white");
                 }

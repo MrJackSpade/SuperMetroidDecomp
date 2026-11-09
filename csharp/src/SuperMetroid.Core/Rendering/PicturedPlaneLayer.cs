@@ -1,12 +1,13 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// A scrolled frontend background drawn from placed pictures (#1467): every picture's pixels at the layer's place in its
-/// scene's order (#1514), clear pixels showing what lies behind unless <see cref="ShowsClearPixelColours"/> is set.
+/// A scrolled frontend background drawn from placed pictures (#1467, #1555): every picture's pixels at the layer's place in
+/// its scene's order (#1514), clear pixels showing what lies behind unless <see cref="ShowsClearPixelColours"/> is set. The
+/// plane does not repeat: a screen pixel no picture covers shows what lies behind.
 /// </summary>
 /// <param name="Plane">The plane's pictures.</param>
-/// <param name="Scroll">The plane's scroll in pixels, before the plane repeats.</param>
-public sealed record PicturedPlaneLayer(PicturedPlane Plane, Position16<PlanePixels> Scroll) : DisplayLayer
+/// <param name="Scroll">The plane pixel shown at the screen's top-left corner: screen pixel (x, y) shows plane pixel (x + X, y + Y).</param>
+public sealed record PicturedPlaneLayer(PicturedPlane Plane, Offset16<PlanePixels> Scroll) : DisplayLayer
 {
     /// <summary>The plane's pictures.</summary>
     public PicturedPlane Plane

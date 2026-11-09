@@ -504,22 +504,40 @@ internal sealed class EndingCreditsState : IFrontendScreen
         ];
         return new(EndingCreditsPresentation.Paint(this), layers, Stage.Brightness);
 
-        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Position16<PlanePixels>.Zero);
+        PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Offset16<PlanePixels>.Zero);
     }
-
-    /// <summary>One screen of cells, the size of every whole-screen ending picture.</summary>
-    private static readonly Extent16<TilemapCells> ScreenCells = new(EndingScreenDefinitions.TilemapWidth, EndingScreenDefinitions.TilemapHeight);
 
     /// <summary>The ending's installed picture <paramref name="picture"/> of sheet <paramref name="sheet"/>.</summary>
     private SpriteSheetFrame Picture(SpriteSheetId sheet, string picture) => InstalledArtwork.SpriteSheet(sheet).Frame(picture);
 
     /// <summary>
-    /// A one-screen plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, in
-    /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole, never gated by whether
-    /// its upload has happened (#1515).
+    /// A plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, at the
+    /// screen's corner in its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole,
+    /// never gated by whether its upload has happened (#1515).
     /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, EndingScenery scenery) =>
-        new(ScreenCells, [new PlacedPlanePicture(Picture(sheet, picture), Position16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);
+        new([new PlacedPlanePicture(Picture(sheet, picture), Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);
+
+    /// <summary>
+    /// The wavy Samus's texture (#1555): its one-screen picture in the ending's colours (#1512), repeated across and down
+    /// the plane edge to edge, so the texture covers every screen line as its scroll climbs through the whole hold and
+    /// its wave pushes each line sideways, less than one picture's width either way.
+    /// </summary>
+    internal PicturedPlane WavySamusTexture()
+    {
+        SpriteSheetFrame picture = Picture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus);
+        PictureShading shading = screen.Colours.SceneryShading(EndingScenery.WavySamus);
+        int width = picture.Size.X, height = picture.Size.Y;
+        int lowestShownLine = EndingWavySamus.VerticalScrollAtAge(EndingSequenceDefinitions.Timing.WaitingBackdropFrames)
+            + ScreenGeometry.ScreenHeightPixels;
+        var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
+        for (int top = 0; top < lowestShownLine; top += height)
+        {
+            for (int left = -width; left <= width; left += width)
+                placed.Add(new PlacedPlanePicture(picture, Offset16<PlanePixels>.Of(left, top), shading));
+        }
+        return new PicturedPlane(placed.ToImmutable());
+    }
 
     /// <summary>
     /// The explosion's one-screen <paramref name="map"/> (#1467, #1515), its picture placed where the screen shows it: its
@@ -528,9 +546,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// </summary>
     private PicturedPlane ExplosionPlane(EndingObjectFragmentId map)
     {
-        int height = ScreenCells.Y * ScreenGeometry.BackgroundTileSizePixels;
-        var corner = new Position16<PlanePixels>(0, height - EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
-        return new PicturedPlane(ScreenCells, [new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
+        var corner = new Offset16<PlanePixels>(0, -EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
+        return new PicturedPlane([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
             EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
     }
 
@@ -538,15 +555,15 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
         screen.Colours.SceneryShading(EndingScenery.CreditsRows));
 
-    /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane (#1467, #1515), in the ending's colours (#1512).</summary>
-    internal PicturedPlane WaitingPlane(Extent16<TilemapCells> size) => new(size,
-        [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<PlanePixels>.Zero,
+    /// <summary>The waiting scene's backdrop (#1467, #1515), in the ending's colours (#1512).</summary>
+    internal PicturedPlane WaitingPlane() => new(
+        [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Offset16<PlanePixels>.Zero,
             screen.Colours.SceneryShading(EndingScenery.WaitingBackdrop))]);
 
     /// <summary>
     /// The <paramref name="size"/> plane of the text page <paramref name="page"/> (#1467, #1515): the staging page's text as
-    /// it is now, each piece's picture at its cell, in the ending's colours (#1512). A two-screen final page shows its lower
-    /// screen's text below it.
+    /// it is now, each piece's picture at its cell, in the ending's colours (#1512). A two-screen final page's lower screen
+    /// lies just above its first, where the page shows it as the page scrolls down (#1555).
     /// </summary>
     /// <exception cref="ArgumentException">The result page is asked for two screens.</exception>
     internal PicturedPlane TextPagePlane(EndingTextScreen page, Extent16<TilemapCells> size)
@@ -565,15 +582,15 @@ internal sealed class EndingCreditsState : IFrontendScreen
         {
             Place(postCreditsPage.Written, 0);
             if (twoScreens)
-                Place(screen.FinalPageLowerText, EndingScreenDefinitions.TilemapHeight);
+                Place(screen.FinalPageLowerText, -EndingScreenDefinitions.TilemapHeight);
         }
-        return new PicturedPlane(size, placed.ToImmutable());
+        return new PicturedPlane(placed.ToImmutable());
 
         // Places each piece of text `firstRow` rows down the plane.
         void Place(ImmutableArray<WrittenPicture> text, int firstRow)
         {
             foreach (WrittenPicture shown in text)
-                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<PlanePixels>(
+                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Offset16<PlanePixels>(
                     shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
                     (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels), shading));
         }
@@ -586,7 +603,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private LayeredScene CaptureExplosionBurst()
     {
         EndingObjectSheet sheet = EndingCreditsPresentation.CurrentEscapeObjectSheet(this);
-        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap), Position16<PlanePixels>.Zero);
+        var planet = new PicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.InitialMap), Offset16<PlanePixels>.Zero);
         SpritesLayer debris = EndingCreditsPresentation.Sprites(this, sheet, EndingSpriteLayer.Actors);
         DisplayLayer[] layers =
         [

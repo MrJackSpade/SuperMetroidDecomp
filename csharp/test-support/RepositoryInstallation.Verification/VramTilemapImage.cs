@@ -10,9 +10,9 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>
 /// What one background shows of a laid-out tilemap over a memory image's characters (#1467), decoded on the CPU as the
 /// cartridge's screen draws it, for checks that a screen's pictures draw what its tilemaps draw: each screen pixel shows
-/// the cell its scrolled position lands on, the map repeating at its edges, and that cell's character pixel, mirrored as
-/// the cell mirrors it, in the colour its palette row and ink name; the backdrop shows where that pixel is colour zero or
-/// the cell lies in a priority tier the layer does not draw.
+/// the cell its scrolled position lands on and that cell's character pixel, mirrored as the cell mirrors it, in the colour
+/// its palette row and ink name; the backdrop shows where that pixel is colour zero, the cell lies in a priority tier the
+/// layer does not draw, or the position lies off the map, which does not repeat, as the port's screens do not (#1555).
 /// </summary>
 internal static class VramTilemapImage
 {
@@ -53,7 +53,7 @@ internal static class VramTilemapImage
     /// </summary>
     /// <exception cref="ArgumentException">The image is not a whole memory image, or the tilemap does not fill the map.</exception>
     internal static RgbaPixel[] Draw(ReadOnlySpan<BackgroundTile> rows, Extent16<TilemapCells> size, ReadOnlySpan<byte> image, int characterWord,
-        TileInkDepth depth, ReadOnlySpan<RgbColor> colours, Position16<PlanePixels> scroll, bool? priority, RgbColor backdrop)
+        TileInkDepth depth, ReadOnlySpan<RgbColor> colours, Offset16<PlanePixels> scroll, bool? priority, RgbColor backdrop)
     {
         Ensure.LengthEqual(image, SnesVram.ByteCount);
         Ensure.LengthEqual(rows, size.X * size.Y);
@@ -66,7 +66,12 @@ internal static class VramTilemapImage
         {
             for (int x = 0; x < ScreenGeometry.ScreenWidthPixels; x++)
             {
-                int planeX = ((x + scroll.X) & ushort.MaxValue) % width, planeY = ((y + scroll.Y) & ushort.MaxValue) % height;
+                int planeX = x + scroll.X, planeY = y + scroll.Y;
+                if (planeX < 0 || planeY < 0 || planeX >= width || planeY >= height)
+                {
+                    screen[y * ScreenGeometry.ScreenWidthPixels + x] = backdrop.ToRgbaPixel();
+                    continue;
+                }
                 BackgroundTile cell = rows[planeY / CellPixels * size.X + planeX / CellPixels];
                 int ink = 0;
                 if (priority is not { } tier || cell.HighPriority == tier)

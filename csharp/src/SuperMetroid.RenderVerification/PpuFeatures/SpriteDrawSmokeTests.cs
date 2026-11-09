@@ -122,7 +122,7 @@ internal static class SpriteDrawSmokeTests
             PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,
                 new Extent16<TilemapCells>(32, 32));
             Check(memory, [], $"seeded scene {cases}");
-            Check(memory, [new PicturedPlaneLayer(plane, new Position16<PlanePixels>(3, 11))], $"seeded sprites over a plane {cases}");
+            Check(memory, [new PicturedPlaneLayer(plane, new Offset16<PlanePixels>(3, 11))], $"seeded sprites over a plane {cases}");
         }
 
         // Draws the frame's sprite draws as one sprite layer over `behind` (#1514).

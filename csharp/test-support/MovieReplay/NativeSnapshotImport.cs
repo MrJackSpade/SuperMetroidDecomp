@@ -303,8 +303,7 @@ internal static class NativeSnapshotImport
             slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             slot.Radius = new(W(address + 10), W(address + 12));
             // The species bits of the property words are the entry's spawn settings, which the population already holds.
-            slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineFlagsOf(W(address + 14));
-            slot.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf(W(address + 16));
+            SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineStateOf(W(address + 14), W(address + 16)).ApplyTo(slot);
             slot.AiStates = SuperMetroid.AssetExtraction.Enemies.EnemyAiStatesWordCodec.Decode(W(address + 18));
             slot.Health = W(address + 20);
             // A free native slot keeps its last occupant's word in that occupant's bank; a free port slot shows no frame.

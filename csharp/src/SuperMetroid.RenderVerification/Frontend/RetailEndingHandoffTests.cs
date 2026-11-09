@@ -58,7 +58,7 @@ internal static class RetailEndingHandoffTests
             GunshipPartState.Of(top).Function = GunshipFunction.AcceleratingLiftoff;
             // The staged hull starts outside this fixture's camera. Explicitly keep
             // its AI active; this is handoff coverage, not full departure validation.
-            top.Properties = top.Properties.With(EnemyProperties.ProcessOffScreen);
+            top.Processing = top.Processing.With(EnemyProcessing.OffScreen);
             runtime.Player.IntroducedSamus.Control.LockHandlers();
             runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(EndingHandoffFixtureDefinitions.TakeoffBoundaryY);
             runtime.FrameBoundary.BeginAcceptedFrame(0);

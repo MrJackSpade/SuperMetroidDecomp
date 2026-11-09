@@ -23,11 +23,19 @@ internal static class RoomEnemyPopulationRecordCodec
         EnemySpawnSettings settings = EnemySpawnSettingsCodec.Decode(enemy, words);
         if (words.SpeciesPropertyBits != 0 && EnemySpawnSettingsCodec.Encode(settings).SpeciesPropertyBits == 0)
             throw new InvalidDataException($"Enemy {enemy}'s property word ${properties:X4} holds species bits its settings do not take.");
+        EnemyPropertyState state = EnemyPropertyWordCodec.DecodeWithSpeciesBits(properties, extraIsSettings ? 0 : extraProperties);
+        if (state.NewInstructionFrame)
+        {
+            throw new InvalidDataException(
+                $"Enemy {enemy}'s extra-property word ${extraProperties:X4} sets the new-frame flag, which an authored placement never sets.");
+        }
         return new RoomEnemyPopulationRecord(
             enemy,
             new Position16<RoomPixels>(checked((ushort)x), checked((ushort)y)),
-            EnemyPropertyWordCodec.EngineFlagsOf(properties),
-            extraIsSettings ? EnemyExtraProperties.None : EnemyPropertyWordCodec.DecodeExtra(extraProperties),
+            state.Contact,
+            state.Processing,
+            state.Presence,
+            state.DrawsExtendedFrames,
             settings);
     }
 
@@ -37,8 +45,9 @@ internal static class RoomEnemyPopulationRecordCodec
         PopulationWords settings = EnemySpawnSettingsCodec.Encode(record.SpawnSettings);
         return new PopulationEntryWords(
             record.Position.X, record.Position.Y, settings.Initialization,
-            EnemyPropertyWordCodec.Encode(record.Properties) | settings.SpeciesPropertyBits,
-            EnemyPropertyWordCodec.Encode(record.ExtraProperties) | settings.ExtraProperties,
+            EnemyPropertyWordCodec.EncodePropertyWord(record.Contact, record.Processing, record.Presence) | settings.SpeciesPropertyBits,
+            EnemyPropertyWordCodec.EncodeExtraPropertyWord(
+                EnemyPropertyState.None with { DrawsExtendedFrames = record.DrawsExtendedFrames }) | settings.ExtraProperties,
             settings.Parameter1, settings.Parameter2);
     }
 }

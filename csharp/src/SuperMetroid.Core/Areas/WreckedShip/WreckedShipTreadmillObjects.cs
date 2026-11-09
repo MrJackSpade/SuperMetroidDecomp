@@ -73,9 +73,8 @@ internal sealed class WreckedShipTreadmillObjects : IRoomObjectFamilySource
     }
 
     /// <summary>
-    /// Spawns the effectively invisible elevatube PLM at (1,0). Its ordinary
-    /// instruction list supplies a sixteen-frame delay, queues the elevatube sound, and
-    /// deletes; the shared interpreter already owns each of those operations.
+    /// Spawns the effectively invisible elevatube object at (1,0): it waits sixteen updates, plays the elevatube sound
+    /// and leaves the room.
     /// </summary>
     /// <returns>False only when all forty PLM slots are occupied.</returns>
     public bool TrySpawnMaridiaElevatube(RoomLevelData level)
@@ -88,8 +87,7 @@ internal sealed class WreckedShipTreadmillObjects : IRoomObjectFamilySource
 
         slot.Header = RoomObjectHeaderId.MaridiaElevatube;
         slot.BlockIndex = blockIndex;
-        slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.MaridiaElevatube));
-        slot.FrameHold = 1;
+        slot.Become(new MaridiaElevatubeObject());
         return true;
     }
 

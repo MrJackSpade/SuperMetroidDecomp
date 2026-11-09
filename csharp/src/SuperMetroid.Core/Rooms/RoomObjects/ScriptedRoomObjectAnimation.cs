@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -23,22 +22,12 @@ internal sealed class ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram prog
     {
         switch (cue)
         {
-            case ScriptedRoomObjectCue.QueueSound queueSound:
-                context.QueueSound(queueSound.Sound, queueSound.Priority);
-                return null;
             case ScriptedRoomObjectCue.InstallFrameBehavior installFrameBehavior:
                 slot.FrameBehavior = context.RoomObjects.ScriptedHooks.FrameBehavior(installFrameBehavior.FrameBehavior ?? throw new InvalidOperationException(
                     $"Undefined {nameof(ScriptedRoomObjectFrameBehavior)} in {installFrameBehavior}."));
                 return null;
             case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.ClearFrameBehavior }:
                 slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
-                return null;
-            case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.SetAnimalsEscapedEvent }:
-                (context.RoomObjects.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))
-                    .Set(StoryEvent.CrittersEscaped);
-                return null;
-            case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.MoveRightFourBlocks }:
-                context.MoveOrigin(slot, 4, 0);
                 return null;
             case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.ContinueIfLowerNorfairAcidLowered }:
                 return context.RoomObjects.ScriptedHooks.HasLoweredLowerNorfairAcid ? ScriptedRoomObjectProgram.LowerNorfairChozoHandLowered : null;

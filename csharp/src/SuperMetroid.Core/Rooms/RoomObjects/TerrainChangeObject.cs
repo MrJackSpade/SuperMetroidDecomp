@@ -28,6 +28,7 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
             return;
         if (_framesDrawn == Change.Frames.Count)
         {
+            End(context);
             context.RoomObjects.DeleteObject(place);
             return;
         }
@@ -38,7 +39,7 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
         if (frame.MoveBefore != Offset16<RoomBlocks>.Zero)
             context.MoveOrigin(place, frame.MoveBefore.X, frame.MoveBefore.Y);
         if (frame.SoundBefore is { } sound)
-            context.QueueSound(sound, SoundRequestPriority.Normal);
+            context.QueueSound(sound, frame.SoundPriority);
         context.Draw(place, frame.Draw);
         _updatesBeforeNextStep = frame.Updates;
     }
@@ -46,6 +47,12 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
     /// <summary>Runs as the change draws its first frame, before that frame's move, sound and draw; nothing by default.</summary>
     /// <param name="context">The update.</param>
     private protected virtual void Begin(RoomObjectStepContext context)
+    {
+    }
+
+    /// <summary>Runs on the update the change ends, just before the object leaves the room; nothing by default.</summary>
+    /// <param name="context">The update.</param>
+    private protected virtual void End(RoomObjectStepContext context)
     {
     }
 }

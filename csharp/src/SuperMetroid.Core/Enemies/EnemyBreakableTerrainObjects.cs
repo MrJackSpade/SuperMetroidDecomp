@@ -15,8 +15,8 @@ internal sealed class EnemyBreakableTerrainObjects
         _slotTable = slotTable;
     }
     /// <summary>
-    /// Spawns the breakable-block PLM: allocate a slot, clear collision immediately, and retain
-    /// artwork until the PLM draws. A full pool skips setup and reports failure.
+    /// Spawns the breakable block's break: take a place, clear the block's collision at once and keep its artwork until
+    /// the break draws. A full room skips the setup and reports failure.
     /// </summary>
     public bool TrySpawnEnemyBreakableBlock(RoomLevelData level, int blockIndex)
     {
@@ -28,8 +28,7 @@ internal sealed class EnemyBreakableTerrainObjects
 
         slot.Header = RoomObjectHeaderId.EnemyBreakableBlock;
         slot.BlockIndex = blockIndex;
-        slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.EnemyBreakableTerrain));
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak));
         level.SetTerrain(blockIndex, block.Terrain.WithCollision(RoomCollisionType.Air));
         return true;
     }

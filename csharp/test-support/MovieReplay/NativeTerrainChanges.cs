@@ -34,7 +34,10 @@ internal static class NativeTerrainChanges
     /// <param name="Sound">The sound requested, or null.</param>
     /// <param name="Begins">Whether this is the change's opening, which must come before its first frame.</param>
     /// <param name="Length">The instruction's native length in bytes.</param>
-    internal readonly record struct NativeStep(Offset16<RoomBlocks> Move, SoundEffectId? Sound, bool Begins, int Length);
+    /// <param name="Priority">The sound's request priority.</param>
+    /// <param name="Effect">A family effect the step makes beyond a move or sound, named for the comparison; null for none.</param>
+    internal readonly record struct NativeStep(Offset16<RoomBlocks> Move, SoundEffectId? Sound, bool Begins, int Length,
+        SoundRequestPriority Priority = SoundRequestPriority.Normal, string? Effect = null);
 
     /// <summary>Decodes the family instruction at <paramref name="cursor"/>, or returns false when the family has none there.</summary>
     internal delegate bool StepReader(IImportCartridgeSource cartridge, ushort cursor, out NativeStep step);
@@ -53,6 +56,20 @@ internal static class NativeTerrainChanges
     internal static int Compare(IImportCartridgeSource cartridge, TerrainChange change, ushort entry, StepReader steps, string family,
         out bool began)
     {
+        int frames = Compare(cartridge, change, entry, steps, family, out began, out IReadOnlyList<NativeStep> atEnd);
+        VerificationAssertions.AssertEqual(0, atEnd.Count, $"{family} list $84:{entry:X4} does nothing as it ends");
+        return frames;
+    }
+
+    /// <summary>
+    /// <see cref="Compare(IImportCartridgeSource, TerrainChange, ushort, StepReader, string, out bool)"/> for a change
+    /// that acts as it ends: <paramref name="atEnd"/> is every step after its last frame other than a move, which an
+    /// object that is then gone makes unseen.
+    /// </summary>
+    internal static int Compare(IImportCartridgeSource cartridge, TerrainChange change, ushort entry, StepReader steps, string family,
+        out bool began, out IReadOnlyList<NativeStep> atEnd)
+    {
+        var sinceFrame = new List<NativeStep>();
         ArgumentNullException.ThrowIfNull(cartridge);
         ArgumentNullException.ThrowIfNull(change);
         ArgumentNullException.ThrowIfNull(steps);
@@ -74,6 +91,13 @@ internal static class NativeTerrainChanges
                 VerificationAssertions.AssertEqual((int)Word(cartridge, cursor + 2), (int)RoomObjectDrawAddressCodec.Of(expected.Draw), $"{at}: draw");
                 VerificationAssertions.AssertEqual(move, expected.MoveBefore, $"{at}: origin move before the frame");
                 VerificationAssertions.AssertEqual(sound, expected.SoundBefore, $"{at}: sound with the frame");
+                foreach (NativeStep before in sinceFrame)
+                {
+                    VerificationAssertions.AssertTrue(before.Effect is null, $"{at}: no family effect comes before a frame");
+                    if (before.Sound is not null)
+                        VerificationAssertions.AssertEqual(before.Priority, expected.SoundPriority, $"{at}: sound priority");
+                }
+                sinceFrame.Clear();
                 move = Offset16<RoomBlocks>.Zero;
                 sound = null;
                 frame++;
@@ -85,7 +109,7 @@ internal static class NativeTerrainChanges
             {
                 // An origin move made just before the delete moves an object that is then gone: nothing sees it.
                 VerificationAssertions.AssertEqual(change.Frames.Count, frame, $"{at}: the native list ends after the typed change's frames");
-                VerificationAssertions.AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound is left for the delete");
+                atEnd = [.. sinceFrame.Where(step => step.Sound is not null || step.Effect is not null)];
                 return frame;
             }
             if (instruction == RoomObjectInstruction.Goto)
@@ -118,6 +142,7 @@ internal static class NativeTerrainChanges
                 VerificationAssertions.AssertEqual(0, frame, $"{at}: the opening comes before the first frame");
                 began = true;
             }
+            sinceFrame.Add(step);
             move = new Offset16<RoomBlocks>(move.X + step.Move.X, move.Y + step.Move.Y);
             if (step.Sound is { } requested)
             {

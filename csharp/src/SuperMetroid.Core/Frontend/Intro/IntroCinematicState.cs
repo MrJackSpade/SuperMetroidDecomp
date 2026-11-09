@@ -1205,10 +1205,8 @@ level, samus, frameCounterWord);
     /// <summary>Builds the portrait page, clears optional Japanese glyphs, and seeds progressive narration and caret state.</summary>
     internal void SetupFirstIllustratedPage()
     {
-        // Blanking the Japanese text blanks its glyphs, and clearing the cinematic background objects to tile 47 clears the staging map
-        // under its border; the final page then maps the final line into rows 24-27. The pages' plane shows the blank text rows
-        // over the installed final line, drawn with the Japanese glyphs blanked (#1467).
-        narrationText.ShowPages();
+        // The pages show blank text rows over the installed final line, drawn with the Japanese glyphs blanked (#1467).
+        narrationText.ClearText();
         CurrentObjects = new IntroCinematicObjectSystem(
             narrationText,
             subtitles,
@@ -1231,12 +1229,8 @@ level, samus, frameCounterWord);
     /// </summary>
     private bool MusicQueueFinished() => audio is null ? --timer <= 0 : !audio.HasQueuedMusic;
 
-    /// <summary>Clears the narration's text rows and shows them cleared, as the game's clear redraws the visible rows.</summary>
-    private void ClearVisibleNarrationText()
-    {
-        narrationText.ClearText();
-        narrationText.Publish();
-    }
+    /// <summary>Clears the narration's text rows.</summary>
+    private void ClearVisibleNarrationText() => narrationText.ClearText();
 
     /// <summary>Clears the selected colours before an incoming scene begins crossfading.</summary>
     private void ClearPaletteSpans(IntroFadeColours colours)
@@ -1301,7 +1295,7 @@ level, samus, frameCounterWord);
             room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame, paletteFader.SceneShading), new(0, GameplayFlashbackVerticalScroll));
         }
 
-        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), new(0, GameplayFlashbackVerticalScroll));
+        var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, paletteFader.SceneShading, paletteFader.NarrationShading), default);
         // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
         // and sprite is drawn whole at its layer's place; the per-tile and per-sprite-part priority tiers that once
         // interleaved them are a presentation quirk the port does not keep.

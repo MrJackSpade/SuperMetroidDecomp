@@ -39,7 +39,6 @@ internal sealed class EndingEscapeScenes
     internal void SetupEscapeSceneA()
     {
         _stage.LoadColours(EndingColourLoad.Escape);
-        _stage.RequireFloorArtwork();
         _artwork.RequireEscapeCloudArtwork();
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
@@ -50,7 +49,7 @@ internal sealed class EndingEscapeScenes
         _stage.FloorZoom = EndingMotionDefinitions.EscapeInitialScale;
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
-        _stage.PostCreditsScroll = Position16<PlanePixels>.Zero;
+        _artwork.PostCreditsText.Drop = 0;
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
         audio.ScheduleMusic(
@@ -64,7 +63,6 @@ internal sealed class EndingEscapeScenes
     {
         _stage.ResetPaletteFx();
         _stage.PaletteFxSystem.Start(EndingPaletteFxDefinitions.GreyClouds, 0);
-        _stage.RequireFloorArtwork();
         _artwork.RequireEscapeCloudArtwork();
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);

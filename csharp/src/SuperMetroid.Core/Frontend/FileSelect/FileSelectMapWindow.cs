@@ -14,7 +14,10 @@ public sealed class FileSelectMapWindow
     private readonly FileSelectMapWindowMotion motion;
     /// <summary>The left edge: the first screen column inside the rectangle, in pixels and fractions of one from the screen's left.</summary>
     private SignedSixteenSixteen left;
-    /// <summary>The right edge: the first screen column past the rectangle, in pixels and fractions of one from the screen's left.</summary>
+    /// <summary>
+    /// The right edge: the last screen column inside the rectangle, in pixels and fractions of one from the screen's left.
+    /// A window holds the columns from its left edge through its right edge, so one whose edges meet still shows a column.
+    /// </summary>
     private SignedSixteenSixteen right;
     /// <summary>The top edge: the first screen line inside the rectangle, in pixels and fractions of one from the screen's top.</summary>
     private SignedSixteenSixteen top;
@@ -49,7 +52,7 @@ public sealed class FileSelectMapWindow
     public int Left => left.WholePixels;
 
     /// <summary>The first screen column past the rectangle; at or left of <see cref="Left"/>, the rectangle holds no column.</summary>
-    public int Right => right.WholePixels;
+    public int Right => right.WholePixels + 1;
 
     /// <summary>The first screen line inside the rectangle.</summary>
     public int Top => top.WholePixels;
@@ -100,7 +103,7 @@ public sealed class FileSelectMapWindow
         else
         {
             left = OnScreen(left + motion.Left, ScreenGeometry.ScreenWidthPixels);
-            right = OnScreen(right + motion.Right, ScreenGeometry.ScreenWidthPixels);
+            right = OnScreen(right + motion.Right, ScreenGeometry.ScreenWidthPixels - 1);
             top = OnScreen(top + motion.Top, ScreenGeometry.ScreenHeightPixels);
             bottom = OnScreen(bottom + motion.Bottom, ScreenGeometry.ScreenHeightPixels);
         }
@@ -109,8 +112,8 @@ public sealed class FileSelectMapWindow
     }
 
     /// <summary>
-    /// <paramref name="edge"/> kept on the screen, whose side along the edge's axis is <paramref name="side"/> pixels: an
-    /// edge moved past the screen's first or last pixel stops at that edge of the screen.
+    /// <paramref name="edge"/> kept between the screen's first pixel and <paramref name="side"/> along the edge's axis: an
+    /// edge moved past either stops there.
     /// </summary>
     private static SignedSixteenSixteen OnScreen(SignedSixteenSixteen edge, int side) =>
         SignedSixteenSixteen.FromRaw(Math.Clamp(edge.RawValue, 0, SignedSixteenSixteen.FromWholePixels(side).RawValue));

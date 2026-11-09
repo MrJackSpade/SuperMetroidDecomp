@@ -21,13 +21,13 @@ internal static class EndingRewardIconArtworkVerification
     /// <summary>Compares retail pixels and VRAM through the reward jump and the icon's reveal.</summary>
     internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
-        EndingFloorArtwork stock = installation.LoadEndingMode7Art();
+        EndingFloorCharacters stock = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         byte[] native = RomDataReader.Decompress(source,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
-        AssertTrue(EndingFloorCharacters.RewardIconOf(stock).Bytes.Span.SequenceEqual(native.AsSpan(0,
+        AssertTrue(EndingRewardIconCharacters.Of(stock.RewardIcon).Bytes.Span.SequenceEqual(native.AsSpan(0,
                 EndingRewardIconArtworkFormat.ByteCount)),
             "reward icon JSON/PNG preserves all interleaved native map and character bytes");
 
@@ -36,7 +36,6 @@ internal static class EndingRewardIconArtworkVerification
         var installedAudio = AudioQueues.Standalone();
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
-        installedScene.Stage.BindFloorArtwork(stock);
         int jumpFrames = 0;
         for (int frame = 0; frame < 60_000 &&
             nativeScene.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)
@@ -72,7 +71,7 @@ internal static class EndingRewardIconArtworkVerification
             "installed reward icon never rereads its compressed cartridge stream");
         AssertTrue(installedScene.ShownVram()
                 [..EndingRewardIconArtworkFormat.ByteCount].SequenceEqual(
-                    EndingFloorCharacters.RewardIconOf(stock).Bytes.Span),
+                    EndingRewardIconCharacters.Of(stock.RewardIcon).Bytes.Span),
             "the revealed icon is the installed icon image");
 
         Console.WriteLine("Reward icon: native VRAM/pixel parity through its reveal passes.");

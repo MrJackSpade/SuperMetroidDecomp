@@ -28,7 +28,7 @@ internal static class EndingRewardGestureVerification
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
-        EndingFloorArtwork rewardArtwork = RepositoryInstallation.Installation.LoadEndingMode7Art();
+        EndingFloorCharacters rewardArtwork = RepositoryInstallation.Installation.LoadEndingMode7Art();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);

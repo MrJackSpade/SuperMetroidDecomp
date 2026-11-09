@@ -3,75 +3,52 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The opening's narration text as display-model text (#1467). Until the first illustrated page the narration plane shows
-/// the installed first card. From then on it shows the narration's letters at their cells over the installed final line,
-/// each letter in the colour variant its glow last gave it.
+/// The opening's narration text as a typed text scene (#1467, #1555): the letter typed at each place of the narration's
+/// fixed-width text rows, each in the colour variant its glow last gave it. The narration types letters into it and its
+/// glows recolour them; the cinematic shows it as it is, each letter at its screen pixel over the installed final line.
 /// </summary>
 /// <remarks>
-/// The narration types letters and its glows recolour cells in staging; the cinematic shows the staged rows when it
-/// publishes them, once each update after the objects run and whenever it clears the page, as the game copies its
-/// staging map to the narration plane. Letters only ever lie in the text rows between the top border and the final line.
+/// Letters only ever lie in the text rows between the top border and the final line. The
+/// narration's typing and glows run before the frame is shown in every update that changes them, so what the text holds
+/// is what the frame shows.
 /// </remarks>
 internal sealed class IntroNarrationText
 {
-    /// <summary>The first cell of the text rows.</summary>
-    private const int FirstTextCell = IntroCinematicDefinitions.Text.GameplayBlankStartIndex;
+    /// <summary>The first text row, counted in glyphs from the narration's top.</summary>
+    internal const int FirstTextRow = IntroNarrationDefinitions.FirstTextRow;
 
-    /// <summary>The cells of the text rows.</summary>
-    private const int TextCells = IntroCinematicDefinitions.Text.GameplayBlankWordCount;
+    /// <summary>The text rows, from <see cref="FirstTextRow"/> down to the final line.</summary>
+    internal const int TextRows = 20;
 
-    /// <summary>The cells along a text row.</summary>
+    /// <summary>The glyph places along a text row.</summary>
     internal const int RowCells = IntroCinematicDefinitions.Planes.Width;
 
-    /// <summary>The text rows' staged cells, which the narration types into and its glows recolour.</summary>
-    private readonly IntroTextCell[] staging = new IntroTextCell[TextCells];
+    /// <summary>The letter and colour variant at each place of the text rows, row by row.</summary>
+    private readonly IntroTextCell[] places = new IntroTextCell[TextRows * RowCells];
 
-    /// <summary>The text rows' shown cells.</summary>
-    private readonly IntroTextCell[] shown = new IntroTextCell[TextCells];
+    /// <summary>The letter at <paramref name="column"/> of text row <paramref name="row"/>, counted from the narration's top.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place lies outside the text rows.</exception>
+    internal IntroTextCell ShownAt(int column, int row) => places[PlaceIndex(column, row)];
 
-    /// <summary>Whether the plane shows the installed first card rather than the narration pages.</summary>
-    internal bool FirstCardShown { get; private set; } = true;
-
-    /// <summary>The first row of the text rows.</summary>
-    internal static int FirstTextRow => FirstTextCell / RowCells;
-
-    /// <summary>The rows the text rows span.</summary>
-    internal static int TextRows => TextCells / RowCells;
-
-    /// <summary>The shown cell at <paramref name="column"/> of text row <paramref name="row"/>, counted from the plane's top.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The cell lies outside the text rows.</exception>
-    internal IntroTextCell ShownAt(int column, int row) => shown[TextIndex(column, row)];
-
-    /// <summary>Replaces the first card with the narration pages, every text cell blank and shown blank.</summary>
-    internal void ShowPages()
-    {
-        FirstCardShown = false;
-        Array.Clear(staging);
-        Array.Clear(shown);
-    }
-
-    /// <summary>Types <paramref name="character"/> into its cell, in colour variant zero; a space blanks the cell.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The character's cell lies outside the text rows.</exception>
+    /// <summary>Types <paramref name="character"/> at its place, in colour variant zero; a space blanks the place.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The character's place lies outside the text rows.</exception>
     internal void Type(IntroNarrationCharacter character) =>
-        staging[TextIndex(character.Column, character.Row)] = new(character.IsSpace ? null : character.Character, 0);
+        places[PlaceIndex(character.Column, character.Row)] = new(character.IsSpace ? null : character.Character, 0);
 
-    /// <summary>Gives the staged cell at <paramref name="cell"/> colour variant <paramref name="colourVariant"/>, keeping what it shows.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The cell lies outside the text rows.</exception>
-    internal void Recolour(Position16<TilemapCells> cell, int colourVariant)
+    /// <summary>Gives the place at <paramref name="column"/> of row <paramref name="row"/> colour variant <paramref name="colourVariant"/>, keeping its letter.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place lies outside the text rows.</exception>
+    internal void Recolour(int column, int row, int colourVariant)
     {
-        int index = TextIndex(cell.X, cell.Y);
-        staging[index] = staging[index] with { ColourVariant = colourVariant };
+        int index = PlaceIndex(column, row);
+        places[index] = places[index] with { ColourVariant = colourVariant };
     }
 
-    /// <summary>Blanks every staged text cell.</summary>
-    internal void ClearText() => Array.Clear(staging);
+    /// <summary>Blanks every place of the text rows.</summary>
+    internal void ClearText() => Array.Clear(places);
 
-    /// <summary>Shows the staged text rows.</summary>
-    internal void Publish() => staging.CopyTo(shown, 0);
-
-    /// <summary>The index in the text rows of the cell at <paramref name="column"/> of row <paramref name="row"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The cell lies outside the text rows.</exception>
-    private static int TextIndex(int column, int row) =>
+    /// <summary>The index of the place at <paramref name="column"/> of row <paramref name="row"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place lies outside the text rows.</exception>
+    private static int PlaceIndex(int column, int row) =>
         (Ensure.BetweenInclusive(FirstTextRow, FirstTextRow + TextRows - 1, row) - FirstTextRow) * RowCells +
         Ensure.BetweenInclusive(0, RowCells - 1, column);
 }

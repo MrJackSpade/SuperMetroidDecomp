@@ -27,7 +27,7 @@ public sealed class CeresEscapeOverlays
     private CeresEscapeOverlays(Dictionary<CeresEscapeOverlayWord, BackgroundTile> edits) => this.edits = edits;
 
     /// <summary>One page's calculated and edited tiles, in tilemap order.</summary>
-    private BackgroundTile[] PageTiles(CeresEscapeOverlayTilemapDefinition page)
+    private BackgroundTile[] PageTiles(CeresEscapeWarningPicture page)
     {
         var tiles = new BackgroundTile[page.WordCount];
         for (int index = 0; index < page.WordCount; index++)
@@ -56,7 +56,7 @@ public sealed class CeresEscapeOverlays
     /// <summary>Provides a page's tiles only when <paramref name="page"/> is one of the five overlays.</summary>
     /// <param name="page">The overlay.</param>
     /// <param name="tiles">Its tiles, or empty when it is not one of the overlays.</param>
-    internal bool TryResolve(CeresEscapeOverlayTilemapDefinition page, out ReadOnlyMemory<BackgroundTile> tiles)
+    internal bool TryResolve(CeresEscapeWarningPicture page, out ReadOnlyMemory<BackgroundTile> tiles)
     {
         if (CeresEscapeOverlayPages.All.Contains(page))
         {
@@ -78,7 +78,7 @@ public sealed class CeresEscapeOverlays
             throw new InvalidDataException(
                 $"Ceres escape overlay requires version {CeresWarningGlyphDefinitions.Version} and five named tilemaps.");
         var compiled = new Dictionary<CeresEscapeOverlayWord, BackgroundTile>();
-        foreach (CeresEscapeOverlayTilemapDefinition definition in
+        foreach (CeresEscapeWarningPicture definition in
                  CeresEscapeOverlayPages.All)
         {
             if (!document.Pages.TryGetValue(definition.Name, out BackgroundTile[]? tiles) ||

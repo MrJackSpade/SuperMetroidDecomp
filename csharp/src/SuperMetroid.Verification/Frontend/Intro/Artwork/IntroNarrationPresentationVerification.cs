@@ -91,13 +91,8 @@ internal static class IntroNarrationPresentationVerification
             "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload and ROM-read guard pass.");
     }
 
-    /// <summary>Narration text showing the pages, every text cell blank, as the first illustrated page leaves it.</summary>
-    private static IntroNarrationText PagesText()
-    {
-        var text = new IntroNarrationText();
-        text.ShowPages();
-        return text;
-    }
+    /// <summary>Narration text with every place blank, as the first illustrated page leaves it.</summary>
+    private static IntroNarrationText PagesText() => new();
 
     /// <summary>Whether <paramref name="text"/> shows a letter in any text cell.</summary>
     private static bool ShowsAnyLetter(IntroNarrationText text)

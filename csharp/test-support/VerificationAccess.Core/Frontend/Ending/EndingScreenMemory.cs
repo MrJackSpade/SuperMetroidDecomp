@@ -17,7 +17,7 @@ internal static class EndingScreenMemory
 {
     /// <summary>The image <paramref name="loads"/> leave over the bound artwork.</summary>
     [WholeImageFixture("the ending's VRAM image")]
-    internal static byte[] Compose(EndingScreenLoads loads, EndingFloorArtwork? floor, CeresFlightArtwork? flight, EndingObjectArtwork? objects,
+    internal static byte[] Compose(EndingScreenLoads loads, EndingFloorCharacters? floor, CeresFlightArtwork? flight, EndingObjectArtwork? objects,
         EndingFontAtlas? font, EndingReward reward)
     {
         ArgumentNullException.ThrowIfNull(loads);
@@ -25,7 +25,7 @@ internal static class EndingScreenMemory
         var artwork = new EndingTransferArtwork(objects, font, reward);
         if (loads.FloorScene is { } loaded)
         {
-            EndingFloorSceneArtwork scene = EndingFloorCharacters.SceneOf(Required(floor), loaded);
+            EndingFloorSceneArtwork scene = Required(floor)[loaded];
             var mode7 = new Mode7Vram(vram);
             mode7.LoadMap(scene.Map.Span);
             mode7.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
@@ -39,7 +39,7 @@ internal static class EndingScreenMemory
         if (loads.RewardIcon)
             for (int chunk = 0; chunk < EndingRewardGraphicsUploadDefinitions.ChunkCount; chunk++)
                 vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
-                    EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(Required(floor))).Bytes.Span.Slice(
+                    EndingRewardIconCharacters.Of(Required(floor).RewardIcon).Bytes.Span.Slice(
                         EndingRewardGraphicsUploads.ChunkOffset(chunk), EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (loads.ExplosionMaps)
         {
@@ -76,6 +76,6 @@ internal static class EndingScreenMemory
     }
 
     /// <summary>The bound floor artwork.</summary>
-    private static EndingFloorArtwork Required(EndingFloorArtwork? floor) =>
+    private static EndingFloorCharacters Required(EndingFloorCharacters? floor) =>
         floor ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
 }

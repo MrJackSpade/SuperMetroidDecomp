@@ -1,25 +1,28 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Eight independently aging glowing rectangles of narration text.</summary>
+/// <summary>Eight independently aging glows of typed narration letters.</summary>
 internal sealed class CinematicTextGlowSystem
 {
     /// <summary>Eight glow records age independently and are allocated from the highest free slot.</summary>
     private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowDefinitions.SlotCount];
 
-    /// <summary>Starts a glow over the text rectangle at <paramref name="cell"/>; an occupied eight-slot pool silently drops the request.</summary>
-    public void Spawn(Position16<TilemapCells> cell, Extent16<TilemapCells> size)
+    /// <summary>
+    /// Starts a glow over the letter at <paramref name="column"/> of row <paramref name="row"/>; an occupied eight-slot pool
+    /// silently drops the request.
+    /// </summary>
+    public void Spawn(int column, int row)
     {
         for (int i = slots.Length - 1; i >= 0; i--)
         {
             if (slots[i].Active) continue;
-            slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = 1 };
+            slots[i] = new GlowSlot { Active = true, Column = column, Row = row, Timer = 1 };
             return;
         }
     }
 
     /// <summary>
-    /// Advances active rectangles when their timers expire, giving each staged cell they cover the rectangle's current
-    /// colour variant while keeping what it shows, and ending after the final variant.
+    /// Advances active glows when their timers expire, giving the letter each covers the glow's current colour variant
+    /// while keeping the letter, and ending after the final variant.
     /// </summary>
     public void Step(IntroNarrationText text)
     {
@@ -28,9 +31,7 @@ internal sealed class CinematicTextGlowSystem
         {
             ref GlowSlot slot = ref slots[i];
             if (!slot.Active || --slot.Timer != 0) continue;
-            for (int row = 0; row < slot.Size.Y; row++)
-            for (int column = 0; column < slot.Size.X; column++)
-                text.Recolour(new(slot.Cell.X + column, slot.Cell.Y + row), slot.ColourVariant);
+            text.Recolour(slot.Column, slot.Row, slot.ColourVariant);
             if (slot.ColourVariant == CinematicTextGlowDefinitions.FinalVariant)
                 slot.Active = false;
             else
@@ -41,19 +42,19 @@ internal sealed class CinematicTextGlowSystem
         }
     }
 
-    /// <summary>One independently timed text rectangle in the cinematic glow pool.</summary>
+    /// <summary>One independently timed letter glow in the cinematic glow pool.</summary>
     private struct GlowSlot
     {
         /// <summary>Whether this slot currently participates in text glow updates.</summary>
         public bool Active;
-        /// <summary>Upper-left text cell of the glow rectangle.</summary>
-        public Position16<TilemapCells> Cell;
-        /// <summary>Number of text cells recoloured along each axis.</summary>
-        public Extent16<TilemapCells> Size;
-        /// <summary>Frames until this rectangle's next colour phase.</summary>
+        /// <summary>The glowing letter's column of the narration's text rows.</summary>
+        public int Column;
+        /// <summary>The glowing letter's row, counted from the narration's top.</summary>
+        public int Row;
+        /// <summary>Frames until this glow's next colour phase.</summary>
         public int Timer;
         /// <summary>
-        /// Current colour variant given to the rectangle's cells: zero when the glow starts, raised by one each phase up to
+        /// Current colour variant given to the glow's letter: zero when the glow starts, raised by one each phase up to
         /// <see cref="CinematicTextGlowDefinitions.FinalVariant"/>, where the glow ends.
         /// </summary>
         public int ColourVariant;

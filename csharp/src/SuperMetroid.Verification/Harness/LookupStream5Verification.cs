@@ -550,24 +550,32 @@ internal static class LookupStream5Verification
             AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(source - 1, 1) && !CeresEscapeTileArtworkDefinitionsTooling.Contains(source + page.ByteCount, 1), "Outside page rejected");
             AssertTrue(!CeresEscapeTileArtworkDefinitionsTooling.Contains(source, 0), "Zero byte page rejected");
         }
-        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x0cb)), new("japanese_0", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x28a)), new("japanese_1", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x2aa)), new("japanese_2", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x2ca)), new("japanese_3", SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(0x2ea))];
-        AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayPages.All), "Original named overlay order/cell");
+        // Each picture's corner is the room pixel of the foreground word the cartridge writes it at.
+        CeresEscapeWarningPicture[] overlays = [new("emergency", CornerOfWord(0x0cb)), new("japanese_0", CornerOfWord(0x28a)), new("japanese_1", CornerOfWord(0x2aa)), new("japanese_2", CornerOfWord(0x2ca)), new("japanese_3", CornerOfWord(0x2ea))];
+        AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayPages.All), "Original named overlay order/place");
         AssertTrue(overlays.Select(page => page.WordCount).SequenceEqual([9, 12, 12, 11, 11]), "Original overlay extents");
         int[] overlaySources = [0xa6c164, 0xa6c3f4, 0xa6c40c, 0xa6c424, 0xa6c43a];
         for (int index = 0; index < overlays.Length; index++)
         {
-            CeresEscapeOverlayTilemapDefinition page = overlays[index];
+            CeresEscapeWarningPicture page = overlays[index];
             int source = overlaySources[index];
             AssertEqual(source, CeresEscapeNativeSources.OverlaySource(page), "Extraction reads the overlay from its original source");
-            AssertTrue(CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, page.WordCount * 2), "Exact overlay extent admitted");
-            AssertTrue(!CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, page.WordCount * 2 - 1), "Partial overlay extent rejected");
-            AssertTrue(CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(source) && CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(source + page.WordCount * 2 - 1), "Overlay byte endpoints admitted");
+            AssertTrue(CeresEscapeWarningPicturesTooling.IsSource(source, page.WordCount * 2), "Exact overlay extent admitted");
+            AssertTrue(!CeresEscapeWarningPicturesTooling.IsSource(source, page.WordCount * 2 - 1), "Partial overlay extent rejected");
+            AssertTrue(CeresEscapeWarningPictures.ContainsByteAddress(source) && CeresEscapeWarningPictures.ContainsByteAddress(source + page.WordCount * 2 - 1), "Overlay byte endpoints admitted");
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[-1], "Overlay lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayPages.All[5], "Overlay upper bound");
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
+
+        // The room pixel of the top-left corner of foreground word `word`.
+        static Position16<RoomPixels> CornerOfWord(int word)
+        {
+            Position16<TilemapCells> cell = SuperMetroid.Core.Rooms.Backgrounds.TwoScreenTilemapCells.CellAt(word);
+            return new(cell.X * ScreenGeometry.BackgroundTileSizePixels, cell.Y * ScreenGeometry.BackgroundTileSizePixels);
+        }
     }
     /// <summary>Checks authored area-map landmark tiles and their native reveal cases.</summary>
     internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)

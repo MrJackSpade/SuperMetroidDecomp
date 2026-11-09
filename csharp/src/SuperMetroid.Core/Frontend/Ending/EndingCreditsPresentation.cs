@@ -43,7 +43,7 @@ internal static class EndingCreditsPresentation
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
             // Credits intentionally do not run the sprite draw routine.
-            layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), ending.Credits.ScrollPosition.AsPlaneOffset()));
+            layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), Offset16<PlanePixels>.Of(0, ending.Credits.ScrolledPixels)));
             return new(paint, layers.ToArray(), ending.Stage.Brightness);
         }
         bool waiting = ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop;
@@ -140,15 +140,9 @@ internal static class EndingCreditsPresentation
         || ending.Stage.Phase == EndingCreditsPhase.PostCreditsShootingStars
         || (ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward != EndingReward.Armored);
 
-    /// <summary>The post-credits background plane: the waiting backdrop, or the shown text page at its current scroll and height.</summary>
-    private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending)
-    {
-        var size = new Extent16<TilemapCells>(EndingScreenDefinitions.TilemapWidth, ending.CreditsRoll.PostCreditsPageHeight);
-        Offset16<PlanePixels> scroll = ending.Stage.PostCreditsScroll.AsPlaneOffset();
-        return UsesWaitingBackground(ending)
-            ? new(ending.WaitingPlane(), scroll)
-            : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextPage, size), scroll);
-    }
+    /// <summary>The post-credits background: the waiting backdrop, or the post-credits text, each one unscrolled screen.</summary>
+    private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending) =>
+        new(UsesWaitingBackground(ending) ? ending.WaitingPlane() : ending.PostCreditsTextPlane(), Offset16<PlanePixels>.Zero);
 
     /// <summary>What the ending paints with: its backdrop; its sprites are drawn by its sprite layers (#1514).</summary>
     internal static FramePaint Paint(EndingCreditsState ending) => new(ending.screen.Colours.Backdrop);

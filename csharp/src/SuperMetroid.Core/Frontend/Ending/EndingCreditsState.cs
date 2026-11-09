@@ -37,8 +37,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             Flyaway.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
-        if (!ReferenceEquals(previous.EndingFloorArt, artwork.EndingFloorArt))
-            Stage.BindFloorArtwork(artwork.EndingFloorArt);
         if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
             InstalledArtwork.BindObjectArtwork(artwork.EndingObjectArt);
         if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))
@@ -56,13 +54,11 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal readonly EndingScreen screen = new();
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     internal readonly List<EndingSprite> sprites = [];
-    /// <summary>The post-credits staging page.</summary>
-    private readonly EndingTextPage postCreditsPage = new();
     /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
     internal CreditsObjectState Credits => InstalledArtwork.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
-    /// <summary>The state of the post-credits text, which exists while that phase runs.</summary>
-    private EndingBackgroundTextState PostCreditsText => InstalledArtwork.ActivePostCreditsText ??
+    /// <summary>The post-credits typed text the ending advances, which exists while its phases run.</summary>
+    private EndingTypewriter PostCreditsTyping => InstalledArtwork.PostCreditsText.Typing ??
         throw new InvalidOperationException("The post-credits text is not running.");
     /// <summary>Waiting updates the ending setup has made so far.</summary>
     private int setupFrameWaits;
@@ -107,7 +103,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage, Flyaway, InstalledArtwork);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
-        CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, postCreditsPage, Stage, InstalledArtwork);
+        CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, Stage, InstalledArtwork);
         InstalledArtwork.BindEndingText(setup.EndingText);
         Stage.Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
@@ -299,10 +295,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // Function 132 shows the complete result panel in rows nine through seventeen before the
-                    // following 180-frame hold.
+                    // Function 132 shows the complete result panel before the following 180-frame hold.
                     _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
-                    postCreditsPage.Write(EndingPictureNames.ResultPanel, EndingResultTextLayout.ResultPanelCell);
+                    InstalledArtwork.PostCreditsText.ShowResultPanel();
                     Stage.PhaseTimer = 180;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
                 }
@@ -394,8 +389,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentage:
-                PostCreditsText.Step();
-                if (PostCreditsText.RequestedItemPercentageScroll && PostCreditsText.Completed)
+                PostCreditsTyping.Step();
+                if (PostCreditsTyping.RequestedItemPercentageScroll && PostCreditsTyping.Completed)
                 {
                     Stage.PhaseTimer = 40;
                     Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
@@ -403,12 +398,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentageScrollDown:
-                // Function 148 moves the text page down two pixels per call from zero through -80,
-                // preserving the already-built page until the final object is spawned.
-                Stage.PostCreditsScroll -= new Offset16<PlanePixels>(0, 2);
+                // Function 148 moves the shown text down two pixels per call, eighty in all, before the final
+                // message starts above it.
+                InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerCall;
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    InstalledArtwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, Presentation = InstalledArtwork.EndingText, InstalledSequence = InstalledArtwork.EndingText is null ? null : EndingTextSequence.FinalMessage }));
+                    InstalledArtwork.PostCreditsText.StartFinalMessage(CreditsRoll.TypewriterSetup());
                     Stage.Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;
@@ -417,7 +412,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 // The game parks on this final screen. There is no hidden
                 // automatic reset: the console remains on this frame until reset/power-off.
                 EscapeScenes.StepSprites();
-                InstalledArtwork.ActivePostCreditsText?.Step();
+                PostCreditsTyping.Step();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
@@ -507,16 +502,29 @@ internal sealed class EndingCreditsState : IFrontendScreen
         PicturedPlaneLayer Plane(EndingObjectFragmentId map) => new(ExplosionPlane(map), Offset16<PlanePixels>.Zero);
     }
 
+
     /// <summary>The ending's installed picture <paramref name="picture"/> of sheet <paramref name="sheet"/>.</summary>
     private SpriteSheetFrame Picture(SpriteSheetId sheet, string picture) => InstalledArtwork.SpriteSheet(sheet).Frame(picture);
 
     /// <summary>
-    /// A plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, at the
-    /// screen's corner in its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole,
-    /// never gated by whether its upload has happened (#1515).
+    /// A one-screen plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, in
+    /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole, never gated by whether
+    /// its upload has happened (#1515).
     /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, EndingScenery scenery) =>
         new([new PlacedPlanePicture(Picture(sheet, picture), Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);
+
+    /// <summary>
+    /// The explosion's one-screen <paramref name="map"/> (#1467, #1515), its picture placed where the screen shows it: its
+    /// top <see cref="EndingExplosionDisplayDefinitions.MapRowsAboveScreen"/> lie above the screen's top, so the screen shows
+    /// the map from the row below its first.
+    /// </summary>
+    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map)
+    {
+        var corner = new Offset16<PlanePixels>(0, -EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
+        return new PicturedPlane([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
+            EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
+    }
 
     /// <summary>
     /// The wavy Samus's texture (#1555): its one-screen picture in the ending's colours (#1512), repeated across and down
@@ -539,18 +547,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
         return new PicturedPlane(placed.ToImmutable());
     }
 
-    /// <summary>
-    /// The explosion's one-screen <paramref name="map"/> (#1467, #1515), its picture placed where the screen shows it: its
-    /// top <see cref="EndingExplosionDisplayDefinitions.MapRowsAboveScreen"/> lie above the screen's top, so the screen shows
-    /// the map from the row below its first.
-    /// </summary>
-    private PicturedPlane ExplosionPlane(EndingObjectFragmentId map)
-    {
-        var corner = new Offset16<PlanePixels>(0, -EndingExplosionDisplayDefinitions.MapRowsAboveScreen);
-        return new PicturedPlane([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures,
-            EndingPictureNames.ExplosionMap(map)), corner, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
-    }
-
     /// <summary>The credits roll's plane: its held rows' line pictures (#1467) in the ending's colours (#1512).</summary>
     internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
         screen.Colours.SceneryShading(EndingScenery.CreditsRows));
@@ -561,39 +557,16 @@ internal sealed class EndingCreditsState : IFrontendScreen
             screen.Colours.SceneryShading(EndingScenery.WaitingBackdrop))]);
 
     /// <summary>
-    /// The <paramref name="size"/> plane of the text page <paramref name="page"/> (#1467, #1515): the staging page's text as
-    /// it is now, each piece's picture at its cell, in the ending's colours (#1512). A two-screen final page's lower screen
-    /// lies just above its first, where the page shows it as the page scrolls down (#1555).
+    /// The screen of post-credits text (#1467, #1515, #1555): each piece the text scene shows now at its screen pixel,
+    /// moved down by the scene's drop, in the ending's colours (#1512).
     /// </summary>
-    /// <exception cref="ArgumentException">The result page is asked for two screens.</exception>
-    internal PicturedPlane TextPagePlane(EndingTextScreen page, Extent16<TilemapCells> size)
+    internal PicturedPlane PostCreditsTextPlane()
     {
         SpriteSheet sheet = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingPostCreditsPictures);
-        var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         PictureShading shading = screen.Colours.SceneryShading(EndingScenery.PostCreditsText);
-        bool twoScreens = size.Y > EndingScreenDefinitions.TilemapHeight;
-        if (page == EndingTextScreen.ResultPanel)
-        {
-            if (twoScreens)
-                throw new ArgumentException("The result page has one screen.", nameof(size));
-            Place(postCreditsPage.Written, 0);
-        }
-        else
-        {
-            Place(postCreditsPage.Written, 0);
-            if (twoScreens)
-                Place(screen.FinalPageLowerText, -EndingScreenDefinitions.TilemapHeight);
-        }
-        return new PicturedPlane(placed.ToImmutable());
-
-        // Places each piece of text `firstRow` rows down the plane.
-        void Place(ImmutableArray<WrittenPicture> text, int firstRow)
-        {
-            foreach (WrittenPicture shown in text)
-                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Offset16<PlanePixels>(
-                    shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
-                    (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels), shading));
-        }
+        EndingPostCreditsText text = InstalledArtwork.PostCreditsText;
+        return new PicturedPlane([.. text.Shown().Select(shown => new PlacedPlanePicture(sheet.Frame(shown.Picture),
+            Offset16<PlanePixels>.Of(shown.Corner.X, shown.Corner.Y + text.Drop), shading))]);
     }
 
     /// <summary>

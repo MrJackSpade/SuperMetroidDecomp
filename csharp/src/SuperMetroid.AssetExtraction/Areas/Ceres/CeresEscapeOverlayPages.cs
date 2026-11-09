@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using static SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions;
+using static SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeWarningPictures;
 
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
 /// The import's knowledge of the Ceres warning overlays (#1502): the authored wording each page spells, so its length,
-/// and the five pages in the order the import exports them. The game only writes each page's picture at its cell.
+/// and the five pages in the order the import exports them. The game only writes each page's picture at its room pixel.
 /// </summary>
 internal static class CeresEscapeOverlayPages
 {
@@ -23,19 +23,19 @@ internal static class CeresEscapeOverlayPages
     internal const string JapaneseSecondLine = "ただちに脱出して下さい";
 
     /// <summary>The five fixed overlays in transfer order: the English title, then the four Japanese row halves.</summary>
-    internal static ImmutableArray<CeresEscapeOverlayTilemapDefinition> All { get; } =
+    internal static ImmutableArray<CeresEscapeWarningPicture> All { get; } =
         [Emergency, JapaneseFirst, JapaneseSecond, JapaneseThird, JapaneseFourth];
 
     /// <summary>The authored wording one page spells: the title, or the subtitle row its two halves share.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not one of the overlays.</exception>
-    internal static string Text(CeresEscapeOverlayTilemapDefinition page) =>
+    internal static string Text(CeresEscapeWarningPicture page) =>
         page == Emergency ? EmergencyText
         : page == JapaneseFirst || page == JapaneseSecond ? JapaneseFirstLine
         : page == JapaneseThird || page == JapaneseFourth ? JapaneseSecondLine
         : throw new ArgumentOutOfRangeException(nameof(page), $"{page.Name} is not a Ceres escape overlay.");
 
     /// <summary>The words of a Ceres warning page, one per character of its wording.</summary>
-    extension(CeresEscapeOverlayTilemapDefinition page)
+    extension(CeresEscapeWarningPicture page)
     {
         /// <summary>The page's words.</summary>
         internal int WordCount => Text(page).Length;

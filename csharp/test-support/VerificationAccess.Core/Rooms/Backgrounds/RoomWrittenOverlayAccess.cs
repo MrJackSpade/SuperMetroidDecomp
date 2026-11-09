@@ -50,7 +50,7 @@ internal static class RoomWrittenOverlayAccess
     /// <summary>The tiles, along one row, the cartridge writes for <paramref name="picture"/>.</summary>
     private static BackgroundTile[] TilesOf(string picture, CeresEscapeOverlays? pages)
     {
-        foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayPages.All)
+        foreach (CeresEscapeWarningPicture page in CeresEscapeOverlayPages.All)
         {
             if (page.Picture != picture)
                 continue;

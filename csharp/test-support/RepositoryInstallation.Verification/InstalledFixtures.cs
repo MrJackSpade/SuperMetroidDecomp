@@ -91,9 +91,15 @@ internal static class InstalledFixtures
     /// <summary>Lazy intro and Ceres-flight cinematic artwork.</summary>
     private static readonly Lazy<IntroCinematicArtwork> introArtwork = Shared<IntroCinematicArtwork>("intro artwork", () => SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(RepositoryInstallation.Installation.IntroCinematicDirectory));
 
-    /// <summary>The installed ending Mode 7 floors, loaded once for every ending fixture, as a host binds its content (#1532).</summary>
-    private static readonly Lazy<SuperMetroid.Core.Frontend.Ending.Artwork.EndingFloorArtwork> endingFloors =
-        Shared<SuperMetroid.Core.Frontend.Ending.Artwork.EndingFloorArtwork>("ending floors", () => RepositoryInstallation.Installation.LoadEndingMode7Art());
+    /// <summary>
+    /// The installed ending Mode 7 floors, loaded once for the checks that compare the cartridge's floor loads (#1532); the
+    /// game draws the floors' sheets and never loads them (#1555).
+    /// </summary>
+    private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters> endingFloors =
+        Shared<SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters>("ending floors", () => RepositoryInstallation.Installation.LoadEndingMode7Art());
+
+    /// <summary>The installed ending Mode 7 floors the cartridge's floor loads are compared with.</summary>
+    internal static SuperMetroid.AssetExtraction.Frontend.Ending.EndingFloorCharacters EndingFloors => endingFloors.Value;
 
     /// <summary>The installed ending object artwork, loaded once for every ending fixture (#1532).</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork> endingObjects =
@@ -295,7 +301,6 @@ internal static class InstalledFixtures
     {
         var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
         ending.Flyaway.BindFlightArtwork(IntroArtwork.CeresFlight);
-        ending.Stage.BindFloorArtwork(endingFloors.Value);
         ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
         ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
         ending.InstalledArtwork.BindPaletteFxColors(Maps.RoomPaletteFx);

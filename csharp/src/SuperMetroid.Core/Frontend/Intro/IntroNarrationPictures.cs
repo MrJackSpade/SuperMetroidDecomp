@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>
 /// The opening narration's pictures (#1467): the first card, the final line, and each letter of the narration's alphabet,
 /// whose colour variants its glow shows are shades (#1512), which the import composes once from the narration font under the cinematic's
-/// palette. The cinematic places them on the narration plane its text state shows.
+/// palette. The cinematic places them at the screen pixels its text scene shows them at.
 /// </summary>
 public static class IntroNarrationPictures
 {
@@ -21,8 +21,17 @@ public static class IntroNarrationPictures
     /// <summary>The cells along each side of the narration plane.</summary>
     internal const int PlaneCells = IntroCinematicDefinitions.Planes.Width;
 
-    /// <summary>The plane row the final line's picture starts at.</summary>
-    internal const int FinalLineRow = IntroCinematicDefinitions.Text.FinalLineFirstCell / IntroCinematicDefinitions.Planes.Width;
+    /// <summary>The row, counted in glyphs from the narration's top, the final line's picture starts at.</summary>
+    internal const int FinalLineRow = IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows;
+
+    /// <summary>The side of one narration glyph in pixels.</summary>
+    private const int GlyphPixels = ScreenGeometry.BackgroundTileSizePixels;
+
+    /// <summary>
+    /// Pixels the narration pages show above the screen's top: the pages' first row of glyphs lies one row up from the
+    /// screen's top, the same distance the flashback rooms lie up.
+    /// </summary>
+    private const int PagesRaise = IntroCinematicState.GameplayFlashbackVerticalScroll;
 
     /// <summary>The name of <paramref name="letter"/>'s picture, which shows each colour variant as a shade (#1512).</summary>
     internal static string Letter(char letter) => $"letter-{(int)letter:x2}";
@@ -35,9 +44,9 @@ public static class IntroNarrationPictures
         Plane([new PlacedPlanePicture(Sheet(sheets).Frame(FirstCard), default, Ensure.NotNull(shading))]);
 
     /// <summary>
-    /// The plane showing the narration pages (#1512): the final line in <paramref name="finalLine"/>, as its colours lie in
-    /// several groups and in colours no group moves, and each letter <paramref name="text"/> shows at its cell in the shade
-    /// of its colour variant, as <paramref name="shown"/> shows its own colours.
+    /// The screen of the narration pages (#1512, #1555): the final line in <paramref name="finalLine"/>, as its colours lie
+    /// in several groups and in colours no group moves, and each letter <paramref name="text"/> holds at its screen pixel in
+    /// the shade of its colour variant, as <paramref name="shown"/> shows its own colours.
     /// </summary>
     internal static PicturedPlane PagesPlane(InstalledSpriteSheets sheets, IntroNarrationText text, PictureShading finalLine,
         Func<PictureShading, PictureShading> shown)
@@ -59,9 +68,9 @@ public static class IntroNarrationPictures
         return Plane(placed.ToImmutable());
     }
 
-    /// <summary>The plane position of the cell at <paramref name="column"/> of <paramref name="row"/>.</summary>
+    /// <summary>The screen pixel of the glyph at <paramref name="column"/> of <paramref name="row"/>, counted from the narration's top.</summary>
     private static Offset16<PlanePixels> At(int column, int row) =>
-        new(column * ScreenGeometry.BackgroundTileSizePixels, row * ScreenGeometry.BackgroundTileSizePixels);
+        new(column * GlyphPixels, row * GlyphPixels - PagesRaise);
 
     /// <summary>The installed narration picture sheet.</summary>
     private static SpriteSheet Sheet(InstalledSpriteSheets sheets) => Ensure.NotNull(sheets).Get(SpriteSheetId.IntroNarrationPictures);

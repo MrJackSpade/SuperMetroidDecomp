@@ -14,7 +14,7 @@ internal static class CeresEscapeOverlayTilemapFiles
     {
         Ensure.NotNull(bus);
         var pages = new Dictionary<string, BackgroundTile[]>();
-        foreach (CeresEscapeOverlayTilemapDefinition page in
+        foreach (CeresEscapeWarningPicture page in
                  CeresEscapeOverlayPages.All)
         {
             var source = new ushort[page.WordCount];
@@ -37,12 +37,12 @@ internal static class CeresEscapeOverlayTilemapFiles
     /// halves one after another in their writing order.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="page"/> is not one of the overlays.</exception>
-    internal static SnesAddress Source(CeresEscapeOverlayTilemapDefinition page)
+    internal static SnesAddress Source(CeresEscapeWarningPicture page)
     {
-        if (page == CeresEscapeOverlayTilemapDefinitions.Emergency)
+        if (page == CeresEscapeWarningPictures.Emergency)
             return CeresSourceDefinitions.EscapeOverlay.Emergency;
         int offset = 0;
-        foreach (CeresEscapeOverlayTilemapDefinition row in CeresEscapeOverlayTilemapDefinitions.Japanese)
+        foreach (CeresEscapeWarningPicture row in CeresEscapeWarningPictures.Japanese)
         {
             if (row == page)
                 return CeresSourceDefinitions.EscapeOverlay.JapaneseRows.AddWithinBank(offset);

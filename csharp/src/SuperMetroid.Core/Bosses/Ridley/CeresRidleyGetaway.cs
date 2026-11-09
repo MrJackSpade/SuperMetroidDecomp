@@ -295,12 +295,16 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's foreground.</summary>
     internal void DrawCeresEmergencyText()
     {
-        DrawCeresOverlay(CeresEscapeOverlayTilemapDefinitions.Emergency);
+        DrawCeresOverlay(CeresEscapeWarningPictures.Emergency);
     }
 
-    /// <summary>Writes the picture of one warning page over the room's foreground at its overlay cell (#1466).</summary>
-    private void DrawCeresOverlay(CeresEscapeOverlayTilemapDefinition page) =>
-        _room.Services.WriteForegroundPicture(new WrittenPicture(page.Picture, page.Cell));
+    /// <summary>
+    /// Writes one warning picture over the room's foreground with its corner on its room pixel (#1466, #1555); the room's
+    /// written overlay places a picture by the eight-pixel cell its corner lies on.
+    /// </summary>
+    private void DrawCeresOverlay(CeresEscapeWarningPicture page) =>
+        _room.Services.WriteForegroundPicture(new WrittenPicture(page.Picture, new Position16<TilemapCells>(
+            page.Corner.X / ScreenGeometry.BackgroundTileSizePixels, page.Corner.Y / ScreenGeometry.BackgroundTileSizePixels)));
 
     /// <summary>
     /// Runs one update of the self-destruct's current readying stage (#1406, #1538): on the last update of bringing up the
@@ -325,7 +329,7 @@ internal sealed class CeresRidleyGetaway
     /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's foreground.</summary>
     internal void DrawCeresJapaneseOverlay()
     {
-        foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.Japanese)
+        foreach (CeresEscapeWarningPicture page in CeresEscapeWarningPictures.Japanese)
             DrawCeresOverlay(page);
     }
 

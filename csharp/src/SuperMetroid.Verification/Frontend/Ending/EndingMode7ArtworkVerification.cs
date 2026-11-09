@@ -23,7 +23,7 @@ internal static class EndingMode7ArtworkVerification
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        EndingFloorArtwork stock = installation.LoadEndingMode7Art();
+        EndingFloorCharacters stock = installation.LoadEndingMode7Art();
         foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
             (int characterSource, int packedSource) = EndingArtworkSources.Floor(id);
@@ -31,7 +31,7 @@ internal static class EndingMode7ArtworkVerification
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             byte[] nativePacked = RomDataReader.Decompress(nativeBus, packedSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
-            EndingFloorSceneArtwork compiledScene = EndingFloorCharacters.SceneOf(stock, id);
+            EndingFloorSceneArtwork compiledScene = stock[id];
             AssertTrue(compiledScene.Characters.Span.SequenceEqual(nativeCharacters.AsSpan(0,
                     EndingFloorArtworkFormat.CharacterByteCount)),
                 $"installed ending {id} PNG preserves every high-lane character byte");
@@ -46,7 +46,6 @@ internal static class EndingMode7ArtworkVerification
         var installedAudio = AudioQueues.Standalone();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
-        installed.Stage.BindFloorArtwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 10000 &&
             native.Stage.Phase != EndingCreditsPhase.ZebesExplosionHold; frame++)

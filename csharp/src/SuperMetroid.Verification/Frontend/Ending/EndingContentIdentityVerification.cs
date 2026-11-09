@@ -114,11 +114,6 @@ internal static class EndingContentIdentityVerification
             "part-order", "part-count", "map-column", "map-row", "map-palette", "map-priority",
             "map-flip-x", "map-flip-y",
         }) edits.Add(new EndingContentIdentityEdit(edit, GameInstallationLayout.EndingObjectDirectoryName));
-        foreach (string edit in new[]
-        {
-            "EscapeA-map", "EscapeA-pixels", "EscapeB-map", "EscapeB-pixels",
-            "PlanetExplosion-map", "PlanetExplosion-pixels", "scene-order", "reward-map", "reward-pixels",
-        }) edits.Add(new EndingContentIdentityEdit(edit, GameInstallationLayout.EndingMode7DirectoryName));
         foreach (string edit in BackdropScenes)
             edits.Add(new EndingContentIdentityEdit("backdrop-" + edit, GameInstallationLayout.EndingBackdropDirectoryName));
         edits.Add(new EndingContentIdentityEdit("backdrop-order", GameInstallationLayout.EndingBackdropDirectoryName));
@@ -146,7 +141,7 @@ internal static class EndingContentIdentityVerification
         // digest would needlessly change the exact debugger-object layout of older save states.
         foreach (Type type in new[]
         {
-            typeof(EndingObjectArtwork), typeof(EndingFloorArtwork), typeof(EndingBackdrops),
+            typeof(EndingObjectArtwork), typeof(EndingFloorCharacters), typeof(EndingBackdrops),
             typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
             typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
             typeof(EndingLogoSpritePresentation),
@@ -253,39 +248,10 @@ internal static class EndingContentIdentityVerification
         if (edit == "fragment-order") Array.Reverse(fragments);
         var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Clouds = Characters("clouds", EndingObjectArtworkFormat.CloudByteCount), Explosion = Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), Fragments = fragments, WaitingSamus = Characters("waiting", EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = Characters("shooting", EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = Map("waiting-map"), PostCreditsFragmentA = Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoTiles = Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
 
-        MemoryStream Mode7Png(string name, int seed)
-        {
-            var pixels = new byte[EndingFloorArtworkFormat.CharacterByteCount];
-            pixels[0] = (byte)seed;
-            if (edit == name + "-pixels") pixels[^1] = 1;
-            var png = new MemoryStream();
-            IndexedPng.Write(png, new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight),
-                pixels, Enumerable.Range(0, 256).Select(index => new RgbaPixel(
-                    (byte)(edit == "png-colors" ? 255 - index : index), 0, 0)).ToArray());
-            png.Position = 0;
-            return png;
-        }
-        MemoryStream FloorMap(string name, int height)
-        {
-            var tiles = new int[EndingFloorArtworkFormat.MapWidth * height];
-            if (edit == name + "-map") tiles[^1] = 1;
-            return Json(new EndingFloorMapDocument
-            {
-                Version = EndingFloorArtworkFormat.Version, Width = EndingFloorArtworkFormat.MapWidth,
-                Height = height, Tiles = tiles,
-            });
-        }
-        EndingFloorSceneArtwork[] scenes = Enum.GetValues<EndingFloorSceneId>().Select(id =>
-            EndingFloorSceneCharacters.Read(FloorMap(id.ToString(), EndingFloorArtworkFormat.MapHeight),
-                Mode7Png(id.ToString(), (int)id))).ToArray();
-        if (edit == "scene-order") Array.Reverse(scenes);
-        var mode7 = new EndingFloorCharacters(scenes[0], scenes[1], scenes[2],
-            EndingRewardIconCharacters.Read(FloorMap("reward", EndingRewardIconArtworkFormat.MapHeight), Mode7Png("reward", 0)));
-
         RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new FadeLevelColour(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0).ToColour())];
         if (edit == "backdrop-order")
             backdrops = [backdrops[1], backdrops[0], .. backdrops[2..]];
-        return EndingPresentationIdentity.Create(mode7, objects, new EndingBackdrops(backdrops[0], backdrops[1], backdrops[2], backdrops[3]));
+        return EndingPresentationIdentity.Create(objects, new EndingBackdrops(backdrops[0], backdrops[1], backdrops[2], backdrops[3]));
     }
 
     /// <summary>The scenes whose backdrops the identity fixture edits, in the backdrops' order.</summary>

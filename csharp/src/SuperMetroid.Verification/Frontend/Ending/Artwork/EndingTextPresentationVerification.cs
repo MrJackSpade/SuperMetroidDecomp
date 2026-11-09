@@ -47,9 +47,8 @@ internal static class EndingTextPresentationVerification
         int comparedFrames = 0;
         foreach (EndingTextSequence sequence in Enum.GetValues<EndingTextSequence>())
         {
-            var installedPage = new EndingTextPage();
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = installedPage, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = sequence });
+            var installed = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = presentation.Typewriter() }, sequence);
             for (int frame = 0; !installed.Completed; frame++)
             {
                 if (frame == 2048)
@@ -57,10 +56,10 @@ internal static class EndingTextPresentationVerification
                 installed.Step();
                 comparedFrames++;
             }
-            AssertTrue(!installedPage.Written.IsEmpty, $"installed ending {sequence} draws its text");
+            AssertTrue(installed.Shown().Any(), $"installed ending {sequence} draws its text");
         }
 
-        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = new EndingTextPage(), Inventory = default, JapaneseText = false, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.FinalMessage });
+        var saved = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = false, Text = presentation.Typewriter() }, EndingTextSequence.FinalMessage);
         saved.Step();
         var restored = GraphDigestVerification.RoundTrip(saved, presentation);
         saved.Step();

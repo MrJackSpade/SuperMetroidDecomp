@@ -40,20 +40,21 @@ internal static class FileSelectMapWindowVerification
         Suite(nameof(VerifyFileSelectMapWindowComposition), () => VerifyFileSelectMapWindowComposition());
         Suite(nameof(VerifyFileSelectMapEntry), () => VerifyFileSelectMapEntry());
         // A reveal opening one and a half pixels a side per update from a label one pixel inside the screen's corner: its
-        // left and top edges stop at the screen's edge, its right and bottom ones keep their fractions (#1555).
+        // left and top edges stop at the screen's edge, its right and bottom ones keep their fractions (#1555). The right
+        // edge holds its last column, as the cartridge's window does, so the column past it is one further.
         SignedSixteenSixteen pixelAndHalf = SignedSixteenSixteen.FromParts(1, 0x8000);
         var fractional = new FileSelectMapWindow(0, new FileSelectMapWindowMotion(2, -pixelAndHalf, pixelAndHalf, -pixelAndHalf, pixelAndHalf),
             CreateWindowLabelFixture(new(1, 1)));
         AssertTrue(!fractional.Step(), "the reveal is not complete before its last move");
-        AssertEqual(new VerifyWorldMapLabelsCase(0, 0, 2, 2),
+        AssertEqual(new VerifyWorldMapLabelsCase(0, 0, 3, 2),
             new VerifyWorldMapLabelsCase(fractional.Left, fractional.Top, fractional.Right, fractional.Bottom),
             "edges past the screen's edge stop at it; the others keep their fractions");
         AssertTrue(fractional.Step(), "the reveal completes on its last move");
-        AssertEqual(new VerifyWorldMapLabelsCase(0, 0, 4, 4),
+        AssertEqual(new VerifyWorldMapLabelsCase(0, 0, 5, 4),
             new VerifyWorldMapLabelsCase(fractional.Left, fractional.Top, fractional.Right, fractional.Bottom),
             "a stopped edge stays at the screen's edge and a moving edge carries its fraction");
         fractional.Step();
-        AssertEqual(4, fractional.Right, "a completed reveal stays where it ended");
+        AssertEqual(5, fractional.Right, "a completed reveal stays where it ended");
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(6), "Ceres has no area-select window record");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -70,7 +71,7 @@ internal static class FileSelectMapWindowVerification
             var window = new FileSelectMapWindow(area, RetailPresentationFixture().Labels);
             AssertEqual(labelX[area], window.Left, "map window starts at native area label X");
             AssertEqual(labelY[area], window.Top, "map window starts at native area label Y");
-            AssertEqual(window.Left, window.Right, "map window starts with zero width");
+            AssertEqual(window.Left + 1, window.Right, "map window starts one column wide, its edges on the label");
             AssertEqual(window.Top, window.Bottom, "map window starts with zero height");
             AssertTrue(window.IsEmpty, "a zero-size reveal shows none of the room");
             for (int frame = 1; frame <= durations[area]; frame++)
@@ -99,7 +100,7 @@ internal static class FileSelectMapWindowVerification
         RgbaPixel[] next = FileSelectMapWindowCompositor.Composite(area, frame, window);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
-            AssertEqual(y >= 29 && y < 31 && x >= 39 && x < 41 ? frameColor : areaColor,
+            AssertEqual(y >= 29 && y < 31 && x >= 39 && x < 42 ? frameColor : areaColor,
                 next[y * 256 + x], "the reveal shows the room frame inside its rectangle around the label");
         window.Step(); window.Step();
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, window).All(pixel => pixel == frameColor),
@@ -107,13 +108,13 @@ internal static class FileSelectMapWindowVerification
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var returning = FileSelectMapWindow.CreateReturn(4, RetailPresentationFixture().Labels);
-        AssertEqual(new VerifyWorldMapLabelsCase(8, 8, 248, 216),
+        AssertEqual(new VerifyWorldMapLabelsCase(8, 8, 249, 216),
             new VerifyWorldMapLabelsCase(returning.Left, returning.Top, returning.Right, returning.Bottom), "native return rectangle insets");
         for (int tick = 1; tick <= 40; tick++)
         {
             AssertEqual(tick == 40, returning.Step(), "Maridia return is twelve updates shorter than expansion");
             AssertEqual(8 + 4 * tick, returning.Left, "return moves the left edge back by its speed");
-            AssertEqual(SixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.Right, "return retains right fraction");
+            AssertEqual(SixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick) + 1, returning.Right, "return retains right fraction");
             AssertEqual(SixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.Top, "return retains top fraction");
             AssertEqual(SixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.Bottom, "return retains bottom fraction");
         }

@@ -177,10 +177,6 @@ internal sealed class IntroCinematicObjectSystem
         if (narrationProgram is not null)
             StepInstalledNarration();
         textGlow?.Step(text);
-
-        // The game shows the staging map's visible rows on the narration plane each update; showing
-        // them now matches what the next displayed frame shows.
-        text.Publish();
     }
 
     /// <summary>Binds the installed narration content when the game is bound to its installed content.</summary>
@@ -234,7 +230,7 @@ internal sealed class IntroCinematicObjectSystem
             IntroNarrationCharacter? next = narrationCharacterIndex + 1 < program.Length
                 ? program[narrationCharacterIndex + 1]
                 : null;
-            (textGlow ??= new()).Spawn(new(character.Column, character.Row), new(1, 1));
+            (textGlow ??= new()).Spawn(character.Column, character.Row);
             if (next is { } following)
             {
                 Caret = new(

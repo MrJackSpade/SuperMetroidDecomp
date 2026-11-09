@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
-using static SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions;
+using static SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeWarningPictures;
 using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayPages;
 using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresWarningGlyphDefinitions;
 
@@ -16,7 +16,7 @@ internal static class CeresEscapeWarningGlyphs
     /// Calculates a stock English or Japanese overlay tile from its authored glyph order and tile half, in its colour
     /// variant and the warning's upper priority tier.
     /// </summary>
-    internal static BackgroundTile StockTile(CeresEscapeOverlayTilemapDefinition page, int index)
+    internal static BackgroundTile StockTile(CeresEscapeWarningPicture page, int index)
     {
         if ((uint)index >= page.WordCount) throw new ArgumentOutOfRangeException(nameof(index));
         if (page == Emergency) return new BackgroundTile(LatinFirstTile + EmergencyText[index] - 'A', EnglishAlarmPalette, highPriority: true);

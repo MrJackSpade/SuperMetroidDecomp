@@ -1,10 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The post-shot transition's timing, motion, sound and text layout.</summary>
+/// <summary>The post-shot transition's timing, motion and sound.</summary>
 internal static class EndingPostShotDefinitions
 {
-    /// <summary>The final text background plane E48A shows is 32 cells wide and this many cells tall: two screens stacked.</summary>
-    public const int FinalTextMapHeight = 64;
     /// <summary>E48A starts the white wash at all its steps, full white; E504 takes one step off each frame.</summary>
     public const int WhiteComponent = WhiteWash.Steps;
     /// <summary>The shot queues the charged plasma-wave sound through the max-fifteen sound queue.</summary>

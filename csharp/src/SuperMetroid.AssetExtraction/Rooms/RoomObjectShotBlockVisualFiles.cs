@@ -47,9 +47,9 @@ public static class RoomObjectShotBlockVisualFiles
     /// <summary>The draw lists of every breakup and restoration draw, built from the calculated draws.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All => Calculated.Select(Export);
 
-    /// <summary>Expands a calculated shot-block draw into ordered terrain runs and offsets.</summary>
+    /// <summary>Expands a calculated shot-block draw into ordered runs of collision and their offsets.</summary>
     private static RoomObjectShotBlockDrawDefinitions.DrawList Export(ShotBlockObjectDraws.Draw draw) =>
-        RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), draw.RunCount, _ => draw.BlocksPerRun, draw.BlockAt,
+        RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), draw.RunCount, _ => draw.BlocksPerRun, draw.CollisionAt,
             _ => draw.Vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal,
             RoomObjectDrawListExport.Stacked);
 

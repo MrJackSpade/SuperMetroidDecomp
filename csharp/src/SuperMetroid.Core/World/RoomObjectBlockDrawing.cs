@@ -127,7 +127,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage shotBlock = Installed(ShotBlockVisuals, "shot-block").Image(draw);
             for (int run = 0; run < compiled.RunCount; run++)
                 for (int block = 0; block < compiled.BlocksPerRun; block++)
-                    DrawImageCell(level, draw, origin, shotBlock, new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, shotBlock, new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.CollisionAt(run, block));
             return;
         }
         if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)

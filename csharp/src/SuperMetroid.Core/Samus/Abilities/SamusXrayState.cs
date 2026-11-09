@@ -553,7 +553,7 @@ public sealed class SamusXrayState
     /// The whole steps of the beam's centre, from which its edges lie <see cref="AngularWidth"/> steps either side. The
     /// clamps compare those edges unwrapped, so an edge may lie below zero or past a full turn.
     /// </summary>
-    private int CenterSteps => Angle.ToByteAngle().RawValue;
+    private int CenterSteps => Angle.ToTrigonometryAngle().RawValue;
 
     /// <summary>The whole steps of straight down, which the beam's lower or upper edge may not cross.</summary>
     private const int HalfTurnSteps = RotationAngle.StepsPerTurn / 2;

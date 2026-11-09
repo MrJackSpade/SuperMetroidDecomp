@@ -304,9 +304,9 @@ internal sealed class CeresRidleyFlight
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
             angle = target;
         state.SwoopAngleAccumulator = angle;
-        ByteAngle phase = angle.ToByteAngle();
+        TrigonometryAngle phase = angle.ToTrigonometryAngle();
         state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(magnitude, phase));
-        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(magnitude, phase.TurnedBy(ByteAngle.QuarterTurn)));
+        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(magnitude, phase.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>

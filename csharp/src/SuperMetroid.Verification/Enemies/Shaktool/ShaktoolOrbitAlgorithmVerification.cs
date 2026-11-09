@@ -27,7 +27,7 @@ internal static class ShaktoolOrbitAlgorithmVerification
             AssertEqual(new FixedVector<RoomPixels>(
                     SignedSixteenSixteen.FromRaw(EightEight.FromWhole(Original(angle + 64))),
                     SignedSixteenSixteen.FromRaw(EightEight.FromWhole(Original(angle)))),
-                ShaktoolOrbitTables.Displacement(new ByteAngle((byte)angle)), $"Shaktool displacement {angle}");
+                ShaktoolOrbitTables.Displacement(new TrigonometryAngle((byte)angle)), $"Shaktool displacement {angle}");
         foreach (int invalid in new[] { int.MinValue, -1, 320, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => ShaktoolOrbitTables.Sample(invalid),
                 $"Orbit invalid index {invalid}");

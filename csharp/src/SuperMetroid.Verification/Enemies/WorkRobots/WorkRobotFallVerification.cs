@@ -38,7 +38,7 @@ internal static class WorkRobotFallVerification
             enemies.WorkRobotBehavior.RunWorkRobotMainAi(slot, frame);
 
             string context = $"Work Robot falling at {whole} and {fraction}/65536 pixels";
-            AssertEqual(expectedWhole, state.FallVelocity.WholeWord, $"{context}: whole speed word");
+            AssertEqual(expectedWhole, state.FallVelocity.UnsignedWholePixels, $"{context}: whole speed word");
             AssertEqual(expectedFraction, state.FallVelocity.Fraction, $"{context}: speed fraction word");
             AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)expectedWhole), expectedFraction), state.FallVelocity, context);
         }

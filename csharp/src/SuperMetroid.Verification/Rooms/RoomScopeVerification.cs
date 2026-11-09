@@ -29,10 +29,10 @@ internal static class RoomScopeVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         RoomScope source = runtime.Room.Scope ?? throw new InvalidOperationException("The debug load adopted no scope.");
         ScrollBoundaryCamera previous = source.Camera;
-        previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromWords(0, 0x1234, 0, 0x5678));
+        previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678));
         previous.IdealPosition = new Position16<RoomPixels>(0x0123, 0x0456);
-        previous.Speed = FixedVector<RoomPixels>.FromWords(2, 0x8000, 0xFFFF, 0x4000);
-        previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(0x0300, 0x1111, 0x0400, 0x2222));
+        previous.Speed = FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000);
+        previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(0x0300, 0x1111, 0x0400, 0x2222));
         source.Projectiles.Charge.FlareCounter = 30;
         const int heatPhase = 3;
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = heatPhase;
@@ -41,10 +41,10 @@ internal static class RoomScopeVerification
         source.Enemies.Elevator.ElevatorDoorTransitionActive = true;
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyEscaped;
         RoomEnemyProjectileSlot sourceProjectile = source.Enemies.Projectiles.EnemyProjectiles[3];
-        sourceProjectile.Position = FixedPosition<RoomPixels>.FromWords(0x0140, 0x1234, 0x0090, 0x5678);
+        sourceProjectile.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0x1234, 0x0090, 0x5678);
         sourceProjectile.Velocity = new EightEightVector<RoomPixels>(0x0200, unchecked((short)0xFE00));
         SamusProjectileSlot sourceShot = source.Projectiles.SlotTable.Slots[2];
-        sourceShot.Position = FixedPosition<RoomPixels>.FromWords(0x0120, 0x4321, 0x0080, 0x8765);
+        sourceShot.Position = FixedPosition<RoomPixels>.FromStoredParts(0x0120, 0x4321, 0x0080, 0x8765);
         sourceShot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
 
         SelectedRoom parlor = runtime.RoomLoader.LoadSelectedRoom(RoomHeaderDefinitions.Parlor);
@@ -110,12 +110,12 @@ internal static class RoomScopeVerification
         VerificationAssertions.AssertEqual(CeresEscapeStatus.RidleyEscaped, destination.Enemies.Ceres.CeresStatus,
             "Ceres's escape progress survives the load on the enemy session");
         RoomEnemyProjectileSlot destinationProjectile = destination.Enemies.Projectiles.EnemyProjectiles[3];
-        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromWords(0x0140, 0, 0x0090, 0), destinationProjectile.Position,
+        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(0x0140, 0, 0x0090, 0), destinationProjectile.Position,
             "an enemy projectile slot's whole coordinates survive the load; its fractions clear");
         VerificationAssertions.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
             "an enemy projectile slot's velocity survives the load");
         SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
-        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0), destinationShot.Position,
+        VerificationAssertions.AssertEqual(FixedPosition<RoomPixels>.FromStoredParts(0, 0x4321, 0, 0), destinationShot.Position,
             "a shot slot starts the next room with the horizontal sub-pixel position the outgoing room's left (RoomHandOver), and nothing else of its position");
         VerificationAssertions.AssertEqual(SpazerComboPhase.Circling, destinationShot.AuxiliaryPhase,
             "no Spazer phase is handed over: every Spazer special attack sets it before reading it");

@@ -107,7 +107,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         do
         {
             speed += 32;
-            accumulatedDistance = WrappingCounter.AddWord(accumulatedDistance, speed);
+            accumulatedDistance = WrappingCounter.AddCount(accumulatedDistance, speed);
         }
         while (CoordinateAxis.Difference(accumulatedDistance, distanceInSubpixels) < 0);
 
@@ -378,7 +378,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction,
         VerticalDirection vertical)
     {
-        int xPixels = state.Speed.WholeByte;
+        int xPixels = state.Speed.UnsignedWholePixels;
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels));
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole +
             (vertical == VerticalDirection.Up ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels));
@@ -426,7 +426,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - state.Speed.WholeByte);
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - state.Speed.UnsignedWholePixels);
         state.ChangeSpeed(-64);
         if (!state.Speed.IsNegative)
             return;
@@ -463,12 +463,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // the low byte as only the low eight bits of the fractional word. This odd packing is
         // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
         // different from the game's own speed arithmetic.
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(state.Speed.WholeByte, state.Speed.FractionByte);
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(state.Speed.UnsignedWholePixels, state.Speed.FractionSubpixels);
         bool landed = _terrain.MoveEnemyVertically(level, slot, displacement);
         if (!landed)
         {
             state.ChangeSpeed(-64);
-            landed = state.Speed.IsNegative || state.Speed.WholeByte == 0;
+            landed = state.Speed.IsNegative || state.Speed.UnsignedWholePixels == 0;
         }
         if (!landed)
             return;
@@ -580,8 +580,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
             (outbound ? direction * pixels : -direction * pixels));
         claw.Speed = outbound
-            ? WrappingCounter.SubtractWord(claw.Speed, NinjaPirateClawSpeedChange)
-            : WrappingCounter.AddWord(claw.Speed, NinjaPirateClawSpeedChange);
+            ? WrappingCounter.SubtractCount(claw.Speed, NinjaPirateClawSpeedChange)
+            : WrappingCounter.AddCount(claw.Speed, NinjaPirateClawSpeedChange);
         if (outbound && claw.Speed == 0)
             claw.Outbound = false;
         projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);

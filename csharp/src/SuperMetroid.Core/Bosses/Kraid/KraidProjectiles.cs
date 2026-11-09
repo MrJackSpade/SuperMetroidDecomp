@@ -70,7 +70,7 @@ internal sealed class KraidProjectiles
         KraidNailState nailPart = _parts.NailStateOf(state, nail);
         // A fingernail is set up at rest with its horizontal fraction primed: the room's first setup starts it at rest, and
         // a respawn follows the kill that stopped it (KilledFingernailStops).
-        nailPart.NailVelocity = FixedVector<RoomPixels>.FromWords(0, 40, 0, 0);
+        nailPart.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(0, 40, 0, 0);
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         nail.FrameHold = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
@@ -293,7 +293,7 @@ internal sealed class KraidProjectiles
 
         part.AlternateSpawn = true;
         nail.Position = nail.Position.WithWhole(new(50, 240));
-        part.NailVelocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
+        part.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(1, 0, 0, 0);
         part.Function = KraidAiFunction.FingernailWaitForLint;
         part.NextFunction = KraidAiFunction.FingernailFire;
         nail.Contact = nail.Contact.With(EnemyContact.IgnoresSamus);

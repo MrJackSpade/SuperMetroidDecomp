@@ -36,7 +36,7 @@ internal static class ProjectilePresentationContractChecks
                     trails.Resolve((ProjectileTrailFrame)ProjectileTrailVisualDefinitions.FrameCount);
                     grapple.Segment(3);
                     grapple.Segment(4);
-                    swing.Resolve(new ByteAngle(byte.MaxValue));
+                    swing.Resolve(new TrigonometryAngle(byte.MaxValue));
                     sprites.Frame(ProjectileSpriteDefinitions.All[0]);
                     sprites.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.Power, 8));
                 }

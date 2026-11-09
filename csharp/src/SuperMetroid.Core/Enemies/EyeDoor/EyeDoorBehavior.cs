@@ -310,7 +310,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
     internal static SignedEightEight ReadEyeDoorAcceleration(int tableIndex)
     {
-        int sample = Trigonometry.SignedSine(ByteAngle.Wrapped(tableIndex));
+        int sample = Trigonometry.SignedSine(TrigonometryAngle.Wrapped(tableIndex));
         return SignedEightEight.FromSignedRaw(sample >> 4);
     }
 
@@ -353,10 +353,10 @@ internal sealed class EyeDoorBehavior
     private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, IRoomSamus samus)
     {
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
-        shot.Heading = new ByteAngle(EnemyMath.CalculateBearing(
+        shot.Heading = new TrigonometryAngle(EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).RawValue);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.TurnedBySteps(-EnemyByteAngleDefinitions.QuarterTurn))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>

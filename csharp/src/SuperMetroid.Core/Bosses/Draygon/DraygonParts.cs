@@ -370,7 +370,7 @@ internal sealed class DraygonParts
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 
         int random = _room.Random.Generate();
-        ByteAngle angle = new(DraygonRandomDefinitions.GoopAngleSpread.Of(random) + (movingRight ? 192 : 128));
+        TrigonometryAngle angle = new(DraygonRandomDefinitions.GoopAngleSpread.Of(random) + (movingRight ? 192 : 128));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }
@@ -378,7 +378,7 @@ internal sealed class DraygonParts
     /// <summary>Launches a Draygon projectile along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
     internal static void SetDraygonProjectileVelocity(
         RoomEnemyProjectileSlot projectile,
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int speed) =>
         projectile.State = AngledFlightState.Launch(angle, speed);
 }

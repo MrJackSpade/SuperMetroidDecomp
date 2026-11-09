@@ -171,7 +171,7 @@ internal static class ProjectileDamageVerification
         for (int amplitude = 0; amplitude < 256; amplitude++)
             AssertEqual(NativeOffset(angle, amplitude),
                 SamusComboMechanics.GetSineOffset(
-                    new ByteAngle((byte)angle), (ushort)amplitude),
+                    new TrigonometryAngle((byte)angle), (ushort)amplitude),
                 $"compiled combo sine offset {angle}/{amplitude}");
 
     }
@@ -252,9 +252,9 @@ internal static class ProjectileDamageVerification
                 $"{pose} Plasma special attack activates");
             AssertEqual(step, projectiles.Combos.ComboState, $"{pose} Plasma special attack angle step");
             SamusProjectileSlot first = projectiles.Slots[0];
-            first.ComboAngle = new ByteAngle(checked((byte)from));
+            first.ComboAngle = new TrigonometryAngle(checked((byte)from));
             projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
-            AssertEqual(new ByteAngle(checked((byte)to)), first.ComboAngle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
+            AssertEqual(new TrigonometryAngle(checked((byte)to)), first.ComboAngle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
         }
         Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
     }

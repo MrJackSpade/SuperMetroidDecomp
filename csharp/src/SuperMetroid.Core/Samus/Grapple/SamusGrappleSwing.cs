@@ -24,7 +24,7 @@ public static class SamusGrappleSwing
         // with the collision body by one pixel.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
             grapple,
-            grapple.Angle.ToByteAngle(),
+            grapple.Angle.ToTrigonometryAngle(),
             grapple.RopeLength);
         grapple.RopeStart = ropeStart.Pixel;
 
@@ -38,8 +38,8 @@ public static class SamusGrappleSwing
         // move the collision body. Stock art still selects the same frame.
         int artFrame = (grapple.SwingFrames ?? throw new InvalidOperationException(
             "Grapple swing requires installed frame definitions."))
-            .Resolve(grapple.MirroredAngle.ToByteAngle());
-        var offset = GrappleBodyPlacements.Offset(grapple.MirroredAngle.ToByteAngle(),
+            .Resolve(grapple.MirroredAngle.ToTrigonometryAngle());
+        var offset = GrappleBodyPlacements.Offset(grapple.MirroredAngle.ToTrigonometryAngle(),
             SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         SamusPresentation.SetGrappleSwingAnimationFrame(samus, artFrame);
@@ -67,7 +67,7 @@ public static class SamusGrappleSwing
 
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);
-        int horizontalSine = Math.Abs(Trigonometry.SignedSine(grapple.Angle.TurnedBySteps(-phaseOffset).ToByteAngle()));
+        int horizontalSine = Math.Abs(Trigonometry.SignedSine(grapple.Angle.TurnedBySteps(-phaseOffset).ToTrigonometryAngle()));
         samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(horizontalSine, doubledVelocity);
     }
 
@@ -85,7 +85,7 @@ public static class SamusGrappleSwing
     /// <summary>Reads the signed negative-cosine table used to project grapple angles into room coordinates.</summary>
     internal static int ReadSignedSine(int index)
     {
-        return Trigonometry.SignedNegativeCosineWord(index);
+        return Trigonometry.SignedNegativeCosineSample(index);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public static class SamusGrappleSwing
     /// quarter turn behind it.
     /// </summary>
     internal static int ReadSignedSine(RotationAngle angle) =>
-        Trigonometry.SignedSine((angle - RotationAngle.QuarterTurn).ToByteAngle());
+        Trigonometry.SignedSine((angle - RotationAngle.QuarterTurn).ToTrigonometryAngle());
 
 
     /// <summary>Changes rope length on Up or Down edges and pumps the swing only where directional input can accelerate it.</summary>
@@ -196,7 +196,7 @@ public static class SamusGrappleSwing
             int probeDistance = candidateLength + frontBoundaryOffset;
             GrappleCollisionPoint point = CalculateCollisionPoint(
                 grapple,
-                grapple.Angle.ToByteAngle(),
+                grapple.Angle.ToTrigonometryAngle(),
                 probeDistance);
             if (IsSwingCollision(level, samus, point.Block))
             {
@@ -338,8 +338,8 @@ public static class SamusGrappleSwing
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
         RotationAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
-        ByteAngle targetAngleByte = targetAngle.ToByteAngle();
-        ByteAngle lastSafeAngleByte = grapple.Angle.ToByteAngle();
+        TrigonometryAngle targetAngleByte = targetAngle.ToTrigonometryAngle();
+        TrigonometryAngle lastSafeAngleByte = grapple.Angle.ToTrigonometryAngle();
         int byteDirection = combined < 0 ? -1 : 1;
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
@@ -349,7 +349,7 @@ public static class SamusGrappleSwing
              lastSafeAngleByte != targetAngleByte && angleSteps < 256;
              angleSteps++)
         {
-            ByteAngle candidateAngleByte = lastSafeAngleByte.TurnedBySteps(byteDirection);
+            TrigonometryAngle candidateAngleByte = lastSafeAngleByte.TurnedBySteps(byteDirection);
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
                 level,
                 samus,
@@ -414,7 +414,7 @@ public static class SamusGrappleSwing
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
-        ByteAngle candidateAngle)
+        TrigonometryAngle candidateAngle)
     {
         // The body sweep checks six points on an eight-pixel cadence. The first point is eight
         // pixels beyond the hand; the last is 48 pixels beyond it. Together with rope length
@@ -443,7 +443,7 @@ public static class SamusGrappleSwing
     /// <summary>Projects a body probe from the block-biased anchor and wraps its room-block coordinates to bytes.</summary>
     internal static GrappleCollisionPoint CalculateCollisionPoint(
         SamusGrappleState grapple,
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int distance)
     {
         int xSine = ReadSignedSine(angle.RawValue + 64);

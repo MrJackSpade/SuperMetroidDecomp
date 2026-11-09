@@ -187,10 +187,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                ByteAngle angle = EnemyMath.CalculateBearing(
+                TrigonometryAngle angle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
                 state.Velocity = state.Velocity.WithX(ReadRioSignedSineCosineSample(
-                    angle.TurnedBySteps(EnemyByteAngleDefinitions.QuarterTurn)));
+                    angle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn)));
                 state.Velocity = state.Velocity.WithY(ReadRioSignedSineCosineSample(angle));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
@@ -244,7 +244,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reads one sign-extended entry from the eight-bit sine/cosine table. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
-    internal static SignedEightEight ReadRioSignedSineCosineSample(ByteAngle angle) =>
+    internal static SignedEightEight ReadRioSignedSineCosineSample(TrigonometryAngle angle) =>
         SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>

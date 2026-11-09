@@ -305,7 +305,7 @@ internal sealed class MotherBrainHead
                 return null;
             }
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
-                SpawnMotherBrainOnionRing(state, new ByteAngle(state.OnionRingsTargetAngle));
+                SpawnMotherBrainOnionRing(state, new TrigonometryAngle(state.OnionRingsTargetAngle));
                 return null;
             case MotherBrainHeadCue.SpawnBomb bomb:
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
@@ -377,7 +377,7 @@ internal sealed class MotherBrainHead
     {
         RoomEnemySlot head = state.Head;
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
-        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn).RawValue;
+        int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn).RawValue;
 
         // The clamp performs two signed-flag comparisons in 8-bit mode. The
         // wraparound half maps 192..255 and 0..15 to 16; the opposite half maps
@@ -424,7 +424,7 @@ internal sealed class MotherBrainHead
     /// </summary>
     internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
-        ByteAngle angle)
+        TrigonometryAngle angle)
     {
         RoomEnemyProjectileSlot? ring = _projectiles.AllocateEnemyProjectile();
         if (ring is null)
@@ -438,7 +438,7 @@ internal sealed class MotherBrainHead
         ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(
             1104,
-            angle.TurnedBy(ByteAngle.QuarterTurn)));
+            angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
         // The ring's initializer falls through into its attachment step, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.

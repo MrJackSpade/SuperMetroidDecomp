@@ -35,12 +35,12 @@ internal static class FixedPointVocabularyVerification
             var speed = new UnsignedSixteenSixteen(whole, fraction);
             var capSpeed = new UnsignedSixteenSixteen(cap, 0);
             bool replaced = unchecked((short)(whole - cap)) >= 0 && unchecked((short)fraction) >= 0;
-            AssertEqual(replaced, speed.WordsAtLeast(capSpeed), $"cap {cap} against {whole:X4}.{fraction:X4}");
+            AssertEqual(replaced, speed.PartsAtLeast(capSpeed), $"cap {cap} against {whole:X4}.{fraction:X4}");
             if (replaced != (speed.RawValue >= capSpeed.RawValue))
                 disagreements++;
         }
         AssertTrue(disagreements > 0, "some samples separate the word test from an unsigned 32-bit comparison");
-        AssertTrue(!new UnsignedSixteenSixteen(3, 0x8000).WordsAtLeast(new UnsignedSixteenSixteen(2, 0)),
+        AssertTrue(!new UnsignedSixteenSixteen(3, 0x8000).PartsAtLeast(new UnsignedSixteenSixteen(2, 0)),
             "a fraction word of $8000 fails the cap although 3.8000 exceeds 2.0000");
     }
 
@@ -62,7 +62,7 @@ internal static class FixedPointVocabularyVerification
                 if (fraction != 0)
                     negatedWithFraction++;
             }
-            SignedSixteenSixteen actual = EnemyMath.ReadEightBitSineFixedProduct(new ByteAngle(angle), (ushort)radius);
+            SignedSixteenSixteen actual = EnemyMath.ReadEightBitSineFixedProduct(new TrigonometryAngle(angle), (ushort)radius);
             AssertEqual(unchecked((short)whole), actual.WholePixels, $"sine product whole, angle {angle:X2} radius {radius:X3}");
             AssertEqual(fraction, actual.Fraction, $"sine product fraction, angle {angle:X2} radius {radius:X3}");
         }

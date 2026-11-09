@@ -879,10 +879,10 @@ public sealed class BabyMetroidCutsceneState
                 : targetAngle;
         }
 
-        ByteAngle angle = Angle.ToByteAngle();
+        TrigonometryAngle angle = Angle.ToTrigonometryAngle();
         Velocity = new(
             CalculateVelocityComponent(Speed, angle),
-            CalculateVelocityComponent(Speed, angle.TurnedBy(ByteAngle.QuarterTurn)));
+            CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the game's bit-8-to-23 result.</summary>
@@ -890,7 +890,7 @@ public sealed class BabyMetroidCutsceneState
     /// <param name="angle">The sine-table angle.</param>
     internal static SignedEightEight CalculateVelocityComponent(
         int speed,
-        ByteAngle angle)
+        TrigonometryAngle angle)
     {
         // The sine multiply takes unsigned speed by the absolute signed-table value,
         // returns product bits 8..23, then reapplies the original sign.

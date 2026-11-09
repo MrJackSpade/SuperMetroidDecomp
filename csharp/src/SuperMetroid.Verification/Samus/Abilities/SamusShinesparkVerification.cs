@@ -368,9 +368,9 @@ internal static void VerifySamusStoredShineAndShinespark()
     // execute `$90:D4D2` until the following alpha projectile pass.
     AssertEqual(2, horizontal.Shinespark.ReleasedCrashEchoCount,
         "empty projectile capacity admits both departing crash echoes");
-    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedCrashEchoAngle.ToByteAngle().RawValue,
+    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedCrashEchoAngle.ToTrigonometryAngle().RawValue,
         "horizontal-right first departing echo uses ROM table angle zero");
-    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedCrashEchoAngle.ToByteAngle().RawValue,
+    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedCrashEchoAngle.ToTrigonometryAngle().RawValue,
         "horizontal-right second departing echo uses opposite ROM table angle $80");
     AssertEqual(0, horizontal.Shinespark.FirstReleasedCrashEchoRadius,
         "departing projectile radius starts at zero, separate from drawing speed");
@@ -546,8 +546,8 @@ internal static void VerifySamusStoredShineAndShinespark()
             }
             ShinesparkDepartureAngles angles = ShinesparkEchoDepartures.DepartureAngles(pose, drained);
             int pair = 0x90d4c6 + (number - 0xc9) * 2;
-            AssertEqual(rom.ReadCartridgeByte(pair), (int)angles.First.ToByteAngle().RawValue, $"pose {number} first echo angle");
-            AssertEqual(rom.ReadCartridgeByte(pair + 1), (int)angles.Second.ToByteAngle().RawValue, $"pose {number} second echo angle");
+            AssertEqual(rom.ReadCartridgeByte(pair), (int)angles.First.ToTrigonometryAngle().RawValue, $"pose {number} first echo angle");
+            AssertEqual(rom.ReadCartridgeByte(pair + 1), (int)angles.Second.ToTrigonometryAngle().RawValue, $"pose {number} second echo angle");
             if (drainedPose)
                 AssertEqual(angles, drained.Departures(pose), $"drained pose {number} reads its angles from the installed service");
             else

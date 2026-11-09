@@ -53,7 +53,7 @@ internal static class YardTrajectoriesVerification
                 if (distance > largest)
                 {
                     largest = distance;
-                    Console.WriteLine($"Yard {focus}, frame {frame}, {function}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingVelocity.X.RawValue:X4}/{state.CrawlingVelocity.Y.RawValue:X4}, airborne={state.AirborneVelocity.X.WholeWord:X4}.{state.AirborneVelocity.X.Fraction:X4}/{state.AirborneVelocity.Y.WholeWord:X4}.{state.AirborneVelocity.Y.Fraction:X4}");
+                    Console.WriteLine($"Yard {focus}, frame {frame}, {function}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingVelocity.X.RawValue:X4}/{state.CrawlingVelocity.Y.RawValue:X4}, airborne={state.AirborneVelocity.X.UnsignedWholePixels:X4}.{state.AirborneVelocity.X.Fraction:X4}/{state.AirborneVelocity.Y.UnsignedWholePixels:X4}.{state.AirborneVelocity.Y.Fraction:X4}");
                 }
             }
             Console.WriteLine($"Yard {focus}: maximum axis step {largest}");

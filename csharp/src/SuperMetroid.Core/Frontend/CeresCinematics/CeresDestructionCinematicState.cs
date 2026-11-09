@@ -817,7 +817,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
-                Background.Whole.AsSignedWord());
+                Background.Whole.AsSignedOffset());
             // Before the station is set up, and after the explosion with Samus aboard clears it, the floor shows nothing.
             if (FloorShot is not { } shot)
                 layers = [sprites];

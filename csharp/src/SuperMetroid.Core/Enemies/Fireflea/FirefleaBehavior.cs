@@ -51,7 +51,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             // The initializer places the Fireflea at the circle's zero angle whatever its initial angle: it reads the
             // angle's fraction, which a spawned angle never has. The main AI places it at its initial angle on its
             // first update.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(new ByteAngle(0), state.Radius));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(new TrigonometryAngle(0), state.Radius));
             return;
         }
 
@@ -66,7 +66,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.UsesCircularMovement)
         {
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToByteAngle(), state.Radius));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
 
             // The angle advances by the speed at 256ths of a pixel: the high byte of its fraction under the low byte
             // of its whole part, the exact signed 8.8 step including negative speeds.

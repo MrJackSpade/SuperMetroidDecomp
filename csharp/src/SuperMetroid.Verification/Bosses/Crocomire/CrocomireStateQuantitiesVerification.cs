@@ -276,7 +276,7 @@ internal static class CrocomireStateQuantitiesVerification
             NativeAccelerate(ref fraction, ref whole, (uint)SixteenSixteen.FromEightEight(16), 6);
             behavior.Skeleton.RunCrocomireSkeletonCollapse(state);
             AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"skeleton collapse frame {frame}: speed fraction word");
-            AssertEqual(whole, state.SkeletonVelocity.WholeWord, $"skeleton collapse frame {frame}: speed whole word");
+            AssertEqual(whole, state.SkeletonVelocity.UnsignedWholePixels, $"skeleton collapse frame {frame}: speed whole word");
         }
     }
 
@@ -285,7 +285,7 @@ internal static class CrocomireStateQuantitiesVerification
         FixedPosition<RoomPixels> position, string at)
     {
         AssertEqual(fraction, state.SkeletonVelocity.Fraction, $"{at}: speed fraction word");
-        AssertEqual(whole, state.SkeletonVelocity.WholeWord, $"{at}: speed whole word");
+        AssertEqual(whole, state.SkeletonVelocity.UnsignedWholePixels, $"{at}: speed whole word");
         AssertEqual(position, state.Body.Position, $"{at}: position");
     }
 

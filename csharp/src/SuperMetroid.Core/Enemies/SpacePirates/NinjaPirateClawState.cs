@@ -14,7 +14,7 @@ internal sealed class NinjaPirateClawState(int speed) : EnemyProjectileState
     internal int Speed
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
+        set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     } = speed;
 
     /// <summary>Whether the claw is still flying out; it turns back once its outward speed has run out.</summary>

@@ -416,9 +416,9 @@ internal sealed class MotherBrainProjectiles
         // The shard's launch angle is the random word's low byte. It selects signed sine/cosine velocities, and its
         // top four bits choose one of sixteen authored shard animation lists.
         int angle = MotherBrainGlassShardDefinitions.LaunchAngle.Of(_room.Random.Generate());
-        shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineWord(angle + 64)));
+        shard.Velocity = shard.Velocity.WithX(SignedEightEight.FromSignedRaw(Trigonometry.SignedNegativeCosineSample(angle + 64)));
         // A cosine sample lies within one pixel either way, so four times one stays within four.
-        shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(4 * Trigonometry.SignedNegativeCosineWord(angle)));
+        shard.Velocity = shard.Velocity.WithY(SignedEightEight.FromSignedRaw(4 * Trigonometry.SignedNegativeCosineSample(angle)));
         int animationIndex = angle >> 4;
         shard.StartAnimation(new MotherBrainGlassAnimation(MotherBrainGlassAnimations.ShardProgram(animationIndex)));
         shard.Graphics = MotherBrainGlassShardDefinitions.Graphics(MotherBrainColours.GlassAndTubes);
@@ -503,13 +503,13 @@ internal sealed class MotherBrainProjectiles
         state.HandBeamNextPosition = beam.Position;
 
         int angleRandom = _room.Random.Generate();
-        ByteAngle scatterAngle = new ByteAngle(state.HandBeamNextAngle).TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
+        TrigonometryAngle scatterAngle = new TrigonometryAngle(state.HandBeamNextAngle).TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
         int speedRandom = _room.Random.Generate();
         int scatterSpeed = UnsignedEightEight.FromParts(whole: MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom), fraction: 0);
         beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));
         beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
             scatterSpeed,
-            scatterAngle.TurnedBy(ByteAngle.QuarterTurn)));
+            scatterAngle.TurnedBy(TrigonometryAngle.QuarterTurn)));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
         if (IsMotherBrainHandBeamOutsideArena(beam))

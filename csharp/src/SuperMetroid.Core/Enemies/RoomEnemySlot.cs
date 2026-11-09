@@ -140,7 +140,7 @@ public sealed class RoomEnemySlot
     public int FrameCounter
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
     /// <summary>The definition's hurt duration, 0 through 255, copied into the slot when it is populated.</summary>
     public int HurtAiTime

@@ -79,7 +79,7 @@ internal static class EndingCreditsPresentation
                 {
                     layers.Add(new TurningFloorLayer(FloorView.Turned(ending.Stage.FloorAngle, ending.Stage.FloorZoom,
                         CurrentFloorCenter(ending),
-                        ending.Stage.FloorPosition.Whole.AsSignedWord(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
+                        ending.Stage.FloorPosition.Whole.AsSignedOffset(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                         floor, AddsForeground: AtmosphericMapWraps(ending)));
                 }
         }

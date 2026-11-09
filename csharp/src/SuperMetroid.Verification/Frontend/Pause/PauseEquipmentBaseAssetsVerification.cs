@@ -32,8 +32,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
             ControllerButton input = frame == 0 ? ControllerButton.R : frame == toMap ? ControllerButton.L : 0;
-            native.Step(input, input, frameCounterByte: (byte)frame);
-            installed.Step(input, input, frameCounterByte: (byte)frame);
+            native.Step(input, input, frameCycle: (byte)frame);
+            installed.Step(input, input, frameCycle: (byte)frame);
             var shownNative = native.ShownVram();
             var shownInstalled = installed.ShownVram();
             AssertTrue(shownNative.SequenceEqual(shownInstalled),

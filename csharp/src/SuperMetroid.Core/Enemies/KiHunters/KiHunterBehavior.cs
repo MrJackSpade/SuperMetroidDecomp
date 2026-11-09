@@ -302,7 +302,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ByteAngle tableAngle = RotationAngle.WrappedSteps(state.SwoopAngle).ToByteAngle();
+        TrigonometryAngle tableAngle = RotationAngle.WrappedSteps(state.SwoopAngle).ToTrigonometryAngle();
         int targetX = CoordinateAxis.Wrap(
             state.SwoopTarget.X +
             EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X));
@@ -502,8 +502,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DetachedSpeedIndex,
             sign: EnemySpeedSign.Negative));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
-        wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(byteAngle, radius) - state.OrbitOffset);
+        TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
+        wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - state.OrbitOffset);
 
         if (LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
@@ -523,10 +523,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DetachedSpeedIndex,
             sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
+        TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         int desiredY = CoordinateAxis.Wrap(
             state.OrbitCenter.Y +
-            EnemyMath.ReadEightBitNegativeSineProduct(byteAngle, radius) -
+            EnemyMath.ReadEightBitNegativeSineProduct(trigonometryAngle, radius) -
             state.FallingArcOffset.Y);
         if (_terrain.MoveEnemyVertically(
                 level,
@@ -540,7 +540,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         wings.Position = wings.Position.WithWrappedWholeX(
-            state.OrbitCenter.X + EnemyMath.ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcOffset.X);
+            state.OrbitCenter.X + EnemyMath.ReadEightBitCosineProduct(trigonometryAngle, radius) - state.FallingArcOffset.X);
         if (!LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
             BeginDetachedKiHunterWingOrbit(wings, state);

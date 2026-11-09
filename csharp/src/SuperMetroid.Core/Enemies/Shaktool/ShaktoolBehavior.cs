@@ -141,7 +141,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // The segment placement reads the preceding segment's place without testing it. A lethal shot clears the
         // struck segment and deletes the chain, but the later segments still run this update; their final orbit uses
         // the cleared coordinates.
-        slot.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToByteAngle()));
+        slot.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToTrigonometryAngle()));
     }
 
 
@@ -342,7 +342,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle turnLeft = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
             ? state.OrbitAngle - state.TargetAngle
             : state.TargetAngle - state.OrbitAngle;
-        state.AngularVelocity = 4 * turnLeft.ToByteAngle().RawValue;
+        state.AngularVelocity = 4 * turnLeft.ToTrigonometryAngle().RawValue;
     }
 
     /// <summary>Runs group synchronization.</summary>
@@ -416,11 +416,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 // Flipping the direction's top bit turns it half a turn.
-                ByteAngle centerDirection = new(RequireShaktoolState(group[3]).OrientationBucket);
+                TrigonometryAngle centerDirection = new(RequireShaktoolState(group[3]).OrientationBucket);
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
-                        ? centerDirection.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn)
+                        ? centerDirection.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn)
                         : centerDirection);
                 break;
             }
@@ -428,11 +428,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShaktoolCueKind.Lower:
             case ShaktoolCueKind.Raise:
             {
-                ByteAngle targetDirection = state.TargetAngle.ToByteAngle();
+                TrigonometryAngle targetDirection = state.TargetAngle.ToTrigonometryAngle();
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.Lower
-                        ? targetDirection.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn)
+                        ? targetDirection.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn)
                         : targetDirection);
                 break;
             }
@@ -460,7 +460,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the one-frame sine movement helper.</summary>
-    private static void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, ByteAngle angle)
+    private static void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, TrigonometryAngle angle)
     {
         // The decompilation names a 320-word view whose indices 64..319 are the game's
         // 256-word table. Convert those full-view indices explicitly: X reads
@@ -473,7 +473,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Maps the Shaktool orbit index into the shared signed enemy sine table.</summary>
     internal static SignedEightEight ReadShaktoolCommonSineSample(int fullTableIndex) =>
-        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(ByteAngle.Wrapped(fullTableIndex - 64)));
+        SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(TrigonometryAngle.Wrapped(fullTableIndex - 64)));
 
     /// <summary>
     /// Implements Shaktool's fatal-shot tail: a hit that kills one segment deletes the seven enemies from the room's

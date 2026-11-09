@@ -31,7 +31,7 @@ public sealed class MochtroidEnemyState
 
     /// <summary>Counts one attached update, wrapping after 65535 as the game's word does.</summary>
     internal void CountAttachedUpdate() =>
-        AttachmentDamageTimer = WrappingCounter.IncrementWord(AttachmentDamageTimer);
+        AttachmentDamageTimer = WrappingCounter.IncrementCount(AttachmentDamageTimer);
 
     /// <summary>Whether the count has reached <paramref name="period"/>, compared as the game's signed word difference.</summary>
     /// <param name="period">The damage period in attached updates.</param>

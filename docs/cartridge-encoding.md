@@ -42,7 +42,7 @@ what the value means, and the change records the decision at the site:
 
 | The value is | It becomes |
 | --- | --- |
-| A wrap or borrow the game observes (a timer decremented through zero, a counter that wraps, a low byte stepped beside independent state, health and ammo borrow, level-data allocation tails, over-read windows) | A named wrapping stub in `Core/Compatibility` (`WrappingCountdown`, `WrappingCounter`, `CountdownStep`, `LowByteCountdownStep`, `SoundRequestCheckTimer`) or a new one whose summary states the gameplay behaviour the width produces, with a focused check that exercises the wrap. |
+| A wrap or borrow the game observes (a timer decremented through zero, a counter that wraps, a low byte stepped beside independent state, health and ammo borrow, level-data allocation tails, over-read windows) | A named wrapping stub in `Core/Compatibility` (`WrappingCountdown`, `WrappingCounter`, `CountdownStep`, `LowHalfCountdownStep`, `SoundRequestCheckTimer`) or a new one whose summary states the gameplay behaviour the width produces, with a focused check that exercises the wrap. |
 | A width an encoding needs (a save word, a cartridge record byte, a packed tile or level word, a file-format field, a host pixel) | The encoding's single `[EncodingOwner]` codec (`RoomLevelWordCodec` in the import, `PcmWaveFile`, `RgbaPixel`); gameplay holds the decoded domain value or the codec's value type. |
 | Spatial | The branded spatial types (`docs/spatial-types.md`); a value passing through one axis is an `int`. |
 | An index or count | `int`, with `[IntegerQuantity]` where the analyzer needs it. |
@@ -70,7 +70,7 @@ keeps the branch the cartridge takes:
 | `DEC` then `BNE`/`BEQ` (expire on reaching zero) | `step.IsZero` |
 | `DEC`, `BEQ`, `BMI` | `step.IsZeroOrNegative` |
 | `LDA`, `BEQ`, `DEC` (saturating) | `t = t.DecrementToZero()` |
-| 8-bit `DEC` of a low byte beside independent high-byte state | `WrappingCounter.DecrementLowByte(word)` |
+| 8-bit `DEC` of a low byte beside independent high-byte state | `WrappingCounter.DecrementLowHalf(word)` |
 
 A site that also reads the timer as a number (a table index, a threshold other than zero or the sign)
 reads `RawValue` explicitly. A countdown is stored as `WrappingCountdown` by the state that owns it. A timer
@@ -102,8 +102,8 @@ A whole value and its fraction are one quantity. Speeds and accelerations are `S
 `UnsignedSixteenSixteen`; a position with its subpixel is a `FixedCoordinate`. Code never carries the two words
 side by side, in a tuple or as two parameters (SME6351).
 
-An angle's type states its convention (SME6352). `RotationAngle` is a turn in steps of a 256th with a fraction, spoken of in named turns, angle arithmetic, comparison and sectors, whose `ToByteAngle()` is the trigonometry angle the tables read;
-`ByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `TurnedBySteps` wrapping in one byte; and
+An angle's type states its convention (SME6352). `RotationAngle` is a turn in steps of a 256th with a fraction, spoken of in named turns, angle arithmetic, comparison and sectors, whose `ToTrigonometryAngle()` is the trigonometry angle the tables read;
+`TrigonometryAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `TurnedBySteps` wrapping in one byte; and
 `Bearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTableAngle()`. Where a routine
 reads a bearing directly from the table, the conversion is written out at that call. Steps, deltas, masks and offsets
 in table units stay integers.

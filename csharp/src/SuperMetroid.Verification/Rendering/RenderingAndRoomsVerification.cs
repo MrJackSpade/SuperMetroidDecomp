@@ -495,14 +495,14 @@ internal static void VerifyMovedSamusCameraTracking()
     // Facing right, normal forward movement, distance slot zero targets Samus X-$60.
     // Samus moved four pixels, and $90:96C0 intentionally adds 1.0, so camera advances 5.
     camera.SetPosition(new Position16<RoomPixels>(100, 0));
-    var previous = FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0);
-    var current = FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0);
+    var previous = FixedPosition<RoomPixels>.FromStoredParts(200, 0, 100, 0);
+    var current = FixedPosition<RoomPixels>.FromStoredParts(204, 0, 100, 0);
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
         new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(108, camera.IdealPosition.X, "camera facing-right ideal X");
-    AssertEqual(5, camera.Speed.X.WholeWord, "camera X distance includes one pixel");
+    AssertEqual(5, camera.Speed.X.UnsignedWholePixels, "camera X distance includes one pixel");
     AssertEqual(105, camera.PixelPosition.X, "camera X follows by calculated speed");
 
     // The complete fixed-point difference matters: 200.8000 -> 201.4000 is +0.C000;
@@ -514,7 +514,7 @@ internal static void VerifyMovedSamusCameraTracking()
         previous,
         current,
         new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
-    AssertEqual(1, camera.Speed.X.WholeWord, "camera fixed X speed integer");
+    AssertEqual(1, camera.Speed.X.UnsignedWholePixels, "camera fixed X speed integer");
     AssertEqual(0xc000, camera.Speed.X.Fraction, "camera fixed X speed fraction");
     AssertEqual(101, camera.PixelPosition.X, "camera fixed X position integer");
     AssertEqual(0xc000, camera.Position.X.Fraction, "camera fixed X position fraction");
@@ -522,14 +522,14 @@ internal static void VerifyMovedSamusCameraTracking()
     // Downward Samus movement uses up_scroller. 210-$64 gives ideal 110; a two-pixel move
     // becomes camera speed three and advances layer Y from 100 to 103 without overshoot.
     camera.SetPosition(new Position16<RoomPixels>(0, 100));
-    previous = FixedPosition<RoomPixels>.FromWords(0, 0, 208, 0);
-    current = FixedPosition<RoomPixels>.FromWords(0, 0, 210, 0);
+    previous = FixedPosition<RoomPixels>.FromStoredParts(0, 0, 208, 0);
+    current = FixedPosition<RoomPixels>.FromStoredParts(0, 0, 210, 0);
     camera.TrackMovedSamusVertically(
         previous,
         current,
         new VerticalCameraContext(YDirection: SamusVerticalDirection.Down, UpScroller: 100, DownScroller: 112));
     AssertEqual(110, camera.IdealPosition.Y, "camera downward ideal Y");
-    AssertEqual(3, camera.Speed.Y.WholeWord, "camera Y distance includes one pixel");
+    AssertEqual(3, camera.Speed.Y.UnsignedWholePixels, "camera Y distance includes one pixel");
     AssertEqual(103, camera.PixelPosition.Y, "camera Y follows by calculated speed");
 
     // Equal integer coordinates take $80:A528/$80:A731. With identical fixed-point
@@ -538,12 +538,12 @@ internal static void VerifyMovedSamusCameraTracking()
     grid.SetLogicalState(new(0, 0), RoomScrollState.RedBoundary);
     grid.SetLogicalState(new(1, 0), RoomScrollState.Blue);
     camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
-    var stationary = FixedPosition<RoomPixels>.FromWords(200, 0, 200, 0);
+    var stationary = FixedPosition<RoomPixels>.FromStoredParts(200, 0, 200, 0);
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
         new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
-    AssertEqual(1, camera.Speed.X.WholeWord, "stationary camera X speed still includes one");
+    AssertEqual(1, camera.Speed.X.UnsignedWholePixels, "stationary camera X speed still includes one");
     AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
     // Red on both sides cancels that drift by rounding back to the current screen edge.
@@ -595,7 +595,7 @@ internal static void VerifyMovedSamusCameraTracking()
         stationary,
         stationary,
         new VerticalCameraContext(YDirection: SamusVerticalDirection.None, UpScroller: 0, DownScroller: 0));
-    AssertEqual(1, verticalCamera.Speed.Y.WholeWord, "stationary camera Y speed still includes one");
+    AssertEqual(1, verticalCamera.Speed.Y.UnsignedWholePixels, "stationary camera Y speed still includes one");
     AssertEqual(0x0023, verticalCamera.PixelPosition.Y, "$80:A731 red-cell downward drift");
 
     // Whether Samus is knocked back, her acceleration mode and her pose's facing build the context the camera reads:

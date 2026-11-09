@@ -201,7 +201,7 @@ internal sealed class CollectibleObjects
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
         // Both item setup paths increment the saved load counter, even for collected items.
-        system.LoadedItemCount = WrappingCounter.IncrementWord(system.LoadedItemCount);
+        system.LoadedItemCount = WrappingCounter.IncrementCount(system.LoadedItemCount);
         slot.Become(new CollectibleObject(kind, presentation, blockPair, phase));
     }
 

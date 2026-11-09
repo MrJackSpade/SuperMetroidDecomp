@@ -136,7 +136,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // The sine multiply multiplies unsigned speed by the magnitude, selects product bits 8..23,
         // then reapplies the table entry's sign with 16-bit two's-complement negation.
         return Trigonometry.MultiplySignedSine(
-            speed, (angle + RotationAngle.QuarterTurn).ToByteAngle());
+            speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }
 
     /// <summary>Applies 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=48..192.</summary>

@@ -391,7 +391,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // The game negates each word separately. This is intentionally one
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
-                state.AirborneVelocity = state.AirborneVelocity.WithX(NegateWordsSeparately(state.AirborneVelocity.X));
+                state.AirborneVelocity = state.AirborneVelocity.WithX(NegatePartsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
             }
@@ -418,7 +418,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            state.AirborneVelocity = state.AirborneVelocity.WithY(NegateWordsSeparately(state.AirborneVelocity.Y));
+            state.AirborneVelocity = state.AirborneVelocity.WithY(NegatePartsSeparately(state.AirborneVelocity.Y));
             state.BouncedHorizontally = false;
             return;
         }
@@ -426,7 +426,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // Gravity always stores the fraction word but stores the whole word only below four.
         SignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
         SignedSixteenSixteen accelerated = fallingVelocity + SignedSixteenSixteen.FromParts(0, 8192);
-        state.AirborneVelocity = state.AirborneVelocity.WithY(CoordinateAxis.Difference(accelerated.WholeWord, 4) < 0
+        state.AirborneVelocity = state.AirborneVelocity.WithY(CoordinateAxis.Difference(accelerated.UnsignedWholePixels, 4) < 0
             ? accelerated
             : fallingVelocity.WithFraction(accelerated.Fraction));
     }
@@ -527,9 +527,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(slot, state);
 
         SignedSixteenSixteen horizontal = samus.HorizontalDistanceMovedPlusOne;
-        SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.WholeWord);
+        SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.UnsignedWholePixels);
         if (SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left))
-            horizontal = NegateWordsSeparately(horizontal);
+            horizontal = NegatePartsSeparately(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(
             horizontal,
             kick);
@@ -551,8 +551,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Negates the whole and fraction words independently, as Yard's collision handlers do.</summary>
-    private static SignedSixteenSixteen NegateWordsSeparately(SignedSixteenSixteen velocity) =>
-        velocity.NegatedWordsSeparately();
+    private static SignedSixteenSixteen NegatePartsSeparately(SignedSixteenSixteen velocity) =>
+        velocity.NegatedPartsSeparately();
 
     /// <summary>Negates one raw 8.8 crawl word, wrapping at sixteen bits.</summary>
     private static SignedEightEight NegateEightEight(SignedEightEight velocity) =>

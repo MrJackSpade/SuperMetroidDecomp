@@ -169,11 +169,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         slot.Position = slot.Position.WithWrappedWholeX(
             state.WallJumpArcCenter.X +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                state.WallJumpArcAngle.ToByteAngle(),
+                state.WallJumpArcAngle.ToTrigonometryAngle(),
                 CoordinateAxis.Wrap(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 1)));
         slot.Position = slot.Position.WithWrappedWholeY(
             state.WallJumpArcCenter.Y -
-            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.ToByteAngle(), CoordinateAxis.Wrap(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 2)));
+            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.ToTrigonometryAngle(), CoordinateAxis.Wrap(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 2)));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>

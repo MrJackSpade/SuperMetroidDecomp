@@ -100,7 +100,7 @@ public sealed class SharedGameState
     public void SetRandomNumber(int value) => Random.Seed(value);
 
     /// <summary>Stores the shared RNG state with its two bytes exchanged, as the lava and acid FX routine does.</summary>
-    internal void SwapRandomBytes() => Random.SwapBytes();
+    internal void SwapRandomHalves() => Random.SwapHalves();
 
     /// <summary>
     /// Most recently calculated held input.

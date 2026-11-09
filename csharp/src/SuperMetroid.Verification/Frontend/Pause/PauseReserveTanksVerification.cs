@@ -36,7 +36,7 @@ internal static class PauseReserveTanksVerification
             foreach (byte phase in new byte[] { 0, 4 })
             {
                 samus.ReserveEnergy = supply;
-                pause.Step(0, 0, frameCounterByte: phase);
+                pause.Step(0, 0, frameCycle: phase);
                 // The frame is captured once and drawn once; the repaint and restore checks compare descriptions,
                 // drawing only one that differs (#1532).
                 var capture = pause.CaptureRenderSnapshot();

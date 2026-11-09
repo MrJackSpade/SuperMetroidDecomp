@@ -182,7 +182,7 @@ public sealed class SuperMetroidGame
         if (doorAudioDispatch && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
             Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
-        FrameNumber = WrappingCounter.IncrementWord(FrameNumber);
+        FrameNumber = WrappingCounter.IncrementCount(FrameNumber);
         Session.display.BeginUpdate(FrameNumber);
         if (Session.Runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();

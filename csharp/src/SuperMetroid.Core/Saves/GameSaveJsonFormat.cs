@@ -12,7 +12,7 @@ public static class GameSaveJsonFormat
     public const int SchemaVersion = 6;
 
     /// <summary>Bytes per legacy schema-one import page; never emitted by schemas two and three.</summary>
-    public const int PreservationPageByteCount = 256;
+    public const int PreservationPageSize = 256;
 
     /// <summary>Extension replacing the emulator-oriented <c>.srm</c> host file.</summary>
     public const string FileExtension = ".save.json";

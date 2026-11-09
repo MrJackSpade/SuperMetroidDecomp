@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// Its speed: in pixels per update while bobbing, in 256ths of a turn per update, with a 16-bit fraction, while circling.
 /// </param>
 /// <param name="Radius">The radius of its circle, or how far it bobs to either side of where it starts, in pixels.</param>
-internal sealed record FirefleaSpawnSettings(FirefleaPath Path, EnemySpeedSign SpeedSign, ByteAngle InitialAngle, SignedSixteenSixteen Speed, int Radius) : EnemySpawnSettings;
+internal sealed record FirefleaSpawnSettings(FirefleaPath Path, EnemySpeedSign SpeedSign, TrigonometryAngle InitialAngle, SignedSixteenSixteen Speed, int Radius) : EnemySpawnSettings;

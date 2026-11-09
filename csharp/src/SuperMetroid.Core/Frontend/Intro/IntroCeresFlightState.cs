@@ -208,7 +208,7 @@ internal sealed class IntroCeresFlightState
         else
         {
             layers.Add(new TurningFloorLayer(FloorView.Turned(angle, zoom,
-                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedWord()),
+                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedOffset()),
                 CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront)
                     // The flight shows no colour effect on its floor; it fades with the display's brightness (#1512).

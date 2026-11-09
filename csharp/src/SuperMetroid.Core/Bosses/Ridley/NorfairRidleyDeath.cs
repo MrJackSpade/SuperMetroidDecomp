@@ -254,7 +254,7 @@ internal sealed class NorfairRidleyDeath
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
-                ByteAngle.Wrapped(tail.Angle + state.TailSegments[5].Angle + 8).RawValue / 16;
+                TrigonometryAngle.Wrapped(tail.Angle + state.TailSegments[5].Angle + 8).RawValue / 16;
             fragmentState.Program = AnimationProgramCursor<RidleyBreakupFrame>.Start(RidleyBreakup.SelectTailFrame(
                 part,
                 tailTipOrientation));

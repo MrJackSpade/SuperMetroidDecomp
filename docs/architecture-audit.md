@@ -356,7 +356,7 @@ commands species only through `RoomEnemySystem`'s capability interfaces (`Elevat
 `[EncodingOwner]` codec types, a whole value and its fraction are never carried as two primitives
 or a tuple (`Speed`/`Subspeed`, `Whole`/`Fraction`): they are one `SignedSixteenSixteen`,
 `UnsignedSixteenSixteen` or `FixedCoordinate` (SME6351). An angle, heading or bearing is never a raw byte or
-word: it is a `RotationAngle` (8.8 turn), `ByteAngle` (trigonometry-table index) or `Bearing` (the
+word: it is a `RotationAngle` (8.8 turn), `TrigonometryAngle` (trigonometry-table index) or `Bearing` (the
 up-is-zero result of the cartridge angle routine); a name ending in Step, Delta, Mask or Offset is a difference in
 table units and is not an angle (SME6352). No member, tuple element or by-reference parameter carries a processor
 carry or overflow flag: where a carry is load-bearing the code states the domain rule it serves (a fraction's overflow

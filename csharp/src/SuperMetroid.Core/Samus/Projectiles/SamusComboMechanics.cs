@@ -44,11 +44,11 @@ internal static class SamusComboMechanics
     /// a quarter turn per projectile slot, for slots 0 through 3.
     /// The adjacent unused diagonal-angle words are not further projectile slots;
     /// the bounded progression does not extrapolate into them.</remarks>
-    internal static ByteAngle GetOriginAngle(int projectileSlot)
+    internal static TrigonometryAngle GetOriginAngle(int projectileSlot)
     {
         if ((uint)projectileSlot >= 4)
             throw new ArgumentOutOfRangeException(nameof(projectileSlot));
-        return new ByteAngle(0).TurnedBySteps(ByteAngle.QuarterTurn.RawValue * projectileSlot);
+        return new TrigonometryAngle(0).TurnedBySteps(TrigonometryAngle.QuarterTurn.RawValue * projectileSlot);
     }
 
     /// <summary>
@@ -64,17 +64,17 @@ internal static class SamusComboMechanics
     /// with byte wrap. Amplitude uses its low byte as the hardware multiplier does.
     /// This is a consumer view of the reviewed signed sine mapping, with no stored
     /// lookup of its own; preserve this existing algorithm.</remarks>
-    internal static Offset16<RoomPixels> GetSineOffset(ByteAngle angle, int amplitude)
+    internal static Offset16<RoomPixels> GetSineOffset(TrigonometryAngle angle, int amplitude)
     {
         Ensure.BetweenInclusive(0, OrbitRadiusCycle - 1, amplitude);
         int Component(int phase)
         {
-            int sample = Trigonometry.SignedSine(new ByteAngle(phase));
+            int sample = Trigonometry.SignedSine(new TrigonometryAngle(phase));
             int magnitude = EightEight.Multiply(Math.Abs(sample), amplitude);
             return sample < 0 ? -magnitude : magnitude;
         }
 
-        return new(Component(angle.RawValue), Component(angle.TurnedBySteps(-ByteAngle.QuarterTurn.RawValue).RawValue));
+        return new(Component(angle.RawValue), Component(angle.TurnedBySteps(-TrigonometryAngle.QuarterTurn.RawValue).RawValue));
     }
 
     /// <summary>The orbit radii a combo particle holds, in pixels; a radius grown past the last restarts from zero.</summary>

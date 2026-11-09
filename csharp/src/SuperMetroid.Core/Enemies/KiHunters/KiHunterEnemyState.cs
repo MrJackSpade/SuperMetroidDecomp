@@ -60,7 +60,7 @@ public sealed class KiHunterEnemyState
     public int DetachedSpeedAccumulator
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
     /// <summary>
@@ -127,5 +127,5 @@ public sealed class KiHunterEnemyState
     public bool HasLostWings { get; internal set; }
 
     /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's word does.</summary>
-    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WrappingCounter.AddWord(DetachedSpeedAccumulator, step);
+    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WrappingCounter.AddCount(DetachedSpeedAccumulator, step);
 }

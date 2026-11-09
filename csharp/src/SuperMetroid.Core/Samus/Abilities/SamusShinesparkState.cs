@@ -997,7 +997,7 @@ false,             CrashSequenceFinished: true);
     {
         // The game multiplies the positive half-wave, discards the fraction, then
         // restores sign. Shifting a negative product would round differently.
-        return Trigonometry.MultiplySignedSine(radius, angle.ToByteAngle());
+        return Trigonometry.MultiplySignedSine(radius, angle.ToTrigonometryAngle());
     }
 
     /// <summary>

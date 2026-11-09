@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <summary>
 /// A compass bearing of 256 units per turn, as the enemies' aim-at calculation produces it: zero points up and the
 /// bearing advances clockwise, so <c>$40</c> is right and <c>$80</c> down. The sine and cosine lookups take the other
-/// convention, <see cref="ByteAngle"/>; <see cref="ToTableAngle"/> converts between them.
+/// convention, <see cref="TrigonometryAngle"/>; <see cref="ToTableAngle"/> converts between them.
 /// </summary>
 [EncodingOwner("clockwise byte bearing")]
 public readonly record struct Bearing
@@ -22,14 +22,14 @@ public readonly record struct Bearing
     public static Bearing Wrapped(int units) => new(unchecked((byte)units));
 
     /// <summary>The same direction in the sine-table convention: a quarter turn minus the bearing.</summary>
-    public ByteAngle ToTableAngle() => ByteAngle.Wrapped(ByteAngle.QuarterTurn.RawValue - RawValue);
+    public TrigonometryAngle ToTableAngle() => TrigonometryAngle.Wrapped(TrigonometryAngle.QuarterTurn.RawValue - RawValue);
 
     /// <summary>
     /// The table angle of the same number of units: the bearing's direction mirrored across the line between up and
     /// right, since the bearing counts clockwise from up and the table angle the other way from right. Aim routines that
     /// take this angle read its sine as X and its cosine as Y, which turns the mirror back into the bearing's direction.
     /// </summary>
-    public ByteAngle ToMirroredTableAngle() => new(RawValue);
+    public TrigonometryAngle ToMirroredTableAngle() => new(RawValue);
 
 
     /// <inheritdoc />

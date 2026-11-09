@@ -27,7 +27,7 @@ internal static class PostCeresLandingHandOffVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         ScrollBoundaryCamera ceresCamera = runtime.Room.LoadedCamera;
-        ceresCamera.SetDoorTransitionPosition(ceresCamera.PixelPosition, FixedPosition<RoomPixels>.FromWords(0, 0xa000, 0, 0x1234));
+        ceresCamera.SetDoorTransitionPosition(ceresCamera.PixelPosition, FixedPosition<RoomPixels>.FromStoredParts(0, 0xa000, 0, 0x1234));
         // The escape ends with Samus running: the 13% capture enters the load carrying
         // base speed $1.8000 and extra run speed $0.8000, plus inventory from Ceres.
         SamusState escaped = runtime.Player.IntroducedSamus;

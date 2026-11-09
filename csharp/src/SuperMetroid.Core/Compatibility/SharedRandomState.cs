@@ -16,10 +16,10 @@ namespace SuperMetroid.Core.Compatibility;
 public readonly record struct SharedRandomState
 {
     /// <summary>The bits of the lower random byte, below the upper one.</summary>
-    private const int ByteBits = 8;
+    private const int HalfBits = 8;
 
     /// <summary>The values one random byte holds: a byte's product moved to the upper byte is multiplied by this.</summary>
-    private const int ByteSpan = 256;
+    private const int HalfSpan = 256;
 
     /// <summary>The values the state holds: an advance wraps at this.</summary>
     private const int StateSpan = 65536;
@@ -37,13 +37,13 @@ public readonly record struct SharedRandomState
     public int Value { get; }
 
     /// <summary>The random byte a sample, 0 through 65535, holds in its low eight bits.</summary>
-    public static byte LowerByte(int sample) => unchecked((byte)RequireSample(sample));
+    public static byte LowerHalf(int sample) => unchecked((byte)RequireSample(sample));
 
     /// <summary>
     /// The random byte a sample, 0 through 65535, holds in its high eight bits: a second draw independent of
-    /// <see cref="LowerByte"/>, which the game uses for another axis or another choice.
+    /// <see cref="LowerHalf"/>, which the game uses for another axis or another choice.
     /// </summary>
-    public static byte UpperByte(int sample) => unchecked((byte)(RequireSample(sample) >> ByteBits));
+    public static byte UpperHalf(int sample) => unchecked((byte)(RequireSample(sample) >> HalfBits));
 
     /// <summary>
     /// The state after one advance (<c>$80:8111</c>): roughly the state times five plus 273. Each byte of the state is
@@ -53,15 +53,15 @@ public readonly record struct SharedRandomState
     /// </summary>
     public SharedRandomState Next()
     {
-        int products = LowerByte(Value) * Multiplier + LowerByte(UpperByte(Value) * Multiplier) * ByteSpan;
-        int raised = products + ByteSpan;
+        int products = LowerHalf(Value) * Multiplier + LowerHalf(UpperHalf(Value) * Multiplier) * HalfSpan;
+        int raised = products + HalfSpan;
         int pastSixteenBits = raised > ushort.MaxValue ? 1 : 0;
         return new SharedRandomState((raised + Increment + pastSixteenBits) % StateSpan);
     }
 
     /// <summary>The state with its two bytes exchanged, as the lava and acid FX routine stores it back.</summary>
-    public SharedRandomState WithBytesSwapped() =>
-        new(LowerByte(Value) << ByteBits | UpperByte(Value));
+    public SharedRandomState WithHalvesSwapped() =>
+        new(LowerHalf(Value) << HalfBits | UpperHalf(Value));
 
     /// <summary>A sample checked to lie in 0 through 65535.</summary>
     private static int RequireSample(int sample) => Ensure.BetweenInclusive(0, ushort.MaxValue, sample);

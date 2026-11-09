@@ -300,7 +300,7 @@ internal sealed class PhantoonCombat
             }
 
             // The round's damage shares its word with other parts' state, so a sum past the word wraps as the game's does.
-            state.TentaclesState.RoundDamage = WrappingCounter.AddWord(
+            state.TentaclesState.RoundDamage = WrappingCounter.AddCount(
                 state.TentaclesState.RoundDamage, damage);
             if (state.TentaclesState.RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
@@ -554,20 +554,20 @@ internal sealed class PhantoonCombat
     internal static void PositionPhantoonFlameAroundBody(
         RoomEnemyProjectileSlot flame,
         RoomEnemySlot body,
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int radius)
     {
         // Unlike the common byte-table enemy sine routine, this callback uses a
         // word sample. Its high byte preserves the exact full radius at cardinal angles.
         int xOffset = ReadPhantoonFlameComponent(angle, radius);
-        int yOffset = ReadPhantoonFlameComponent(angle.TurnedBy(ByteAngle.HalfTurn).TurnedBy(ByteAngle.QuarterTurn), radius);
+        int yOffset = ReadPhantoonFlameComponent(angle.TurnedBy(TrigonometryAngle.HalfTurn).TurnedBy(TrigonometryAngle.QuarterTurn), radius);
         flame.Position = flame.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(body.Position.Y.Whole + 16 + yOffset)));
     }
 
     /// <summary>Unsigned half-wave multiplication followed by whole-result negation, as the flame orbit computes it.</summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, 0 through 255.</param>
-    internal static int ReadPhantoonFlameComponent(ByteAngle angle, int radius)
+    internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius)
     {
         // The half-wave sample is an unsigned 8.8 value of at most one: its fraction and its whole part each multiply
         // the radius.

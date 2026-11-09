@@ -18,12 +18,12 @@ internal static class KiHunterMotionDefinitionsVerification
         byte radius = KiHunterMotionDefinitionsRomByte(rom, 0xa8f186);
         // #1412: the catalog states gravity as a 16.16 quantity; the cartridge's fraction and whole words are its halves.
         AssertEqual(low, KiHunterMotionDefinitions.Gravity.Fraction, "Native KiHunter fractional acceleration");
-        AssertEqual(high, KiHunterMotionDefinitions.Gravity.WholeWord, "Native KiHunter whole acceleration");
+        AssertEqual(high, KiHunterMotionDefinitions.Gravity.UnsignedWholePixels, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
         var delta = new Func<int, EnemySpeedSign, int>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
-        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new ByteAngle(unchecked((byte)angle)), radius));
-        var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new ByteAngle(unchecked((byte)angle)), radius));
+        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;
         var slot = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
         var state = new KiHunterEnemyState(slot);
@@ -58,7 +58,7 @@ internal static class KiHunterMotionDefinitionsVerification
             SignedSixteenSixteen actual = SignedSixteenSixteen.FromParts(
                 unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
             uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + (SixteenSixteenWords.Compose(high, low)));
-            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), actual.WholeWord, "Native gravity whole carry");
+            AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), actual.UnsignedWholePixels, "Native gravity whole carry");
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }
         AssertEqual(32768, arcChanges, "Detached orbit changes arc for exactly half of all advanced angles");

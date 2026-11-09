@@ -184,7 +184,7 @@ internal static void VerifyTypedNativeWords()
     // preservation, and the signed modular subtraction used near the wrap seam.
     AssertEqual((ushort)0x4000, RotationAngle.QuarterTurn.RawValue,
         "SNES quarter-turn raw word");
-    AssertEqual((byte)0x40, RotationAngle.QuarterTurn.ToByteAngle().RawValue,
+    AssertEqual((byte)0x40, RotationAngle.QuarterTurn.ToTrigonometryAngle().RawValue,
         "SNES quarter-turn sine index");
     AssertEqual(0x80, RotationAngle.QuarterTurn.SineTableByteOffset,
         "SNES quarter-turn word-table offset");
@@ -293,14 +293,14 @@ internal static void VerifyTypedNativeWords()
         "a countdown start must fit the native word");
     AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(-1), "a countdown start cannot be negative");
 
-    LowByteCountdownStep laneToZero = WrappingCounter.DecrementLowByte(0x1201);
+    LowHalfCountdownStep laneToZero = WrappingCounter.DecrementLowHalf(0x1201);
     AssertEqual((ushort)0x1200, laneToZero.Remaining.RawValue, "8-bit low-byte DEC keeps the high byte");
     AssertTrue(laneToZero.IsZero && !laneToZero.IsNegative, "8-bit low-byte DEC reports byte-width zero");
-    LowByteCountdownStep laneWrapped = WrappingCounter.DecrementLowByte(0x3400);
+    LowHalfCountdownStep laneWrapped = WrappingCounter.DecrementLowHalf(0x3400);
     AssertEqual((ushort)0x34ff, laneWrapped.Remaining.RawValue, "8-bit low-byte DEC wraps without borrowing from the high byte");
     AssertTrue(laneWrapped.IsNegative && !laneWrapped.IsZero && laneWrapped.IsZeroOrNegative,
         "8-bit low-byte DEC reports byte-width negative");
-    LowByteCountdownStep laneHighBitOnly = WrappingCounter.DecrementLowByte(0x8003);
+    LowHalfCountdownStep laneHighBitOnly = WrappingCounter.DecrementLowHalf(0x8003);
     AssertTrue(laneHighBitOnly.IsNonNegative && laneHighBitOnly.Low == 2,
         "8-bit low-byte DEC ignores the high byte's sign bit");
 

@@ -55,7 +55,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(offset), checked((ushort)word));
         void WriteDistance(int offset, SignedSixteenSixteen distance)
         {
-            Write(offset, distance.WholeWord);
+            Write(offset, distance.UnsignedWholePixels);
             Write(offset + 2, distance.Fraction);
         }
         Write(0, inheritance.CameraYSubspeed);

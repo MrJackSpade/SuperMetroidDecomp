@@ -253,9 +253,9 @@ internal sealed class TorizoAttacks
             angle = baseAngle + TorizoRandomDefinitions.DroolFacingSpread.Of(random) - 8;
         }
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(
-            Trigonometry.SignedSine(new ByteAngle(angle))));
+            Trigonometry.SignedSine(new TrigonometryAngle(angle))));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(
-            Trigonometry.SignedNegativeCosineWord(angle)));
+            Trigonometry.SignedNegativeCosineSample(angle)));
         projectile.Position = projectile.Position.WithWholeX(_access.FacesRight(torizo)
             ? CoordinateAxis.Wrap(torizo.Position.X.Whole + 8)
             : CoordinateAxis.Wrap(torizo.Position.X.Whole - 8));
@@ -465,9 +465,9 @@ internal sealed class TorizoAttacks
         // quarter-turn offset selects sine for X; the unshifted sample gives Y.
         // The samples lie within one pixel either way, so eight times one stays within eight.
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(8 *
-            Trigonometry.SignedNegativeCosineWord(sineIndex + 64)));
+            Trigonometry.SignedNegativeCosineSample(sineIndex + 64)));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(8 *
-            Trigonometry.SignedNegativeCosineWord(sineIndex)));
+            Trigonometry.SignedNegativeCosineSample(sineIndex)));
     }
 
     /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
@@ -729,16 +729,16 @@ internal sealed class TorizoAttacks
         SamusState samus,
         bool awayFromSamus)
     {
-        ByteAngle bearing = EnemyMath.CalculateBearing(
+        TrigonometryAngle bearing = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTableAngle();
         int angle = (awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn()).RawValue;
 
         // Preserve the up-zero angle convention: X is sine, Y is
         // negative cosine. Starting both reads at sine rotates the shot.
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(4 *
-            Trigonometry.SignedNegativeCosineWord(angle + 64)));
+            Trigonometry.SignedNegativeCosineSample(angle + 64)));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromSignedRaw(4 *
-            Trigonometry.SignedNegativeCosineWord(angle)));
+            Trigonometry.SignedNegativeCosineSample(angle)));
     }
 
     /// <summary>Selects wall or floor impact artwork when the eye beam strikes terrain.</summary>

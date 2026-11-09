@@ -48,9 +48,9 @@ internal sealed class DraygonMovement
     /// <param name="angle">The movement angle.</param>
     /// <param name="speed">The speed, 0 through 65535 pixels an update.</param>
     /// <param name="phase">The turn the sample is read ahead of the angle.</param>
-    internal static UnsignedSixteenSixteen AngleMagnitude(ByteAngle angle, int speed, RotationAngle phase) =>
+    internal static UnsignedSixteenSixteen AngleMagnitude(TrigonometryAngle angle, int speed, RotationAngle phase) =>
         UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            angle.TurnedBy(phase.ToByteAngle()),
+            angle.TurnedBy(phase.ToTrigonometryAngle()),
             Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
             angleOffset: 0)));
 

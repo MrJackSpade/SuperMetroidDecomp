@@ -182,7 +182,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        int frameCounterByte)
+        int frameCycle)
     {
         if (samus is null)
             throw new InvalidOperationException("Mama Turtle AI requires the active Samus actor.");
@@ -200,7 +200,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleAiFunction.LeavingShell:
                 RequireTurtleLevel(level);
                 RunMamaTurtleLeavingShell(
-                    slot, state, samus, level, frameCounterByte);
+                    slot, state, samus, level, frameCycle);
                 return;
             case MamaTurtleAiFunction.EnteringShell:
                 RunMamaTurtleEnteringShell(slot, state, samus);
@@ -291,10 +291,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        int frameCounterByte)
+        int frameCycle)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if ((frameCounterByte & 1) != 0)
+        if ((frameCycle & 1) != 0)
             return;
 
         if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))

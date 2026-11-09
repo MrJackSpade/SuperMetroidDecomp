@@ -58412,14 +58412,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStep",
+      "type": "SuperMetroid.Core.Compatibility.LowHalfCountdownStep",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/LowByteCountdownStep.cs"
+        "csharp/src/SuperMetroid.Core/Compatibility/LowHalfCountdownStep.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -58441,7 +58441,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStepAccess.extension(SuperMetroid.Core.Compatibility.LowByteCountdownStep)",
+      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStepAccess.extension(SuperMetroid.Core.Compatibility.LowHalfCountdownStep)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -67715,14 +67715,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyByteAngleDefinitions",
+      "type": "SuperMetroid.Core.Enemies.EnemyTrigonometryAngleDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyByteAngleDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyTrigonometryAngleDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -128378,14 +128378,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Spatial.ByteAngle",
+      "type": "SuperMetroid.Core.Spatial.TrigonometryAngle",
       "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Spatial/ByteAngle.cs"
+        "csharp/src/SuperMetroid.Core/Spatial/TrigonometryAngle.cs"
       ],
       "partial": "none",
       "disposition": "value"

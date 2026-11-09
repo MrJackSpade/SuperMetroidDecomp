@@ -163,14 +163,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // makes the height the whole part of an 8.8 distance.
         int swappedJumpHeight = UnsignedEightEight.FromParts(whole: hop.Height, fraction: 0);
 
-        for (int guard = 0; guard <= WrappingCounter.LargestWordCount; guard++)
+        for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
         {
-            timeAccumulator = WrappingCounter.AddWord(timeAccumulator, xSpeed);
+            timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
             EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(UnsignedEightEight.Whole(timeAccumulator));
 
             // Summing each row's coarse speed, in 256ths of a pixel, gives the 8.8 distance estimate used only to
             // find the initial curve row.
-            distanceAccumulator = WrappingCounter.AddWord(distanceAccumulator,
+            distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
                 speedRow.CoarseToward(EnemySpeedSign.Positive));
             if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
                 continue;

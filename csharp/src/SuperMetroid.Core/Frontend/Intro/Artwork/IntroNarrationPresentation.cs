@@ -53,9 +53,9 @@ public sealed class IntroNarrationPresentation
                 candidate.Append(lines[index].Text);
                 if (index + 1 == lines.Length) continue;
                 string next = lines[index + 1].Text;
-                int nextWord = next.IndexOf(' ');
-                if (nextWord < 0) nextWord = next.Length;
-                bool hardBreak = lines[index].Text.Length + 1 + nextWord <= IntroNarrationDefinitions.MaximumColumns;
+                int nextTokenLength = next.IndexOf(' ');
+                if (nextTokenLength < 0) nextTokenLength = next.Length;
+                bool hardBreak = lines[index].Text.Length + 1 + nextTokenLength <= IntroNarrationDefinitions.MaximumColumns;
                 candidate.Append(hardBreak ? '\n' : ' ');
             }
             string joined = candidate.ToString();

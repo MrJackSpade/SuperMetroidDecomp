@@ -92,7 +92,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     FixedPosition<RoomPixels> BabyPoint() => baby.Position;
     static FixedPosition<RoomPixels> ExpectedBabyPoint(
         ushort xPosition, ushort xSubposition, ushort yPosition, ushort ySubposition) =>
-        FixedPosition<RoomPixels>.FromWords(xPosition, xSubposition, yPosition, ySubposition);
+        FixedPosition<RoomPixels>.FromStoredParts(xPosition, xSubposition, yPosition, ySubposition);
 
     AssertEqual(ExpectedBabyPoint(0x0140, 0, 0x0060, 0),
         BabyPoint(),

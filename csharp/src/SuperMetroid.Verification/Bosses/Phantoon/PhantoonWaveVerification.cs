@@ -28,7 +28,7 @@ internal static class PhantoonWaveVerification
         AssertEqual<PhantoonWaveLength?>(PhantoonWaveLength.Short, boss.EyeState.WaveLength, "the wave's setup copies the pending length to the eye");
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
         // The setup does not run the scroll pre-instruction: the wave is flat at the scroll it was last built from.
-        AssertEqual(new PhantoonWave(0, 0, new ByteAngle(0), PhantoonWaveDefinitions.ShortPeriod),
+        AssertEqual(new PhantoonWave(0, 0, new TrigonometryAngle(0), PhantoonWaveDefinitions.ShortPeriod),
             wave.CurrentWave, "setup does not run the scroll pre-instruction");
         // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8. The described wave's first line gives
         // the cartridge's first scroll word.
@@ -37,7 +37,7 @@ internal static class PhantoonWaveVerification
             wave.Step(boss);
             AssertEqual(phase, wave.Phase, "original-CPU phase progression");
             PhantoonWave current = wave.CurrentWave ?? throw new InvalidOperationException("Verification requires a set-up Phantoon wave.");
-            AssertEqual(new PhantoonWave(0, 3072, new ByteAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
+            AssertEqual(new PhantoonWave(0, 3072, new TrigonometryAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
                 current, "the wave stands at its base scroll, amplitude, phase's angle and period");
             AssertEqual(first, ScrollShapeLines.WaveScroll(BossLineScrolls.Of(current), 0), "original-CPU first scroll word");
         }

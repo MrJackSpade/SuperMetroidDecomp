@@ -372,7 +372,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return new(new FramePaint(Backdrop, objects.Draws),
             floorBackgroundEnabled
                 ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
-                    panPosition.Whole.AsSignedWord())
+                    panPosition.Whole.AsSignedOffset())
                 : null,
             Brightness, gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled

@@ -26,10 +26,10 @@ internal static class KraidNailBounceVerification
         for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
         {
             nail.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity = FixedVector<RoomPixels>.FromWords(1, (ushort)fraction, 0, 0);
+            enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity = FixedVector<RoomPixels>.FromStoredParts(1, (ushort)fraction, 0, 0);
             tick(nail, level);
             AssertEqual(unchecked((ushort)-fraction), enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.Fraction, "Native contour bounce negates fractional word");
-            AssertEqual(ushort.MaxValue, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.WholeWord, "Native contour bounce independently negates whole word without fractional borrow");
+            AssertEqual(ushort.MaxValue, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.UnsignedWholePixels, "Native contour bounce independently negates whole word without fractional borrow");
             AssertEqual((ushort)129, nail.Position.X.Whole, "Bounce follows the current horizontal move");
             AssertEqual((ushort)fraction, nail.Position.X.Fraction, "Bounce preserves integrated fractional position");
         }
@@ -40,10 +40,10 @@ internal static class KraidNailBounceVerification
         for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
         {
             nail.Position = FixedPosition<RoomPixels>.FromWhole(new(140, 128));
-            enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity = FixedVector<RoomPixels>.FromWords(1, (ushort)fraction, 0, 0);
+            enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity = FixedVector<RoomPixels>.FromStoredParts(1, (ushort)fraction, 0, 0);
             tick(nail, wallRoom);
             AssertEqual(unchecked((ushort)-fraction), enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.Fraction, "Native wall bounce negates fractional word");
-            AssertEqual(ushort.MaxValue, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.WholeWord, "Native wall bounce independently negates whole word");
+            AssertEqual(ushort.MaxValue, enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.UnsignedWholePixels, "Native wall bounce independently negates whole word");
             AssertEqual((ushort)140, nail.Position.X.Whole, "Wall collision keeps aligned center");
             AssertEqual(ushort.MaxValue, nail.Position.X.Fraction, "Wall collision retains native subpixel alignment");
         }

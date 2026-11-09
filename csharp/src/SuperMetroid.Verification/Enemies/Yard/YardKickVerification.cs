@@ -42,12 +42,12 @@ internal static class YardKickVerification
             AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor),
                 "Yard kick enters through native contact dispatcher");
             bool left = pose == SamusPoseId.FacingLeftNormalPose;
-            AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneVelocity.X.WholeWord, "kick whole word");
+            AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneVelocity.X.UnsignedWholePixels, "kick whole word");
             AssertEqual(left ? unchecked((ushort)-fraction) : fraction, state.AirborneVelocity.X.Fraction, "kick fraction negates independently");
             int index = Math.Min((int)whole, 15);
             (ushort expectedFraction, ushort expectedWhole) = ReadNativeYardKickVerticalSpeed(bus, index);
             AssertEqual(expectedFraction, state.AirborneVelocity.Y.Fraction, "vertical kick table capped independently of horizontal speed");
-            AssertEqual(expectedWhole, state.AirborneVelocity.Y.WholeWord, "vertical kick table whole word");
+            AssertEqual(expectedWhole, state.AirborneVelocity.Y.UnsignedWholePixels, "vertical kick table whole word");
             AssertEqual(YardBehavior.Kicked, state.Behavior, "touch installs kicked behavior");
             cases++;
         }

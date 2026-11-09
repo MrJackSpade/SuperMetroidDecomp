@@ -26,14 +26,14 @@ internal static class CompiledProjectileMathVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.MultiplySineSample(speed, new ByteAngle(angle)).RawValue);
-        var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new ByteAngle(babyAngle)).RawValue);
+        var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.MultiplySineSample(speed, new TrigonometryAngle(angle)).RawValue);
+        var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new TrigonometryAngle(babyAngle)).RawValue);
         var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle).RawValue);
         var fly = new Func<int, int>(FliesBehavior.ReadSignedSineCosine);
         var eye = new Func<int, int>(index => EyeDoorBehavior.ReadEyeDoorAcceleration(index).SignedRawValue);
-        var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new ByteAngle(angle)).RawValue);
+        var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new TrigonometryAngle(angle)).RawValue);
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.ReadShaktoolCommonSineSample(index).RawValue);
-        var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new ByteAngle(unchecked((byte)angle)), radius));
+        var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var arc = new Action<RoomEnemyProjectileSlot, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.ProjectileSinLookup);
@@ -44,8 +44,8 @@ internal static class CompiledProjectileMathVerification
         foreach (int rawAngle in AngleHighByteSamples())
         for (int radius = 0; radius <= byte.MaxValue; radius++)
         {
-            int xAngle = RotationAngle.FromRaw(unchecked((ushort)rawAngle)).ToByteAngle().RawValue;
-            int yAngle = RotationAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).ToByteAngle().RawValue;
+            int xAngle = RotationAngle.FromRaw(unchecked((ushort)rawAngle)).ToTrigonometryAngle().RawValue;
+            int yAngle = RotationAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).ToTrigonometryAngle().RawValue;
             ushort xMagnitude = (ushort)(native[(xAngle & 127) + 64] * radius / 256);
             ushort yMagnitude = (ushort)(native[(yAngle & 127) + 64] * radius / 256);
             ushort x = xAngle < 128 ? xMagnitude : unchecked((ushort)-xMagnitude);
@@ -65,7 +65,7 @@ internal static class CompiledProjectileMathVerification
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
             var cosineAngle = RotationAngle.FromSteps(unchecked((byte)(angle - 64))).AddRaw(255);
-            if (Trigonometry.MultiplySignedSine((ushort)speed, new ByteAngle((byte)angle)).RawValue != expected ||
+            if (Trigonometry.MultiplySignedSine((ushort)speed, new TrigonometryAngle((byte)angle)).RawValue != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");

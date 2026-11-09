@@ -18,12 +18,12 @@ internal static class FamilyTrigonometryVerification
     /// <summary>Compares all 256 signed sine samples and Bull's production lookup with retail words.</summary>
     internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
-        Func<byte, int> bullSample = angle => BullBehavior.ReadBullSignedSine(new ByteAngle(angle));
+        Func<byte, int> bullSample = angle => BullBehavior.ReadBullSignedSine(new TrigonometryAngle(angle));
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
             short original = unchecked((short)(LittleEndianBytes.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
-            AssertEqual(original, Trigonometry.SignedSixteenBitSine(new ByteAngle((byte)angle)), "signed 16-bit sample");
+            AssertEqual(original, Trigonometry.SignedSixteenBitSine(new TrigonometryAngle((byte)angle)), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }
@@ -41,8 +41,8 @@ internal static class FamilyTrigonometryVerification
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
         Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
         var bullMove = new Action<RoomEnemySlot, BullEnemyState>(BullBehavior.MoveBull);
-        var mawX = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawX(new ByteAngle(unchecked((byte)angle)), length)));
-        var mawY = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawY(new ByteAngle(unchecked((byte)angle)), length)));
+        var mawX = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawX(new TrigonometryAngle(unchecked((byte)angle)), length)));
+        var mawY = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawY(new TrigonometryAngle(unchecked((byte)angle)), length)));
         Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
 
         ushort MawReference(int angle, int length)
@@ -117,8 +117,8 @@ internal static class FamilyTrigonometryVerification
                 previous.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
                 segmentState.OrbitAngle = RotationAngle.FromRaw((ushort)angle);
                 place(segment, segmentState);
-                uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToByteAngle().RawValue + 64]));
-                uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToByteAngle().RawValue]));
+                uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue + 64]));
+                uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue]));
                 if ((segment.Position.X.RawValue) != expectedX ||
                     (segment.Position.Y.RawValue) != expectedY ||
                     segmentState.OrbitAngle.RawValue != angle)

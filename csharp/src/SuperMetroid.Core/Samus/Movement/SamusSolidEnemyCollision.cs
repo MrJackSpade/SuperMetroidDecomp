@@ -149,13 +149,13 @@ public static class SamusSolidEnemyCollision
         // tests that word rather than the fraction and a second decrement follows unless it is 0.
         if (borrowed)
         {
-            whole = WrappingCounter.DecrementWord(whole);
+            whole = WrappingCounter.DecrementCount(whole);
             if (whole != 0)
-                whole = WrappingCounter.DecrementWord(whole);
+                whole = WrappingCounter.DecrementCount(whole);
         }
         else if (fraction != 0)
         {
-            whole = WrappingCounter.DecrementWord(whole);
+            whole = WrappingCounter.DecrementCount(whole);
         }
 
         return whole;
@@ -177,13 +177,13 @@ public static class SamusSolidEnemyCollision
         // tests that word rather than the fraction and a second increment follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
         {
-            whole = WrappingCounter.IncrementWord(whole);
+            whole = WrappingCounter.IncrementCount(whole);
             if (whole != 0)
-                whole = WrappingCounter.IncrementWord(whole);
+                whole = WrappingCounter.IncrementCount(whole);
         }
         else if (fractionSum != 0)
         {
-            whole = WrappingCounter.IncrementWord(whole);
+            whole = WrappingCounter.IncrementCount(whole);
         }
 
         return whole;

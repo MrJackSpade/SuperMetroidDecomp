@@ -113,7 +113,7 @@ internal static class GunshipLandingVerification
             {
                 // $A2:A91E-$A925 place Samus beside the hatch in both X words, so the
                 // following MainScrollingRoutine measures no horizontal movement.
-                var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0480, 0x1234, samus.Position.Y.Whole, 0);
+                var checkpoint = FixedPosition<RoomPixels>.FromStoredParts(0x0480, 0x1234, samus.Position.Y.Whole, 0);
                 AssertEqual(checkpoint.WithX(checkpoint.X.WithWhole(samus.Position.X.Whole)),
                     samus.ApplyPreviousPositionWrites(checkpoint),
                     "landing writes SamusPreviousXPosition with Samus X");

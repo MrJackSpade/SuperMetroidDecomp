@@ -108,15 +108,15 @@ internal sealed class RidleyTail
             bool targetsIdle = state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null;
             if (state.TailWhipRequest != 0 && targetsIdle)
             {
-                AimCeresRidleyTailWhip(state, samus, ByteAngle.Wrapped(state.TailWhipRequest - 1));
+                AimCeresRidleyTailWhip(state, samus, TrigonometryAngle.Wrapped(state.TailWhipRequest - 1));
             }
             else if (state.IdleTailWhipEnabled)
             {
                 // Read the existing seed; this branch never advances the original game RNG.
                 if (RidleyRandomDefinitions.TailWhipRoll.Of(_room.Random.Read()) >= 240)
-                    AimCeresRidleyTailWhip(state, samus, ByteAngle.Wrapped(state.TailWhipRequest - 1));
+                    AimCeresRidleyTailWhip(state, samus, TrigonometryAngle.Wrapped(state.TailWhipRequest - 1));
                 else if (samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
-                    AimCeresRidleyTailWhip(state, samus, additionalAngle: new ByteAngle(0));
+                    AimCeresRidleyTailWhip(state, samus, additionalAngle: new TrigonometryAngle(0));
             }
 
             state.TailWhipRequest = 0;
@@ -138,7 +138,7 @@ internal sealed class RidleyTail
     internal void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState? samus,
-        ByteAngle additionalAngle)
+        TrigonometryAngle additionalAngle)
     {
         // Facing direction one is the front-facing transition art. The tail attack returns
         // without installing a target in that state, and fight mode zero likewise blocks
@@ -161,7 +161,7 @@ internal sealed class RidleyTail
                 break;
             }
         }
-        int targetByte = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn).RawValue;
+        int targetByte = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn).RawValue;
         int additional = additionalAngle.ToAngle().RawValue;
 
         if (state.FacingDirection == RidleyFacing.Left)
@@ -296,7 +296,7 @@ internal sealed class RidleyTail
     private static void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
-        ByteAngle angle = ByteAngle.Wrapped(segment.Angle);
+        TrigonometryAngle angle = TrigonometryAngle.Wrapped(segment.Angle);
         if (index != 0)
             angle = angle.TurnedBySteps(state.TailSegments[index - 1].Angle);
         int distanceInPixels = EightEight.WholeOf(segment.Distance);
@@ -304,7 +304,7 @@ internal sealed class RidleyTail
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle))),
-            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(ByteAngle.QuarterTurn)))));
+            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.TurnedBy(TrigonometryAngle.QuarterTurn)))));
     }
 
     /// <summary>Ends a joint's active whip and flips its movement direction for the next activation.</summary>

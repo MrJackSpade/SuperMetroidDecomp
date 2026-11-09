@@ -45,7 +45,7 @@ internal static class PhantoonMotionDefinitionsVerification
                 (ushort low, ushort high, ushort next) = Expected(fraction, unchecked((ushort)whole), phase, backwards);
                 (backwards ? reverse : forward)(words);
                 AssertEqual(low, words.FigureEightSpeed.Fraction, "Phantoon real fractional speed after adjustment");
-                AssertEqual(high, words.FigureEightSpeed.WholeWord, "Phantoon real signed whole speed after adjustment");
+                AssertEqual(high, words.FigureEightSpeed.UnsignedWholePixels, "Phantoon real signed whole speed after adjustment");
                 AssertEqual(next, words.SpeedPhase, "Phantoon real acceleration phase transition");
             }
         });

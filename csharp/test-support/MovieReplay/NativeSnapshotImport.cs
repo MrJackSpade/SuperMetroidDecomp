@@ -69,13 +69,13 @@ internal static class NativeSnapshotImport
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
         // ideal position and speed words as whole camera values.
-        camera.Position = camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromWords(
+        camera.Position = camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(
                 0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction)));
         camera.IdealPosition = new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY));
-        camera.Speed = FixedVector<RoomPixels>.FromWords(
+        camera.Speed = FixedVector<RoomPixels>.FromStoredParts(
                 W(NativeSnapshotMemory.CameraSpeedX), W(NativeSnapshotMemory.CameraSpeedXFraction),
                 W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction));
-        runtime.Room.LoadedCamera.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(
+        runtime.Room.LoadedCamera.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(
             W(NativeSnapshotMemory.PreviousSamusX), W(NativeSnapshotMemory.PreviousSamusXFraction),
             W(NativeSnapshotMemory.PreviousSamusY), W(NativeSnapshotMemory.PreviousSamusYFraction)));
         // Preserve the native room's already-mutated doors and item blocks. Rebuilding
@@ -222,7 +222,7 @@ internal static class NativeSnapshotImport
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
         samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.Gravity), W(NativeSnapshotMemory.GravityFraction));
-        samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
+        samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
         samus.Kinematics.HorizontalSlopeCollisionEnable = W(NativeSnapshotMemory.SlopeCollisionEnable);
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
         samus.HorizontalSpeed.ContactDamageIndex = ClosedEnumWordDecoding.Decode<SamusContactDamageIndex>(
@@ -304,7 +304,7 @@ internal static class NativeSnapshotImport
             EnemyDefinitionId recordedOccupant = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords.FromSlotWord(W(address));
             if (recordedOccupant != slot.DefinitionId)
                 slot.Bind(recordedOccupant, slot.Definition);
-            slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
+            slot.Position = FixedPosition<RoomPixels>.FromStoredParts(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             slot.Radius = new(W(address + 10), W(address + 12));
             // The species bits of the property words are the entry's spawn settings, which the population already holds.
             SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineStateOf(W(address + 14), W(address + 16)).ApplyTo(slot);

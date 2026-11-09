@@ -311,9 +311,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             {
                 Check("Ideal camera X", runtime.Room.LoadedCamera.IdealPosition.X, NativeSnapshotMemory.IdealCameraX);
                 Check("Ideal camera Y", runtime.Room.LoadedCamera.IdealPosition.Y, NativeSnapshotMemory.IdealCameraY);
-                Check("Camera speed X", runtime.Room.LoadedCamera.Speed.X.WholeWord, NativeSnapshotMemory.CameraSpeedX);
+                Check("Camera speed X", runtime.Room.LoadedCamera.Speed.X.UnsignedWholePixels, NativeSnapshotMemory.CameraSpeedX);
                 Check("Camera speed X fraction", runtime.Room.LoadedCamera.Speed.X.Fraction, NativeSnapshotMemory.CameraSpeedXFraction);
-                Check("Camera speed Y", runtime.Room.LoadedCamera.Speed.Y.WholeWord, NativeSnapshotMemory.CameraSpeedY);
+                Check("Camera speed Y", runtime.Room.LoadedCamera.Speed.Y.UnsignedWholePixels, NativeSnapshotMemory.CameraSpeedY);
                 Check("Camera speed Y fraction", runtime.Room.LoadedCamera.Speed.Y.Fraction, NativeSnapshotMemory.CameraSpeedYFraction);
                 // A fresh door camera defers its first sample to the runtime's frame-start
                 // fallback. Compare that effective sample instead of requiring storage.

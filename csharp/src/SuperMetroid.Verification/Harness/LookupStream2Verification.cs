@@ -931,13 +931,13 @@ internal static class LookupStream2Verification
             var camera = new ScrollBoundaryCamera(grid);
             camera.SetPosition(new Position16<RoomPixels>(100, 0));
             camera.TrackMovedSamusHorizontally(
-                FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0), context);
+                FixedPosition<RoomPixels>.FromStoredParts(200, 0, 100, 0), FixedPosition<RoomPixels>.FromStoredParts(204, 0, 100, 0), context);
             AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealPosition.X, "Actual camera target preserves mode and reversal");
-            AssertEqual((ushort)5, camera.Speed.X.WholeWord, "Target dispatch preserves movement speed calculation");
+            AssertEqual((ushort)5, camera.Speed.X.UnsignedWholePixels, "Target dispatch preserves movement speed calculation");
         }
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
-            FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0),
+            FixedPosition<RoomPixels>.FromStoredParts(200, 0, 100, 0), FixedPosition<RoomPixels>.FromStoredParts(204, 0, 100, 0),
             new(false, 0, 0, SamusFacingDirection.Right, (CameraDistanceMode)(-1))),"An undefined camera distance is rejected before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }

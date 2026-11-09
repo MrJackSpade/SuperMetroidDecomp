@@ -141,7 +141,7 @@ internal static class CrocomireCutsceneVerification
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadCameraState(1), "left cutscene retains red screen one");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadCameraState(2), "left cutscene retains visible screen two");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadCameraState(3), "left cutscene closes screen three");
-        var point = FixedPosition<RoomPixels>.FromWords(639, 0, 128, 0);
+        var point = FixedPosition<RoomPixels>.FromStoredParts(639, 0, 128, 0);
         // Runtime currently selects zero here; the cartridge writes six. Check
         // whether that known difference can explain the reported wall overrun.
         foreach (CameraDistanceMode distance in new[] { CameraDistanceMode.NormalTracking, CameraDistanceMode.RightEdge })

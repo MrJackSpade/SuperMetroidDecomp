@@ -329,7 +329,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
-        ByteAngle transformedAngle = EnemyMath.CalculateBearing(
+        TrigonometryAngle transformedAngle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(activeSamus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(activeSamus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTableAngle();
         SignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(
             transformedAngle,

@@ -177,12 +177,12 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// standalone diagnostic callers may leave that phase at zero. <paramref name="bombs"/> are Samus's bomb slots frozen
     /// under the pause, which a same-frame toggle into the first reserve row repaints (#1505).
     /// </summary>
-    public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCounterByte = 0,
+    public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCycle = 0,
         SamusBombProjectileSystem? bombs = null)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
-        AdvanceAnimations(frameCounterByte);
+        AdvanceAnimations(frameCycle);
         if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
             MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, MapScrollPosition));
         ControllerButton delayedPressed = delayedHeldInput;
@@ -216,7 +216,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // frame that unpauses still toggles the selected item. EquipmentScreenMain consumes
         // the ordinary rising-edge word for D-pad/A; only the shared L/R/Start chrome
         // uses the delayed-held word.
-        HandleEquipmentInput(newlyPressed, frameCounterByte, bombs);
+        HandleEquipmentInput(newlyPressed, frameCycle, bombs);
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
         {
             audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
@@ -250,13 +250,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// (for example, a screen capture). The dispatcher calls this exactly
     /// once per frame so extra draws cannot change game-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(int frameCounterByte = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
+    public void AdvanceAnimations(int frameCycle = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
     {
         // The fade-out paths emit destination labels before map icons.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only stable map dispatch handles the scroll arrows. Fade paths retain counters but hide arrows.
         CurrentMapArrows?.StepArrows(_ => false);
-        pauseFrameCounterByte = frameCounterByte;
+        pauseFrameCycle = frameCycle;
         // Stable pause dispatch calls the palette handler afterwards. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step())
@@ -614,14 +614,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         PauseEquipmentRules.Mask(category.Category, item);
 
     /// <summary>Dispatches reserve input or moves and toggles equipment in the game's update order.</summary>
-    private void HandleEquipmentInput(ControllerButton pressed, int frameCounterByte, SamusBombProjectileSystem? bombs)
+    private void HandleEquipmentInput(ControllerButton pressed, int frameCycle, SamusBombProjectileSystem? bombs)
     {
         PauseEquipmentCategory dispatchedCategory = SelectedCategory;
         if (dispatchedCategory == PauseEquipmentCategory.Reserves)
         {
             HandleReserveInput(pressed);
             MoveEquipmentSelector(pressed);
-            UpdateReserveArrow(frameCounterByte);
+            UpdateReserveArrow(frameCycle);
             return;
         }
         MoveEquipmentSelector(pressed);
@@ -802,7 +802,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             if (reserveArrowLatched)
                 ReapplyLatchedReserveArrow();
             else if (SelectedCategory == PauseEquipmentCategory.Reserves)
-                UpdateReserveArrow(pauseFrameCounterByte);
+                UpdateReserveArrow(pauseFrameCycle);
         }
         // The live button highlight, including a Start/fade highlight, is state the frame's pictures show again; do not
         // rerun controls.
@@ -830,25 +830,25 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             : PauseReserveArrowShades.Solid);
 
     /// <summary>Runs the reserve arrow update after the tank input handler and D-pad response.</summary>
-    private void UpdateReserveArrow(int frameCounterByte)
+    private void UpdateReserveArrow(int frameCycle)
     {
         bool inTanks = SelectedCategory == PauseEquipmentCategory.Reserves;
         ReserveArrowState state =
             inTanks && SelectedReserveItem == PauseReserveItem.Mode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
             : inTanks && SelectedReserveItem == PauseReserveItem.Transfer ? ReserveArrowState.Solid
             : ReserveArrowState.Hidden;
-        SetReserveArrow(state, frameCounterByte);
+        SetReserveArrow(state, frameCycle);
     }
 
     /// <summary>
     /// Sets the reserve arrow: latches its state and frame, which name the tile colouring and colours the equipment page
     /// shows it in until it is set again.
     /// </summary>
-    private void SetReserveArrow(ReserveArrowState state, int frameCounterByte = 0)
+    private void SetReserveArrow(ReserveArrowState state, int frameCycle = 0)
     {
         reserveArrowLatched = true;
         reserveArrowLatchedState = state;
-        reserveArrowLatchedFrame = frameCounterByte;
+        reserveArrowLatchedFrame = frameCycle;
     }
 
     /// <summary>Re-applies the latched arrow tiles and colors with the currently bound presentation.</summary>
@@ -856,7 +856,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         SetReserveArrow(reserveArrowLatchedState, reserveArrowLatchedFrame);
 
     /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
-    private int pauseFrameCounterByte;
+    private int pauseFrameCycle;
 
     /// <summary>Draws the reserve strip's full/partial/empty tanks and final cap.</summary>
     private void DrawReserveTanks()
@@ -872,7 +872,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             int steps = remainder / PauseReserveEnergyDefinitions.EnergyPerFillStep;
             if (steps < PauseReserveEnergyDefinitions.FlickerFillStepLimit &&
                 remainder % PauseReserveEnergyDefinitions.EnergyPerFillStep != 0 &&
-                pauseFrameCounterByte / PauseReserveEnergyDefinitions.FlickerPhaseFrames % 2 == 0)
+                pauseFrameCycle / PauseReserveEnergyDefinitions.FlickerPhaseFrames % 2 == 0)
                 steps++;
             Draw(PauseReserveTankParts.FillLevel(steps), tank++);
         }

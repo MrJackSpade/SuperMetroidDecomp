@@ -91,7 +91,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The heading with the reflection's angle bits toggled.</summary>
-    private static ByteAngle Reflected(ByteAngle heading, int reflection) => new(heading.RawValue ^ reflection);
+    private static TrigonometryAngle Reflected(TrigonometryAngle heading, int reflection) => new(heading.RawValue ^ reflection);
 
     /// <summary>
     /// Recreates the shared unsigned |cos|/|sin| products of the heading and speed.

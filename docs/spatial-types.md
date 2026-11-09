@@ -102,7 +102,7 @@ left unwrapped fails where it is stored instead of being truncated there.
   `FixedPosition ± Offset16` / `FixedVector ± Offset16` (whole words only, wrapping at sixteen
   bits, fractions unchanged — the platform pushes into Samus's external displacement).
 - Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SignedSixteenSixteen)`.
-- Exact native construction: `FixedPosition.FromWords/FromWhole`, `FixedVector.FromWords`,
+- Exact native construction: `FixedPosition.FromStoredParts/FromWhole`, `FixedVector.FromStoredParts`,
   `FixedVector.FromWholePixels(Offset16)`, `FixedCoordinate.FromRaw/RawValue` for one unsigned
   16.16 axis; `SignedEightEight.SignedRawValue` reads one 8.8 word as signed. From `int` axes:
   `Position16.Of`, `Offset16.Of`, `Extent16.Of` and `FixedCoordinate.Of`, each checked against its word.
@@ -128,8 +128,8 @@ left unwrapped fails where it is stored instead of being truncated there.
   - `PlaneConversions.AsPlaneScroll`: a foreground, background or area-map scroll as the plane pixel shown at the screen's top-left.
   - `FxOverlayConversions.AsOverlayScroll` / `WholePixels`: the layer-one anchor of the room effect overlay and
     the signed high bytes of its 8.8 drift.
-  - `FloorConversions.AsFloorWord`: a layer-one room point as a signed floor offset;
-    `AsSignedWord`: a floor position as its signed floor offset.
+  - `FloorConversions.AsFloorOffset`: a layer-one room point as a signed floor offset;
+    `AsSignedOffset`: a floor position as its signed floor offset.
   - `MapScreenConversions`: map tile → map pixel, map pixel → screen under the map scroll.
 - Never floating-point vectors in cartridge logic: preserve native width, signedness, wrap order,
   origin and truncation exactly.

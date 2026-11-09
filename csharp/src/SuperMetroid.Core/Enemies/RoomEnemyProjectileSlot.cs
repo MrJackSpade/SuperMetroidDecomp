@@ -64,7 +64,7 @@ public sealed class RoomEnemyProjectileSlot
     public int RemainingAfterburns
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
     /// <summary>The kind of the next directional afterburn the chain spawns.</summary>
     internal RoomEnemyProjectileKind NextAfterburnKind { get; set; }

@@ -18,7 +18,7 @@ internal static class BabyMetroidWrongWaySpeedVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();
-        baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.FromWords(0, 0x1400, 0, 0x3100));
+        baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.FromStoredParts(0, 0x1400, 0, 0x3100));
         baby.Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
         baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0133, 0x004d)).WithFractionsOf(baby.Position);
         baby.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0x015f), new SignedEightEight(0x012b));

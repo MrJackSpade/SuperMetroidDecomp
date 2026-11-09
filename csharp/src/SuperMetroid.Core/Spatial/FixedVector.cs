@@ -15,7 +15,7 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
 
     /// <summary>Assembles both axes from whole and fraction words, each 0 through 65535.</summary>
     [SpatialComponents("Codec: the four stored words of one displacement.")]
-    public static FixedVector<TSpace> FromWords(int xWhole, int xFraction, int yWhole, int yFraction) =>
+    public static FixedVector<TSpace> FromStoredParts(int xWhole, int xFraction, int yWhole, int yFraction) =>
         new(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, xWhole)), xFraction),
             SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, yWhole)), yFraction));
 

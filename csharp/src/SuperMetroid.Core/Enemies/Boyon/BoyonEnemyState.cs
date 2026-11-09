@@ -63,11 +63,11 @@ public sealed class BoyonEnemyState
 
     /// <summary>Adds one update's speed to the accumulated distance, wrapping as the game's word addition does.</summary>
     internal void AccumulateBounceDistance(int speed) =>
-        DistanceAccumulator = WrappingCounter.AddWord(DistanceAccumulator, speed);
+        DistanceAccumulator = WrappingCounter.AddCount(DistanceAccumulator, speed);
 
     /// <summary>Moves one entry down the curve (falling), wrapping from <see cref="LargestSpeedTableIndex"/> to zero.</summary>
     internal void AdvanceSpeedTableIndex() =>
-        SpeedTableIndex = WrappingCounter.IncrementWord(SpeedTableIndex);
+        SpeedTableIndex = WrappingCounter.IncrementCount(SpeedTableIndex);
 
     /// <summary>
     /// Moves one entry up the curve (rising). The index wraps from zero to <see cref="LargestSpeedTableIndex"/>, and

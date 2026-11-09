@@ -545,7 +545,7 @@ public sealed class SamusProjectileSystem
                 if (timer.IsZeroOrNegative)
                 {
                     bool finalFrame = Charge.FlareFrame(component) == 1;
-                    Charge.SetFlareFrame(component, WrappingCounter.DecrementWord(Charge.FlareFrame(component)));
+                    Charge.SetFlareFrame(component, WrappingCounter.DecrementCount(Charge.FlareFrame(component)));
                     if (finalFrame)
                     {
                         // The fast-spark component at offset four owns the global

@@ -28,10 +28,10 @@ public static class KiHunterMotionDefinitions
     public static SignedSixteenSixteen RightSwoopAcceleration { get; } = SignedSixteenSixteen.FromRaw(OneEighth);
 
     /// <summary>The detached wing orbit's offset angle, seven-eighths of a byte-angle turn.</summary>
-    public static ByteAngle DetachedOrbitOffsetAngle { get; } = new(224);
+    public static TrigonometryAngle DetachedOrbitOffsetAngle { get; } = new(224);
 
     /// <summary>The detached wing's falling-arc offset angle, five-eighths of a byte-angle turn.</summary>
-    public static ByteAngle FallingArcOffsetAngle { get; } = new(160);
+    public static TrigonometryAngle FallingArcOffsetAngle { get; } = new(160);
 
     /// <summary>The detached wing orbit's starting 16-bit angle, an eighth of a turn below zero.</summary>
     public static RotationAngle DetachedOrbitStartAngle { get; } = RotationAngle.NormalizeRaw(-8192);

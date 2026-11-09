@@ -203,7 +203,7 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int frameCounterByte,
+        int frameCycle,
         SamusBombProjectileSystem? samusBombs,
         int frameCounter)
     {
@@ -222,7 +222,7 @@ internal sealed class EnemyProjectileEngine
         // pass after the pre-instruction returns. Reading each array entry at loop time
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
-        CurrentFrame8 = frameCounterByte;
+        CurrentFrame8 = frameCycle;
         CurrentFrame16 = frameCounter;
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
@@ -237,7 +237,7 @@ internal sealed class EnemyProjectileEngine
                 level,
                 samus,
                 camera,
-                frameCounterByte,
+                frameCycle,
                 samusBombs);
             // The pass does not re-read the identity after the frame behaviour: a slot whose identity
             // the pre-instruction released still runs its instructions in this pass (a power-bombed
@@ -413,7 +413,7 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int frameCounterByte,
+        int frameCycle,
         SamusBombProjectileSystem? samusBombs)
     {
         EnemyProjectileFrameBehavior id = projectile.FrameBehavior;
@@ -422,7 +422,7 @@ internal sealed class EnemyProjectileEngine
             throw new InvalidDataException(
                 $"Enemy projectile pre-instruction {projectile.FrameBehavior} is not translated.");
         }
-        handler(new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCounterByte, samusBombs));
+        handler(new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCycle, samusBombs));
     }
 
     /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>
@@ -740,9 +740,9 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(projectile);
         // The fields and centres are authored byte operands (checked below), so the offsets stay within one byte.
-        RandomSampleField xRange = RequireLowByteField(scatter.XRange);
+        RandomSampleField xRange = RequireLowHalfField(scatter.XRange);
         int xCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.X);
-        RandomSampleField yRange = RequireLowByteField(scatter.YRange);
+        RandomSampleField yRange = RequireLowHalfField(scatter.YRange);
         int yCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
@@ -770,14 +770,14 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// <paramref name="field"/>, checked to lie within a sample's low byte, as the scatter's authored byte operand does.
     /// </summary>
-    private static RandomSampleField RequireLowByteField(RandomSampleField field)
+    private static RandomSampleField RequireLowHalfField(RandomSampleField field)
     {
-        _ = Ensure.BetweenInclusive(0, LowByteBits, field.Shift + field.Width);
+        _ = Ensure.BetweenInclusive(0, LowHalfBits, field.Shift + field.Width);
         return field;
     }
 
     /// <summary>The bits of a sample's low byte, the only bits a scatter's range reads.</summary>
-    private const int LowByteBits = 8;
+    private const int LowHalfBits = 8;
 
     /// <summary>
     /// Allocates the shared room-graphics dust/explosion actor.

@@ -145,7 +145,7 @@ public static class SamusGrappleMovement
         int whole = quarter.WholePixels;
         if (velocity.SignedRawValue >= 0)
         {
-            whole += previous.WholeWord / CoarseWholePixels * LeakedWholePerCoarseStep;
+            whole += previous.UnsignedWholePixels / CoarseWholePixels * LeakedWholePerCoarseStep;
             if (previous.Fraction % 2 != 0)
                 whole -= OddFractionWholeShift;
         }
@@ -1015,7 +1015,7 @@ public static class SamusGrappleMovement
         // independently authored Flare pair from the firing tables.
         GrappleCollisionPoint ropeStart = SamusGrappleSwing.CalculateCollisionPoint(
             grapple,
-            angle.ToByteAngle(),
+            angle.ToTrigonometryAngle(),
             grapple.RopeLength);
         grapple.RopeStart = ropeStart.Pixel;
         grapple.Phase = swinging

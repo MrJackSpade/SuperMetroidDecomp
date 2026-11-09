@@ -42,7 +42,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     public void Strike(ResidentObjectProjectileHit hit) => PendingHit = hit;
 
     /// <summary>Mother Brain's head shot counts a hit on the glass at once.</summary>
-    internal void CountHeadShot() => Hits = WrappingCounter.IncrementWord(Hits);
+    internal void CountHeadShot() => Hits = WrappingCounter.IncrementCount(Hits);
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
@@ -51,7 +51,7 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
         if (HitCountArmed)
         {
             if (PendingHit?.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-                Hits = WrappingCounter.IncrementWord(Hits);
+                Hits = WrappingCounter.IncrementCount(Hits);
             PendingHit = null;
         }
         if (--_updatesBeforeNextStep != 0)

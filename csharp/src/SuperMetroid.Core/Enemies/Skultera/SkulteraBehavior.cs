@@ -76,7 +76,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = RotationAngle.Zero;
         state.TurnFinished = false;
         state.CurrentYOffset = 0;
-        state.PreviousYOffset = EnemyMath.ReadEightBitNegativeSineProduct(state.Angle.ToByteAngle(), state.Radius);
+        state.PreviousYOffset = EnemyMath.ReadEightBitNegativeSineProduct(state.Angle.ToTrigonometryAngle(), state.Radius);
     }
 
     /// <summary>Runs the Skultera's main AI.</summary>
@@ -130,7 +130,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.CurrentYOffset = EnemyMath.ReadEightBitNegativeSineProduct(state.Angle.ToByteAngle(), state.Radius);
+        state.CurrentYOffset = EnemyMath.ReadEightBitNegativeSineProduct(state.Angle.ToTrigonometryAngle(), state.Radius);
         // Both offsets lie within the radius either way, so their difference never wraps.
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
         if (_terrain.MoveEnemyVertically(level, slot, SignedSixteenSixteen.FromWholePixels(yDifference)))

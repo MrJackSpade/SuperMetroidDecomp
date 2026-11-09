@@ -16,7 +16,7 @@ public static class EndingMotionDefinitions
     public const int IdentityScale = 256;
 
     /// <summary>The escape scenes' initial floor angle.</summary>
-    public static ByteAngle EscapeInitialAngle { get; } = new(32);
+    public static TrigonometryAngle EscapeInitialAngle { get; } = new(32);
 
     /// <summary>The escape and explosion scenes' initial zoom.</summary>
     public const int EscapeInitialScale = 64;

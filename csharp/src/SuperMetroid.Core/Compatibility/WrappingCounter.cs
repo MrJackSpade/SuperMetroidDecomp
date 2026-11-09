@@ -24,21 +24,21 @@ namespace SuperMetroid.Core.Compatibility;
 public static class WrappingCounter
 {
     /// <summary>The largest count a wrapping word holds: a count stepped past it continues from zero.</summary>
-    public const int LargestWordCount = ushort.MaxValue;
+    public const int LargestCount = ushort.MaxValue;
 
     /// <summary>
     /// Takes one away from a timer held as a plain count, 0 through 65535: a count at zero wraps to 65535. The step's
     /// tests are the owner's expiry rule.
     /// </summary>
     public static CountdownStep Decrement(int value) =>
-        new(WrappingCountdown.FromRaw(DecrementWord(value)));
+        new(WrappingCountdown.FromRaw(DecrementCount(value)));
 
     /// <summary>Takes one away from a count of 0 through 65535; a count at zero continues from 65535.</summary>
     /// <param name="value">The count, 0 through 65535.</param>
-    public static int DecrementWord(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) - 1) & ushort.MaxValue;
+    public static int DecrementCount(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) - 1) & ushort.MaxValue;
 
     /// <summary>Adds one to a count of 0 through 65535; a count at 65535 continues from zero.</summary>
-    public static int IncrementWord(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + 1) & ushort.MaxValue;
+    public static int IncrementCount(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + 1) & ushort.MaxValue;
 
     /// <summary>
     /// Adds <paramref name="step"/> to a count of 0 through 65535: a count stepped past 65535 (for example a palette cycle
@@ -46,7 +46,7 @@ public static class WrappingCounter
     /// </summary>
     /// <param name="value">The count, 0 through 65535.</param>
     /// <param name="step">The step, 0 through 65535.</param>
-    public static int AddWord(int value, int step) =>
+    public static int AddCount(int value, int step) =>
         (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue;
 
     /// <summary>
@@ -55,8 +55,8 @@ public static class WrappingCounter
     /// </summary>
     /// <param name="value">The count, 0 through 65535.</param>
     /// <param name="step">The step, 0 through 65535.</param>
-    public static int SubtractWord(int value, int step) =>
-        AddWord(value, (ushort.MaxValue + 1 - Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue);
+    public static int SubtractCount(int value, int step) =>
+        AddCount(value, (ushort.MaxValue + 1 - Ensure.BetweenInclusive(0, ushort.MaxValue, step)) & ushort.MaxValue);
 
     /// <summary>
     /// Whether a count of 0 through 65535 reads as having run below zero, as the game tests a count by its sign: a
@@ -81,6 +81,6 @@ public static class WrappingCounter
     /// count alone.
     /// </summary>
     /// <param name="value">The value holding the count, 0 through 65535.</param>
-    public static LowByteCountdownStep DecrementLowByte(int value) =>
+    public static LowHalfCountdownStep DecrementLowHalf(int value) =>
         WrappingCountdown.FromRaw(value).DecrementEightBitCount();
 }

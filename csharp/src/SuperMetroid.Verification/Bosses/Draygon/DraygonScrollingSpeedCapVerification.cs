@@ -17,7 +17,7 @@ internal static class DraygonScrollingSpeedCapVerification
     /// </summary>
     internal static void VerifyDraygonScrollingSpeedCap()
     {
-        var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0190, 0, 0x0170, 0);
+        var checkpoint = FixedPosition<RoomPixels>.FromStoredParts(0x0190, 0, 0x0170, 0);
 
         // Down 33 and right 8: Y is capped twelve beyond Samus, X is under the threshold.
         Position16<RoomPixels> previous = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0169));

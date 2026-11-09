@@ -110,7 +110,7 @@ public sealed class ScreenFade
     /// <summary>Decrements the delay's low byte: true while the decremented byte stays positive.</summary>
     private bool ConsumeSlowDelay()
     {
-        LowByteCountdownStep step = Delay.DecrementEightBitCount();
+        LowHalfCountdownStep step = Delay.DecrementEightBitCount();
         Delay = step.Remaining;
         return !step.IsZeroOrNegative;
     }

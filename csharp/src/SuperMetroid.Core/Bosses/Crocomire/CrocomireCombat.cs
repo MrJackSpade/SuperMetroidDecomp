@@ -319,7 +319,7 @@ internal sealed class CrocomireCombat
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
             Trigonometry.SignedSine(bearing.ToMirroredTableAngle()) * CrocomireProjectileDefinitions.VelocityMultiplier,
-            Trigonometry.SignedNegativeCosineWord(bearing.ToMirroredTableAngle().RawValue) *
+            Trigonometry.SignedNegativeCosineSample(bearing.ToMirroredTableAngle().RawValue) *
                 CrocomireProjectileDefinitions.VelocityMultiplier);
     }
 

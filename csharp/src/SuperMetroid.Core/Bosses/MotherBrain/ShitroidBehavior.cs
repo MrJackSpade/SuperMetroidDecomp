@@ -643,10 +643,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.Zero - sourceAngle;
             state.Velocity += new EightEightVector<RoomPixels>(
-                EnemyMath.MultiplySineSample(64, angle.ToByteAngle()),
+                EnemyMath.MultiplySineSample(64, angle.ToTrigonometryAngle()),
                 EnemyMath.MultiplySineSample(
                     64,
-                    (angle + RotationAngle.QuarterTurn).ToByteAngle()));
+                    (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
             return;
         }
 
@@ -689,10 +689,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // damage whose multiple would pass a sixteen-bit quantity.
         int magnitude = Math.Min(8 * collisionDamage, 240);
         state.Velocity += new EightEightVector<RoomPixels>(
-            EnemyMath.MultiplySineSample(magnitude, angle.ToByteAngle()),
+            EnemyMath.MultiplySineSample(magnitude, angle.ToTrigonometryAngle()),
             EnemyMath.MultiplySineSample(
                 magnitude,
-                (angle + RotationAngle.QuarterTurn).ToByteAngle()));
+                (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
     }
 
     /// <summary>Resolves a power bomb's hit on the Shitroid.</summary>

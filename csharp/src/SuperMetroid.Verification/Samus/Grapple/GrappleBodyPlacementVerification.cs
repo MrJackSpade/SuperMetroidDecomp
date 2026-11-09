@@ -32,7 +32,7 @@ internal static class GrappleBodyPlacementVerification
             // The physical rope uses Angle; the body mapping uses the remembered mirror.
             g.Angle = RotationAngle.FromRaw(unchecked((ushort)(raw ^ 0x4080)));
             g.MirroredAngle = RotationAngle.FromRaw((ushort)raw);
-            byte nativeFrame = GrappleBodyPlacementRomByte(rom, 0x9bc1c2 + RotationAngle.FromRaw(unchecked((ushort)raw)).ToByteAngle().RawValue);
+            byte nativeFrame = GrappleBodyPlacementRomByte(rom, 0x9bc1c2 + RotationAngle.FromRaw(unchecked((ushort)raw)).ToTrigonometryAngle().RawValue);
             int table = left ? 0x9bc2c2 : 0x9bc302;
             sbyte x = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2));
             sbyte y = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2 + 1));

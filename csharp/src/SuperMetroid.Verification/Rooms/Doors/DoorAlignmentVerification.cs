@@ -57,8 +57,8 @@ internal static class DoorAlignmentVerification
         // The scrolling owner replaces only whole position words. Fractional movement
         // survives the complete transition and is therefore available to the first frame
         // in the destination room, which is the basis of alignment-sensitive strategies.
-        var source = FixedPosition<RoomPixels>.FromWords(0x04d2, 0xabcd, 0x0187, 0x2468);
-        var final = FixedPosition<RoomPixels>.FromWords(0x0318, 0xabcd, 0x0218, 0x2468);
+        var source = FixedPosition<RoomPixels>.FromStoredParts(0x04d2, 0xabcd, 0x0187, 0x2468);
+        var final = FixedPosition<RoomPixels>.FromStoredParts(0x0318, 0xabcd, 0x0218, 0x2468);
         for (int direction = 0; direction < 4; direction++)
         {
             var door = new DoorDefinition(

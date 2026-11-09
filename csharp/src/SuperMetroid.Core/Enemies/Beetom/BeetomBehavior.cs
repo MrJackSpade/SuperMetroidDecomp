@@ -468,9 +468,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
-            tableIndex = WrappingCounter.AddWord(tableIndex, tableIndexDelta);
+            tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
-            accumulatedHeight = WrappingCounter.AddWord(accumulatedHeight,
+            accumulatedHeight = WrappingCounter.AddCount(accumulatedHeight,
                 EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive));
             if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
                 return tableIndex;

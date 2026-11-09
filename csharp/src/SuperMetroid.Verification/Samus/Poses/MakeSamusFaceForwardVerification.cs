@@ -23,7 +23,7 @@ internal static class MakeSamusFaceForwardVerification
         AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose, "power suit faces forward");
         AssertEqual(boardingRadius, samus.Kinematics.Radius.Y, "face-forward does not write SamusYRadius");
         AssertEqual((ushort)0x88, samus.Position.Y.Whole, "non-front radius lifts Samus three pixels");
-        var previous = FixedPosition<RoomPixels>.FromWords(0x7b, 0, 0x8b, 0xffff);
+        var previous = FixedPosition<RoomPixels>.FromStoredParts(0x7b, 0, 0x8b, 0xffff);
         AssertEqual(previous.WithY(previous.Y.WithWhole(0x88)), samus.ApplyPreviousPositionWrites(previous),
             "the lift also writes SamusPreviousYPosition");
 

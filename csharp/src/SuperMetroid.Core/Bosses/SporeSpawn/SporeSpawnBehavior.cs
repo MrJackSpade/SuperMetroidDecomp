@@ -213,9 +213,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWrappedWholeX(
             state.MovementCenter.X +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToByteAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.MaximumXRadius)));
+            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToTrigonometryAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.MaximumXRadius)));
         // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it.
-        ByteAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToByteAngle();
+        TrigonometryAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToTrigonometryAngle();
         body.Position = body.Position.WithWrappedWholeY(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
@@ -229,7 +229,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets up Spore Spawn's death velocity.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
-        ByteAngle direction = EnemyMath.CalculateBearing(
+        TrigonometryAngle direction = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTableAngle();
         state.DeathAngle = direction.ToAngle();
         state.DeathVelocityMagnitude = new(
@@ -242,10 +242,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
     {
-        SignedSixteenSixteen xDisplacement = EnemyMath.CosineIsNegative(state.DeathAngle.ToByteAngle())
+        SignedSixteenSixteen xDisplacement = EnemyMath.CosineIsNegative(state.DeathAngle.ToTrigonometryAngle())
             ? SignedSixteenSixteen.Zero - state.DeathVelocityMagnitude.X
             : state.DeathVelocityMagnitude.X;
-        SignedSixteenSixteen yDisplacement = EnemyMath.SineIsNegative(state.DeathAngle.ToByteAngle())
+        SignedSixteenSixteen yDisplacement = EnemyMath.SineIsNegative(state.DeathAngle.ToTrigonometryAngle())
             ? SignedSixteenSixteen.Zero - state.DeathVelocityMagnitude.Y
             : state.DeathVelocityMagnitude.Y;
         body.Position = body.Position.AdvanceX(xDisplacement);

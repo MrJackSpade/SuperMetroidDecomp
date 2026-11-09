@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal readonly record struct DraygonBurialEvirDefinition(
     FixedVector<RoomPixels> SubspeedMagnitude,
     Position16<RoomPixels> Initial,
-    ByteAngle Angle);
+    TrigonometryAngle Angle);

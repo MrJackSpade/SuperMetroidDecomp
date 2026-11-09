@@ -229,7 +229,7 @@ internal static class QuicksandVerification
         SignedSixteenSixteen limit = QuicksandReactions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
         SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
-        body.YSpeed = new UnsignedSixteenSixteen(justAbove.WholeWord, justAbove.Fraction);
+        body.YSpeed = new UnsignedSixteenSixteen(justAbove.UnsignedWholePixels, justAbove.Fraction);
         SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
         AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed.Whole), body.YSpeed.Fraction),
             "quicksand upward cap ignores the speed's lowest fraction byte");

@@ -1,10 +1,10 @@
 ﻿namespace SuperMetroid.Core.Compatibility;
 
-/// <summary>Verification access to <see cref="LowByteCountdownStep"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="LowHalfCountdownStep"/> members production does not use.</summary>
 internal static class LowByteCountdownStepAccess
 {
-    /// <summary>Exposes <see cref="LowByteCountdownStep"/> state that only verification reads.</summary>
-    extension(LowByteCountdownStep self)
+    /// <summary>Exposes <see cref="LowHalfCountdownStep"/> state that only verification reads.</summary>
+    extension(LowHalfCountdownStep self)
     {
         /// <summary>Whether the eight-bit count has not run past zero.</summary>
         public bool IsNonNegative => !self.IsNegative;

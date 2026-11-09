@@ -230,8 +230,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MirroredBend = state.CurlAngle >= RotationAngle.HalfTurn;
 
         state.Baseline = new Offset16<RoomPixels>(
-            CalculateYappingMawX(ByteAngle.HalfTurn, state.SegmentRadius),
-            CalculateYappingMawY(ByteAngle.HalfTurn, state.SegmentRadius / 2));
+            CalculateYappingMawX(TrigonometryAngle.HalfTurn, state.SegmentRadius),
+            CalculateYappingMawY(TrigonometryAngle.HalfTurn, state.SegmentRadius / 2));
 
         // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
         int direction = Bearing.Wrapped(state.AimAngle.RawValue + 16).RawValue / 32;
@@ -262,9 +262,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int segment = 0; segment < 4; segment++)
         {
             int multiple = bendStep * (segment + 1);
-            ByteAngle linkAngle = state.MirroredBend
-                ? ByteAngle.HalfTurn.TurnedBySteps(multiple)
-                : ByteAngle.HalfTurn.TurnedBySteps(-multiple);
+            TrigonometryAngle linkAngle = state.MirroredBend
+                ? TrigonometryAngle.HalfTurn.TurnedBySteps(multiple)
+                : TrigonometryAngle.HalfTurn.TurnedBySteps(-multiple);
 
             int rawX = CoordinateAxis.Wrap(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
             int rawY = CoordinateAxis.Wrap(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
@@ -273,11 +273,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // Passing raw Y here is an attractive cleanup and is wrong; the game's
             // lopsided curve is a direct consequence of reusing raw X for both components.
             int correctionX = CoordinateAxis.Wrap(
-                CalculateYappingMawX(state.CurlAngle.ToByteAngle(), rawX) -
-                CalculateYappingMawX(new ByteAngle(0), rawX));
+                CalculateYappingMawX(state.CurlAngle.ToTrigonometryAngle(), rawX) -
+                CalculateYappingMawX(new TrigonometryAngle(0), rawX));
             int correctionY = CoordinateAxis.Wrap(
-                CalculateYappingMawY(state.CurlAngle.ToByteAngle(), rawX) -
-                CalculateYappingMawY(new ByteAngle(0), rawX));
+                CalculateYappingMawY(state.CurlAngle.ToTrigonometryAngle(), rawX) -
+                CalculateYappingMawY(new TrigonometryAngle(0), rawX));
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 CoordinateAxis.AsSigned(correctionX), CoordinateAxis.AsSigned(correctionY));
             int segmentX = Corrected(rawX, correctionX);
@@ -561,7 +561,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Both magnitudes are below 255 here, so each eight-bit product is below 255 pixels and their sum below 510:
         // neither the products' magnitudes nor their sum reach the word's sign.
-        ByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTableAngle();
+        TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTableAngle();
         int distance =
             Math.Abs(EnemyMath.ReadEightBitNegativeSineProduct(positiveQuadrantAngle, absoluteX)) +
             Math.Abs(EnemyMath.ReadEightBitCosineProduct(positiveQuadrantAngle, absoluteY));
@@ -569,18 +569,18 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>X is the Y helper with a minus-64 angle adjustment.</summary>
-    internal static int CalculateYappingMawX(ByteAngle angle, int length) =>
-        CalculateYappingMawY(angle.TurnedBySteps(-ByteAngle.QuarterTurn.RawValue), length);
+    internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
+        CalculateYappingMawY(angle.TurnedBySteps(-TrigonometryAngle.QuarterTurn.RawValue), length);
 
     /// <summary>
     /// Computes the link offsets exactly, including the high-byte sine approximation and the unusual
     /// negative-product construction (<see cref="NegativeLinkOffset"/>). Only length's place within 256 reaches the
     /// multiplier. The offset is signed, -256 through 510; its consumers wrap it onto the room's axis.
     /// </summary>
-    internal static int CalculateYappingMawY(ByteAngle angle, int length)
+    internal static int CalculateYappingMawY(TrigonometryAngle angle, int length)
     {
         int signedSample = Trigonometry.SignedSixteenBitSine(
-            ByteAngle.Wrapped(-angle.RawValue));
+            TrigonometryAngle.Wrapped(-angle.RawValue));
         bool negative = signedSample < 0;
         int magnitude = negative ? -signedSample : signedSample;
         // The eight-bit multiplier takes only the length's place within 256. A sample's whole part and that place are

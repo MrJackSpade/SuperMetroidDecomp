@@ -32,7 +32,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             ushort whole = Word(EnemyRomTablePointersFallingSpark.HorizontalWholeWords + offset);
             ushort fraction = Word(EnemyRomTablePointersFallingSpark.HorizontalFractionWords + offset);
             var compiled = FallingSparkLaunches.FromRandom(random, () => unauthored);
-            AssertEqual(whole, compiled.WholeWord, "Every RNG word preserves native spark whole velocity");
+            AssertEqual(whole, compiled.UnsignedWholePixels, "Every RNG word preserves native spark whole velocity");
             AssertEqual(fraction, compiled.Fraction, "Every RNG word preserves native spark fractional velocity");
             projectile.Clear();
             projectile.Velocity = new(new SignedEightEight(0xffff), new SignedEightEight(0xffff));
@@ -48,7 +48,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)0, projectile.Velocity.X.RawValue, "Spark clears aliased vertical fraction");
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
             SignedSixteenSixteen drift = projectile.StateOf<FallingSparkState>().HorizontalStep;
-            AssertEqual(whole, drift.WholeWord, "Actual spark drift whole pixels");
+            AssertEqual(whole, drift.UnsignedWholePixels, "Actual spark drift whole pixels");
             AssertEqual(fraction, drift.Fraction, "Actual spark drift fraction");
             uint expected = unchecked((new FixedCoordinate(source.Position.X.Whole, source.Position.X.Fraction).RawValue) + (SixteenSixteenWords.FromWhole(whole) | fraction));
             move(projectile);

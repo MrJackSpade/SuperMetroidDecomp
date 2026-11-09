@@ -86,7 +86,7 @@ internal static class RidleyFlightTailVerification
         run(slot, state, null, 0, null);
         AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");
-        Action<RidleyEnemyState, SamusState?, byte> aim = (state, samus, angle) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, new ByteAngle(angle));
+        Action<RidleyEnemyState, SamusState?, byte> aim = (state, samus, angle) => enemies.RidleyTail.AimCeresRidleyTailWhip(state, samus, new TrigonometryAngle(angle));
         state.FightMode = RidleyFightMode.Fighting;
         state.FacingDirection = RidleyFacing.Left;
         state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);

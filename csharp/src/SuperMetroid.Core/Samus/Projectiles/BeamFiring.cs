@@ -239,14 +239,14 @@ internal sealed class BeamFiring
         // Allocation writes one before allocating storage. A corrupt counter/free-slot
         // disagreement is therefore intentionally observable rather than silently repaired.
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
+        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
 
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
             // Consistent state cannot arrive here. Match the producer's defensive rollback
             // so an inconsistent count does not stay permanently above five.
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
 
@@ -268,7 +268,7 @@ internal sealed class BeamFiring
             if (samus.PendingTransitionShot is not null)
                 throw new InvalidOperationException(
                     "A transition shot names no aim; no retail transition hands one over.");
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
 
@@ -354,11 +354,11 @@ internal sealed class BeamFiring
         }
 
         sharedProjectiles.SetSharedCooldown(1);
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
+        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
 
@@ -366,7 +366,7 @@ internal sealed class BeamFiring
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
-            _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
+            _slotTable.ProjectileCounter = WrappingCounter.DecrementCount(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
         }
         slot.Direction = aim;
@@ -457,7 +457,7 @@ internal sealed class BeamFiring
         slot.IsSpent = false;
 
         InitializePosition(samus, slot);
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
+        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
         ProjectileInvincibilityTimer = 20;
         if (isSuperMissile)
             samus.SuperMissiles = SamusQuantity.DecrementWrapping(samus.SuperMissiles);

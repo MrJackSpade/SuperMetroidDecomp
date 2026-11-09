@@ -315,7 +315,7 @@ public static class LegacyGameSaveJson
     /// <summary>Validates the older page-preservation format before upgrading named save data.</summary>
     private static byte[] DecodeLegacyPages(JsonArray pages)
     {
-        int size = GameSaveJsonFormat.PreservationPageByteCount;
+        int size = GameSaveJsonFormat.PreservationPageSize;
         int expectedPages = SaveRamLayout.ImageByteCount / size;
         if (pages.Count != expectedPages)
             throw new InvalidDataException($"preservedUntranslatedSram must contain {expectedPages} pages");

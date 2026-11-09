@@ -12,7 +12,7 @@ internal static class SamusBombProjectileSlotToolingExtensions
         /// </summary>
         public int BombSpreadDirectionMagnitude => self.BombSpreadHorizontal.LaunchWord;
         /// <summary>The whole word of <see cref="SamusBombProjectileSlot.BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>
-        public int BombSpreadYVelocity => self.BombSpreadVerticalVelocity.WholeWord;
+        public int BombSpreadYVelocity => self.BombSpreadVerticalVelocity.UnsignedWholePixels;
         /// <summary>The fraction word of <see cref="SamusBombProjectileSlot.BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>
         public int BombSpreadYSubvelocity => self.BombSpreadVerticalVelocity.Fraction;
     }

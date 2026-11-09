@@ -198,15 +198,16 @@ internal static class RoomBlockUploads
         }
         if (state.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations)
         {
-            foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTilePrograms.All)
+            foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimatedTilePrograms.All)
             {
+                int destination = AnimatedTileVramDestinations.WordOf(TourianStatueAnimatedTilePrograms.ObjectOf(statue.Statue));
                 // Phantoon's and Ridley's statues paint characters outside the room's tile characters, which no block reads.
-                if (!BgCharacterWords.AmongTiles(AnimatedTileVramDestinations.WordOf(statue.AnimatedObject)))
+                if (!BgCharacterWords.AmongTiles(destination))
                     continue;
                 foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
                 {
-                    yield return AnimatedCharacterPlacement.At(AnimatedTileFrames.Picture(statue.AnimatedObject, picture), AnimatedTileVramDestinations.WordOf(statue.AnimatedObject),
-                        inputs.AnimatedTiles.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameArtworkSize));
+                    yield return AnimatedCharacterPlacement.At(statue.Picture(picture), destination,
+                        inputs.AnimatedTiles.TourianStatuePicture(statue.Statue, picture));
                 }
             }
         }
@@ -332,9 +333,9 @@ internal static class RoomBlockUploads
         if (animatedObject == AnimatedTileObject.None)
             yield break;
         RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
-        for (int frame = 0; frame < mechanics.FrameCount; frame++)
-            yield return Animated(inputs, animatedObject, frame, mechanics.Image(frame),
-                mechanics.FrameArtworkSize, AnimatedTileVramDestinations.WordOf(animatedObject));
+        for (int frame = 0; frame < mechanics.Frames.Count; frame++)
+            yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
+                mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
     /// <summary>Bindings holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>
@@ -392,22 +393,22 @@ internal static class RoomBlockUploads
         if (WreckedShipTreadmills.TryResolve(animatedObject, out WreckedShipTreadmillLoop? treadmill))
         {
             for (int frame = 0; frame < WreckedShipTreadmillMechanicsDefinitions.FrameCount; frame++)
-                yield return Animated(inputs, animatedObject, frame, treadmill.Image(frame), RoomFxAnimatedTileLoops.TreadmillFrameByteCount,
-                    AnimatedTileVramDestinations.WordOf(animatedObject));
+                yield return Animated(inputs, AnimatedTileFrames.Frame(animatedObject, frame), treadmill.Image(frame),
+                    RoomFxAnimatedTileLoops.TreadmillFrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
             yield break;
         }
         if (animatedObject is not (AnimatedTileObject.HorizontalSpikes or AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
             yield break;
         RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
-        for (int frame = 0; frame < mechanics.FrameCount; frame++)
-            yield return Animated(inputs, animatedObject, frame, mechanics.Image(frame),
-                mechanics.FrameArtworkSize, AnimatedTileVramDestinations.WordOf(animatedObject));
+        for (int frame = 0; frame < mechanics.Frames.Count; frame++)
+            yield return Animated(inputs, mechanics.Frames[frame].Frame, mechanics.Image(frame),
+                mechanics.PictureByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
-    /// <summary>Frame <paramref name="frame"/> of <paramref name="animatedObject"/>'s animation, pictured from its installed characters.</summary>
-    private static AnimatedCharacterPlacement Animated(RoomBlockSheetInputs inputs, AnimatedTileObject animatedObject, int frame,
+    /// <summary>Animation frame <paramref name="frame"/>, pictured from its installed characters.</summary>
+    private static AnimatedCharacterPlacement Animated(RoomBlockSheetInputs inputs, ArtworkFrame frame,
         AnimatedTileImage image, int byteCount, int firstWord) =>
-        AnimatedCharacterPlacement.At(AnimatedTileFrames.Frame(animatedObject, frame), firstWord, Frame(inputs, image, byteCount));
+        AnimatedCharacterPlacement.At(frame, firstWord, Frame(inputs, image, byteCount));
 
     /// <summary>The installed bytes of an animated tile picture.</summary>
     private static ReadOnlyMemory<byte> Frame(RoomBlockSheetInputs inputs, AnimatedTileImage image, int byteCount) =>

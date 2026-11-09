@@ -3,19 +3,19 @@ using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Resolves the simple retail room-FX animated-tile objects (<see cref="RoomFxAnimatedTileMechanicsDefinitions"/>): every
-/// other defined animated-tile object has no header here, and an undefined one is rejected.
+/// Resolves the looping room-FX animations (<see cref="RoomFxAnimatedTileMechanicsDefinitions"/>): every other defined
+/// animation has no loop here, and an undefined one is rejected.
 /// </summary>
 public static class RoomFxAnimatedTiles
 {
-    /// <summary>Resolves a supported header; unknown identities preserve false and null output.</summary>
+    /// <summary>Resolves a looping animation; any other defined animation resolves to false and null.</summary>
     public static bool TryResolve(AnimatedTileObject animatedObject, [NotNullWhen(true)] out RoomFxAnimatedTileLoop? definition)
     {
         definition = SelectObject(animatedObject);
         return definition is not null;
     }
 
-    /// <summary>The header of a supported object, or null for any other defined object.</summary>
+    /// <summary>The loop of a looping animation, or null for any other defined animation.</summary>
     private static RoomFxAnimatedTileLoop? SelectObject(AnimatedTileObject animatedObject) =>
         Enum.IsDefined(animatedObject)
             ? RoomFxAnimatedTileMechanicsDefinitions.Objects.GetValueOrDefault(animatedObject)

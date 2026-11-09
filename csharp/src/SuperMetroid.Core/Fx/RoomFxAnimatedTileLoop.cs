@@ -1,20 +1,26 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// One engine-owned room-FX animated-tile object: its frame size and frame schedule. Every frame of a loop is shown for
-/// the same number of passes, and the loop returns to its first frame after its last.
+/// One looping room-FX animation: the named frames it shows, in order, each with the passes it is shown for. The loop
+/// returns to its first frame after its last.
 /// </summary>
 public sealed class RoomFxAnimatedTileLoop
 {
-    /// <summary>Binds an animated-tile object to its frame size and frame schedule.</summary>
-    /// <param name="animatedObject">The object.</param>
-    /// <param name="frameArtworkSize">The size of the character artwork every frame shows.</param>
-    /// <param name="frameCount">The timed frames in the loop.</param>
+    /// <summary>The loop's frames, in the order it shows them.</summary>
+    private readonly TimedArtworkFrame[] frames;
+
+    /// <summary>
+    /// Builds the loop of <paramref name="animatedObject"/>: <paramref name="frameCount"/> frames, each shown for
+    /// <paramref name="frameDuration"/> passes.
+    /// </summary>
+    /// <param name="animatedObject">The animation.</param>
+    /// <param name="frameCount">The frames in the loop.</param>
     /// <param name="frameDuration">The passes each frame is shown for.</param>
     /// <exception cref="ArgumentOutOfRangeException">The loop has no frame, or a frame is shown for no pass.</exception>
     internal RoomFxAnimatedTileLoop(
         AnimatedTileObject animatedObject,
-        int frameArtworkSize,
         int frameCount,
         int frameDuration)
     {
@@ -22,20 +28,13 @@ public sealed class RoomFxAnimatedTileLoop
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameDuration);
 
         AnimatedObject = animatedObject;
-        FrameArtworkSize = frameArtworkSize;
-        FrameCount = frameCount;
-        FrameDuration = frameDuration;
+        frames = [.. Enumerable.Range(0, frameCount)
+            .Select(frame => new TimedArtworkFrame(AnimatedTileFrames.Frame(animatedObject, frame), frameDuration))];
     }
 
-    /// <summary>The animated-tile object this definition schedules.</summary>
+    /// <summary>The animation this loop shows.</summary>
     public AnimatedTileObject AnimatedObject { get; }
 
-    /// <summary>The size of the character artwork every frame shows.</summary>
-    public int FrameArtworkSize { get; }
-
-    /// <summary>The timed frames in the loop.</summary>
-    public int FrameCount { get; }
-
-    /// <summary>The passes each frame is shown for.</summary>
-    public int FrameDuration { get; }
+    /// <summary>The loop's frames, in the order it shows them, each with the passes it is shown for.</summary>
+    public IReadOnlyList<TimedArtworkFrame> Frames => frames;
 }

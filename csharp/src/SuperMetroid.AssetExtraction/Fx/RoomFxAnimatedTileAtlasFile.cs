@@ -61,6 +61,6 @@ public static class RoomFxAnimatedTileAtlasFile
 
         // Each distinct picture once: the last spike step reuses a picture already present in the strip.
         static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileLoop definition) =>
-            definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.FrameArtworkSize));
+            definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.PictureByteCount));
     }
 }

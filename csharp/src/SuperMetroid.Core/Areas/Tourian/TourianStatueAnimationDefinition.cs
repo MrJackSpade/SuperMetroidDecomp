@@ -1,30 +1,27 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// One Tourian boss statue's animated-tile definition: the artwork transfer each frame makes, the typed program the
-/// statue runs and the operands that program's cues act on.
+/// One Tourian boss statue's background animation: the named pictures it shows, the typed program the statue runs and
+/// the operands that program's cues act on.
 /// </summary>
-public sealed class TourianStatueAnimatedTileProgramDefinition
+public sealed class TourianStatueAnimationDefinition
 {
 
     /// <summary>Only the statue catalog creates definitions.</summary>
-    internal TourianStatueAnimatedTileProgramDefinition()
+    internal TourianStatueAnimationDefinition()
     {
     }
 
-    /// <summary>The animated-tile object this statue's program belongs to.</summary>
-    public required AnimatedTileObject AnimatedObject { get; init; }
-
-    /// <summary>The bytes of statue artwork each shown frame shows.</summary>
-    public required int FrameArtworkSize { get; init; }
-
     /// <summary>The statue this program animates, as the shared statue animation state names it.</summary>
     public required TourianGreyStatues Statue { get; init; }
+
+    /// <summary>The background animation whose frames are the statue's pictures.</summary>
+    public ArtworkAnimation Animation => new($"{Statue} statue");
 
     /// <summary>The event set once this statue has turned grey, and tested to skip straight to the grey picture.</summary>
     public required StoryEvent GreyEvent { get; init; }
@@ -49,4 +46,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
 
     /// <summary>The statue greyed, which it shows once its eight colours take the common grey colours (#1512).</summary>
     public required PictureShade GreyShade { get; init; }
+
+    /// <summary>The frame of the statue's animation that shows <paramref name="picture"/>.</summary>
+    public ArtworkFrame Picture(TourianStatueTilePicture picture) => new(Animation, $"{picture}");
 }

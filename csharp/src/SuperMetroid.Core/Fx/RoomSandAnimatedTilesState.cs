@@ -31,7 +31,7 @@ public sealed class RoomSandAnimatedTilesState
         }
     }
 
-    /// <summary>Advances the shared timed-list interpreter and queues the authored character frames for the next frame boundary.</summary>
+    /// <summary>Advances each sand animation and selects its authored frame for the next frame boundary.</summary>
     public void Step(ArtworkFrameSelections frames)
     {
         foreach (var animation in objects) animation.Step(frames);

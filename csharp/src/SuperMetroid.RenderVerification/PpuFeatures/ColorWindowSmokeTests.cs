@@ -21,8 +21,8 @@ internal static class ColorWindowSmokeTests
         var memory = FramePaint.FromNative(palette, []);
         SuperMetroid.Core.Assets.SpriteSheetFrame bg3 = FxOverlayFixtures.PlaneFromVram(vram, palette, 0x7ff8);
         var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
-            new Position16<PlanePixels>(3, 11));
-        PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, AddedPicturedPlaneLayer.MapSize);
+            new Offset16<PlanePixels>(3, 11));
+        PicturedPlane subscreen = VramPictureFixtures.Plane(vram, palette, 0x5800, 0x4000, TileInkDepth.FourColours, new Extent16<TilemapCells>(32, 32));
         int count = 0;
         // Seeded windows of every shape kind (#1468), whole and stepped colours.
         for (int sample = 0; sample < 64; sample++)
@@ -65,7 +65,7 @@ internal static class ColorWindowSmokeTests
         foreach (bool masked in new[] { false, true })
         {
             var coverage = masked ? new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x7ffe, 0x6000, TileInkDepth.SixteenColours,
-                new Extent16<TilemapCells>(width, height)), new Position16<PlanePixels>(65535, 511)) : null;
+                new Extent16<TilemapCells>(width, height)), new Offset16<PlanePixels>(-1, 511)) : null;
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,

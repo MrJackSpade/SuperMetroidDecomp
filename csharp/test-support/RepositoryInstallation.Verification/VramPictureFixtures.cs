@@ -64,7 +64,7 @@ internal static class VramPictureFixtures
     }
 
     /// <summary>
-    /// A <paramref name="size"/> plane showing one picture of the tilemap at <paramref name="tilemapWord"/> in
+    /// A plane showing one picture, at its origin, of the <paramref name="size"/> tilemap at <paramref name="tilemapWord"/> in
     /// <paramref name="image"/> over its <paramref name="depth"/> characters from <paramref name="characterWord"/>, coloured
     /// from <paramref name="palette"/>: each cell's tile in its colour variant, mirroring and priority tier.
     /// </summary>
@@ -74,7 +74,7 @@ internal static class VramPictureFixtures
         BackgroundTile[] cells = Tilemap(image, tilemapWord, size);
         SpriteSheet sheet = Load(ScreenPictureSheetComposerConstants.ComposeRoom([ScreenPictureSubject.Page(MapFrame, cells, size.X)],
             Characters(image, characterWord, depth), palette), $"vram-plane-{tilemapWord:X4}-{characterWord:X4}-{depth}");
-        return new PicturedPlane(size, [new PlacedPlanePicture(sheet.Frame(MapFrame), Position16<PlanePixels>.Zero, PictureShading.Standard)]);
+        return new PicturedPlane([new PlacedPlanePicture(sheet.Frame(MapFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)]);
     }
 
     /// <summary>

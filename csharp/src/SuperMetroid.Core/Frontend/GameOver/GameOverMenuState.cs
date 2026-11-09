@@ -229,7 +229,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     {
         PrepareRenderSprites();
         // The page is one installed picture of the whole game-over page (#1467).
-        DisplayLayer[] layers = [new PicturedPlaneLayer(screen.PagePictures(GameOverPresentationDefinitions.PageFrame), default), screen.Sprites()];
+        DisplayLayer[] layers = [new PicturedPlaneLayer(screen.PagePictures(GameOverPresentationDefinitions.PageFrame), Offset16<PlanePixels>.Zero), screen.Sprites()];
         return new(screen.Paint(), layers, brightness);
     }
 

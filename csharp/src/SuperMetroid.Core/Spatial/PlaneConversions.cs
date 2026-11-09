@@ -18,6 +18,22 @@ public static class PlaneConversions
     /// <summary>A background scroll offset in plane pixels.</summary>
     public static Offset16<PlanePixels> AsPlaneOffset(this Offset16<BackgroundPixels> offset) => new(offset.X, offset.Y);
 
-    /// <summary>The plane pixel an area-map scroll shows at the screen's top-left (pause and file-select map views).</summary>
-    public static Position16<PlanePixels> AsPlaneScroll(this Position16<MapPixels> scroll) => new(scroll.X, scroll.Y);
+    /// <summary>
+    /// The plane offset an area-map scroll shows at the screen's top-left (pause and file-select map views, #1555): the
+    /// map's scroll words wrap at sixteen bits, so a word past the signed range names a scroll left of or above the map's
+    /// origin, and the map, which does not repeat, shows nothing there.
+    /// </summary>
+    public static Offset16<PlanePixels> AsPlaneOffset(this Position16<MapPixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
+
+    /// <summary>
+    /// The plane offset a room scroll shows at the screen's top-left, for a pictured plane drawn with the room's camera
+    /// (#1555): a scroll word past the signed range names a scroll left of or above the plane's origin.
+    /// </summary>
+    public static Offset16<PlanePixels> AsPlaneOffset(this Position16<RoomPixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
+
+    /// <summary>
+    /// The plane offset a scroll word names (#1555): a pictured plane does not repeat, so a word past the signed range
+    /// names a scroll left of or above the plane's origin.
+    /// </summary>
+    public static Offset16<PlanePixels> AsPlaneOffset(this Position16<PlanePixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
 }

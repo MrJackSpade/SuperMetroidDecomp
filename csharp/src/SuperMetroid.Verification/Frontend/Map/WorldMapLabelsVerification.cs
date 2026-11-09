@@ -34,8 +34,9 @@ internal static class WorldMapLabelsVerification
             var installedWindow = new FileSelectMapWindow(area, original.Labels);
             while (!nativeWindow.IsComplete)
             {
-                AssertEqual(new VerifyWorldMapLabelsCase(nativeWindow.TopLeft, nativeWindow.BottomRight),
-                    new VerifyWorldMapLabelsCase(installedWindow.TopLeft, installedWindow.BottomRight), "stock window edges");
+                AssertEqual(new VerifyWorldMapLabelsCase(nativeWindow.Left, nativeWindow.Top, nativeWindow.Right, nativeWindow.Bottom),
+                    new VerifyWorldMapLabelsCase(installedWindow.Left, installedWindow.Top, installedWindow.Right, installedWindow.Bottom),
+                    "stock window edges");
                 AssertEqual(nativeWindow.Step(), installedWindow.Step(), "stock window completion timing");
             }
         }

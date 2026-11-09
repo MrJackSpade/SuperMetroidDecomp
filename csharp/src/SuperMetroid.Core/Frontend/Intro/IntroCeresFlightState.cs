@@ -203,7 +203,7 @@ internal sealed class IntroCeresFlightState
             // over the station it names.
             layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(
                 floorSheets ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."),
-                CaptionLettersShown, JapaneseCaptionShown), new Position16<PlanePixels>(0, 0)));
+                CaptionLettersShown, JapaneseCaptionShown), Offset16<PlanePixels>.Zero));
         }
         else
         {

@@ -1,113 +1,117 @@
+using SuperMetroid.Core.Frontend.Map.Artwork;
+
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// Area-to-room map window motion.
-/// This is a clipping-window expansion, not a scale transform of the map pixels.
+/// The file-select map's reveal between the area map and a room map (#1555): a rectangle of screen pixels, the room scene
+/// showing inside it and the area scene outside. Opening, its four edges start together on the selected area's label and
+/// move outward by the area's speeds on each update, each stopping at the screen's edge; returning, they start just inside
+/// the screen and move back inward by the same speeds, for fewer updates. The rectangle is not a scale of either scene.
 /// </summary>
 public sealed class FileSelectMapWindow
 {
-    /// <summary>16.16 expansion or contraction velocity for each window edge.</summary>
-    private readonly SignedSixteenSixteen[] velocities = new SignedSixteenSixteen[4];
-    /// <summary>Current 16.16 left, right, top, and bottom clipping positions.</summary>
-    internal readonly FixedCoordinate[] edges = new FixedCoordinate[4];
-    /// <summary>Signed-underflow countdown controlling the final moving frame.</summary>
-    private int timer;
+    /// <summary>The area's edge speeds and the updates the edges move on.</summary>
+    private readonly FileSelectMapWindowMotion motion;
+    /// <summary>The left edge: the first screen column inside the rectangle, in pixels and fractions of one from the screen's left.</summary>
+    private SignedSixteenSixteen left;
+    /// <summary>The right edge: the first screen column past the rectangle, in pixels and fractions of one from the screen's left.</summary>
+    private SignedSixteenSixteen right;
+    /// <summary>The top edge: the first screen line inside the rectangle, in pixels and fractions of one from the screen's top.</summary>
+    private SignedSixteenSixteen top;
+    /// <summary>The bottom edge: the first screen line past the rectangle, in pixels and fractions of one from the screen's top.</summary>
+    private SignedSixteenSixteen bottom;
+    /// <summary>The updates the edges still move on; the reveal completes on the last.</summary>
+    private int movesLeft;
 
-    /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
+    /// <summary>Starts the area-to-room reveal at the installed label of <paramref name="area"/>, with the area's compiled motion; editable labels move the rectangle's start, not its motion.</summary>
     /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
     /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
     /// <exception cref="InvalidOperationException">World-map labels are not installed.</exception>
-    public FileSelectMapWindow(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels = null)
+    public FileSelectMapWindow(int area, WorldMapLabelPositions? labels = null)
         : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
     /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the compiled catalog.</summary>
-    internal FileSelectMapWindow(int area, FileSelectMapWindowMotion motion,
-        SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels = null)
+    internal FileSelectMapWindow(int area, FileSelectMapWindowMotion motion, WorldMapLabelPositions? labels = null)
     {
         if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        var installedLabels = labels ?? throw new InvalidOperationException(
+        WorldMapLabelPositions installedLabels = labels ?? throw new InvalidOperationException(
             "Map-window positions require installed world-map labels.");
-        var label = installedLabels.Get(area);
-        edges[0] = edges[1] = new FixedCoordinate(label.X, 0);
-        edges[2] = edges[3] = new FixedCoordinate(label.Y, 0);
-        timer = Ensure.AtLeastZero(motion.Timer);
-        velocities[0] = motion.Left;
-        velocities[1] = motion.Right;
-        velocities[2] = motion.Top;
-        velocities[3] = motion.Bottom;
+        Position16<SpritePixels> label = installedLabels.Get(area);
+        this.motion = motion;
+        left = right = SignedSixteenSixteen.FromWholePixels(label.X);
+        top = bottom = SignedSixteenSixteen.FromWholePixels(label.Y);
+        movesLeft = Ensure.BetweenInclusive(1, int.MaxValue, motion.MovingUpdates);
     }
 
-    /// <summary>
-    /// Whole-pixel upper-left corner of the clipping window. X is the inclusive left endpoint (its low eight bits are
-    /// the displayed column) and Y the first covered scanline; expansion clamps both at one.
-    /// </summary>
-    public Position16<ScreenPixels> TopLeft => new(edges[0].Whole, edges[2].Whole);
-    /// <summary>
-    /// Whole-pixel lower-right corner of the clipping window. X is the inclusive right endpoint, clamped at 255 during
-    /// expansion; Y bounds the covered scanlines measured from the top rather than naming an inclusive last row, and is
-    /// clamped at 224 during expansion.
-    /// </summary>
-    public Position16<ScreenPixels> BottomRight => new(edges[1].Whole, edges[3].Whole);
-    /// <summary>Whether the transition timer has reached signed underflow after the final edge movement; initially false and latched true until this window is discarded.</summary>
+    /// <summary>The first screen column inside the rectangle.</summary>
+    public int Left => left.WholePixels;
+
+    /// <summary>The first screen column past the rectangle; at or left of <see cref="Left"/>, the rectangle holds no column.</summary>
+    public int Right => right.WholePixels;
+
+    /// <summary>The first screen line inside the rectangle.</summary>
+    public int Top => top.WholePixels;
+
+    /// <summary>The first screen line past the rectangle; at or above <see cref="Top"/>, the rectangle holds no line.</summary>
+    public int Bottom => bottom.WholePixels;
+
+    /// <summary>Whether the rectangle holds no screen pixel: its edges meet or have crossed.</summary>
+    public bool IsEmpty => Right <= Left || Bottom <= Top;
+
+    /// <summary>Whether the edges have made their last move; latched until this reveal is discarded.</summary>
     public bool IsComplete { get; private set; }
-    /// <summary>Whether this is the shortened room-to-area contraction: subtract velocities without whole-word clamps, and reveal the area scene when complete.</summary>
+
+    /// <summary>Whether this is the shortened room-to-area return: the edges move inward, and the area scene shows when it completes.</summary>
     public bool IsReturning { get; private set; }
 
-    /// <summary>Begins a shortened, unclamped contraction from the inset room frame.</summary>
-    public static FileSelectMapWindow CreateReturn(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? labels = null)
+    /// <summary>
+    /// Begins the room-to-area return: the rectangle starts <see cref="FileSelectMapDefinitions.ReturnWindowInset"/> inside
+    /// each of the screen's edges and its edges move back inward by the area's speeds, for
+    /// <see cref="FileSelectMapDefinitions.ReturnWindowTimerReduction"/> fewer updates than the opening.
+    /// </summary>
+    public static FileSelectMapWindow CreateReturn(int area, WorldMapLabelPositions? labels = null)
     {
-        var window = new FileSelectMapWindow(area, labels);
-        window.IsReturning = true;
-        window.timer -= FileSelectMapDefinitions.ReturnWindowTimerReduction;
+        var window = new FileSelectMapWindow(area, labels) { IsReturning = true };
+        window.movesLeft = Ensure.BetweenInclusive(1, int.MaxValue, window.movesLeft - FileSelectMapDefinitions.ReturnWindowTimerReduction);
         int inset = FileSelectMapDefinitions.ReturnWindowInset;
-        window.edges[0] = window.edges[2] = new FixedCoordinate(inset, 0);
-        window.edges[1] = new FixedCoordinate(FrontendFrame.Width - inset, 0);
-        window.edges[3] = new FixedCoordinate(FrontendFrame.Height - inset, 0);
+        window.left = window.top = SignedSixteenSixteen.FromWholePixels(inset);
+        window.right = SignedSixteenSixteen.FromWholePixels(ScreenGeometry.ScreenWidthPixels - inset);
+        window.bottom = SignedSixteenSixteen.FromWholePixels(ScreenGeometry.ScreenHeightPixels - inset);
         return window;
     }
 
     /// <summary>
-    /// Advances all four 16.16 positions, clamps only their whole words, and then
-    /// decrements the timer. The zero-timer frame still moves; completion is at -1.
+    /// Moves every edge by its speed: outward while opening, each stopping at the screen's edge, inward while returning.
+    /// The reveal completes on its last move.
     /// </summary>
+    /// <returns>Whether the reveal is complete.</returns>
     public bool Step()
     {
         if (IsComplete) return true;
-        for (int edge = 0; edge < edges.Length; edge++)
-            edges[edge] = edges[edge].MovedBy(IsReturning
-                ? SignedSixteenSixteen.Zero - velocities[edge]
-                : velocities[edge]);
-        if (!IsReturning)
+        if (IsReturning)
         {
-            RaiseWholeWord(0, 1);
-            LowerWholeWord(1, 255);
-            RaiseWholeWord(2, 1);
-            LowerWholeWord(3, 224);
+            left -= motion.Left;
+            right -= motion.Right;
+            top -= motion.Top;
+            bottom -= motion.Bottom;
         }
-        IsComplete = --timer < 0;
+        else
+        {
+            left = OnScreen(left + motion.Left, ScreenGeometry.ScreenWidthPixels);
+            right = OnScreen(right + motion.Right, ScreenGeometry.ScreenWidthPixels);
+            top = OnScreen(top + motion.Top, ScreenGeometry.ScreenHeightPixels);
+            bottom = OnScreen(bottom + motion.Bottom, ScreenGeometry.ScreenHeightPixels);
+        }
+        IsComplete = --movesLeft == 0;
         return IsComplete;
     }
 
-    /// <summary>Raises one edge's signed whole-pixel word to <paramref name="minimum"/>, retaining its fractional position.</summary>
-    private void RaiseWholeWord(int edge, int minimum)
-    {
-        if (WholeWord(edge) < minimum)
-            SetWholeWord(edge, minimum);
-    }
-
-    /// <summary>Lowers one edge's signed whole-pixel word to <paramref name="maximum"/>, retaining its fractional position.</summary>
-    private void LowerWholeWord(int edge, int maximum)
-    {
-        if (WholeWord(edge) > maximum)
-            SetWholeWord(edge, maximum);
-    }
-
-    /// <summary>One edge's whole-pixel word, read as signed.</summary>
-    private int WholeWord(int edge) => CoordinateAxis.AsSigned(edges[edge].Whole);
-
-    /// <summary>Replaces one edge's whole-pixel word, keeping its fraction.</summary>
-    private void SetWholeWord(int edge, int whole) =>
-        edges[edge] = edges[edge].WithWhole(whole);
+    /// <summary>
+    /// <paramref name="edge"/> kept on the screen, whose side along the edge's axis is <paramref name="side"/> pixels: an
+    /// edge moved past the screen's first or last pixel stops at that edge of the screen.
+    /// </summary>
+    private static SignedSixteenSixteen OnScreen(SignedSixteenSixteen edge, int side) =>
+        SignedSixteenSixteen.FromRaw(Math.Clamp(edge.RawValue, 0, SignedSixteenSixteen.FromWholePixels(side).RawValue));
 }

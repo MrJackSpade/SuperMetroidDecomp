@@ -40,12 +40,13 @@ static const uint SourceForeground = 1, SourceBackground = 2, SourceSky = 3, Sou
 static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackground = 8;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
-// A pictured plane (PicturedPlane, #1467), its table's word in TilemapWord: its size in cells, x below y, the count of its
-// pictures, then two words each in drawing order, the picture's offset and its upper-left plane pixel, x below y.
+// A pictured plane (PicturedPlane, #1467, #1555), its table's word in TilemapWord: the count of its pictures, then two
+// words each in drawing order, the picture's offset and its upper-left plane pixel, x below y, each a signed half. The
+// plane does not repeat.
 static const uint SourcePicturedPlane = 11;
 // A frontend picture grid (PictureGridLayer, #1467), its table at room level word `TilemapWord`: its width and height in
 // cells, x below y, then a word per cell row by row, its one-cell picture's offset (zero for none) with its horizontal and
-// vertical mirroring in bits 30 and 31. The grid wraps at its edges.
+// vertical mirroring in bits 30 and 31. The grid does not repeat (#1555).
 static const uint SourcePictureGrid = 12;
 static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMask = 1073741823;
 static const uint SourceWrittenOverBackground = 256;
@@ -160,38 +161,48 @@ bool HudPicture(uint2 screen, out uint2 within, out uint picture)
     }
     return false;
 }
-// A pictured plane's picture at a scrolled position (#1467): the last placed picture covering it, the plane repeating at
-// its edges and each picture continuing across them, as `picture`, with `within` its pixel there; false where none does.
-bool PlanePicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
+// Two signed sixteen-bit halves of a word, the low half as x (#1555).
+int2 SignedHalves(uint word)
+{
+    return int2(int(word << 16) >> 16, int(word) >> 16);
+}
+// The plane pixel a screen pixel shows under a pictured plane's or picture grid's scroll offset (#1555), whose two signed
+// halves arrive in the low halves of `scroll`'s words: the plane does not repeat.
+int2 PlanePosition(uint2 screen, uint2 scroll)
+{
+    return int2(screen) + SignedHalves((scroll.x & 65535) | (scroll.y << 16));
+}
+// A pictured plane's picture at a plane position (#1467, #1555): the last placed picture covering it, as `picture`, with
+// `within` its pixel there; false where none does. The plane does not repeat.
+bool PlanePicture(uint table, int2 position, out uint2 within, out uint picture)
 {
     picture = 0;
     within = uint2(0, 0);
-    uint cells = RoomLevels[table];
-    uint2 size = uint2(cells & 65535, cells >> 16) * 8;
-    uint2 position = scrolled % size;
-    for (uint placed = RoomLevels[table + 1]; placed > 0; placed--)
+    for (uint placed = RoomLevels[table]; placed > 0; placed--)
     {
-        uint record = table + 2 + (placed - 1) * 2;
+        uint record = table + 1 + (placed - 1) * 2;
         uint shown = RoomLevels[record];
-        uint corner = RoomLevels[record + 1];
-        uint2 offset = (position + size - uint2(corner & 65535, corner >> 16)) % size;
+        int2 offset = position - SignedHalves(RoomLevels[record + 1]);
         uint extent = RoomLevels[shown + PictureSizeWord];
-        if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
+        if (offset.x < 0 || offset.y < 0 || offset.x >= int(extent & 65535) || offset.y >= int(extent >> 16)) continue;
         picture = shown;
-        within = offset;
+        within = uint2(offset);
         return true;
     }
     return false;
 }
-// The cell picture of a picture grid (#1467) at a scrolled position, wrapping at the grid's edges, as `picture`, with
-// `within` its pixel there, mirrored as the cell mirrors it; false where the cell shows nothing.
-bool GridPicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
+// The cell picture of a picture grid (#1467, #1555) at a plane position, as `picture`, with `within` its pixel there,
+// mirrored as the cell mirrors it; false off the grid's cells, which do not repeat, and where the cell shows nothing.
+bool GridPicture(uint table, int2 scrolled, out uint2 within, out uint picture)
 {
+    picture = 0;
+    within = uint2(0, 0);
     uint size = RoomLevels[table];
-    uint2 cells = uint2(size & 65535, size >> 16);
-    uint2 position = scrolled % (cells * 8);
+    int2 cells = int2(size & 65535, size >> 16);
+    if (scrolled.x < 0 || scrolled.y < 0 || scrolled.x >= cells.x * 8 || scrolled.y >= cells.y * 8) return false;
+    uint2 position = uint2(scrolled);
     uint2 cell = position >> 3;
-    uint entry = RoomLevels[table + 1 + cell.y * cells.x + cell.x];
+    uint entry = RoomLevels[table + 1 + cell.y * uint(cells.x) + cell.x];
     picture = entry & GridPictureMask;
     within = uint2((entry & GridFlipX) != 0 ? 7 - (position.x & 7) : position.x & 7,
         (entry & GridFlipY) != 0 ? 7 - (position.y & 7) : position.y & 7);
@@ -439,8 +450,8 @@ uint2 LineScrollPair(uint horizontal, uint vertical, uint screenY)
 // Whether a glowing plane (AddedPicturedPlaneLayer, #1467, #1514) covers the screen pixel: everywhere when it names
 // nothing it glows over. Where one of the sprites it glows over shows (AddG marks them; the sprite layer holds them), it
 // covers the pixel if the sprite takes part in blends and leaves it otherwise; elsewhere it covers the pixels where the
-// plane it glows over is opaque. That plane's table is in MatrixA, its scroll in MatrixC and MatrixD, and OffsetY marks
-// that it is present.
+// plane it glows over is opaque. That plane's table is in MatrixA, its signed scroll offset in MatrixC and MatrixD, and
+// OffsetY marks that it is present.
 bool GlowCovers(uint2 screen)
 {
     bool overPlane = OffsetY != 0, overSprites = AddG != 0;
@@ -457,7 +468,7 @@ bool GlowCovers(uint2 screen)
     uint coverPicture;
     uint coverIndex = 0;
     bool coverFront = false;
-    bool coverShown = PlanePicture(map.x, (screen + map.zw) & 65535, coverWithin, coverPicture);
+    bool coverShown = PlanePicture(map.x, int2(screen) + int2(map.zw), coverWithin, coverPicture);
     return coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverFront) != 0 && coverIndex != 0;
 }
 
@@ -623,11 +634,11 @@ void Main(uint3 id : SV_DispatchThreadID)
         }
         else if (source == SourcePicturedPlane)
         {
-            if (!PlanePicture(TilemapWord, scrolled, within, picture)) return;
+            if (!PlanePicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture)) return;
         }
         else if (source == SourcePictureGrid)
         {
-            if (!GridPicture(TilemapWord, scrolled, within, picture)) return;
+            if (!GridPicture(TilemapWord, PlanePosition(sampleScreen, scroll), within, picture)) return;
         }
         else
         {

@@ -75,14 +75,13 @@ internal static class CeresRidleyBodyPublicationVerification
         TurningRoomScenery walls = mode7.Scenery ?? throw new InvalidOperationException("The getaway shows the chamber's walls.");
         Position16<RoomPixels>[] points = [CeresGetawayChamberWallDefinitions.LeftWall, CeresGetawayChamberWallDefinitions.RightWall];
         AssertEqual(points.Length, walls.Plane.Pictures.Length, "the getaway shows the chamber's two walls");
-        int side = walls.Plane.Size.X * ScreenGeometry.BackgroundTileSizePixels;
         for (int wall = 0; wall < points.Length; wall++)
         {
             PlacedPlanePicture placed = walls.Plane.Pictures[wall];
-            AssertEqual(new Position16<PlanePixels>((points[wall].X - placed.Picture.Origin.X + side) % side, (points[wall].Y - placed.Picture.Origin.Y + side) % side),
+            AssertEqual(new Offset16<PlanePixels>(points[wall].X - placed.Picture.Origin.X, points[wall].Y - placed.Picture.Origin.Y),
                 placed.Corner, $"wall {wall}'s picture places its origin on the wall's room point");
         }
-        AssertEqual(camera.AsPlaneScroll(), walls.Scroll, "the walls scroll with the actors' camera");
+        AssertEqual(camera.AsPlaneOffset(), walls.Scroll, "the walls scroll with the actors' camera");
     }
 
     /// <summary>Runs the Ceres Ridley body publication check.</summary>

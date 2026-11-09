@@ -53,15 +53,15 @@ internal static class CeresFlightScreenMemory
     /// </summary>
     internal static BackgroundTile[] CaptionTiles(IntroCeresFlightState flight)
     {
-        var tiles = new BackgroundTile[CeresCinematicPictures.PlaneCells * CeresCinematicPictures.PlaneCells];
+        var tiles = new BackgroundTile[TilemapScreenGeometry.CellCount];
         for (int letter = 0; letter < flight.CaptionLettersShown; letter++)
-            tiles[SpaceColonyCaptionDefinitions.Row * CeresCinematicPictures.PlaneCells + SpaceColonyCaption.Column(letter)] =
+            tiles[SpaceColonyCaptionDefinitions.Row * TilemapScreenGeometry.WidthInTiles + SpaceColonyCaption.Column(letter)] =
                 SpaceColonyCaptionTileDefinitions.Glyphs[CeresCinematicPictureSheetComposer.CaptionCharacter(letter)];
         if (flight.JapaneseCaptionShown)
         {
             ReadOnlySpan<BackgroundTile> japanese = SpaceColonyCaptionTileDefinitions.JapaneseTiles;
             for (int index = 0; index < japanese.Length; index++)
-                tiles[(SpaceColonyCaptionDefinitions.JapaneseRow + index / CeresCinematicPictureSheetComposer.JapaneseWidth) * CeresCinematicPictures.PlaneCells +
+                tiles[(SpaceColonyCaptionDefinitions.JapaneseRow + index / CeresCinematicPictureSheetComposer.JapaneseWidth) * TilemapScreenGeometry.WidthInTiles +
                     SpaceColonyCaptionDefinitions.JapaneseColumn + index % CeresCinematicPictureSheetComposer.JapaneseWidth] = japanese[index];
         }
         return tiles;

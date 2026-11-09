@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Plane">The plane holding the pictures at their room points.</param>
 /// <param name="Scroll">The plane pixel the screen's top-left corner shows: the camera the frame's actors were drawn against.</param>
-public sealed record TurningRoomScenery(PicturedPlane Plane, Position16<PlanePixels> Scroll)
+public sealed record TurningRoomScenery(PicturedPlane Plane, Offset16<PlanePixels> Scroll)
 {
     /// <summary>The plane holding the pictures at their room points.</summary>
     public PicturedPlane Plane

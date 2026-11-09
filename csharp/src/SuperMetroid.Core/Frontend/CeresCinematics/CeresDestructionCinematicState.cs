@@ -832,8 +832,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             // Preserve the existing non-mosaicked path. Mosaic implementation
             // is a game-correctness change, not an implicit part of this extraction.
             // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
-            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed),
-                new Position16<PlanePixels>(0, 0))];
+            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed), Offset16<PlanePixels>.Zero)];
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];

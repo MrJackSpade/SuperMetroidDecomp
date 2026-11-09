@@ -447,7 +447,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         if (layer.Scenery is { } scenery)
             DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
             {
-                Map = roomLevels.PlaneTable(scenery.Plane), Scroll = scenery.Scroll, RoomSource = D3D11RoomSource.PicturedPlane,
+                Map = roomLevels.PlaneTable(scenery.Plane), Scroll = PlaneScroll(scenery.Scroll), RoomSource = D3D11RoomSource.PicturedPlane,
                 FirstScanline = (uint)layer.HudLines,
             });
         DispatchFloor(layer.Transform, layer.HudLines, floorStart);
@@ -577,11 +577,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[11] = layer.GlowsOverSprites is null ? 0u : 1u;
         if (layer.GlowsOver is { } covered)
         {
-            // This pass reads no floor transform, so the covered plane's table, scroll and size go there.
+            // This pass reads no floor transform, so the covered plane's table and scroll go there.
             int offset = 16;
             data[offset] = roomLevels.PlaneTable(covered.Plane);
-            data[offset + 2] = covered.Scroll.X; data[offset + 3] = covered.Scroll.Y;
-            data[offset + 4] = covered.Plane.Size.X; data[offset + 5] = covered.Plane.Size.Y;
+            data[offset + 2] = unchecked((uint)covered.Scroll.X); data[offset + 3] = unchecked((uint)covered.Scroll.Y);
             data[offset + 7] = 1;
         }
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.HorizontalWave, 0);
@@ -589,6 +588,13 @@ public sealed class D3D11FrameRenderer : IDisposable
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
+
+    /// <summary>
+    /// A pictured plane's or picture grid's signed scroll offset (#1555) in the dispatch's sixteen-bit scroll halves, which
+    /// the shader reads back as signed: the plane does not repeat, so the halves carry the offset, not a wrapped position.
+    /// </summary>
+    private static Position16<PlanePixels> PlaneScroll(Offset16<PlanePixels> scroll) =>
+        new(unchecked((ushort)scroll.X), unchecked((ushort)scroll.Y));
 
     /// <summary>The pictured planes a layer draws (#1467): its own, a turning room's scenery (#1545) and, for a glow, the plane it glows over.</summary>
     private static IEnumerable<PicturedPlane> PicturedPlanes(DisplayLayer layer) => layer switch
@@ -796,18 +802,18 @@ public sealed class D3D11FrameRenderer : IDisposable
                     });
                     break;
                 case PictureGridLayer grid:
-                    // The grid's cell pictures, scrolled and wrapping at its edges (#1467), within its window if it names one (#1514).
+                    // The grid's cell pictures, scrolled by its offset and not repeating (#1467, #1555), within its window if it names one (#1514).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        Map = roomLevels.GridTable(grid.Grid), Scroll = grid.Scroll, RoomSource = D3D11RoomSource.PictureGrid,
+                        Map = roomLevels.GridTable(grid.Grid), Scroll = PlaneScroll(grid.Scroll), RoomSource = D3D11RoomSource.PictureGrid,
                         Window = grid.Window,
                     });
                     break;
                 case PicturedPlaneLayer pictured:
-                    // The plane's placed pictures, every pixel of each (#1467, #1514).
+                    // The plane's placed pictures, every pixel of each (#1467, #1514), scrolled by its offset (#1555).
                     DispatchTile(D3D11TileOperation.Layer, new D3D11TileDispatch
                     {
-                        Map = roomLevels.PlaneTable(pictured.Plane), Scroll = pictured.Scroll,
+                        Map = roomLevels.PlaneTable(pictured.Plane), Scroll = PlaneScroll(pictured.Scroll),
                         RoomSource = D3D11RoomSource.PicturedPlane, TransparentZero = pictured.ShowsClearPixelColours ? 0u : 1u,
                     });
                     break;

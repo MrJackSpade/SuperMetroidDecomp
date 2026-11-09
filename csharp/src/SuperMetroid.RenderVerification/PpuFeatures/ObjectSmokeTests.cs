@@ -32,7 +32,7 @@ internal static class ObjectSmokeTests
             byte obsel = (byte)((size << 5) | selection);
             var memory = FramePaint.FromOam(vram, palette, oam, count, obsel);
             Check(memory, obsel);
-            Check(memory, obsel, new PicturedPlaneLayer(plane, new Position16<PlanePixels>(3, 11)));
+            Check(memory, obsel, new PicturedPlaneLayer(plane, new Offset16<PlanePixels>(3, 11)));
         }
         // The earlier draw covers the later one; a transparent hole in it must still expose the later draw.
         Array.Clear(vram); Array.Clear(oam); Array.Clear(palette);

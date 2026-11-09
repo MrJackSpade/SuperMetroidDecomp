@@ -7,13 +7,10 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>
 /// The Ceres cinematics' background pictures (#1467): each SPACE COLONY caption letter, the katakana caption and the Zebes
 /// planet, which the import composes once under the flight's palette. The scenes place the pictures their state shows on
-/// a 32-by-32-cell plane.
+/// a plane, each at its cell.
 /// </summary>
 public static class CeresCinematicPictures
 {
-    /// <summary>The cells along each side of the scenes' background plane.</summary>
-    internal const int PlaneCells = 32;
-
     /// <summary>The name of the picture of the caption's letter <paramref name="index"/>.</summary>
     public static string CaptionLetter(int index) => $"caption-{index}";
 
@@ -38,7 +35,7 @@ public static class CeresCinematicPictures
         if (japanese)
             placed.Add(new(sheet.Frame(JapaneseCaption), Corner(SpaceColonyCaptionDefinitions.JapaneseColumn, SpaceColonyCaptionDefinitions.JapaneseRow),
                 PictureShading.Standard));
-        return new PicturedPlane(new Extent16<TilemapCells>(PlaneCells, PlaneCells), placed.ToImmutable());
+        return new PicturedPlane(placed.ToImmutable());
     }
 
     /// <summary>
@@ -46,13 +43,12 @@ public static class CeresCinematicPictures
     /// The gunship engine's flicker is the gunship's colour effect, which the planet does not show.
     /// </summary>
     internal static PicturedPlane Zebes(InstalledSpriteSheets sheets, bool revealed) => new(
-        new Extent16<TilemapCells>(PlaneCells, PlaneCells),
         revealed
             ? [new PlacedPlanePicture(Ensure.NotNull(sheets).Get(SpriteSheetId.CeresCinematicPictures).Frame(ZebesPlanet), default,
                 PictureShading.Standard)]
             : []);
 
     /// <summary>The plane pixel of cell (<paramref name="column"/>, <paramref name="row"/>)'s upper-left corner.</summary>
-    private static Position16<PlanePixels> Corner(int column, int row) => new(
+    private static Offset16<PlanePixels> Corner(int column, int row) => new(
         column * ScreenGeometry.BackgroundTileSizePixels, row * ScreenGeometry.BackgroundTileSizePixels);
 }

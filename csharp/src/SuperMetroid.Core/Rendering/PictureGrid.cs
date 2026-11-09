@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// A grid of equal cells each showing an installed picture or nothing (#1467), as an area map shows its cells: row by row
-/// from the top-left cell, wrapping at the grid's edges when scrolled. Equal to another showing the same pictures the same
-/// way in every cell, so an unchanged map keeps the backend's packing.
+/// from the top-left cell, which lies on the grid's origin; outside its cells the grid shows nothing and does not repeat
+/// (#1555). Equal to another showing the same pictures the same way in every cell, so an unchanged map keeps the backend's
+/// packing.
 /// </summary>
 public sealed class PictureGrid : IEquatable<PictureGrid>
 {

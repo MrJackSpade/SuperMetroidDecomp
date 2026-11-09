@@ -34,15 +34,10 @@ internal sealed class MenuScreen
     public void BindScreenTiles(InstalledSpriteSheets? sheets) =>
         Sheets = sheets ?? throw new InvalidOperationException("Menus require the installed sprite sheets.");
 
-    /// <summary>Cells across and down a menu page.</summary>
-    private const int PageCells = 32;
-
-    /// <summary>The size of a menu page in cells, which a scrolled page repeats across.</summary>
-    internal static Extent16<TilemapCells> PageSize { get; } = new(PageCells, PageCells);
-
     /// <summary>
     /// A page showing the menus' pictures named <paramref name="frames"/>, each placed at the page's corner in drawing order,
-    /// a later one over an earlier one (#1467): each lands where the game's page shows it.
+    /// a later one over an earlier one (#1467): each lands where the game's page shows it, and the page shows nothing
+    /// beyond its pictures (#1555).
     /// </summary>
     /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
     internal PicturedPlane PagePictures(params ReadOnlySpan<string> frames)
@@ -51,7 +46,7 @@ internal sealed class MenuScreen
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>(frames.Length);
         foreach (string frame in frames)
             placed.Add(Place(pictures.Frame(frame), default));
-        return new PicturedPlane(PageSize, placed.MoveToImmutable());
+        return new PicturedPlane(placed.MoveToImmutable());
     }
 
     /// <summary>
@@ -62,7 +57,7 @@ internal sealed class MenuScreen
     internal PicturedPlane CellPictures(IEnumerable<PlacedFrame> pictures)
     {
         SpriteSheet sheet = Sheets.Get(SpriteSheetId.MenuPictures);
-        return new PicturedPlane(PageSize, [.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Cell))]);
+        return new PicturedPlane([.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Cell))]);
     }
 
     /// <summary>
@@ -70,7 +65,7 @@ internal sealed class MenuScreen
     /// standard colours the import pre-coloured it in under the menu's colours (#1512).
     /// </summary>
     private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<TilemapCells> cell) =>
-        PlacedPlanePicture.AtCell(picture, cell, PageSize, PictureShading.Standard);
+        PlacedPlanePicture.AtCell(picture, cell, PictureShading.Standard);
 
     /// <summary>The installed world-map characters.</summary>
     [AllowNull]

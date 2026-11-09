@@ -58,19 +58,18 @@ internal sealed class PauseScreen
             if (!pictures.ShowsNothing(frame))
                 placed.Add(AtCorner(pictures.Frame(frame)));
         }
-        return new PicturedPlane(MenuScreen.PageSize, placed.ToImmutable());
+        return new PicturedPlane(placed.ToImmutable());
     }
 
     /// <summary>
     /// <paramref name="picture"/> placed where the pause screen shows it, in <paramref name="shading"/> (#1512): with its
     /// origin on the page's corner, which lies <see cref="PageRowsAboveScreen"/> above the screen's top, so the screen
-    /// shows each page from the row below its first.
+    /// shows each page from the row below its first (#1555).
     /// </summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture, PictureShading shading)
     {
-        PlacedPlanePicture atCorner = PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize, shading);
-        int pageHeight = MenuScreen.PageSize.Y * ScreenGeometry.BackgroundTileSizePixels;
-        return atCorner with { Corner = atCorner.Corner.WithY((atCorner.Corner.Y + pageHeight - PageRowsAboveScreen) % pageHeight) };
+        PlacedPlanePicture atCorner = PlacedPlanePicture.AtCell(picture, default, shading);
+        return atCorner with { Corner = atCorner.Corner.WithY(atCorner.Corner.Y - PageRowsAboveScreen) };
     }
 
     /// <summary>The pixel rows of each pause page, frame and equipment page alike, that lie above the screen's top.</summary>
@@ -90,7 +89,7 @@ internal sealed class PauseScreen
     {
         SpriteSheet pictures = Pictures;
         string arrow = PauseEquipmentPictures.ReserveArrowFrame(page.Arrow);
-        return new PicturedPlane(MenuScreen.PageSize, [.. PauseEquipmentPictures.Frames(page).Where(frame => !pictures.ShowsNothing(frame))
+        return new PicturedPlane([.. PauseEquipmentPictures.Frames(page).Where(frame => !pictures.ShowsNothing(frame))
             .Select(frame => AtCorner(pictures.Frame(frame), frame == arrow ? arrowShading : PictureShading.Standard))]);
     }
 

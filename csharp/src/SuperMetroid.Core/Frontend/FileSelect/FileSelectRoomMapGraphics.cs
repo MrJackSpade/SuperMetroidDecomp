@@ -101,14 +101,14 @@ public sealed class FileSelectRoomMapGraphics
         // A room frame the sheet holds as showing nothing is not placed (#1513).
         string roomFrame = AreaMapPictures.RoomFrameName(icons.MapArea);
         PlacedPlanePicture[] framePictures = pictures.ShowsNothing(roomFrame) ? []
-            : [new PlacedPlanePicture(pictures.Frame(roomFrame), default, PictureShading.Standard)];
-        var frame = new PicturedPlane(MenuScreen.PageSize, [.. framePictures]);
-        var frameScroll = new Position16<PlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
+            : [new PlacedPlanePicture(pictures.Frame(roomFrame), Offset16<PlanePixels>.Zero, PictureShading.Standard)];
+        var frame = new PicturedPlane([.. framePictures]);
+        var frameScroll = new Offset16<PlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         // The room map scrolls through its frame's opening, the frame's border around it (#1514): each picture is drawn
         // whole, and the per-tile priority tiers that once interleaved the two are a presentation quirk the port does not keep.
         layers.Add(new PicturedPlaneLayer(frame, frameScroll));
         if (content != RoomMapContent.FrameOnly)
-            layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsPlaneScroll()) { Window = MapFrameOpening.Window(frameScroll) });
+            layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsPlaneOffset()) { Window = MapFrameOpening.Window(frameScroll) });
         if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);

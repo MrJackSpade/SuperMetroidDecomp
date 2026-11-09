@@ -27,7 +27,7 @@ public static class RoomObjectStationVisualFiles
     public static InstalledRoomObjectStationVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Builds the draw list of a station draw from its calculated cells.</summary>
+    /// <summary>Builds the draw list of a station draw from its calculated cells' geometry and collision.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
         if (!StationObjectDraws.TryDescribe(request, out StationObjectDraws.Draw? draw))
@@ -35,7 +35,7 @@ public static class RoomObjectStationVisualFiles
             list = default;
             return false;
         }
-        list = RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start);
+        list = RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.CollisionAt, draw.Start);
         return true;
     }
 

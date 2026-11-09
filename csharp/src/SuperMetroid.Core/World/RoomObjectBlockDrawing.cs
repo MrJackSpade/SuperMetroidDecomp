@@ -274,7 +274,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage stationImage = Installed(StationVisuals, "station").Image(draw);
             for (int run = 0; run < station.RunCount; run++)
                 for (int cell = 0; cell < station.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, stationImage, station.Start(run) + new Offset16<RoomBlocks>(cell, 0), station.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, stationImage, station.Start(run) + new Offset16<RoomBlocks>(cell, 0), station.CollisionAt(run, cell));
             return;
         }
         if (ElevatorPlatformDraws.TryDescribe(draw, out var elevator))

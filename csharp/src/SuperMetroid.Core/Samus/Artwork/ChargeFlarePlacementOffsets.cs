@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementDefinitions;
 
@@ -45,15 +46,15 @@ public static class ChargeFlarePlacementOffsets
     }
 
     /// <summary>The beam flare's placement while Samus turns holding <paramref name="aim"/>.</summary>
-    private static Offset16<RoomPixels> TurningOffset(TurningAim aim) => new()
+    private static Offset16<RoomPixels> TurningOffset(SamusTurningAim aim) => new()
     {
         X = -4,
         Y = aim switch
         {
-            TurningAim.Up => -20,
-            TurningAim.Neutral => -2,
-            TurningAim.Down => 8,
-            _ => throw new InvalidOperationException($"Undefined {nameof(TurningAim)} {aim}."),
+            SamusTurningAim.Up => -20,
+            SamusTurningAim.Neutral => -2,
+            SamusTurningAim.Down => 8,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusTurningAim)} {aim}."),
         },
     };
 

@@ -911,14 +911,14 @@ internal static class LookupStream2Verification
         Array.Fill(storage, (byte)1);
         var grid = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), storage, new Extent16<RoomScreens>(3, 2));
         foreach (CameraDistanceMode mode in Enum.GetValues<CameraDistanceMode>())
-        foreach (byte facing in new byte[] { 4, 8 })
+        foreach (SamusFacingDirection facing in new[] { SamusFacingDirection.Left, SamusFacingDirection.Right })
         for (int reversal = 0; reversal < 4; reversal++)
         {
             var context = new HorizontalCameraContext(
                 reversal == 1,
                 reversal == 2 ? SamusMovementType.Moonwalking : 0,
                 reversal == 3 ? SamusAccelerationMode.Turning : SamusAccelerationMode.Accelerating, facing, mode);
-            bool right = reversal == 0 ? facing != 4 : facing == 4;
+            bool right = reversal == 0 ? facing != SamusFacingDirection.Left : facing == SamusFacingDirection.Left;
             // The original's target tables keep one word per mode, in this order.
             int nativeEntry = mode switch
             {
@@ -940,7 +940,7 @@ internal static class LookupStream2Verification
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
             FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0),
-            new(false, 0, 0, 8, (CameraDistanceMode)(-1))), "An undefined camera distance is rejected before tracking");
+            new(false, 0, 0, SamusFacingDirection.Right, (CameraDistanceMode)(-1))),"An undefined camera distance is rejected before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
 

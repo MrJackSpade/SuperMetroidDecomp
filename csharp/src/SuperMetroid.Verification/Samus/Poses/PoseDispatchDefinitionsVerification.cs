@@ -31,10 +31,11 @@ internal static class PoseDispatchDefinitionsVerification
             ISnesAddressSpace source = forbidden;
             samus.Pose = SamusPoseNumbering.FromNumber(pose);
             byte aim = rom.ReadCartridgeByte(address + 3);
-            AssertEqual(aim, SamusPoseMetadata.ReadShotDirection(samus), "Live aim and restrictions retain the full native byte without authored ROM reads");
-            AssertEqual(aim, SamusPoseMetadata.ReadShotDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective aim retains native byte and adjacent indexes");
-            AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(samus), "Live pose facing retains native value");
-            AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective pose facing retains native value");
+            AssertEqual(SamusPoseRecordCodecTooling.DecodeAim(aim), SamusPoseMetadata.ReadAim(samus), "Live aim answers what the native aim byte reads as, restrictions included, without authored ROM reads");
+            AssertEqual(SamusPoseRecordCodecTooling.DecodeAim(aim), SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(pose)), "Prospective aim answers what the native aim byte reads as, adjacent indexes included");
+            AssertEqual(SamusPoseRecordCodecTooling.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(samus), "Live pose facing answers what the native facing byte reads as");
+            AssertEqual(SamusPoseRecordCodecTooling.DecodeFacing(facing), SamusPoseMetadata.ReadFacingDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective pose facing answers what the native facing byte reads as");
+            AssertEqual(facing, SamusPoseRecordCodecTooling.FacingByte(SamusPoseNumbering.FromNumber(pose)), "Pose-record codec writes the native facing byte");
             AssertEqual(fallback, SamusPoseNumbers.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "No-input fallback retains native pose or sentinel");
             if (movement < SamusMovementTypeNumbers.Count)
             {
@@ -59,7 +60,7 @@ internal static class PoseDispatchDefinitionsVerification
         AssertEqual(0L, allocated,
             "Warmed pose-dispatch lookups allocate no per-frame table storage");
 
-        Console.WriteLine("Pose dispatch: all 256 facing/movement/fallback/aim byte indexes match native with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
+        Console.WriteLine("Pose dispatch: all 256 facings, movements, fallbacks and aims answer what their native bytes read as with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
     }
     /// <summary>Measures allocations across warmed facing, movement, and fallback lookups.</summary>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
@@ -71,7 +72,7 @@ internal static class PoseDispatchDefinitionsVerification
         {
             if (!SamusPoseNumbering.NamesPose(index % 253)) continue;
             SamusPoseId pose = SamusPoseNumbering.FromNumber(index % 253);
-            checksum += SamusPoseMetadata.ReadPoseXDirection(pose);
+            checksum += SamusPoseMetadata.IsFacingLeft(pose) ? 1 : 0;
             checksum += SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose));
             checksum += SamusPoseNumbers.Number(SamusPoseDispatch.ReadNoInputPose(pose));
         }

@@ -37,8 +37,7 @@ internal static class SamusPoseMetadata
             : SamusPostureTransitionAdmission.BeyondTable;
 
     /// <summary>
-    /// Sets Samus's collision radius: every pose is five pixels wide and
-    /// reads its vertical radius from pose-definition byte six.
+    /// Sets Samus's collision radius: every pose is five pixels wide each way and has its own vertical radius.
     /// </summary>
     public static void RefreshCollisionRadii(SamusState samus)
     {
@@ -49,22 +48,6 @@ internal static class SamusPoseMetadata
     public static int ReadPoseYRadius(SamusPoseId pose) =>
         SamusPoseCollisionRadii.ReadVerticalRadius(pose);
 
-    /// <summary>Reads pose-definition byte zero, the direction byte other actors' AI reads back.</summary>
-    public static int ReadPoseXDirection(SamusState samus)
-    {
-        return ReadPoseXDirection(samus.InitializedPose);
-    }
-
-    /// <summary>
-    /// Reads pose-definition byte zero for an arbitrary pose. Transition
-    /// initializers compare the old and prospective records before publishing the new
-    /// pose, so making that distinction explicit avoids temporarily corrupting live state.
-    /// </summary>
-    public static int ReadPoseXDirection(SamusPoseId pose)
-    {
-        return SamusPoseRecordCodec.FacingByte(pose);
-    }
-
     /// <summary>The way the current pose faces.</summary>
     public static SamusFacingDirection ReadFacingDirection(SamusState samus) =>
         ReadFacingDirection(samus.InitializedPose);
@@ -73,7 +56,7 @@ internal static class SamusPoseMetadata
     public static SamusFacingDirection ReadFacingDirection(SamusPoseId pose) =>
         SamusPoseDispatch.ReadFacing(pose);
 
-    /// <summary>Whether the current pose faces <paramref name="direction"/>: pose-definition value four is left, eight right.</summary>
+    /// <summary>Whether the current pose faces <paramref name="direction"/>.</summary>
     public static bool IsFacing(SamusState samus, SamusFacingDirection direction) =>
         ReadFacingDirection(samus) == direction;
 
@@ -117,27 +100,17 @@ internal static class SamusPoseMetadata
         return SamusPoseDispatch.ReadNoInputPose(samus.Pose);
     }
 
-    /// <summary>
-    /// Reads pose-definition byte three, the ten-way arm-cannon direction consumed by
-    /// the normal-jump landing selector.
-    /// </summary>
-    public static int ReadShotDirection(SamusState samus)
-    {
-        return ReadShotDirection(samus.Pose);
-    }
+    /// <summary>What Samus's pose does with her arm cannon.</summary>
+    public static SamusPoseAim ReadAim(SamusState samus) => ReadAim(samus.Pose);
 
     /// <summary>
-    /// The direction Samus's pose aims her arm cannon, or none for a pose that restricts or forbids firing (turning,
-    /// shooting disabled, and the poses past the authored ones).
+    /// The direction Samus's pose aims her arm cannon, or none for a pose that fires nothing (turning, shooting
+    /// disabled, and the pose numbers past the authored poses).
     /// </summary>
-    public static SamusProjectileDirection? ReadAimDirection(SamusState samus) =>
-        SamusProjectileDirectionCodec.TryFromAimIndex(ReadShotDirection(samus.Pose));
+    public static SamusProjectileDirection? ReadAimDirection(SamusState samus) => ReadAim(samus).Direction;
 
-    /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
-    public static int ReadShotDirection(SamusPoseId pose)
-    {
-        return SamusPoseAimRestrictions.Read(pose);
-    }
+    /// <summary>What a current or prospective pose does with Samus's arm cannon.</summary>
+    public static SamusPoseAim ReadAim(SamusPoseId pose) => SamusPoseAims.Read(pose);
 
     /// <summary>
     /// Reads signed pose-definition byte four for presentation, including Grapple's flare.
@@ -277,7 +250,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the three poses whose artwork faces left while the moonwalking body travels
-    /// right. The naming is intentionally visual; <c>ReadPoseXDirection</c> returns eight.
+    /// right. The naming is intentionally visual; <see cref="ReadFacingDirection(SamusPoseId)"/> answers right.
     /// </summary>
     public static bool IsMoonwalkingFacingLeftPose(SamusPoseId pose) => IsMoonwalkingFacingRightPose(SamusPoseMirror.Of(pose));
 

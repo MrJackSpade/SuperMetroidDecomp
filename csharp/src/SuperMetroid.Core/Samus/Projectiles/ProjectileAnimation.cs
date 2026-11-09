@@ -124,11 +124,10 @@ internal sealed class ProjectileAnimation
     /// </summary>
     internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, int component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork)
     {
-        int direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (direction == SamusPoseAimDefinitions.ShootingDisabled)
+        if (SamusPoseMetadata.ReadAim(samus).Flare is not { } flare)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = ChargeFlarePose.RiseOf(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, cameraPosition, component, turningFloor, artwork, new ChargeFlarePose { Direction = ChargeFlarePlacements.Selection(flare), Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = ChargeFlarePose.RiseOf(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
@@ -136,7 +135,7 @@ internal sealed class ProjectileAnimation
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
-            .Resolve(pose.Running, pose.Direction & 0x0f); // magic-number-audit: allow(PoseOrMovement) - low nibble of the pose shot-direction byte
+            .Resolve(pose.Running, pose.Direction);
         int xOffset = visualOffset.X;
         int yOffset = visualOffset.Y;
 

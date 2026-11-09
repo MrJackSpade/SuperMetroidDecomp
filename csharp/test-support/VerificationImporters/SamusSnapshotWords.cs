@@ -39,7 +39,7 @@ internal static class SamusSnapshotWords
             return null;
         int tag = word & ~byte.MaxValue;
         return tag is NormalJumpShotTag or MoonwalkTurnShotTag
-            ? new SamusTransitionShot(word & byte.MaxValue)
+            ? new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordCodecTooling.DirectionOfAimByte(word & byte.MaxValue))
             : throw new InvalidDataException($"Transition shot word ${word:X4} carries no native initializer's tag.");
     }
 

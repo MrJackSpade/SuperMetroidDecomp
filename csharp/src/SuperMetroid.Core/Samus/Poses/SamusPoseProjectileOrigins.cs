@@ -5,7 +5,15 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>The projectile origin height of each pose.</summary>
 internal static class SamusPoseProjectileOrigins
 {
-    /// <summary>PoseDefinitions Y offset, record stride eight. Beam/Grapple calculations zero-extend this byte, including the drained pose's correction, which therefore reads as 252 rather than negative four.</summary>
-    internal static byte ReadYOffset(SamusPoseId pose) =>
-        YOffsets.ContainsKey(pose) ? YOffsets[pose] : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
+    /// <summary>
+    /// How far above Samus's centre the projectiles and Grapple of <paramref name="pose"/> start, in pixels, 0 through
+    /// 255: its authored height, or what a pose number past the authored poses reads
+    /// (<see cref="SamusUnauthoredPoseDefinitions"/>). The drained poses' height is 252: their correction lowers the
+    /// origin by four, which the beam and Grapple origins take as a height of 252 rather than four below the centre.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
+    internal static int ReadYOffset(SamusPoseId pose) =>
+        SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored) ? unauthored.ProjectileYOffset
+        : YOffsets.TryGetValue(pose, out int offset) ? offset
+        : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
 }

@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -79,7 +80,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     public static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
     {
         // The falling pose selection indexes its pair with PoseXDirection, not the muzzle direction.
-        // Moonwalk's visual facing opposes this physics byte; aim input is reconsidered
+        // Moonwalk's visual facing opposes this physics facing; aim input is reconsidered
         // by the next frame's input handler after this ordinary falling pose is installed.
         return SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
     }
@@ -179,8 +180,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         // Keeps the gun raised when both the old and new standing
         // initializer's poses aim straight up, including landing and its completion.
         return SamusPoseMetadata.ReadMovementType(targetPose) == SamusMovementType.Standing &&
-            SamusPoseMetadata.ReadShotDirection(sourcePose) is 0 or 9 &&
-            SamusPoseMetadata.ReadShotDirection(targetPose) is 0 or 9 ? 1 : 0;
+            SamusPoseMetadata.ReadAim(sourcePose).AimsStraightUp &&
+            SamusPoseMetadata.ReadAim(targetPose).AimsStraightUp ? 1 : 0;
     }
 
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>
@@ -196,27 +197,31 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 : SamusPoseId.SpinLandingRightPose;
         }
 
-        // Checks for no shot direction before indexing the landing table; hurt/damage-boost art
-        // deliberately stores that sentinel and lands through the ordinary facing pair.
-        // Horizontal directions two/seven take the landing's extra Shot-binding
-        // test. Held Shot selects the firing landing; released Shot selects the
-        // ordinary normal landing pair. The six admitted aim directions select the aimed landings.
+        // A pose that disables shooting lands through the ordinary facing pair before the
+        // landing table is consulted; hurt and damage-boost art disable shooting.
+        // Horizontal aims take the landing's extra Shot-binding test. Held Shot selects the
+        // firing landing; released Shot selects the ordinary normal landing pair. The six
+        // admitted aimed directions select the aimed landings.
+        SamusPoseAim aim = SamusPoseMetadata.ReadAim(samus);
+        if (aim.DisablesShooting)
+            return facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
         bool shotHeld = (controllerInput & ControllerButton.X) != ControllerButton.None;
-        return SamusPoseMetadata.ReadShotDirection(samus) switch
+        return aim.Direction switch
         {
-            0 => SamusPoseId.LandingAimUpRightPose,
-            1 => SamusPoseId.LandingAimDiagonalUpRightPose,
-            2 => shotHeld ? SamusPoseId.FiringLandingRightPose : SamusPoseId.NormalLandingRightPose,
-            3 => SamusPoseId.LandingAimDiagonalDownRightPose,
-            6 => SamusPoseId.LandingAimDiagonalDownLeftPose,
-            7 => shotHeld ? SamusPoseId.FiringLandingLeftPose : SamusPoseId.NormalLandingLeftPose,
-            8 => SamusPoseId.LandingAimDiagonalUpLeftPose,
-            9 => SamusPoseId.LandingAimUpLeftPose,
-            SamusMovementDefinitions.Poses.NoShotDirection => facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose,
-            // Directions four/five are consumed by TryApplyCompactAerialLanding,
+            SamusProjectileDirection.UpFacingRight => SamusPoseId.LandingAimUpRightPose,
+            SamusProjectileDirection.UpRight => SamusPoseId.LandingAimDiagonalUpRightPose,
+            SamusProjectileDirection.Right => shotHeld ? SamusPoseId.FiringLandingRightPose : SamusPoseId.NormalLandingRightPose,
+            SamusProjectileDirection.DownRight => SamusPoseId.LandingAimDiagonalDownRightPose,
+            SamusProjectileDirection.DownLeft => SamusPoseId.LandingAimDiagonalDownLeftPose,
+            SamusProjectileDirection.Left => shotHeld ? SamusPoseId.FiringLandingLeftPose : SamusPoseId.NormalLandingLeftPose,
+            SamusProjectileDirection.UpLeft => SamusPoseId.LandingAimDiagonalUpLeftPose,
+            SamusProjectileDirection.UpFacingLeft => SamusPoseId.LandingAimUpLeftPose,
+            // The straight-down aims are consumed by TryApplyCompactAerialLanding,
             // because the 10 -> 21 expansion needs room collision data.
-            int shotDirection => throw new InvalidOperationException(
-                $"Landing from shot direction ${shotDirection:X2} requires the collision-aware compact landing operation."),
+            SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => throw new InvalidOperationException(
+                $"Landing from aim {aim} requires the collision-aware compact landing operation."),
+            _ => throw new InvalidOperationException(
+                $"Landing from aim {aim} requires the collision-aware compact landing operation."),
         };
     }
 
@@ -255,12 +260,16 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             throw new InvalidOperationException($"Compact landing requires a compact straight-down jumping or falling pose, not {samus.Pose}.");
 
         SamusPoseId sourcePose = samus.Pose;
-        SamusPoseId targetPose = SamusPoseMetadata.ReadShotDirection(samus) switch
+        SamusPoseId targetPose = SamusPoseMetadata.ReadAimDirection(samus) switch
         {
-            4 => SamusPoseId.NormalLandingRightPose,
-            5 => SamusPoseId.NormalLandingLeftPose,
-            int shotDirection => throw new InvalidOperationException(
-                $"Compact pose {samus.Pose} has unexpected shot direction ${shotDirection:X2}."),
+            SamusProjectileDirection.DownFacingRight => SamusPoseId.NormalLandingRightPose,
+            SamusProjectileDirection.DownFacingLeft => SamusPoseId.NormalLandingLeftPose,
+            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or
+                SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft or SamusProjectileDirection.Left or
+                SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft => throw new InvalidOperationException(
+                $"Compact pose {samus.Pose} has unexpected aim {SamusPoseMetadata.ReadAim(samus)}."),
+            _ => throw new InvalidOperationException(
+                $"Compact pose {samus.Pose} has unexpected aim {SamusPoseMetadata.ReadAim(samus)}."),
         };
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
 

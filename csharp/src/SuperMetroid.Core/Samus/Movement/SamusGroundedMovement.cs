@@ -167,7 +167,7 @@ public static class SamusGroundedMovement
 
         // The horizontal speed calculation advances the split 16.16 base speed. The following
         // direction selector is shared by every horizontal movement family:
-        // modes zero and two obey the pose's direction byte, while every other nonzero
+        // modes zero and two obey the pose's facing, while every other nonzero
         // value reverses it. Mode one is therefore not an invalid running state; it is the
         // one-frame-old momentum that can survive a pose transition into this body. Do not
         // special-case it, even if another input-side transition has already changed the
@@ -250,8 +250,8 @@ public static class SamusGroundedMovement
         // the calculation clears both speed halves AND mode before the direction selector chooses direction.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
 
-        // Reads the pose definition rather than the English-facing name. Keeping
-        // the literal direction byte also preserves the game's behavior for unexpected
+        // Reads the pose's facing rather than the English-facing name. Keeping
+        // the pose's facing also preserves the game's behavior for unexpected
         // nonzero acceleration-mode values instead of manufacturing another unsupported arm.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });

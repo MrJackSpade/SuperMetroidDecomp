@@ -236,7 +236,7 @@ public sealed class SamusDrainedState
         samus.Position = samus.Position.WithWrappedWholeY(
             samus.Position.Y.Whole - CoordinateAxis.Wrap(21 - sourceRadius));
 
-        // Direction byte four is left; every other byte chooses the right-facing record.
+        // A left-facing pose chooses the left-facing record; every other facing chooses the right-facing one.
         // Read it before replacing the pose, exactly as the drained setup does.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         samus.Pose = facingLeft

@@ -56,7 +56,7 @@ internal static class SamusHudDefinitionsVerification
         }
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         Action<SamusState, ushort> setTurn = (state, turn) =>
-            state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(turn & byte.MaxValue);
+            state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordCodecTooling.DirectionOfAimByte(turn & byte.MaxValue));
         for (byte movement = 0; movement < 28; movement++)
         {
             SamusHudHandler handler = HandlerOf(rom, movement);

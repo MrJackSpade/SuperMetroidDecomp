@@ -364,8 +364,7 @@ internal sealed class BeamFiring
 
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
-        int direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
+        if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
         {
             _slotTable.ProjectileCounter = WrappingCounter.DecrementWord(_slotTable.ProjectileCounter);
             return new BeamShot(null, null);
@@ -452,8 +451,7 @@ internal sealed class BeamFiring
 
         // As for beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
-        int direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
+        if (SamusPoseMetadata.ReadAimDirection(samus) is not { } aim)
             return new BeamShot(null, null);
         slot.Direction = aim;
         slot.IsSpent = false;

@@ -318,7 +318,7 @@ internal static void VerifySamusBlockCollision()
     // Unlike the ownerless topology fixtures above, a live Samus-owned kinematics child
     // must publish the exact `$94:8E83/$8ECF/$8F0A` spike damage before clipping. Exercise
     // every damaging table entry plus the harmless entry two with an identical floor hit.
-    WritePoseDefinitionByte(bus, SamusPoseNumbers.Number(SamusPoseId.FacingRightNormalPose), 0, (byte)SamusFacingDirection.Right);
+    WritePoseDefinitionByte(bus, SamusPoseNumbers.Number(SamusPoseId.FacingRightNormalPose), 0, SamusPoseRecordCodecTooling.FacingByte(SamusPoseId.FacingRightNormalPose));
     foreach ((byte spikeBehavior, ushort expectedDamage) in new SamusTerrainMovementVerifySamusBlockCollisionCase[]
     {
         new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.Heavy,
@@ -1608,7 +1608,7 @@ internal static void VerifySamusMoonwalking()
         "ordinary standing turn does not publish moonwalk shot bridge");
     var moonwalkBridge = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
     SamusGroundedPoseTransitions.ApplyGroundedTurn(moonwalkBridge, SamusPoseId.TurningRightToLeftPose);
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(2), moonwalkBridge.PendingTransitionShot,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), moonwalkBridge.PendingTransitionShot,
         "moonwalk turn hands over the source shot direction");
     SamusAerialPoseTransitions.DropPendingTransitionShot(moonwalkBridge);
     AssertEqual<SamusTransitionShot?>(null, moonwalkBridge.PendingTransitionShot,
@@ -1713,7 +1713,7 @@ floor, walker, frameCounter: 0);
         SamusPoseMetadata.RefreshCollisionRadii(turn);
         turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
-        int sourceMuzzleDirection = SamusPoseMetadata.ReadShotDirection(turn);
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection? sourceMuzzleDirection = SamusPoseMetadata.ReadAimDirection(turn);
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
         AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection),
             turn.PendingTransitionShot, "all six Moonwalk jump routes publish their original muzzle direction");
@@ -1812,7 +1812,7 @@ internal static void VerifySamusRanIntoWall()
     for (byte direction = 0; direction < selectedByShotDirection.Length; direction++)
     {
         SamusPoseId sourcePose = nativePosesByShotDirection[direction];
-        AssertEqual(direction, SamusPoseMetadata.ReadShotDirection(sourcePose),
+        AssertEqual(SamusPoseAim.Aiming(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionCodec.FromAimIndex(direction)), SamusPoseMetadata.ReadAim(sourcePose),
             $"ran-into-wall fixture pose ${(int)SamusPoseNumbers.Number(sourcePose):X2} aim");
         AssertEqual(
             selectedByShotDirection[direction],

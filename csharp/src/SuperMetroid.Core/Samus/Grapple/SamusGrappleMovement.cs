@@ -563,7 +563,7 @@ public static class SamusGrappleMovement
         }
 
         // The wall-jump probe tests solid/frozen enemies first, then 16 pixels of room blocks toward
-        // the wall named by the contact pose's direction byte. The shared probe preserves
+        // the wall named by the contact pose's facing. The shared probe preserves
         // square slopes, behaviour dispatch, available distance, and enemy identity.
         SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromParts(
             SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -WallJumpProbePixels : WallJumpProbePixels, 0);

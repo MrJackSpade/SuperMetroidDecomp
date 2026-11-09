@@ -6,15 +6,20 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseDispatch
 {
     /// <summary>
-    /// The pose's facing, from the PoseDefinitions facing byte. Poses whose byte names neither left nor right
-    /// (the front view, the unused glitch-ball records and two adjacent-code records) face neither way.
+    /// The way the pose faces: its authored facing, or what a pose number past the authored poses reads
+    /// (<see cref="SamusUnauthoredPoseDefinitions"/>). The front views face neither way.
     /// </summary>
-    internal static SamusFacingDirection ReadFacing(SamusPoseId pose) => pose switch
+    internal static SamusFacingDirection ReadFacing(SamusPoseId pose) =>
+        SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored)
+            ? unauthored.Facing
+            : ReadAuthoredFacing(pose);
+
+    /// <summary>The way an authored pose faces.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The pose is a pose number past the authored poses.</exception>
+    private static SamusFacingDirection ReadAuthoredFacing(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
-        SamusPoseId.ForwardFacingSuitedPose or
-        SamusPoseId.AdjacentCodePoseFE or
-        SamusPoseId.AdjacentCodePoseFF => SamusFacingDirection.ForwardOrSpecial,
+        SamusPoseId.ForwardFacingSuitedPose => SamusFacingDirection.ForwardOrSpecial,
         SamusPoseId.FacingLeftNormalPose or
         SamusPoseId.StandingAimUpLeftPose or
         SamusPoseId.StandingAimDiagonalUpLeftPose or
@@ -245,9 +250,11 @@ internal static class SamusPoseDispatch
         SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
-        SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
-        // The adjacent-code record FD happens to read the right-facing byte.
-        SamusPoseId.AdjacentCodePoseFD => SamusFacingDirection.Right,
+        SamusPoseId.StandingTransitionAimDiagonalDownRightPose => SamusFacingDirection.Right,
+        SamusPoseId.AdjacentCodePoseFD or
+        SamusPoseId.AdjacentCodePoseFE or
+        SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(
+            nameof(pose), pose, "A pose number past the authored poses reads its facing from what follows the definitions."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 

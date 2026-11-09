@@ -59,9 +59,9 @@ public sealed class SamusState
     } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
-    /// The pose whose definition bytes zero and one the pose initializer last copied to
-    /// the cached X direction and movement type. Movement dispatch and camera
-    /// tracking read those cached bytes, not the live pose.
+    /// The pose whose facing and movement type the pose initializer last copied to
+    /// the cached facing and movement type. Movement dispatch and camera
+    /// tracking read those cached values, not the live pose.
     /// </summary>
     public SamusPoseId InitializedPose { get; private set; } = SamusPoseId.FacingRightNormalPose;
 

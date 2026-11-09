@@ -35,12 +35,6 @@ public static class SamusMovementDefinitions
         /// whose fallback names <see cref="SamusPoseId.AdjacentCodePoseFF"/> retains its pose.
         /// </summary>
         public const SamusPoseId RetainCurrentPoseFallback = SamusPoseId.AdjacentCodePoseFF;
-
-        /// <summary>
-        /// The pose definition's shot direction is absent: the pose has no shot direction. Hurt and
-        /// damage-boost art store it, and the landing transition lands them through the facing pair.
-        /// </summary>
-        public const int NoShotDirection = 255;
     }
 
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>

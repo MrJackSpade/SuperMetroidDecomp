@@ -158,8 +158,8 @@ public sealed class SamusCrystalFlashState
             return false;
         }
 
-        // Crystal Flash considers direction byte four left and every other value right.
-        // Read that byte from the source pose before replacing it with Crystal Flash art.
+        // Crystal Flash takes a left-facing pose as left and every other facing as right.
+        // Read the facing from the source pose before replacing it with Crystal Flash art.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.CrystalFlashLeftPose

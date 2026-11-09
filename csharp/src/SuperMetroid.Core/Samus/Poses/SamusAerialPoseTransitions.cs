@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -54,7 +55,7 @@ internal static class SamusAerialPoseTransitions
             SamusPoseMetadata.IsLeftFacingNormalJumpPose(targetPose);
         bool compactJumpSource = SamusPoseMetadata.IsSpinJumpPose(sourcePose) || SamusPoseMetadata.IsWallJumpPose(sourcePose);
         if (!compactJumpSource || !normalJumpTarget ||
-            SamusPoseMetadata.ReadPoseXDirection(sourcePose) != SamusPoseMetadata.ReadPoseXDirection(targetPose))
+            SamusPoseMetadata.ReadFacingDirection(sourcePose) != SamusPoseMetadata.ReadFacingDirection(targetPose))
         {
             // The six spin/Space/Screw tables and two wall-jump tables emit only same-facing
             // normal-jump records when aim or Shoot cancels rotation. A different movement
@@ -108,7 +109,7 @@ internal static class SamusAerialPoseTransitions
         // Publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
         if ((controllerNewInput & ControllerButton.X) != ControllerButton.None)
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadShotDirection(samus));
+            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -125,7 +126,7 @@ internal static class SamusAerialPoseTransitions
     /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until the next alpha pass.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
-    /// <exception cref="InvalidDataException">The source pose's shot-direction metadata is outside zero through nine.</exception>
+    /// <exception cref="InvalidDataException">The source pose aims in no shot direction.</exception>
     public static bool TryApplyAerialTurn(SamusState samus, 
 
         RoomLevelData level,
@@ -152,34 +153,34 @@ internal static class SamusAerialPoseTransitions
                 $"Aerial turn {sourcePose} -> {genericTargetPose} is not a verified type-2/type-6 transition.");
         }
 
-        // These are literal copies of the two aerial turn tables. Directions four and five
-        // are not typos: compact down-aim sources reuse the jumping or falling down-aim turns
+        // These are literal copies of the two aerial turn tables. The straight-down aims are
+        // not typos: compact down-aim sources reuse the jumping or falling down-aim turns
         // according to facing. Retaining all ten entries preserves aim through the turn.
-        int shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
+        SamusProjectileDirection? shotDirection = SamusPoseMetadata.ReadAimDirection(samus);
         SamusPoseId selectedTurnPose = jumping
             ? shotDirection switch
             {
-                0 => SamusPoseId.TurningRightToLeftJumpAimUpPose,
-                1 => SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose,
-                2 => SamusPoseId.TurningRightToLeftJumpPose,
-                3 or 4 => SamusPoseId.TurningRightToLeftJumpAimDownPose,
-                5 or 6 => SamusPoseId.TurningLeftToRightJumpAimDownPose,
-                7 => SamusPoseId.TurningLeftToRightJumpPose,
-                8 => SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose,
-                9 => SamusPoseId.TurningLeftToRightJumpAimUpPose,
-                _ => throw new InvalidDataException($"Jump pose {sourcePose} has invalid shot direction ${shotDirection:X2}."),
+                SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftJumpAimUpPose,
+                SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose,
+                SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftJumpPose,
+                SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight => SamusPoseId.TurningRightToLeftJumpAimDownPose,
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightJumpAimDownPose,
+                SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightJumpPose,
+                SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose,
+                SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightJumpAimUpPose,
+                _ => throw new InvalidDataException($"Jump pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)})."),
             }
             : shotDirection switch
             {
-                0 => SamusPoseId.TurningRightToLeftFallingAimUpPose,
-                1 => SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose,
-                2 => SamusPoseId.TurningRightToLeftFallingPose,
-                3 or 4 => SamusPoseId.TurningRightToLeftFallingAimDownPose,
-                5 or 6 => SamusPoseId.TurningLeftToRightFallingAimDownPose,
-                7 => SamusPoseId.TurningLeftToRightFallingPose,
-                8 => SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose,
-                9 => SamusPoseId.TurningLeftToRightFallingAimUpPose,
-                _ => throw new InvalidDataException($"Fall pose {sourcePose} has invalid shot direction ${shotDirection:X2}."),
+                SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftFallingAimUpPose,
+                SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose,
+                SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftFallingPose,
+                SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight => SamusPoseId.TurningRightToLeftFallingAimDownPose,
+                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightFallingAimDownPose,
+                SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightFallingPose,
+                SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose,
+                SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightFallingAimUpPose,
+                _ => throw new InvalidDataException($"Fall pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)})."),
             };
 
         if ((turnsLeft && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
@@ -349,8 +350,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 $"Grapple wall jump requires a grapple wall-contact pose, not {samus.Pose}.");
         }
 
-        // Tests the contact pose's X-direction byte, not its descriptive
-        // wall side. Direction eight selects the left wall jump; direction four selects the right.
+        // Tests the contact pose's facing, not its descriptive wall side. Facing right selects
+        // the left wall jump; any other facing selects the right.
         samus.Pose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
@@ -891,7 +892,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // Runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction and hands it to the weapon handler; spin-jump's separate
             // initializer never publishes this bridge even when Shoot and Jump share a frame.
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadShotDirection(samus));
+            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
         }
     }
 
@@ -928,7 +929,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & ControllerButton.X) != ControllerButton.None)
-            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadShotDirection(samus));
+            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadAimDirection(samus));
     }
 
     /// <summary>

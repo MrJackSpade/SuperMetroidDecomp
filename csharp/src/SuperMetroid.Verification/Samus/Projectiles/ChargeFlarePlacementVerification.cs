@@ -123,9 +123,9 @@ internal static class ChargeFlarePlacementVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, direction), $"standing flare selection {direction} past the turning placements is rejected");
         }
         AssertTrue(Enumerable.Range(0, byte.MaxValue + 1).Where(SamusPoseNumbering.NamesPose)
-            .Select(number => SamusPoseMetadata.ReadShotDirection(SamusPoseNumbering.FromNumber(number)))
-            .Where(shot => shot != byte.MaxValue)
-            .All(shot => (shot & 15) < ChargeFlarePlacementDefinitions.StandingDirectionCount),
+            .Select(number => SamusPoseMetadata.ReadAim(SamusPoseNumbering.FromNumber(number)).Flare)
+            .OfType<SamusFlareAim>()
+            .All(flare => ChargeFlarePlacements.Selection(flare) < ChargeFlarePlacementDefinitions.StandingDirectionCount),
             "no pose's shot direction selects past the turning placements");
         var subject = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);

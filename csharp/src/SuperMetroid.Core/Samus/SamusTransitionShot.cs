@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Samus;
 public readonly record struct SamusTransitionShot
 {
     /// <summary>
-    /// Hands over the shot of a pose whose definition gives <paramref name="poseShotDirection"/> as its shot direction:
-    /// one of the ten aims, or a turning or no-fire restriction, which hands over a shot with no aim.
+    /// Hands over the shot of a pose aiming in <paramref name="aim"/>: one of the ten aims, or none for a pose that
+    /// fires nothing, which hands over a shot with no aim.
     /// </summary>
-    public SamusTransitionShot(int poseShotDirection) => Aim = SamusProjectileDirectionCodec.TryFromAimIndex(poseShotDirection);
+    public SamusTransitionShot(SamusProjectileDirection? aim) => Aim = aim;
 
     /// <summary>
     /// The direction the shot leaves in, or null when the pose that handed it over names no aim. No retail transition

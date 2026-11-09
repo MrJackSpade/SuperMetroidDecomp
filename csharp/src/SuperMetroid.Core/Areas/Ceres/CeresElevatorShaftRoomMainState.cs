@@ -109,7 +109,7 @@ public sealed class CeresElevatorShaftRoomMainState
             // facing, refreshes pose radii/animation, seeds the
             // 60-frame elevator hold, then locks Samus's input. The hold is
             // owned by the frontend dispatcher; everything Samus-visible remains here.
-            bool facingLeft = SamusPoseMetadata.ReadPoseXDirection(samus) == 4;
+            bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
             samus.Pose = facingLeft
                 ? SamusPoseId.FacingLeftNormalPose
                 : SamusPoseId.FacingRightNormalPose;

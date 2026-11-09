@@ -614,9 +614,9 @@ internal sealed class SamusPoseTransitionPhase
                 SamusPosturePoseTransitions.ApplySpringBallJump(samus, target);
                 return true;
             case var (source, target)
-                when ((SamusPoseMetadata.ReadPoseXDirection(source) == 8 &&
+                when ((SamusPoseMetadata.ReadFacingDirection(source) == SamusFacingDirection.Right &&
                        target == SamusPoseId.MorphingTransitionRightPose) ||
-                      (SamusPoseMetadata.ReadPoseXDirection(source) == 4 &&
+                      (SamusPoseMetadata.ReadFacingDirection(source) == SamusFacingDirection.Left &&
                        target == SamusPoseId.MorphingTransitionLeftPose) ||
                       (SamusPoseMetadata.IsStableBallPose(source) &&
                        target is SamusPoseId.UnmorphingTransitionRightPose or

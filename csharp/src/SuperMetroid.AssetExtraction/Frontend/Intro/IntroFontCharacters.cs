@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
@@ -8,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// The installed opening-narration font as the import pipeline reads it (#1409): the 144 glyph tiles compiled to SNES
 /// two-bit planar characters, which the intro font tile sheet composes from.
 /// </summary>
-public sealed class IntroFontCharacters : IntroFontAtlas
+public sealed class IntroFontCharacters
 {
     /// <summary>Canonical opening-font PNG file name.</summary>
     public const string FileName = "intro-font.png";
@@ -54,9 +53,4 @@ public sealed class IntroFontCharacters : IntroFontAtlas
         }
         return new(planar);
     }
-
-    /// <summary>The characters <paramref name="font"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The font was not read from installed artwork.</exception>
-    public static IntroFontCharacters Of(IntroFontAtlas font) => font as IntroFontCharacters
-        ?? throw new InvalidDataException("The opening font was not read from installed artwork.");
 }

@@ -76,7 +76,7 @@ internal static class EndingShootingStarsTests
         scene.InstalledArtwork.BindFixtureObjectArtwork(installed.LoadEndingObjectArt());
         scene.InstalledArtwork.BindBackdrops(installed.LoadEndingBackdrops());
         scene.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
-        scene.Stage.BindEndingFont(maps.EndingFont); scene.InstalledArtwork.BindEndingText(maps.EndingText);
+        scene.InstalledArtwork.BindEndingText(maps.EndingText);
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
         scene.CreditsRoll.SetupPostCreditsBlank();
         var seen = new HashSet<EndingCreditsPhase>();

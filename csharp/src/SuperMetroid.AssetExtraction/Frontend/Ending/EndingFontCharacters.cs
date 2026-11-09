@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
@@ -8,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The installed ending font as the import pipeline reads it (#1409): its selected glyph pixels, held as the calculable
 /// glyph footprint and the pixels that differ from it, compiled to SNES 4-bpp characters for the ending's sheets.
 /// </summary>
-public sealed class EndingFontCharacters : EndingFontAtlas
+public sealed class EndingFontCharacters
 {
     /// <summary>Selected fill-ink footprint for calculable alphabet and digit outlines.</summary>
     internal readonly HashSet<int> glyphFootprint = new();
@@ -16,7 +15,7 @@ public sealed class EndingFontCharacters : EndingFontAtlas
     internal readonly Dictionary<int, byte> pixels = new();
     /// <summary>Separates calculable glyph ink from independently required or edited pixels.</summary>
     /// <param name="supplied">The font's row-major pixel indices.</param>
-    internal EndingFontCharacters(byte[] supplied) : base(supplied.Length / (EndingFontAtlasFormat.TileSize * EndingFontAtlasFormat.TileSize))
+    internal EndingFontCharacters(byte[] supplied)
     {
         for (int pixel = 0; pixel < supplied.Length; pixel++)
             if (EndingFontAtlasFormat.IsOutlinedAlphabetPixel(pixel) && supplied[pixel] == EndingFontAtlasFormat.GlyphFillInk)
@@ -51,9 +50,4 @@ public sealed class EndingFontCharacters : EndingFontAtlas
                 $"Ending font compiled to {planar.Length} bytes; expected {EndingFontAtlasFormat.ByteCount}.");
         return new(image.Pixels);
     }
-
-    /// <summary>The characters <paramref name="font"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The font was not read from installed artwork.</exception>
-    public static EndingFontCharacters Of(EndingFontAtlas font) => font as EndingFontCharacters
-        ?? throw new InvalidDataException("The ending font was not read from installed artwork.");
 }

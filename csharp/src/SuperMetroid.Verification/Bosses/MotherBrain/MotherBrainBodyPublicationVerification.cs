@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Hud;
@@ -37,14 +38,14 @@ internal static class MotherBrainBodyPublicationVerification
             "phase one publishes no body over the pipe background");
 
         // Phase two: the transition reveals her body as it stands (#1515); her posture scroll places it.
-        ushort[] staged = Words(runtime.Enemies.Presentation.RequireBossBody().Publish(), runtime);
+        ushort[] staged = Words(runtime.Enemies.Presentation.RequireBossBody().Publish());
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(unchecked((ushort)-27), unchecked((ushort)-217));
         state.PlacesBodyLayer = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         BossBodyLayer image = runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException("The phase-two transition publishes her body image.");
-        AssertTrue(Words(image, runtime).SequenceEqual(staged), "phase two publishes her body as it stood");
+        AssertTrue(Words(image).SequenceEqual(staged), "phase two publishes her body as it stood");
         AssertEqual(new MotherBrainBodyPlacement(state.BodyLayerPlacement, false), runtime.Display.Latched.Bosses.MotherBrainBody,
             "phase two publishes her body at her posture scroll");
         AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
@@ -73,8 +74,10 @@ internal static class MotherBrainBodyPublicationVerification
         return 0;
     }
 
-    /// <summary>The tilemap entry each cell of Mother Brain's <paramref name="layer"/> shows, from the frames the runtime's artwork installs (#1466).</summary>
-    private static ushort[] Words(BossBodyLayer layer, SuperMetroidRuntime runtime) =>
-        BossBodyWords.Of(layer, BossBodyOwner.MotherBrain, runtime.BossArtwork.Artwork
-            ?? throw new InvalidOperationException("The runtime installs boss artwork."));
+    /// <summary>
+    /// The tilemap entry each cell of Mother Brain's <paramref name="layer"/> shows, from the installation's frames her
+    /// installed body sheet is composed from (#1466, #1583).
+    /// </summary>
+    private static ushort[] Words(BossBodyLayer layer) =>
+        BossBodyWords.Of(layer, BossBodyOwner.MotherBrain, InstalledFixtures.BossArtwork);
 }

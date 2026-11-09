@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
+/// <summary>The ending's installed artwork: its text, staff credits, turning floor, object and palette assets.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingArtwork
 {
@@ -56,11 +56,10 @@ internal sealed class EndingArtwork
     internal void RequireEscapeCloudArtwork() =>
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Escape clouds require installed object artwork.");
 
-    /// <summary>Requires the installed artwork the explosion's pictures show: its objects and the ending font.</summary>
+    /// <summary>Requires the installed artwork the explosion's pictures show: its objects.</summary>
     internal void RequireExplosionArtwork()
     {
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Ending objects require installed artwork.");
-        _ = _stage.ResolveEndingFont();
     }
 
     /// <summary>
@@ -73,7 +72,6 @@ internal sealed class EndingArtwork
             return;
 
         _stage.LoadColours(EndingColourLoad.Credits);
-        _ = _stage.ResolveEndingFont();
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Post-credits scenes require installed object artwork.");
 
         creditsColoursShown = true;

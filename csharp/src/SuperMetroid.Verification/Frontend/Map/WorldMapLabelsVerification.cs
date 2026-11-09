@@ -20,8 +20,8 @@ internal static class WorldMapLabelsVerification
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));
         var guard = NewWorldLabelReadGuard(bus);
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
-        var native = new FileSelectAreaMapGraphics(0, original.Backdrops, original.WorldArtwork, MenuSheetFixtures.For(original));
-        var installed = new FileSelectAreaMapGraphics(0, original.Backdrops, original.WorldArtwork, MenuSheetFixtures.For(original));
+        var native = new FileSelectAreaMapGraphics(0, original.Backdrops, MenuSheetFixtures.For(original));
+        var installed = new FileSelectAreaMapGraphics(0, original.Backdrops, MenuSheetFixtures.For(original));
         native.BindLabels(original.Labels);
         installed.BindLabels(original.Labels);
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)

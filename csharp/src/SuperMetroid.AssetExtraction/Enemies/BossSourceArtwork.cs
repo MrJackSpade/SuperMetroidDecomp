@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
@@ -17,20 +17,20 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The bosses' installed artwork as the import pipeline holds it (#1463, #1466): beside what gameplay reads, the characters
-/// the bosses' pre-coloured pictures are composed from (Crocomire's skeleton, Torizo's artwork swaps, Mother Brain's escape
-/// text and special pages), the frames their body sheets are composed from (Kraid's body and head tilemaps, Phantoon's,
+/// The bosses' installed artwork as the import pipeline holds it (#1463, #1466, #1583): beside Kraid's eye colours, the one
+/// part the game binds, the characters the bosses' pre-coloured pictures are composed from (Crocomire's skeleton, Torizo's
+/// artwork swaps, Mother Brain's escape text and special pages), the frames their body sheets are composed from (Kraid's body and head tilemaps, Phantoon's,
 /// Draygon's, Crocomire's and Mother Brain's body-layer frames, Crocomire's melts), and the identity of the whole selected
 /// boss presentation.
 /// </summary>
-public sealed record BossSourceArtwork : BossArtworkCatalog
+public sealed record BossSourceArtwork
 {
     /// <summary>Five editable Crocomire transfer images, which the import pre-colours Crocomire's sheets in (#1512); fight and death phases stay compiled.</summary>
     public CrocomireColorCatalog? CrocomireColors { get; init; }
 
     /// <summary>
     /// Kraid's installed colours, which the import pre-colours his sheets and room in (#1512); setting them also sets the
-    /// eye colours gameplay reads back. Null only for constructed fixtures.
+    /// eye colours gameplay reads back (<see cref="KraidEyes"/>). Null only for constructed fixtures.
     /// </summary>
     public KraidColorCatalog? KraidColors
     {
@@ -41,6 +41,9 @@ public sealed record BossSourceArtwork : BossArtworkCatalog
             KraidEyes = value?.Eyes();
         }
     }
+
+    /// <summary>Kraid's installed eye colours, which the game binds for his eye glow (#1512); null only for constructed fixtures.</summary>
+    public KraidEyeColours? KraidEyes { get; private init; }
 
     /// <summary>Editable Mother Brain death-fade colours, which the import pre-colours her sheets in (#1512).</summary>
     public MotherBrainDeathColorCatalog? MotherBrainDeathColors { get; init; }

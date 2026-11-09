@@ -48,9 +48,6 @@ internal sealed record AreaMapPresentationParts
     public required MapArrowPresentation Arrows { get; init; }
 
 
-    /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
-    public required WorldMapArtwork WorldArtwork { get; init; }
-
     /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public required PauseSelectorPresentation PauseSelectors { get; init; }
 
@@ -78,18 +75,9 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Opening narration text and presentation, separate from its selected font characters.</summary>
     public required IntroNarrationPresentation IntroNarration { get; init; }
 
-    /// <summary>Selected opening-narration character artwork used with <see cref="IntroNarration"/>.</summary>
-    public required IntroFontAtlas IntroFont { get; init; }
-
     /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
     public required EndingTypewriterText EndingText { get; init; }
 
-    /// <summary>Selected character artwork for ending text and its font transfers.</summary>
-    public required EndingFontAtlas EndingFont { get; init; }
-
-
-    /// <summary>Title turning-floor characters and tilemap, sprite characters, and Baby character artwork selected from their extracted files.</summary>
-    public required TitleGraphicsPresentation TitleGraphics { get; init; }
 
     /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>
     public required RgbColor TitleBackdrop { get; init; }

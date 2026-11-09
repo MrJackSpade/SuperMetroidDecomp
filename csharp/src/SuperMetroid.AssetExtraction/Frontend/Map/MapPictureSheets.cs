@@ -94,7 +94,7 @@ internal static class MapPictureSheets
         ScreenPictureSheetComposer.Compose(
             [ScreenPictureSubject.Page(AreaMapPictures.WorldForegroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldForeground),
                 MapScreenDefinitions.PageColumns)],
-            new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters()),
+            new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, InstalledAreaMapPresentation.WorldCharactersOf(maps).ForegroundCharacters()),
             ImportAreaMapPresentation.PalettesOf(maps).World(area));
 
     /// <summary><paramref name="area"/>'s world-map background sheet under its world-map palette: its background page.</summary>
@@ -102,7 +102,7 @@ internal static class MapPictureSheets
         ScreenPictureSheetComposer.Compose(
             [ScreenPictureSubject.Page(AreaMapPictures.WorldBackgroundFrame, InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.WorldBackground(area)),
                 MapScreenDefinitions.PageColumns)],
-            new ScreenCharacters(TileInkDepth.FourColours).Place(0, WorldMapCharacters.Of(maps.WorldArtwork).BackgroundCharacters()),
+            new ScreenCharacters(TileInkDepth.FourColours).Place(0, InstalledAreaMapPresentation.WorldCharactersOf(maps).BackgroundCharacters()),
             ImportAreaMapPresentation.PalettesOf(maps).World(area));
 
     /// <summary>The frames a room-map sheet must hold.</summary>

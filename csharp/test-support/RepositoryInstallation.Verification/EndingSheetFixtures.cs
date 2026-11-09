@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
@@ -73,7 +74,7 @@ internal static class EndingSheetFixtures
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
-            sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, colours, maps.EndingFont, ImportAreaMapPresentation.RoomPaletteFxOf(maps)),
+            sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, colours, InstalledAreaMapPresentation.EndingFontOf(maps), ImportAreaMapPresentation.RoomPaletteFxOf(maps)),
                 $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{tag}");
         // The ending's background pictures and floors are pre-coloured from these objects, colours and maps (#1392, #1467).
         var tileSources = new ScreenTileSources(() => maps, () => InstalledFixtures.IntroArtwork, () => objects, () => colours,

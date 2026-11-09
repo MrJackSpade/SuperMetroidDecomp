@@ -1,6 +1,6 @@
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidBodyFixtures
 {
     /// <summary>The working map <paramref name="artwork"/>'s Kraid BG2 sources compose, as tilemap entries.</summary>
-    internal static ushort[] WorkingMap(BossArtworkCatalog artwork) =>
+    internal static ushort[] WorkingMap(BossSourceArtwork artwork) =>
         BackgroundTileWordBytes.Words(KraidWorkingMap.Compose(Art(artwork)));
 
     /// <summary>
@@ -21,9 +21,9 @@ internal static class KraidBodyFixtures
     /// appears and, while it shows, his head's current pose above it or, before his head shows one, the head his body rises
     /// with, as the import's frames of Kraid's body sheet write them, over his blank.
     /// </summary>
-    internal static ushort[] Shown(BossArtworkCatalog artwork, KraidEnemyState state)
+    internal static ushort[] Shown(BossSourceArtwork artwork, KraidEnemyState state)
     {
-        Dictionary<string, BossBodyFrameSource> frames = BossBodySheetComposer.Frames(artwork.Sources, Enemies.BossBodies.BossBodyOwner.Kraid)
+        Dictionary<string, BossBodyFrameSource> frames = BossBodySheetComposer.Frames(Ensure.NotNull(artwork), Enemies.BossBodies.BossBodyOwner.Kraid)
             .ToDictionary(frame => frame.Name, StringComparer.Ordinal);
         var words = new ushort[Enemies.BossBodies.BossBodyWords.KraidLayerRows * BossBodySourceDefinitions.LayerColumns];
         words.AsSpan().Fill(KraidWorkingMapDefinitions.BlankTile.PackedWord);
@@ -58,6 +58,6 @@ internal static class KraidBodyFixtures
     }
 
     /// <summary>The installed Kraid BG2 artwork in <paramref name="artwork"/>.</summary>
-    private static KraidBackgroundArtwork Art(BossArtworkCatalog artwork) =>
-        artwork.Sources.KraidBackground ?? throw new InvalidOperationException("The boss artwork has no Kraid BG2 sources.");
+    private static KraidBackgroundArtwork Art(BossSourceArtwork artwork) =>
+        Ensure.NotNull(artwork).KraidBackground ?? throw new InvalidOperationException("The boss artwork has no Kraid BG2 sources.");
 }

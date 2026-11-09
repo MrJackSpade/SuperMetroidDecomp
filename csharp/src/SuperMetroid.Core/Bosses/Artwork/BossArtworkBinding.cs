@@ -2,6 +2,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Bosses.Kraid;
 
 namespace SuperMetroid.Core.Bosses.Artwork;
 
@@ -11,8 +12,11 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 /// </summary>
 public sealed class BossArtworkBinding
 {
-    /// <summary>The installed boss artwork, or null before any is installed.</summary>
-    public BossArtworkCatalog? Artwork { get; set; }
+    /// <summary>
+    /// Kraid's installed eye colours, which his eye glow reads back (#1512), or null before any are installed; the rest of
+    /// the bosses' installed artwork is pre-coloured into their sheets by the import (#1583).
+    /// </summary>
+    public KraidEyeColours? KraidEyes { get; set; }
 
     /// <summary>Mother Brain's installed rainbow-beam colors, bound with the map presentation.</summary>
     public MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors { get; set; }

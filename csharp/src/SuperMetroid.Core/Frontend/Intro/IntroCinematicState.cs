@@ -35,7 +35,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
         {
             NarrationPresentation = artwork.MapPresentation?.IntroNarration;
-            BindIntroFont(artwork.MapPresentation?.IntroFont);
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindCharacterArtwork(artwork.IntroCinematicArt);
@@ -80,8 +79,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         set => flashbackProjectiles.Animation.FrameBindings = value;
     }
 
-    /// <summary>Installed first-font transfer rebound whenever the game is bound to its installed content.</summary>
-    internal IntroFontAtlas? IntroFont { get; private set; }
     /// <summary>Installed background, object, and palette content for the intro scenes.</summary>
     internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
     /// <summary>Installed Samus body graphics rebound into active flashback actors.</summary>
@@ -108,8 +105,6 @@ public sealed class IntroCinematicState : IFrontendScreen
             CurrentObjects?.BindNarration(value);
         }
     }
-    /// <summary>Binds the installed opening font when the game is bound to its installed content.</summary>
-    public void BindIntroFont(IntroFontAtlas? value) => IntroFont = value;
     /// <summary>Binds the installed background and sprite pictures when the game is bound to its installed content.</summary>
     public void BindCharacterArtwork(IntroCinematicArtwork? value)
     {
@@ -221,14 +216,12 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// the egg's shell fragments fall by past their gravity curve.
     /// </param>
     /// <param name="audio">Optional audio state that owns queued music and sound effects.</param>
-    /// <param name="introFont">The installed opening-cinematic font atlas.</param>
     /// <param name="characterArtwork">The installed opening-cinematic background and sprite artwork.</param>
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting.</param>
     public IntroCinematicState(
         IntroCinematicOverreads overreads,
         AudioQueues? audio = null,
-        IntroFontAtlas? introFont = null,
         IntroCinematicArtwork? characterArtwork = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null,
         bool japaneseText = false)
@@ -240,13 +233,11 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;
-        IntroFont = introFont ?? throw new InvalidOperationException(
-            "Opening cinematic requires the installed font atlas.");
         CharacterArtwork = characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork.");
         this.samusBodyArtwork = samusBodyArtwork;
 
-        // Setup loads the font and sprite sheets the intro binds; the first narration card, the scene pages and
+        // Setup loads the sprite sheets the intro binds; the narration, the first narration card, the scene pages and
         // the portrait are installed pictures (#1467).
         objectSprites = new ScreenSprites();
 

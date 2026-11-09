@@ -104,7 +104,7 @@ internal static class EndingPictureSheetComposer
     {
         AreaMapPresentation maps = sources.Maps;
         CreditsPresentation credits = InstalledAreaMapPresentation.StaffCreditsOf(maps);
-        ReadOnlySpan<byte> font = EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
+        ReadOnlySpan<byte> font = InstalledAreaMapPresentation.EndingFontOf(maps).Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
         RequireBlank(font);
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
         characters.Load(EndingTextLayerDefinitions.FontFirstCharacter, font);
@@ -148,7 +148,7 @@ internal static class EndingPictureSheetComposer
     {
         EndingObjectSourceArtwork objects = sources.EndingObjects;
         EndingTextPresentation text = InstalledAreaMapPresentation.EndingTextOf(sources.Maps);
-        ReadOnlySpan<byte> font = EndingFontCharacters.Of(sources.Maps.EndingFont).Characters.Span;
+        ReadOnlySpan<byte> font = InstalledAreaMapPresentation.EndingFontOf(sources.Maps).Characters.Span;
         RequireBlank(font);
         // The waiting layer shows the waiting characters; the logo layer, the logo's.
         var waiting = new Characters(RoomTileCanvas.CharacterBytes);

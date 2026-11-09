@@ -36,7 +36,7 @@ internal static class EndingSpriteSheetComposer
     /// its colourings shows in that colouring's colours, or a shade the ending shows is authored for no listed actors.
     /// </exception>
     internal static SpriteSheetSources Sources(SpriteSheetId sheet, EndingObjectArtwork objects, EndingPaletteSet palettes,
-        EndingFontAtlas font, IPaletteFxColorSource paletteFx)
+        EndingFontCharacters font, IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(objects);
         Ensure.NotNull(palettes);

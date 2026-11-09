@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Artwork;
 
@@ -9,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// The installed world-map character atlases as the import pipeline reads them (#1409): calculated geometry and
 /// independently editable pixels, compiled to the planar characters the world-map tile sheets compose from.
 /// </summary>
-public sealed class WorldMapCharacters : WorldMapArtwork
+public sealed class WorldMapCharacters
 {
     /// <summary>Foreground pixels differing from reviewed font contours and calculated shared geometry.</summary>
     internal readonly Dictionary<int, byte> foreground;
@@ -101,11 +100,6 @@ public sealed class WorldMapCharacters : WorldMapArtwork
                 : throw new InvalidDataException("World background source pixel is unavailable.");
         return SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2);
     }
-
-    /// <summary>The characters <paramref name="artwork"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The artwork was not read from installed artwork.</exception>
-    public static WorldMapCharacters Of(WorldMapArtwork artwork) => artwork as WorldMapCharacters
-        ?? throw new InvalidDataException("The world-map characters were not read from installed artwork.");
 
     /// <summary>Converts a tile-local pixel to a row-major atlas pixel index.</summary>
     private static int TilePixel(int tile, Position16<CharacterPixels> point) =>

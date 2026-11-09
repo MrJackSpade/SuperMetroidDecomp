@@ -20,7 +20,8 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
 /// Immutable map content snapshot. Overrides never alter stock provenance or exploration rules. The import reads it with
-/// the characters its screens and the HUD are pictured from, which the game never reads (#1466).
+/// the characters its screens, the HUD, the world map, the title and the opening and ending text are pictured from, which
+/// the game never reads (#1466, #1583).
 /// </summary>
 public class AreaMapPresentation : IGameplayPresentationContent
 {
@@ -38,7 +39,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
         Landmarks = parts.Landmarks;
         SaveMarkers = parts.SaveMarkers;
         Arrows = parts.Arrows;
-        WorldArtwork = parts.WorldArtwork;
         PauseSelectors = parts.PauseSelectors;
         PauseReserveTanks = parts.PauseReserveTanks;
         EscapeTimer = parts.EscapeTimer;
@@ -48,10 +48,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         FileSelect = parts.FileSelect;
         EscapeTypewriter = parts.EscapeTypewriter;
         IntroNarration = parts.IntroNarration;
-        IntroFont = parts.IntroFont;
         EndingText = parts.EndingText;
-        EndingFont = parts.EndingFont;
-        TitleGraphics = parts.TitleGraphics;
         TitleBackdrop = parts.TitleBackdrop;
         TitleGradient = parts.TitleGradient;
         EndingSpaceBackdrops = parts.EndingSpaceBackdrops;
@@ -77,8 +74,6 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public MapSaveMarkerPositions SaveMarkers { get; }
     /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
     public MapArrowPresentation Arrows { get; }
-    /// <summary>Selected foreground and background PNG artwork for the world-map screen.</summary>
-    public WorldMapArtwork WorldArtwork { get; }
     /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
@@ -97,14 +92,8 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public EscapeTypewriterPresentation EscapeTypewriter { get; }
     /// <summary>Opening narration text and presentation, separate from its selected font characters.</summary>
     public IntroNarrationPresentation IntroNarration { get; }
-    /// <summary>Selected opening-narration character artwork used with <see cref="IntroNarration"/>.</summary>
-    public IntroFontAtlas IntroFont { get; }
     /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
     public EndingTypewriterText EndingText { get; }
-    /// <summary>Selected character artwork for ending text and its font transfers.</summary>
-    public EndingFontAtlas EndingFont { get; }
-    /// <summary>Title turning-floor characters and tilemap, sprite characters, and Baby character artwork selected from their extracted files.</summary>
-    public TitleGraphicsPresentation TitleGraphics { get; }
     /// <summary>
     /// The colour the title shows behind its floor and objects (#1512); the title's other colours are pre-coloured into its
     /// sheets by the import.

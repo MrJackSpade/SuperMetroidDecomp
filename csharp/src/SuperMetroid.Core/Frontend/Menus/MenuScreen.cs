@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -8,19 +7,17 @@ namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
 /// The shared menu screen loaded for file select, options, game over and the
-/// file-select maps (#1358): the installed artwork it draws, its backdrop and its sprite entries; its pages are installed
+/// file-select maps (#1358): its backdrop and its sprite entries; its pages are installed
 /// pictures it places (#1467), each in the colours the import pre-coloured it in (#1512). It publishes these; the capture
 /// composes them, so no menu owns display memory.
 /// </summary>
 internal sealed class MenuScreen
 {
-    /// <summary>Installs the shared world artwork, the screen's backdrop, and the sheets its backgrounds draw from.</summary>
+    /// <summary>Installs the screen's backdrop and the sheets its backgrounds draw from.</summary>
     /// <param name="backdrop">The solid colour the screen shows where nothing is drawn (#1512).</param>
-    /// <param name="worldArtwork">The installed world-map characters.</param>
     /// <param name="sheets">The installed sheets the screen's pictures come from.</param>
-    public MenuScreen(RgbColor backdrop, WorldMapArtwork? worldArtwork, InstalledSpriteSheets? sheets)
+    public MenuScreen(RgbColor backdrop, InstalledSpriteSheets? sheets)
     {
-        WorldArtwork = RequireWorldArtwork(worldArtwork);
         Objects = new ScreenSprites();
         Backdrop = backdrop;
         BindScreenTiles(sheets);
@@ -67,26 +64,11 @@ internal sealed class MenuScreen
     private static PlacedPlanePicture Place(SpriteSheetFrame picture, Position16<TilemapCells> cell) =>
         PlacedPlanePicture.AtCell(picture, cell, PictureShading.Standard);
 
-    /// <summary>The installed world-map characters.</summary>
-    [AllowNull]
-    public WorldMapArtwork WorldArtwork { get => field ?? throw new InvalidOperationException("The menu's world-map characters are bound when the game is bound to its installed content."); private set; }
-
     /// <summary>The solid colour the screen shows where nothing is drawn (#1512): file select's, or the world map's selected area's.</summary>
     public RgbColor Backdrop { get; set; }
 
     /// <summary>The menu's sprite entries over the installed menu sprite page.</summary>
     public ScreenSprites Objects { get; }
-
-    /// <summary>Rebinds the world characters, keeping tilemaps and the screen's backdrop.</summary>
-    public void BindWorldArtwork(WorldMapArtwork? worldArtwork)
-    {
-        WorldArtwork = RequireWorldArtwork(worldArtwork);
-    }
-
-
-    /// <summary>The installed world-map characters, which a menu cannot draw without.</summary>
-    private static WorldMapArtwork RequireWorldArtwork(WorldMapArtwork? worldArtwork) =>
-        worldArtwork ?? throw new InvalidOperationException("Menus require installed world-map artwork.");
 
     /// <summary>What the screen paints with: its backdrop (#1512); its sprites are drawn by its sprite layer (#1514).</summary>
     internal FramePaint Paint() => new(Backdrop);

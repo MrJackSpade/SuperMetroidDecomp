@@ -30,7 +30,6 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
         {
             BindTitleGradient(artwork.MapPresentation?.TitleGradient);
-            BindTitleGraphics(artwork.MapPresentation?.TitleGraphics);
             BindTitleBackdrop(artwork.MapPresentation?.TitleBackdrop);
         }
         BindSpriteSheets(artwork.SpriteSheets);
@@ -68,8 +67,6 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// are pre-coloured into its sheets.
     /// </summary>
     private RgbColor? titleBackdrop;
-    /// <summary>Installed title graphics, bound when the game is bound to its installed content.</summary>
-    internal TitleGraphicsPresentation? TitleGraphics { get; private set; }
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int PhaseTimer { get; private set; }
     /// <summary>The title card whose steps are running.</summary>
@@ -110,16 +107,13 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <param name="audio">Receives the opening music and title transitions when audio is available.</param>
     /// <param name="titleGradientPresentation">The installed gradients, one per zoom bucket.</param>
     /// <param name="titleBackdrop">Required installed title backdrop.</param>
-    /// <param name="titleGraphicsPresentation">Required installed title graphics.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the title's compositions draw from.</param>
     public TitleSequenceState(
         AudioQueues? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         RgbColor? titleBackdrop = null,
-        TitleGraphicsPresentation? titleGraphicsPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
-        : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titleBackdrop, titleGraphicsPresentation,
-            spriteSheets)
+        : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titleBackdrop, spriteSheets)
     {
     }
 
@@ -129,15 +123,12 @@ public sealed class TitleSequenceState : IFrontendScreen
         TitleOpeningMusic openingMusic,
         TitleGradientPresentation? titleGradientPresentation,
         RgbColor? titleBackdrop,
-        TitleGraphicsPresentation? titleGraphicsPresentation,
         InstalledSpriteSheets? spriteSheets)
     {
         this.audio = audio;
         BindSpriteSheets(spriteSheets);
         this.titleGradientPresentation = titleGradientPresentation;
         this.titleBackdrop = titleBackdrop;
-        TitleGraphics = titleGraphicsPresentation ?? throw new InvalidOperationException(
-            "Title sequence requires installed graphics presentation assets.");
         if (titleBackdrop is null)
             throw new InvalidOperationException(
                 "Title sequence requires the installed title backdrop.");
@@ -173,7 +164,6 @@ public sealed class TitleSequenceState : IFrontendScreen
         AudioQueues audio,
         TitleGradientPresentation? titleGradientPresentation = null,
         RgbColor? titleBackdrop = null,
-        TitleGraphicsPresentation? titleGraphicsPresentation = null,
         InstalledSpriteSheets? spriteSheets = null)
     {
         var title = new TitleSequenceState(
@@ -181,7 +171,6 @@ public sealed class TitleSequenceState : IFrontendScreen
             openingMusic: TitleOpeningMusic.Skip,
             titleGradientPresentation,
             titleBackdrop,
-            titleGraphicsPresentation,
             spriteSheets);
         title.EnterImmediateTitleObjects();
         title.Brightness = 0;
@@ -192,12 +181,6 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Binds the installed scanline gradient when the game is bound to its installed content.</summary>
     internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
         titleGradientPresentation = presentation;
-
-    /// <summary>Binds installed sprite compositions when the game is bound to its installed content.</summary>
-    internal void BindTitleGraphics(TitleGraphicsPresentation? presentation)
-    {
-        TitleGraphics = presentation;
-    }
 
     /// <summary>Binds the installed title backdrop when the game is bound to its installed content.</summary>
     internal void BindTitleBackdrop(RgbColor? backdrop)
@@ -425,14 +408,14 @@ public sealed class TitleSequenceState : IFrontendScreen
             // Cinematic drawing replaces each part's palette bits
             // after masking the stored attributes. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
-            TitleGraphicsPresentation.DrawSprite(sheet, sprite, objects,
+            TitleSpriteDrawing.DrawSprite(sheet, sprite, objects,
                 ActiveOrigin.ToSpritePosition(), ActiveObjectColouring);
         }
 
         if (Phase is TitleSequencePhase.CopyrightFade or TitleSequencePhase.SkipFadeOut or TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
-            TitleGraphicsPresentation.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
+            TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.NintendoCopyright, objects,
                 TitleSequenceDefinitions.Sprites.CopyrightOrigin.ToSpritePosition(),
                 CopyrightShading);
         }

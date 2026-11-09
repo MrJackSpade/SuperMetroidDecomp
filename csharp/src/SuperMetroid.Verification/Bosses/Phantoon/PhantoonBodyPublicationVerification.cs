@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
@@ -40,16 +41,17 @@ internal static class PhantoonBodyPublicationVerification
         EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
         body.NewInstructionFrame = true;
         runtime.Enemies.Instructions.DrawBossBodyFrame(body, frame);
-        BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The retail runtime installs boss artwork.");
+        // The retail runtime draws Phantoon's body from the installation's body sheet, composed from these frames.
+        BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
         expected.AsSpan().Fill(BossBodySheetComposer.BlankOf(BossBodyOwner.Phantoon).PackedWord);
-        if (!(bosses.Sources.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes))
+        if (!(bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes))
             throw new InvalidOperationException("Phantoon's body frame has installed writes.");
         foreach (EnemyBg2TilemapWrite write in writes.Span)
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));
         // His body is pictured whole, with his closed eye in the socket it leaves for the eye (#1513).
         EnemyFrameId eye = BossBodySourceDefinitions.FramesPicturedWith[frame];
-        if (!(bosses.Sources.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(eye, out ReadOnlyMemory<EnemyBg2TilemapWrite> eyeWrites))
+        if (!(bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Phantoon's BG2 frames are installed.")).TryGet(eye, out ReadOnlyMemory<EnemyBg2TilemapWrite> eyeWrites))
             throw new InvalidOperationException("Phantoon's closed eye has installed writes.");
         foreach (EnemyBg2TilemapWrite write in eyeWrites.Span)
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));

@@ -87,7 +87,6 @@ internal static class CinematicScreenPublicationVerification
         (intro.CurrentObjects ?? throw new InvalidOperationException("The first illustrated page creates the cinematic objects.")).Step(0);
         byte[] image = intro.ShownVram();
         var restoredIntro = RoundTrip(intro);
-        restoredIntro.BindIntroFont(InstalledFixtures.Maps.IntroFont);
         restoredIntro.BindFixtureIntroArtwork(InstalledFixtures.IntroArtwork);
         AssertTrue(image.AsSpan().SequenceEqual(restoredIntro.ShownVram()), "a restored intro shows the same characters, blanked glyphs and tilemaps");
         // The intro publishes its faded backdrop and its pictures' shading, not a palette (#1512).

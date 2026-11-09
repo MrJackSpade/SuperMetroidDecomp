@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 using SuperMetroid.AssetExtraction.Video;
@@ -17,10 +18,10 @@ internal static class IntroScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>
     [WholeImageFixture("the intro's character image")]
-    internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontAtlas installedFont, bool japaneseGlyphsBlanked)
+    internal static byte[] Characters(IntroCinematicArtwork artwork, IntroFontCharacters installedFont, bool japaneseGlyphsBlanked)
     {
         IntroCinematicSourceArtwork sources = IntroCinematicSourceArtwork.Of(artwork);
-        ReadOnlySpan<byte> font = IntroFontCharacters.Of(installedFont).Characters.Span;
+        ReadOnlySpan<byte> font = Ensure.NotNull(installedFont).Characters.Span;
         var vram = new SnesVram();
         var intro = new IntroVram(vram);
         intro.BackgroundCharacters.Load(sources.BackgroundCharacters.Characters.Span[..IntroArtworkExtentDefinitions.BackgroundCharacterBytes]);
@@ -42,14 +43,16 @@ internal static class IntroScreenMemory
         return vram.CaptureImage();
     }
 
-    /// <summary>The memory image <paramref name="intro"/> shows: its bound characters with its portrait and narration tilemaps over them.</summary>
+    /// <summary>
+    /// The memory image <paramref name="intro"/> shows: its bound characters and the installation's opening font, which the
+    /// intro's installed narration pictures are composed from (#1583), with its portrait and narration tilemaps over them.
+    /// </summary>
     [WholeImageFixture("the intro's memory image")]
     internal static byte[] Compose(IntroCinematicState intro)
     {
         IntroCinematicArtwork artwork = intro.CharacterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires installed artwork.");
-        IntroFontAtlas font = intro.IntroFont ?? throw new InvalidOperationException(
-            "Opening cinematic rendering requires the installed font atlas.");
+        IntroFontCharacters font = InstalledAreaMapPresentation.IntroFontOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
         return Compose(Characters(artwork, font, intro.CurrentObjects is not null), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame),
             NarrationTiles(intro.narrationText, intro.CurrentObjects is null, artwork));
     }

@@ -151,7 +151,7 @@ public static class MapPresentationFiles
         MapSaveMarkerPositions saveMarkers = Resource(MapSaveMarkerFormat.FileName, "save markers", s => MapSaveMarkerFile.Read(s));
         MapArrowPresentation arrows = Resource(MapArrowFormat.FileName, "map arrows", s => MapArrowFile.Read(s));
         MapScreenPresentation screens = Resource(MapScreenDefinitions.FileName, "map screens", s => MapScreenPresentation.Load(s));
-        WorldMapArtwork artwork = MultiFileResource<WorldMapArtwork>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
+        WorldMapCharacters worldCharacters = MultiFileResource<WorldMapCharacters>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
             "world-map PNG artwork", s => WorldMapCharacters.Read(s[0], s[1]));
         MapSpriteCompositions sprites = MultiFileResource<MapSpriteCompositions>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile],
             "map sprites", s => MapSpriteArtwork.Read(s[0], s[1]));
@@ -174,11 +174,11 @@ public static class MapPresentationFiles
         GameplayMessageNoticePresentation gameplayMessageNotices = Resource(GameplayMessageNoticeDefinitions.FileName, "gameplay-message notices", s => GameplayMessageNoticePresentation.Load(s));
         EscapeTypewriterPresentation escapeTypewriter = Resource(EscapeTypewriterDocumentDefinitions.FileName, "escape typewriter", s => EscapeTypewriterPresentationFile.Load(s));
         IntroNarrationPresentation introNarration = Resource(IntroNarrationFile.FileName, "intro narration", s => IntroNarrationFile.Read(s));
-        IntroFontAtlas introFont = Resource(IntroFontCharacters.FileName, "intro font", s => IntroFontCharacters.Read(s));
+        IntroFontCharacters introFont = Resource(IntroFontCharacters.FileName, "intro font", s => IntroFontCharacters.Read(s));
         EndingTextPresentation endingText = Resource(EndingTextDefinitions.FileName, "ending text", s => EndingTextPresentation.Load(s));
-        EndingFontAtlas endingFont = Resource(EndingFontAtlasFormat.FileName, "ending font", s => EndingFontCharacters.Read(s));
+        EndingFontCharacters endingFont = Resource(EndingFontAtlasFormat.FileName, "ending font", s => EndingFontCharacters.Read(s));
         CreditsPresentation staffCredits = Resource(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s));
-        TitleGraphicsPresentation titleGraphics = MultiFileResource<TitleGraphicsPresentation>(
+        TitleGraphicsCharacters titleGraphics = MultiFileResource<TitleGraphicsCharacters>(
             [TitleGraphicsFormat.FloorTilesFile, TitleGraphicsFormat.FloorMapFile, TitleGraphicsFormat.ObjectTilesFile, TitleGraphicsFormat.BabyTilesFile],
             "title graphics", s => TitleGraphicsCharacters.Read(s[0], s[1], s[2], s[3]));
         TitleGradientPresentation titleGradient = Resource(TitleGradientFile.FileName, "title gradient", s => TitleGradientFile.Read(s));
@@ -188,11 +188,11 @@ public static class MapPresentationFiles
         RoomFxLayer3Pages roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3Pages.Load(s));
         InstalledPowerBombFixedColors powerBombFixedColors = Resource(PowerBombFixedColorFile.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
-        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, WorldArtwork = artwork, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, IntroFont = introFont, EndingText = endingText.Typewriter(), EndingFont = endingFont, TitleGraphics = titleGraphics, TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, EndingSpaceBackdrops = EndingSpaceBackdropColours.From(roomPaletteFx), MotherBrainRainbowPalette = motherBrainRainbowPalette, CeresHaze = sceneColours.CeresHaze, PowerBombFixedColors = powerBombFixedColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
+        return new GameRead(new AreaMapPresentationParts { Areas = areas, ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()), HighlightCycle = cycle.Timing, Backdrops = sceneColours.Menus, Labels = labels, Stations = stations, Landmarks = landmarks, SaveMarkers = saveMarkers, Arrows = arrows, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText.Typewriter(), TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, EndingSpaceBackdrops = EndingSpaceBackdropColours.From(roomPaletteFx), MotherBrainRainbowPalette = motherBrainRainbowPalette, CeresHaze = sceneColours.CeresHaze, PowerBombFixedColors = powerBombFixedColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays },
             new InstalledPresentationSources(new MapCharacterArtwork(tiles, hudTiles, pauseTiles),
                 new GameplayMessageArtwork(gameplayMessageTitles, gameplayMessagePanels, gameplayMessageNotices), roomFxLayer3Tilemaps, staffCredits,
                 endingText, screens, new PauseScreenArtwork(pauseBackdrops, pauseWireframes, pauseEquipmentBase, pauseEquipmentLabels, pauseReserveUi), sprites,
-                cycle, escapeTimerTiles, roomFxAnimatedTiles), roomPaletteFx);
+                cycle, escapeTimerTiles, roomFxAnimatedTiles, worldCharacters, introFont, endingFont, titleGraphics), roomPaletteFx);
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             MultiFileResource<T>([file], description, streams => compile(streams[0]));

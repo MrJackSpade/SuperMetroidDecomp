@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
@@ -26,9 +27,8 @@ internal static class MenuArtworkFixtures
     extension(TitleSequenceState self)
     {
         /// <summary>Binds <paramref name="graphics"/> and the sheets with the title sheet it composes.</summary>
-        internal void BindFixtureTitleGraphics(TitleGraphicsPresentation graphics)
+        internal void BindFixtureTitleGraphics(TitleGraphicsCharacters graphics)
         {
-            self.BindTitleGraphics(graphics);
             self.BindSpriteSheets(MenuSheetFixtures.WithTitle(graphics));
         }
     }

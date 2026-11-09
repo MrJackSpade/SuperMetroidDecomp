@@ -216,6 +216,6 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
-        return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Phantoon, enemies, PhantoonBg2FrameDefinitions.VramBase, vram.Bytes.Length);
+        return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Phantoon, art.Bosses, PhantoonBg2FrameDefinitions.VramBase, vram.Bytes.Length);
     }
 }

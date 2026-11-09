@@ -92,5 +92,5 @@ internal static class EndingScreenImage
 
     /// <summary>The bound ending font.</summary>
     private static EndingFontCharacters Font(EndingTransferArtwork artwork) =>
-        EndingFontCharacters.Of(artwork.Font ?? throw new InvalidOperationException("Ending font requires installed presentation assets."));
+        artwork.Font ?? throw new InvalidOperationException("Ending font requires installed presentation assets.");
 }

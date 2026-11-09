@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -22,21 +21,20 @@ internal static class BossBodySheetFixtures
         () => RoomBlockSheetInputs.Load(RepositoryInstallation.Installation.ContentDirectory)));
 
     /// <summary>Sheets already composed, by the fixture's boss and then its artwork.</summary>
-    private static readonly Dictionary<BossBodyOwner, ConditionalWeakTable<BossArtworkCatalog, BossBodyArtworkFixture>> composed =
-        Enum.GetValues<BossBodyOwner>().ToDictionary(owner => owner, _ => new ConditionalWeakTable<BossArtworkCatalog, BossBodyArtworkFixture>());
+    private static readonly Dictionary<BossBodyOwner, ConditionalWeakTable<BossSourceArtwork, BossBodyArtworkFixture>> composed =
+        Enum.GetValues<BossBodyOwner>().ToDictionary(owner => owner, _ => new ConditionalWeakTable<BossSourceArtwork, BossBodyArtworkFixture>());
 
     /// <summary>The installation's frames and its installed sheets, for a fixture whose boss draws no body layer.</summary>
     internal static BossBodyArtworkFixture Stock => new(inputs.Value.Bosses, InstalledFixtures.BossBodySheets);
 
     /// <summary>The frames <paramref name="owner"/> draws its body from in <paramref name="bosses"/>, and the sheets composed from them.</summary>
     /// <exception cref="InvalidDataException"><paramref name="bosses"/> holds no frames for <paramref name="owner"/>, or they cannot be pictured.</exception>
-    internal static BossBodyArtworkFixture For(BossArtworkCatalog bosses, BossBodyOwner owner) =>
-        composed[owner].GetValue(bosses, catalog => Compose(catalog, owner));
+    internal static BossBodyArtworkFixture For(BossSourceArtwork bosses, BossBodyOwner owner) =>
+        composed[owner].GetValue(bosses, artwork => Compose(artwork, owner));
 
     /// <summary>Composes every boss's sheet: <paramref name="owner"/>'s from <paramref name="bosses"/>' frames, the rest from the installation's.</summary>
-    private static BossBodyArtworkFixture Compose(BossArtworkCatalog catalog, BossBodyOwner owner)
+    private static BossBodyArtworkFixture Compose(BossSourceArtwork bosses, BossBodyOwner owner)
     {
-        BossSourceArtwork bosses = catalog.Sources;
         BossSourceArtwork stock = inputs.Value.Bosses;
         BossSourceArtwork frames = owner switch
         {

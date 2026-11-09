@@ -29,8 +29,8 @@ internal sealed class KraidBackground
     }
 
     /// <summary>Kraid's installed eye colours, which his eye glow shows and times his roar from.</summary>
-    /// <exception cref="InvalidDataException">No boss artwork with Kraid's eye colours is installed.</exception>
-    internal KraidEyeColours EyeColours => _bossArtwork.Artwork?.KraidEyes ?? throw new InvalidDataException(
+    /// <exception cref="InvalidDataException">Kraid's eye colours are not installed.</exception>
+    internal KraidEyeColours EyeColours => _bossArtwork.KraidEyes ?? throw new InvalidDataException(
         "Kraid's eyes require the installed Kraid eye colours.");
 
     /// <summary>

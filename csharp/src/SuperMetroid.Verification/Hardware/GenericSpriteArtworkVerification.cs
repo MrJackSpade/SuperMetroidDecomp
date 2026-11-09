@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -45,7 +46,7 @@ internal static class GenericSpriteArtworkVerification
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titleBackdrop: maps.TitleBackdrop, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
+            titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(InstalledAreaMapPresentation.TitleGraphicsOf(maps)));
         var document = RequiredJson.Deserialize<TitleFloorMapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.FloorMapFile)),
             ArtworkJson.Options);
@@ -89,7 +90,7 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualSprites(expected, title.objects, "title copyright owner parity");
 
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: maps.IntroFont,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
             characterArtwork: introArtwork,
             samusBodyArtwork: body)
         {

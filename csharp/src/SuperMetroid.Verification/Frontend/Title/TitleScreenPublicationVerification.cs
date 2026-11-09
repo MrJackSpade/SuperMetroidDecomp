@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
@@ -23,10 +24,11 @@ internal static class TitleScreenPublicationVerification
     internal static void VerifyTitleScreenPublication()
     {
         var maps = InstalledFixtures.Maps;
+        TitleGraphicsCharacters graphics = InstalledAreaMapPresentation.TitleGraphicsOf(maps);
         var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
-            titleBackdrop: maps.TitleBackdrop, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
-        SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(maps.TitleGraphics).Get(SpriteSheetId.Title);
-        byte[] baby = maps.TitleGraphics.BabyCharacters.ToArray();
+            titleBackdrop: maps.TitleBackdrop, spriteSheets: MenuSheetFixtures.WithTitle(graphics));
+        SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(graphics).Get(SpriteSheetId.Title);
+        byte[] baby = graphics.BabyCharacters.ToArray();
         int pageBytes = TitleFloorTileDefinitions.BabyCharacterPageByteCount;
         var shownPages = new List<int>();
         bool drewSprites = false;
@@ -60,7 +62,7 @@ internal static class TitleScreenPublicationVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<TitleSequenceState>(state);
         restored.BindTitleGradient(maps.TitleGradient);
         restored.BindTitleBackdrop(maps.TitleBackdrop);
-        restored.BindFixtureTitleGraphics(maps.TitleGraphics);
+        restored.BindFixtureTitleGraphics(graphics);
         AssertTrue(shown.SequenceEqual(DisplayRendering.Render(new DisplayPacket(0, restored.CaptureRenderSnapshot()))),
             "a restored title shows the same frame once its artwork is rebound");
         Console.WriteLine("  Title screen: the Baby Metroid page cycle, palette and sprite entries come from the title's published state and survive a debugger round trip.");

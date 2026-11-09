@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// floor and Baby Metroid characters as chunky 8-bit pixels and the OBJ characters as SNES 4-bpp planar bytes, which the
 /// title sheets compose from.
 /// </summary>
-public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
+public sealed class TitleGraphicsCharacters
 {
     /// <summary>Compiled OAM compositions keyed by title composition.</summary>
     private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
@@ -180,9 +180,4 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
                     "keep the frame names when editing visual parts.");
         return result;
     }
-
-    /// <summary>The characters <paramref name="graphics"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The presentation was not read from installed artwork.</exception>
-    public static TitleGraphicsCharacters Of(TitleGraphicsPresentation graphics) => graphics as TitleGraphicsCharacters
-        ?? throw new InvalidDataException("The title graphics were not read from installed artwork.");
 }

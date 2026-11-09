@@ -31,9 +31,8 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
     /// <inheritdoc/>
     public EnemyTileSourceArtwork EnemyTiles => enemyTiles;
 
-    /// <inheritdoc/>
-    public BossSourceArtwork BossTiles =>
-        (BossSourceArtwork?)runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
+    /// <summary>The installation's boss artwork, which only the import reads; the runtime binds only Kraid's eye colours (#1583).</summary>
+    public BossSourceArtwork BossTiles => InstalledFixtures.BossArtwork;
 
     /// <summary>The installation's area artwork, which only the import reads; the runtime binds none (#1512).</summary>
     public AreaSourceArtwork AreaTiles => InstalledFixtures.AreaArtwork;

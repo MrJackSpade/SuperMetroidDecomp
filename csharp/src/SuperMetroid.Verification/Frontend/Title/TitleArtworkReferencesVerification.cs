@@ -34,7 +34,7 @@ internal static class TitleArtworkReferencesVerification
         _ = Load(document);
         using (var stream = new MemoryStream()) TitleGraphicsCharacters.WriteMap(stream, document);
         foreach (TitleSpriteFrame frame in frames)
-            TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
+            TitleSpriteDrawing.DrawSprite(MenuSheetFixtures.WithTitle(Load(document)).Get(SpriteSheetId.Title), frame.Sprite, ScreenSpritesFixtures.Blank(), new(0, 0), TitleSpriteColouring.Text);
 
         // An unchanged frame count must not disguise one missing selector. Test every
         // compiled selector independently; the old loader accepted each substitution.
@@ -62,7 +62,7 @@ internal static class TitleArtworkReferencesVerification
         Console.WriteLine("PASS title artwork: all 31 required selectors checked at load/write; frame ordering remains valid. No ROM or gameplay probes.");
         return;
 
-        TitleGraphicsPresentation Load(TitleFloorMapDocument value)
+        TitleGraphicsCharacters Load(TitleFloorMapDocument value)
         {
             using var mode7Stream = new MemoryStream(mode7, writable: false);
             using var mapStream = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,

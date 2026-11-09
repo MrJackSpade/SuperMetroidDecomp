@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>
-/// The game-over Baby Metroid's looping pose program, addressed by step ordinal in play order.
+/// The game-over Baby Metroid's looping pose program, indexed by step ordinal in play order.
 /// </summary>
 /// <remarks>
 /// The program has three cry groups, preceded by two, four and three idle cycles respectively. Each idle

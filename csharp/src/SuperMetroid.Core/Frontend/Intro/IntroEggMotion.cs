@@ -11,24 +11,23 @@ internal static class IntroEggMotion
     /// <summary>62 odd / 69 even gravity records, selected by actor parity, not frame parity.</summary>
     /// <remarks>
     /// Issues #625 and #979: the odd-actor table has
-    /// 62 high-word-first signed 16.16 records; all 124 words match
+    /// 62 signed 16.16 records matching
     /// the original data. For f=0..13, g=f/7 and r=f%7
     /// give whole=g-2 and fraction=0 for r=0, otherwise 57344-8192*r.
-    /// For f=14..61 the signed value is (f-14)*8192, ending at 5.E000.
-    /// The slime motion chooses this table when the actor timer's low bit is one,
-    /// then indexes by its high byte; ordinary odd actors are IDs 1 and 3.
+    /// For f=14..61 the signed value is (f-14)*8192 65536ths, ending at 5 and 57344 65536ths.
+    /// The slime motion chooses this table when the actor timer is odd,
+    /// then indexes by the timer over 256; ordinary odd actors are IDs 1 and 3.
     /// In the 96-pixel start fixture, fractional starts 0, 1, 32767, and
     /// 65535 all ground at frame 51, inside the table. The method rejects
     /// frame 62 and negative frames instead of reading the adjacent even
-    /// table; fractional addition and whole-word carry stay exact.
+    /// table; fractional addition and the carry into the whole part stay exact.
     ///
     /// Issues #625 and #980: the separate even-actor table
-    /// has 69 high-word-first signed 16.16 records; all
-    /// 138 words match the original data. For
+    /// has 69 signed 16.16 records matching the original data. For
     /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
     /// otherwise 57344-8192*r. For f=21..68 the signed value is
-    /// (f-21)*8192, ending at 5.E000. The timer's clear low bit selects
-    /// this table for ordinary actor IDs 0 and 2, and its high byte indexes
+    /// (f-21)*8192 65536ths, ending at 5 and 57344 65536ths. An even timer selects
+    /// this table for ordinary actor IDs 0 and 2, and the timer over 256 indexes
     /// the records. The 96-pixel start fixture with fractions 0, 1, 32767,
     /// and 65535 grounds at frame 62, within the table. Frame 69 and
     /// negative frames throw instead of reading the adjacent routine.
@@ -61,12 +60,12 @@ internal static class IntroEggMotion
 
     /// <summary>Returns one shell fragment's final world-space spawn position.</summary>
     /// <remarks>
-    /// Issues #625 and #975: the fragment spawn indexes six interleaved 16-bit X/Y
-    /// origin pairs with index*4, then adds 16 and 59
-    /// respectively with sixteen-bit wrap. The original data
+    /// Issues #625 and #975: the fragment spawn reads six X/Y
+    /// origin pairs, then adds 16 and 59
+    /// respectively, wrapping past 65535. The original data
     /// gives source pairs (92,88), (99,88), (89,93),
-    /// (96,91), (102,94), and (99,96); all twelve words match this
-    /// selector after the biases. The spawn opcode creates exactly indices
+    /// (96,91), (102,94), and (99,96); all twelve values match this
+    /// selector after the biases. The spawn step creates exactly indices
     /// 0..5, and unknown indices throw. The irregular positions compose the
     /// shell artwork, so retaining six explicit pairs is clearer than a
     /// generated sequence or polynomial encoding.

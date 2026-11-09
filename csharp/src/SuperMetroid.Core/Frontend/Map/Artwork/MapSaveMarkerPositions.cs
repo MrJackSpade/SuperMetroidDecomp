@@ -21,7 +21,7 @@ public sealed class MapSaveMarkerPositions
 
     /// <summary>Gets the selected station's drawing anchor in area-map pixels before scroll subtraction, using each edited coordinate independently and otherwise projecting its compiled load placement.</summary>
     /// <param name="area">One of the six Zebes areas; Ceres has no save-map marker layout.</param>
-    /// <param name="index">Station slot, 0..15, whose compiled load-station record has a nonzero room pointer; not an ordinal among usable markers.</param>
+    /// <param name="index">Station slot, 0..15, whose compiled load-station record names a room; not an ordinal among usable markers.</param>
     /// <returns>The drawing position, without altering the station's load target or initial map scrolling.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area or station slot is outside its supported range.</exception>
     /// <exception cref="InvalidDataException">The station slot is unused.</exception>

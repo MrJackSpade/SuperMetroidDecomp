@@ -25,7 +25,7 @@ internal enum EndingCreditsPhase
     ZebesExplosionPaletteCrossfade,
     /// <summary>Holds the explosion for sixteen updates with the escape backdrop off; the flyaway's floor is ready as it ends.</summary>
     ZebesExplosionHold,
-    /// <summary>Lets the explosion actor's private instruction list control the finale.</summary>
+    /// <summary>Lets the explosion actor's private program control the finale.</summary>
     ZebesExplosionAnimation,
     /// <summary>Holds the explosion whiteout before queuing planet-escape music.</summary>
     WaitForPlanetEscapeMusic,

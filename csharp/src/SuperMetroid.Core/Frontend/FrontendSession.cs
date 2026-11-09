@@ -38,7 +38,7 @@ internal sealed class FrontendSession
         audioSession = new AudioSession(soundClock);
         this.saves = Ensure.NotNull(saves);
         SelectedSaveSlot = saves.ReadSelectedSlot();
-        // Construction is power-on: boot evaluates the saves once before entering MainGameLoop.
+        // Construction is power-on: boot evaluates the saves once before entering the main game loop.
         earthquakeSoundDelay = saves.EarthquakeSoundDelayAtPowerOn();
         bootDemoSetCount = saves.DetermineNumberOfDemoSets();
     }
@@ -167,9 +167,9 @@ internal sealed class FrontendSession
     internal void ContinueSavedGame() => LoadingExistingSave = true;
     /// <summary>Save state retained for restart after the Space-Time intro sequence.</summary>
     private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
-    /// <summary>Retains <paramref name="slot"/>'s live inventory for the Ceres setup after a SpaceTime-triggered intro.</summary>
+    /// <summary>Retains <paramref name="slot"/>'s live inventory for the Ceres setup after a Spacetime-triggered intro.</summary>
     internal void RetainSpacetimeRestart(SuperMetroidSaveSlot slot) => spacetimeIntroRestartSlot = Ensure.NotNull(slot);
-    /// <summary>A soft reset forgets any SpaceTime restart.</summary>
+    /// <summary>A soft reset forgets any Spacetime Beam restart.</summary>
     internal void ForgetSpacetimeRestart() => spacetimeIntroRestartSlot = null;
     /// <summary>The fade into Landing Site or Ceres arrival, from black on a two-frame cadence.</summary>
     internal BrightnessFade GameplayFadeIn { get; } = new(0, 1);
@@ -236,7 +236,7 @@ internal sealed class FrontendSession
     /// </summary>
     /// <remarks>
     /// This is intentionally a collection seam, not sound policy. Samus, projectiles, and
-    /// PLMs own the sound and priority of each request; the frontend merely queues the
+    /// room objects own the sound and priority of each request; the frontend merely queues the
     /// requests those producers published, in their order.
     /// </remarks>
     internal void CollectTranslatedAudioRequests(GameplayAudioFramePublication gameplayAudio)
@@ -265,7 +265,7 @@ internal sealed class FrontendSession
 
         // The message-box save choice runs outside gameplay, not part of the gameplay
         // publication generation below. It has explicit consume semantics so its one-shot
-        // request remains audible without making stale enemy/PLM lists eligible again.
+        // request remains audible without making stale enemy and room-object lists eligible again.
         if (runtime?.MessageBoxes.ConsumeMessageBoxSelectionSoundRequest() == true)
             audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
         if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
@@ -283,7 +283,7 @@ internal sealed class FrontendSession
 
         // Frontend states sometimes run updates without running gameplay.
         // In particular, the door coroutine waits for all unread sound-ring entries to
-        // drain. The update count cannot guard this handoff: re-reading the last enemy or PLM
+        // drain. The update count cannot guard this handoff: re-reading the last enemy or room-object
         // publication during each waiting update perpetually refills that ring. Consume only a
         // newly completed gameplay publication instead.
         if (runtime is null ||
@@ -294,7 +294,7 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.CompletedGameplayAudioPublication;
 
         // Room-effect actors and palette objects run before Samus,
-        // projectiles, PLMs, and enemies in main gameplay. Queue their calls first so a full
+        // projectiles, room objects, and enemies in main gameplay. Queue their calls first so a full
         // sound ring retains the same higher-priority request the game would retain
         // when several producers fire during one frame.
         gameplayAudio.PublishPrefix(runtime);
@@ -302,7 +302,7 @@ internal sealed class FrontendSession
         if (runtime.Player.Samus is { } samus)
         {
             // These state machines predate the shared SoundRequest list. Consume their
-            // one-shot publications here, retaining the exact library and MaxN entry.
+            // one-shot publications here, retaining the exact library and queue-limit entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
                 audio.QueueSound(RoomSound.SpeedBooster, priority: SoundRequestPriority.Normal);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
@@ -368,12 +368,12 @@ internal sealed class FrontendSession
             audio.ScheduleMusic(request.Request, request.Delay);
     }
     /// <summary>
-    /// Ports the state-publication half of <c>HandleSamusOutOfHealthAndGameTile</c>. The
+    /// The state-publication half of Samus running out of health and the game timer. The
     /// runtime's main-gameplay update has already completed its room-main and clock work when this is called.
     /// </summary>
     /// <summary>
     /// The gunship writes the liftoff game state only after the top hull has crossed
-    /// Y=256, zeroing ScreenFadeDelay/Counter. It does not freeze time: the liftoff state keeps
+    /// Y=256, zeroing the screen fade's delay and counter. It does not freeze time: the liftoff state keeps
     /// running full gameplay, so Samus and the RNG advance behind the fade. The main-gameplay
     /// update has already completed on this publication frame; the following call owns the fade.
     /// </summary>
@@ -626,7 +626,7 @@ internal sealed class FrontendSession
     }
 
     /// <summary>
-    /// Applies the inventory that remains live across a SpaceTime-triggered intro. The
+    /// Applies the inventory that remains live across a Spacetime-triggered intro. The
     /// Mother Brain flashback temporarily replaces both missile counts and
     /// the intro clears them afterward; nothing touches Super Missiles or Power
     /// Bombs. The frontend cinematic uses isolated actor state, so its gameplay consequence

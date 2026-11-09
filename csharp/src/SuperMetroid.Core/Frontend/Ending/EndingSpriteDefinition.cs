@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Immutable ending-sprite constructor data.</summary>
-/// <param name="Position">Origin in pixels as sixteen-bit words; negative offscreen positions use two's-complement wrapping.</param>
+/// <param name="Position">Origin in pixels, 0 through 65535; negative offscreen positions wrap from the top of that range.</param>
 /// <param name="Colouring">The colouring the actor's palette-inheriting parts start drawing in (#1512).</param>
 /// <param name="Program">The cinematic sprite program the actor runs.</param>
 internal readonly record struct EndingSpriteDefinition(

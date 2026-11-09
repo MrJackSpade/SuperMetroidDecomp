@@ -48,7 +48,7 @@ internal sealed class EndingLogo
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
         // The cinematic function runs before sprite instructions, so the first palette
-        // pair is copied on the call after F25E, not during the call that requests it.
+        // pair is copied on the call after the request, not during the call that requests it.
         if (CrossfadeStarted)
         {
             Ensure.NotNull(colours).LogoCrossfade(PaletteStep);

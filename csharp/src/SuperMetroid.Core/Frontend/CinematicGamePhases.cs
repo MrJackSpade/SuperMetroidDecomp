@@ -125,7 +125,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
 
     /// <summary>
     /// Enters the final death black-out already black, as both time-up outcomes do. Its
-    /// <c>HandleFadingOut</c> finds no brightness left, so that dispatch opens game over.
+    /// fade-out finds no brightness left, so that dispatch opens game over.
     /// </summary>
     private void BeginBlackDeathBlackOut()
     {

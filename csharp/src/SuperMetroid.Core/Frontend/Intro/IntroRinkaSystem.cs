@@ -25,7 +25,7 @@ internal sealed class IntroRinkaSystem
     /// takes that slot while the spawner lives.
     /// </summary>
     internal readonly IntroRinka?[] slots = new IntroRinka?[SpawnerSlot + 1];
-    /// <summary>Invisible actor whose instruction list schedules the two spawn pairs.</summary>
+    /// <summary>Invisible actor whose program schedules the two spawn pairs.</summary>
     private readonly IntroDiscoverySprite spawner;
     /// <summary>Prevents allocating Rinkas after Mother Brain's explosions occupy the shared slot range.</summary>
     private bool spawnsForbidden;
@@ -57,10 +57,10 @@ internal sealed class IntroRinkaSystem
 
         spawnsForbidden = explosionsAllocated;
         // A slot below the one being processed is still ahead in this pass, so a Rinka the
-        // spawner allocates there runs its first pre-instruction and list step immediately.
+        // spawner allocates there runs its first frame behaviour and program step immediately.
         for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
         {
-            // Deletion clears the slot's list pointer, freeing it for the next spawn: the spawner's once its program
+            // Deletion clears the slot's program, freeing it for the next spawn: the spawner's once its program
             // ends, a Rinka's as it is deleted.
             if (slot == SpawnerSlot && spawner.IsActive)
             {

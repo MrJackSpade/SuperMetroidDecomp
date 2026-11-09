@@ -73,7 +73,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveFileSelect);
         if (session.ActiveFileSelect.TitleRequested)
         {
-            // The assembly calls SoftReset from menu index 33. Re-entering state
+            // The game soft-resets from menu index 33. Re-entering state
             // zero makes all frontend-owned state disposable and deterministic.
             session.GameState = SuperMetroidGameState.Reset;
         }
@@ -81,9 +81,9 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             session.SelectSaveSlot(session.ActiveFileSelect.SelectedSaveSlot, session.ActiveFileSelect.SelectedSlotContainsSave);
             session.RaiseSavesChanged();
-            // Existing slots restore the same seven controller words and two
-            // special-settings words that saving copied from live state. A new
-            // slot begins with NewSaveFile's literal defaults.
+            // Existing slots restore the same seven controller bindings and two
+            // special settings that saving copied from live state. A new
+            // slot begins with a new save file's defaults.
             SuperMetroidSaveSlot? optionSlot = session.LoadingExistingSave
                 ? session.saves.ReadSlot(session.SelectedSaveSlot)
                 : null;
@@ -126,7 +126,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 if (selectedSlot.StartupRoute ==
                     SaveLoadingGameState.OpeningCinematic)
                 {
-                    // Loading dispatches the zero word written by SpaceTime Beam
+                    // Loading dispatches the zero startup route written by the Spacetime Beam
                     // to the intro while the already-loaded Samus inventory remains
                     // live. Retain that inventory for Ceres setup, but do not restore
                     // the corrupted progression planes into the fresh run.

@@ -9,6 +9,6 @@ internal static class EndingRewardJumpDefinitions
     public const int Gravity = 14336;
     /// <summary>Crossing this height switches the body to its falling sheet and deletes the old head.</summary>
     public const int SheetSwitchY = -80;
-    /// <summary>The body stops here before its landed instruction list begins.</summary>
+    /// <summary>The body stops here before its landed program begins.</summary>
     public const int LandingY = 136;
 }

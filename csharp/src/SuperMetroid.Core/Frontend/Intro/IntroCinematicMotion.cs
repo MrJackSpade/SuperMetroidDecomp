@@ -18,8 +18,8 @@ internal static class IntroCinematicMotion
     public static FixedCoordinate AddEightEight(
         FixedCoordinate position,
         SignedEightEight velocity) =>
-        // The velocity's fraction lands in the subposition's high byte.
-        // Its eight-bit carry then feeds the sign-extended integer byte.
+        // The velocity's fraction lands in the subposition's upper half.
+        // Its carry past 255 then feeds the signed whole part.
         velocity
             .ToSixteenSixteenDelta()
             .AddTo(position.Whole, position.Fraction);

@@ -12,7 +12,7 @@ internal static class EndingAnimalEscapeDefinitions
     internal const CinematicSpriteProgram Program = CinematicSpriteProgram.EndingAnimalEscape;
     /// <summary>Both pod coordinates start at 128.</summary>
     internal const int Origin = 128;
-    /// <summary>The pod adds 128 to the 16-bit Y fraction each actor call.</summary>
+    /// <summary>The pod adds 128 65536ths of a pixel to its Y each actor call.</summary>
     internal const int YFractionVelocity = 128;
     /// <summary>The pod advances one horizontal pixel per actor call.</summary>
     internal const int XVelocity = 1;

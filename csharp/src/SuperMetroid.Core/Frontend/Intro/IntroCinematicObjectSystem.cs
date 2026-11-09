@@ -88,7 +88,7 @@ internal sealed class IntroCinematicObjectSystem
         new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
 
     /// <summary>
-    /// Implements <c>PlaceIntroTextCaretOffScreen</c>. The retail game keeps
+    /// Places the intro text caret off screen. The retail game keeps
     /// the same object slot alive between narration pages and visibly moves it to Y=248
     /// while a gameplay or scientist illustration owns the screen.
     /// </summary>
@@ -156,7 +156,7 @@ internal sealed class IntroCinematicObjectSystem
         IntroFinishRequested = false;
         ResetCaret();
 
-        // B4BC observes the page-six cinematic function and permanently changes the eye
+        // The eye's frame behaviour observes the page-six cinematic function and permanently changes the eye
         // object to its closed/half-open/deadpan program.
         EyeProgram = AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.FinalPageClosing);
         EyeFrameHold = 1;
@@ -331,7 +331,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Moves the persistent caret onscreen and restarts its non-blinking sprite list.</summary>
     private void ResetCaret()
     {
-        // RestIntroTextCaret moves the persistent slot back from Y=248 before
+        // Resting the intro text caret moves the persistent slot back from Y=248 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
         Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);

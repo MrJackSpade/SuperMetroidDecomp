@@ -157,7 +157,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // only the HUD's own layer (PauseScreen.RetainedHudPictures), so every otherwise-empty map
         // cell shows nothing rather than pause character zero, the visible orange `1` glyph.
 
-        // LoadPauseScreenBaseTilemaps shows the button page's two label rows over the backdrop's bottom rows, its labels
+        // The pause screen's base page shows the button page's two label rows over the backdrop's bottom rows, its labels
         // lit or dimmed by the highlight; the frame is the area's backdrop picture, the button rows' picture and each
         // label's picture in its shade (#1467).
         SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
@@ -212,10 +212,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return mapStart;
         }
 
-        // The equipment page runs EquipmentScreenMain, then L/R, then Start, so an A press in the
-        // frame that unpauses still toggles the selected item. EquipmentScreenMain consumes
-        // the ordinary rising-edge word for D-pad/A; only the shared L/R/Start chrome
-        // uses the delayed-held word.
+        // The equipment page runs its own input, then L/R, then Start, so an A press in the
+        // frame that unpauses still toggles the selected item. The equipment page consumes
+        // the ordinary newly pressed buttons for D-pad/A; only the shared L/R/Start chrome
+        // uses the delayed-held buttons.
         HandleEquipmentInput(newlyPressed, frameCycle, bombs);
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
         {
@@ -419,9 +419,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Derives map-scroll bounds and initial offset from visible tiles and Samus's map cell.</summary>
     private void SetupMapScrolling()
     {
-        // DetermineMapScrollLimits scans either the downloaded map
+        // The map's scroll limits come from scanning either the downloaded map
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
-        // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
+        // equivalent to the game's cell-by-cell scan and makes the two-page 64x32 layout explicit.
         bool hasAreaMap = system.HasAreaMap(area);
         IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.")).Get(area);
@@ -484,7 +484,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         int maximumY = bottom * 8;
         CurrentMapScrollBounds = new PauseMapScroll(new(CoordinateAxis.Wrap(minimumX), CoordinateAxis.Wrap(minimumY)), new(CoordinateAxis.Wrap(maximumX), CoordinateAxis.Wrap(maximumY)));
 
-        // The pause map's scroll setup uses wrapping 16-bit arithmetic throughout. These local
+        // The pause map's scroll setup wraps past 65535 throughout. These local
         // helpers wrap before every signed test so an edge-of-map position behaves as the
         // game's does rather than like unbounded integer arithmetic.
         // The player's map cell: the room's map origin plus Samus's room screen, with the
@@ -567,8 +567,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
             return;
 
-        // DrawPauseScreenSpriteAnim(3) selects the third timer/frame pair. Its animation
-        // list holds three-byte entries (delay, unused, ID offset).
+        // The pause sprite animation draw selects the third timer/frame pair. Its animation
+        // holds entries of a delay, an unused value and a frame offset.
         ItemSelectorAnimationTimer--;
         if (ItemSelectorAnimationTimer > 0)
             return;
@@ -597,7 +597,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     }
 
     /// <summary>
-    /// Runs the three SetPauseScreenButtonLabelPalettes variants and the redraw of the two label rows
+    /// Runs the three button-label lighting variants and the redraw of the two label rows
     /// that follows each: the frame shows its labels in <paramref name="highlight"/>'s shades from the next capture.
     /// </summary>
     private void SetPauseButtonLabelMode(PauseButtonHighlight highlight) =>
@@ -815,7 +815,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private bool reserveArrowLatched;
     /// <summary>Last requested reserve-arrow state.</summary>
     private ReserveArrowState reserveArrowLatchedState;
-    /// <summary>Eight-bit frame phase (zero through 255) retained for reproducing the arrow's current color on rebind.</summary>
+    /// <summary>Frame phase (zero through 255) retained for reproducing the arrow's current color on rebind.</summary>
     private int reserveArrowLatchedFrame;
 
     /// <summary>
@@ -855,7 +855,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private void ReapplyLatchedReserveArrow() =>
         SetReserveArrow(reserveArrowLatchedState, reserveArrowLatchedFrame);
 
-    /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
+    /// <summary>Accepted frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
     private int pauseFrameCycle;
 
     /// <summary>Draws the reserve strip's full/partial/empty tanks and final cap.</summary>

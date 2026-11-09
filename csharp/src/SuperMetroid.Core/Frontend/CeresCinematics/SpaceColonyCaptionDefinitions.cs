@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
-/// <summary>English caption in native8C:D629..D66A: emit the non-space characters
+/// <summary>The English caption: emit the non-space characters
 /// of SPACE COLONY left-to-right, one eight-pixel cell each, starting at column10 of row 24,
 /// and, with Japanese text, the katakana caption below it. The import pictures each letter and the katakana caption.</summary>
 public static class SpaceColonyCaptionDefinitions

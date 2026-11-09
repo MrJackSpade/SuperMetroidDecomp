@@ -19,7 +19,7 @@ internal enum EndingSpriteRole
     CloudBottomA,
     /// <summary>Other lower cloud actor in the second escape backdrop.</summary>
     CloudBottomB,
-    /// <summary>Primary planet actor whose instruction pointer controls subordinate explosion layers.</summary>
+    /// <summary>Primary planet actor whose program controls subordinate explosion layers.</summary>
     ExplodingZebes,
     /// <summary>Lava layer deleted when the primary planet actor ends.</summary>
     ExplosionLava,
@@ -41,7 +41,7 @@ internal enum EndingSpriteRole
     CompletedSuccessfullyText,
     /// <summary>Clear-time label preceding the digit actors.</summary>
     ClearTimeText,
-    /// <summary>One clear-time digit or colon selected by the text opcode.</summary>
+    /// <summary>One clear-time digit or colon selected by the clear-time text step.</summary>
     ClearTimeDigit,
     /// <summary>One body or head component of the selected post-credits reward.</summary>
     RewardSamus,

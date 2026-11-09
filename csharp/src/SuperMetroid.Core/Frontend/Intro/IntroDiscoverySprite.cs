@@ -31,7 +31,7 @@ internal sealed class IntroDiscoverySprite
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
-    /// <summary>Cleared when the list's delete opcode retires the actor.</summary>
+    /// <summary>Cleared when the program's delete step retires the actor.</summary>
     public bool IsActive { get; private set; } = true;
 
     /// <summary>The whole and subpixel words of the sprite's position on both axes.</summary>
@@ -65,10 +65,10 @@ internal sealed class IntroDiscoverySprite
     /// </summary>
     internal WrappingCountdown LoopCountdown { get; private set; } = WrappingCountdown.Start(0);
 
-    /// <summary>The pre-instruction the actor runs, or none.</summary>
+    /// <summary>The frame behaviour the actor runs, or none.</summary>
     internal CinematicSpriteFrameBehavior? FrameBehavior { get; private set; }
 
-    /// <summary>The pre-instruction the actor's program installed, until an owner installs its own.</summary>
+    /// <summary>The frame behaviour the actor's program installed, until an owner installs its own.</summary>
     internal CinematicSpriteFrameBehavior? ListFrameBehavior { get; private set; }
 
     /// <summary>Starts <paramref name="program"/> on the next handler call, discarding the old frame countdown.</summary>
@@ -94,7 +94,7 @@ internal sealed class IntroDiscoverySprite
         frameHold = WrappingCountdown.Start(frames);
     }
 
-    /// <summary>Installs the pre-instruction the actor's owner selects, or none.</summary>
+    /// <summary>Installs the frame behaviour the actor's owner selects, or none.</summary>
     internal void InstallFrameBehavior(CinematicSpriteFrameBehavior? frameBehavior)
     {
         FrameBehavior = frameBehavior;
@@ -149,7 +149,7 @@ internal sealed class IntroDiscoverySprite
         }
     }
 
-    /// <summary>Installs a pre-instruction, or hands any other cue to the actor's owner.</summary>
+    /// <summary>Installs a frame behaviour, or hands any other cue to the actor's owner.</summary>
     private void ApplyCue(CinematicSpriteCue cue, Action<CinematicSpriteCueKind>? ownerCue)
     {
         if (cue.Kind == CinematicSpriteCueKind.SetFrameBehavior)

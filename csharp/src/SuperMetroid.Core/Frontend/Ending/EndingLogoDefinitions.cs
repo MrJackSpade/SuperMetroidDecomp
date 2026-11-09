@@ -21,17 +21,17 @@ internal static class EndingLogoDefinitions
     /// <summary>The logo actors in allocation order.</summary>
     internal static readonly EndingLogoActorKind[] ActorKinds =
         [EndingLogoActorKind.UpperS, EndingLogoActorKind.LowerS, EndingLogoActorKind.UpperCircle, EndingLogoActorKind.LowerCircle];
-    /// <summary>E504 sets both camera coordinates to $100; the actors draw at their world centers minus it.</summary>
+    /// <summary>The logo scene sets both camera coordinates to 256; the actors draw at their world centers minus it.</summary>
     public static Offset16<ScreenPixels> Camera => new(256, 256);
-    /// <summary>F18F/F1A8 initialize the S-half motion scratch word to eight.</summary>
+    /// <summary>The S halves' initializers set their motion step to eight.</summary>
     public const int InitialSpeed = 8;
-    /// <summary>F1E7/F227 accelerate the approaching S halves by two pixels per call.</summary>
+    /// <summary>The approaching S halves accelerate by two pixels per call.</summary>
     public const int Acceleration = 2;
-    /// <summary>F1E7 clamps the upper S half at world (394,367).</summary>
+    /// <summary>The upper S half stops at world (394,367).</summary>
     public static Position16<ScreenPixels> TopLanding => new(394, 367);
-    /// <summary>F227 clamps the lower S half at world (382,383).</summary>
+    /// <summary>The lower S half stops at world (382,383).</summary>
     public static Position16<ScreenPixels> BottomLanding => new(382, 383);
-    /// <summary>E58A completes after sixteen palette pointer pairs.</summary>
+    /// <summary>The logo's colour cycle completes after sixteen colour pairs.</summary>
     public const int PaletteSteps = 16;
     /// <summary>The upper S spawns the logo's glare palette-FX object at landing.</summary>
     public const PaletteFxObject LandingPaletteFx = PaletteFxObject.PostCreditsSuperMetroidIcon;

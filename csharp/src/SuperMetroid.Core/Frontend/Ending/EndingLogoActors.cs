@@ -22,7 +22,7 @@ internal static class EndingLogoActors
         EndingLogoActorKind.LowerCircle => LowerCircle,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
-    /// <summary>F18F–F1D4 initialize these world-space centers before the $100 scroll subtraction.</summary>
+    /// <summary>The logo actors' initializers set these world-space centers before the 256-pixel scroll is subtracted.</summary>
     public static Position16<ScreenPixels> Origin(int actor) => KindAt(actor, nameof(actor)) switch
     {
         EndingLogoActorKind.UpperS => new(530, 231),

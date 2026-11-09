@@ -41,7 +41,7 @@ public sealed class CeresDepartureState
     /// <summary>
     /// Applies the elevator hold's post-gameplay decrement and reports the transition to the blackout.
     /// </summary>
-    /// <returns>Whether the wrapping 16-bit countdown reached zero or signed underflow and entered the fade; the triggering admission frame is not counted.</returns>
+    /// <returns>Whether the wrapping countdown reached zero or ran below it and entered the fade; the triggering admission frame is not counted.</returns>
     /// <exception cref="InvalidOperationException">The elevator-hold phase is not active.</exception>
     public bool StepHoldAfterGameplay()
     {
@@ -67,7 +67,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.FadingToBlack)
             throw new InvalidOperationException("Ceres departure fade is not active.");
 
-        // Room main explicitly sets both fade words to zero. HandleFadeOut therefore
+        // Room main explicitly sets both fade delays to zero. The fade-out therefore
         // steps brightness on every call. Brightness one becomes a blanked screen
         // rather than a representable brightness zero, which is exposed here as Complete.
         if (Brightness > 1)

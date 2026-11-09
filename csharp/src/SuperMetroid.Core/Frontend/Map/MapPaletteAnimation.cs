@@ -36,7 +36,7 @@ public sealed class MapPaletteAnimation
     /// <summary>Binds the installed cycle's timing when the game is bound to its installed content, without resetting the cycle's timer.</summary>
     public void Bind(MapHighlightCycle? cycle) => content = cycle;
 
-    /// <summary>Restores ResetPauseMenuAnimations' initial frame and one-tick delay.</summary>
+    /// <summary>Restores the pause menu animations' initial frame and one-tick delay.</summary>
     public void Reset() { Timer = 1; Frame = 0; }
 
     /// <summary>
@@ -47,7 +47,7 @@ public sealed class MapPaletteAnimation
         ? MapSpriteShades.Highlight(frame)
         : MapSpriteShades.Drawn(screen, MapSpriteColouring.Highlighted));
 
-    /// <summary>Advances to the next highlight frame when its hold ends; true requests room-library MapPaletteLoop.</summary>
+    /// <summary>Advances to the next highlight frame when its hold ends; true requests the room library's map palette-loop sound.</summary>
     /// <exception cref="InvalidOperationException">The installed cycle is not bound.</exception>
     public bool Step()
     {

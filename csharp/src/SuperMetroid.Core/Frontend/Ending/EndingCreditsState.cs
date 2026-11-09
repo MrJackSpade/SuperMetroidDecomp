@@ -315,7 +315,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsReward:
-                // E265/E314 test var4 before decrement. Both 64-frame halves advance
+                // Both fade halves test their counter before the decrement. Both 64-frame halves advance
                 // their shared palette accumulator on the fourth, eighth, ... calls.
                 if ((Stage.PhaseTimer & 3) == 1)
                 {

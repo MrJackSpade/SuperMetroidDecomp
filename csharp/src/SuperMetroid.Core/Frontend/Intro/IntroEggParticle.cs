@@ -47,7 +47,7 @@ internal sealed class IntroEggParticle
         if (sprite.FrameBehavior != IntroEggParticleActors.Particle(fragment).FrameBehavior)
         {
             throw new InvalidDataException(
-                $"Intro egg particle names invalid pre-instruction {sprite.FrameBehavior}.");
+                $"Intro egg particle names invalid frame behaviour {sprite.FrameBehavior}.");
         }
 
         // The fragment motion indexes the horizontal velocities by fragment and the gravity table by the

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>One of four Baby-Metroid slime drops created when the confused baby first cries.</summary>
 internal sealed class IntroEggSlimeDrop
 {
-    /// <summary>Discovery sprite owning this drop's position and impact instruction list.</summary>
+    /// <summary>Discovery sprite owning this drop's position and impact program.</summary>
     internal readonly IntroDiscoverySprite sprite;
     /// <summary>
     /// The drop's trajectory, 0 through 3: it selects the horizontal velocity, and its parity the gravity curve; it never
@@ -50,7 +50,7 @@ internal sealed class IntroEggSlimeDrop
             if (sprite.FrameBehavior != IntroEggEffectDefinitions.SlimeDrop.FrameBehavior)
             {
                 throw new InvalidDataException(
-                    $"Intro egg slime names invalid pre-instruction {sprite.FrameBehavior}.");
+                    $"Intro egg slime names invalid frame behaviour {sprite.FrameBehavior}.");
             }
             AddVelocity(axis: Axis.Horizontal, IntroEggMotion.SlimeX(trajectory));
 

@@ -155,7 +155,7 @@ internal sealed class EndingStage
             case EndingSpriteRole.ExplosionGlow:
             case EndingSpriteRole.ExplosionStars:
             case EndingSpriteRole.ExplosionLava:
-                // F2A5 observes the original planet actor's instruction pointer, not a
+                // The layers follow the original planet actor's program, not a
                 // cinematic timer. These subordinate layers disappear with that actor.
                 if (!sprites.Any(actor => actor.Role == EndingSpriteRole.ExplodingZebes && actor.Sprite.IsActive))
                     sprite.Delete();
@@ -173,7 +173,7 @@ internal sealed class EndingStage
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
-            // These actors run no pre-instruction.
+            // These actors run no frame behaviour.
             case EndingSpriteRole.CloudRightA:
             case EndingSpriteRole.CloudLeftA:
             case EndingSpriteRole.CloudRightB:

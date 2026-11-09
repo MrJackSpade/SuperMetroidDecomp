@@ -30,7 +30,7 @@ internal sealed class IntroBabyDiscoveryState
     private readonly SharedRandom random;
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
-    /// <summary>The egg actor whose list pointer controls the hatch sequence.</summary>
+    /// <summary>The egg actor whose program controls the hatch sequence.</summary>
     internal readonly IntroDiscoverySprite egg;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
     internal readonly IntroDiscoverySprite confusedBaby;
@@ -103,12 +103,12 @@ internal sealed class IntroBabyDiscoveryState
         // The cinematic dispatcher runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
         {
-            // The demo pose-input handler runs DemoInputObjectHandler inside Samus's
+            // The demo pose-input handler runs the demo input object inside Samus's
             // current-state handler, ahead of her pose input and movement.
             if (demo.IsPlaying)
                 CheckDemoPhase(introCrossfadeTimer);
             demo.Step(HandleDemoCue);
-            // The current-state handler ends with ResetMovementAndPoseChangeVariables,
+            // The current-state handler ends by resetting the movement and pose-change state,
             // before this dispatch's movement records new distances.
             SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
@@ -169,7 +169,7 @@ internal sealed class IntroBabyDiscoveryState
         IIntroCinematicSpritePresentation? eggEffectArt = null,
         IIntroCinematicSpritePresentation? actorArt = null)
     {
-        // IntroSamusDisplayFlag=+1 makes cinematic objects draw before Samus. The egg
+        // An intro Samus display of +1 makes cinematic objects draw before Samus. The egg
         // was spawned before the confused-baby object and retains its own list and timer.
         egg.Draw(objects, installedArt: actorArt);
         confusedBaby.Draw(objects, installedArt: actorArt);
@@ -218,7 +218,7 @@ internal sealed class IntroBabyDiscoveryState
             throw new InvalidOperationException($"The Baby-discovery demo calls no {cue} routine.");
 
         // The scene's end replaces both Samus handlers with ones that do nothing, disables demo input, and
-        // returns into the following shared delete opcode. Samus is never processed again.
+        // returns into the following shared delete step. Samus is never processed again.
         demo.Disable();
         Samus.Control.LockHandlers();
         samusHandlersEnded = true;
@@ -477,7 +477,7 @@ internal sealed class IntroBabyDiscoveryState
             : sprite.Position.WithY(IntroCinematicMotion.AddEightEight(sprite.Position.Y, velocity));
     }
 
-    /// <summary>Instantiates a cinematic actor with its authored position, palette, list, and pre-instruction.</summary>
+    /// <summary>Instantiates a cinematic actor with its authored position, palette, program, and frame behaviour.</summary>
     private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(

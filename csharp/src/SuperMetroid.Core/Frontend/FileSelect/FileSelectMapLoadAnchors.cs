@@ -12,10 +12,10 @@ public static class FileSelectMapLoadAnchors
     /// <remarks>
     /// Independently reviewed for #1165 against the game's load placement and
     /// map projection. First wrap camera plus player offset to a
-    /// sixteen-bit world coordinate (including the horizontal128 bias), then take
-    /// its high byte. Add the room map coordinate and multiply by eight; Y has one
+    /// world coordinate of 0 through 65535 (including the horizontal128 bias), then take
+    /// its whole screens (the coordinate over 256). Add the room map coordinate and multiply by eight; Y has one
     /// additional map row. The thirty-four supported station identities retain the
-    /// existing marker-validity guard before narrowing the station index to a byte.
+    /// existing marker-validity guard before narrowing the station index.
     /// Only fixed compiled room metadata is needed, never room-state selection,
     /// original data access, editable marker art, or a generated coordinate cache.
     /// </remarks>

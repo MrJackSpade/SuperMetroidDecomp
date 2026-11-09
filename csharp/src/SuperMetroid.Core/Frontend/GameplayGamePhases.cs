@@ -207,11 +207,11 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     internal void DispatchSamusEscapesFromZebes(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         // The Zebes-escape state calls the complete main-gameplay coroutine before
-        // HandleFadeOut. The fleeing gunship, room animations, and sound publishers
+        // the fade-out. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
-        // HandleFadingOut reloads the counter from ScreenFadeDelay, which
+        // The fade-out reloads the counter from the screen fade's delay, which
         // the gunship zeroed, so the brightness falls one step on every call.
         session.SetDisplayBrightness(session.EscapeFade.Darken());
         if (session.EscapeFade.Brightness == 0)
@@ -343,7 +343,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // The already-produced gameplay image remains this frame's image; the
             // following dispatcher call begins the door state from that publication.
             // A message box opened later in the same call (a station's completion
-            // notice in the PLM handler) suspends that call until it
+            // notice in the room-object handler) suspends that call until it
             // closes, so the door's state waits for the box's final frame.
             session.GameState = SuperMetroidGameState.HitDoorBlock;
         }

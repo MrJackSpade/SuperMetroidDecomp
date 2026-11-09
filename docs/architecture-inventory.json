@@ -26185,6 +26185,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTilePictureSizeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxAnimatedTilePictureSizeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTilePictures",
       "kind": "static class",
       "scope": "product",
@@ -26559,6 +26572,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.TourianStatueTileStripDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/TourianStatueTileStripDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.TourianStatueTileWindow",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/TourianStatueTileWindow.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.GameplayBasePalette",
@@ -39526,45 +39565,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueAnimatedTileMechanicsDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueAnimatedTileMechanicsDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueAnimatedTileProgramDefinition",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueAnimatedTileProgramDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueAnimatedTiles",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueAnimatedTiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueAnimation",
       "kind": "class",
       "scope": "product",
@@ -39576,6 +39576,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueAnimationDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueAnimationDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueBoss",
@@ -41227,6 +41253,19 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Core/Assets/TileTransferDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Assets.TimedArtworkFrame",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Assets/TimedArtworkFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -96428,45 +96467,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.TourianStatueTileStrip",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/TourianStatueTileStrip.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.TourianStatueTileStripDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/TourianStatueTileStripDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.TourianStatueTileWindow",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/TourianStatueTileWindow.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.AtmosphereDrift",
       "kind": "static class",
       "scope": "product",
@@ -98547,7 +98547,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxObjectAccess.extension(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimatedTileProgramDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxObjectAccess.extension(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimationDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [

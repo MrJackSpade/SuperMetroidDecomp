@@ -1228,7 +1228,6 @@ internal static class LookupStream5Verification
                 for (int i = 0; i < copied.Length; i++)
                     AssertEqual(expected[copied.DestinationOffset + i], staged[i], "Actual installed Sidehopper graphics copy");
             }
-
         }
         AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SidehopperInitialCopy(0, -1), "Copy row lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SidehopperInitialCopy(0, 5), "Copy row upper bound");

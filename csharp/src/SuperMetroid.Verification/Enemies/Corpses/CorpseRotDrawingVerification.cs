@@ -145,7 +145,7 @@ internal static class CorpseRotDrawingVerification
 
     /// <summary>
     /// Two dead Sidehoppers of one kind rot apart (#1539): rotting one through its whole schedule leaves the other's rows every
-    /// one itself, and the other's draw unrotted.
+    /// one itself.
     /// </summary>
     private static void VerifyCorpsesOfOneKindRotApart()
     {

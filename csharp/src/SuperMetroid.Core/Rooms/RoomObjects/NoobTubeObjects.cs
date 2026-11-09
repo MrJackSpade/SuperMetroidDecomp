@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The Maridia glass tube (N00b tube) PLM: its crack and shatter, earthquake, effect overlay FX and projectile spawns.</summary>
+/// <summary>Maridia's glass tube: its setup and what its break does to Samus, the events, the water, the earthquake and the debris.</summary>
 [RoomLifetime]
 internal sealed class NoobTubeObjects
 {
@@ -18,62 +18,29 @@ internal sealed class NoobTubeObjects
     private readonly IRoomEarthquakeWriter? _earthquake;
     /// <summary>The enemy effects room objects trigger.</summary>
     private readonly IRoomObjectEnemyEffects? _enemies;
-    /// <summary>Queue used for ineffective shot feedback while the tube waits.</summary>
-    private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Shares the room services and sound queue used by the tube PLM interpreter.</summary>
-    internal NoobTubeObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomWaterPhysics? waterPhysics, IRoomEarthquakeWriter? earthquake, IRoomObjectEnemyEffects? enemies, RoomObjectSoundQueue sounds)
+    /// <summary>Shares the room services the tube's break reaches.</summary>
+    internal NoobTubeObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomWaterPhysics? waterPhysics, IRoomEarthquakeWriter? earthquake, IRoomObjectEnemyEffects? enemies)
     {
         _samus = samus;
         _events = events;
         _waterPhysics = waterPhysics;
         _earthquake = earthquake;
         _enemies = enemies;
-        _sounds = sounds;
     }
 
     /// <summary>Runs the tube's setup by replacing its whole origin block.</summary>
-    internal static void SetupNoobTubeSlot(RoomLevelData level, RoomObjectSlot slot)
+    internal void SetupNoobTubeSlot(RoomLevelData level, RoomObjectSlot slot)
     {
+        Ensure.NotNull(level);
+        Ensure.NotNull(slot);
+        slot.Become(new NoobTubeObject(this));
         level.SetTerrain(
             slot.BlockIndex,
             NoobTubeObjectDefinitions.SolidProjectileTrigger);
         level.SetBehavior(
             slot.BlockIndex,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
-        slot.StartAnimation(new NoobTubeObjectAnimation(NoobTubeProgram.Main));
-    }
-
-    /// <summary>Runs either of the two callbacks that can own the sleeping tube actor.</summary>
-    internal void RunNoobTubeFrameBehavior(RoomObjectSlot slot, NoobTubeObjectFrameBehavior frameBehavior, ControllerButton controllerNewInput)
-    {
-        switch (frameBehavior)
-        {
-            case NoobTubeObjectFrameBehavior.WakeOnPowerBomb:
-                if (slot.ProjectileHit?.Family == SamusProjectileFamily.PowerBomb)
-                {
-                    slot.WakeAtLink();
-                }
-                else if (slot.ProjectileHit is not null)
-                {
-                    _sounds.Queue(
-                        NoobTubeObjectDefinitions.IneffectiveShotSound,
-                        Priority: SoundRequestPriority.Normal);
-                }
-                slot.ProjectileHit = null;
-                return;
-
-            case NoobTubeObjectFrameBehavior.WakeOnAcceptedInput:
-                if ((controllerNewInput & NoobTubeObjectDefinitions.AcceptedWakeInputMask) != ControllerButton.None)
-                {
-                    slot.WakeAtLink();
-                }
-                return;
-
-            case NoobTubeObjectFrameBehavior.Inactive:
-            default:
-                throw new InvalidOperationException($"Undefined n00b-tube pre-instruction {frameBehavior}.");
-        }
     }
 
     /// <summary>Whether the tube was broken on an earlier visit (its event is set).</summary>

@@ -11,14 +11,8 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectNativeListAddresses
 {
-    /// <summary>The n00b tube's lists (<c>InstList_PLM_NoobTube_0..4</c>, $84:D4D4..D524).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<NoobTubeProgram>> NoobTubeEntries { get; } =
-    [
-        new NativeProgramEntry<NoobTubeProgram>(NoobTubeProgram.Main, 0xd4d4),
-        new NativeProgramEntry<NoobTubeProgram>(NoobTubeProgram.WaitForInput, 0xd4e8),
-        new NativeProgramEntry<NoobTubeProgram>(NoobTubeProgram.Break, 0xd4f2),
-        new NativeProgramEntry<NoobTubeProgram>(NoobTubeProgram.AlreadyBroken, 0xd521),
-    ];
+    /// <summary>The n00b tube's first list (<c>InstList_PLM_NoobTube_0</c>, $84:D4D4).</summary>
+    internal const ushort NoobTubeList = 0xd4d4;
 
     /// <summary>The shared one-instruction lists (<c>InstList_PLM_Delete</c> $84:AAE3, the metroids-cleared sleep $84:DB42).</summary>
     internal static IReadOnlyList<NativeProgramEntry<RoomObjectSharedProgram>> SharedEntries { get; } =

@@ -30,4 +30,7 @@ internal sealed record RoomObjectPopulationLoaderDependencies
 
     /// <summary>Speed booster escape.</summary>
     public required SpeedBoosterEscapeObjects SpeedBoosterEscape { get; init; }
+
+    /// <summary>Maridia's glass tube, which population sets up.</summary>
+    public required NoobTubeObjects NoobTube { get; init; }
 }

@@ -455,7 +455,7 @@ internal static class GModeGateGlitchVerification
                 blockIndex,
                 SamusBombProjectileSystem.PowerBombType),
             "Power Bomb publishes its hit to the intact glass-tube resident");
-        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), roomObjects.PopulationSlots.Single().ProjectileHit,
+        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), (roomObjects.PopulationSlots.Single().Behaviour as NoobTubeObject)?.PendingHit,
             "G-Mode-disabled tube retains the pending Power Bomb hit");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.AlphaLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
@@ -463,8 +463,7 @@ internal static class GModeGateGlitchVerification
             "suspended glass tube leaves its water-physics disable bit intact");
 
         StepNoobTube(roomObjects, level);
-        AssertEqual(RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput),
-            roomObjects.PopulationSlots.Single().FrameBehavior,
+        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForInput },
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }
 

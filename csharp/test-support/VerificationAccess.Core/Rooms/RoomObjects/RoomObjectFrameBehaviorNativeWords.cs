@@ -17,12 +17,11 @@ internal static class RoomObjectFrameBehaviorNativeWords
         [DownwardGateFrameBehavior.Inert] = 0xbb6a,
     });
 
-    /// <summary>The bank-$84 routine word naming each <see cref="NoobTubeObjectFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<NoobTubeObjectFrameBehavior> NoobTube = new(new Dictionary<NoobTubeObjectFrameBehavior, ushort>
+    /// <summary>The bank-$84 routine word of each wait of the glass tube (<see cref="NoobTubePhase"/>).</summary>
+    internal static readonly NativeWordIdentities<NoobTubePhase> NoobTube = new(new Dictionary<NoobTubePhase, ushort>
     {
-        [NoobTubeObjectFrameBehavior.WakeOnAcceptedInput] = 0xd4bf,
-        [NoobTubeObjectFrameBehavior.WakeOnPowerBomb] = 0xbd26,
-        [NoobTubeObjectFrameBehavior.Inactive] = 0x86d0,
+        [NoobTubePhase.WaitingForInput] = 0xd4bf,
+        [NoobTubePhase.WaitingForPowerBomb] = 0xbd26,
     });
 
     /// <summary>The bank-$84 routine word of each wait of the lavaquake (<see cref="SpeedBoosterEscapePhase"/>).</summary>

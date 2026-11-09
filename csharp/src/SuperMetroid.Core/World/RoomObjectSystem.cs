@@ -146,7 +146,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         ChozoStatue = new ChozoStatueObjects(room.System, room.AreaIndex, SlotTable);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
         BombTorizoHand = new BombTorizoHandObjects(services.Samus, SlotTable);
-        NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies, Sounds);
+        NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, room.Level, SlotTable, Sounds);
         MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
         Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds);
@@ -155,7 +155,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
         GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds, DoorObjects);
         Tourian = new TourianObjects(services.Samus, services.Enemies, SlotTable);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
         BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
         foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[Stations, CollectibleObjects, DoorObjects, GreyDoors, Gates, EyeDoors])

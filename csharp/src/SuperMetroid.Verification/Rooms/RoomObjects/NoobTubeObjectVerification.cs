@@ -86,10 +86,8 @@ internal static class NoobTubeObjectVerification
         // under the power-bomb detector with its link pointing at the input-wait stage.
         StepNoobTube(roomObjects, level);
         RoomObjectSlotSnapshot intact = roomObjects.PopulationSlots.Single();
-        AssertEqual(RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnPowerBomb),
-            intact.FrameBehavior, "intact tube waits for a power bomb");
-        AssertTrue(intact.Animation is NoobTubeObjectAnimation { Program: NoobTubeProgram.Main, Link: NoobTubeProgram.WaitForInput },
-            "intact tube sleeps in its main program, linked to the input wait");
+        AssertTrue(intact.Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForPowerBomb },
+            "intact tube waits for a power bomb");
 
         // Repeated #339: BTS $44 is a resident trigger, not a breakable-block index.
         // Exercise StepFiring (including endpoint collision), rather than bypassing
@@ -103,10 +101,10 @@ internal static class NoobTubeObjectVerification
             ControllerButton.X, roomObjects);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");
-        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.Beam), roomObjects.PopulationSlots.Single().ProjectileHit,
+        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.Beam), PendingTubeHit(roomObjects),
             "grapple publishes a hit that reads as a beam, not a missile or power bomb");
         StepNoobTube(roomObjects, level);
-        AssertEqual(null, roomObjects.PopulationSlots.Single().ProjectileHit, "resident consumes grapple notification once");
+        AssertEqual(null, PendingTubeHit(roomObjects), "resident consumes grapple notification once");
         AssertTrue(!brokenEvent && projectiles.Count == 0, "grapple must not shatter the power-bomb-only tube");
         AssertTrue(roomObjects.Sounds.SoundRequests.Contains(new SoundRequest(
             NoobTubeObjectDefinitions.IneffectiveShotSound, SoundRequestPriority.Normal)),
@@ -121,7 +119,7 @@ internal static class NoobTubeObjectVerification
                 NoobTubeObjectDefinitions.IneffectiveShotSound,
                 SoundRequestPriority.Normal)),
             "ordinary shot queues the cartridge rejection sound");
-        AssertEqual(null, roomObjects.PopulationSlots.Single().ProjectileHit,
+        AssertEqual(null, PendingTubeHit(roomObjects),
             "projectile notification is consumed exactly once");
 
         // The intact retail draw changes the origin from setup's type $8 to type $C while
@@ -145,14 +143,12 @@ internal static class NoobTubeObjectVerification
         AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger),
             level.GetCollisionBlockByIndex(blockIndex).Behavior,
             "Power Bomb observes the intact tube's BTS-$44 trigger");
-        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), roomObjects.PopulationSlots.Single().ProjectileHit,
+        AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), PendingTubeHit(roomObjects),
             "generic trigger publishes the Power Bomb hit");
         StepNoobTube(roomObjects, level);
         RoomObjectSlotSnapshot armed = roomObjects.PopulationSlots.Single();
-        AssertEqual(RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput),
-            armed.FrameBehavior, "power bomb arms the input wake callback");
-        AssertTrue(armed.Animation is NoobTubeObjectAnimation { Program: NoobTubeProgram.WaitForInput, Link: NoobTubeProgram.Break },
-            "power bomb wakes the input wait, linked to the break");
+        AssertTrue(armed.Behaviour is NoobTubeObject { Phase: NoobTubePhase.WaitingForInput },
+            "power bomb wakes the tube to wait for input");
 
         StepNoobTube(roomObjects, level, ControllerButton.Right);
         AssertTrue(samus.Control.AlphaLocked, "break sequence locks Samus");
@@ -357,6 +353,11 @@ internal static class NoobTubeObjectVerification
         return roomFx;
     }
 
+    /// <summary>The strike the live glass tube has not yet read, or null for none.</summary>
+    private static ResidentObjectProjectileHit? PendingTubeHit(RoomObjectSystem roomObjects) =>
+        (roomObjects.PopulationSlots.Single().Behaviour as NoobTubeObject
+            ?? throw new InvalidOperationException("The glass tube is not a typed object.")).PendingHit;
+
     /// <summary>Advances one PLM tick with the requested new-input edge and a fixed camera.</summary>
     internal static void StepNoobTube(
         RoomObjectSystem roomObjects,
@@ -377,7 +378,7 @@ internal static class NoobTubeObjectVerification
             0x74, 0xd7, 0xfb, 0x84, 0x52, 0xd6, 0x00, 0x00,
             0x00, 0x30, 0x00, 0x00, 0xfc, 0x84,
         ]);
-        SeedObjectProgramWords(bus, 0xd70e, RoomObjectNativeListAddresses.NoobTubeEntries[0].Entry);
+        SeedObjectProgramWords(bus, 0xd70e, RoomObjectNativeListAddresses.NoobTubeList);
 
         WriteOneBlockDraw(bus, 0x98d1,
             unchecked(((ushort)RoomCollisionType.ShootableBlock << 12) | 0x0001));

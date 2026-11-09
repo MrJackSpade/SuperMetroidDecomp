@@ -21,12 +21,63 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectProgramsVerification
 {
-    /// <summary>The n00b tube's programs equal their native lists.</summary>
+    /// <summary>
+    /// The glass tube's native lists do what <see cref="NoobTubeObject"/> does (#1554): a tube broken earlier restores the
+    /// water and ends; otherwise it links its input wait, arms its Power Bomb wait, shows the intact tube and sleeps; the
+    /// input wait links the break, arms its input wait and sleeps; the break stops waiting, locks Samus, cracks, shows each
+    /// cracking image, shatters with its sound, debris and earthquake, shows the open tube, sets the broken event,
+    /// restores the water, releases Samus and ends. Every image and operand is compared with
+    /// <see cref="NoobTubeObjectDefinitions"/>.
+    /// </summary>
     internal static void VerifyNoobTubePrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), NoobTubeObjectProgramDefinitions.Programs, NoobTubeEntries,
-            draw => RoomObjectDraw.Of(draw), NoobTubeCueAt, "n00b tube");
-        Console.WriteLine($"  N00b tube programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, TerrainChangeFrame frame, string at)
+        {
+            AssertEqual(frame.Updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
+        }
+
+        int main = NoobTubeList;
+        AssertEqual(RoomObjectInstruction.GotoIfEventSet, At(main), "tube first checks whether it is broken");
+        AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), (int)Word(main + 2), "tube broken event");
+        int alreadyBroken = Word(main + 4);
+        AssertEqual(RoomObjectInstruction.LinkInstruction, At(main + 6), "tube links its input wait");
+        int waitForInput = Word(main + 8);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(main + 10), "tube arms its Power Bomb wait");
+        AssertEqual(NoobTubePhase.WaitingForPowerBomb, RoomObjectFrameBehaviorNativeWords.NoobTube.Decode(Word(main + 12), "tube wait"), "tube Power Bomb wait");
+        AssertShown(main + 14, new TerrainChangeFrame(RoomObjectDraw.Of(NoobTubeObjectDefinitions.IntactImage), 1), "intact tube");
+        AssertEqual(RoomObjectInstruction.Sleep, At(main + 18), "intact tube waits");
+
+        AssertEqual(RoomObjectInstruction.EnableNoobTubeWaterPhysics, At(alreadyBroken), "broken tube restores the water");
+        AssertEqual(RoomObjectInstruction.Delete, At(alreadyBroken + 2), "broken tube ends");
+
+        AssertEqual(RoomObjectInstruction.LinkInstruction, At(waitForInput), "input wait links the break");
+        int cursor = Word(waitForInput + 2);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(waitForInput + 4), "tube arms its input wait");
+        AssertEqual(NoobTubePhase.WaitingForInput, RoomObjectFrameBehaviorNativeWords.NoobTube.Decode(Word(waitForInput + 6), "tube wait"), "tube input wait");
+        AssertEqual(RoomObjectInstruction.Sleep, At(waitForInput + 8), "tube waits for input");
+
+        AssertEqual(RoomObjectInstruction.ClearFrameBehavior, At(cursor), "break stops waiting");
+        AssertEqual(RoomObjectInstruction.LockSamus, At(cursor + 2), "break locks Samus");
+        AssertEqual(RoomObjectInstruction.SpawnNoobTubeCrack, At(cursor + 4), "break cracks the glass");
+        cursor += 6;
+        for (int index = 0; index < NoobTubeObjectDefinitions.Cracking.Count; index++, cursor += 4)
+            AssertShown(cursor, NoobTubeObjectDefinitions.Cracking[index], $"cracking image {index}");
+        AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), "the tube shatters with its sound");
+        AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "tube break sound");
+        AssertEqual(SoundRequestPriority.Normal, NoobTubeObjectDefinitions.BreakSoundPriority, "tube break sound priority");
+        AssertEqual(RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles, At(cursor + 3), "the tube throws its shards and bubbles");
+        AssertEqual(RoomObjectInstruction.TriggerNoobTubeEarthquake, At(cursor + 5), "the tube shakes the room");
+        AssertShown(cursor + 7, NoobTubeObjectDefinitions.Shattered, "open tube");
+        AssertEqual(RoomObjectInstruction.SetEvent, At(cursor + 11), "the open tube sets its event");
+        AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), (int)Word(cursor + 13), "tube broken event set");
+        AssertEqual(RoomObjectInstruction.EnableNoobTubeWaterPhysics, At(cursor + 15), "the open tube restores the water");
+        AssertEqual(RoomObjectInstruction.UnlockSamus, At(cursor + 17), "the open tube releases Samus");
+        AssertEqual(RoomObjectInstruction.Delete, At(cursor + 19), "the open tube ends");
+        Console.WriteLine("  N00b tube lists match its typed course in bank $84.");
     }
 
     /// <summary>The shared delete and sleep programs equal their one-instruction native lists.</summary>
@@ -875,110 +926,5 @@ internal static class RoomObjectProgramsVerification
         AssertShown(cursor + 8, plant.Released, SamusEaterObjectDefinitions.ReleaseDuration, $"{plantName} closed mouth");
         AssertShown(cursor + 12, plant.Idle, 1, $"{plantName} idle");
         AssertEqual(RoomObjectInstruction.Delete, At(cursor + 16), $"{plantName} ends");
-    }
-
-    /// <summary>The n00b tube's native instructions, with their event, link, pre-instruction and sound operands.</summary>
-    private static bool NoobTubeCueAt(IImportCartridgeSource cartridge, ushort cursor, out NoobTubeCue cue, out int length)
-    {
-        ushort Operand(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
-        NoobTubeProgram Entry(ushort address) => NoobTubeEntries.Single(entry => entry.Entry == address).Program;
-        RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
-        (bool known, cue, length) = instruction switch
-        {
-            RoomObjectInstruction.GotoIfEventSet => new NoobTubeCueAtCase(true, NoobTubeCue.SkipIfBroken, 6),
-            RoomObjectInstruction.LinkInstruction => new NoobTubeCueAtCase(true, Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
-            RoomObjectInstruction.InstallFrameBehavior =>
-                new NoobTubeCueAtCase(true, RoomObjectFrameBehaviorNativeWords.NoobTube.Decode(Operand(2), "n00b tube pre-instruction") == NoobTubeObjectFrameBehavior.WakeOnPowerBomb
-                    ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
-            RoomObjectInstruction.ClearFrameBehavior => new NoobTubeCueAtCase(true, NoobTubeCue.ClearFrameBehavior, 2),
-            RoomObjectInstruction.LockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.LockSamus, 2),
-            RoomObjectInstruction.SpawnNoobTubeCrack => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnCrack, 2),
-            RoomObjectInstruction.QueueSoundLibrary2Maximum6 => new NoobTubeCueAtCase(true, NoobTubeCue.QueueBreakSound, 3),
-            RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnShardsAndBubbles, 2),
-            RoomObjectInstruction.TriggerNoobTubeEarthquake => new NoobTubeCueAtCase(true, NoobTubeCue.TriggerEarthquake, 2),
-            RoomObjectInstruction.SetEvent => new NoobTubeCueAtCase(true, NoobTubeCue.SetBrokenEvent, 4),
-            RoomObjectInstruction.EnableNoobTubeWaterPhysics => new NoobTubeCueAtCase(true, NoobTubeCue.EnableWaterPhysics, 2),
-            RoomObjectInstruction.UnlockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.UnlockSamus, 2),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary3Maximum6 or
-                RoomObjectInstruction.ClearDownwardGateTrigger or
-                RoomObjectInstruction.SpawnDownwardGateProjectile or
-                RoomObjectInstruction.WakeDownwardGateProjectile or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.DamageDraygonCannonFacingRight or
-                RoomObjectInstruction.DamageDraygonCannonFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.SamusEaterDamage or
-                RoomObjectInstruction.SamusEaterReleaseImmunity or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new NoobTubeCueAtCase(false, default, 0),
-            _ => new NoobTubeCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        switch (cue)
-        {
-            case NoobTubeCue.SkipIfBroken:
-                AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), Operand(2), "n00b tube skip event");
-                AssertEqual(NoobTubeProgram.AlreadyBroken, Entry(Operand(4)), "n00b tube skip target");
-                break;
-            case NoobTubeCue.LinkBreak:
-                AssertEqual(NoobTubeProgram.Break, Entry(Operand(2)), "n00b tube break link");
-                break;
-            case NoobTubeCue.ArmInputWake:
-                AssertEqual(RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput), Operand(2), "n00b tube input wake");
-                break;
-            case NoobTubeCue.QueueBreakSound:
-                AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
-                AssertEqual(SoundRequestPriority.Normal, NoobTubeObjectProgramDefinitions.BreakSoundPriority, "n00b tube break sound priority");
-                break;
-            case NoobTubeCue.SetBrokenEvent:
-                AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), Operand(2), "n00b tube broken event");
-                break;
-            case NoobTubeCue.LinkInputWait:
-            case NoobTubeCue.ArmPowerBombWake:
-            case NoobTubeCue.ClearFrameBehavior:
-            case NoobTubeCue.LockSamus:
-            case NoobTubeCue.SpawnCrack:
-            case NoobTubeCue.SpawnShardsAndBubbles:
-            case NoobTubeCue.TriggerEarthquake:
-            case NoobTubeCue.EnableWaterPhysics:
-            case NoobTubeCue.UnlockSamus:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(NoobTubeCue)} {cue}.");
-        }
-        return true;
     }
 }

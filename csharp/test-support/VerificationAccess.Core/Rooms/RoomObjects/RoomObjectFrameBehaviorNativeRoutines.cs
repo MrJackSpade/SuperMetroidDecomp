@@ -51,9 +51,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
             [DownwardGateFrameBehaviors.WakeIfTriggered] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggered),
             [DownwardGateFrameBehaviors.WakeIfTriggeredOrSamusBelow] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow),
             [DownwardGateFrameBehaviors.Inert] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.Inert),
-            [NoobTubeFrameBehaviors.WakeOnPowerBomb] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnPowerBomb),
-            [NoobTubeFrameBehaviors.WakeOnAcceptedInput] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput),
-            [NoobTubeFrameBehaviors.Inactive] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.Inactive),
         };
         foreach (GreyDoorFrameBehavior routine in Enum.GetValues<GreyDoorFrameBehavior>().Where(routine => routine != GreyDoorFrameBehavior.None))
             routines.Add(GreyDoorFrameBehaviors.Of(routine), DoorsNativeWords.GreyDoorFrameBehaviors.Word(routine));

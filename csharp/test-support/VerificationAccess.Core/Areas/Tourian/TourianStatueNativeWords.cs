@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Areas.Tourian;
@@ -61,12 +63,26 @@ internal static class TourianStatueNativeWords
     /// tables, Phantoon 0, Ridley 2, Draygon 4 and Kraid 6.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="selector"/> names no statue.</exception>
-    internal static TourianStatueEye Eye(int selector) => TourianStatueAnimatedTileMechanicsDefinitions.Statues[selector switch
+    internal static TourianStatueEye Eye(int selector) => TourianStatueAnimationDefinitions.Statues[selector switch
     {
-        0 => AnimatedTileObject.TourianStatuePhantoon,
-        2 => AnimatedTileObject.TourianStatueRidley,
-        4 => AnimatedTileObject.TourianStatueDraygon,
-        6 => AnimatedTileObject.TourianStatueKraid,
+        0 => TourianGreyStatues.Phantoon,
+        2 => TourianGreyStatues.Ridley,
+        4 => TourianGreyStatues.Draygon,
+        6 => TourianGreyStatues.Kraid,
         _ => throw new ArgumentOutOfRangeException(nameof(selector), selector, "A statue selector is 0, 2, 4 or 6."),
     }].Eye;
+
+    /// <summary>
+    /// Resolves the statue whose pictures the native header of <paramref name="animatedObject"/> copies, through the
+    /// import's statue-to-object mapping; any other defined object resolves to false and null.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><paramref name="animatedObject"/> is undefined.</exception>
+    internal static bool TryResolveStatue(AnimatedTileObject animatedObject, [NotNullWhen(true)] out TourianStatueAnimationDefinition? definition)
+    {
+        if (!Enum.IsDefined(animatedObject))
+            throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}.");
+        definition = TourianStatueAnimatedTilePrograms.All.SingleOrDefault(
+            statue => TourianStatueAnimatedTilePrograms.ObjectOf(statue.Statue) == animatedObject);
+        return definition is not null;
+    }
 }

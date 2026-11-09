@@ -51,7 +51,7 @@ internal static class LookupTourianProgramVerification
 
     /// <summary>Decodes one statue's native list into its expected typed programs, compares them, and returns the step count.</summary>
     private static int CompareTourianStatuePrograms(
-        ISnesAddressSpace rom, ushort header, TourianStatueAnimatedTileProgramDefinition definition)
+        ISnesAddressSpace rom, ushort header, TourianStatueAnimationDefinition definition)
     {
         var instructions = OriginalTourianInstructions(rom, header).ToList();
         Dictionary<ushort, TourianStatueTileProgram> labels = ProgramLabels(rom, instructions);
@@ -60,7 +60,7 @@ internal static class LookupTourianProgramVerification
         int frames = 0;
         foreach (var instruction in instructions)
         {
-            string at = $"{definition.AnimatedObject} at $87:{instruction.Cursor:X4}";
+            string at = $"{definition.Statue} statue at $87:{instruction.Cursor:X4}";
             if (labels.TryGetValue(instruction.Cursor, out TourianStatueTileProgram label))
             {
                 // A program that has not jumped or stopped runs on into the next authored one.
@@ -160,18 +160,18 @@ internal static class LookupTourianProgramVerification
                     throw new InvalidDataException($"{at}: undefined animated-tile instruction {instruction.Code:X4}.");
             }
         }
-        AssertTrue(current is null, $"{definition.AnimatedObject}: the native list ends with a jump or a delete");
-        AssertEqual(9, frames, $"{definition.AnimatedObject}: nine native timed frames");
+        AssertTrue(current is null, $"{definition.Statue} statue: the native list ends with a jump or a delete");
+        AssertEqual(9, frames, $"{definition.Statue} statue: nine native timed frames");
 
         int compared = 0;
         AssertEqual(Enum.GetValues<TourianStatueTileProgram>().Length, expected.Count,
-            $"{definition.AnimatedObject}: every typed program is a native list entry");
+            $"{definition.Statue} statue: every typed program is a native list entry");
         foreach ((TourianStatueTileProgram program, List<Step> native) in expected)
         {
             IReadOnlyList<Step> typed = TourianStatueTileAnimations.Create(definition.FirstFrameDuration).Steps(program);
-            AssertEqual(native.Count, typed.Count, $"{definition.AnimatedObject} {program}: step count");
+            AssertEqual(native.Count, typed.Count, $"{definition.Statue} statue {program}: step count");
             for (int index = 0; index < native.Count; index++)
-                AssertEqual(native[index], typed[index], $"{definition.AnimatedObject} {program}: step {index}");
+                AssertEqual(native[index], typed[index], $"{definition.Statue} statue {program}: step {index}");
             compared += native.Count;
         }
         return compared;
@@ -207,11 +207,11 @@ internal static class LookupTourianProgramVerification
     }
 
     /// <summary>The statue picture whose artwork window a native frame operand selects.</summary>
-    private static TourianStatueTilePicture Picture(TourianStatueAnimatedTileProgramDefinition definition, ushort operand, string at)
+    private static TourianStatueTilePicture Picture(TourianStatueAnimationDefinition definition, ushort operand, string at)
     {
         int source = RoomFxNativeSources.AnimatedTilesBank | operand;
         TourianStatueTilePicture[] matches = [.. RoomFxAnimatedTilePictures.TourianStatuePictures.Where(picture =>
-            AnimatedTileImageSources.TourianStatue(definition.AnimatedObject, picture) == source)];
+            AnimatedTileImageSources.TourianStatue(definition.Statue, picture) == source)];
         AssertEqual(1, matches.Length, $"{at}: frame source selects exactly one statue picture");
         return matches[0];
     }

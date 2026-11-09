@@ -52,17 +52,18 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x879e84, RoomFxAnimatedTileSources.Of(new AnimatedTileImage(AnimatedTileObject.HorizontalSpikes, 2)).Value, "third spike picture source");
         AssertEqual(0x879364, RoomFxAnimatedTileSources.Of(new RoomFxAtlasSegment.TourianStatueStrip()).Value, "statue strip source");
         AssertEqual(0x878ec4, AnimatedTileImageSources.Treadmill(3), "fourth treadmill picture source");
-        AssertEqual(0x8798e4, AnimatedTileImageSources.TourianStatue(AnimatedTileObject.TourianStatueDraygon, TourianStatueTilePicture.Released),
+        AssertEqual(0x8798e4, AnimatedTileImageSources.TourianStatue(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Draygon, TourianStatueTilePicture.Released),
             "Draygon released statue picture source");
-        AssertEqual(0x40, TourianStatueTileStrip.PictureArtworkSize(AnimatedTileObject.TourianStatueRidley), "Ridley statue picture size");
+        AssertEqual(0x40, RoomFxAnimatedTilePictures.TourianStatuePictureByteCount(SuperMetroid.Core.Areas.Tourian.TourianGreyStatues.Ridley),
+            "Ridley statue picture size");
         RoomFxAnimatedTileLoop spikes = RoomFxAnimatedTileLoops.Require(AnimatedTileObject.HorizontalSpikes);
         AssertEqual(new AnimatedTileImage(AnimatedTileObject.HorizontalSpikes, 1), spikes.Image(3), "the fourth spike step repeats the second picture");
         AssertEqual(new AnimatedTileImage(AnimatedTileObject.WreckedShipTreadmillRightwards, 3),
             WreckedShipTreadmills.ForDirection(WreckedShipTreadmillDirection.Leftwards).Image(0),
             "the leftward treadmill starts on the rightward loop's last picture");
         AssertEqual(0x20, RoomFxAnimatedTileLoops.TreadmillFrameByteCount, "treadmill frame size");
-        AssertEqual(0x40, RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Lava).FrameArtworkSize, "liquid frame size");
-        AssertEqual(0x50, RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Rain).FrameArtworkSize, "rain frame size");
+        AssertEqual(0x40, RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Lava).PictureByteCount, "liquid frame size");
+        AssertEqual(0x50, RoomFxAnimatedTileLoops.Require(AnimatedTileObject.Rain).PictureByteCount, "rain frame size");
 
         // RoomFxRomData's effect motion, waves and tides.
         AssertEqual(10, WaterWaveDefinitions.OverlayWavePhaseDuration, "water layer-three wave step");

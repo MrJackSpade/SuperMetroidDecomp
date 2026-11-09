@@ -29,7 +29,7 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
         public ushort InstructionPointer => FirstCursor(self.AnimatedObject);
         /// <summary>The address of the terminal <c>goto</c> command after the final frame.</summary>
         public ushort GotoInstructionPointer =>
-            unchecked((ushort)(self.InstructionPointer + self.FrameCount * 4));
+            unchecked((ushort)(self.InstructionPointer + self.Frames.Count * 4));
         /// <summary>
         /// Reads one immutable mechanics word. Frame source operands are intentionally absent.
         /// </summary>
@@ -38,7 +38,7 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
             if (pointer == FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject))
                 value = self.InstructionPointer;
             else if (pointer == unchecked((ushort)(FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject) + 2)))
-                value = checked((ushort)self.FrameArtworkSize);
+                value = checked((ushort)self.PictureByteCount);
             else if (pointer == unchecked((ushort)(FxNativeWords.AnimatedTileObjects.Word(self.AnimatedObject) + 4)))
                 value = AnimatedTileVramDestinations.WordOf(self.AnimatedObject);
             else if (pointer == self.GotoInstructionPointer)
@@ -47,12 +47,12 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
                 value = self.InstructionPointer;
             else
             {
-                for (int index = 0; index < self.FrameCount; index++)
+                for (int index = 0; index < self.Frames.Count; index++)
                 {
                     if (pointer != self.FrameInstructionPointer(index))
                         continue;
 
-                    value = checked((ushort)self.FrameDuration);
+                    value = checked((ushort)self.Frames[index].Duration);
                     return true;
                 }
 

@@ -118,7 +118,7 @@ internal static class PaletteFxObjectAccess
     }
 
     /// <summary>Native view of a Tourian statue release.</summary>
-    extension(TourianStatueAnimatedTileProgramDefinition self)
+    extension(TourianStatueAnimationDefinition self)
     {
         /// <summary>The bank-$8D definition address of the palette-FX object the release spawns.</summary>
         internal ushort PaletteFxDefinition => NativeAddress(self.PaletteFx);

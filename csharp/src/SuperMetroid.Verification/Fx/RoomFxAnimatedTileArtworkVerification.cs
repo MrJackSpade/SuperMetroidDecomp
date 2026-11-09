@@ -28,24 +28,24 @@ internal static class RoomFxAnimatedTileArtworkVerification
         {
             var state = new RoomFxAnimatedTilesState();
             state.LoadDefinition(definition.AnimatedObject);
-            for (int frameIndex = 0; frameIndex < definition.FrameCount; frameIndex++)
+            for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
                 ushort cursor = definition.FrameInstructionPointer(frameIndex);
                 int source = AnimatedTileImageSources.OfCursor(
                     definition, cursor);
                 byte[] native = RomDataReader.ReadFixedBank(rom, source,
-                    definition.FrameArtworkSize);
+                    definition.PictureByteCount);
                 AssertTrue(atlas.TryResolve(source, native.Length, out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
                     $"room-FX frame $87:{cursor:X4} preserves every native art byte");
-                int ticksUntilFrame = frameIndex == 0 ? 1 : definition.FrameDuration;
+                int ticksUntilFrame = frameIndex == 0 ? 1 : definition.Frames[frameIndex - 1].Duration;
                 // The frame's pass selects into fresh selections, so the selection read back is the one that pass made.
                 for (int tick = 1; tick < ticksUntilFrame; tick++)
                     state.Step(new ArtworkFrameSelections());
                 var frames = new ArtworkFrameSelections();
                 state.Step(frames);
                 AssertTrue(frames.TryShown(AnimatedTileFrames.Of(definition.AnimatedObject), out ArtworkFrame shown) &&
-                        shown == AnimatedTileFrames.Frame(definition.AnimatedObject, frameIndex),
+                        shown == definition.Frames[frameIndex].Frame,
                     $"room-FX frame $87:{cursor:X4} is the frame its animation shows from this update");
                 AssertEqual(source, AnimatedTileImageSources.OfShown(frames, definition.AnimatedObject),
                     $"room-FX frame $87:{cursor:X4} selects its compiled art source");

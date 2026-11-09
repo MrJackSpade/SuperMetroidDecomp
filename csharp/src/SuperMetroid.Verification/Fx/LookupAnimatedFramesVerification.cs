@@ -33,7 +33,7 @@ internal static class LookupAnimatedFramesVerification
             AssertTrue(RoomFxAnimatedTiles.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition),
                 "Original animation object resolves");
             int count = (original.End - original.First) / 4;
-            AssertEqual(count, (definition ?? throw new InvalidOperationException("Verification requires definition.")).FrameCount, "Native frame count");
+            AssertEqual(count, (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count, "Native frame count");
             for (int index = 0; index < count; index++)
             {
                 ushort cursor = (ushort)(original.First + 4 * index);
@@ -60,10 +60,10 @@ internal static class LookupAnimatedFramesVerification
         {
             AssertTrue(RoomFxAnimatedTiles.TryResolve(FxNativeWords.AnimatedTileObjects.Decode(original.Object, "animated-tile object"), out var definition), "Animation resolves");
             ArgumentNullException.ThrowIfNull(definition);
-            for (int index = 0; index < definition.FrameCount; index++)
+            for (int index = 0; index < definition.Frames.Count; index++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x870000 | (original.First + 4 * index));
-                AssertEqual(expected, definition.FrameDuration, "Native frame duration");
+                AssertEqual(expected, definition.Frames[index].Duration, "Native frame duration");
                 AssertTrue(definition.TryReadMechanicsWord(definition.FrameInstructionPointer(index), out ushort value), "Frame duration is compiled");
                 AssertEqual(expected, value, "Mechanics word duration view");
             }

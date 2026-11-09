@@ -65,8 +65,32 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     private static int? LiveSurface(RoomFxOverlayState fx) => fx.Surface is >= 0 ? fx.Surface : null;
 
-    /// <summary>32770: a negative atmospheric timer, so the slot neither moves nor draws while it holds.</summary>
-    private const int BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;
+    /// <summary>
+    /// Starts Samus's liquid state with the waits her breath bubbles and lava spray keep and the particles her presentation
+    /// shows, both of which live as long as she does.
+    /// </summary>
+    /// <param name="effectWaits">The waits her breath bubbles and lava spray keep for the effects that shared their places.</param>
+    /// <param name="particles">The splashes, bubbles, spray and dust her presentation shows.</param>
+    public SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles)
+    {
+        EffectWaits = Ensure.NotNull(effectWaits);
+        _particles = Ensure.NotNull(particles);
+    }
+
+    /// <summary>The first particle of a running footstep pair and the middle particles of a lava spray show one update late.</summary>
+    private static readonly SamusParticleStart OneUpdateLate = SamusParticleStart.Hidden(2);
+
+    /// <summary>Splashes, bubbles, spray and dust otherwise show their first step for three updates.</summary>
+    private static readonly SamusParticleStart AtOnce = SamusParticleStart.Shown(3);
+
+    /// <summary>The splashes, bubbles, spray and dust Samus's presentation shows.</summary>
+    private readonly SamusParticles _particles;
+
+    /// <summary>
+    /// The waits her breath bubbles and lava spray keep for the effects that shared their places, which decide whether a
+    /// bubble draws its random number and requests its sound and whether a spray requests its sound.
+    /// </summary>
+    public BreathBubbleAndLavaSprayWaits EffectWaits { get; }
 
     /// <summary>Audio requests published by movement, liquid effects, and landing during one Samus handler frame.</summary>
     private readonly List<SoundRequest> _soundRequests = [];
@@ -113,9 +137,6 @@ public sealed class SamusLiquidPhysicsState
     /// Space Jump reads it, and the animation handlers use changes to detect entry/exit.
     /// </summary>
     public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
-
-    /// <summary>Samus's atmospheric effect slots (water, lava and footstep particles) and their drawing.</summary>
-    public SamusAtmosphericEffectsState AtmosphericEffects { get; } = new();
 
     /// <summary>
     /// Sound-library requests emitted by the current Samus animation call. A host audio
@@ -212,7 +233,8 @@ public sealed class SamusLiquidPhysicsState
         LiquidPhysicsType = SamusLiquidMedium.Air;
         PendingPeriodicDamage = default;
         _soundRequests.Clear();
-        AtmosphericEffects.Clear();
+        EffectWaits.Clear();
+        _particles.Clear();
     }
 
     /// <summary>
@@ -318,7 +340,7 @@ public sealed class SamusLiquidPhysicsState
 
         // A call made outside the frame loop begins a publication window here. The full runtime
         // begins it before movement and passes false, preserving collision sounds queued by
-        // landing before this animation phase. Visual slots and damage words are
+        // landing before this animation phase. Particles, effect waits and damage are
         // persistent state and therefore are never cleared merely because a frame began.
         if (beginSoundRequestFrame)
             BeginFrameSoundRequests();
@@ -482,29 +504,29 @@ public sealed class SamusLiquidPhysicsState
                 // to dust, while every other Brinstar room falls through Tourian's room set.
                 if (RoomIdentity == RoomIdentities.BrinstarDirectLandingDust ||
                     RoomIdentities.UsesTourianStyleLandingDust(RoomIdentity))
-                    SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
+                    SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
                 else
-                    DeleteLandingPair();
+                    EndLandingEffectWait();
                 return;
 
             case AreaId.Norfair:
             case AreaId.WreckedShip:
-                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
+                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
                 return;
 
             case AreaId.Maridia:
-                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
+                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
                 return;
 
             case AreaId.Tourian:
                 if (RoomIdentities.UsesTourianStyleLandingDust(RoomIdentity))
-                    SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
+                    SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
                 else
-                    DeleteLandingPair();
+                    EndLandingEffectWait();
                 return;
 
             case AreaId.Ceres:
-                DeleteLandingPair();
+                EndLandingEffectWait();
                 return;
 
             default:
@@ -515,11 +537,11 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Applies Crateria's cinematic, rain, entrance-depth, and room-index landing particle branches.</summary>
     private void HandleCrateriaLandingGraphics(SamusState samus)
     {
-        // Crateria's cinematic path deletes both landing-owned slots before consulting room
+        // Crateria's cinematic path shows no landing effect, ending the bubbles' landing wait, before consulting room
         // data. This is distinct from the sound suppression already applied by the caller.
         if (CinematicFunctionActive)
         {
-            DeleteLandingPair();
+            EndLandingEffectWait();
             return;
         }
 
@@ -527,7 +549,7 @@ public sealed class SamusLiquidPhysicsState
         // dry-dust handler, still subject to live liquid submersion.
         if (RoomIdentity == RoomIdentities.CrateriaSpacePirateShaft)
         {
-            SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.Dust);
+            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
             return;
         }
 
@@ -540,9 +562,9 @@ public sealed class SamusLiquidPhysicsState
             // Landing Site creates splashes only for FX type 10; its normal scrolling-
             // sky type deletes the pair. This exact comparison is not a generic water test.
             if (FxType == RoomFxType.Rain)
-                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
+                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             else
-                DeleteLandingPair();
+                EndLandingEffectWait();
             return;
         }
 
@@ -550,23 +572,26 @@ public sealed class SamusLiquidPhysicsState
         {
             // Above Y=944 the entrance is dry and deletes; at/below it, use wet splashes.
             if (samus.Position.Y.Whole >= 944)
-                SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
+                SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             else
-                DeleteLandingPair();
+                EndLandingEffectWait();
             return;
         }
 
         if ((roomFlags & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
         {
-            SpawnLandingPairUnlessSubmerged(samus, SamusAtmosphericEffectType.FootstepSplash);
+            SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             return;
         }
 
-        DeleteLandingPair();
+        EndLandingEffectWait();
     }
 
-    /// <summary>Writes landing-owned particle slots two and three when Samus's last occupied pixel is above active liquid.</summary>
-    private void SpawnLandingPairUnlessSubmerged(SamusState samus, SamusAtmosphericEffectType type)
+    /// <summary>
+    /// Starts the landing's pair of dust or splash particles when Samus's last occupied pixel is above active liquid; the
+    /// right-hand particle holds up breath bubbles while it shows.
+    /// </summary>
+    private void SpawnLandingPairUnlessSubmerged(SamusState samus, SamusParticleKind kind)
     {
         // The bottom boundary uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
@@ -576,28 +601,33 @@ public sealed class SamusLiquidPhysicsState
         // Both landing particle handlers suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`
         // preserves the absent surfaces and water option-bit-two exemption used by
-        // those routines. Importantly, suppression RETURNS and leaves old slot data intact.
+        // those routines. Importantly, suppression RETURNS and leaves the effect waits as they were.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
 
-        int rightOffset = type == SamusAtmosphericEffectType.FootstepSplash ? 4 : 8;
-        int leftSeparation = type == SamusAtmosphericEffectType.FootstepSplash ? 7 : 16;
+        bool splash = kind == SamusParticleKind.SurfaceSplash;
+        int rightOffset = splash ? 4 : 8;
+        int leftSeparation = splash ? 7 : 16;
         int firstX = CoordinateAxis.Wrap(samus.Position.X.Whole + rightOffset);
         int secondX = CoordinateAxis.Wrap(firstX - leftSeparation);
-        int y = type == SamusAtmosphericEffectType.FootstepSplash ? CoordinateAxis.Wrap(bottom - 4) : bottom;
+        int y = splash ? CoordinateAxis.Wrap(bottom - 4) : bottom;
 
-        // Landing owns effect slots two and three, not the running-foot
-        // slots zero/one. Both begin immediately on frame zero with timer three.
-        AtmosphericEffects.SetSlot(2, type, 0, 3, Position16<RoomPixels>.Of(firstX, y));
-        AtmosphericEffects.SetSlot(3, type, 0, 3, Position16<RoomPixels>.Of(secondX, y));
+        // Both begin immediately on their first step, which shows for three updates.
+        EffectWaits.HoldBubbles(SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), AtOnce));
+        _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), AtOnce);
     }
 
-    /// <summary>Clears only the packed frame/type words of the two landing slots, preserving their timers and positions.</summary>
-    private void DeleteLandingPair()
+    /// <summary>
+    /// A landing that shows no effect ends the wait its predecessor's right-hand particle kept on breath bubbles, as the
+    /// original game's landing cleared both of its effects; particles already shown run out on their own.
+    /// </summary>
+    private void EndLandingEffectWait() => EffectWaits.ReleaseBubbles();
+
+    /// <summary>Starts a particle on its first step and returns the updates it is shown, which a wait it holds lasts.</summary>
+    private int SpawnParticle(SamusParticleKind kind, Position16<RoomPixels> position, SamusParticleStart start)
     {
-        // The game's store writes only the packed frame/type words; timers and coordinates survive.
-        AtmosphericEffects.ClearEffect(2);
-        AtmosphericEffects.ClearEffect(3);
+        _particles.Spawn(kind, position, start);
+        return SamusParticleAnimations.UpdatesUntilFinished(kind, step: 0, start);
     }
 
     /// <summary>
@@ -670,21 +700,21 @@ public sealed class SamusLiquidPhysicsState
         if (SamusAtmosphericEffects.WaterSplashFor(movementType) ==
             WaterSplashKind.Diving)
         {
-            AtmosphericEffects.SetSlot(
-                0, SamusAtmosphericEffectType.DivingSplash, animationFrame: 0, animationTimer: 2,
-                new(samus.Position.X.Whole, UntestedWaterSurfaceLine));
+            // A splash takes the spray's leading place and does not hold it up.
+            _particles.Spawn(SamusParticleKind.DivingSplash, new(samus.Position.X.Whole, UntestedWaterSurfaceLine),
+                SamusParticleStart.Shown(2));
+            EffectWaits.ReleaseSpray();
             return;
         }
 
-        AtmosphericEffects.SetSlot(
-            0, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
-            new(CoordinateAxis.Wrap(samus.Position.X.Whole + 4), CoordinateAxis.Wrap(bottom - 4)));
-        AtmosphericEffects.SetSlot(
-            1, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
-            new(CoordinateAxis.Wrap(samus.Position.X.Whole - 3), CoordinateAxis.Wrap(bottom - 4)));
+        _particles.Spawn(SamusParticleKind.SurfaceSplash,
+            new(CoordinateAxis.Wrap(samus.Position.X.Whole + 4), CoordinateAxis.Wrap(bottom - 4)), AtOnce);
+        _particles.Spawn(SamusParticleKind.SurfaceSplash,
+            new(CoordinateAxis.Wrap(samus.Position.X.Whole - 3), CoordinateAxis.Wrap(bottom - 4)), AtOnce);
+        EffectWaits.ReleaseSpray();
     }
 
-    /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and particle slot two is free.</summary>
+    /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and nothing holds bubbles up.</summary>
     private void TrySpawnAirBubbles(
         SamusState samus,
         int top,
@@ -696,19 +726,18 @@ public sealed class SamusLiquidPhysicsState
         int mouthY = CoordinateAxis.Wrap(top - 24);
         if (CoordinateAxis.Difference(mouthY, UntestedWaterSurfaceLine) < 0 ||
             (frameCounter & 127) != 0 ||
-            !AtmosphericEffects.Slots[2].IsEmpty)
+            !EffectWaits.BubbleCanForm)
         {
             return;
         }
 
-        AtmosphericEffects.SetSlot(
-            2, SamusAtmosphericEffectType.Bubbles, animationFrame: 0, animationTimer: 3,
-            new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + 6)));
+        EffectWaits.HoldBubbles(SpawnParticle(SamusParticleKind.Bubbles,
+            new(samus.Position.X.Whole, CoordinateAxis.Wrap(top + 6)), AtOnce));
         int sample = random.Generate();
         QueueSound(SamusBreathBubbleDefinitions.LowSound.IsSetIn(sample) ? EnemySound.LowBubbles : EnemySound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Starts the four-slot lava spray while Samus's top is above the surface and the previous spray has cleared.</summary>
+    /// <summary>Starts the four-particle lava spray while Samus's top is above the surface and nothing holds the spray up.</summary>
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
         int top,
@@ -716,28 +745,18 @@ public sealed class SamusLiquidPhysicsState
     {
         // The spray runs only while Samus is below the lava or acid surface, so the surface is present.
         int surface = LavaAcidSurfaceY ?? throw new InvalidOperationException("Lava surface spray requires a lava or acid surface.");
-        if (CoordinateAxis.Difference(top, surface) >= 0 ||
-            // The game tests one bit of slot zero's effect, which the lava spray, bubbles and both dusts set.
-            AtmosphericEffects.Slots[0].Type is SamusAtmosphericEffectType.LavaSurfaceDamage or SamusAtmosphericEffectType.Bubbles or
-                SamusAtmosphericEffectType.Dust or SamusAtmosphericEffectType.AlternateDust)
-        {
+        if (CoordinateAxis.Difference(top, surface) >= 0 || !EffectWaits.SprayCanStart)
             return;
-        }
 
-        int[] xPositions =
-        [
-            CoordinateAxis.Wrap(samus.Position.X.Whole + 6),
-            samus.Position.X.Whole,
-            samus.Position.X.Whole,
-            CoordinateAxis.Wrap(samus.Position.X.Whole - 6),
-        ];
-        int[] timers = [3, BreathBubbleHeldTimer, BreathBubbleHeldTimer, 3];
-        for (int slot = 0; slot < SamusAtmosphericEffectsState.SlotCount; slot++)
-        {
-            AtmosphericEffects.SetSlot(
-                slot, SamusAtmosphericEffectType.LavaSurfaceDamage, animationFrame: 0, timers[slot],
-                new(xPositions[slot], surface));
-        }
+        // The outer particles show at once and the middle two one update late; the first two drift right and the last two
+        // left. The first holds up the next spray while it shows, and the third holds up breath bubbles.
+        int x = samus.Position.X.Whole;
+        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x + 6), surface), AtOnce, horizontalDrift: 1);
+        EffectWaits.HoldSpray(SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, step: 0, AtOnce));
+        _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: 1);
+        _particles.SpawnLavaSpray(new(x, surface), OneUpdateLate, horizontalDrift: -1);
+        EffectWaits.HoldBubbles(SamusParticleAnimations.UpdatesUntilFinished(SamusParticleKind.LavaSpray, step: 0, OneUpdateLate));
+        _particles.SpawnLavaSpray(new(CoordinateAxis.Wrap(x - 6), surface), AtOnce, horizontalDrift: -1);
 
         if ((frameCounter & 1) == 0)
             QueueSound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
@@ -779,10 +798,10 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if (useWetFootsteps)
-            SpawnFootstepPair(samus, SamusAtmosphericEffectType.FootstepSplash);
+            SpawnFootstepPair(samus, SamusParticleKind.SurfaceSplash);
         else if (samus.HorizontalSpeed.IsActivelySpeedBoosting &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
-            SpawnFootstepPair(samus, SamusAtmosphericEffectType.AlternateDust);
+            SpawnFootstepPair(samus, SamusParticleKind.Dust);
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress the footstep sound.
@@ -797,7 +816,11 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Places the two running-footstep particles on opposite sides of Samus according to facing.</summary>
-    private void SpawnFootstepPair(SamusState samus, SamusAtmosphericEffectType type)
+    /// <remarks>
+    /// The leading particle, which shows one update late, takes the spray's leading place: boosted dust holds the spray up
+    /// while it shows, and a wet footstep's splash ends any wait there.
+    /// </remarks>
+    private void SpawnFootstepPair(SamusState samus, SamusParticleKind kind)
     {
         bool directionIsFour = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         int firstX = directionIsFour
@@ -807,8 +830,12 @@ public sealed class SamusLiquidPhysicsState
             ? CoordinateAxis.Wrap(samus.Position.X.Whole + 8)
             : CoordinateAxis.Wrap(samus.Position.X.Whole - 8);
         int y = CoordinateAxis.Wrap(samus.Position.Y.Whole + 16);
-        AtmosphericEffects.SetSlot(0, type, 0, BreathBubbleHeldTimer, Position16<RoomPixels>.Of(firstX, y));
-        AtmosphericEffects.SetSlot(1, type, 0, 3, Position16<RoomPixels>.Of(secondX, y));
+        int leadingUpdates = SpawnParticle(kind, Position16<RoomPixels>.Of(firstX, y), OneUpdateLate);
+        _particles.Spawn(kind, Position16<RoomPixels>.Of(secondX, y), AtOnce);
+        if (kind == SamusParticleKind.Dust)
+            EffectWaits.HoldSpray(leadingUpdates);
+        else
+            EffectWaits.ReleaseSpray();
     }
 
     /// <summary>Publishes a bounded sound request marked for suppression while a Power Bomb is active.</summary>
@@ -838,22 +865,23 @@ public sealed class SamusLiquidPhysicsState
         surface is int y &&
         CoordinateAxis.Difference(y, boundary) < 0;
 
-    /// <summary>Runs the wall jump's pose-entry dust writes, shared by ordinary and grapple wall jumps.</summary>
+    /// <summary>
+    /// Kicks up the wall jump's dust as its pose starts, shared by ordinary and grapple wall jumps. The dust holds nothing up.
+    /// </summary>
     internal void SpawnWallJumpDust(SamusState samus)
     {
         // Samus's bottom boundary uses the last occupied pixel of the current
         // pose's definition radius, not the live collision radius, which keeps the spin body's radius
-        // through the wall-jump frame. Liquid suppression leaves all previous slot words
-        // intact, even when Gravity Suit makes movement itself behave as though the room
-        // were dry.
+        // through the wall-jump frame. Liquid suppresses the dust even when Gravity Suit makes movement itself behave as
+        // though the room were dry.
         int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1);
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
         int offset = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
             ? -SamusWallJumpDustDefinitions.HorizontalOffset
             : SamusWallJumpDustDefinitions.HorizontalOffset;
-        AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,
-            SamusWallJumpDustDefinitions.Type, 0, SamusWallJumpDustDefinitions.InitialTimer,
-            Position16<RoomPixels>.Of(CoordinateAxis.Wrap(samus.Position.X.Whole + offset), bottom));
+        _particles.Spawn(SamusWallJumpDustDefinitions.Kind,
+            Position16<RoomPixels>.Of(CoordinateAxis.Wrap(samus.Position.X.Whole + offset), bottom),
+            SamusParticleStart.Shown(SamusWallJumpDustDefinitions.FirstStepUpdates));
     }
 }

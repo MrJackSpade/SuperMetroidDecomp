@@ -32,6 +32,9 @@ internal sealed class SamusPresentation
     /// <summary>Which body definitions the body shows, and the installed artwork they are drawn from.</summary>
     public SamusBodyFrameState BodyFrames { get; } = new();
 
+    /// <summary>Her splashes, bubbles, lava spray and dust.</summary>
+    public SamusParticles Particles { get; } = new();
+
     /// <summary>
     /// Seeds pose/frame-zero graphics before the first displayed frame, as room/game setup must do
     /// before a visible normal-gameplay Samus can be constructed.

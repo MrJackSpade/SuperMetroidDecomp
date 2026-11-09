@@ -325,19 +325,17 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
-                for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
-                {
-                    var effect = samus.LiquidPhysics.AtmosphericEffects.Slots[index];
-                    // The recorded frame/type word is compared as the effect and frame the import codec decodes it to.
-                    ushort recordedEffect = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-                    if (effect.Type != SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeType(recordedEffect) ||
-                        effect.AnimationFrame != SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeFrame(recordedEffect))
-                        mismatches.Add($"Atmosphere {index} frame/type: native={recordedEffect:X4} port={effect.Type}/{effect.AnimationFrame}");
-                    if (effect.IsEmpty) continue;
-                    Check($"Atmosphere {index} timer", effect.AnimationTimer.RawValue, NativeSnapshotMemory.AtmosphericTimer + index * 2);
-                    Check($"Atmosphere {index} X", effect.Position.X, NativeSnapshotMemory.AtmosphericX + index * 2);
-                    Check($"Atmosphere {index} Y", effect.Position.Y, NativeSnapshotMemory.AtmosphericY + index * 2);
-                }
+                // Of Samus's effects, gameplay reads only the waits her breath bubbles and lava spray keep (#1556): each
+                // is compared with the updates the recorded place's effect still shows. The particles themselves are
+                // presentation and are not compared.
+                int bubblePlace = SamusAtmosphericEffectWordCodec.BubbleWaitPlace;
+                CheckValue("Breath bubble wait", samus.LiquidPhysics.EffectWaits.BubbleWaitUpdates,
+                    SamusAtmosphericEffectWordCodec.BubbleWait(W(NativeSnapshotMemory.AtmosphericFrameAndType + bubblePlace * 2),
+                        W(NativeSnapshotMemory.AtmosphericTimer + bubblePlace * 2)));
+                int sprayPlace = SamusAtmosphericEffectWordCodec.SprayWaitPlace;
+                CheckValue("Lava spray wait", samus.LiquidPhysics.EffectWaits.SprayWaitUpdates,
+                    SamusAtmosphericEffectWordCodec.SprayWait(W(NativeSnapshotMemory.AtmosphericFrameAndType + sprayPlace * 2),
+                        W(NativeSnapshotMemory.AtmosphericTimer + sprayPlace * 2)));
                 Check("Liquid animation buffer", checked((ushort)samus.AnimationFrameBuffer), NativeSnapshotMemory.AnimationFrameBuffer);
                 Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);
                 Check("PeriodicSubDamage", checked((ushort)samus.LiquidPhysics.PendingPeriodicDamage.Fraction), NativeSnapshotMemory.PeriodicSubDamage);

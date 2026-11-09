@@ -11,12 +11,6 @@ namespace SuperMetroid.Core.Samus.Drawing;
 internal static class SamusAtmosphericEffectDefinitions
 {
     /// <summary>
-    /// The atmospheric effect type whose sprite list is missing, so the game reads
-    /// unrelated scratch memory as its attributes.
-    /// </summary>
-    internal const SamusAtmosphericEffectType ScratchListType = SamusAtmosphericEffectType.AlternateFootstepSplash;
-
-    /// <summary>
     /// The Crateria rooms whose atmospheric policy is nonzero, and that policy; every other Crateria room has none.
     /// </summary>
     internal static readonly FrozenDictionary<RoomIdentity, CrateriaAtmosphericEffectFlags> CrateriaRoomEffects =

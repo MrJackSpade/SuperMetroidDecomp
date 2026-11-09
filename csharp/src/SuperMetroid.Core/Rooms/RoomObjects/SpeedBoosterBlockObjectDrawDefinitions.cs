@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The one-block reveal used by bomb-special Speed Booster terrain. Its special-block collision stays even when its
-/// appearance changes.
+/// The one-block reveal used by bomb-special Speed Booster terrain: a special block. What it shows is its installed
+/// picture (#1557).
 /// </summary>
 internal static class SpeedBoosterBlockObjectDrawDefinitions
 {
@@ -18,6 +18,6 @@ internal static class SpeedBoosterBlockObjectDrawDefinitions
     /// <summary>The draw that reveals a bombed Speed Booster block.</summary>
     internal static RoomObjectFrameDraw<Draw> BombRevealDraw { get; } = RoomObjectDraw.Of(Draw.BombReveal);
 
-    /// <summary>The special-block parent showing the Speed Booster block.</summary>
-    internal static RoomTerrainBlock BombRevealTerrain { get; } = new(RoomObjectVisualBlockDefinitions.SpeedBoosterParent, RoomCollisionType.SpecialBlock);
+    /// <summary>How the revealed Speed Booster block collides: the special-block parent.</summary>
+    internal const RoomCollisionType BombRevealCollision = RoomCollisionType.SpecialBlock;
 }

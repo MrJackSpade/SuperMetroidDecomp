@@ -33,7 +33,7 @@ public static class RoomObjectMaridiaElevatubeVisualFiles
     /// <summary>The elevatube's one-block draw list, built from the block the game writes.</summary>
     internal static RoomObjectShotBlockDrawDefinitions.DrawList BlockDrawList =>
         RoomObjectDrawListExport.SingleRun(MaridiaElevatubeObjectDefinitions.BlockDraw, RoomObjectRunDirection.Horizontal,
-            [MaridiaElevatubeObjectDefinitions.Terrain]);
+            [MaridiaElevatubeObjectDefinitions.Collision]);
 
     /// <summary>The sole elevatube draw list.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> AllDraws => [BlockDrawList];

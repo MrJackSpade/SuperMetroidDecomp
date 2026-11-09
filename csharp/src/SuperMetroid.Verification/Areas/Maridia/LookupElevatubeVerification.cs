@@ -14,7 +14,8 @@ internal static class LookupElevatubeVerification
     /// <summary>Compares the single installed elevatube draw with its native run, tile, and displacement.</summary>
     internal static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
     {
-        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)), MaridiaElevatubeObjectDefinitions.Terrain, "Elevatube native terrain");
+        // What the block shows is its installed picture, which the elevatube picture check compares with the cartridge.
+        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)).Collision, MaridiaElevatubeObjectDefinitions.Collision, "Elevatube native collision");
         var all = RoomObjectMaridiaElevatubeVisualFiles.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
         RoomObjectShotBlockDrawDefinitions.DrawList selected = all.Single(draw => RoomObjectMaridiaElevatubeVisualFiles.Family.Ids[draw.Draw] == "elevatube-block");
@@ -25,7 +26,7 @@ internal static class LookupElevatubeVerification
             var run = draw.Runs.Span[0];
             AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x849367), run, "Elevatube native run header");
             AssertEqual(1, run.Count, "Elevatube one word");
-            AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)), run.Blocks.Span[0], "Elevatube DTO native terrain");
+            AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)).Collision, run.Collisions.Span[0], "Elevatube DTO native collision");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), RoomObjectRunContinuationCodecConstants.X(draw, 0), "Elevatube original X");
             AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936c)), RoomObjectRunContinuationCodecConstants.Y(draw, 0), "Elevatube original Y");
         }

@@ -132,7 +132,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
         {
-            DrawImageCell(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), Offset16<RoomBlocks>.Zero, SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain.Collision);
+            DrawImageCell(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), Offset16<RoomBlocks>.Zero, SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision);
             return;
         }
         if (KraidRoomObjectDraws.TryGet(draw, out var kraidDraw))
@@ -144,7 +144,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)
         {
-            DrawImageCell(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), Offset16<RoomBlocks>.Zero, MaridiaElevatubeObjectDefinitions.Terrain.Collision);
+            DrawImageCell(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), Offset16<RoomBlocks>.Zero, MaridiaElevatubeObjectDefinitions.Collision);
             return;
         }
         if (CrocomireArenaDraws.TryDescribe(draw,

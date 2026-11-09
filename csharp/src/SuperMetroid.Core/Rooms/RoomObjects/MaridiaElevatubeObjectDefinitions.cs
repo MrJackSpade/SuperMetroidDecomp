@@ -17,6 +17,6 @@ internal static class MaridiaElevatubeObjectDefinitions
     /// <summary>The draw that places the elevatube's solid block.</summary>
     internal static RoomObjectFrameDraw<Draw> BlockDraw { get; } = RoomObjectDraw.Of(Draw.Block);
 
-    /// <summary>The elevatube's block: a solid block showing block $180, the block Kraid's crumble draw also shows.</summary>
-    internal static RoomTerrainBlock Terrain { get; } = RoomTerrainBlock.Of(384, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    /// <summary>How the elevatube's block collides: solid. What it shows is its installed picture (#1557).</summary>
+    internal const RoomCollisionType Collision = RoomCollisionType.SolidBlock;
 }

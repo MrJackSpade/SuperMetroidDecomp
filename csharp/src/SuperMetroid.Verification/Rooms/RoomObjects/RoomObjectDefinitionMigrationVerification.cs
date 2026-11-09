@@ -67,7 +67,10 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual((StoryEvent?)StoryEvent.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(12), "last quota observer");
 
         // Terrain blocks keep the collision kind and appearance of the former literal words.
-        AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), MaridiaElevatubeObjectDefinitions.Terrain, "elevatube block");
+        AssertEqual(RoomCollisionType.SolidBlock, MaridiaElevatubeObjectDefinitions.Collision, "elevatube block");
+        AssertEqual(RoomBlockAppearance.Of(0x180), InstalledRoomObjectMaridiaElevatubeVisuals.Stock().Image(MaridiaElevatubeObjectDefinitions.BlockDraw).At(new(0, 0)),
+            "elevatube block picture");
+
         AssertEqual(RoomTerrainBlock.Of(0x046, BlockMirroring.None, RoomCollisionType.ShootableBlock), GateObjects.DownwardGateShotBlock(0).LeftBlock, "blue-left gate trigger block");
         AssertEqual(RoomTerrainBlock.Of(0x04d, BlockMirroring.None, RoomCollisionType.ShootableBlock), GateObjects.DownwardGateShotBlock(7).RightBlock, "yellow-right gate trigger block");
         // A restoration's geometry holds its collision; what it shows is its installed picture (#1557).

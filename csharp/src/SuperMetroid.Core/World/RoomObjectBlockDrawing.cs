@@ -325,13 +325,15 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                     DrawImageCell(level, draw, origin, statue, chozoStatue.Start(run) + new Offset16<RoomBlocks>(cell, 0), chozoStatue.CollisionAt(run, cell));
             return;
         }
-        if (CollectibleObjectDraws.TryGetBlock(draw, out RoomTerrainBlock collectible))
+        // A block pair's frame lies under the item's own picture (#1538): it writes only its terrain, block number included.
+        if (CollectibleObjectDraws.TryGetBlockPairTerrain(draw, out RoomTerrainBlock blockPair))
         {
-            // A block pair's frame lies under the item's own picture (#1538): it writes only its terrain.
-            if (CollectibleObjectDraws.LiesUnderOwnPicture(draw))
-                DrawTerrainAt(level, draw, origin, collectible);
-            else
-                DrawImageCell(level, draw, origin, Installed(CollectibleVisuals, "collectible").Image(draw), Offset16<RoomBlocks>.Zero, collectible.Collision);
+            DrawTerrainAt(level, draw, origin, blockPair);
+            return;
+        }
+        if (CollectibleObjectDraws.TryGetCollision(draw, out RoomCollisionType collectible))
+        {
+            DrawImageCell(level, draw, origin, Installed(CollectibleVisuals, "collectible").Image(draw), Offset16<RoomBlocks>.Zero, collectible);
             return;
         }
         if (GrappleBlockObjectDraws.TryGet(draw, out var grapple))

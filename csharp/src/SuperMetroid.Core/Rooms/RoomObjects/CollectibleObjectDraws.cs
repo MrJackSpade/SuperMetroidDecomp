@@ -3,23 +3,31 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefini
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The terrain and frame selection of each collectible draw.</summary>
+/// <summary>
+/// How each collectible draw's block collides, the terrain a block pair's frame writes, and the frame selection. What a
+/// frame other than a block pair's shows is its installed picture (#1557).
+/// </summary>
 internal static class CollectibleObjectDraws
 {
-    /// <summary>Physical runtime projection without constructing exported artwork names.</summary>
-    internal static bool TryGetBlock(RoomObjectDraw request, out RoomTerrainBlock block)
+    /// <summary>How the block <paramref name="request"/> writes collides, when it is a collectible draw.</summary>
+    internal static bool TryGetCollision(RoomObjectDraw request, out RoomCollisionType collision)
     {
         bool found = TryLocate(request, out Draw draw);
-        block = found ? Block(draw) : default;
+        collision = found ? Collision(draw.Group) : default;
         return found;
     }
 
     /// <summary>
-    /// Whether <paramref name="request"/> is a block pair's frame, which lies under the item's own picture (#1538): it
-    /// writes only its terrain and has no installed picture of its own.
+    /// The terrain a block pair's frame writes, when <paramref name="request"/> is one: the frame lies under the item's own
+    /// picture (#1538), has no installed picture of its own, and writes its block number, which is gameplay terrain
+    /// (<see cref="RoomObjectCollectibleDrawDefinitions.OwnPictureFirstBlock"/>).
     /// </summary>
-    internal static bool LiesUnderOwnPicture(RoomObjectDraw request) =>
-        TryLocate(request, out Draw draw) && draw.Group == DrawGroup.OwnPicture;
+    internal static bool TryGetBlockPairTerrain(RoomObjectDraw request, out RoomTerrainBlock terrain)
+    {
+        bool found = TryLocate(request, out Draw draw) && draw.Group == DrawGroup.OwnPicture;
+        terrain = found ? RoomTerrainBlock.Of(OwnPictureFirstBlock + draw.Index, BlockMirroring.None, Collision(DrawGroup.OwnPicture)) : default;
+        return found;
+    }
 
     /// <summary>The number of frames in a group.</summary>
     internal static int CountOf(DrawGroup group) => group switch
@@ -37,16 +45,16 @@ internal static class CollectibleObjectDraws
     private static bool TryLocate(RoomObjectDraw request, out Draw draw) =>
         RoomObjectDraw.TryFrame(request, static (Draw frame) => (uint)frame.Index < (uint)CountOf(frame.Group), out draw);
 
-    /// <summary>The terrain a draw writes; each group advances one block per frame.</summary>
-    private static RoomTerrainBlock Block(Draw draw) => draw.Group switch
+    /// <summary>How the block a draw of <paramref name="group"/> writes collides.</summary>
+    private static RoomCollisionType Collision(DrawGroup group) => group switch
     {
-        DrawGroup.Empty => RoomTerrainBlocks.BlankAir,
-        DrawGroup.Orb => RoomTerrainBlock.Of(OrbFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.ShootableBlock),
-        DrawGroup.OrbBurst => RoomTerrainBlock.Of(OrbBurstBlock, BlockMirroring.None, RoomCollisionType.SolidBlock),
-        DrawGroup.Tank => RoomTerrainBlock.Of(TankFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock),
-        DrawGroup.OwnPicture => RoomTerrainBlock.Of(OwnPictureFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SpecialBlock),
-        DrawGroup.ShotReveal => RoomTerrainBlock.Of(ShotRevealFirstBlock + draw.Index, BlockMirroring.None, RoomCollisionType.SolidBlock),
-        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {draw.Group}."),
+        DrawGroup.Empty => RoomCollisionType.Air,
+        DrawGroup.Orb => RoomCollisionType.ShootableBlock,
+        DrawGroup.OrbBurst => RoomCollisionType.SolidBlock,
+        DrawGroup.Tank => RoomCollisionType.SpecialBlock,
+        DrawGroup.OwnPicture => RoomCollisionType.SpecialBlock,
+        DrawGroup.ShotReveal => RoomCollisionType.SolidBlock,
+        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {group}."),
     };
 
     /// <summary>The orb cycles forward through its three draws and back through the middle draw.</summary>

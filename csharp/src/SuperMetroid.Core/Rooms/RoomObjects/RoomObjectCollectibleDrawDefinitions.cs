@@ -2,24 +2,18 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Compiled collectible draw geometry and block. Only the low visual
-/// twelve bits may be overridden; pickup, collision, and persistence stay fixed.
+/// The collectible draws' groups and frames. Each frame writes one block; what a frame shows is its installed picture
+/// (#1557), except a block pair's frame, which writes its own block number under the item's picture.
 /// </summary>
 internal static class RoomObjectCollectibleDrawDefinitions
 {
-    /// <summary>The visual block of an orb's first frame; an orb is shootable.</summary>
-    internal const int OrbFirstBlock = 114;
-    /// <summary>The visual block of an orb's burst; the burst is solid.</summary>
-    internal const int OrbBurstBlock = 117;
-    /// <summary>The visual block of a tank's first frame; a tank is a special block.</summary>
-    internal const int TankFirstBlock = 74;
     /// <summary>
     /// The block of the first block pair's first frame, which an item that shows its own picture writes under the picture;
-    /// it is a special block.
+    /// it is a special block, and each later frame writes the next block. The number is gameplay terrain, not a picture:
+    /// a Wave shot's straddled read past the room's ceiling takes its collision family from the block number a block
+    /// pair's collectible wrote (<see cref="Compatibility.CollectibleBlockPairs"/>), so the game writes exactly it.
     /// </summary>
     internal const int OwnPictureFirstBlock = 142;
-    /// <summary>The visual block of a shot reveal's first frame; the reveal is solid.</summary>
-    internal const int ShotRevealFirstBlock = 83;
 
     /// <summary>The six collectible draw groups, in the order their frames are published.</summary>
     internal enum DrawGroup

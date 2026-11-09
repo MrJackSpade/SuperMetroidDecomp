@@ -91,9 +91,9 @@ public static class XrayRevealVisualFiles
         // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in tank order.
         for (int pair = 0; pair < CollectibleBlockPairs.Count; pair++)
         {
-            RoomBlockAppearance firstFrame = CollectibleObjectDraws.TryGetBlock(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, 0, pair),
+            RoomBlockAppearance firstFrame = CollectibleObjectDraws.TryGetBlockPairTerrain(CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, 0, pair),
                 out RoomTerrainBlock written) ? written.Appearance
-                : throw new InvalidOperationException($"Block pair {pair}'s first frame has no compiled block.");
+                : throw new InvalidOperationException($"Block pair {pair}'s first frame writes no block pair's terrain.");
             if (ItemDrawAppearance(bus, pair) != firstFrame)
                 throw new InvalidDataException($"The X-ray reveals the item in block pair {pair} other than by the pair's first frame.");
         }

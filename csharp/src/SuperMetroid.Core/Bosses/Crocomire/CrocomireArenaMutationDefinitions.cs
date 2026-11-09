@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>The room PLM and program of each of Crocomire's arena mutations.</summary>
+/// <summary>The room object and terrain change of each of Crocomire's arena mutations.</summary>
 internal static class CrocomireArenaMutationDefinitions
 {
-    /// <summary>The room PLM each mutation occupies its slot as.</summary>
+    /// <summary>The room object each mutation is.</summary>
     internal static readonly IReadOnlyDictionary<CrocomireArenaMutation, RoomObjectHeaderId> RoomObjects =
         new Dictionary<CrocomireArenaMutation, RoomObjectHeaderId>
         {
@@ -16,14 +16,14 @@ internal static class CrocomireArenaMutationDefinitions
             [CrocomireArenaMutation.CreateInvisibleWall] = RoomObjectHeaderId.CreateCrocomireInvisibleWall,
         };
 
-    /// <summary>The arena program each mutation runs after its empty setup.</summary>
-    internal static readonly IReadOnlyDictionary<CrocomireArenaMutation, CrocomireArenaProgram> Programs =
-        new Dictionary<CrocomireArenaMutation, CrocomireArenaProgram>
+    /// <summary>The change each mutation makes after its empty setup: its layout, drawn on its first update; it is gone on the next.</summary>
+    internal static readonly IReadOnlyDictionary<CrocomireArenaMutation, TerrainChange> Changes =
+        new Dictionary<CrocomireArenaMutation, TerrainChange>
         {
-            [CrocomireArenaMutation.ClearBridge] = CrocomireArenaProgram.ClearBridge,
-            [CrocomireArenaMutation.CrumbleBridgeBlock] = CrocomireArenaProgram.CrumbleBridgeBlock,
-            [CrocomireArenaMutation.ClearBridgeBlock] = CrocomireArenaProgram.ClearBridgeBlock,
-            [CrocomireArenaMutation.ClearInvisibleWall] = CrocomireArenaProgram.ClearInvisibleWall,
-            [CrocomireArenaMutation.CreateInvisibleWall] = CrocomireArenaProgram.CreateInvisibleWall,
+            [CrocomireArenaMutation.ClearBridge] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.ClearBridge)),
+            [CrocomireArenaMutation.CrumbleBridgeBlock] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.CrumbleBridgeBlock)),
+            [CrocomireArenaMutation.ClearBridgeBlock] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.ClearBridgeBlock)),
+            [CrocomireArenaMutation.ClearInvisibleWall] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.ClearInvisibleWall)),
+            [CrocomireArenaMutation.CreateInvisibleWall] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(CrocomireArenaDraw.CreateInvisibleWall)),
         };
 }

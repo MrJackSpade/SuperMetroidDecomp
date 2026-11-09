@@ -2,9 +2,18 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>One of the room's PLM slots: header, block, instruction state and the family state it carries.</summary>
+/// <summary>
+/// One place in the room's update order (<see cref="RoomObjectSlotTable"/>) and the room object it holds: the object's
+/// identity and block, and either a typed object that holds its own state (<see cref="Behaviour"/>, #1554) or, for the
+/// families not yet converted, the program, frame hold, loop count and per-update routine they still run.
+/// </summary>
 internal sealed class RoomObjectSlot
 {
+    /// <summary>
+    /// The typed room object this place holds, which advances by its own steps and uses none of the program state
+    /// below; null for a free place or one running a not-yet-converted family.
+    /// </summary>
+    internal RoomObjectBehaviour? Behaviour { get; private set; }
     /// <summary>Samus position saved by the Brinstar plant setup.</summary>
     public Position16<RoomPixels> PlantHeldPosition { get; set; }
     /// <summary>
@@ -69,6 +78,17 @@ internal sealed class RoomObjectSlot
         LoopTimer = WrappingCountdown.Start(0);
         ProjectileHit = null;
         Family = null;
+        Behaviour = null;
+    }
+
+    /// <summary>Makes this freshly claimed place hold <paramref name="behaviour"/>, which advances it from the next update on.</summary>
+    /// <exception cref="InvalidOperationException">The place is free, or already runs a program or a typed object.</exception>
+    internal void Become(RoomObjectBehaviour behaviour)
+    {
+        Ensure.NotNull(behaviour);
+        if (!Active || Behaviour is not null || Animation is not null || Family is not null)
+            throw new InvalidOperationException("Only a freshly claimed room-object place can become a typed room object.");
+        Behaviour = behaviour;
     }
 
     /// <summary>

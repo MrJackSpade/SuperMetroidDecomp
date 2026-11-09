@@ -218,6 +218,7 @@ internal static class RoomObjectSystemAccess
                     LoopTimer: entry.Slot.LoopTimer.RawValue,
                     ProjectileHit: entry.Slot.ProjectileHit,
                     Animation: entry.Slot.Animation,
+                    Behaviour: entry.Slot.Behaviour,
                     SpentCap: entry.Slot.Argument is SpentDoorArgument)),
         ];
 

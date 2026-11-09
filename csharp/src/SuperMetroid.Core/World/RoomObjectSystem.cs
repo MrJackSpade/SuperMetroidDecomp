@@ -190,6 +190,13 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
             if (!slot.Active)
                 continue;
 
+            // A typed room object advances by its own steps, at its place in the update order.
+            if (slot.Behaviour is { } behaviour)
+            {
+                behaviour.Update(slot, context);
+                continue;
+            }
+
             // A family that consumes the pass skips the pre-instruction, the shared timer and the interpreter.
             if (slot.Family is { } family && _families.Step(slot, family, context) == RoomObjectStepOutcome.Consumed)
                 continue;

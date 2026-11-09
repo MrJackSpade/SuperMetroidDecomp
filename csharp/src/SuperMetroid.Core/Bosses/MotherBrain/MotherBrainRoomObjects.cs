@@ -12,16 +12,15 @@ internal sealed class MotherBrainRoomObjects(RoomObjectSlotTable slotTable)
     private const int EscapeDoorExtensionCount = 3;
 
     /// <summary>
-    /// Spawns one of Mother Brain's room mutations at its block. Every mutation uses the deactivating setup and a
-    /// one-frame draw-and-delete program, so the shared PLM program, not boss-specific terrain painting, makes the room
-    /// edit and the background redraw.
+    /// Spawns one of Mother Brain's room mutations at its block: a terrain change that draws its layout on its first
+    /// update and is gone on the next.
     /// </summary>
     /// <returns>False only when every PLM slot is occupied; nothing is spawned or changed then.</returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<MotherBrainRoomMutation> request)
     {
         Ensure.NotNull(level);
         RoomObjectHeaderId roomObject = Ensure.Listed(RoomObjects, request.RoomObject);
-        MotherBrainFakeDeathProgram program = Ensure.Listed(MotherBrainRoomMutationDefinitions.Programs, request.RoomObject);
+        TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
         // Spawning searches the PLM slots in processing order. Do not reserve a boss slot or coalesce adjacent row
         // requests: their allocation order is observable.
@@ -29,9 +28,7 @@ internal sealed class MotherBrainRoomObjects(RoomObjectSlotTable slotTable)
             return false;
 
         slot.BlockIndex = level.GetBlockIndex(request.Block);
-        slot.LoopTimer = WrappingCountdown.Start(0);
-        slot.StartAnimation(new MotherBrainFakeDeathObjectAnimation(program));
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(change));
         slot.Header = roomObject;
         if (request.RoomObject == MotherBrainRoomMutation.EscapeDoor)
         {

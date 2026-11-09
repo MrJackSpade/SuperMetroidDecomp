@@ -131,7 +131,7 @@ internal static class SporeSpawnCeilingObjectsVerification
         {
             roomObjects.Step(level);
             if (roomObjects.Sounds.SoundRequests.Any(request =>
-                    request.SoundEffect == SporeSpawnCeilingObjectProgramDefinitions.CrumbleSoundId))
+                    request.SoundEffect == SporeSpawnCeilingMutationDefinitions.CrumbleSoundId))
                 soundFrame = frame;
             if (frame % 4 == 0 && frame <= (clear ? 0 : 12))
             {

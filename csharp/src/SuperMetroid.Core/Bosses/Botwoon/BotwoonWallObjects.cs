@@ -13,17 +13,14 @@ internal sealed class BotwoonWallObjects(RoomObjectSlotTable slotTable)
     /// room's processing order.
     /// </summary>
     /// <remarks>
-    /// The clear has an empty setup and clears an already-defeated room on the next handler pass. The crumble's setup
-    /// delays its program for exactly 64 PLM frames; the program then moves one block downward after each four-frame,
-    /// four-image row and repeats nine times using its frame hold.
+    /// The clear has an empty setup and clears an already-defeated room on the next update. The crumble's setup holds
+    /// it for 64 updates; it then crumbles nine rows of four four-update images, moving one block down between rows.
     /// </remarks>
     /// <returns>False only when every PLM slot is occupied; nothing is spawned then.</returns>
     public bool TrySpawn(RoomLevelData level, BotwoonWallMutation mutation)
     {
         Ensure.NotNull(level);
         RoomObjectHeaderId roomObject = Ensure.Listed(RoomObjects, mutation);
-        BotwoonWallProgram program = Ensure.Listed(BotwoonWallMutationDefinitions.Programs, mutation);
-        int firstStepDelay = Ensure.Listed(FirstStepDelays, mutation);
 
         // Resolve the block through the level so a malformed fixture cannot install a wall whose later vertical draws
         // fall outside the room.
@@ -32,11 +29,14 @@ internal sealed class BotwoonWallObjects(RoomObjectSlotTable slotTable)
             return false;
 
         slot.BlockIndex = blockIndex;
-        // The slot keeps the wall's PLM identity for owner queries and mixed populations, not just its program.
+        // The place keeps the wall's identity for owner queries and mixed populations.
         slot.Header = roomObject;
-        slot.LoopTimer = WrappingCountdown.Start(0);
-        slot.StartAnimation(new BotwoonWallObjectAnimation(program));
-        slot.FrameHold = firstStepDelay;
+        slot.Become(mutation switch
+        {
+            BotwoonWallMutation.Clear => new TerrainChangeObject(BotwoonWallMutationDefinitions.Clear),
+            BotwoonWallMutation.Crumble => new BotwoonWallCrumbleObject(),
+            _ => throw new ArgumentOutOfRangeException(nameof(mutation), mutation, null),
+        });
         return true;
     }
 }

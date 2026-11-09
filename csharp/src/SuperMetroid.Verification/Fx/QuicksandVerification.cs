@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.MovieReplay;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
@@ -179,7 +180,12 @@ internal static class QuicksandVerification
             AssertEqual(actual, QuicksandReactions.ResolveReaction(candidate), "quicksand allocator resolution");
             ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             if (instruction)
-                AssertEqual(RoomObjectProgramStartOracle.ForNativeList(native), actual.Program, $"quicksand header {(int)header:X4} program");
+            {
+                // The reaction's native list plays as its typed change does (#1554): it ends on its first update.
+                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), actual.Change, native, NativeTerrainChanges.NoSteps,
+                    $"quicksand header {(int)header:X4}", out bool began);
+                AssertTrue(!began, $"quicksand header {(int)header:X4} opens nothing");
+            }
             else
                 AssertEqual(native, FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup), $"quicksand header {(int)header:X4} setup");
         }

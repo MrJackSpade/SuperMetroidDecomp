@@ -21,11 +21,9 @@ internal sealed class QuicksandObjects
     /// collision owner, as spawning a PLM at the current block does.
     /// </summary>
     /// <remarks>
-    /// Every sand header points to the shared delete list. During ordinary gameplay the
-    /// next PLM handler pass releases these slots. X-Ray and G-Mode disable that handler,
-    /// so repeated contact fills the forty-slot pool; subsequent contacts run no setup and
-    /// sand falls back to air. Allocation is therefore observable gameplay state even
-    /// though the actor never draws a tile.
+    /// Every sand reaction leaves the room on its first room-object update. X-Ray and G-Mode stop those updates, so
+    /// repeated contact fills the room; subsequent contacts run no setup and sand falls back to air. The reactions' places
+    /// are therefore observable gameplay state even though they never draw.
     /// </remarks>
     /// <returns>False only when the PLM pool is full.</returns>
     public bool TrySpawnQuicksandReaction(
@@ -40,8 +38,7 @@ internal sealed class QuicksandObjects
 
         slot.Header = header;
         slot.BlockIndex = blockIndex;
-        definition.Program.StartOn(slot);
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(definition.Change));
         return true;
     }
 }

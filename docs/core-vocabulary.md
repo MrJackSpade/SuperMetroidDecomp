@@ -25,6 +25,16 @@ The words, kept in one place in the analyzer (`CoreVocabularyAnalyzer.HardwareWo
 `Jsl`, `Jmp`, `Jml` that routine labels carry (#1481). An underscore-separated part that is a cartridge address (four or six
 hexadecimal digits with at least one decimal digit, as in `RTS_86BB30` or `Instr_A0B3`) is reported as well.
 
+A name that spells a cartridge value in hexadecimal is reported too (#1554): a run of two or more capital hexadecimal
+characters after a lower-case letter that holds a hexadecimal letter and ends its word (`Unused0B`, `PoseFD`,
+`Backdrop2A`, `Projectile86E314Frame`); a run of four or more hexadecimal characters of either case that starts with a
+decimal digit after a letter and holds a letter (`Projectile86C76eFrame`); and every member of a type's family numbered
+in hexadecimal, members sharing a stem and ending in capital codes of one length where one code holds a hexadecimal
+letter and one a decimal digit (`Row9` beside `RowA`, `Backdrop28` beside `Backdrop2A`). Ordinary words and decimal
+ordinals are not codes: a capital that starts a lower-case word begins that word (`Add`, `Bad`, `Face`, `Dead`, `Feed`;
+`Shift8Add` is `8` and `Add`), a run of capitals that continues into other capitals is an acronym, a lone letter is a
+word or ordinal (`BossA`), and decimal numbers are numbers whether or not they are zero-padded (`Frame05`, `Dachora19`).
+
 Matching is by whole camel-case word, ignoring case, with plural and verb endings (`Banks`, `Addresses`, `Banked`,
 `Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
 (`OAMBuffer` is `OAM` + `Buffer`), and a digit stays with the word before it (`Mode7`).

@@ -15,7 +15,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// An identifier is split into camel-case words; a word that is one of <see cref="HardwareWords"/>, or one of them with a
 /// plural or verb ending, is reported. Whole words only: <c>Object</c> is not <c>Obj</c>, <c>Roman</c> is not <c>Rom</c>.
 /// Compatibility services may describe the hardware behaviour they reproduce in their documentation; identifiers never
-/// may, so there is no identifier allowance. See <c>docs/core-vocabulary.md</c>.
+/// may, so there is no identifier allowance. An identifier that spells a cartridge value in hexadecimal is the machine's
+/// numbering too (#1554, <see cref="HexCode"/>): a capital code after a word (<c>Unused0B</c>, <c>PoseFD</c>,
+/// <c>Backdrop2A</c>), an address run into a name (<c>Projectile86E314Frame</c>, <c>Projectile86C76eFrame</c>), or a
+/// family of a type's members numbered in hexadecimal (<c>Row9</c> beside <c>RowA</c>). See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
@@ -40,14 +43,15 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor Rule = new(
         HardwareWordId,
-        "Core identifier names the hardware",
-        "'{0}' names the hardware ('{1}'); name it for what it is in the game",
+        "Core identifier names the hardware or spells a cartridge value",
+        "'{0}' {1}; name it for what it is in the game",
         "Design",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Core is a C# game. Its identifiers say what things are in the game, never which chip, memory or " +
-            "cartridge structure the original stored them in; hardware behaviour the game needs lives in a compatibility " +
-            "service named for the game (#1400, docs/core-vocabulary.md).");
+            "cartridge structure the original stored them in, and never number them as the cartridge did in hexadecimal; " +
+            "hardware behaviour the game needs lives in a compatibility service named for the game (#1400, #1554, " +
+            "docs/core-vocabulary.md).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
@@ -63,13 +67,19 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
                 return;
             // A record's positional parameter is also its property; each location is reported once.
             var reported = new ConcurrentDictionary<Location, byte>();
+            void Report(Action<Diagnostic> report, string name, Location location, string finding)
+            {
+                if (reported.TryAdd(location, 0))
+                    report(Diagnostic.Create(Rule, location, name, finding));
+            }
             void Check(Action<Diagnostic> report, string name, Location location)
             {
-                if (HardwareWord(name) is { } word && reported.TryAdd(location, 0))
-                    report(Diagnostic.Create(Rule, location, name, word));
+                if (Finding(name) is { } finding)
+                    Report(report, name, location, finding);
             }
             start.RegisterSymbolAction(symbolContext => AnalyzeSymbol(symbolContext, Check),
                 SymbolKind.NamedType, SymbolKind.Field, SymbolKind.Property, SymbolKind.Method, SymbolKind.Event);
+            start.RegisterSymbolAction(symbolContext => AnalyzeFamilies(symbolContext, Report), SymbolKind.NamedType);
             start.RegisterSyntaxNodeAction(nodeContext => AnalyzeNode(nodeContext, Check),
                 SyntaxKind.VariableDeclarator, SyntaxKind.SingleVariableDesignation, SyntaxKind.ForEachStatement,
                 SyntaxKind.CatchDeclaration, SyntaxKind.LocalFunctionStatement, SyntaxKind.Parameter, SyntaxKind.TypeParameter,
@@ -94,6 +104,45 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         if (symbol.IsOverride || ImplementsExternal(symbol))
             return;
         check(context.ReportDiagnostic, symbol.Name, location);
+    }
+
+    /// <summary>
+    /// Reports every member of a type's hexadecimal-numbered family (#1554): members whose names share a stem and end in
+    /// capital codes of one length, where one code holds a hexadecimal letter and one a decimal digit, as <c>Row9</c> and
+    /// <c>RowA</c>, or <c>Backdrop28</c> and <c>Backdrop2A</c>. Letters alone (<c>BossA</c>, <c>BossB</c>) and digits alone
+    /// (<c>Frame09</c>, <c>Frame10</c>) are ordinary names and numbers.
+    /// </summary>
+    private static void AnalyzeFamilies(SymbolAnalysisContext context, Action<Action<Diagnostic>, string, Location, string> report)
+    {
+        var type = (INamedTypeSymbol)context.Symbol;
+        var families = new Dictionary<string, List<ISymbol>>(StringComparer.Ordinal);
+        foreach (ISymbol member in type.GetMembers())
+        {
+            if (member.IsImplicitlyDeclared || member is IMethodSymbol { MethodKind: not MethodKind.Ordinary } ||
+                member.IsOverride || ImplementsExternal(member) || CapitalHexSuffixLength(member.Name) is not { } length)
+            {
+                continue;
+            }
+            string key = member.Name.Substring(0, member.Name.Length - length) + "#" + length;
+            if (!families.TryGetValue(key, out List<ISymbol>? family))
+                families[key] = family = [];
+            family.Add(member);
+        }
+        foreach (List<ISymbol> family in families.Values)
+        {
+            int length = CapitalHexSuffixLength(family[0].Name)!.Value;
+            string Suffix(ISymbol member) => member.Name.Substring(member.Name.Length - length);
+            if (family.Count < 2 || !family.Any(member => Suffix(member).Any(IsHexLetter)) ||
+                !family.Any(member => Suffix(member).Any(IsDecimalDigit)))
+            {
+                continue;
+            }
+            foreach (ISymbol member in family)
+            {
+                if (member.Locations.FirstOrDefault(location => location.IsInSource) is { } location)
+                    report(context.ReportDiagnostic, member.Name, location, $"numbers its family in hexadecimal ('{Suffix(member)}')");
+            }
+        }
     }
 
     /// <summary>Reports a declared local, parameter, type parameter, local function, range variable or namespace segment.</summary>
@@ -171,6 +220,143 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         }
         return false;
     }
+
+    /// <summary>What a declared name says that Core may not, as the diagnostic states it, or null when it says nothing of the machine.</summary>
+    internal static string? Finding(string identifier)
+    {
+        if (HardwareWord(identifier) is { } word)
+            return $"names the hardware ('{word}')";
+        return HexCode(identifier) is { } code ? $"spells the cartridge value '{code}' in hexadecimal" : null;
+    }
+
+    /// <summary>
+    /// The hexadecimal code <paramref name="identifier"/> spells for a cartridge value, or null (#1554). A code follows a
+    /// word and ends its own word (the end of the name, an underscore, or a capitalised word): a run of two or more capital
+    /// hexadecimal characters after a lower-case letter holding at least one hexadecimal letter (<c>Unused0B</c>,
+    /// <c>PoseFD</c>, <c>Backdrop2A</c>, <c>Projectile86E314Frame</c>), or a run of four or more hexadecimal characters of
+    /// either case that starts with a decimal digit after a letter and holds a letter (<c>Projectile86C76eFrame</c>).
+    /// Ordinary words are not codes: a capital that starts a lower-case word begins that word (<c>Add</c>, <c>Face</c>,
+    /// <c>Dead</c>, <c>Feed</c>, <c>Bad</c>; <c>Shift8Add</c> is <c>8</c> then <c>Add</c>), a run of capitals that continues
+    /// into other capitals is an acronym, a lone letter is a word or an ordinal (<c>BossA</c>), and decimal numbers,
+    /// zero-padded or not (<c>Frame12</c>, <c>Frame05</c>), are numbers.
+    /// </summary>
+    internal static string? HexCode(string identifier)
+    {
+        foreach (string part in identifier.Split('_'))
+        {
+            foreach ((int start, int end) in CapitalHexRuns(part))
+            {
+                if (end - start >= 2 && HasHexLetter(part, start, end))
+                    return part.Substring(start, end - start);
+            }
+            if (MixedHexCode(part) is { } code)
+                return code;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// The runs of capital hexadecimal characters in a name part that follow a lower-case letter and end their word, as
+    /// start and end offsets. A final capital letter followed by lower case starts the next word and is not part of the
+    /// run (<c>Row2Dead</c> is <c>Row</c>, <c>2</c>, <c>Dead</c>); a run followed by another capital that is not a word's
+    /// start is part of an acronym and is not a run.
+    /// </summary>
+    private static IEnumerable<(int Start, int End)> CapitalHexRuns(string part)
+    {
+        int index = 1;
+        while (index < part.Length)
+        {
+            if (!IsCapitalHex(part[index]) || !char.IsLower(part[index - 1]))
+            {
+                index++;
+                continue;
+            }
+            int end = index;
+            while (end < part.Length && IsCapitalHex(part[end]))
+                end++;
+            int stop = end;
+            if (stop < part.Length && char.IsLower(part[stop]) && IsHexLetter(part[stop - 1]))
+                stop--;
+            bool endsWord = stop == part.Length ||
+                char.IsUpper(part[stop]) && stop + 1 < part.Length && char.IsLower(part[stop + 1]);
+            if (endsWord && stop > index)
+                yield return (index, stop);
+            index = end;
+        }
+    }
+
+    /// <summary>
+    /// A run of four or more hexadecimal characters of either case that starts with a decimal digit after a letter, holds a
+    /// letter and ends its word, or null. A capitalised segment of the run with no decimal digit is the next word
+    /// (<c>86C76eFrame</c> ends before <c>Frame</c>, <c>8AddMagnitude</c> is <c>8</c>), while one with a digit continues
+    /// the code (<c>86Caa4Frame</c> is <c>86Caa4</c>).
+    /// </summary>
+    private static string? MixedHexCode(string part)
+    {
+        int index = 1;
+        while (index < part.Length)
+        {
+            if (!IsDecimalDigit(part[index]) || !char.IsLetter(part[index - 1]))
+            {
+                index++;
+                continue;
+            }
+            int end = index;
+            while (end < part.Length && Uri.IsHexDigit(part[end]))
+                end++;
+            int stop = end;
+            for (int at = index + 1; at < end; at++)
+            {
+                if (!char.IsUpper(part[at]) || at + 1 >= part.Length || !char.IsLower(part[at + 1]))
+                    continue;
+                int next = at + 1;
+                while (next < end && !char.IsUpper(part[next]))
+                    next++;
+                if (!part.Substring(at, next - at).Any(IsDecimalDigit))
+                {
+                    stop = at;
+                    break;
+                }
+            }
+            if (stop < part.Length && char.IsLower(part[stop]))
+                stop = index;
+            if (stop - index >= 4 && part.Substring(index, stop - index).Any(char.IsLetter))
+                return part.Substring(index, stop - index);
+            index = end;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// The length of the capital hexadecimal code that ends <paramref name="identifier"/> after a lower-case letter, one
+    /// character or more, or null: the suffix a hexadecimal-numbered family varies.
+    /// </summary>
+    private static int? CapitalHexSuffixLength(string identifier)
+    {
+        string part = identifier.Substring(identifier.LastIndexOf('_') + 1);
+        foreach ((int start, int end) in CapitalHexRuns(part))
+        {
+            if (end == part.Length)
+                return end - start;
+        }
+        return null;
+    }
+
+    private static bool HasHexLetter(string part, int start, int end)
+    {
+        for (int index = start; index < end; index++)
+        {
+            if (IsHexLetter(part[index]))
+                return true;
+        }
+        return false;
+    }
+
+    private static bool IsCapitalHex(char character) => IsDecimalDigit(character) || IsHexLetter(character);
+
+    private static bool IsHexLetter(char character) => character is >= 'A' and <= 'F';
+
+    private static bool IsDecimalDigit(char character) => character is >= '0' and <= '9';
 
     /// <summary>The hardware word <paramref name="identifier"/> contains as a whole camel-case word, or null.</summary>
     internal static string? HardwareWord(string identifier)

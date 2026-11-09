@@ -18,8 +18,6 @@ public sealed class SamusParticles
     /// <summary>The particles, oldest first.</summary>
     private readonly List<SamusParticle> _particles = [];
 
-    /// <summary>The particles shown or waiting to show, oldest first.</summary>
-    public IReadOnlyList<SamusParticle> All => _particles;
 
     /// <summary>Removes every particle, as room and Samus initialization do.</summary>
     public void Clear() => _particles.Clear();

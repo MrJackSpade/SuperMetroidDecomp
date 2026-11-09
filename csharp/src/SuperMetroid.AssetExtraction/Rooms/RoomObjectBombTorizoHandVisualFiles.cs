@@ -5,36 +5,29 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable visual references for Bomb Torizo's hand PLM.</summary>
+/// <summary>The installed pictures of Bomb Torizo's intact and cleared hand frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectBombTorizoHandVisualFiles
 {
     /// <summary>Editable Bomb Torizo hand PLM visual JSON filename.</summary>
     public const string VisualFileName = "bomb-torizo-hand.json";
 
-    /// <summary>Verifies every native Bomb Torizo hand draw and creates stock JSON plus the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time bank-$84 comparisons.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Bomb Torizo hand", All,
-            VisualId);
+    /// <summary>The Bomb Torizo hand as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Bomb Torizo hand", All, VisualId);
 
-    /// <summary>Validates the installed Bomb Torizo hand manifest's provenance and loads the installed Bomb Torizo hand JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Bomb Torizo hand JSON.</param>
-    /// <returns>The immutable Bomb Torizo hand visual catalog.</returns>
+    /// <summary>Pictures every Bomb Torizo hand frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Bomb Torizo hand pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static RoomObjectBombTorizoHandVisualCatalog Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates complete hand-frame coverage and builds the visuals from every frame's picture as installed, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>
-    /// <param name="entries">One entry for every compiled hand frame, with exactly the flattened block count and no physical collision bits.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats a frame, changes a compiled identity/shape, or leaves coverage incomplete.</exception>
-    internal static RoomObjectBombTorizoHandVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Bomb Torizo hand", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The intact and cleared hand draw lists, in authored order.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
@@ -67,8 +60,4 @@ public static class RoomObjectBombTorizoHandVisualFiles
         RoomObjectVisualIdDefinitions.BombTorizoHand.TryGetValue(frame, out string? id)
             ? id
             : throw new InvalidOperationException($"Undefined BombTorizoHandDraw {frame}.");
-
-    /// <summary>Resolves an ordinal artwork ID to the corresponding hand draw list.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out list);
 }

@@ -153,9 +153,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         if (CrocomireArenaDraws.TryDescribe(draw,
                 out var crocomireDraw))
         {
+            RoomObjectFrameImage arena = Installed(CrocomireVisuals, "Crocomire arena").Image(draw);
             for (int run = 0; run < crocomireDraw.RunCount; run++)
                 for (int block = 0; block < crocomireDraw.BlocksPerRun; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.BlockAt(run, block), Installed(CrocomireVisuals, "Crocomire arena").GetAppearance(draw, run, block));
+                    DrawImageCell(level, draw, origin, arena, new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.BlockAt(run, block).Collision);
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
@@ -194,9 +195,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (SporeSpawnCeilingDraws.TryGetBlock(draw, out RoomTerrainBlock sporeCeilingBlock))
         {
+            RoomObjectFrameImage ceiling = Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").Image(draw);
             for (int row = 0; row < 2; row++)
                 for (int column = 0; column < 2; column++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, row), sporeCeilingBlock, Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").GetAppearance(draw, row, column));
+                    DrawImageCell(level, draw, origin, ceiling, new Offset16<RoomBlocks>(column, row), sporeCeilingBlock.Collision);
             return;
         }
         if (SamusEaterObjectDraws.TryDescribe(draw, out var samusEater))
@@ -326,13 +328,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))
         {
+            RoomObjectFrameImage hand = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw);
             for (int run = 0; run < bombTorizoHand.RunCount; run++)
                 for (int word = 0; word < bombTorizoHand.BlockCount(run); word++)
-                {
-                    RoomTerrainBlock physical = bombTorizoHand.BlockAt(run, word);
-                    RoomBlockAppearance visual = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").GetAppearance(draw, run, word);
-                    DrawTerrainAt(level, draw, origin + bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), physical, visual);
-                }
+                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), bombTorizoHand.BlockAt(run, word).Collision);
             return;
         }
         if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
@@ -346,16 +345,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (ChozoStatueDraws.TryDescribe(draw, out var chozoStatue))
         {
+            RoomObjectFrameImage statue = Installed(ChozoStatueVisuals, "Chozo statue").Image(draw);
             for (int run = 0; run < chozoStatue.RunCount; run++)
-            {
-                Position16<RoomBlocks> strip = origin + chozoStatue.Start(run);
                 for (int cell = 0; cell < chozoStatue.BlockCount(run); cell++)
-                {
-                    RoomTerrainBlock physical = chozoStatue.BlockAt(run, cell);
-                    RoomBlockAppearance visual = Installed(ChozoStatueVisuals, "Chozo statue").GetAppearance(draw, run, cell);
-                    DrawTerrainAt(level, draw, strip + new Offset16<RoomBlocks>(cell, 0), physical, visual);
-                }
-            }
+                    DrawImageCell(level, draw, origin, statue, chozoStatue.Start(run) + new Offset16<RoomBlocks>(cell, 0), chozoStatue.BlockAt(run, cell).Collision);
             return;
         }
         if (CollectibleObjectDraws.TryGetBlock(draw, out RoomTerrainBlock collectible))

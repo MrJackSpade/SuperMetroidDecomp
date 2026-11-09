@@ -49,6 +49,19 @@ internal static class InstalledFramePictureAssertions
     }
 
     /// <summary>
+    /// The number of cells the geometry of every frame of <paramref name="family"/> writes, a cell written twice counted
+    /// twice: the total the cartridge's draw lists must write.
+    /// </summary>
+    internal static int WrittenCells<TFrame>(RoomObjectFrameFamily<TFrame> family) where TFrame : notnull
+    {
+        int cells = 0;
+        foreach (RoomObjectFrameLayout layout in family.Layouts.Values)
+            foreach (RoomObjectFrameRun run in layout.Runs.Span)
+                cells += run.Count;
+        return cells;
+    }
+
+    /// <summary>
     /// The frame of <paramref name="family"/> published as <paramref name="frame"/>'s name, which the game must draw from
     /// <paramref name="frame"/>'s cartridge address: the oracle's address and name pin the frame's identity.
     /// </summary>

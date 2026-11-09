@@ -6,37 +6,29 @@ using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable Spore Spawn ceiling visual blocks.</summary>
+/// <summary>The installed pictures of Spore Spawn's four ceiling frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectSporeSpawnCeilingVisualFiles
 {
     /// <summary>Editable Spore Spawn ceiling visual JSON filename.</summary>
     public const string VisualFileName = "spore-spawn-ceiling.json";
 
-    /// <summary>Verifies every native Spore Spawn ceiling draw and creates stock JSON plus the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time bank-$84 comparisons.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Spore Spawn ceiling",
-            All,
-            VisualId);
+    /// <summary>The Spore Spawn ceiling as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Spore Spawn ceiling", All, VisualId);
 
-    /// <summary>Validates the installed Spore Spawn ceiling manifest's provenance and loads the installed Spore Spawn ceiling JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Spore Spawn ceiling JSON.</param>
-    /// <returns>The immutable Spore Spawn ceiling visual catalog.</returns>
+    /// <summary>Pictures every Spore Spawn ceiling frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Spore Spawn ceiling pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static RoomObjectSporeSpawnCeilingVisualCatalog Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates complete coverage of the clear and three crumble frames and builds the visuals from every frame's picture as installed, without changing compiled geometry or collision.</summary>
-    /// <param name="entries">Each of the four compiled visual identities exactly once, with four appearances per frame.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">A frame is missing, duplicated, null, unknown, or incorrectly shaped.</exception>
-    internal static RoomObjectSporeSpawnCeilingVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Spore Spawn ceiling", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
@@ -60,10 +52,6 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         RoomObjectVisualIdDefinitions.SporeSpawnCeiling.TryGetValue(frame, out string? id)
             ? id
             : throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {frame}.");
-
-    /// <summary>Finds the physical square associated with an editable ceiling-frame key.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>Builds the two-run square of a supported clear or crumble draw.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)

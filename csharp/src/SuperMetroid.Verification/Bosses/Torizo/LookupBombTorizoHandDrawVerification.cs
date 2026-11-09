@@ -43,10 +43,7 @@ internal static class LookupBombTorizoHandDrawVerification
                 }
             }
             foreach (string bad in new[] {"Intact","cleared ","","unknown"})
-            {
-                AssertTrue(!RoomObjectBombTorizoHandVisualFiles.TryGetByVisualId(bad, out var missing), "Torizo hand ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Torizo hand missing ID output");
-            }
+                AssertTrue(!RoomObjectBombTorizoHandVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal), "Torizo hand ordinal ID domain");
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
@@ -56,8 +53,8 @@ internal static class LookupBombTorizoHandDrawVerification
             RoomObjectBombTorizoHandVisualFiles.TryGet(NativeObjectDraws.At<BombTorizoHandDraw>(pointer), out var dto);
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Torizo hand original export order");
             AssertEqual(ids[index], RoomObjectBombTorizoHandVisualFiles.VisualId(NativeObjectDraws.At<BombTorizoHandDraw>(pointer)), "Torizo hand published identity");
-            AssertTrue(RoomObjectBombTorizoHandVisualFiles.TryGetByVisualId(ids[index], out var byId), "Torizo hand reverse identity");
-            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Torizo hand reverse pointer");
+            RoomObjectDraw byId = RoomObjectBombTorizoHandVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
+            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Torizo hand reverse pointer");
             int cursor = pointer, run = 0;
             sbyte x = 0, y = 0;
             while (true)

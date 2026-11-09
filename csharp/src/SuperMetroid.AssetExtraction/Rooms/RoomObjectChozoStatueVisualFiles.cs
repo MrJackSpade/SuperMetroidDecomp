@@ -5,38 +5,29 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable visual references for Chozo statue terrain PLMs.</summary>
+/// <summary>The installed pictures of the three Chozo statue terrain frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectChozoStatueVisualFiles
 {
     /// <summary>JSON filename for the cleared Chozo hand and Wrecked Ship slope-access appearances.</summary>
     public const string VisualFileName = "chozo-statues.json";
 
-    /// <summary>Verifies the three native Chozo layouts and creates flattened block-appearance JSON plus its provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of decoded terrain blocks, run counts, and signed offsets.</param>
-    /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled Chozo definitions.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Chozo statue", All,
-            VisualId);
+    /// <summary>The Chozo statue as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Chozo statue", All, VisualId);
 
-    /// <summary>Validates the installed Chozo statue manifest's provenance and loads the installed Chozo statue JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Chozo statue JSON.</param>
-    /// <returns>The hand and slope-access catalog, with native run geometry and collision unchanged.</returns>
-    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate layout coverage.</exception>
+    /// <summary>Pictures every Chozo statue frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Chozo statue pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static RoomObjectChozoStatueVisualCatalog Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates complete Chozo-layout coverage and builds the visuals from every frame's picture as installed, without replacing terrain blocks or calculated run geometry.</summary>
-    /// <param name="entries">One entry per compiled layout with its exact flattened block count and appearance payload.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, duplicates an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    internal static RoomObjectChozoStatueVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Chozo statue", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
@@ -68,10 +59,6 @@ public static class RoomObjectChozoStatueVisualFiles
             : default;
         return found;
     }
-
-    /// <summary>Finds a compiled statue draw by its published visual resource identity.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
     internal static string VisualId(RoomObjectDraw request) =>

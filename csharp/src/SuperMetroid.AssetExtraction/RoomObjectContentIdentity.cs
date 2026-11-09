@@ -320,23 +320,8 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="RoomObjectCrocomireVisualCatalog"/>.</summary>
     extension(RoomObjectCrocomireVisualCatalog visuals)
     {
-        /// <summary>Hashes every arena layout's selected appearances, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectCrocomireVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[24];
-                foreach (var draw in RoomObjectCrocomireVisualFiles.All.OrderBy(item => RoomObjectCrocomireVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    CrocomireArenaDraws.TryDescribe(draw.Draw, out var shape);
-                    int count = shape.RunCount * shape.BlocksPerRun;
-                    for (int index = 0; index < count; index++)
-                        appearances[index] = visuals.GetAppearance(draw.Draw, index / shape.BlocksPerRun, index % shape.BlocksPerRun);
-                    content.AppendName("frame", RoomObjectCrocomireVisualFiles.VisualId(draw.Draw));
-                    // Preserve the flattened-frame identity used by existing visual installations.
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances.AsSpan(0, count));
-                }
-            });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectCrocomireVisualCatalog), visuals.Images, RoomObjectCrocomireVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledDraygonCannonFrames"/>.</summary>
@@ -394,67 +379,22 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="RoomObjectSporeSpawnCeilingVisualCatalog"/>.</summary>
     extension(RoomObjectSporeSpawnCeilingVisualCatalog visuals)
     {
-        /// <summary>Hashes every ceiling frame's four selected appearances as one flattened frame, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectSporeSpawnCeilingVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[4];
-                foreach (var draw in RoomObjectSporeSpawnCeilingVisualFiles.All.OrderBy(item => RoomObjectSporeSpawnCeilingVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    for (int index = 0; index < appearances.Length; index++)
-                        appearances[index] = visuals.GetAppearance(draw.Draw, index / 2, index % 2);
-                    content.AppendName("frame", RoomObjectSporeSpawnCeilingVisualFiles.VisualId(draw.Draw));
-                    // Preserve the original flattened frame identity.
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances);
-                }
-            });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectSporeSpawnCeilingVisualCatalog), visuals.Images, RoomObjectSporeSpawnCeilingVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="RoomObjectBombTorizoHandVisualCatalog"/>.</summary>
     extension(RoomObjectBombTorizoHandVisualCatalog visuals)
     {
-        /// <summary>Hashes every hand frame's selected appearances, flattened into one run, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectBombTorizoHandVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[16];
-                foreach (var frame in RoomObjectBombTorizoHandVisualFiles.All.OrderBy(item => RoomObjectBombTorizoHandVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    BombTorizoHandDraws.TryDescribe(frame.Draw, out var shape);
-                    int count = 0;
-                    for (int run = 0; run < shape.RunCount; run++)
-                        for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell);
-                    content.AppendName("frame", RoomObjectBombTorizoHandVisualFiles.VisualId(frame.Draw));
-                    // Preserve the flattened single-run framing of installed hand artwork.
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances.AsSpan(0, count));
-                }
-            });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectBombTorizoHandVisualCatalog), visuals.Images, RoomObjectBombTorizoHandVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="RoomObjectChozoStatueVisualCatalog"/>.</summary>
     extension(RoomObjectChozoStatueVisualCatalog visuals)
     {
-        /// <summary>Hashes every frame's selected appearances, flattened into one run, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectChozoStatueVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[27];
-                foreach (var frame in RoomObjectChozoStatueVisualFiles.All.OrderBy(item => RoomObjectChozoStatueVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    ChozoStatueDraws.TryDescribe(frame.Draw, out var shape);
-                    int count = 0;
-                    for (int run = 0; run < shape.RunCount; run++)
-                        for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell);
-                    content.AppendName("frame", RoomObjectChozoStatueVisualFiles.VisualId(frame.Draw));
-                    // Preserve the flattened single-run framing of installed Chozo artwork.
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances.AsSpan(0, count));
-                }
-            });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectChozoStatueVisualCatalog), visuals.Images, RoomObjectChozoStatueVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="RoomObjectElevatorPlatformVisualCatalog"/>.</summary>

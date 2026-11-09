@@ -32,7 +32,7 @@ internal static class SaveStationSoundVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CrateriaSave);
         int width = (runtime.Room.LevelData ?? throw new InvalidOperationException("The save room has no level data.")).Size.X;
         RoomObjectSlot station = runtime.Room.LoadedScope.RoomObjects.SlotTable.Slots.Single(slot =>
-            slot.Active && slot.Family is StationObjects.StationObjectState { Kind: StationKind.Save });
+            slot.Active && slot.Behaviour is StationObject { Kind: StationKind.Save });
         int column = station.BlockIndex % width;
         int row = station.BlockIndex / width;
         SamusState samus = runtime.Player.IntroducedSamus;

@@ -171,7 +171,7 @@ internal static class EyeDoorObjectsVerification
         AssertEqual(orientation, shot.Facing, $"{orientation} attack carries the eye's facing");
         AssertEqual(eyeBlock, shot.RoomObjectBlockIndex, $"{orientation} attack leaves the eye's block");
         AssertTrue(ReferenceEquals(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(doorBit), shot.Door), $"{orientation} attack carries the door");
-        AssertEqual(DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
+        AssertEqual(DoorsNativeWords.EyeDoorMissileWake,
             roomObjects.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye).FrameBehavior,
             $"{orientation} open eye arms its missile wake");
 

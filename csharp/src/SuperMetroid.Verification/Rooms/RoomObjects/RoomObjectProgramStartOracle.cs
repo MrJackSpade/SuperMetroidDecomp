@@ -17,7 +17,6 @@ internal static class RoomObjectProgramStartOracle
         .. RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
         .. RoomObjectNativeListAddresses.BlockReactionEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
         .. RoomObjectNativeListAddresses.ScriptedRoomEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
-        .. DoorObjectNativeListAddresses.BlueEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
     ];
 
     /// <summary>The start production must hold where the cartridge names native list <paramref name="list"/>.</summary>

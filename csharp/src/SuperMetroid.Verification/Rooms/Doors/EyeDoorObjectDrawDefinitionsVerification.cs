@@ -144,9 +144,9 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         int eyeBlock = eyeY * width + eyeX;
         for (int frame = 0; frame < 1024 &&
              roomObjects.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye)
-                 .FrameBehavior != DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit); frame++)
+                 .FrameBehavior != DoorsNativeWords.EyeDoorMissileWake; frame++)
             roomObjects.Step(level);
-        AssertEqual(DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
+        AssertEqual(DoorsNativeWords.EyeDoorMissileWake,
             roomObjects.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye)
                 .FrameBehavior,
             $"{orientation} retail eye-door program arms its missile pre-instruction");

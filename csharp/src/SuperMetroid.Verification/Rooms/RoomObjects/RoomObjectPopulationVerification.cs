@@ -22,6 +22,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Shaktool;
@@ -58,11 +59,31 @@ internal static class RoomObjectPopulationVerification
         Suite(nameof(VerifyElevatorPlatformControls), () => VerifyElevatorPlatformControls(rom));
         Suite(nameof(VerifyElevatorPlatformDrawSelection), () => VerifyElevatorPlatformDrawSelection(rom));
         Suite(nameof(VerifyElevatorPlatformLoopTarget), () => VerifyElevatorPlatformLoopTarget(rom));
+        Suite(nameof(VerifyElevatorPlatformCycle), () => VerifyElevatorPlatformCycle(rom));
 
         Suite(nameof(VerifyElevatorPlatformLayoutGeometry), () => VerifyElevatorPlatformLayoutGeometry(rom));
         Suite(nameof(VerifyElevatorPlatformLayoutCollision), () => VerifyElevatorPlatformLayoutCollision(rom));
         Suite(nameof(VerifyElevatorPlatformLayoutVisuals), () => VerifyElevatorPlatformLayoutVisuals(rom));
         Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
+    }
+
+    /// <summary>
+    /// The typed platform's loop plays as its native list does (#1554): each layout's updates and draw in order, then the
+    /// goto back to the list's start.
+    /// </summary>
+    private static void VerifyElevatorPlatformCycle(SuperMetroidAddressSpace rom)
+    {
+        const ushort loop = 0xafb6;
+        var cartridge = CartridgeImportSource.Require(rom);
+        ushort cursor = loop;
+        foreach (TerrainChangeFrame frame in ElevatorPlatformObjectDefinitions.Cycle)
+        {
+            AssertEqual((ushort)frame.Updates, cartridge.ReadCartridgeWord(0x840000 | cursor), $"elevator platform image at $84:{cursor:X4} stays its updates");
+            AssertEqual(RoomObjectDrawAddressCodec.Of(frame.Draw), cartridge.ReadCartridgeWord(0x840000 | (cursor + 2)), $"elevator platform image at $84:{cursor:X4} draws its layout");
+            cursor = unchecked((ushort)(cursor + 4));
+        }
+        AssertEqual((ushort)RoomObjectInstruction.Goto, cartridge.ReadCartridgeWord(0x840000 | cursor), "elevator platform loop goes back");
+        AssertEqual(loop, cartridge.ReadCartridgeWord(0x840000 | (cursor + 2)), "elevator platform loop goes back to its first image");
     }
 
     /// <summary>Compares every closing-door orientation's compiled header against the bank-$8F table.</summary>
@@ -92,7 +113,7 @@ internal static class RoomObjectPopulationVerification
             AssertEqual(header == 0, actual is null, "Non-closing table entries select no actor");
             if (list)
                 AssertEqual(header == 0 ? (ushort)0 : ReadSamusEaterObjectWord(rom, 0x840000 | (header + 2)),
-                    actual is { } fallback ? RoomObjectProgramStartOracle.NativeListOf(fallback.Start) : (ushort)0,
+                    actual is { } fallback ? TypedDoorObjectOracle.ClosingListOf(fallback) : (ushort)0,
                     "Fallback original initial list or no-actor zero");
             else
             {
@@ -135,8 +156,8 @@ internal static class RoomObjectPopulationVerification
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
             AssertEqual(expectedHeader, RoomObjectNativeWords.Word(slot.HeaderPointer),
                 $"door-closing direction {direction} installs compiled header");
-            AssertTrue(RoomObjectProgramStartOracle.IsRunning(RoomObjectProgramStartOracle.ForNativeList(expectedList), slot),
-                $"door-closing direction {direction} starts the program of its compiled initial list");
+            AssertEqual(expectedList, TypedDoorObjectOracle.StartListOf(slot.Behaviour),
+                $"door-closing direction {direction} starts the closing of its compiled initial list");
         }
 
         AssertThrows<InvalidDataException>(
@@ -152,34 +173,27 @@ internal static class RoomObjectPopulationVerification
     }
 
     /// <summary>
-    /// Verifies the fixed header+4 closing list of every resident door: a typed cap's closing program begins exactly
-    /// there, and the escape gate and eye doors resolve their closing start by identity. Each then runs the real
-    /// room-population load and transition redirect with that source word absent from the sparse bus.
+    /// Verifies the fixed header+4 closing list of every resident door: a typed cap's or the escape gate's closing begins
+    /// exactly there, and an eye door's body, whose closing list is the delete, leaves the room on its next update. Each
+    /// then runs the real room-population load and transition redirect with that source word absent from the sparse bus.
+    /// A room object at the door that has no closing fails loudly.
     /// </summary>
     internal static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
             0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
-        RoomObjectHeaderId[] resolved = [.. ResidentDoorClosingDefinitions.All.Select(entry => entry.Header)];
-        RoomObjectHeaderId[] identityClosers = [RoomObjectHeaderId.MotherBrainEscapeRoomGate, RoomObjectHeaderId.EyeDoorFacingRight, RoomObjectHeaderId.EyeDoorFacingLeft];
-        AssertTrue(resolved.SequenceEqual(identityClosers),
-            "Only the escape gate and the eye doors keep a closing start by identity");
-        foreach (RoomObjectHeaderId other in Enum.GetValues<RoomObjectHeaderId>())
-            if (!resolved.Contains(other))
-                AssertThrows<InvalidDataException>(() => ResidentDoorClosings.Resolve(other),
-                    "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
         foreach (ushort raw in headers)
         {
             RoomObjectHeaderId header = RoomObjectNativeWords.Header(raw);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
-            ushort? typedClosing = DoorObjectNativeListAddresses.TypedClosingEntry(header);
-            if (typedClosing is { } typed)
-                AssertEqual(expected, typed, $"resident door $84:{raw:X4} closing program begins at its header's list");
-            else
-                AssertEqual(RoomObjectProgramStartOracle.ForNativeList(expected), ResidentDoorClosings.Resolve(header),
-                    $"resident door $84:{raw:X4} resolves by identity");
+            bool eyeDoorBody = header is RoomObjectHeaderId.EyeDoorFacingRight or RoomObjectHeaderId.EyeDoorFacingLeft;
+            ushort typedClosing = DoorObjectNativeListAddresses.TypedClosingEntry(header)
+                ?? (header == RoomObjectHeaderId.MotherBrainEscapeRoomGate ? DoorObjectNativeListAddresses.EscapeGateClosing
+                    : eyeDoorBody ? RoomObjectProgramStartOracle.SharedDeleteEntry
+                    : throw new InvalidOperationException($"Resident door $84:{raw:X4} has no typed closing."));
+            AssertEqual(expected, typedClosing, $"resident door $84:{raw:X4} closing begins at its header's list");
 
             // Typed placement metadata supplies the first list only. The transition
             // must obtain its closing program from the resident cap or catalog,
@@ -215,17 +229,32 @@ internal static class RoomObjectPopulationVerification
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertTrue(typedClosing is null
-                    ? RoomObjectProgramStartOracle.IsRunning(ResidentDoorClosings.Resolve(header), slot)
-                    : slot.Animation is ColoredDoorObjectAnimation { Program: ColoredDoorProgram.Closing }
-                        or GreyDoorObjectAnimation { Program: GreyDoorProgram.Closing },
-                $"resident door $84:{raw:X4} starts its closing program");
+            AssertTrue(TypedDoorObjectOracle.IsClosing(slot.Behaviour), $"resident door $84:{raw:X4} starts its closing");
+            if (eyeDoorBody)
+            {
+                roomObjects.Step(level);
+                AssertEqual(0, roomObjects.SlotTable.ActiveCount, $"resident eye door body $84:{raw:X4} leaves on its next update");
+            }
             definitionIndex++;
         }
 
+        // A shot blue cap at the door's block has no closing: the transition fails loudly rather than skipping it.
+        RoomLevelData blueLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
+        var blueObjects = RoomObjectFixtures.Unbound();
+        AssertTrue(blueObjects.DoorObjects.TrySpawnBlueDoorOpening(blueLevel, blueLevel.GetBlockIndex(new(1, 1)),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
+            "a shot blue cap stands at the door's block");
+        var blueDoor = new DoorDefinition(
+            Name: "fixture door",
+            DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+            Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
+            RoomObjectBlock: new(1, 1),
+            DestinationScreen: new(0, 0),
+            SamusSpeed: DoorSamusSpeed.None,
+            SetupCode: DoorSetupCode.None);
         AssertThrows<InvalidDataException>(
-            () => ResidentDoorClosings.Resolve(RoomObjectHeaderId.BlueDoorFacingLeft),
-            "nonresident blue-door collision header is outside resident closing domain");
+            () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor, new SharedGameState(new SharedRandom())),
+            "a shot blue cap at the door is outside the resident closing domain");
     }
 
     /// <summary>Compares the three Speed Booster escape stages with retail control data and their runtime handoffs.</summary>
@@ -406,9 +435,8 @@ internal static class RoomObjectPopulationVerification
             roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "closing Goto hands the resident actor back to its grey-door family");
-        AssertEqual(initialList, DoorObjectNativeProgramOracle.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
-                GreyDoorProgram.Waiting),
-            "rejoined actor's waiting program stands for the cartridge first list");
+        AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true)).Waiting,
+            "the locked grey cap's first look stands for the cartridge first list");
         AssertEqual(RoomTerrainBlock.Of(0x0ae, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, roomObjects.SlotTable.ActiveCount,
@@ -508,11 +536,10 @@ internal static class RoomObjectPopulationVerification
 
         AssertEqual(GreyDoorPhase.Locked, roomObjects.GreyDoorSnapshots.Single().Phase,
             "fall-through at $BE70 returns to the resident grey-door owner");
-        AssertEqual(initialList, DoorObjectNativeProgramOracle.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false),
-                GreyDoorProgram.Waiting),
-            "the grey door's waiting program stands for the cartridge first list");
-        AssertTrue(roomObjects.PopulationSlots.Single().Animation is GreyDoorObjectAnimation { Program: GreyDoorProgram.Waiting or GreyDoorProgram.Sleep },
-            "the closing falls through into the grey door's own waiting program");
+        AssertEqual(initialList, DoorObjectNativeListAddresses.Grey(new GreyDoorVariant(ColoredDoorOrientation.Left, BombTorizo: false)).Waiting,
+            "the grey door's first look stands for the cartridge first list");
+        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is GreyDoorObject { Phase: GreyDoorPhase.Locked },
+            "the closing runs into the grey door's own first look, which locks it");
         AssertEqual(1, roomObjects.SlotTable.ActiveCount,
             "room $9B9D grey door remains resident after its entry-closing animation");
     }
@@ -843,8 +870,8 @@ internal static class RoomObjectPopulationVerification
             "C8CA setup clears collision class bits without deleting its resident slot");
         AssertEqual(0, ordinary.PopulationSlots.Single().ProcessingPosition,
             "escape gate takes the first slot in processing order");
-        AssertTrue(RoomObjectProgramStartOracle.IsRunning(RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.MotherBrainEscapeGate), ordinary.PopulationSlots.Single()),
-            "ordinary entry runs C8CA's first closed-gate program");
+        AssertEqual(DoorObjectNativeListAddresses.EscapeGateShut, TypedDoorObjectOracle.StartListOf(ordinary.PopulationSlots.Single().Behaviour),
+            "ordinary entry places C8CA's gate shut, as its first list");
         ordinary.Step(ordinaryLevel);
         AssertEqual(closedGateMiddleWord,
             ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).Terrain,
@@ -874,8 +901,8 @@ internal static class RoomObjectPopulationVerification
             "resident escape gate is redirected in place rather than duplicated");
         AssertEqual(0, escape.PopulationSlots.Single().ProcessingPosition,
             "redirect preserves the room-population slot order");
-        AssertTrue(RoomObjectProgramStartOracle.IsRunning(RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.MotherBrainEscapeGateClosing), escape.PopulationSlots.Single()),
-            "door transition selects C8CA's second program");
+        AssertTrue(TypedDoorObjectOracle.IsClosing(escape.PopulationSlots.Single().Behaviour),
+            "door transition closes C8CA's gate, as its second list");
 
         escape.Step(escapeLevel);
         AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).Terrain,
@@ -922,11 +949,24 @@ internal static class RoomObjectPopulationVerification
     internal static void VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroidAddressSpace rom)
     {
+        Suite(nameof(VerifyEscapeGateChanges), () => VerifyEscapeGateChanges(rom));
         Suite(nameof(VerifyEscapeGateProgramControls), () => VerifyEscapeGateProgramControls(rom));
         Suite(nameof(VerifyEscapeGateProgramDraws), () => VerifyEscapeGateProgramDraws(rom));
         Suite(nameof(VerifyEscapeGateDrawGeometry), () => VerifyEscapeGateDrawGeometry(rom));
         Suite(nameof(VerifyEscapeGateDrawCollision), () => VerifyEscapeGateDrawCollision(rom));
         Suite(nameof(VerifyEscapeGateDrawVisuals), () => VerifyEscapeGateDrawVisuals(rom));
+    }
+
+    /// <summary>The escape gate's shut and closing changes play as their native lists do (#1554).</summary>
+    private static void VerifyEscapeGateChanges(SuperMetroidAddressSpace rom)
+    {
+        var cartridge = CartridgeImportSource.Require(rom);
+        int frames = NativeTerrainChanges.Compare(cartridge, MotherBrainEscapeGateDefinitions.Shut, DoorObjectNativeListAddresses.EscapeGateShut,
+            NativeTerrainChanges.NoSteps, "escape gate shut", out bool shutBegan);
+        frames += NativeTerrainChanges.Compare(cartridge, MotherBrainEscapeGateDefinitions.Closing, DoorObjectNativeListAddresses.EscapeGateClosing,
+            NativeTerrainChanges.NoSteps, "escape gate closing", out bool closingBegan);
+        AssertTrue(!shutBegan && !closingBegan, "the escape gate opens nothing as it starts");
+        Console.WriteLine($"  Escape gate: {frames} typed frames match bank $84.");
     }
 
     /// <summary>Writes a terminated vertical PLM draw stream with one level word per cell.</summary>

@@ -246,7 +246,7 @@ internal static class CoreAccess
                 return roomObjects.SlotTable.InProcessingOrder
                     .Select((slot, position) => new IndexedObjectSlot(slot, position))
                     .Where(entry => entry.Slot.Active)
-                    .SelectMany(entry => entry.Slot.Family is StationObjects.StationObjectState station
+                    .SelectMany(entry => entry.Slot.Behaviour is StationObject station
                         ? [new StationObjectSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationObjectSnapshot>())
@@ -421,6 +421,6 @@ internal static class CoreAccess
         roomObjects.SlotTable.Slots.Where(slot => slot.Active);
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
-    private static IEnumerable<CollectibleObjects.CollectibleObjectState> Group4CollectibleItems(RoomObjectSystem roomObjects) =>
-        Group4ActiveObjectSlots(roomObjects).Select(slot => slot.Family).OfType<CollectibleObjects.CollectibleObjectState>();
+    private static IEnumerable<CollectibleObject> Group4CollectibleItems(RoomObjectSystem roomObjects) =>
+        Group4ActiveObjectSlots(roomObjects).Select(slot => slot.Behaviour).OfType<CollectibleObject>();
 }

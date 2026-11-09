@@ -605,25 +605,31 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     bool active = roomObjectSlots.TryGetValue(slotIndex, out var slot);
                     Check($"PLM {slotIndex} header", active ? RoomObjectNativeWords.Word(slot.HeaderPointer) : (ushort)0, NativeSnapshotMemory.RoomObjectHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.RoomObjectHeaders + offset) == 0) continue;
-                    ushort frameBehavior = slot.FrameBehavior;
                     var greyDoor = runtime.RoomObjects.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
                     VerificationAssertions.AssertTrue(greyDoor.Header != RoomObjectHeaderId.None,
                         $"Movie PLM {slot.HeaderPointer} needs a family-variable coverage mapping");
+                    GreyDoorObject typedDoor = greyDoor.Door;
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.RoomObjectFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
                     // before that transition setup's zero is the live counter value.
                     Check($"PLM {slotIndex} grey-door hit count", checked(greyDoor.HitCounter), NativeSnapshotMemory.RoomObjectExtraVariable + offset);
-                    // The typed cap names its native instruction and link through the oracle's step addresses; a closing
-                    // cap's link is the one its previous program left, which the closing never reads.
-                    GreyDoorObjectAnimation typedDoor = slot.Animation as GreyDoorObjectAnimation
-                        ?? throw new InvalidDataException($"Movie grey door at block {slot.BlockIndex} runs no typed program.");
-                    ushort instruction = DoorObjectNativeProgramOracle.GreyDoorNativeInstruction(bus, typedDoor);
-                    if (greyDoor.Phase != GreyDoorPhase.Closing && typedDoor.Link is { } link)
-                        Check($"PLM {slotIndex} grey-door link", DoorObjectNativeProgramOracle.GreyDoorNativeEntry(typedDoor.Variant, link),
+                    // The typed cap's phase is the list its recorded instruction pointer lies in; whether it rests, the
+                    // recorded sleep; what it waits for, the recorded pre-instruction; and where its wait wakes it, the
+                    // recorded link. A cap that waits for nothing has no wake, so its link is left uncompared.
+                    ushort recordedInstruction = W(NativeSnapshotMemory.RoomObjectInstructionPointer + offset);
+                    GreyDoorPhase recordedPhase = DoorObjectNativeProgramOracle.GreyDoorPhaseAt(typedDoor.Variant, recordedInstruction);
+                    if (recordedPhase != typedDoor.Phase)
+                        mismatches.Add($"PLM {slotIndex} grey-door phase: native={recordedPhase} at $84:{recordedInstruction:X4} port={typedDoor.Phase}");
+                    bool recordedRest = DoorObjectNativeProgramOracle.GreyDoorRestsAt(typedDoor.Variant, recordedInstruction);
+                    if (recordedRest != typedDoor.Resting)
+                        mismatches.Add($"PLM {slotIndex} grey-door rest: native={recordedRest} port={typedDoor.Resting}");
+                    NativeGreyDoorLists greyLists = DoorObjectNativeListAddresses.Grey(typedDoor.Variant);
+                    if (typedDoor.Waits != GreyDoorWait.Nothing)
+                        Check($"PLM {slotIndex} grey-door wake", typedDoor.Waits == GreyDoorWait.Condition ? greyLists.Activate : greyLists.Hit,
                             NativeSnapshotMemory.RoomObjectLinkInstruction + offset);
                     Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.RoomObjectBlockIndex + offset);
-                    Check($"PLM {slotIndex} FrameBehavior", frameBehavior, NativeSnapshotMemory.RoomObjectFrameBehavior + offset);
-                    Check($"PLM {slotIndex} InstructionPointer", instruction, NativeSnapshotMemory.RoomObjectInstructionPointer + offset);
+                    Check($"PLM {slotIndex} grey-door wait", DoorsNativeWords.GreyDoorWaitWord(typedDoor.Waits, typedDoor.Condition),
+                        NativeSnapshotMemory.RoomObjectFrameBehavior + offset);
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
                     // compared as the family the recorded word decodes to, otherwise the loop counter is compared.
                     if (slot.ProjectileHit is { } pendingHit)
@@ -642,10 +648,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                             W(NativeSnapshotMemory.RoomObjectRoomArgument + offset) & RoomObjectRoomArgumentWords.SpentMark);
                     else
                         Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.RoomObjectRoomArgument + offset);
-                    // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms
-                    // one on each pass. Both wake with one, so only a sleeping door's countdown is left uncompared.
-                    if (typedDoor.Program != GreyDoorProgram.Sleep)
-                        Check($"PLM {slotIndex} FrameHold", slot.FrameHold, NativeSnapshotMemory.RoomObjectFrameHold + offset);
+                    // The update the cap's next image draws, or its sequence ends: the updates its shown image has left.
+                    // The native sleep leaves the countdown at zero and lets it run on from $FFFF; a resting cap counts
+                    // nothing, so only a resting door's countdown is left uncompared.
+                    if (!typedDoor.Resting)
+                        Check($"PLM {slotIndex} grey-door updates before its next image", checked((ushort)typedDoor.UpdatesBeforeNextStep),
+                            NativeSnapshotMemory.RoomObjectFrameHold + offset);
                 }
                 var activeLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.Size.X * activeLevel.Size.Y; block++)

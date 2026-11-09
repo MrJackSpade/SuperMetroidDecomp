@@ -4,17 +4,14 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Eye-door PLMs (Tourian and Kraid lair): eye projectile spawning, hit reaction and conversion to a blue door.</summary>
+/// <summary>
+/// What the room's eye doors (Tourian and Kraid's lair) consult (#1554): their setup, whether Samus is near, the shots,
+/// sweat and smoke the eye spawns, its sounds, and the move of the destroyed eye onto its blue cap. The eye
+/// (<see cref="EyeDoorEyeObject"/>) and its body and bottom (<see cref="EyeDoorPartObject"/>) are typed room objects.
+/// </summary>
 [RoomLifetime]
-internal sealed class EyeDoorObjects : IRoomObjectFamilySource
+internal sealed class EyeDoorObjects
 {
-    /// <summary>Registers the EyeDoor family, which has no step of its own: its slots take the shared path.</summary>
-    public void AddObjectFamilies(RoomObjectFamilyTable table)
-    {
-        Ensure.NotNull(table);
-        table.Add(RoomObjectFamily.EyeDoor, static (_, _) => RoomObjectStepOutcome.Shared);
-    }
-
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
     /// <summary>Samus as the room reads and changes her.</summary>
@@ -24,7 +21,7 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
     /// <summary>Queues rejected-shot and launched-projectile sounds.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Binds eye-door PLM handling to room services and sound requests.</summary>
+    /// <summary>Binds the eye doors to room services and sound requests.</summary>
     internal EyeDoorObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectEnemyEffects? enemies, RoomObjectSoundQueue sounds)
     {
         _system = system;
@@ -36,7 +33,10 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
     /// <summary>Recognizes the eye, middle, and bottom headers for either door orientation.</summary>
     internal static bool IsEyeDoorHeader(RoomObjectHeaderId header) => EyeDoorPartDefinitions.Parts.ContainsKey(header);
 
-    /// <summary>Initializes a door component and its closed collision blocks unless its persistent bit is set.</summary>
+    /// <summary>
+    /// Places an eye-door part, which takes its first look on its first update, and installs its closed collision blocks
+    /// unless its door has been opened for good.
+    /// </summary>
     internal void SetupEyeDoorSlot(
         RoomLevelData level,
         RoomObjectSlot slot)
@@ -44,18 +44,17 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
         (EyeDoorComponent component, EyeDoorOrientation orientation) = EyeDoorPartDefinitions.Parts.TryGetValue(slot.Header, out EyeDoorPart part)
             ? part
             : throw new ArgumentOutOfRangeException(nameof(slot), slot.Header, "Not an eye-door room object.");
-        slot.Family = new EyeDoorObjectState(component);
-        slot.StartAnimation(new EyeDoorObjectAnimation(orientation, component,
-            component == EyeDoorComponent.Eye ? EyeDoorObjectProgram.EyeStart : EyeDoorObjectProgram.ComponentStart));
+        slot.Become(component == EyeDoorComponent.Eye
+            ? new EyeDoorEyeObject(orientation)
+            : new EyeDoorPartObject(orientation, component));
 
         SharedGameState system = _system ??
             throw new InvalidOperationException("Eye-door setup has no persistence owner.");
         if (slot.Argument is DoorBitArgument { Persists: true } openedEye &&
             system.HasOpenedDoor(openedEye.Door))
         {
-            // Setup routines deliberately leave already-open terrain untouched. Their first
-            // bytecode instruction takes the persistent branch and either deletes this
-            // passive component or constructs the ordinary blue-door cap from the eye.
+            // Setup leaves an opened door's terrain untouched: the part's first look removes a body or bottom, and turns
+            // the eye into the ordinary blue cap.
             return;
         }
 
@@ -71,53 +70,11 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
             EyeDoorDefinitions.ClosedComponentBehavior);
     }
 
-    /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
-    internal void RunEyeDoorFrameBehavior(RoomObjectSlot slot, EyeDoorFrameBehavior frameBehavior)
-    {
-        EyeDoorObjectState eyeDoor = slot.Family as EyeDoorObjectState
-            ?? throw new InvalidOperationException("An eye door's wake ran without its component state.");
-        SharedGameState system = _system ??
-            throw new InvalidOperationException("A live eye door has no persistence owner.");
-        switch (frameBehavior)
-        {
-            case EyeDoorFrameBehavior.WakeWhenDoorBitSet:
-                if (slot.Argument is DoorBitArgument { Persists: true } wakingEye &&
-                    system.HasOpenedDoor(wakingEye.Door))
-                {
-                    slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
-                    slot.WakeAtLink();
-                }
-                return;
+    /// <summary>Queues the dud sound of a shot the eye shrugs off.</summary>
+    internal void QueueRejectedShotSound() =>
+        _sounds.Queue(EyeDoorDefinitions.RejectedShotSound, Priority: SoundRequestPriority.Normal);
 
-            case EyeDoorFrameBehavior.MissileHit:
-                if (!eyeDoor.HasPendingHit)
-                    return;
-
-                SamusProjectileFamily? family = slot.ProjectileHit?.Family;
-                slot.ProjectileHit = null;
-                eyeDoor.HasPendingHit = false;
-                if (family == SamusProjectileFamily.SuperMissile)
-                {
-                    // The Super Missile frame behaviour seeds the counter so the next increment meets the threshold.
-                    eyeDoor.HitCounter = EyeDoorObjectProgramDefinitions.SuperMissileHitCounter;
-                }
-                else if (family != SamusProjectileFamily.Missile)
-                {
-                    _sounds.Queue(
-                        EyeDoorDefinitions.RejectedShotSound,
-                        Priority: SoundRequestPriority.Normal);
-                    return;
-                }
-
-                slot.WakeAtLink();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined EyeDoorFrameBehavior {frameBehavior}.");
-        }
-    }
-
-    /// <summary>Whether Samus stands within <paramref name="reach"/> blocks across and up or down of the PLM.</summary>
+    /// <summary>Whether Samus stands within <paramref name="reach"/> blocks across and up or down of the part.</summary>
     internal bool IsSamusNear(RoomLevelData level, RoomObjectSlot slot, Extent16<RoomBlocks> reach)
     {
         IRoomSamus samus = _samus?.Current
@@ -153,20 +110,8 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
     internal void SpawnSmoke(RoomObjectSlot slot, EyeDoorOrientation facing) =>
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.CenteredSmoke, facing);
 
-    /// <summary>Counts a hit on the eye; true when it opens the door.</summary>
-    internal static bool CountEyeHit(RoomObjectSlot slot, DoorObjects doors)
-    {
-        EyeDoorObjectState eye = (slot.Family as EyeDoorObjectState)
-            ?? throw new InvalidOperationException("An eye's hit reached a slot without its eye-door state.");
-        eye.HitCounter++;
-        if (eye.HitCounter < EyeDoorObjectProgramDefinitions.HitThreshold)
-            return false;
-        doors.MarkDoorOpened(slot);
-        return true;
-    }
-
     /// <summary>
-    /// Moves the eye PLM up one block and writes the blue cap facing
+    /// Moves the eye up one block and writes the blue cap facing
     /// <paramref name="orientation"/> with its extension rows.
     /// </summary>
     internal static void ConvertEyeToBlueDoor(RoomLevelData level, RoomObjectSlot slot, EyeDoorOrientation orientation)
@@ -215,26 +160,5 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
             facing,
             slot.BlockIndex,
             (slot.Argument as DoorBitArgument)?.Door));
-    }
-
-    /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>
-    internal sealed class EyeDoorObjectState(EyeDoorComponent component) : RoomObjectFamilyState, IShotTriggeredObject
-    {
-        /// <summary>Only the eye takes the shot; the middle and bottom components ignore it.</summary>
-        public void RecordShot()
-        {
-            if (Component == EyeDoorComponent.Eye)
-                HasPendingHit = true;
-        }
-
-        /// <inheritdoc/>
-        internal override RoomObjectFamily Family => RoomObjectFamily.EyeDoor;
-
-        /// <summary>Identifies whether this slot is the eye, middle, or bottom component.</summary>
-        public EyeDoorComponent Component { get; } = component;
-        /// <summary>Missile-hit count used by the door's threshold step. It only counts up, by one per hit or to 120 on a Super Missile hit, and the door opens once it reaches its threshold, so it stays far below the 255 the original byte counter could hold.</summary>
-        public int HitCounter { get; set; }
-        /// <summary>Whether a projectile collision awaits the eye's missile pre-instruction.</summary>
-        public bool HasPendingHit { get; set; }
     }
 }

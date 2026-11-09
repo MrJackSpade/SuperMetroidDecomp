@@ -92,6 +92,22 @@ internal sealed class RoomObjectSlot
     }
 
     /// <summary>
+    /// Makes the object at this place turn into <paramref name="next"/>, which holds the place from now on: a door that
+    /// turns into its blue cap. Whatever the place held before is gone.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is free.</exception>
+    internal void Replace(RoomObjectBehaviour next)
+    {
+        Ensure.NotNull(next);
+        if (!Active)
+            throw new InvalidOperationException("Only an occupied room-object place can turn into another typed room object.");
+        Animation = null;
+        Family = null;
+        FrameBehavior = RoomObjectFrameBehaviors.Inert;
+        Behaviour = next;
+    }
+
+    /// <summary>
     /// Claims this free slot for a new PLM: every field is reset and the slot is active. Only <see cref="RoomObjectSlotTable"/>'s
     /// spawn operations call it, which analyzer SME6303 enforces.
     /// </summary>

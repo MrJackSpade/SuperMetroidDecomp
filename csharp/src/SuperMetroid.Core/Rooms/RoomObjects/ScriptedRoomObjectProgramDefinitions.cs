@@ -14,12 +14,9 @@ internal static class ScriptedRoomObjectProgramDefinitions
     internal static AnimationProgramSet<P, F, ScriptedRoomObjectCue> Programs { get; } = new(
         new Dictionary<P, Step[]>
         {
-            [P.ElevatorPlatform] = [Step.Show(F.ElevatorPlatform0, 4), Step.Show(F.ElevatorPlatform1, 4), Step.Show(F.ElevatorPlatform2, 4), Step.Show(F.ElevatorPlatform1, 4), Step.GoTo(P.ElevatorPlatform)],
             [P.ShaktoolRoomController] = [Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.ShaktoolRoomController)), Step.Hold],
             [P.OldTourianWallWait] = [Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.OldTourianWallWaitForSamus)), Step.Hold],
             [P.OldTourianWallOpen] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.ClearFrameBehavior)), Step.Show(F.OldTourianWallOpen, 1), Step.Stop],
-            [P.MotherBrainEscapeGate] = [Step.Show(F.MotherBrainGateClosed, 6), Step.Stop],
-            [P.MotherBrainEscapeGateClosing] = [Step.Show(F.MotherBrainGateOpen, 2), Step.Show(F.MotherBrainGateHalfClosed, 2), Step.Show(F.MotherBrainGateClosed, 2), Step.Stop],
             [P.ChozoCrumblePlug] = [Step.Show(F.SingleBreakup0, 4), Step.Show(F.SingleBreakup1, 4), Step.Show(F.SingleBreakup2, 4), Step.Show(F.SingleBreakup3, 1), Step.Stop],
             [P.LowerNorfairChozoHand] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.ContinueIfLowerNorfairAcidLowered)), Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.LowerNorfairChozoHandWait)), Step.Hold],
             [P.LowerNorfairChozoHandLowered] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.SetLoweredAcidHeight)), Step.Show(F.LowerNorfairChozoHand, 1), Step.Stop],

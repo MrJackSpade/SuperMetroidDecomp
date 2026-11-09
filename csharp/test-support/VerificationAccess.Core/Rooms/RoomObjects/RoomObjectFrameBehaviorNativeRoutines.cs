@@ -51,11 +51,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
             [ShaktoolRoomFrameBehaviors.Controller] = ShaktoolRoomObjectNativeProgram.FrameBehavior,
             [WreckedShipAtticFrameBehaviors.NoOpCallback] = WreckedShipAtticObjectRomData.NoOpCallback,
             [SamusEaterFrameBehaviors.Hold] = SamusEaterObjectDefinitionsConstants.HoldFrameBehavior,
-            [ColoredDoorFrameBehaviors.WakeOnPowerBomb] = DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorFrameBehavior.WakeOnPowerBomb),
-            [ColoredDoorFrameBehaviors.WakeOnMissile] = DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorFrameBehavior.WakeOnMissile),
-            [ColoredDoorFrameBehaviors.WakeOnSuperMissile] = DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorFrameBehavior.WakeOnSuperMissile),
-            [EyeDoorFrameBehaviors.WakeWhenDoorBitSet] = DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.WakeWhenDoorBitSet),
-            [EyeDoorFrameBehaviors.MissileHit] = DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
             [DownwardGateFrameBehaviors.WakeIfTriggered] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggered),
             [DownwardGateFrameBehaviors.WakeIfTriggeredOrSamusBelow] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow),
             [DownwardGateFrameBehaviors.Inert] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.Inert),
@@ -63,8 +58,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
             [NoobTubeFrameBehaviors.WakeOnAcceptedInput] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput),
             [NoobTubeFrameBehaviors.Inactive] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.Inactive),
         };
-        foreach (GreyDoorFrameBehavior routine in Enum.GetValues<GreyDoorFrameBehavior>().Where(routine => routine != GreyDoorFrameBehavior.None))
-            routines.Add(GreyDoorFrameBehaviors.Of(routine), DoorsNativeWords.GreyDoorFrameBehaviors.Word(routine));
         foreach (SpeedBoosterEscapeFrameBehavior routine in Enum.GetValues<SpeedBoosterEscapeFrameBehavior>()
                      .Where(routine => routine != SpeedBoosterEscapeFrameBehavior.None))
             routines.Add(SpeedBoosterEscapeFrameBehaviors.Of(routine), RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Word(routine));

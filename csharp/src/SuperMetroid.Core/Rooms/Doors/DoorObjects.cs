@@ -4,17 +4,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Coloured and blue door PLMs: their setup, shot reactions, opening and the door-closing spawn after a transition.</summary>
+/// <summary>
+/// The room's doors as room objects: the coloured caps' setup, the blue cap a shot opens, the record of a door opened for
+/// good, and the closing behind Samus after a door transition.
+/// </summary>
 [RoomLifetime]
-internal sealed class DoorObjects : IRoomObjectFamilySource
+internal sealed class DoorObjects
 {
-    /// <summary>Registers the ColoredDoor family, which has no step of its own: its slots take the shared path.</summary>
-    public void AddObjectFamilies(RoomObjectFamilyTable table)
-    {
-        Ensure.NotNull(table);
-        table.Add(RoomObjectFamily.ColoredDoor, static (_, _) => RoomObjectStepOutcome.Shared);
-    }
-
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
     /// <summary>Allocates fallback closing and blue-door actors from the PLM pool.</summary>
@@ -30,19 +26,18 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
         _sounds = sounds;
     }
     /// <summary>
-    /// Spawns the closing PLM for the door Samus entered through, after destination room PLMs and
-    /// door/setup code have been constructed.
+    /// Closes the door Samus entered through behind her, after the destination room's objects and its door and setup
+    /// code have been placed.
     /// </summary>
     /// <remarks>
-    /// The game first looks for any resident PLM at the door-cap block. If that
-    /// actor's nonnegative persistence bit is not already set, its header's second list is
-    /// selected in place. Otherwise the twelve-entry direction table may spawn a separate
-    /// blue-door or escape-gate closer. Allocation always uses the highest free
-    /// slot, exactly like an ordinary room PLM spawn.
+    /// The first object at the door's block, in the room's update order, closes unless it is a cap whose door has been
+    /// opened for good: a coloured or grey cap, an eye door's eye or Mother Brain's escape gate closes from its next update.
+    /// With no object there, the door's closing behaviour may place a blue cap closing toward the travel direction or the
+    /// escape gate closing, in the first free place, like any other room object.
     /// </remarks>
     /// <returns>
-    /// True when an existing cap was redirected or a fallback closer was spawned; false
-    /// for non-closing directions or an exhausted PLM pool.
+    /// True when an object at the door closes or a closer was placed; false for a door that does not close or a full
+    /// room.
     /// </returns>
     public bool TrySpawnDoorClosingObject(
         RoomLevelData level,
@@ -67,14 +62,9 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
                 break;
             }
 
-            // Header+4 is definition metadata, not active memory: a typed cap restarts at its own closing program,
-            // and the other resident closers resolve their closing start by identity. The game retains every scalar
-            // the resident slot owns while replacing only its animation script.
-            if (resident.Animation is IResidentDoorAnimation residentDoor)
-                residentDoor.StartClosing();
-            else
-                ResidentDoorClosings.Resolve(resident.Header).StartOn(resident);
-            resident.FrameHold = 1;
+            // The closing keeps everything else the object holds: a cap that waits for a shot still does.
+            (resident.Behaviour as IClosingDoor ?? throw new InvalidDataException(
+                $"Room object {resident.Header} at the door's block has no closing behind Samus.")).CloseBehindSamus();
             return true;
         }
 
@@ -86,8 +76,9 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
 
         slot.Header = fallback.Header;
         slot.BlockIndex = blockIndex;
-        fallback.Start.StartOn(slot);
-        slot.FrameHold = 1;
+        slot.Become(fallback.BlueCapFacing is { } facing
+            ? new BlueDoorCapObject(facing, BlueDoorCapPhase.Closing)
+            : new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Closing));
         SetupDoorTransitionDeactivatedSlot(level, slot);
         return true;
     }
@@ -111,7 +102,8 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
     }
 
     /// <summary>
-    /// Sets up a coloured cap: installs its shootable collision and starts its waiting program.
+    /// Sets up a coloured cap: installs its shootable collision and places the cap, which takes its first look on its
+    /// first update.
     /// </summary>
     internal static void SetupColoredDoorSlot(
         RoomLevelData level,
@@ -120,42 +112,10 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
         ColoredDoorOrientation orientation)
     {
         ApplyColoredDoorSetup(level, slot.BlockIndex);
-        slot.Family = new ColoredDoorObjectState(color);
-        slot.StartAnimation(new ColoredDoorObjectAnimation(color, orientation, ColoredDoorProgram.Waiting));
+        slot.Become(new ColoredDoorObject(new ColoredDoorVariant(color, orientation)));
     }
 
-    /// <summary>
-    /// The coloured cap's shot wake: a hit by the colour's projectile wakes
-    /// the cap at its hit program; any other hit queues the dud sound. Either way the hit is consumed.
-    /// </summary>
-    internal void RunColoredDoorWake(RoomObjectSlot slot, ColoredDoorFrameBehavior frameBehavior)
-    {
-        ColoredDoorObjectState door = slot.Family as ColoredDoorObjectState
-            ?? throw new InvalidOperationException("A coloured cap's wake ran without its door state.");
-        if (slot.ProjectileHit is not { Family: var family })
-            return;
-        bool accepted = frameBehavior switch
-        {
-            ColoredDoorFrameBehavior.WakeOnPowerBomb => family == SamusProjectileFamily.PowerBomb,
-            ColoredDoorFrameBehavior.WakeOnSuperMissile => family == SamusProjectileFamily.SuperMissile,
-            ColoredDoorFrameBehavior.WakeOnMissile => family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile,
-            ColoredDoorFrameBehavior.None => throw new InvalidOperationException("An inert coloured cap reached its shot test."),
-            _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorFrameBehavior)} {frameBehavior}."),
-        };
-        // The Super Missile frame behaviour seeds a red cap's counter: the next count passes its threshold.
-        if (frameBehavior == ColoredDoorFrameBehavior.WakeOnMissile && family == SamusProjectileFamily.SuperMissile)
-            door.HitCounter = ColoredDoorObjectProgramDefinitions.RedSuperMissileHitCounter;
-        if (accepted)
-        {
-            slot.ProjectileHit = null;
-            slot.WakeAtLink();
-            return;
-        }
-        QueueDudSound();
-        slot.ProjectileHit = null;
-    }
-
-    /// <summary>Queues the enemy-library dud sound a rejected or premature shot makes.</summary>
+    /// <summary>Queues the dud sound a shot a cap does not take makes.</summary>
     internal void QueueDudSound() =>
         _sounds.Queue(EnemySound.DudShotOnDoor, Priority: DudSoundPriority);
 
@@ -169,31 +129,17 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
         slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoor(cap.Door);
 
     /// <summary>
-    /// The opened-door step at its threshold: records the door as opened, leaves the doors then open as the argument and
-    /// replaces the shot wake with the inert frame behaviour.
+    /// Records the door of the cap at <paramref name="place"/> opened for good, when its opening persists, and marks the
+    /// cap spent: it then keeps only its own door.
     /// </summary>
-    internal void MarkDoorOpened(RoomObjectSlot slot)
+    internal void RecordDoorOpened(RoomObjectSlot place)
     {
-        if (slot.Argument is DoorBitArgument { Persists: true } cap)
+        Ensure.NotNull(place);
+        if (place.Argument is DoorBitArgument { Persists: true } cap)
         {
-            // The cap keeps the doors open once it has opened its own, marked spent.
-            SharedGameState system = RequireSystem();
-            system.OpenDoor(cap.Door);
-            slot.Argument = new SpentDoorArgument(cap.Door);
+            RequireSystem().OpenDoor(cap.Door);
+            place.Argument = new SpentDoorArgument(cap.Door);
         }
-        slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
-    }
-
-    /// <summary>Counts a hit on a coloured cap; true when it opens the door.</summary>
-    internal bool CountColoredDoorHit(RoomObjectSlot slot)
-    {
-        ColoredDoorObjectState door = (slot.Family as ColoredDoorObjectState)
-            ?? throw new InvalidOperationException("A coloured cap's hit reached a slot without its door state.");
-        door.HitCounter++;
-        if (door.HitCounter < ColoredDoorObjectProgramDefinitions.HitThresholds[door.Color])
-            return false;
-        MarkDoorOpened(slot);
-        return true;
     }
 
     /// <summary>The room's door-bit persistence owner.</summary>
@@ -216,14 +162,13 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
     }
 
     /// <summary>
-    /// Spawns the blue-door opening selected by a shootable block's blue-door behaviour and applies its setup.
+    /// Places the blue cap a shot opens, selected by a shootable block's blue-door behaviour, and applies its setup.
     /// </summary>
     /// <remarks>
-    /// The cap's top/left origin begins as a shootable solid. Setup changes only that origin to a plain solid,
-    /// preserving its appearance; the opening program then animates all four cap blocks and ends on the ordinary
-    /// air-door frame.
-    /// A power bomb is the one rejected projectile family. Exhausting all forty PLM slots
-    /// silently loses the request, as the original game's block-spawned objects do.
+    /// The cap's top or left block begins as a shootable solid. Setup changes only that block to a plain solid,
+    /// preserving its appearance; the cap's opening then draws all four of its blocks and ends on the cleared opening
+    /// (<see cref="BlueDoorCapObject"/>). A Power Bomb is the one projectile that does not open it. A full room loses the
+    /// request, as the original game's block-spawned objects do.
     /// </remarks>
     public bool TrySpawnBlueDoorOpening(
         RoomLevelData level,
@@ -259,19 +204,14 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
 
         slot.Header = blueDoorHeader;
         slot.BlockIndex = blockIndex;
-        slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
-        slot.StartAnimation(new BlueDoorObjectAnimation(BlueDoorObjectProgramDefinitions.OpeningPrograms[orientation]));
-        slot.FrameHold = 1;
-        slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
+        slot.Become(new BlueDoorCapObject(orientation, BlueDoorCapPhase.Opening));
         // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing
         // check reads: once that door has been opened for good, the spawned blue door never closes.
         slot.Argument = new DoorBitArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft,
             DoorOpeningPersistence.Persistent);
-        slot.LoopTimer = WrappingCountdown.Start(0);
-        slot.Family = null;
 
-        // This is a direct terrain write, not a PLM draw. The first animated draw occurs on this actor's next handler
-        // pass and owns the screen update, while collision observes the solid origin immediately.
+        // This is a direct terrain write, not a cap draw. The cap's first draw comes on its next update, while collision
+        // sees the solid block at once.
         level.SetTerrain(blockIndex,
             level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.SolidBlock));
         return true;

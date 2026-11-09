@@ -61,49 +61,50 @@ internal static class RoomObjectSystemAccess
     /// <summary>Inspects live door, collectible, and glass PLMs and drives scoped PLM verification operations.</summary>
     extension(RoomObjectSystem self)
     {
-        /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
+        /// <summary>Every coloured door cap in the room.</summary>
         internal IReadOnlyList<ColoredDoorObjectSnapshot> ColoredDoors =>
         [
-            .. ActiveSlots(self).Select(slot => new ColoredDoorSlot(slot, Door:slot.Family as ColoredDoorObjectState))
+            .. ActiveSlots(self).Select(slot => new ColoredDoorSlot(slot, Door: slot.Behaviour as ColoredDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorObjectSnapshot(
                     entry.Slot.Header,
                     entry.Slot.BlockIndex,
                     entry.Slot.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
-                    entry.Slot.Animation is ColoredDoorObjectAnimation colored ? colored.Orientation
-                        : throw new InvalidOperationException($"Coloured cap at block {entry.Slot.BlockIndex} runs {entry.Slot.Animation}."),
-                    ColoredPhase(entry.Slot), checked((byte)entry.Door.HitCounter))),
+                    entry.Door.Orientation,
+                    entry.Door.Phase, checked((byte)entry.Door.HitCounter))),
         ];
 
-        /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
+        /// <summary>Views of every grey door cap in the room.</summary>
         internal IReadOnlyList<GreyDoorObjectSnapshot> GreyDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => new GreyDoorSlot(slot, Door:slot.Family as GreyDoorObjectState))
+            .. ActiveSlots(self).Select(slot => new GreyDoorSlot(slot, Door: slot.Behaviour as GreyDoorObject))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorObjectSnapshot(
                     entry.Slot.Header,
                     entry.Slot.BlockIndex,
                     entry.Slot.NativeRoomArgument,
-                    entry.Slot.Animation is GreyDoorObjectAnimation grey ? grey.Variant.Orientation
-                        : throw new InvalidOperationException($"Grey cap at block {entry.Slot.BlockIndex} runs {entry.Slot.Animation}."),
-                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
-                    GreyPhase(entry.Slot), checked((byte)entry.Door.HitCounter), entry.Slot.Animation)),
+                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
+                    entry.Door.Condition,
+                    entry.Door.Phase, checked((byte)entry.Door.HitCounter), entry.Door)),
         ];
 
-        /// <summary>Debugger-visible projections of every live eye-door component.</summary>
+        /// <summary>Views of every eye-door eye, body and bottom in the room.</summary>
         internal IReadOnlyList<EyeDoorObjectSnapshot> EyeDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door:slot.Family as EyeDoorObjects.EyeDoorObjectState))
-                .Where(entry => entry.Door is not null)
+            .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door: slot.Behaviour as EyeDoorEyeObject, Part: slot.Behaviour as EyeDoorPartObject))
+                .Where(entry => entry.Door is not null || entry.Part is not null)
                 .Select(entry => new EyeDoorObjectSnapshot(
                     entry.Slot.Header,
                     entry.Slot.BlockIndex,
                     entry.Slot.NativeRoomArgument,
-                    ((entry.Door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
-                    checked((byte)(entry.Door).HitCounter),
-                    entry.Slot.Animation,
-                    RoomObjectFrameBehaviorNativeRoutines.Of(entry.Slot.FrameBehavior))),
+                    entry.Door is not null ? EyeDoorComponent.Eye
+                        : (entry.Part ?? throw new InvalidOperationException("Verification requires an eye-door part.")).Component,
+                    checked((byte)(entry.Door?.HitCounter ?? 0)),
+                    entry.Slot.Behaviour,
+                    entry.Door is { } eye
+                        ? (eye.TakesShots ? DoorsNativeWords.EyeDoorMissileWake : RoomObjectFrameBehaviorDefinitions.SpawnDefault)
+                        : entry.Part is { WaitsForOpenedDoor: true } ? DoorsNativeWords.EyeDoorOpenedDoorWake : RoomObjectFrameBehaviorDefinitions.SpawnDefault)),
         ];
 
         /// <summary>
@@ -116,9 +117,15 @@ internal static class RoomObjectSystemAccess
                 return true;
             foreach (var slot in ActiveSlots(self))
             {
-                if (slot.BlockIndex != blockIndex || slot.Family is not (ColoredDoorObjectState or GreyDoorObjectState))
+                bool? takesShots = slot.BlockIndex != blockIndex ? null : slot.Behaviour switch
+                {
+                    ColoredDoorObject colored => colored.TakesShots,
+                    GreyDoorObject grey => grey.TakesShots,
+                    _ => null,
+                };
+                if (takesShots is not { } reached)
                     continue;
-                if (slot.FrameBehavior == RoomObjectFrameBehaviors.Inert)
+                if (!reached)
                     return false;
                 return self.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, projectileType);
             }
@@ -181,17 +188,12 @@ internal static class RoomObjectSystemAccess
         {
             foreach (var slot in self.SlotTable.Slots)
             {
-                if (!slot.Active || slot.BlockIndex != blockIndex ||
-                    slot.Family is not EyeDoorObjects.EyeDoorObjectState door ||
-                    door.Component != EyeDoorComponent.Eye)
-                {
+                if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not EyeDoorEyeObject)
                     continue;
-                }
 
-                // The pending hit is single. A later collision before the handler pass
-                // replaces it rather than accumulating a host-side queue.
+                // The pending hit is single. A later collision before the eye's update replaces it rather than
+                // accumulating a host-side queue.
                 slot.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
-                door.HasPendingHit = true;
                 return true;
             }
             return false;
@@ -486,26 +488,4 @@ internal static class RoomObjectSystemAccess
     /// <summary>The live Mother Brain glass PLM slot, as the system's own slot search finds it.</summary>
     private static RoomObjectSlot? MotherBrainGlassSlot(RoomObjectSystem roomObjects) =>
         roomObjects.MotherBrainGlass.TryGetMotherBrainGlassSlot(out RoomObjectSlot? slot) ? slot : null;
-
-    /// <summary>The test view of a coloured cap's phase, from the program its typed animation runs.</summary>
-    private static ColoredDoorPhase ColoredPhase(RoomObjectSlot slot) => slot.Animation switch
-    {
-        ColoredDoorObjectAnimation { Program: ColoredDoorProgram.Closing } => ColoredDoorPhase.Closing,
-        ColoredDoorObjectAnimation { Program: ColoredDoorProgram.Waiting or ColoredDoorProgram.Sleep } => ColoredDoorPhase.Waiting,
-        ColoredDoorObjectAnimation { Program: ColoredDoorProgram.Hit } => ColoredDoorPhase.Flashing,
-        ColoredDoorObjectAnimation { Program: ColoredDoorProgram.Open } => ColoredDoorPhase.Opening,
-        null => throw new InvalidOperationException($"Coloured cap at block {slot.BlockIndex} has no animation."),
-        _ => throw new InvalidOperationException($"Coloured cap at block {slot.BlockIndex} runs {slot.Animation.RunningProgram}."),
-    };
-
-    /// <summary>The test view of a grey cap's phase, from the program its typed animation runs.</summary>
-    private static GreyDoorPhase GreyPhase(RoomObjectSlot slot) => slot.Animation switch
-    {
-        GreyDoorObjectAnimation { Program: GreyDoorProgram.Closing } => GreyDoorPhase.Closing,
-        GreyDoorObjectAnimation { Program: GreyDoorProgram.Waiting or GreyDoorProgram.Sleep } => GreyDoorPhase.Locked,
-        GreyDoorObjectAnimation { Program: GreyDoorProgram.Activate or GreyDoorProgram.Flash or GreyDoorProgram.Hit } => GreyDoorPhase.Flashing,
-        GreyDoorObjectAnimation { Program: GreyDoorProgram.Open } => GreyDoorPhase.Opening,
-        null => throw new InvalidOperationException($"Grey cap at block {slot.BlockIndex} has no animation."),
-        _ => throw new InvalidOperationException($"Grey cap at block {slot.BlockIndex} runs {slot.Animation.RunningProgram}."),
-    };
 }

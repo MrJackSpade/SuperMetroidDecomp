@@ -213,7 +213,7 @@ internal sealed class RoomObjectPopulationLoader
         if (header == RoomObjectHeaderId.MotherBrainEscapeRoomGate)
         {
             DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
-            slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.MotherBrainEscapeGate));
+            slot.Become(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
             return true;
         }
 

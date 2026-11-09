@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Doors;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
@@ -23,9 +21,6 @@ public readonly record struct RoomObjectProgramStart
     /// <summary>A Speed Booster block program.</summary>
     internal static RoomObjectProgramStart Typed(SpeedBoosterBlockProgram program) => new(program);
 
-    /// <summary>A blue door cap program.</summary>
-    internal static RoomObjectProgramStart Typed(BlueDoorProgram program) => new(program);
-
     /// <summary>A block-reaction program.</summary>
     internal static RoomObjectProgramStart Typed(BlockReactionObjectProgram program) => new(program);
 
@@ -42,9 +37,6 @@ public readonly record struct RoomObjectProgramStart
                 break;
             case SpeedBoosterBlockProgram speedBlock:
                 slot.StartAnimation(new SpeedBoosterBlockObjectAnimation(speedBlock));
-                break;
-            case BlueDoorProgram blueDoor:
-                slot.StartAnimation(new BlueDoorObjectAnimation(blueDoor));
                 break;
             case BlockReactionObjectProgram blockReaction:
                 slot.StartAnimation(new BlockReactionObjectAnimation(blockReaction));

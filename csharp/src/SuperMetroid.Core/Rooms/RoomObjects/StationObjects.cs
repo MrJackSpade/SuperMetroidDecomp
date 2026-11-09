@@ -3,17 +3,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Save, refill, map and recharge station PLMs: activation, lockout, collision notification and their draws.</summary>
+/// <summary>
+/// The room's stations' service (#1554): their setup, the touch that triggers one, the save handshake with the frontend,
+/// the room-entry save lockout, and the activation events an update publishes. Each station is a typed room object
+/// (<see cref="StationObject"/>) that holds and advances its own state.
+/// </summary>
 [RoomLifetime]
-internal sealed class StationObjects : IRoomObjectFamilySource
+internal sealed class StationObjects
 {
-    /// <summary>Registers the Station family's step.</summary>
-    public void AddObjectFamilies(RoomObjectFamilyTable table)
-    {
-        Ensure.NotNull(table);
-        table.Add(RoomObjectFamily.Station, (slot, context) =>
-            TryStepStation(context.Level, slot) ? RoomObjectStepOutcome.Consumed : RoomObjectStepOutcome.Shared);
-    }
 
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
@@ -35,11 +32,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    /// <summary>Frames spent extending or retracting the station access arm.</summary>
-    private const int StationAccessMovementFrames = 6;
-    /// <summary>Hold before a fully extended arm publishes station activation.</summary>
-    private const int StationAccessExtendedHoldFrames = 96;
-    /// <summary>Messages and frontend actions produced in the current PLM handler pass.</summary>
+    /// <summary>Messages and frontend actions produced in the current room-object update.</summary>
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
     internal bool SaveStationLockedOut { get; private set; }
@@ -73,7 +66,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         {
             // Unpause can arrive before the final access-art hold expires. Keep that
             // remaining animation; only a station waiting for the map returns to idle.
-            if (slot.Active && slot.Family is StationObjectState { Kind: StationKind.Map } station &&
+            if (slot.Active && slot.Behaviour is StationObject { Kind: StationKind.Map } station &&
                 station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
                 station.OperationPhase = StationOperationPhase.Idle;
         }
@@ -99,7 +92,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
     public bool ResolveSaveStationConfirmation(StationActivationEvent activation, bool accepted, RoomLevelData level)
     {
         Ensure.NotNull(level);
-        StationObjectState station = FindSaveStation(activation);
+        StationObject station = FindSaveStation(activation);
         if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
         {
             throw new InvalidOperationException(
@@ -121,19 +114,16 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         samus.FaceForward();
         samus.Control.LockHandlers();
 
-        station.SavePhase = SaveStationPhase.Animating;
-        station.AnimationFrame = 0;
-        station.SaveAnimationLoopsRemaining = SaveStationAnimationDefinitions.SaveAnimationLoops;
         // The accepted route queues the saving sound right after centring Samus.
         _pendingSavingSound = _sounds.CreateSoundRequest(SamusSound.Saving, Priority: SoundRequestPriority.Normal);
-        DrawSaveStationFrame(level, activation.BlockIndex, station);
+        station.StartSaveAnimation(_drawing, level, activation.BlockIndex);
         return true;
     }
 
     /// <summary>Completes the save after the saved-game message has closed.</summary>
     public void CompleteSaveStation(StationActivationEvent activation)
     {
-        StationObjectState station = FindSaveStation(activation);
+        StationObject station = FindSaveStation(activation);
         if (station.SavePhase != SaveStationPhase.AwaitingCompletionMessageClose)
         {
             throw new InvalidOperationException(
@@ -148,13 +138,13 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         SaveStationLockedOut = true;
     }
 
-    /// <summary>Requires exactly one resident save PLM matching a frontend confirmation event.</summary>
-    private StationObjectState FindSaveStation(StationActivationEvent activation)
+    /// <summary>Requires exactly one resident save station matching a frontend confirmation event.</summary>
+    private StationObject FindSaveStation(StationActivationEvent activation)
     {
-        StationObjectState[] matches = _slotTable.Slots
+        StationObject[] matches = _slotTable.Slots
             .Where(slot => slot.Active && slot.Argument is StationArgument station && station.Station == activation.SaveStationNumber)
-            .Select(slot => slot.Family as StationObjectState)
-            .OfType<StationObjectState>()
+            .Select(slot => slot.Behaviour as StationObject)
+            .OfType<StationObject>()
             .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
             .ToArray();
         return matches.Length switch
@@ -177,8 +167,8 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         if (slot.Header == RoomObjectHeaderId.ElevatorPlatform)
         {
             // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
-            // platform then runs its idle loop.
-            slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.ElevatorPlatform));
+            // platform then plays its loop.
+            slot.Become(new ElevatorPlatformObject());
             level.SetTerrain(slot.BlockIndex, level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.Deactivated());
             return true;
         }
@@ -225,12 +215,12 @@ internal sealed class StationObjects : IRoomObjectFamilySource
             original,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)));
-        slot.Family = new StationObjectState(
+        slot.Become(new StationObject(
             StationKind.Save,
             area,
             StationAnimationList.SaveIdle,
             completedAnimationList: StationAnimationList.SaveIdle,
-            animationFrameCount: 1);
+            animationFrameCount: 1));
     }
 
     /// <summary>
@@ -254,12 +244,12 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         StationAnimationList initialAnimationList = rule.AcquiredAnimation is not null && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
-        slot.Family = new StationObjectState(
+        slot.Become(new StationObject(
             rule.Kind,
             area,
             initialAnimationList,
             completedAnimationList,
-            animationFrameCount: 3);
+            animationFrameCount: 3));
     }
 
     /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>
@@ -338,7 +328,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
 
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Family is not StationObjectState station)
+            if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Behaviour is not StationObject station)
                 continue;
 
             bool setupAccepted = setupGate == StationSetupGate.Bypassed || access switch
@@ -414,317 +404,14 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 
-    /// <summary>Advances station draw timers, access-arm phases, and activation messages during the PLM pass.</summary>
-    internal bool TryStepStation(RoomLevelData level, RoomObjectSlot slot)
-    {
-        StationObjectState? station = slot.Family as StationObjectState;
-        if (station is null)
-            return false;
+    /// <summary>Samus, whom <paramref name="owner"/> reads and changes.</summary>
+    internal IRoomSamus RequireSamus(string owner) =>
+        _samus?.Current ?? throw new InvalidOperationException($"{owner} has no live Samus owner.");
 
-        IRoomSamus samus = _samus?.Current
-            ?? throw new InvalidOperationException(
-                $"{station.Kind} station has no live Samus owner.");
+    /// <summary>The game's progression, which <paramref name="owner"/> reads and changes.</summary>
+    internal SharedGameState RequireSystem(string owner) =>
+        _system ?? throw new InvalidOperationException($"{owner} has no shared game state owner.");
 
-        // The access list's first draw instruction installs its six-frame timer on the
-        // triggering pass itself; the common PLM handler only decrements on later passes.
-        bool operationStartedThisPass = false;
-        if (station.Triggered)
-        {
-            station.Triggered = false;
-            bool canActivate = station.Kind switch
-            {
-                StationKind.Map => !(_system ?? throw new InvalidOperationException(
-                    "Map station has no shared game state owner.")).HasAreaMap(station.AreaIndex),
-                StationKind.Energy => samus.Health != samus.MaxHealth,
-                StationKind.Missile => samus.Missiles != samus.MaxMissiles,
-                StationKind.Save => true,
-                _ => throw new InvalidDataException($"Unknown station kind {station.Kind}."),
-            };
-            if (!canActivate && station.Kind is StationKind.Energy or StationKind.Missile)
-            {
-                // The access-list full-resource branch runs command one before deleting
-                // itself. A refill between setup and this pass must release control too.
-                samus.Control.Unlock();
-                station.AccessBlockIndex = -1;
-                station.AccessBehavior = null;
-            }
-            if (canActivate && station.Kind == StationKind.Save)
-            {
-                station.SavePhase = SaveStationPhase.AwaitingConfirmation;
-                PublishStationActivation(station, slot, samus);
-            }
-            else if (canActivate)
-            {
-                // Access lists draw their first extension frame for six ticks, hold the
-                // fully inserted arm for 96 ticks, then activate the station. Command
-                // six locked Samus in setup; this pass does not lock her again, so one an
-                // intervening unpause freed stays free.
-                station.OperationPhase = StationOperationPhase.Extending;
-                station.OperationTimer = StationAccessMovementFrames;
-                operationStartedThisPass = true;
-                _sounds.Queue(EnemySound.StationEngaged, Priority: SoundRequestPriority.Normal);
-                DrawStationAccess(level, station, pose: StationAccessPose.Retracted);
-            }
-        }
-
-        if (station.Kind == StationKind.Save && StepSaveStationAnimation(level, slot, station))
-        {
-            return true;
-        }
-
-        if (!operationStartedThisPass &&
-            station.OperationPhase is not (StationOperationPhase.Idle or StationOperationPhase.AwaitingMapUnpause))
-        {
-            if (--station.OperationTimer == 0)
-            {
-                switch (station.OperationPhase)
-                {
-                    case StationOperationPhase.Extending:
-                        DrawStationAccess(level, station, pose: StationAccessPose.Extended);
-                        station.OperationPhase = StationOperationPhase.Extended;
-                        station.OperationTimer = StationAccessExtendedHoldFrames;
-                        break;
-                    case StationOperationPhase.Extended:
-                        PublishStationActivation(station, slot, samus);
-                        // The recharge activations run Samus command one
-                        // right after their message box, before the access retracts. The
-                        // map activation leaves input locked for pause teardown's command.
-                        if (station.Kind != StationKind.Map)
-                            samus.Control.Unlock();
-                        station.OperationPhase = StationOperationPhase.PostActivationHold;
-                        station.OperationTimer = StationAccessMovementFrames;
-                        break;
-                    case StationOperationPhase.PostActivationHold:
-                        _sounds.Queue(EnemySound.StationDisengaged, Priority: SoundRequestPriority.Normal);
-                        station.OperationPhase = StationOperationPhase.Retracting;
-                        station.OperationTimer = StationAccessMovementFrames;
-                        break;
-                    case StationOperationPhase.Retracting:
-                        DrawStationAccess(level, station, pose: StationAccessPose.Retracted);
-                        station.OperationPhase = StationOperationPhase.FinalRetractionHold;
-                        station.OperationTimer = StationAccessMovementFrames;
-                        break;
-                    case StationOperationPhase.FinalRetractionHold:
-                        station.OperationPhase = station.Kind == StationKind.Map && samus.Control.AlphaLocked
-                            ? StationOperationPhase.AwaitingMapUnpause
-                            : StationOperationPhase.Idle;
-                        station.AccessBlockIndex = -1;
-                        station.AccessBehavior = null;
-                        // Every access list only deletes itself here. Recharges released
-                        // input at activation; map pause teardown's release command owns its release.
-                        break;
-                    case StationOperationPhase.Idle:
-                    case StationOperationPhase.AwaitingMapUnpause:
-                    default:
-                        throw new InvalidDataException(
-                            $"Unknown station operation phase {station.OperationPhase}.");
-                }
-            }
-        }
-
-        // The save station draws once and then sleeps until its save-floor trigger advances
-        // it. Its confirmation/save coroutine is published above for the frontend owner.
-        if (station.Kind == StationKind.Save && station.InitialDrawCompleted)
-            return true;
-
-        if (--station.AnimationTimer != 0)
-            return true;
-
-        StationAnimationProgramDefinitions.Frame frame =
-            StationAnimationPrograms.Resolve(
-                station.AnimationList, station.AnimationFrame);
-        int timer = frame.Duration;
-        RoomObjectDraw draw = frame.Draw;
-        if (timer is <= 0 or > short.MaxValue)
-        {
-            throw new InvalidDataException(
-                $"{station.Kind} station animation {station.AnimationList} " +
-                $"frame {station.AnimationFrame} does not begin with a timed draw.");
-        }
-        _drawing.Draw(level, slot.BlockIndex, draw);
-        station.AnimationTimer = timer;
-        station.InitialDrawCompleted = true;
-        station.AnimationFrame = (station.AnimationFrame + 1) % station.AnimationFrameCount;
-        return true;
-    }
-
-    /// <summary>Runs the accepted save's two-frame loop until the saved-game message can be published.</summary>
-    private bool StepSaveStationAnimation(RoomLevelData level, RoomObjectSlot slot, StationObjectState station)
-    {
-        if (station.SavePhase is SaveStationPhase.Idle or
-            SaveStationPhase.AwaitingConfirmation)
-        {
-            return false;
-        }
-        if (station.SavePhase == SaveStationPhase.AwaitingCompletionMessageClose)
-            return true;
-        if (station.SavePhase != SaveStationPhase.Animating)
-        {
-            throw new InvalidDataException(
-                $"Save station has unknown phase {station.SavePhase}.");
-        }
-
-        if (--station.AnimationTimer != 0)
-            return true;
-
-        // The loop step runs when the second frame's four frames expire. After the last of
-        // the 21 loops it falls through to the saved-game message, instead of
-        // returning to the first frame. (The loop is counted at the second draw here.)
-        if (station.AnimationFrame == 0 && station.SaveAnimationLoopsRemaining == 0)
-        {
-            station.SavePhase = SaveStationPhase.AwaitingCompletionMessageClose;
-            _stationActivationEvents.Add(new StationActivationEvent(
-                StationKind.Save,
-                GameplayMessageIds.SaveCompleted,
-                station.AreaIndex,
-                StationNumber(slot),
-                slot.BlockIndex));
-            return true;
-        }
-        DrawSaveStationFrame(level, slot.BlockIndex, station);
-        return true;
-    }
-
-    /// <summary>Draws the next of the two four-frame electricity frames.</summary>
-    private void DrawSaveStationFrame(RoomLevelData level, int blockIndex, StationObjectState station)
-    {
-        StationAnimationList list = station.AnimationFrame == 0
-            ? StationAnimationList.SaveFirstFrame
-            : StationAnimationList.SaveSecondFrame;
-        StationAnimationProgramDefinitions.Frame frame =
-            StationAnimationPrograms.Resolve(list, 0);
-        if (frame.Duration != 4)
-        {
-            throw new InvalidDataException(
-                $"Save-station animation list {list} has timer {frame.Duration}, expected 4.");
-        }
-        _drawing.Draw(level, blockIndex, frame.Draw);
-        station.AnimationTimer = frame.Duration;
-        station.AnimationFrame ^= 1;
-        if (station.AnimationFrame == 0)
-            station.SaveAnimationLoopsRemaining--;
-    }
-
-    /// <summary>Applies map or refill effects and publishes the station's frontend message.</summary>
-    private void PublishStationActivation(
-        StationObjectState station,
-        RoomObjectSlot slot,
-        IRoomSamus samus)
-    {
-        GameplayMessageId message = station.Kind switch
-        {
-            StationKind.Map => GameplayMessageIds.MapDataAccessCompleted,
-            StationKind.Energy => GameplayMessageIds.EnergyRechargeCompleted,
-            StationKind.Missile => GameplayMessageIds.MissileRechargeCompleted,
-            StationKind.Save => GameplayMessageIds.SaveConfirmation,
-            _ => throw new InvalidDataException($"Unknown station kind {station.Kind}."),
-        };
-
-        switch (station.Kind)
-        {
-            case StationKind.Map:
-                (_system ?? throw new InvalidOperationException(
-                    "Map station has no shared game state owner."))
-                    .SetAreaMapAcquired(station.AreaIndex);
-                station.AnimationList = station.CompletedAnimationList;
-                break;
-            case StationKind.Energy:
-                samus.Health = samus.MaxHealth;
-                station.AnimationList = station.CompletedAnimationList;
-                break;
-            case StationKind.Missile:
-                samus.Missiles = samus.MaxMissiles;
-                station.AnimationList = station.CompletedAnimationList;
-                break;
-            case StationKind.Save:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(StationKind)} {station.Kind}.");
-        }
-
-        station.AnimationFrame = 0;
-        station.AnimationTimer = 1;
-        _stationActivationEvents.Add(new StationActivationEvent(
-            station.Kind,
-            message,
-            station.AreaIndex,
-            (slot.Argument as StationArgument)?.Station,
-            slot.BlockIndex));
-    }
-
-    /// <summary>The number a station was placed with, which its activation events carry.</summary>
-    private static int StationNumber(RoomObjectSlot slot) => (slot.Argument as StationArgument
-        ?? throw new InvalidDataException($"Station at block {slot.BlockIndex} was placed without its number.")).Station;
-
-    /// <summary>Draws the station access arm at its captured collision block in the short or extended pose.</summary>
-    private void DrawStationAccess(RoomLevelData level, StationObjectState station, StationAccessPose pose)
-    {
-        StationAccessBehavior accessBehavior = station.AccessBehavior
-            ?? throw new InvalidDataException("Station access has no behaviour owner.");
-        StationAccessObjectDefinition definition =
-            StationAccessObjects.Resolve(accessBehavior);
-        _drawing.Draw(level, station.AccessBlockIndex, RoomObjectDraw.Of(pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted));
-    }
-
-    /// <summary>Resident PLM state for station appearance, access-arm timing, and save confirmation.</summary>
-    internal sealed class StationObjectState(
-        StationKind kind,
-        AreaId area,
-        StationAnimationList animationList,
-        StationAnimationList completedAnimationList,
-        int animationFrameCount) : RoomObjectFamilyState
-    {
-        /// <inheritdoc/>
-        internal override RoomObjectFamily Family => RoomObjectFamily.Station;
-
-        /// <summary>Determines whether activation opens the map, refills a resource, or starts a save.</summary>
-        public StationKind Kind { get; } = kind;
-        /// <summary>Area whose map-acquired or save-station state is affected.</summary>
-        public AreaId AreaIndex { get; } = area;
-        /// <summary>Animation currently used by the resident station PLM.</summary>
-        public StationAnimationList AnimationList { get; set; } = animationList;
-        /// <summary>Animation selected after the station has completed its first activation.</summary>
-        public StationAnimationList CompletedAnimationList { get; } = completedAnimationList;
-        /// <summary>Number of timed draws in the current normal animation loop.</summary>
-        public int AnimationFrameCount { get; } = animationFrameCount;
-        /// <summary>Next frame index in the resident station's draw list.</summary>
-        public int AnimationFrame { get; set; }
-        /// <summary>Ticks remaining before the next station draw.</summary>
-        public int AnimationTimer { get; set; } = 1;
-        /// <summary>Keeps the save trigger asleep after its one initial draw.</summary>
-        public bool InitialDrawCompleted { get; set; }
-        /// <summary>Records accepted behaviour collision for the next PLM handler pass.</summary>
-        public bool Triggered { get; set; }
-        /// <summary>Current extension, hold, retraction, or map-unpause phase.</summary>
-        public StationOperationPhase OperationPhase { get; set; }
-        /// <summary>Ticks remaining in the current access-arm phase.</summary>
-        public int OperationTimer { get; set; }
-        /// <summary>Room block index where the activated access arm must be drawn.</summary>
-        public int AccessBlockIndex { get; set; } = -1;
-        /// <summary>Directional behaviour type identifying the selected access draw list.</summary>
-        public StationAccessBehavior? AccessBehavior { get; set; }
-        /// <summary>Tracks frontend confirmation and save animation separately from arm motion.</summary>
-        public SaveStationPhase SavePhase { get; set; }
-        /// <summary>Remaining two-frame save animation loops before the completion message.</summary>
-        public int SaveAnimationLoopsRemaining { get; set; }
-    }
-
-    /// <summary>Phases of the non-save station's access-arm PLM list.</summary>
-    internal enum StationOperationPhase
-    {
-        /// <summary>No access sequence is in progress.</summary>
-        Idle,
-        /// <summary>The first access draw is waiting to extend.</summary>
-        Extending,
-        /// <summary>The extended arm is holding before station activation.</summary>
-        Extended,
-        /// <summary>Station activation finished; the arm has not begun retraction.</summary>
-        PostActivationHold,
-        /// <summary>The arm is retracting after its sound request.</summary>
-        Retracting,
-        /// <summary>The short arm pose is holding before the access list ends.</summary>
-        FinalRetractionHold,
-        /// <summary>The access actor has finished; the map-unpause release command still owns Samus release.</summary>
-        AwaitingMapUnpause,
-    }
+    /// <summary>Publishes a station's message or frontend action for this update.</summary>
+    internal void Publish(StationActivationEvent activation) => _stationActivationEvents.Add(activation);
 }

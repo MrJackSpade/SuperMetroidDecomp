@@ -148,7 +148,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             // $84:8A72 hands the opened cap to the closed blue list, which shows the blue cap for one frame and then
             // deletes on the next pass.
             reopened.Step(reopenedLevel);
-            AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorObjectAnimation,
+            AssertTrue(reopened.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
                 $"opened colored door {header} converts to a blue cap");
             reopened.Step(reopenedLevel);
             AssertEqual(0, reopened.SlotTable.ActiveCount,

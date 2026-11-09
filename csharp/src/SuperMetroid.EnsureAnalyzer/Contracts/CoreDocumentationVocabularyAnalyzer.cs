@@ -47,11 +47,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex HexLiteral = new(@"\b0x[0-9A-Fa-f]+\b", RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// The program's own vocabulary in prose (#1558): its addresses, pointers, opcodes, registers, instruction lists and
-    /// pre-instructions, PLMs, word widths and extension words, its assembly code, and numbered palettes and priorities.
+    /// The program's own vocabulary in prose (#1558): its addresses, pointers, opcodes, the processor's registers (the noun;
+    /// registering a handler is the game's own code), instruction lists and pre-instructions, PLMs, word widths and extension words, its assembly code, and numbered palettes and priorities.
     /// </summary>
     private static readonly Regex ProgramProse = new(
-        @"\b(Address|Pointer|Opcode|Register|PLM)(s|es|ed|ing)?\b|\bpre-?instructions?\b|\binstruction[-\s]+lists?\b" +
+        @"\b(Address|Pointer|Opcode|PLM)(s|es|ed|ing)?\b|\b(?:[AXY]|index|accumulator|status|processor|CPU|hardware|display|data|bank)\s+registers?\b|\bpre-?instructions?\b|\binstruction[-\s]+lists?\b" +
         @"|\b(?:eight|sixteen|8|16)-bit\b|\bextension\s+words?\b|\baccumulator\s+mode\b" +
         @"|\bassembly\s+(?:code|language|listing|routine|source)s?\b|\bthe\s+(?:original\s+)?assembly\b" +
         @"|\bpalette\s+(?:zero|one|two|three|four|five|six|seven|[0-7])\b|\bpriority\s+(?:zero|one|two|three|[0-3])\b",
@@ -71,7 +71,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// original program unless Core's own code spells it: a name of Core's types, members, locals or the libraries Core
     /// calls is the code being described.
     /// </summary>
-    private static readonly Regex CompoundName = new(@"\b(?:[A-Z][a-z0-9]+|[a-z][a-z0-9]*)(?:[A-Z][A-Za-z0-9]*)+\b", RegexOptions.CultureInvariant);
+    private static readonly Regex CompoundName = new(@"\b(?:[A-Z][a-z0-9]+|[a-z][a-z0-9]+)(?:[A-Z][A-Za-z0-9]*)+\b", RegexOptions.CultureInvariant);
 
     /// <summary>A documentation comment's markup, whose cross-references the compiler checks itself.</summary>
     private static readonly Regex Markup = new(@"<[^>]*>", RegexOptions.CultureInvariant);
@@ -131,7 +131,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 return;
             Compilation compilation = start.Compilation;
             var codeNames = new Lazy<ImmutableHashSet<string>>(() => CodeNames(compilation, start.CancellationToken));
-            start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, codeNames));
+            start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames));
         });
     }
 
@@ -144,7 +144,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             .ToImmutableHashSet(StringComparer.Ordinal);
 
     /// <summary>Reports each comment and string literal of a tree that names the hardware.</summary>
-    private static void AnalyzeTree(SyntaxTreeAnalysisContext context, Lazy<ImmutableHashSet<string>> codeNames)
+    /// <remarks>A generated file's comments are the generator's, so they are not read for routine labels.</remarks>
+    private static void AnalyzeTree(SyntaxTreeAnalysisContext context, Lazy<ImmutableHashSet<string>>? codeNames)
     {
         SyntaxNode root = context.Tree.GetRoot(context.CancellationToken);
         foreach (SyntaxTrivia trivia in root.DescendantTrivia(descendIntoTrivia: false))

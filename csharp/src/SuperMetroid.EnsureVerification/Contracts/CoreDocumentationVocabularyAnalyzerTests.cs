@@ -51,7 +51,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The handler address it jumps to.</summary>\nvoid Run() { } }", "('address')");
         Expect("class P { // the instruction pointer moves on\n }", "('pointer')");
         Expect("class P { /* the opcode table */ }", "('opcode')");
-        Expect("class P { // read from the X register\n }", "('register')");
+        Expect("class P { // read from the X register\n }", "('X register')");
+        Expect("class P { /// <summary>Registers the spike's touch handler, registered once.</summary>\nvoid Run() { } }");
+        Expect("class P { // the 32 kHz clock\n }");
         Expect("class P { /// <summary>The PLM that spawns it.</summary>\nvoid Run() { } }", "('PLM')");
         Expect("class P { // the pre-instruction runs first\n }", "('pre-instruction')");
         Expect("class P { // in eight-bit accumulator mode\n }", "('eight-bit')");

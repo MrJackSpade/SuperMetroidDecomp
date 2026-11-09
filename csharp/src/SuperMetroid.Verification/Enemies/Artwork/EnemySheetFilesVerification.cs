@@ -1,10 +1,9 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -17,16 +16,33 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// </summary>
 internal static class EnemySheetFilesVerification
 {
-    /// <summary>Loads the shared installation's enemy sheets and compares each frame with its composition.</summary>
-    internal static void VerifyEnemySheetFiles()
-    {
-        string content = RepositoryInstallation.Installation.ContentDirectory;
-        InstalledEnemySheets installed = EnemySheetFiles.Load(RepositoryInstallation.Installation.EnemySheetDirectory);
+    /// <summary>
+    /// How many suites the drawn graphics sets are dealt among, each taking every one of that many sets in turn, so the
+    /// neighbouring sets that share the frame-heavy enemies land in different suites.
+    /// </summary>
+    private const int SetRuns = 8;
 
-        EnemySheetInputs inputs = EnemySheetInputs.Load(content);
-        int members = 0, frames = 0;
-        foreach (RoomEnemyGraphicsSetDefinition set in RoomEnemyGraphicsSetLists.DrawnUnder)
+    /// <summary>The drawn graphics sets dealt among <see cref="SetRuns"/> suites.</summary>
+    internal static FullRunSuitesVerification.RegisteredSuite[] EnemySheetFilesSuites() =>
+    [
+        .. Enumerable.Range(0, SetRuns).Select(run =>
+            new FullRunSuitesVerification.RegisteredSuite($"{nameof(VerifyEnemySheetFiles)}{run + 1}Of{SetRuns}", () => VerifyEnemySheetFiles(run))),
+    ];
+
+    /// <summary>
+    /// Compares each installed enemy sheet frame of the sets dealt to suite <paramref name="run"/>
+    /// of <see cref="SetRuns"/> with its composition.
+    /// </summary>
+    private static void VerifyEnemySheetFiles(int run)
+    {
+        // The suites share one load of the installation's sheets and of the artwork they were composed from.
+        InstalledEnemySheets installed = InstalledFixtures.EnemySheets;
+        EnemySheetInputs inputs = EnemySheetFixtures.Inputs;
+        IReadOnlyList<RoomEnemyGraphicsSetDefinition> drawn = RoomEnemyGraphicsSetLists.DrawnUnder;
+        int sets = 0, members = 0, frames = 0;
+        foreach (RoomEnemyGraphicsSetDefinition set in drawn.Where((_, index) => index % SetRuns == run))
         {
+            sets++;
             foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, _, _) in EnemySheetComposer.Sources(inputs, set).Enemies)
             {
                 members++;
@@ -38,7 +54,7 @@ internal static class EnemySheetFilesVerification
                 }
             }
         }
-        Console.WriteLine($"Enemy sheets: {members} graphics-set members, {frames} frames ink-exact against their compositions.");
+        Console.WriteLine($"Enemy sheets, suite {run + 1} of {SetRuns}: {sets} of {drawn.Count} graphics sets, {members} members, {frames} frames ink-exact against their compositions.");
     }
 
     /// <summary>The sheet frame shows exactly the inks its composition shows over the set's characters.</summary>
@@ -53,11 +69,12 @@ internal static class EnemySheetFilesVerification
         UploadedPictureChecks.AssertSameInks([image], [character], label, requirePixels: false);
     }
 
-    /// <summary>Runs the enemy sheet extraction and ink comparison.</summary>
+    /// <summary>Runs the enemy sheet extraction and ink comparison, one suite per run of sets.</summary>
     [VerificationCommand("--enemy-sheet-files")]
     internal static int EnemySheetFilesCommand()
     {
-        Suite(nameof(VerifyEnemySheetFiles), VerifyEnemySheetFiles);
+        foreach (FullRunSuitesVerification.RegisteredSuite suite in EnemySheetFilesSuites())
+            Suite(suite.Name, suite.Body);
         return 0;
     }
 }

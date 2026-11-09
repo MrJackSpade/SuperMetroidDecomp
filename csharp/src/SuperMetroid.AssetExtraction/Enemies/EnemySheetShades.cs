@@ -58,6 +58,12 @@ internal sealed class EnemySheetShades
     /// <summary>The colours the set's load leaves.</summary>
     private readonly LoadedSetColours colours;
 
+    /// <summary>
+    /// Each enemy's effects by shade, built once: a sheet's frame colourings look up one shade at a time, and building
+    /// an enemy's effects composes every one of its shades (the Torizos' run to thousands of fades).
+    /// </summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<EnemyDefinitionId, Lazy<Dictionary<PictureShade, SheetShade>>> effects = new();
+
     /// <summary>Builds the shades of a set whose load leaves <paramref name="colours"/>.</summary>
     internal EnemySheetShades(EnemySheetInputs inputs, LoadedSetColours colours)
     {
@@ -175,9 +181,20 @@ internal sealed class EnemySheetShades
     /// <exception cref="InvalidDataException">None of them is named so.</exception>
     private SheetShade EffectOf(EnemyDefinitionId enemy, PictureShade name)
     {
-        return OwnRow(enemy, colours.RowOf(enemy)).Concat(Fixed(enemy).Inks).Concat(SpawnedBy(enemy).Inks)
-            .FirstOrDefault(candidate => candidate.Shade == name)
-            ?? throw new InvalidDataException($"{enemy}'s effects have no shade {name.Key} to colour its frames in.");
+        return effects.GetOrAdd(enemy, key => new(() => EffectsOf(key))).Value.TryGetValue(name, out SheetShade? shade) ? shade
+            : throw new InvalidDataException($"{enemy}'s effects have no shade {name.Key} to colour its frames in.");
+    }
+
+    /// <summary>
+    /// <paramref name="enemy"/>'s effects by shade, in order: its own row's, its fixed ones and those of the objects it
+    /// spawns, the first of any shade named twice standing for it.
+    /// </summary>
+    private Dictionary<PictureShade, SheetShade> EffectsOf(EnemyDefinitionId enemy)
+    {
+        var byShade = new Dictionary<PictureShade, SheetShade>();
+        foreach (SheetShade shade in OwnRow(enemy, colours.RowOf(enemy)).Concat(Fixed(enemy).Inks).Concat(SpawnedBy(enemy).Inks))
+            byShade.TryAdd(shade.Shade, shade);
+        return byShade;
     }
 
     /// <summary>The selection shades every enemy and spawned-object sheet takes: the hit flash, the frozen look and the enemy projectiles' colours.</summary>

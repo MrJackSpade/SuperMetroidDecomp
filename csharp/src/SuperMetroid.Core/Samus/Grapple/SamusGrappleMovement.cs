@@ -1129,23 +1129,23 @@ public static class SamusGrappleMovement
         if (absoluteY < absoluteX)
         {
             int eighths = (EightEight.FromWhole(absoluteY) / absoluteX) >> 3;
-            return RotationAngle.NormalizeTableIndex(quadrant switch
+            return quadrant switch
             {
-                0 => eighths + RotationAngle.QuarterTurn.TableIndex,
-                1 => RotationAngle.QuarterTurn.TableIndex - eighths,
-                2 => RotationAngle.ThreeQuarterTurn.TableIndex - eighths,
-                _ => RotationAngle.ThreeQuarterTurn.TableIndex + eighths,
-            });
+                0 => RotationAngle.QuarterTurn.TurnedBySteps(eighths),
+                1 => RotationAngle.QuarterTurn.TurnedBySteps(-eighths),
+                2 => RotationAngle.ThreeQuarterTurn.TurnedBySteps(-eighths),
+                _ => RotationAngle.ThreeQuarterTurn.TurnedBySteps(eighths),
+            };
         }
 
         int reciprocalEighths = (EightEight.FromWhole(absoluteX) / absoluteY) >> 3;
-        return RotationAngle.NormalizeTableIndex(quadrant switch
+        return quadrant switch
         {
-            0 => RotationAngle.HalfTurn.TableIndex - reciprocalEighths,
-            1 => reciprocalEighths,
-            2 => reciprocalEighths + RotationAngle.HalfTurn.TableIndex,
-            _ => 256 - reciprocalEighths,
-        });
+            0 => RotationAngle.HalfTurn.TurnedBySteps(-reciprocalEighths),
+            1 => RotationAngle.Zero.TurnedBySteps(reciprocalEighths),
+            2 => RotationAngle.HalfTurn.TurnedBySteps(reciprocalEighths),
+            _ => RotationAngle.Zero.TurnedBySteps(-reciprocalEighths),
+        };
     }
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>

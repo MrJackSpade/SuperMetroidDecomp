@@ -61,10 +61,10 @@ public static class EndingMotionDefinitions
     public static SignedSixteenSixteen CreditsScrollVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 
     /// <summary>The angle the slow-spinning gunship approaches one unit per update.</summary>
-    public static RotationAngle PlanetSlowTargetAngle => RotationAngle.FromTableIndex(224);
+    public static RotationAngle PlanetSlowTargetAngle => RotationAngle.FromSteps(224);
 
     /// <summary>The angle the final fly-to-camera turn approaches, separate from the slow-spin target.</summary>
-    public static RotationAngle PlanetExitTargetAngle => RotationAngle.FromTableIndex(16);
+    public static RotationAngle PlanetExitTargetAngle => RotationAngle.FromSteps(16);
 
     /// <summary>The steps of the fast ship-shake pattern.</summary>
     public const int PlanetFastPatternLength = 16;

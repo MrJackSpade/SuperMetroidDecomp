@@ -216,7 +216,7 @@ internal static class GameplayDisplayFrameTestsVerification
         RidleyEnemyState getaway = runtime.Enemies.RidleyEncounter.CeresRidley
             ?? throw new InvalidOperationException("Ceres Ridley room has no Ridley.");
         getaway.GetawayActive = true;
-        getaway.FloorAngle = RotationAngle.FromTableIndex(5);
+        getaway.FloorAngle = RotationAngle.FromSteps(5);
         getaway.FloorZoom = 240;
         getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
         getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);
@@ -224,7 +224,7 @@ internal static class GameplayDisplayFrameTestsVerification
             "Ridley's floor and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(RotationAngle.FromTableIndex(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
+        AssertEqual(RotationAngle.FromSteps(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
         AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.Floor is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         getaway.GetawayActive = false;

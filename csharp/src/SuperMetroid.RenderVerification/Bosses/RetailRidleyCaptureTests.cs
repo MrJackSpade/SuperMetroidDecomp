@@ -34,7 +34,7 @@ internal static class RetailRidleyCaptureTests
         {
             (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).GetawayActive = true;
             ridley.FloorZoom = scale;
-            ridley.FloorAngle = RotationAngle.NormalizeTableIndex(tilt);
+            ridley.FloorAngle = RotationAngle.WrappedSteps(tilt);
             ridley.FloorCenter = new Position16<FloorPixels>(128, 120);
             ridley.FloorOffset = new Offset16<FloorPixels>(7, unchecked(scroll));
             // The getaway's floor reaches the display at the accepted frame boundary (#1307).

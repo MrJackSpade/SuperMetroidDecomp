@@ -62,7 +62,7 @@ internal static class GrappleCompiledMathVerification
             SamusVerticalDirection direction = velocity < 0
                 ? vertical < 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up
                 : vertical >= 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
-            state.Grapple.Angle = RotationAngle.FromTableIndex(unchecked((byte)angle)).AddRaw(0xff);
+            state.Grapple.Angle = RotationAngle.FromSteps(unchecked((byte)angle)).AddRaw(0xff);
             state.Grapple.AngularVelocity = (short)velocity;
             release(state, state.Grapple);
             if (state.Kinematics.YSpeed.Whole != SixteenSixteenWords.WholeOf(expectedY) || state.Kinematics.YSpeed.Fraction != SixteenSixteenWords.FractionOf(expectedY) ||

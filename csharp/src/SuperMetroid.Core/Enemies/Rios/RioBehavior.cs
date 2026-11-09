@@ -190,7 +190,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 ByteAngle angle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
                 state.Velocity = state.Velocity.WithX(ReadRioSignedSineCosineSample(
-                    angle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn)));
+                    angle.TurnedBySteps(EnemyByteAngleDefinitions.QuarterTurn)));
                 state.Velocity = state.Velocity.WithY(ReadRioSignedSineCosineSample(angle));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,

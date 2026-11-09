@@ -137,7 +137,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the sine and phase-offset cosine table deltas for circular flight.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
-        int tableIndex = state.Angle.TableIndex;
+        int tableIndex = state.Angle.ToByteAngle().RawValue;
         slot.Position = slot.Position.AdvanceX(SignedEightEight.Wrapped(ReadSignedSineCosine(tableIndex + 64)).ToSixteenSixteenDelta());
         slot.Position = slot.Position.AdvanceY(SignedEightEight.Wrapped(ReadSignedSineCosine(tableIndex)).ToSixteenSixteenDelta());
     }

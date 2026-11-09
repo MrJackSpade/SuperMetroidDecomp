@@ -30,18 +30,18 @@ internal static class RidleyFlightTailVerification
         var state = new RidleyEnemyState { SwoopSpeedMagnitude = 0x500 };
         update(state, 0, 0, 0x500);
         AssertEqual((ushort)0x500, state.Velocity.Y.RawValue, "native downward swoop uses full speed");
-        state.SwoopAngleAccumulator = RotationAngle.FromTableIndex(120);
+        state.SwoopAngleAccumulator = RotationAngle.FromSteps(120);
         update(state, 0, short.MinValue, 0x500);
-        AssertEqual(RotationAngle.FromTableIndex(120), state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
+        AssertEqual(RotationAngle.FromSteps(120), state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
         // A rightward step from just short of a full turn wraps the heading past zero; the half-turn target's
         // sign-of-difference test then keeps the wrapped heading instead of snapping to the target.
-        state.SwoopAngleAccumulator = RotationAngle.FromTableIndex(254);
-        update(state, RotationAngle.FromTableIndex(4).RawValue, short.MinValue, 0x500);
-        AssertEqual(RotationAngle.FromTableIndex(2), state.SwoopAngleAccumulator, "swoop heading wraps past a full turn");
+        state.SwoopAngleAccumulator = RotationAngle.FromSteps(254);
+        update(state, RotationAngle.FromSteps(4).RawValue, short.MinValue, 0x500);
+        AssertEqual(RotationAngle.FromSteps(2), state.SwoopAngleAccumulator, "swoop heading wraps past a full turn");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int phase = 0; phase < 256; phase++)
         {
-            state.SwoopAngleAccumulator = RotationAngle.FromTableIndex((byte)phase);
+            state.SwoopAngleAccumulator = RotationAngle.FromSteps((byte)phase);
             update(state, 0, EightEight.FromWhole(phase), 0x500);
             ushort NativeComponent(int angle)
             {

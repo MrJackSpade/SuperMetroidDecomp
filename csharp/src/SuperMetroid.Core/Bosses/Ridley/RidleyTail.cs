@@ -298,7 +298,7 @@ internal sealed class RidleyTail
         RidleyTailSegment segment = state.TailSegments[index];
         ByteAngle angle = ByteAngle.Wrapped(segment.Angle);
         if (index != 0)
-            angle = angle.AddTableUnits(state.TailSegments[index - 1].Angle);
+            angle = angle.TurnedBySteps(state.TailSegments[index - 1].Angle);
         int distanceInPixels = EightEight.WholeOf(segment.Distance);
         // The tail composition reads the middle/high bytes of the signed rotation product.
         // An arithmetic shift preserves its floor for negative fractional pixels.

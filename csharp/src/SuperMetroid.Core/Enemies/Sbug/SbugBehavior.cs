@@ -54,8 +54,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // the shared helper apply signs later from the original angle. The side velocities instead use the signed,
         // intentionally imperfect eight-bit multiply routine.
         int speed = state.Speed;
-        RotationAngle leftAngle = state.InitialAngle.AddTableUnits(-EnemyByteAngleDefinitions.EighthTurn);
-        RotationAngle rightAngle = state.InitialAngle.AddTableUnits(EnemyByteAngleDefinitions.EighthTurn);
+        RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyByteAngleDefinitions.EighthTurn);
+        RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyByteAngleDefinitions.EighthTurn);
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
             state.InitialAngle.ToByteAngle(),
             speed,
@@ -181,7 +181,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // adding 128 selects the exact opposite direction for behavior six.
         ByteAngle heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
-        state.FaceCustomHeading(heading.AddTableUnits(relativeHeading == SbugHeading.Away ? ByteAngle.HalfTurn.RawValue : 0).ToAngle());
+        state.FaceCustomHeading(heading.TurnedBySteps(relativeHeading == SbugHeading.Away ? ByteAngle.HalfTurn.RawValue : 0).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
         state.Function = relativeHeading == SbugHeading.Away
             ? SbugEnemyFunction.MoveAwayFromSamus
@@ -327,8 +327,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
         // testing the original mathematical angle independently for X and Y.
         ByteAngle initialAngle = state.InitialAngle.ToByteAngle();
-        bool subtractX = initialAngle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn).IsInSecondHalf;
-        bool subtractY = initialAngle.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn).IsInSecondHalf;
+        bool subtractX = initialAngle.TurnedBySteps(EnemyByteAngleDefinitions.QuarterTurn).IsInSecondHalf;
+        bool subtractY = initialAngle.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn).IsInSecondHalf;
         slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(ForwardDisplacement(state.ForwardXVelocity, subtractX)));
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(ForwardDisplacement(state.ForwardYVelocity, subtractY)));
     }
@@ -362,7 +362,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // ConvertAngleToXy indexes a 128-word unsigned quarter-circle table,
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
-        int tableIndex = angle.AddTableUnits(phase).HalfWaveIndex;
+        int tableIndex = angle.TurnedBySteps(phase).HalfWaveIndex;
         uint product = (uint)Trigonometry.UnsignedHalfWave(tableIndex) * (uint)speed;
         return UnsignedSixteenSixteen.FromRaw(product);
     }
@@ -384,7 +384,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // The eight-bit sine multiplication multiplies two bytes, swaps the product's bytes into 16.16 words, then
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
-        ByteAngle tableAngle = angle.AddTableUnits(phase);
+        ByteAngle tableAngle = angle.TurnedBySteps(phase);
         int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);
         // Every authored speed is below five, so the product of the two bytes stays below 65,536.
         SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sineMagnitude * speed);

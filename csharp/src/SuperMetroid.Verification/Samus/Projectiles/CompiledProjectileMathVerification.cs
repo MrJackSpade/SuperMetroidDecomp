@@ -44,8 +44,8 @@ internal static class CompiledProjectileMathVerification
         foreach (int rawAngle in AngleHighByteSamples())
         for (int radius = 0; radius <= byte.MaxValue; radius++)
         {
-            int xAngle = RotationAngle.FromRaw(unchecked((ushort)rawAngle)).TableIndex;
-            int yAngle = RotationAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).TableIndex;
+            int xAngle = RotationAngle.FromRaw(unchecked((ushort)rawAngle)).ToByteAngle().RawValue;
+            int yAngle = RotationAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).ToByteAngle().RawValue;
             ushort xMagnitude = (ushort)(native[(xAngle & 127) + 64] * radius / 256);
             ushort yMagnitude = (ushort)(native[(yAngle & 127) + 64] * radius / 256);
             ushort x = xAngle < 128 ? xMagnitude : unchecked((ushort)-xMagnitude);
@@ -64,7 +64,7 @@ internal static class CompiledProjectileMathVerification
             ushort expected = sample < 0 ? unchecked((ushort)-magnitude) : magnitude;
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
-            var cosineAngle = RotationAngle.FromTableIndex(unchecked((byte)(angle - 64))).AddRaw(255);
+            var cosineAngle = RotationAngle.FromSteps(unchecked((byte)(angle - 64))).AddRaw(255);
             if (Trigonometry.MultiplySignedSine((ushort)speed, new ByteAngle((byte)angle)).RawValue != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)

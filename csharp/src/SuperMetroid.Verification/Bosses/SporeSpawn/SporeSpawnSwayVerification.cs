@@ -34,7 +34,7 @@ internal static class SporeSpawnSwayVerification
                 MovementCenter = body.Position.Whole,
                 MaximumXRadius = 48,
                 AngleDelta = delta,
-                Angle = RotationAngle.FromTableIndex(start),
+                Angle = RotationAngle.FromSteps(start),
             };
             enemies.SporeSpawnBehavior.SporeSpawn = state;
             var frame = new ClockedEnemyAiFrame(
@@ -43,7 +43,7 @@ internal static class SporeSpawnSwayVerification
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, frame);
 
-            AssertEqual(RotationAngle.FromTableIndex(expected), state.Angle,
+            AssertEqual(RotationAngle.FromSteps(expected), state.Angle,
                 $"Spore Spawn sway phase {start} stepped by {delta} wraps around the turn");
         }
         Console.WriteLine("  Spore Spawn sway: the phase wraps around the turn in both directions.");

@@ -48,7 +48,7 @@ internal sealed class EndingFlyaway
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWrappedWhole(-72), new(CoordinateAxis.Wrap(-104), 0));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialScale;
-        _stage.FloorAngle = RotationAngle.NormalizeTableIndex(-112);
+        _stage.FloorAngle = RotationAngle.WrappedSteps(-112);
         _stage.PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
@@ -62,7 +62,7 @@ internal sealed class EndingFlyaway
         if (_stage.PhaseTimer > 0)
             _stage.PhaseTimer--;
         else StepFlyawayFade();
-        _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-4);
+        _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-4);
         _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetFastDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetFastPatternLength;
         _stage.FloorZoom -= 8;
@@ -78,7 +78,7 @@ internal sealed class EndingFlyaway
     {
         StepFlyawayFade();
         if (_stage.FloorAngle != EndingMotionDefinitions.PlanetSlowTargetAngle)
-            _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(-1);
+            _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-1);
         _stage.FloorPosition = _stage.FloorPosition.WithX(_stage.FloorPosition.X.MovedBy(EndingShipShake.PlanetSlowDelta(PlanetMotionIndex)));
         PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingMotionDefinitions.PlanetSlowPatternLength;
         _stage.FloorZoom -= 2;
@@ -111,7 +111,7 @@ internal sealed class EndingFlyaway
             (CinematicFrame & 3) == 0 &&
             _stage.FloorAngle != EndingMotionDefinitions.PlanetExitTargetAngle)
         {
-            _stage.FloorAngle = _stage.FloorAngle.AddTableUnits(2);
+            _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(2);
         }
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetExitScale)
         {

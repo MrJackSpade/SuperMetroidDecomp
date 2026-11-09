@@ -117,8 +117,8 @@ internal static class FamilyTrigonometryVerification
                 previous.Position = new(new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(FixedCoordinate.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
                 segmentState.OrbitAngle = RotationAngle.FromRaw((ushort)angle);
                 place(segment, segmentState);
-                uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
-                uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
+                uint expectedX = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToByteAngle().RawValue + 64]));
+                uint expectedY = unchecked(initial + (uint)SixteenSixteen.FromEightEight(orbit[RotationAngle.FromRaw(unchecked((ushort)angle)).ToByteAngle().RawValue]));
                 if ((segment.Position.X.RawValue) != expectedX ||
                     (segment.Position.Y.RawValue) != expectedY ||
                     segmentState.OrbitAngle.RawValue != angle)

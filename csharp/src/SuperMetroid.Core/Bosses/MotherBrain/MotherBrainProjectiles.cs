@@ -503,7 +503,7 @@ internal sealed class MotherBrainProjectiles
         state.HandBeamNextPosition = beam.Position;
 
         int angleRandom = _room.Random.Generate();
-        ByteAngle scatterAngle = new ByteAngle(state.HandBeamNextAngle).AddTableUnits(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
+        ByteAngle scatterAngle = new ByteAngle(state.HandBeamNextAngle).TurnedBySteps(MotherBrainRandomDefinitions.HandBeamScatterTurn.Of(angleRandom));
         int speedRandom = _room.Random.Generate();
         int scatterSpeed = UnsignedEightEight.FromParts(whole: MotherBrainRandomDefinitions.HandBeamScatterSpeed.Of(speedRandom), fraction: 0);
         beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample(scatterSpeed, scatterAngle));

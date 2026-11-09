@@ -26,21 +26,21 @@ public static class XrayScopeDefinitions
     public static class AnimationAngles
     {
         /// <summary>Right-facing boundary between frames zero and one.</summary>
-        public const int RightFrameOne = 25;
+        public static RotationAngle RightFrameOne { get; } = RotationAngle.FromSteps(25);
         /// <summary>Right-facing boundary between frames one and two.</summary>
-        public const int RightFrameTwo = 50;
+        public static RotationAngle RightFrameTwo { get; } = RotationAngle.FromSteps(50);
         /// <summary>Right-facing boundary between frames two and three.</summary>
-        public const int RightFrameThree = 75;
+        public static RotationAngle RightFrameThree { get; } = RotationAngle.FromSteps(75);
         /// <summary>Right-facing boundary between frames three and four.</summary>
-        public const int RightFrameFour = 100;
+        public static RotationAngle RightFrameFour { get; } = RotationAngle.FromSteps(100);
         /// <summary>Left-facing boundary between frames four and three.</summary>
-        public const int LeftFrameFour = 153;
+        public static RotationAngle LeftFrameFour { get; } = RotationAngle.FromSteps(153);
         /// <summary>Left-facing boundary between frames three and two.</summary>
-        public const int LeftFrameThree = 178;
+        public static RotationAngle LeftFrameThree { get; } = RotationAngle.FromSteps(178);
         /// <summary>Left-facing boundary between frames two and one.</summary>
-        public const int LeftFrameTwo = 203;
+        public static RotationAngle LeftFrameTwo { get; } = RotationAngle.FromSteps(203);
         /// <summary>Left-facing boundary between frames one and zero.</summary>
-        public const int LeftFrameOne = 228;
+        public static RotationAngle LeftFrameOne { get; } = RotationAngle.FromSteps(228);
     }
 
     /// <summary>How the X-ray scope's cone widens.</summary>

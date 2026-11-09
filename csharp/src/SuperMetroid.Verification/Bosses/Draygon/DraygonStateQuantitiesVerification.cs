@@ -63,7 +63,7 @@ internal static class DraygonStateQuantitiesVerification
     {
         (_, DraygonEnemyState state) = NewDraygon();
         state.SwoopVelocity = default;
-        state.GoopYOscillationAngle = RotationAngle.FromTableIndex(byte.MaxValue);
+        state.GoopYOscillationAngle = RotationAngle.FromSteps(byte.MaxValue);
         DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new ByteAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
@@ -71,7 +71,7 @@ internal static class DraygonStateQuantitiesVerification
         DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new ByteAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
-        AssertEqual(1, (int)state.GoopYOscillationAngle.TableIndex, "the wrapped phase advances by one unit");
+        AssertEqual(1, (int)state.GoopYOscillationAngle.ToByteAngle().RawValue, "the wrapped phase advances by one unit");
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ internal static class DraygonStateQuantitiesVerification
         const ushort radiusWhole = 5, radiusFraction = 57344, angleDeltaRaw = 2048;
         const byte angle = 250;
         state.SpiralXRadius = SignedSixteenSixteen.FromParts((short)radiusWhole, radiusFraction);
-        state.SpiralAngle = RotationAngle.FromTableIndex(angle);
+        state.SpiralAngle = RotationAngle.FromSteps(angle);
         state.SpiralAngleDelta = RotationAngle.FromRaw(angleDeltaRaw);
         // A centre on the spiral's upper limit ends the step at the lift check, before Samus is moved.
         state.SpiralCenter = FixedPosition<RoomPixels>.FromWhole(new(256, 64));
@@ -103,7 +103,7 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual((ushort)6, state.SpiralXRadius.WholeWord, "the carried radius reaches the next whole pixel");
         ushort nativeDelta = unchecked(angleDeltaRaw - 1);
         AssertEqual(nativeDelta, state.SpiralAngleDelta.RawValue, "the angular step slows by 1/256 unit");
-        AssertEqual(unchecked((byte)(angle + UnsignedEightEight.Whole(nativeDelta))), state.SpiralAngle.TableIndex,
+        AssertEqual(unchecked((byte)(angle + UnsignedEightEight.Whole(nativeDelta))), state.SpiralAngle.ToByteAngle().RawValue,
             "the angle advances by the step's whole units and wraps around the turn");
         AssertEqual(DraygonAiFunction.FinalTailWhips, state.Function, "the lifted centre past its limit ends the spiral");
     }

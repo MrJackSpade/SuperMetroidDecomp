@@ -28,8 +28,8 @@ internal static class MotherBrainNeckSineVerification
                     $"Mother Brain neck component angle {angle:X2}, distance {distance:X2}");
             }
 
-            ushort lowerAngle = RotationAngle.FromTableIndex(unchecked((byte)angle)).RawValue;
-            ushort upperAngle = RotationAngle.FromTableIndex(unchecked((byte)(255 - angle))).RawValue;
+            ushort lowerAngle = RotationAngle.FromSteps(unchecked((byte)angle)).RawValue;
+            ushort upperAngle = RotationAngle.FromSteps(unchecked((byte)(255 - angle))).RawValue;
             Position16<RoomPixels>[] expectedGeometry = ReferenceMotherBrainNeckGeometry(
                 rom,
                 body: new(0x0038, 0x00b6),
@@ -53,8 +53,8 @@ internal static class MotherBrainNeckSineVerification
     {
         ushort referenceX = unchecked((ushort)(body.X - 0x0050));
         ushort referenceY = unchecked((ushort)(body.Y + 0x002e));
-        byte lower = RotationAngle.FromRaw(lowerAngle).TableIndex;
-        byte upper = RotationAngle.FromRaw(upperAngle).TableIndex;
+        byte lower = RotationAngle.FromRaw(lowerAngle).ToByteAngle().RawValue;
+        byte upper = RotationAngle.FromRaw(upperAngle).ToByteAngle().RawValue;
 
         Position16<RoomPixels> Lower(ushort distance) => new(
             unchecked((ushort)(referenceX + 0x0070 +

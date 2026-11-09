@@ -263,7 +263,7 @@ public sealed class BabyMetroidCutsceneState
                 // first curve update before the common mover consumes its new velocity.
                 if (--FunctionTimer < 0)
                 {
-                    Angle = RotationAngle.FromTableIndex(216);
+                    Angle = RotationAngle.FromSteps(216);
                     Speed = 2560;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                     FunctionTimer = 10;
@@ -879,7 +879,7 @@ public sealed class BabyMetroidCutsceneState
                 : targetAngle;
         }
 
-        ByteAngle angle = new(Angle.TableIndex);
+        ByteAngle angle = Angle.ToByteAngle();
         Velocity = new(
             CalculateVelocityComponent(Speed, angle),
             CalculateVelocityComponent(Speed, angle.TurnedBy(ByteAngle.QuarterTurn)));

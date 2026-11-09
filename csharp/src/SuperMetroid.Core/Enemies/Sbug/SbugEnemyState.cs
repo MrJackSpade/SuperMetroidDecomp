@@ -34,7 +34,7 @@ public sealed class SbugEnemyState
     /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn, wrapping around the turn.
     /// </summary>
     internal void TurnCustomHeading(int tableUnits) =>
-        CustomHeading = CustomHeading.AddTableUnits(tableUnits);
+        CustomHeading = CustomHeading.TurnedBySteps(tableUnits);
 
     /// <summary>The 32-frame segment/wait countdown.</summary>
     public int MovementTimer { get; internal set; }

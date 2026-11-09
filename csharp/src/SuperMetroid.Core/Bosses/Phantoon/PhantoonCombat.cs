@@ -406,7 +406,7 @@ internal sealed class PhantoonCombat
             }
         }
 
-        orbit.Angle = orbit.Angle.AddTableUnits(1);
+        orbit.Angle = orbit.Angle.TurnedBySteps(1);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
@@ -495,7 +495,7 @@ internal sealed class PhantoonCombat
 
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
         orbit.Radius += PhantoonFlameMotionDefinitions.RageRadiusStep;
-        orbit.Angle = orbit.Angle.AddTableUnits(orbit.AngleStep);
+        orbit.Angle = orbit.Angle.TurnedBySteps(orbit.AngleStep);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
@@ -541,7 +541,7 @@ internal sealed class PhantoonCombat
 
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
         orbit.Radius += PhantoonFlameMotionDefinitions.SpiralRadiusStep;
-        orbit.Angle = orbit.Angle.AddTableUnits(PhantoonFlameMotionDefinitions.SpiralAngleStep);
+        orbit.Angle = orbit.Angle.TurnedBySteps(PhantoonFlameMotionDefinitions.SpiralAngleStep);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,

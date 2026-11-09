@@ -273,7 +273,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
 
             case CeresDestructionPhase.FlyingAwayFromExplosion:
                 Background = Background.WithX(Background.X.WithWhole(CoordinateAxis.Wrap(Background.X.Whole + 2)));
-                angle = angle.AddTableUnits(-1);
+                angle = angle.TurnedBySteps(-1);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumScale)
                 {
                     phaseTimer = CeresDestructionSceneDefinitions.Timing.ExplosionHoldFrames;
@@ -346,7 +346,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 else
                 {
                     Zoom += CeresDestructionSceneDefinitions.Motion.SlowScaleStep;
-                    angle = angle.AddTableUnits(-1);
+                    angle = angle.TurnedBySteps(-1);
                 }
                 StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;

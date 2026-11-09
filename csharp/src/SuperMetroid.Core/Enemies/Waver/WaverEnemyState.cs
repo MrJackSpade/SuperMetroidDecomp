@@ -26,8 +26,8 @@ public sealed class WaverEnemyState
     internal WaverProgram RequestedAnimation { get; set; }
 
     /// <summary>Advances the wave phase two table units, wrapping after a full turn.</summary>
-    internal void AdvanceWave() => Angle = Angle.AddTableUnits(2);
+    internal void AdvanceWave() => Angle = Angle.TurnedBySteps(2);
 
     /// <summary>Reflects the wave phase by half a turn, as a vertical collision does.</summary>
-    internal void ReflectWave() => Angle = Angle.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn);
+    internal void ReflectWave() => Angle = Angle.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn);
 }

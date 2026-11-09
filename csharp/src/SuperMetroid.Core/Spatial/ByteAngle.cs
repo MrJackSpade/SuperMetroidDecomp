@@ -37,8 +37,8 @@ public readonly record struct ByteAngle
     /// <summary>Whether this angle lies in the second half of the turn, where the sine wave is negative.</summary>
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
 
-    /// <summary>Adds signed table units with the cartridge's byte wraparound.</summary>
-    public ByteAngle AddTableUnits(int delta) => Wrapped(RawValue + delta);
+    /// <summary>Turns the angle by <paramref name="delta"/> signed steps, continuing around the turn.</summary>
+    public ByteAngle TurnedBySteps(int delta) => Wrapped(RawValue + delta);
 
     /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
     public ByteAngle TurnedBy(ByteAngle turn) => Wrapped(RawValue + turn.RawValue);
@@ -56,7 +56,7 @@ public readonly record struct ByteAngle
     public ByteAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
     /// <summary>This angle as the high byte of an 8.8 <see cref="RotationAngle"/>.</summary>
-    public RotationAngle ToAngle() => RotationAngle.FromTableIndex(RawValue);
+    public RotationAngle ToAngle() => RotationAngle.FromSteps(RawValue);
 
     /// <inheritdoc />
     public override string ToString() => $"{RawValue}/256 turn";

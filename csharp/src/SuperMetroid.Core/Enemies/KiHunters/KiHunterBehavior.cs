@@ -258,7 +258,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.MaximumAngularVelocity = 2;
             state.AngularAcceleration = KiHunterMotionDefinitions.RightSwoopAcceleration;
-            state.SwoopAngle = RotationAngle.HalfTurn.TableIndex;
+            state.SwoopAngle = RotationAngle.StepsPerTurn / 2;
             state.AnimationChangeAngle = 144;
             state.Velocity = state.Velocity.WithWholeX(1);
         }
@@ -295,14 +295,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.AngularVelocity = state.AngularVelocity.WithWholePixels(state.MaximumAngularVelocity);
 
         state.SwoopAngle += state.AngularVelocity.WholePixels;
-        if ((!leftArc && state.SwoopAngle >= RotationAngle.TableUnitsPerTurn) ||
-            (leftArc && state.SwoopAngle < RotationAngle.HalfTurn.TableIndex))
+        if ((!leftArc && state.SwoopAngle >= RotationAngle.StepsPerTurn) ||
+            (leftArc && state.SwoopAngle < RotationAngle.StepsPerTurn / 2))
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
             return;
         }
 
-        ByteAngle tableAngle = RotationAngle.NormalizeTableIndex(state.SwoopAngle).ToByteAngle();
+        ByteAngle tableAngle = RotationAngle.WrappedSteps(state.SwoopAngle).ToByteAngle();
         int targetX = CoordinateAxis.Wrap(
             state.SwoopTarget.X +
             EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X));

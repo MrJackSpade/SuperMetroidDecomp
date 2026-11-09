@@ -174,7 +174,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return null;
         }
-        slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
+        slot.ComboAngle = slot.ComboAngle.TurnedBySteps(ComboState);
         SoundEffectId? sound = null;
         if (outward)
             slot.ComboOrbitRadius = SamusComboMechanics.GrownOrbitRadius(slot.ComboOrbitRadius, 8);
@@ -210,7 +210,7 @@ internal sealed class BeamCombos
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
             slot.ComboAngle, slot.ComboOrbitRadius);
         slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(orbit.X + samus.Position.X.Whole), CoordinateAxis.Wrap(orbit.Y + samus.Position.Y.Whole)));
-        slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
+        slot.ComboAngle = slot.ComboAngle.TurnedBySteps(ComboState);
         switch (slot.PlasmaPhase)
         {
             case PlasmaRingPhase.Expanding:
@@ -310,7 +310,7 @@ internal sealed class BeamCombos
                         if (slot.ComboOrbitRadius == 0)
                         {
                             slot.SpazerAngleStep = (slot.SlotIndex & 1) == 0 ? -2 : 2;
-                            slot.ComboAngle = slot.ComboAngle.AddTableUnits(ByteAngle.HalfTurn.RawValue);
+                            slot.ComboAngle = slot.ComboAngle.TurnedBySteps(ByteAngle.HalfTurn.RawValue);
                             slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
                             _charge.FlareCounter = 0;
@@ -338,7 +338,7 @@ internal sealed class BeamCombos
 
     /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed step.</summary>
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
-        slot.ComboAngle = slot.ComboAngle.AddTableUnits(slot.SpazerAngleStep);
+        slot.ComboAngle = slot.ComboAngle.TurnedBySteps(slot.SpazerAngleStep);
 
     /// <summary>Moves a circling Spazer particle outward and switches its primary pair to falling echo artwork.</summary>
     private static void BeginSpazerFall(SamusProjectileSlot slot)

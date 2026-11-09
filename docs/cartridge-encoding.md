@@ -102,8 +102,8 @@ A whole value and its fraction are one quantity. Speeds and accelerations are `S
 `UnsignedSixteenSixteen`; a position with its subpixel is a `FixedCoordinate`. Code never carries the two words
 side by side, in a tuple or as two parameters (SME6351).
 
-An angle's type states its convention (SME6352). `RotationAngle` is the 8.8 turn word whose high byte indexes the tables;
-`ByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `AddTableUnits` wrapping in one byte; and
+An angle's type states its convention (SME6352). `RotationAngle` is a turn in steps of a 256th with a fraction, spoken of in named turns, angle arithmetic, comparison and sectors, whose `ToByteAngle()` is the trigonometry angle the tables read;
+`ByteAngle` is that table index, with `QuarterTurn`, `HalfTurn` and `TurnedBySteps` wrapping in one byte; and
 `Bearing` is the cartridge angle routine's result, zero pointing up, converted by `ToTableAngle()`. Where a routine
 reads a bearing directly from the table, the conversion is written out at that call. Steps, deltas, masks and offsets
 in table units stay integers.

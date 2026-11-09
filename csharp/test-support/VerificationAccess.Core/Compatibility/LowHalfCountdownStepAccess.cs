@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>Verification access to <see cref="LowHalfCountdownStep"/> members production does not use.</summary>
-internal static class LowByteCountdownStepAccess
+internal static class LowHalfCountdownStepAccess
 {
     /// <summary>Exposes <see cref="LowHalfCountdownStep"/> state that only verification reads.</summary>
     extension(LowHalfCountdownStep self)

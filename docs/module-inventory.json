@@ -134606,7 +134606,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Compatibility/LowByteCountdownStepAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Compatibility/LowHalfCountdownStepAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Compatibility",

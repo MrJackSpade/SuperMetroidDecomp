@@ -58425,7 +58425,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStepAccess",
+      "type": "SuperMetroid.Core.Compatibility.LowHalfCountdownStepAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -58435,13 +58435,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Compatibility/LowByteCountdownStepAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Compatibility/LowHalfCountdownStepAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStepAccess.extension(SuperMetroid.Core.Compatibility.LowHalfCountdownStep)",
+      "type": "SuperMetroid.Core.Compatibility.LowHalfCountdownStepAccess.extension(SuperMetroid.Core.Compatibility.LowHalfCountdownStep)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -58451,7 +58451,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Compatibility/LowByteCountdownStepAccess.cs"
+        "csharp/test-support/VerificationAccess.Core/Compatibility/LowHalfCountdownStepAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"

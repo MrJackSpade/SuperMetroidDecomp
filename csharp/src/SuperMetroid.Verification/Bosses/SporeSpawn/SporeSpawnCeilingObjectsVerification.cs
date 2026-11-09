@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinit
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -54,15 +55,16 @@ internal static class SporeSpawnCeilingObjectsVerification
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
         ushort[] pointers = [0x9413,0x9423,0x9433,0x9443];
+        InstalledRoomObjectSporeSpawnCeilingVisuals pictures = InstalledRoomObjectSporeSpawnCeilingVisuals.Stock();
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGetBlock(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomTerrainBlock block), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingDraws.TryGetCollision(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out RoomCollisionType collision), "Spore ceiling scalar ownership");
             AssertEqual(index >= 0, RoomObjectSporeSpawnCeilingVisualFiles.TryGet(NativeObjectDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (index < 0)
             {
-                AssertEqual(default(RoomTerrainBlock), block, "missing Spore ceiling scalar default");
+                AssertEqual(default(RoomCollisionType), collision, "missing Spore ceiling scalar default");
                 AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "missing Spore ceiling DTO default");
                 continue;
             }
@@ -71,8 +73,9 @@ internal static class SporeSpawnCeilingObjectsVerification
             for (int column = 0; column < 2; column++)
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + row * 8 + column * 2 + 2)));
-                AssertEqual(native, block, "Spore ceiling calculated scalar covers each decoded native cell");
-                AssertEqual(native, dto.Runs.Span[row].Blocks.Span[column], "Spore ceiling direct DTO block");
+                AssertEqual(native.Collision, collision, "Spore ceiling calculated collision covers each decoded native cell");
+                AssertEqual(native.Collision, dto.Runs.Span[row].Collisions.Span[column], "Spore ceiling direct DTO collision");
+                AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(new Offset16<RoomBlocks>(column, row)), "Spore ceiling installed picture");
             }
         }
         foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in draws)
@@ -84,8 +87,8 @@ internal static class SporeSpawnCeilingObjectsVerification
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
-                foreach (RoomTerrainBlock cell in run.Blocks.Span)
-                    AssertDrawBlock(cell);
+                foreach (RoomCollisionType cell in run.Collisions.Span)
+                    AssertDrawCollision(cell);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)RoomObjectRunContinuationCodecConstants.X(draw, runIndex)),
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} signed X offset");
@@ -96,10 +99,11 @@ internal static class SporeSpawnCeilingObjectsVerification
             AssertEqual(16, cursor - RoomObjectDrawAddressCodec.Of(draw.Draw),
                 $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} covers its native 2x2 span");
 
-            // Checks one compiled draw block against the decoded native block at the cursor and advances past it.
-            void AssertDrawBlock(RoomTerrainBlock expected)
+            // Checks one draw cell's collision against the decoded native block at the cursor and advances past it.
+
+            void AssertDrawCollision(RoomCollisionType expected)
             {
-                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
+                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                     expected,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} block +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;

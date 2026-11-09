@@ -56,17 +56,17 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// <summary>Builds the two-run square of a supported clear or crumble draw.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
-        if (SporeSpawnCeilingDraws.TryGetBlock(request, out RoomTerrainBlock block))
+        if (SporeSpawnCeilingDraws.TryGetCollision(request, out RoomCollisionType collision))
         {
-            list = Square(request, block);
+            list = Square(request, collision);
             return true;
         }
         list = default;
         return false;
     }
 
-    /// <summary>Duplicates one terrain block across the two horizontal runs of the ceiling's two-by-two layout.</summary>
-    private static RoomObjectShotBlockDrawDefinitions.DrawList Square(RoomObjectDraw draw, RoomTerrainBlock block) =>
-        RoomObjectDrawListExport.Runs(draw, 2, static _ => 2, (_, _) => block,
+    /// <summary>Repeats one collision kind across the two horizontal runs of the ceiling's two-by-two layout.</summary>
+    private static RoomObjectShotBlockDrawDefinitions.DrawList Square(RoomObjectDraw draw, RoomCollisionType collision) =>
+        RoomObjectDrawListExport.Runs(draw, 2, static _ => 2, (_, _) => collision,
             RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
 }

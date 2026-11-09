@@ -27,5 +27,5 @@ public sealed class FlyEnemyState
 
     /// <summary>One circling update's phase advance: sixteen table units one way or the other, wrapping after a full turn.</summary>
     /// <param name="clockwise">Whether the fly circles clockwise.</param>
-    internal void AdvanceCircle(bool clockwise) => Angle = Angle.AddTableUnits(clockwise ? 16 : -16);
+    internal void AdvanceCircle(bool clockwise) => Angle = Angle.TurnedBySteps(clockwise ? 16 : -16);
 }

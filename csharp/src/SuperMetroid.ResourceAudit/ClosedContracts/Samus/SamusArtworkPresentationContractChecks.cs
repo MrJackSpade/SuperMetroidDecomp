@@ -25,12 +25,12 @@ internal static class SamusArtworkPresentationContractChecks
                 void Inspect(InstalledSamusBodyArtwork body, InstalledSamusSpritemaps sprites, SamusSpritemapSources compositions,
                     SamusAtmosphericSourceArtwork atmosphere, SamusArmCannonSourceArtwork arm) {
                     body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
-                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD);
+                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseId.FirstUnauthoredPose);
                     body.Frame(0, 0);
                     sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
-                    sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD, SamusBodyHalf.Top, 0), out _);
+                    sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.FirstUnauthoredPose, SamusBodyHalf.Top, 0), out _);
                     sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), null, null, default, out _);
-                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD, SamusBodyHalf.Top, 0), null, null, default, out _);
+                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.FirstUnauthoredPose, SamusBodyHalf.Top, 0), null, null, default, out _);
                     compositions.TryGet(SamusSpritemapSources.EntryCount - 1, out _);
                     compositions.TryGet(SamusSpritemapSources.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);

@@ -120,7 +120,7 @@ internal static class RidleySamusDrawReference
                  !NativePoseNumberRanges.Precedes(poseId, SamusPoseId.CompactMorphingRightPose) ? frame == 0 :
                  poseId is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
                     SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose),
-            SamusMovementType.Unused0D => frame == 0 || poseId is not (SamusPoseId.CompactAirborneFallingRightPose or SamusPoseId.CompactAirborneFallingLeftPose),
+            SamusMovementType.CompactAirborne => frame == 0 || poseId is not (SamusPoseId.CompactAirborneFallingRightPose or SamusPoseId.CompactAirborneFallingLeftPose),
             SamusMovementType.WallJumping => frame is < 3 or >= 13,
             SamusMovementType.DamageBoost => frame is < 2 or >= 9,
             SamusMovementType.Special =>
@@ -132,8 +132,6 @@ internal static class RidleySamusDrawReference
                 SamusMovementType.NormalJumping or
                 SamusMovementType.Crouching or
                 SamusMovementType.Falling or
-                SamusMovementType.Unused0B or
-                SamusMovementType.Unused0C or
                 SamusMovementType.TurningOnGround or
                 SamusMovementType.Moonwalking or
                 SamusMovementType.RanIntoWall or

@@ -654,11 +654,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int startOffset)
     {
         int speed = BotwoonSpeeds.ForHealthPhase(state.HealthPhase).SpitSpeed;
-        ByteAngle angle = state.SpitAngle.AddTableUnits(startOffset).ToByteAngle();
+        ByteAngle angle = state.SpitAngle.TurnedBySteps(startOffset).ToByteAngle();
         for (int projectile = 0; projectile < count; projectile++)
         {
             SpawnBotwoonSpit(head, angle, speed);
-            angle = angle.AddTableUnits(16);
+            angle = angle.TurnedBySteps(16);
         }
     }
 

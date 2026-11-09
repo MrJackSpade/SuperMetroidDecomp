@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record WindowCone : WindowShape
 {
     /// <summary>The angle units in one complete turn.</summary>
-    public const int AngleUnitsPerTurn = RotationAngle.TableUnitsPerTurn;
+    public const int AngleUnitsPerTurn = RotationAngle.StepsPerTurn;
 
     /// <summary>The pixel the cone's edges leave from.</summary>
     public Offset16<ScreenPixels> Apex { get; }

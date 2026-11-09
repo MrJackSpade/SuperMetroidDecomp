@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyTailDefinitions
 {
     /// <summary>InitializeTailParts writes this bound independently of facing.</summary>
-    internal static RotationAngle InitialMinimumClockwise { get; } = RotationAngle.FromTableIndex(63, 240);
+    internal static RotationAngle InitialMinimumClockwise { get; } = RotationAngle.FromSteps(63, 240);
     /// <summary>InitializeTailParts writes this bound before the live tail controller adjusts it.</summary>
-    internal static RotationAngle InitialMaximumCounterClockwise { get; } = RotationAngle.FromTableIndex(64, 64);
+    internal static RotationAngle InitialMaximumCounterClockwise { get; } = RotationAngle.FromSteps(64, 64);
 
     /// <summary>The carry's release sets the ideal tail spacing while releasing Samus.</summary>
     internal const int CarryReleaseInterSegmentSpacing = 8;
@@ -15,7 +15,7 @@ internal static class RidleyTailDefinitions
     /// <summary>Straight-down target angle.</summary>
     internal static RotationAngle DownAngle { get; } = RotationAngle.QuarterTurn;
     /// <summary>Pogo clockwise whip target.</summary>
-    internal static RotationAngle PogoWhipAngle { get; } = RotationAngle.FromTableIndex(63);
+    internal static RotationAngle PogoWhipAngle { get; } = RotationAngle.FromSteps(63);
     /// <summary>The whip's extension request while a segment chases a whip target, twelve pixels in 256ths.</summary>
     internal static readonly int WhipDistance = EightEight.FromWhole(12);
     /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn.</summary>
@@ -25,7 +25,7 @@ internal static class RidleyTailDefinitions
     /// <summary>The byte angle past the forbidden forward interval; a left-facing target clamps here.</summary>
     internal const int ForbiddenForwardEnd = 232;
     /// <summary>The angle a left-facing whip target's byte angle is added to, in the angle's 65536ths of a turn.</summary>
-    internal static RotationAngle LeftWhipTargetBase { get; } = RotationAngle.FromTableIndex(63);
+    internal static RotationAngle LeftWhipTargetBase { get; } = RotationAngle.FromSteps(63);
     /// <summary>The angle a right-facing whip target's byte angle is added to, in the angle's 65536ths of a turn.</summary>
     internal static RotationAngle RightWhipTargetBase { get; } = RotationAngle.QuarterTurn;
 
@@ -42,16 +42,16 @@ internal static class RidleyTailDefinitions
     /// <summary>The tail's minimum clockwise angle for left/front/right facing.</summary>
     internal static readonly Dictionary<RidleyFacing, RotationAngle> MinimumClockwiseAngles = new()
     {
-        [RidleyFacing.Left] = RotationAngle.FromTableIndex(63, 240),
-        [RidleyFacing.Turning] = RotationAngle.FromTableIndex(63, 240),
-        [RidleyFacing.Right] = RotationAngle.FromTableIndex(63, 192),
+        [RidleyFacing.Left] = RotationAngle.FromSteps(63, 240),
+        [RidleyFacing.Turning] = RotationAngle.FromSteps(63, 240),
+        [RidleyFacing.Right] = RotationAngle.FromSteps(63, 192),
     };
     /// <summary>The tail's maximum counter-clockwise angle for left/front/right facing.</summary>
     internal static readonly Dictionary<RidleyFacing, RotationAngle> MaximumCounterClockwiseAngles = new()
     {
-        [RidleyFacing.Left] = RotationAngle.FromTableIndex(64, 64),
-        [RidleyFacing.Turning] = RotationAngle.FromTableIndex(64, 64),
-        [RidleyFacing.Right] = RotationAngle.FromTableIndex(64, 16),
+        [RidleyFacing.Left] = RotationAngle.FromSteps(64, 64),
+        [RidleyFacing.Turning] = RotationAngle.FromSteps(64, 64),
+        [RidleyFacing.Right] = RotationAngle.FromSteps(64, 16),
     };
 
     /// <summary>InitializeTailParts begins its angles at a quarter turn, in the angle's 65536ths of a turn.</summary>

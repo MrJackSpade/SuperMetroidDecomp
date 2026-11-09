@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public enum EndingObjectFragmentId
 {
     /// <summary>The wide explosion map.</summary>
-    Segment70,
+    WideExplosion,
     /// <summary>The concentric wide explosion map.</summary>
-    Segment74,
+    ConcentricExplosion,
     /// <summary>The eclipse map.</summary>
-    Segment78,
+    Eclipse,
     /// <summary>The blank map.</summary>
-    Segment7C,
+    Blank,
 }

@@ -288,7 +288,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             sbugRecord.StraightMovementTimer = WrappingCountdown.FromRaw(words.A);
             sbugRecord.Function = words.B == 0 ? null : SbugNativeWords.SbugEnemyFunctions.Decode(words.B, "recorded SbugEnemyFunction");
-            sbugRecord.FaceCustomHeading(RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.C)));
+            sbugRecord.FaceCustomHeading(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.C)));
             sbugRecord.MovementTimer = unchecked((short)words.F);
         }
         if (slot.SpeciesState<KiHunterEnemyState>() is { } kiHunterRecord)
@@ -449,7 +449,7 @@ internal static class NativeEnemyFamilyStateImport
             wallSpacePirateRecord.WallJumpDestination = new(words.B, 0);
             wallSpacePirateRecord.ClimbDirection = (WallSpacePirateClimbDirection)words.C;
             wallSpacePirateRecord.WallJumpArcCenter = new(words.D, words.E);
-            wallSpacePirateRecord.WallJumpArcAngle = RotationAngle.FromTableIndex(checked((byte)words.F));
+            wallSpacePirateRecord.WallJumpArcAngle = RotationAngle.FromSteps(checked((byte)words.F));
         }
         if (slot.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninjaSpacePirateRecord)
         {
@@ -503,7 +503,7 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<MorphBallEyeEnemyState>() is { } morphBallEyeRecord)
         {
             morphBallEyeRecord.IsActivated = words.C != 0;
-            morphBallEyeRecord.Angle = RotationAngle.FromTableIndex(unchecked((byte)words.D));
+            morphBallEyeRecord.Angle = RotationAngle.FromSteps(unchecked((byte)words.D));
             morphBallEyeRecord.FunctionTimer = unchecked((short)words.E);
             morphBallEyeRecord.Function = words.F == 0 ? null : MorphBallEyeNativeWords.MorphBallEyeAiFunctions.Decode(words.F, "recorded MorphBallEyeAiFunction");
         }
@@ -574,7 +574,7 @@ internal static class NativeEnemyFamilyStateImport
             skultera.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             skultera.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
             // Only the angle word's low byte is ever read; movement discards its high byte.
-            skultera.Angle = RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.F));
+            skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
         }
         if (slot.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
         {
@@ -691,7 +691,7 @@ internal static class NativeEnemyFamilyStateImport
             waver.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
             waver.InstalledAnimation = WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation");
             // Only the phase word's low byte is ever read.
-            waver.Angle = RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.D));
+            waver.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.D));
             waver.SpinFinished = words.E != 0;
             waver.RequestedAnimation = WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation");
         }
@@ -702,7 +702,7 @@ internal static class NativeEnemyFamilyStateImport
             fly.TargetHeight = new Position16<RoomPixels>(0, words.D);
             // The phase word is an even byte offset into the 256-entry table, nine bits wide.
             fly.Angle = words.E % 2 == 0
-                ? RotationAngle.FromTableIndex(checked((byte)(Index(words.E, 510, "fly phase") / 2)))
+                ? RotationAngle.FromSteps(checked((byte)(Index(words.E, 510, "fly phase") / 2)))
                 : throw new InvalidDataException($"Recorded fly phase ${words.E:X4} is odd.");
             fly.Function = words.F == 0 ? null : FliesNativeWords.FlyEnemyFunctions.Decode(words.F, "recorded FlyEnemyFunction");
         }

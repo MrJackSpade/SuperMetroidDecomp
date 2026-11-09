@@ -147,7 +147,7 @@ internal static class EnemyGraphicsSetPaletteRowDefinitions
         [nameof(RoomEnemyGraphicsSetDefinitions.Plowerhouse)] = [1, 7],
         [nameof(RoomEnemyGraphicsSetDefinitions.LNFireflea)] = [1, 2, 3],
         [nameof(RoomEnemyGraphicsSetDefinitions.MagdolliteTunnel)] = [1, 7],
-        [nameof(RoomEnemyGraphicsSetDefinitions.UnusedRoom8FB3EE)] = [],
+        [nameof(RoomEnemyGraphicsSetDefinitions.UnusedNorfairRoom)] = [],
         [nameof(RoomEnemyGraphicsSetDefinitions.LavaDive)] = [1],
         [nameof(RoomEnemyGraphicsSetDefinitions.Pillar)] = [7],
         [nameof(RoomEnemyGraphicsSetDefinitions.CrocomireEscape)] = [1, 2],

@@ -52,7 +52,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
         (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).GetawayActive = true;
-        getaway.FloorAngle = RotationAngle.FromTableIndex(5);
+        getaway.FloorAngle = RotationAngle.FromSteps(5);
         getaway.FloorZoom = 240;
         getaway.FloorCenter = new Position16<FloorPixels>(128, 120);
         getaway.FloorOffset = new Offset16<FloorPixels>(7, 19);

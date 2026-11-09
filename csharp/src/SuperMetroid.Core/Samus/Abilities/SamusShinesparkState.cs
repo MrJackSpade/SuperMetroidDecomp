@@ -584,9 +584,9 @@ public sealed class SamusShinesparkState
                 SamusPoseId.DraygonGrabbingLeftPose => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
                 $"Pose {targetPose} is not one of the six directional shinespark poses."),
-            SamusPoseId.AdjacentCodePoseFD or
-                SamusPoseId.AdjacentCodePoseFE or
-                SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(
+            SamusPoseId.FirstUnauthoredPose or
+                SamusPoseId.SecondUnauthoredPose or
+                SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
                 nameof(targetPose),
                 $"Pose {targetPose} is not one of the six directional shinespark poses."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
@@ -765,8 +765,8 @@ false);
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlash.Clear();
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        FirstCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? 32 : 224);
-        SecondCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? 160 : 96);
+        FirstCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 32 : 224);
+        SecondCrashEchoAngle = RotationAngle.FromSteps(facingLeft ? 160 : 96);
         CrashAngularDelta = facingLeft ? 4 : -4;
         FirstReleasedCrashEchoSlot.DisableDrawing();
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
@@ -812,8 +812,8 @@ false);
             }
 
             case ShinesparkCrashOrbitStage.Orbiting:
-                FirstCrashEchoAngle = FirstCrashEchoAngle.AddTableUnits(CrashAngularDelta);
-                SecondCrashEchoAngle = SecondCrashEchoAngle.AddTableUnits(CrashAngularDelta);
+                FirstCrashEchoAngle = FirstCrashEchoAngle.TurnedBySteps(CrashAngularDelta);
+                SecondCrashEchoAngle = SecondCrashEchoAngle.TurnedBySteps(CrashAngularDelta);
                 AdvanceCrashAngularTravel();
                 // The travel shares its storage with the first echo's Y coordinate and is compared as that
                 // coordinate is, so a travel that wrapped to zero, or one seeded far above 128, keeps orbiting until

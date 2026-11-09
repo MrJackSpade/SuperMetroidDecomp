@@ -263,8 +263,8 @@ internal static class SamusPoseNumberDefinitions
         SamusPoseId.StandingTransitionAimDiagonalUpLeftPose,
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose,
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose,
-        SamusPoseId.AdjacentCodePoseFD,
-        SamusPoseId.AdjacentCodePoseFE,
-        SamusPoseId.AdjacentCodePoseFF,
+        SamusPoseId.FirstUnauthoredPose,
+        SamusPoseId.SecondUnauthoredPose,
+        SamusPoseId.LastUnauthoredPose,
     ];
 }

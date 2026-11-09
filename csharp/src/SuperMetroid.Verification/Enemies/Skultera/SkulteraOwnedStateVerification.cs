@@ -32,12 +32,12 @@ internal static class SkulteraOwnedStateVerification
         AssertEqual(left, state.LeftVelocity, "leftward speed");
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(state.Radius, state.AngleDelta), "radius and angle step come from parameter two");
 
-        state.Angle = RotationAngle.FromTableIndex(250);
+        state.Angle = RotationAngle.FromSteps(250);
         state.AdvanceAngle();
-        AssertEqual((byte)4, state.Angle.TableIndex, "the phase wraps forward through a full turn");
+        AssertEqual((byte)4, state.Angle.ToByteAngle().RawValue, "the phase wraps forward through a full turn");
         state.AngleDelta = -state.AngleDelta;
         state.AdvanceAngle();
-        AssertEqual((byte)250, state.Angle.TableIndex, "the phase wraps backward through a full turn");
+        AssertEqual((byte)250, state.Angle.ToByteAngle().RawValue, "the phase wraps backward through a full turn");
         Console.WriteLine("Skultera owned state: speeds and phase wrap match.");
     }
 

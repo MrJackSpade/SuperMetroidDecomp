@@ -265,7 +265,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initial angular position used when the Samus-carry spiral begins: three quarters of a turn.</summary>
     internal static readonly RotationAngle DraygonInitialSpiralAngle = RotationAngle.ThreeQuarterTurn;
     /// <summary>Initial per-frame angular step of the Samus-carry spiral: eight table units, slowed by 1/256 unit each frame.</summary>
-    internal static readonly RotationAngle DraygonInitialSpiralAngleDelta = RotationAngle.FromTableIndex(8);
+    internal static readonly RotationAngle DraygonInitialSpiralAngleDelta = RotationAngle.FromSteps(8);
     /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>
     internal static readonly SignedSixteenSixteen DraygonSpiralRadiusGrowth = SignedSixteenSixteen.FromParts(0, 8192);
     /// <summary>Largest radius reached by the expanding carry spiral.</summary>

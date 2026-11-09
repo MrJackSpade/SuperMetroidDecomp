@@ -458,7 +458,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         // The floor turns during both fades as well as the fully visible interval.
         if ((Flyaway.CinematicFrame & 1) == 0)
-            Stage.FloorAngle = Stage.FloorAngle.AddTableUnits(-1);
+            Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(-1);
         Stage.FloorZoom += scaleDelta;
     }
 

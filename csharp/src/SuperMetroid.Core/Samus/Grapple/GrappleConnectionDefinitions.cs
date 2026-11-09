@@ -73,10 +73,10 @@ internal static class GrappleConnectionDefinitions
     /// </summary>
     internal static readonly SpecialConnection[] AuthoredStops =
     [
-        new(RotationAngle.FromTableIndex(214, 128), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
-        new(RotationAngle.FromTableIndex(179, 128), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
-        new(RotationAngle.FromTableIndex(106, 128), GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
-        new(RotationAngle.FromTableIndex(115, 128), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
+        new(RotationAngle.FromSteps(214, 128), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
+        new(RotationAngle.FromSteps(179, 128), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
+        new(RotationAngle.FromSteps(106, 128), GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
+        new(RotationAngle.FromSteps(115, 128), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
     ];
 
     /// <summary>One collision-stop record.</summary>

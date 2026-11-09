@@ -393,14 +393,14 @@ public sealed class SamusXrayState
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         int frame = facingLeft
-            ? Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameFour ? 4 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameThree ? 3 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameTwo ? 2 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.LeftFrameOne ? 1 : 0
-            : Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameOne ? 0 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? 1 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? 2 :
-              Angle.TableIndex < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? 3 : 4;
+            ? Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameFour ? 4 :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameThree ? 3 :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameTwo ? 2 :
+              Angle < XrayScopeDefinitions.AnimationAngles.LeftFrameOne ? 1 : 0
+            : Angle < XrayScopeDefinitions.AnimationAngles.RightFrameOne ? 0 :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameTwo ? 1 :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameThree ? 2 :
+              Angle < XrayScopeDefinitions.AnimationAngles.RightFrameFour ? 3 : 4;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame, timer: 15);
         return frame;
     }
@@ -549,6 +549,15 @@ public sealed class SamusXrayState
         return true;
     }
 
+    /// <summary>
+    /// The whole steps of the beam's centre, from which its edges lie <see cref="AngularWidth"/> steps either side. The
+    /// clamps compare those edges unwrapped, so an edge may lie below zero or past a full turn.
+    /// </summary>
+    private int CenterSteps => Angle.ToByteAngle().RawValue;
+
+    /// <summary>The whole steps of straight down, which the beam's lower or upper edge may not cross.</summary>
+    private const int HalfTurnSteps = RotationAngle.StepsPerTurn / 2;
+
     /// <summary>Rotates the beam upward one angle unit while keeping its edge within the facing-dependent limit.</summary>
     private void MoveAngleUp()
     {
@@ -556,34 +565,34 @@ public sealed class SamusXrayState
         {
             // Right-facing upper limit is `angle - width >= 0`. Equality returns without
             // movement; crossing clamps the center to exactly the current half-width.
-            int candidate = Angle.TableIndex - AngularWidth;
+            int candidate = CenterSteps - AngularWidth;
             if (candidate == 0)
                 return;
             if (candidate < 0)
             {
-                Angle = RotationAngle.FromTableIndex(AngularWidth);
+                Angle = RotationAngle.FromSteps(AngularWidth);
                 return;
             }
 
-            Angle = Angle.AddTableUnits(-1);
-            if (Angle.TableIndex - AngularWidth < 0)
-                Angle = RotationAngle.FromTableIndex(AngularWidth);
+            Angle = Angle.TurnedBySteps(-1);
+            if (CenterSteps - AngularWidth < 0)
+                Angle = RotationAngle.FromSteps(AngularWidth);
             return;
         }
 
         // Left-facing up rotates toward `$100`; clamp the upper beam edge at exactly 256.
-        int leftEdge = Angle.TableIndex + AngularWidth;
-        if (leftEdge == RotationAngle.TableUnitsPerTurn)
+        int leftEdge = CenterSteps + AngularWidth;
+        if (leftEdge == RotationAngle.StepsPerTurn)
             return;
-        if (leftEdge > RotationAngle.TableUnitsPerTurn)
+        if (leftEdge > RotationAngle.StepsPerTurn)
         {
-            Angle = RotationAngle.NormalizeTableIndex(RotationAngle.TableUnitsPerTurn - AngularWidth);
+            Angle = RotationAngle.WrappedSteps(RotationAngle.StepsPerTurn - AngularWidth);
             return;
         }
 
-        Angle = Angle.AddTableUnits(1);
-        if (Angle.TableIndex + AngularWidth > RotationAngle.TableUnitsPerTurn)
-            Angle = RotationAngle.NormalizeTableIndex(RotationAngle.TableUnitsPerTurn - AngularWidth);
+        Angle = Angle.TurnedBySteps(1);
+        if (CenterSteps + AngularWidth > RotationAngle.StepsPerTurn)
+            Angle = RotationAngle.WrappedSteps(RotationAngle.StepsPerTurn - AngularWidth);
     }
 
     /// <summary>Rotates the beam downward one angle unit while keeping its edge on the correct side of straight down.</summary>
@@ -592,38 +601,38 @@ public sealed class SamusXrayState
         if (Angle < RotationAngle.HalfTurn)
         {
             // Right-facing down rotates toward straight down; keep the lower edge at or below it.
-            int lowerEdge = Angle.TableIndex + AngularWidth;
-            if (lowerEdge == RotationAngle.HalfTurn.TableIndex)
+            int lowerEdge = CenterSteps + AngularWidth;
+            if (lowerEdge == HalfTurnSteps)
                 return;
-            if (lowerEdge > RotationAngle.HalfTurn.TableIndex)
+            if (lowerEdge > HalfTurnSteps)
             {
-                Angle = RotationAngle.NormalizeTableIndex(
-                    RotationAngle.HalfTurn.TableIndex - AngularWidth);
+                Angle = RotationAngle.WrappedSteps(
+                    HalfTurnSteps - AngularWidth);
                 return;
             }
 
-            Angle = Angle.AddTableUnits(1);
-            if (Angle.TableIndex + AngularWidth > RotationAngle.HalfTurn.TableIndex)
-                Angle = RotationAngle.NormalizeTableIndex(
-                    RotationAngle.HalfTurn.TableIndex - AngularWidth);
+            Angle = Angle.TurnedBySteps(1);
+            if (CenterSteps + AngularWidth > HalfTurnSteps)
+                Angle = RotationAngle.WrappedSteps(
+                    HalfTurnSteps - AngularWidth);
             return;
         }
 
         // Left-facing down rotates toward straight down from above and clamps its upper edge.
-        int upperEdge = Angle.TableIndex - AngularWidth;
-        if (upperEdge == RotationAngle.HalfTurn.TableIndex)
+        int upperEdge = CenterSteps - AngularWidth;
+        if (upperEdge == HalfTurnSteps)
             return;
-        if (upperEdge < RotationAngle.HalfTurn.TableIndex)
+        if (upperEdge < HalfTurnSteps)
         {
-            Angle = RotationAngle.NormalizeTableIndex(
-                RotationAngle.HalfTurn.TableIndex + AngularWidth);
+            Angle = RotationAngle.WrappedSteps(
+                HalfTurnSteps + AngularWidth);
             return;
         }
 
-        Angle = Angle.AddTableUnits(-1);
-        if (Angle.TableIndex - AngularWidth < RotationAngle.HalfTurn.TableIndex)
-            Angle = RotationAngle.NormalizeTableIndex(
-                RotationAngle.HalfTurn.TableIndex + AngularWidth);
+        Angle = Angle.TurnedBySteps(-1);
+        if (CenterSteps - AngularWidth < HalfTurnSteps)
+            Angle = RotationAngle.WrappedSteps(
+                HalfTurnSteps + AngularWidth);
     }
 
     /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
@@ -692,7 +701,7 @@ public sealed class SamusXrayState
             SamusMovementType.MorphBallGround or SamusMovementType.Falling or
             SamusMovementType.UnusedGlitchBall or SamusMovementType.MorphBallFalling or
             SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.Knockback or
-            SamusMovementType.Unused0B or SamusMovementType.Unused0C or SamusMovementType.Unused0D or
+            SamusMovementType.CompactAirborne or
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
             SamusMovementType.Moonwalking or SamusMovementType.SpringBallGround or
             SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling or

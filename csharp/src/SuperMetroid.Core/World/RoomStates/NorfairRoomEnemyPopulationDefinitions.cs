@@ -314,7 +314,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Multiviola, new(120, 88), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new ByteAngle(96), Speed: 2)),
             new(EnemyDefinitionId.Multiviola, new(572, 93), EnemyContact.None, EnemyProcessing.AnimationScript, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new ByteAngle(48), Speed: 2)),
         ], 3),
-        new(nameof(RoomEnemyPopulationDefinitions.UnusedRoom8FB3EEA1AD06),
+        new(nameof(RoomEnemyPopulationDefinitions.UnusedNorfairRoom),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.LavaDive),

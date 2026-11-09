@@ -113,12 +113,12 @@ internal static class SbugMovementDefinitionsVerification
         slot.Position = slot.Position.WithWhole(new(512, 512));
         SbugBehavior.InitializeSbug(slot);
         SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
-        state.FaceCustomHeading(RotationAngle.FromTableIndex(240));
+        state.FaceCustomHeading(RotationAngle.FromSteps(240));
         state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
 
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
-        AssertEqual(RotationAngle.FromTableIndex(16), state.CustomHeading, "the turn wraps the heading around the turn");
+        AssertEqual(RotationAngle.FromSteps(16), state.CustomHeading, "the turn wraps the heading around the turn");
         AssertEqual(SbugFacing.DownRight, state.CustomFacing, "heading 16 faces down-right");
         AssertEqual(SbugEnemyFunction.MoveStraightAndReverseWhenFar, state.Function, "the chooser starts a reversal-aware leg");
 

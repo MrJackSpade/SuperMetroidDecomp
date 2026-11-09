@@ -141,9 +141,9 @@ internal static class SamusArmCannonPlacements
             case SamusPoseId.ForwardFacingPowerSuitPose:
             case SamusPoseId.MovingRightNormalPose:
                 return false;
-            case SamusPoseId.AdjacentCodePoseFD:
-            case SamusPoseId.AdjacentCodePoseFE:
-            case SamusPoseId.AdjacentCodePoseFF:
+            case SamusPoseId.FirstUnauthoredPose:
+            case SamusPoseId.SecondUnauthoredPose:
+            case SamusPoseId.LastUnauthoredPose:
             case SamusPoseId.ForwardFacingSuitedPose:
             case SamusPoseId.MovingLeftNormalPose:
             case SamusPoseId.CompactAirborneFallingRightPose:

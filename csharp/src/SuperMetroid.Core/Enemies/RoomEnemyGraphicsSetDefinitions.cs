@@ -285,7 +285,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>The enemy graphics set of the Magdollite Tunnel room.</summary>
     public static RoomEnemyGraphicsSetDefinition MagdolliteTunnel { get; } = new(nameof(MagdolliteTunnel));
     /// <summary>The enemy graphics set of an unused room state.</summary>
-    public static RoomEnemyGraphicsSetDefinition UnusedRoom8FB3EE { get; } = new(nameof(UnusedRoom8FB3EE));
+    public static RoomEnemyGraphicsSetDefinition UnusedNorfairRoom { get; } = new(nameof(UnusedNorfairRoom));
     /// <summary>The enemy graphics set of the Lava Dive room.</summary>
     public static RoomEnemyGraphicsSetDefinition LavaDive { get; } = new(nameof(LavaDive));
     /// <summary>The enemy graphics set of the Pillar room.</summary>

@@ -81,7 +81,7 @@ internal static class CeresDestructionSceneDefinitions
         /// <summary>The floor position, in pixels, that completes the gunship's exit.</summary>
         internal const int FloorExitX = 62;
         /// <summary>The floor's rotation during the Zebes approach: an eighth of a turn.</summary>
-        internal static RotationAngle ApproachAngle => RotationAngle.FromTableIndex(32);
+        internal static RotationAngle ApproachAngle => RotationAngle.FromSteps(32);
     }
 
     /// <summary>The approach's starting scroll.</summary>

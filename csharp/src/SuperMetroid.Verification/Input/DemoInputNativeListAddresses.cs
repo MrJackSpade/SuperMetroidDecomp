@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Verification.Input;
 
@@ -47,32 +48,37 @@ internal static class DemoInputNativeListAddresses
 
     /// <summary>Each object's native header and its typed definition.</summary>
     internal static Object[] Objects => [
-        new Object(0x9e52, DemoInputObjectDefinitions.AttractLandingSite),
-        new Object(0x9e58, DemoInputObjectDefinitions.AttractPseudoScrewAttack),
-        new Object(0x9e5e, DemoInputObjectDefinitions.AttractSpeedBooster),
-        new Object(0x9e64, DemoInputObjectDefinitions.AttractDachora),
-        new Object(0x9e6a, DemoInputObjectDefinitions.AttractRedBrinstarElevator),
-        new Object(0x9e70, DemoInputObjectDefinitions.AttractPrePhantoonHall),
-        new Object(0x9e76, DemoInputObjectDefinitions.AttractLowerNorfairEntrance),
-        new Object(0x9e7c, DemoInputObjectDefinitions.AttractEyeDoor),
-        new Object(0x9e82, DemoInputObjectDefinitions.AttractDiagonalShinespark),
-        new Object(0x9e88, DemoInputObjectDefinitions.AttractMissileDoor),
-        new Object(0x9e8e, DemoInputObjectDefinitions.AttractKraid),
-        new Object(0x9e94, DemoInputObjectDefinitions.AttractFirefleaRoom),
-        new Object(0x9e9a, DemoInputObjectDefinitions.AttractScrewAttack),
-        new Object(0x9ea0, DemoInputObjectDefinitions.AttractBrinstarDiagonalRoom),
-        new Object(0x9eac, DemoInputObjectDefinitions.AttractPreSporeSpawnHall),
-        new Object(0x9eb2, DemoInputObjectDefinitions.AttractGrappleBeam),
-        new Object(0x9eb8, DemoInputObjectDefinitions.AttractIceBeam),
-        new Object(0x9ebe, DemoInputObjectDefinitions.AttractGauntletEntrance),
-        new Object(0x9ec4, DemoInputObjectDefinitions.AttractAdvancedGrappleBeam),
-        new Object(0x9eca, DemoInputObjectDefinitions.AttractInfiniteBombJump),
-        new Object(0x9ed0, DemoInputObjectDefinitions.AttractSpecialBeamAttack),
-        new Object(0x9ed6, DemoInputObjectDefinitions.AttractTourianEntrance),
-        new Object(0x9edc, DemoInputObjectDefinitions.AttractCrystalFlash),
-        new Object(DemoInputListWords.IntroMotherBrainFlashbackObject, IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback),
-        new Object(DemoInputListWords.IntroBabyDiscoveryObject, IntroDemoInputObjectDefinitions.IntroBabyDiscovery),
+        Title(0x9e52, AttractDemoInputDefinitions.AttractLandingSite),
+        Title(0x9e58, AttractDemoInputDefinitions.AttractPseudoScrewAttack),
+        Title(0x9e5e, AttractDemoInputDefinitions.AttractSpeedBooster),
+        Title(0x9e64, AttractDemoInputDefinitions.AttractDachora),
+        Title(0x9e6a, AttractDemoInputDefinitions.AttractRedBrinstarElevator),
+        Title(0x9e70, AttractDemoInputDefinitions.AttractPrePhantoonHall),
+        Title(0x9e76, AttractDemoInputDefinitions.AttractLowerNorfairEntrance),
+        Title(0x9e7c, AttractDemoInputDefinitions.AttractEyeDoor),
+        Title(0x9e82, AttractDemoInputDefinitions.AttractDiagonalShinespark),
+        Title(0x9e88, AttractDemoInputDefinitions.AttractMissileDoor),
+        Title(0x9e8e, AttractDemoInputDefinitions.AttractKraid),
+        Title(0x9e94, AttractDemoInputDefinitions.AttractFirefleaRoom),
+        Title(0x9e9a, AttractDemoInputDefinitions.AttractScrewAttack),
+        Title(0x9ea0, AttractDemoInputDefinitions.AttractBrinstarDiagonalRoom),
+        Title(0x9eac, AttractDemoInputDefinitions.AttractPreSporeSpawnHall),
+        Title(0x9eb2, AttractDemoInputDefinitions.AttractGrappleBeam),
+        Title(0x9eb8, AttractDemoInputDefinitions.AttractIceBeam),
+        Title(0x9ebe, AttractDemoInputDefinitions.AttractGauntletEntrance),
+        Title(0x9ec4, AttractDemoInputDefinitions.AttractAdvancedGrappleBeam),
+        Title(0x9eca, AttractDemoInputDefinitions.AttractInfiniteBombJump),
+        Title(0x9ed0, AttractDemoInputDefinitions.AttractSpecialBeamAttack),
+        Title(0x9ed6, AttractDemoInputDefinitions.AttractTourianEntrance),
+        Title(0x9edc, AttractDemoInputDefinitions.AttractCrystalFlash),
+        new Object(DemoInputListWords.IntroMotherBrainFlashbackObject, ReturnOnlyAddress, DemoInputProgram.IntroMotherBrainFlashback),
+        new Object(DemoInputListWords.IntroBabyDiscoveryObject, PhaseAddress(IntroBabyDiscoveryDemoPhase.RunningLeft),
+            DemoInputProgram.IntroBabyDiscoveryRunningLeft),
     ];
+
+    /// <summary>A title demonstration's native object: its first watch's pre-instruction word and its program.</summary>
+    private static Object Title(ushort header, AttractDemoInputDefinition input) =>
+        new(header, WatchAddress(input.FirstWatch), input.Program);
 
     /// <summary>The native list entry of <paramref name="program"/>.</summary>
     internal static ushort Entry(DemoInputProgram program) => Entries.Single(entry => entry.Program == program).Entry;
@@ -92,19 +98,24 @@ internal static class DemoInputNativeListAddresses
         return (ushort)address;
     }
 
-    /// <summary>
-    /// The native pre-instruction word a typed object's <paramref name="frameBehavior"/> stands for; a cleared object's
-    /// is zero.
-    /// </summary>
-    internal static ushort FrameBehaviorAddress(DemoInputFrameBehavior frameBehavior) => frameBehavior switch
+    /// <summary>The native pre-instruction word of an object whose owner watches for nothing: the return-only routine.</summary>
+    internal const ushort ReturnOnlyAddress = (ushort)NativeDemoFrameBehavior.ReturnOnly;
+
+    /// <summary>The native pre-instruction word a title demonstration's <paramref name="watch"/> stands for.</summary>
+    internal static ushort WatchAddress(AttractDemoInputWatch watch) => watch switch
     {
-        DemoInputFrameBehavior.None => 0,
-        DemoInputFrameBehavior.ReturnOnly => (ushort)NativeDemoFrameBehavior.ReturnOnly,
-        DemoInputFrameBehavior.AttractCheckLeave => (ushort)NativeDemoFrameBehavior.AttractCheckLeave,
-        DemoInputFrameBehavior.AttractShinespark => (ushort)NativeDemoFrameBehavior.AttractShinespark,
-        DemoInputFrameBehavior.IntroBabyRunningLeft => (ushort)NativeDemoFrameBehavior.IntroBabyRunningLeft,
-        DemoInputFrameBehavior.IntroBabyStopAndLook => (ushort)NativeDemoFrameBehavior.IntroBabyStopAndLook,
-        _ => throw new ArgumentOutOfRangeException(nameof(frameBehavior), frameBehavior, "Undefined demo-input pre-instruction."),
+        AttractDemoInputWatch.TitleLeaving => (ushort)NativeDemoFrameBehavior.AttractCheckLeave,
+        AttractDemoInputWatch.ShinesparkRelease => (ushort)NativeDemoFrameBehavior.AttractShinespark,
+        _ => throw new ArgumentOutOfRangeException(nameof(watch), watch, "Undefined title demonstration watch."),
+    };
+
+    /// <summary>The native pre-instruction word the intro Baby discovery's <paramref name="phase"/> stands for.</summary>
+    internal static ushort PhaseAddress(IntroBabyDiscoveryDemoPhase phase) => phase switch
+    {
+        IntroBabyDiscoveryDemoPhase.RunningLeft => (ushort)NativeDemoFrameBehavior.IntroBabyRunningLeft,
+        IntroBabyDiscoveryDemoPhase.StoppedAndLooking => (ushort)NativeDemoFrameBehavior.IntroBabyStopAndLook,
+        IntroBabyDiscoveryDemoPhase.Ending => ReturnOnlyAddress,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Undefined Baby discovery demo phase."),
     };
 
     /// <summary>The native instruction pointer of an object's cursor; a deleted object's is zero.</summary>

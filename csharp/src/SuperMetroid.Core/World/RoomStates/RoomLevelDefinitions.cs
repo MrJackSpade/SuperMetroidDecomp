@@ -427,7 +427,7 @@ public static class RoomLevelDefinitions
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.FastPillarsSetup"/> uses first.</summary>
     public static RoomLevelId FastPillarsSetup { get; } = new(nameof(FastPillarsSetup));
 
-    /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.UnusedRoom8FB3EE"/> uses first.</summary>
+    /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.UnusedNorfairRoom"/> uses first.</summary>
     public static RoomLevelId UnusedNorfairRoom { get; } = new(nameof(UnusedNorfairRoom));
 
     /// <summary>The level the Norfair state <see cref="NorfairRoomStateDefinitions.MickeyMouse"/> uses first.</summary>

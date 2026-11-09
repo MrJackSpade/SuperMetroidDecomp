@@ -107,7 +107,7 @@ internal static class BotwoonAnimationsVerification
             aimHead(volleyEnemies, volleyHead, volleyState, samus);
             byte aim = EnemyMath.CalculateBearing(new(dx, dy)).RawValue;
             byte spitAngle = unchecked((byte)(64 - aim));
-            AssertEqual(RotationAngle.FromTableIndex(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
+            AssertEqual(RotationAngle.FromSteps(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
             int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
             int[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)

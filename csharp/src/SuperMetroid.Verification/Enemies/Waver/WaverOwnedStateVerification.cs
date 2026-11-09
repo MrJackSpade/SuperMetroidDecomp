@@ -23,12 +23,12 @@ internal static class WaverOwnedStateVerification
         AssertEqual(SignedSixteenSixteen.FromParts(1, 0x8000), state.XVelocity, "a right-facing Waver moves one and a half pixels per update");
         AssertEqual(WaverProgram.SteadyFacingRight, state.RequestedAnimation, "parameter one's low bit faces right");
 
-        state.Angle = RotationAngle.FromTableIndex(0xff);
+        state.Angle = RotationAngle.FromSteps(0xff);
         state.AdvanceWave();
-        AssertEqual((byte)0x01, state.Angle.TableIndex, "advancing wraps through a full turn");
-        state.Angle = RotationAngle.FromTableIndex(0xc0);
+        AssertEqual((byte)0x01, state.Angle.ToByteAngle().RawValue, "advancing wraps through a full turn");
+        state.Angle = RotationAngle.FromSteps(0xc0);
         state.ReflectWave();
-        AssertEqual((byte)0x40, state.Angle.TableIndex, "reflecting wraps through a full turn");
+        AssertEqual((byte)0x40, state.Angle.ToByteAngle().RawValue, "reflecting wraps through a full turn");
         Console.WriteLine("Waver owned state: the velocity and phase wraps match.");
     }
 

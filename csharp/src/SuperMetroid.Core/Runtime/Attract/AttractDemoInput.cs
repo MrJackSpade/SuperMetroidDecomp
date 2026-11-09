@@ -5,52 +5,58 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>
-/// Title owner for compiled stock input programs.
+/// A title demonstration's input: its recorded-input playback and what the playback watches for before each step.
 /// Held and newly-pressed words are independent; deriving edges loses scripted edges.
 /// </summary>
 public sealed class AttractDemoInput
 {
-    /// <summary>Owned, mutable demo-script execution state, loaded and enabled for the constructor's scene; the same instance is returned rather than a snapshot.</summary>
-    /// <remarks><see cref="StepStock"/> advances its instruction timers and independently authored held/newly-pressed controller words, which the gameplay runtime consumes without deriving new edges.</remarks>
+    /// <summary>Owned, mutable recorded-input playback, loaded and enabled for the constructor's scene; the same instance is returned rather than a snapshot.</summary>
+    /// <remarks><see cref="StepStock"/> advances its record timers and independently authored held/newly-pressed controller words, which the gameplay runtime consumes without deriving new edges.</remarks>
     public DemoInputState Script { get; } = new();
 
-    /// <summary>Production title playback uses compiled input definitions.</summary>
+    /// <summary>What the playback watches for before its next step.</summary>
+    public AttractDemoInputWatch Watch { get; private set; }
+
+    /// <summary>Starts the scene's recording, watching for what the scene's input first watches for.</summary>
     public AttractDemoInput(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
-        Script.Load(scene.InputObject);
+        Watch = scene.Input.FirstWatch;
+        Script.Load(scene.Input.Program);
         Script.Enable();
     }
 
-    /// <summary>Steps application-owned inputs; no address space is required.</summary>
-    public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType) =>
-        Script.Step((_, frameBehavior) => ApplyFrameBehavior(frameBehavior, gameState, movementType),
-            cue => throw new InvalidOperationException($"Title demonstrations call no {cue} routine."));
-
-    /// <summary>Redirects stock demo input at leave and movement branches using the game's actual Draygon-grab comparison.</summary>
-    private void ApplyFrameBehavior(DemoInputFrameBehavior frameBehavior, SuperMetroidGameState gameState, SamusMovementType movementType)
+    /// <summary>
+    /// Checks what the playback watches for while it plays, then plays one step. The check runs first, in the same step,
+    /// so leaving the title ends the input before its next record and the shinespark's release continues it at once.
+    /// </summary>
+    public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType)
     {
-        switch (frameBehavior)
+        if (Script.IsPlaying)
+            CheckWatch(gameState, movementType);
+        Script.Step(cue => throw new InvalidOperationException($"Title demonstrations call no {cue} routine."));
+    }
+
+    /// <summary>Ends the input when the title leaves, or releases the shinespark using the game's actual Draygon-grab comparison.</summary>
+    private void CheckWatch(SuperMetroidGameState gameState, SamusMovementType movementType)
+    {
+        switch (Watch)
         {
-            case DemoInputFrameBehavior.ReturnOnly:
-                break;
-            case DemoInputFrameBehavior.AttractCheckLeave:
+            case AttractDemoInputWatch.TitleLeaving:
                 if (gameState == SuperMetroidGameState.RoutingAfterDemo)
-                    Script.Redirect(frameBehavior, DemoInputProgram.AttractDelete);
+                    Script.SwitchTo(DemoInputProgram.AttractDelete);
                 break;
-            case DemoInputFrameBehavior.AttractShinespark:
-                // The routine's name does not match its Draygon-grab comparison. Retain
-                // the actual branch rather than correcting that oddity.
+            case AttractDemoInputWatch.ShinesparkRelease:
+                // The release's condition does not match the shinespark the recording shows: it tests the Draygon grab.
+                // Retain the actual branch rather than correcting that oddity.
                 if (movementType != SamusMovementType.DraygonHeld)
-                    Script.Redirect(DemoInputFrameBehavior.AttractCheckLeave,
-                        DemoInputProgram.AttractDiagonalShinesparkContinuation);
+                {
+                    Watch = AttractDemoInputWatch.TitleLeaving;
+                    Script.SwitchTo(DemoInputProgram.AttractDiagonalShinesparkContinuation);
+                }
                 break;
-            case DemoInputFrameBehavior.None:
-            case DemoInputFrameBehavior.IntroBabyRunningLeft:
-            case DemoInputFrameBehavior.IntroBabyStopAndLook:
-                throw new InvalidOperationException($"A title demonstration's input object cannot hold the {frameBehavior} pre-instruction.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DemoInputFrameBehavior)} {frameBehavior}.");
+                throw new InvalidOperationException($"Undefined {nameof(AttractDemoInputWatch)} {Watch}.");
         }
     }
 }

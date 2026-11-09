@@ -50,9 +50,9 @@ internal sealed class DraygonMovement
     /// <param name="phase">The turn the sample is read ahead of the angle.</param>
     internal static UnsignedSixteenSixteen AngleMagnitude(ByteAngle angle, int speed, RotationAngle phase) =>
         UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            angle,
+            angle.TurnedBy(phase.ToByteAngle()),
             Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
-            angleOffset: phase.TableIndex)));
+            angleOffset: 0)));
 
     /// <summary>Moves one axis of the body back or forward by a sine-derived distance.</summary>
     internal static FixedCoordinate AddDraygonAngleMagnitude(

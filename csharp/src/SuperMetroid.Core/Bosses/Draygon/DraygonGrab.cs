@@ -191,7 +191,7 @@ internal sealed class DraygonGrab
         }
 
         state.SpiralAngleDelta = state.SpiralAngleDelta.AddRaw(-1);
-        state.SpiralAngle = state.SpiralAngle.AddTableUnits(state.SpiralAngleDelta.TableIndex);
+        state.SpiralAngle += state.SpiralAngleDelta.WholeStep;
 
         state.SpiralCenter = state.SpiralCenter.AdvanceY(DraygonBehavior.DraygonSpiralCenterLift);
         if (CoordinateAxis.Difference(state.SpiralCenter.Y.Whole, DraygonBehavior.DraygonMinimumSpiralCenterY) < 0)

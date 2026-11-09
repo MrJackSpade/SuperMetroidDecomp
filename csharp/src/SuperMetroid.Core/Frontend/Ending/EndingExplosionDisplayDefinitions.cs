@@ -6,12 +6,12 @@ internal static class EndingExplosionDisplayDefinitions
 {
     /// <summary>The pixel rows of each explosion map's picture that lie above the screen's top.</summary>
     public const int MapRowsAboveScreen = 1;
-    /// <summary>The explosion the first background plane shows from Func117 until the finale replaces it.</summary>
-    public const EndingObjectFragmentId InitialMap = EndingObjectFragmentId.Segment70;
-    /// <summary>The explosion the first background plane shows during the finale (F2FA).</summary>
-    public const EndingObjectFragmentId FinaleMainMap = EndingObjectFragmentId.Segment74;
-    /// <summary>The explosion the second background plane shows during the finale (F2FA), drawn and blended on both screens.</summary>
-    public const EndingObjectFragmentId FinaleSubMap = EndingObjectFragmentId.Segment78;
-    /// <summary>The burst the second background plane shows and adds over the first (F2B7).</summary>
-    public const EndingObjectFragmentId BurstSubMap = EndingObjectFragmentId.Segment7C;
+    /// <summary>The explosion the first background plane shows from the explosion's start until the finale replaces it.</summary>
+    public const EndingObjectFragmentId InitialMap = EndingObjectFragmentId.WideExplosion;
+    /// <summary>The explosion the first background plane shows during the finale.</summary>
+    public const EndingObjectFragmentId FinaleMainMap = EndingObjectFragmentId.ConcentricExplosion;
+    /// <summary>The explosion the second background plane shows during the finale, drawn and blended on both screens.</summary>
+    public const EndingObjectFragmentId FinaleSubMap = EndingObjectFragmentId.Eclipse;
+    /// <summary>The burst the second background plane shows and adds over the first.</summary>
+    public const EndingObjectFragmentId BurstSubMap = EndingObjectFragmentId.Blank;
 }

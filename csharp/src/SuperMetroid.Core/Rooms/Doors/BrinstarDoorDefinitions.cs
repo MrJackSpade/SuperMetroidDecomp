@@ -32,7 +32,7 @@ public static class BrinstarDoorDefinitions
     public static DoorDefinition GreenBrinstarMainShaft8 { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaft8));
 
     /// <summary>The Green Brinstar Main Shaft room's door A.</summary>
-    public static DoorDefinition GreenBrinstarMainShaftA { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaftA));
+    public static DoorDefinition GreenBrinstarMainShaft10 { get; } = DoorDefinitions.Find(nameof(GreenBrinstarMainShaft10));
 
     /// <summary>The Spore Spawn Super room's door 0.</summary>
     public static DoorDefinition SporeSpawnSuper0 { get; } = DoorDefinitions.Find(nameof(SporeSpawnSuper0));

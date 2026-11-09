@@ -41,5 +41,5 @@ public sealed class SkulteraEnemyState
     public int CurrentYOffset { get; internal set; }
 
     /// <summary>Advances the oscillation phase by <see cref="AngleDelta"/>, wrapping after a full turn.</summary>
-    internal void AdvanceAngle() => Angle = Angle.AddTableUnits(AngleDelta);
+    internal void AdvanceAngle() => Angle = Angle.TurnedBySteps(AngleDelta);
 }

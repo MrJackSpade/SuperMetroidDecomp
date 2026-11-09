@@ -7,7 +7,7 @@ internal static class RotationAngleAccess
     extension(RotationAngle self)
     {
         /// <summary>The byte offset for a table containing one 16-bit sample per angle.</summary>
-        internal int SineTableByteOffset => self.TableIndex * sizeof(ushort);
+        internal int SineTableByteOffset => self.ToByteAngle().RawValue * sizeof(ushort);
 
         /// <summary>
         /// Returns the native signed shortest delta from this angle to <paramref name="target"/>.
@@ -21,6 +21,6 @@ internal static class RotationAngleAccess
         /// direction is <see cref="sbyte.MinValue"/>, matching native eight-bit truncation.
         /// </summary>
         internal sbyte SignedTableDeltaTo(RotationAngle target) =>
-            unchecked((sbyte)(target.TableIndex - self.TableIndex));
+            unchecked((sbyte)(target.ToByteAngle().RawValue - self.ToByteAngle().RawValue));
     }
 }

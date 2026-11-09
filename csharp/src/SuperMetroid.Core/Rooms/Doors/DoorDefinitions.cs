@@ -97,7 +97,7 @@ public static class DoorDefinitions
         Door(nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft6), RoomHeaderDefinitions.GreenBrinstarMainShaft, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 118), new(1, 7), DoorSamusSpeed.AxisDefault, DoorSetupCode.DoorASM_Scroll_1D_Blue),
         Door(nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft7), RoomHeaderDefinitions.EtecoonETank, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(78, 22), new(4, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.DoorASM_Scroll_5_6_Blue),
         Door(nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft8), RoomHeaderDefinitions.GreenBrinstarMainShaft, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 118), new(0, 7), DoorSamusSpeed.AxisDefault, DoorSetupCode.DoorASM_Scroll_18_1C_Green),
-        Door(nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaftA), RoomHeaderDefinitions.GreenBrinstarSave, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
+        Door(nameof(BrinstarDoorDefinitions.GreenBrinstarMainShaft10), RoomHeaderDefinitions.GreenBrinstarSave, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(BrinstarDoorDefinitions.SporeSpawnSuper0), RoomHeaderDefinitions.SporeSpawnFarming, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(46, 6), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(BrinstarDoorDefinitions.SporeSpawnSuper1), RoomHeaderDefinitions.SporeSpawn, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(BrinstarDoorDefinitions.BrinstarPreMap0), RoomHeaderDefinitions.GreenBrinstarMap, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
@@ -354,7 +354,7 @@ public static class DoorDefinitions
         Door(nameof(NorfairDoorDefinitions.FastPillarsSetup2), RoomHeaderDefinitions.MainHall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 38), new(7, 2), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(NorfairDoorDefinitions.FastPillarsSetup3), RoomHeaderDefinitions.FastRipper, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(NorfairDoorDefinitions.FastPillarsSetup4), RoomHeaderDefinitions.Pillar, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
-        Door(nameof(UnusedRoom83991E), RoomHeaderDefinitions.FastPillarsSetup, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
+        Door(nameof(UnusedNorfairRoom0), RoomHeaderDefinitions.FastPillarsSetup, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(NorfairDoorDefinitions.MickeyMouse0), RoomHeaderDefinitions.FastPillarsSetup, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(NorfairDoorDefinitions.MickeyMouse1), RoomHeaderDefinitions.WorstRoomInTheGame, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.DoorASM_Scroll_0_Green_duplicate),
         Door(nameof(NorfairDoorDefinitions.Pillar0), RoomHeaderDefinitions.FastPillarsSetup, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupCode.DoorASM_Scroll_1_Red_2_Blue),
@@ -491,13 +491,13 @@ public static class DoorDefinitions
         Door(nameof(MaridiaDoorDefinitions.BugSandHole2), RoomHeaderDefinitions.PlasmaSpark, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 54), new(3, 3), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHall0), RoomHeaderDefinitions.WestSandHallTunnel, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHall1), RoomHeaderDefinitions.Oasis, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
-        Door(nameof(UnusedWestSandHall283A654), RoomHeaderDefinitions.WestSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
+        Door(nameof(WestSandHallUnlistedThirdDoor), RoomHeaderDefinitions.WestSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.Oasis0), RoomHeaderDefinitions.WestSandHall, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(62, 6), new(3, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.Oasis1), RoomHeaderDefinitions.EastSandHall, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.Oasis2), RoomHeaderDefinitions.Toilet, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 9), DoorSamusSpeed.AxisDefault, DoorSetupCode.DoorASM_SetupElevatubeFromSouth),
         Door(nameof(MaridiaDoorDefinitions.EastSandHall0), RoomHeaderDefinitions.Oasis, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 22), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.EastSandHall1), RoomHeaderDefinitions.Pants, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 54), new(0, 3), DoorSamusSpeed.AxisDefault, DoorSetupCode.DoorASM_Scroll_4_Red_duplicate),
-        Door(nameof(UnusedEastSandHall283A69C), RoomHeaderDefinitions.EastSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
+        Door(nameof(EastSandHallUnlistedThirdDoor), RoomHeaderDefinitions.EastSandHole, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(1, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHole0), RoomHeaderDefinitions.WestAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.WestSandHole1), RoomHeaderDefinitions.WestSandHall, new(DoorDirection.Down, DoorClosingBehavior.None), new(0, 0), new(2, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.EastSandHole0), RoomHeaderDefinitions.EastAqueductQuicksand, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
@@ -527,8 +527,8 @@ public static class DoorDefinitions
         Door(nameof(MaridiaDoorDefinitions.Colosseum0), RoomHeaderDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.Colosseum1), RoomHeaderDefinitions.DraygonSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.Colosseum2), RoomHeaderDefinitions.ThePrecious, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
-        Door("UnusedRoom83A804", RoomHeaderDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
-        Door("UnusedRoom83A810", RoomHeaderDefinitions.MaridiaMissileRefill, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
+        Door("UnlistedDoorToHalfieClimb", RoomHeaderDefinitions.HalfieClimb, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
+        Door("UnlistedDoorToMaridiaMissileRefill", RoomHeaderDefinitions.MaridiaMissileRefill, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.ThePreciousMaridiaLoad11), RoomHeaderDefinitions.ThePrecious, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.AqueductSave0), RoomHeaderDefinitions.Aqueduct, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 38), new(0, 2), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
         Door(nameof(MaridiaDoorDefinitions.ThePrecious0), RoomHeaderDefinitions.Colosseum, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(110, 22), new(6, 1), DoorSamusSpeed.AxisDefault, DoorSetupCode.None),
@@ -623,9 +623,9 @@ public static class DoorDefinitions
     /// <summary>The door into the Landing Site room that demo set 3 uses for its demos 0, 2 and 4.</summary>
     public static DoorDefinition DemoSet3024 { get; } = Find(nameof(DemoSet3024));
     /// <summary>An unused door that no room lists.</summary>
-    public static DoorDefinition UnusedRoom83991E { get; } = Find(nameof(UnusedRoom83991E));
+    public static DoorDefinition UnusedNorfairRoom0 { get; } = Find(nameof(UnusedNorfairRoom0));
     /// <summary>An unused third door of the West Sand Hall room.</summary>
-    public static DoorDefinition UnusedWestSandHall283A654 { get; } = Find(nameof(UnusedWestSandHall283A654));
+    public static DoorDefinition WestSandHallUnlistedThirdDoor { get; } = Find(nameof(WestSandHallUnlistedThirdDoor));
     /// <summary>An unused third door of the East Sand Hall room.</summary>
-    public static DoorDefinition UnusedEastSandHall283A69C { get; } = Find(nameof(UnusedEastSandHall283A69C));
+    public static DoorDefinition EastSandHallUnlistedThirdDoor { get; } = Find(nameof(EastSandHallUnlistedThirdDoor));
 }

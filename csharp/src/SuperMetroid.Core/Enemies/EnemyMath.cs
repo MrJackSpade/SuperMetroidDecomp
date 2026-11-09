@@ -51,19 +51,19 @@ internal static class EnemyMath
             int divided = AimAngleSlope.Of(absoluteY, absoluteX);
             return Bearing.Wrapped(quadrant switch
             {
-                0 => (divided >> 3) + RotationAngle.QuarterTurn.TableIndex,
-                1 => RotationAngle.QuarterTurn.TableIndex - (divided >> 3),
-                2 => -RotationAngle.QuarterTurn.TableIndex - (divided >> 3),
-                _ => (divided >> 3) - RotationAngle.QuarterTurn.TableIndex,
+                0 => (divided >> 3) + ByteAngle.QuarterTurn.RawValue,
+                1 => ByteAngle.QuarterTurn.RawValue - (divided >> 3),
+                2 => -ByteAngle.QuarterTurn.RawValue - (divided >> 3),
+                _ => (divided >> 3) - ByteAngle.QuarterTurn.RawValue,
             });
         }
 
         int inverseDivided = AimAngleSlope.Of(absoluteX, absoluteY);
         return Bearing.Wrapped(quadrant switch
         {
-            0 => RotationAngle.HalfTurn.TableIndex - (inverseDivided >> 3),
+            0 => ByteAngle.HalfTurn.RawValue - (inverseDivided >> 3),
             1 => inverseDivided >> 3,
-            2 => (inverseDivided >> 3) + RotationAngle.HalfTurn.TableIndex,
+            2 => (inverseDivided >> 3) + ByteAngle.HalfTurn.RawValue,
             _ => -(inverseDivided >> 3),
         });
     }
@@ -98,11 +98,11 @@ internal static class EnemyMath
 
     /// <summary>Computes the eight-bit cosine multiplication.</summary>
     internal static int ReadEightBitCosineProduct(ByteAngle angle, int radius) =>
-        ReadEightBitSineProduct(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue), radius);
+        ReadEightBitSineProduct(angle.TurnedBySteps(ByteAngle.QuarterTurn.RawValue), radius);
 
     /// <summary>Computes the eight-bit negative sine multiplication.</summary>
     internal static int ReadEightBitNegativeSineProduct(ByteAngle angle, int radius) =>
-        ReadEightBitSineProduct(angle.AddTableUnits(ByteAngle.HalfTurn.RawValue), radius);
+        ReadEightBitSineProduct(angle.TurnedBySteps(ByteAngle.HalfTurn.RawValue), radius);
 
     /// <summary>
     /// The point on a circle at an eight-bit angle: the cosine product as X and the negative-sine
@@ -134,13 +134,13 @@ internal static class EnemyMath
     internal static SignedSixteenSixteen ReadEightBitCosineFixedProduct(
         ByteAngle angle,
         int radius) =>
-        ReadEightBitSineFixedProduct(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue), radius);
+        ReadEightBitSineFixedProduct(angle.TurnedBySteps(ByteAngle.QuarterTurn.RawValue), radius);
 
     /// <summary>Rotates the fixed sine multiplication by a half turn to obtain negative sine.</summary>
     internal static SignedSixteenSixteen ReadEightBitNegativeSineFixedProduct(
         ByteAngle angle,
         int radius) =>
-        ReadEightBitSineFixedProduct(angle.AddTableUnits(ByteAngle.HalfTurn.RawValue), radius);
+        ReadEightBitSineFixedProduct(angle.TurnedBySteps(ByteAngle.HalfTurn.RawValue), radius);
 
     /// <summary>
     /// Computes one half of the shared sine/cosine velocity product.
@@ -155,7 +155,7 @@ internal static class EnemyMath
         int magnitude,
         int angleOffset)
     {
-        int tableIndex = angle.AddTableUnits(angleOffset).HalfWaveIndex;
+        int tableIndex = angle.TurnedBySteps(angleOffset).HalfWaveIndex;
         int sample = Trigonometry.UnsignedHalfWave(tableIndex);
         // A product that would not fit the multiplication's 32-bit result fails instead of wrapping.
         uint product = checked((uint)sample * (uint)Ensure.AtLeastZero(magnitude));
@@ -164,11 +164,11 @@ internal static class EnemyMath
 
     /// <summary>The absolute cosine half of the angle-to-vector routine: the sample a quarter turn ahead.</summary>
     internal static int ReadAbsoluteCosineProduct(ByteAngle angle, int magnitude) =>
-        ReadUnsignedSineMagnitudeProduct(angle, magnitude, RotationAngle.QuarterTurn.TableIndex);
+        ReadUnsignedSineMagnitudeProduct(angle, magnitude, ByteAngle.QuarterTurn.RawValue);
 
     /// <summary>The absolute sine half of the angle-to-vector routine: the sample a half turn ahead.</summary>
     internal static int ReadAbsoluteSineProduct(ByteAngle angle, int magnitude) =>
-        ReadUnsignedSineMagnitudeProduct(angle, magnitude, RotationAngle.HalfTurn.TableIndex);
+        ReadUnsignedSineMagnitudeProduct(angle, magnitude, ByteAngle.HalfTurn.RawValue);
 
     /// <summary>
     /// The horizontal part of a speed of <paramref name="magnitude"/> 256ths of a pixel along <paramref name="angle"/>,
@@ -185,10 +185,10 @@ internal static class EnemyMath
         UnsignedSixteenSixteen.FromRaw(unchecked((uint)ReadAbsoluteSineProduct(angle, magnitude)));
 
     /// <summary>Whether a table angle's cosine component is negative: the tests bit 7 of the angle plus a quarter turn.</summary>
-    internal static bool CosineIsNegative(ByteAngle angle) => angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue).RawValue >= ByteAngle.HalfTurn.RawValue;
+    internal static bool CosineIsNegative(ByteAngle angle) => angle.TurnedBySteps(ByteAngle.QuarterTurn.RawValue).RawValue >= ByteAngle.HalfTurn.RawValue;
 
     /// <summary>Whether a table angle's sine component is negative: the tests bit 7 of the angle plus a half turn.</summary>
-    internal static bool SineIsNegative(ByteAngle angle) => angle.AddTableUnits(ByteAngle.HalfTurn.RawValue).RawValue >= ByteAngle.HalfTurn.RawValue;
+    internal static bool SineIsNegative(ByteAngle angle) => angle.TurnedBySteps(ByteAngle.HalfTurn.RawValue).RawValue >= ByteAngle.HalfTurn.RawValue;
 
     /// <summary>Multiplies a signed sine-table sample by speed with the game's fixed-point rounding.</summary>
     internal static SignedEightEight MultiplySineSample(int speed, ByteAngle angle) =>

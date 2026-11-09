@@ -36,7 +36,7 @@ internal sealed class IntroCeresFlightState
     /// </summary>
     private int zoom = 512;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
-    private RotationAngle angle = RotationAngle.FromTableIndex(224);
+    private RotationAngle angle = RotationAngle.FromSteps(224);
     /// <summary>
     /// Master brightness from zero (black) to fifteen (full): held at zero until music is ready, set to fifteen, and
     /// lowered one level every other update in the final fade, stopping at zero.
@@ -241,7 +241,7 @@ internal sealed class IntroCeresFlightState
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
         background = new(new(CoordinateAxis.Wrap(-32), 0), new(CoordinateAxis.Wrap(-128), 0));
-        angle = RotationAngle.FromTableIndex(32);
+        angle = RotationAngle.FromSteps(32);
 
         // These five slots are the exact spawn order. Their visual animations
         // remain authored scripts; the compiled definitions supply callback identity,

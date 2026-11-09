@@ -13,5 +13,5 @@ internal static class SbugDefinitions
     internal const int FirstFacingStart = 48;
 
     /// <summary>Heading table units covered by one of the eight facings.</summary>
-    internal const int TableUnitsPerFacing = 32;
+    internal const int StepsPerFacing = 32;
 }

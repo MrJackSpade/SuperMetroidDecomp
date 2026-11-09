@@ -4,7 +4,7 @@ namespace SuperMetroid.Verification.Input;
 
 /// <summary>
 /// The bank-$91 pre-instruction routines a demo-input object can hold, by their native addresses: the native reference
-/// interpreter's identities, and the oracle's translation of a typed <see cref="DemoInputFrameBehavior"/>.
+/// interpreter's identities, and the oracle's translation of what a typed owner watches for.
 /// </summary>
 internal enum NativeDemoFrameBehavior : ushort
 {

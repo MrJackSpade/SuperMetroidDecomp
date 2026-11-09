@@ -14,7 +14,7 @@ internal static class XrayScopeDefinitionsVerification
     /// </summary>
     internal static void VerifySamusXrayRomData()
     {
-        byte[] angleBands =
+        RotationAngle[] angleBands =
         [
             XrayScopeDefinitions.AnimationAngles.RightFrameOne,
             XrayScopeDefinitions.AnimationAngles.RightFrameTwo,
@@ -31,7 +31,7 @@ internal static class XrayScopeDefinitionsVerification
                 $"X-ray animation boundary {index} follows its predecessor");
         }
 
-        AssertEqual(RotationAngle.HalfTurn.TableIndex + 1,
+        AssertEqual(RotationAngle.StepsPerTurn / 2 + 1,
             XrayScopeDefinitions.Window.AbsoluteTangentWordCount,
             "X-ray absolute tangent table includes both half-turn endpoints");
         AssertEqual(XrayScopeDefinitionsPaletteConstants.SamusCgramIndex + 4,

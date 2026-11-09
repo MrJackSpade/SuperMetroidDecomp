@@ -252,9 +252,7 @@ internal sealed class MotherBrainAttacks
             SamusMovementType.Falling or
             SamusMovementType.MorphBallFalling or
             SamusMovementType.UnusedGlitchBallAlternate or
-            SamusMovementType.Unused0B or
-            SamusMovementType.Unused0C or
-            SamusMovementType.Unused0D or
+            SamusMovementType.CompactAirborne or
             SamusMovementType.SpringBallInAir or
             SamusMovementType.SpringBallFalling or
             SamusMovementType.WallJumping;

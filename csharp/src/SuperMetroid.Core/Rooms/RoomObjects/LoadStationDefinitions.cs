@@ -38,7 +38,7 @@ public static class LoadStationDefinitions
         [new(AreaId.Crateria, 17)] = new(RoomHeaderDefinitions.EastOcean, CrateriaDoorDefinitions.ForgottenHighwayKagos0, new(0, 1024), new(0, 149)),
         [new(AreaId.Crateria, 18)] = new(RoomHeaderDefinitions.LandingSite, CrateriaDoorDefinitions.LandingSiteLandingCutscene, new(1024, 0), new(0, 128)),
         [new(AreaId.Brinstar, 0)] = new(RoomHeaderDefinitions.BigPinkSaveRoom, BrinstarDoorDefinitions.BigPink4, new(0, 0), new(-32, 152)),
-        [new(AreaId.Brinstar, 1)] = new(RoomHeaderDefinitions.GreenBrinstarSave, BrinstarDoorDefinitions.GreenBrinstarMainShaftA, new(0, 0), new(-32, 152)),
+        [new(AreaId.Brinstar, 1)] = new(RoomHeaderDefinitions.GreenBrinstarSave, BrinstarDoorDefinitions.GreenBrinstarMainShaft10, new(0, 0), new(-32, 152)),
         [new(AreaId.Brinstar, 2)] = new(RoomHeaderDefinitions.EtecoonSave, BrinstarDoorDefinitions.EtecoonETank3, new(0, 0), new(-32, 152)),
         [new(AreaId.Brinstar, 3)] = new(RoomHeaderDefinitions.WarehouseSave, BrinstarDoorDefinitions.WarehouseKihunter2, new(0, 0), new(0, 152)),
         [new(AreaId.Brinstar, 4)] = new(RoomHeaderDefinitions.RedBrinstarSave, BrinstarDoorDefinitions.Caterpillar6, new(0, 0), new(0, 152)),

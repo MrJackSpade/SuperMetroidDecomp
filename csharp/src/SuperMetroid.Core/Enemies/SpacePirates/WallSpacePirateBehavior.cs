@@ -79,8 +79,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // The USA/Japan build uses byte angles. Bit fifteen selects 63 two-step frames;
         // clearing it selects 32 four-step frames with adjusted endpoints. These values are
         // not approximations: they are the literal 190/66/2 and 192/64/4 branches.
-        state.RightJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? 190 : 192);
-        state.LeftJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? 66 : 64);
+        state.RightJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 190 : 192);
+        state.LeftJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 66 : 64);
         state.JumpAngleDelta = slowJump ? 2 : 4;
 
         SnapWallSpacePirateXToTile(slot);
@@ -147,7 +147,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         HorizontalDirection direction)
     {
         PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(direction == HorizontalDirection.Right ? -state.JumpAngleDelta : state.JumpAngleDelta);
+        state.WallJumpArcAngle = state.WallJumpArcAngle.TurnedBySteps(direction == HorizontalDirection.Right ? -state.JumpAngleDelta : state.JumpAngleDelta);
         if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.RightJumpTargetAngle : state.LeftJumpTargetAngle))
             return;
 

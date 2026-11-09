@@ -18,8 +18,8 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The ScrollingSkyTilemapsBowlingAlley library background.</summary>
     public static LibraryBackground ScrollingSkyTilemapsBowlingAlley { get; } = new(nameof(ScrollingSkyTilemapsBowlingAlley), []);
 
-    /// <summary>The Brinstar1AKraidUpperLower library background.</summary>
-    public static LibraryBackground Brinstar1AKraidUpperLower { get; } = new(nameof(Brinstar1AKraidUpperLower), []);
+    /// <summary>The Brinstar26KraidUpperLower library background.</summary>
+    public static LibraryBackground Brinstar26KraidUpperLower { get; } = new(nameof(Brinstar26KraidUpperLower), []);
 
     /// <summary>The KraidDead library background.</summary>
     public static LibraryBackground KraidDead { get; } = new(nameof(KraidDead), []);
@@ -114,11 +114,11 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The Brinstar7BlueGridBlocks library background.</summary>
     public static LibraryBackground Brinstar7BlueGridBlocks { get; } = new(nameof(Brinstar7BlueGridBlocks), []);
 
-    /// <summary>The Norfair9ASmallPatternBrownPurpleBright library background.</summary>
-    public static LibraryBackground Norfair9ASmallPatternBrownPurpleBright { get; } = new(nameof(Norfair9ASmallPatternBrownPurpleBright), []);
+    /// <summary>The Norfair9And10SmallPatternBrownPurpleBright library background.</summary>
+    public static LibraryBackground Norfair9And10SmallPatternBrownPurpleBright { get; } = new(nameof(Norfair9And10SmallPatternBrownPurpleBright), []);
 
-    /// <summary>The Norfair9ASmallPatternBrownPurple0 library background.</summary>
-    public static LibraryBackground Norfair9ASmallPatternBrownPurple0 { get; } = new(nameof(Norfair9ASmallPatternBrownPurple0), []);
+    /// <summary>The Norfair9And10SmallPatternBrownPurple0 library background.</summary>
+    public static LibraryBackground Norfair9And10SmallPatternBrownPurple0 { get; } = new(nameof(Norfair9And10SmallPatternBrownPurple0), []);
 
     /// <summary>The Norfair9HorizontalPatternBrick library background.</summary>
     public static LibraryBackground Norfair9HorizontalPatternBrick { get; } = new(nameof(Norfair9HorizontalPatternBrick), []);
@@ -126,11 +126,11 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The Norfair9VerticalPatternBrick library background.</summary>
     public static LibraryBackground Norfair9VerticalPatternBrick { get; } = new(nameof(Norfair9VerticalPatternBrick), []);
 
-    /// <summary>The Norfair9ACavernStalactites library background.</summary>
-    public static LibraryBackground Norfair9ACavernStalactites { get; } = new(nameof(Norfair9ACavernStalactites), []);
+    /// <summary>The Norfair9And10CavernStalactites library background.</summary>
+    public static LibraryBackground Norfair9And10CavernStalactites { get; } = new(nameof(Norfair9And10CavernStalactites), []);
 
-    /// <summary>The Norfair9ACavernVertical library background.</summary>
-    public static LibraryBackground Norfair9ACavernVertical { get; } = new(nameof(Norfair9ACavernVertical), []);
+    /// <summary>The Norfair9And10CavernVertical library background.</summary>
+    public static LibraryBackground Norfair9And10CavernVertical { get; } = new(nameof(Norfair9And10CavernVertical), []);
 
     /// <summary>The Norfair9CavernHorizontalRuins library background.</summary>
     public static LibraryBackground Norfair9CavernHorizontalRuins { get; } = new(nameof(Norfair9CavernHorizontalRuins), []);
@@ -207,7 +207,7 @@ public static partial class LibraryBackgroundDefinitions
     /// <summary>The TourianEPipeRoomDark library background.</summary>
     public static LibraryBackground TourianEPipeRoomDark { get; } = new(nameof(TourianEPipeRoomDark), []);
 
-    /// <summary>The TourianDEStatueHall library background.</summary>
-    public static LibraryBackground TourianDEStatueHall { get; } = new(nameof(TourianDEStatueHall), []);
+    /// <summary>The Tourian13And14StatueHall library background.</summary>
+    public static LibraryBackground Tourian13And14StatueHall { get; } = new(nameof(Tourian13And14StatueHall), []);
 
 }

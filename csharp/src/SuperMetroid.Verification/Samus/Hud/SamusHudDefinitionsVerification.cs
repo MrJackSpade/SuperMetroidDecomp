@@ -57,10 +57,10 @@ internal static class SamusHudDefinitionsVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         Action<SamusState, ushort> setTurn = (state, turn) =>
             state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue));
-        for (byte movement = 0; movement < 28; movement++)
+        foreach (int movement in SamusMovementTypeNumbers.Named)
         {
             SamusHudHandler handler = HandlerOf(rom, movement);
-            AssertEqual(handler, SamusHudObservations.MovementHandler(SamusMovementTypeNumbers.Of(movement)), "All 28 native HUD handler identities");
+            AssertEqual(handler, SamusHudObservations.MovementHandler(SamusMovementTypeNumbers.Of(movement)), "Every named movement's native HUD handler identity");
             for (int pose = 0; pose < 253; pose++)
             foreach (bool locked in new[] { false, true })
             foreach (ushort selected in new ushort[] { 3, 4 })

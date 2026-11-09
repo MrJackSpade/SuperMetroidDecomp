@@ -89,7 +89,7 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Morph Ball room's state 1.</summary>
     public static RoomStateSettings MorphBallWhenZebesAwake { get; } =
-        new(nameof(MorphBallWhenZebesAwake), RoomLevelDefinitions.MorphBall, 6, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.VariousRooms8381F4, RoomEnemyPopulationDefinitions.MorphBallWhenZebesAwake, Enemies.RoomEnemyGraphicsSetDefinitions.MorphBallWhenZebesAwake, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MorphBall, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MorphBallWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar6SmallPatternVariety0, RoomSetupCallback.ReturnBeforeEscapeSkySetup);
+        new(nameof(MorphBallWhenZebesAwake), RoomLevelDefinitions.MorphBall, 6, new RoomMusic(MusicDataSet.LowerCrateria, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.MorphBallWhenZebesAwake, Enemies.RoomEnemyGraphicsSetDefinitions.MorphBallWhenZebesAwake, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MorphBall, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MorphBallWhenZebesAwake, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar6SmallPatternVariety0, RoomSetupCallback.ReturnBeforeEscapeSkySetup);
 
 
     /// <summary>The Construction Zone room's state 0.</summary>
@@ -99,7 +99,7 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Construction Zone room's state 1.</summary>
     public static RoomStateSettings ConstructionZoneWhenZebesAwake { get; } =
-        new(nameof(ConstructionZoneWhenZebesAwake), RoomLevelDefinitions.ConstructionZone, 6, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.VariousRooms8381F4, RoomEnemyPopulationDefinitions.ConstructionZoneWhenZebesAwake, Enemies.RoomEnemyGraphicsSetDefinitions.ConstructionZoneWhenZebesAwake, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ConstructionZone, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ConstructionZone, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar6SmallPattern, RoomSetupCallback.ReturnBeforeEscapeSkySetup);
+        new(nameof(ConstructionZoneWhenZebesAwake), RoomLevelDefinitions.ConstructionZone, 6, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.ConstructionZoneWhenZebesAwake, Enemies.RoomEnemyGraphicsSetDefinitions.ConstructionZoneWhenZebesAwake, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.ConstructionZone, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.ConstructionZone, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar6SmallPattern, RoomSetupCallback.ReturnBeforeEscapeSkySetup);
 
 
     /// <summary>The Blue Brinstar E Tank room's state 0.</summary>
@@ -109,7 +109,7 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Blue Brinstar E Tank room's state 1.</summary>
     public static RoomStateSettings BlueBrinstarETankWhenZebesAwake { get; } =
-        new(nameof(BlueBrinstarETankWhenZebesAwake), RoomLevelDefinitions.BlueBrinstarETank, 6, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.VariousRooms8381F4, RoomEnemyPopulationDefinitions.BlueBrinstarETankWhenZebesAwake, Enemies.RoomEnemyGraphicsSetDefinitions.BlueBrinstarETankWhenZebesAwake, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarETank, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar6SmallPatternVariety0, RoomSetupCallback.ReturnBeforeEscapeSkySetup);
+        new(nameof(BlueBrinstarETankWhenZebesAwake), RoomLevelDefinitions.BlueBrinstarETank, 6, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedPlain, RoomEnemyPopulationDefinitions.BlueBrinstarETankWhenZebesAwake, Enemies.RoomEnemyGraphicsSetDefinitions.BlueBrinstarETankWhenZebesAwake, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.BlueBrinstarETank, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.BlueBrinstarETank, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar6SmallPatternVariety0, RoomSetupCallback.ReturnBeforeEscapeSkySetup);
 
 
     /// <summary>The Noob Bridge room's state.</summary>
@@ -239,17 +239,17 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Warehouse Zeela room's state.</summary>
     public static RoomStateSettings WarehouseZeela { get; } =
-        new(nameof(WarehouseZeela), RoomLevelDefinitions.WarehouseZeela, 7, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.VariousRooms8383D2, RoomEnemyPopulationDefinitions.WarehouseZeela, Enemies.RoomEnemyGraphicsSetDefinitions.WarehouseZeela, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WarehouseZeela, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseZeela, null, RoomSetupCallback.ReturnBeforeStatueSetupB);
+        new(nameof(WarehouseZeela), RoomLevelDefinitions.WarehouseZeela, 7, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.SharedBeaconFlashing, RoomEnemyPopulationDefinitions.WarehouseZeela, Enemies.RoomEnemyGraphicsSetDefinitions.WarehouseZeela, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WarehouseZeela, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseZeela, null, RoomSetupCallback.ReturnBeforeStatueSetupB);
 
 
     /// <summary>The Warehouse E Tank room's state.</summary>
     public static RoomStateSettings WarehouseETank { get; } =
-        new(nameof(WarehouseETank), RoomLevelDefinitions.WarehouseETank, 7, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.VariousRooms8383D2, RoomEnemyPopulationDefinitions.WarehouseETank, Enemies.RoomEnemyGraphicsSetDefinitions.WarehouseETank, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseETank, null, RoomSetupCallback.ReturnBeforeStatueSetupB);
+        new(nameof(WarehouseETank), RoomLevelDefinitions.WarehouseETank, 7, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.SharedBeaconFlashing, RoomEnemyPopulationDefinitions.WarehouseETank, Enemies.RoomEnemyGraphicsSetDefinitions.WarehouseETank, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseETank, null, RoomSetupCallback.ReturnBeforeStatueSetupB);
 
 
     /// <summary>The Warehouse Kihunter room's state.</summary>
     public static RoomStateSettings WarehouseKihunter { get; } =
-        new(nameof(WarehouseKihunter), RoomLevelDefinitions.WarehouseKihunter, 7, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.VariousRooms8383D2, RoomEnemyPopulationDefinitions.WarehouseKihunter, Enemies.RoomEnemyGraphicsSetDefinitions.WarehouseKihunter, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WarehouseKihunter, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseKihunter, null, RoomSetupCallback.ReturnBeforeStatueSetupB);
+        new(nameof(WarehouseKihunter), RoomLevelDefinitions.WarehouseKihunter, 7, new RoomMusic(MusicDataSet.RedBrinstar, RoomMusicTrack.Plays(MusicTrack.FirstSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.SharedBeaconFlashing, RoomEnemyPopulationDefinitions.WarehouseKihunter, Enemies.RoomEnemyGraphicsSetDefinitions.WarehouseKihunter, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(192, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.WarehouseKihunter, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WarehouseKihunter, null, RoomSetupCallback.ReturnBeforeStatueSetupB);
 
 
     /// <summary>The Mini Kraid room's state 0.</summary>
@@ -269,7 +269,7 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Kraid room's state 0.</summary>
     public static RoomStateSettings KraidDefault { get; } =
-        new(nameof(KraidDefault), RoomLevelDefinitions.Kraid, 26, new RoomMusic(MusicDataSet.BossFight2, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, Enemies.RoomEnemyGraphicsSetDefinitions.Kraid, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar1AKraidUpperLower, RoomSetupCallback.ReturnBeforeStatueSetupB);
+        new(nameof(KraidDefault), RoomLevelDefinitions.Kraid, 26, new RoomMusic(MusicDataSet.BossFight2, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.Kraid, RoomEnemyPopulationDefinitions.Kraid, Enemies.RoomEnemyGraphicsSetDefinitions.Kraid, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(1, 1), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Kraid, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Kraid, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Brinstar26KraidUpperLower, RoomSetupCallback.ReturnBeforeStatueSetupB);
 
 
     /// <summary>The Kraid room's state 1.</summary>

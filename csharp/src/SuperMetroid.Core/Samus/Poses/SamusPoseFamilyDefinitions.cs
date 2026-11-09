@@ -86,8 +86,8 @@ internal static class SamusPoseFamilyDefinitions
         [SamusPoseId.StandingTransitionAimDiagonalUpLeftPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
         [SamusPoseId.StandingTransitionAimDiagonalDownRightPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
         [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
-        [SamusPoseId.AdjacentCodePoseFD] = SamusPostureTransitionAdmission.AlwaysAdmits,
-        [SamusPoseId.AdjacentCodePoseFE] = SamusPostureTransitionAdmission.AlwaysAdmits,
-        [SamusPoseId.AdjacentCodePoseFF] = SamusPostureTransitionAdmission.AlwaysAdmits,
+        [SamusPoseId.FirstUnauthoredPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
+        [SamusPoseId.SecondUnauthoredPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
+        [SamusPoseId.LastUnauthoredPose] = SamusPostureTransitionAdmission.AlwaysAdmits,
     };
 }

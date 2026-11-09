@@ -28,11 +28,11 @@ internal static class DemoInputProgramsVerification
         ushort Word(int address) => cartridge.ReadCartridgeWord(DemoInputListWords.ListBank | address);
 
         AssertEqual(Enum.GetValues<DemoInputProgram>().Length, DemoInputNativeListAddresses.Entries.Length, "every typed demo-input program has a native entry");
-        foreach ((ushort header, DemoInputObjectDefinition definition) in DemoInputNativeListAddresses.Objects)
+        foreach ((ushort header, ushort frameBehavior, DemoInputProgram program) in DemoInputNativeListAddresses.Objects)
         {
             AssertEqual(DemoInputRomData.Routines.NoOp, Word(header), $"demo object $91:{header:X4} initializer");
-            AssertEqual(Word(header + 2), DemoInputNativeListAddresses.FrameBehaviorAddress(definition.FrameBehavior), $"demo object $91:{header:X4} pre-instruction");
-            AssertEqual(Word(header + 4), DemoInputNativeListAddresses.Entry(definition.Program), $"demo object $91:{header:X4} list");
+            AssertEqual(Word(header + 2), frameBehavior, $"demo object $91:{header:X4} pre-instruction is the owner's first watch");
+            AssertEqual(Word(header + 4), DemoInputNativeListAddresses.Entry(program), $"demo object $91:{header:X4} list");
         }
 
         Dictionary<ushort, DemoInputProgram> byEntry = DemoInputNativeListAddresses.Entries.ToDictionary(entry => entry.Entry, entry => entry.Program);

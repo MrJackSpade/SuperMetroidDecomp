@@ -622,7 +622,7 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(RotationAngle.FromTableIndex((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
+                AssertEqual(RotationAngle.FromSteps((byte)expectedAngle), state.Stage.FloorAngle, "rotation context advances independently of selected signs");
                 AssertEqual((ushort)expectedZoom, state.Stage.FloorZoom, "zoom context advances independently of selected signs");
                 AssertEqual(FixedCoordinate.WholeOf(unchecked((int)expected)), state.Stage.FloorPosition.X.Whole, "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, state.Stage.FloorPosition.X.Fraction, "production shake fraction preserves carry/borrow");
@@ -1381,7 +1381,8 @@ internal static class LookupStream4Verification
         {
             if (!SamusMovementTypeNativeWords.Types.TryDecode(raw, out SamusMovementType movement))
             {
-                AssertTrue(raw >= SamusMovementTypeNumbers.Count, "Movement bytes name every movement type in the 28-entry table");
+                AssertTrue(raw >= SamusMovementTypeNumbers.Count || SamusMovementTypeNumbers.Unselected.Contains(raw),
+                    "Movement bytes name every movement type a pose selects in the 28-entry table");
                 continue;
             }
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);

@@ -90,7 +90,7 @@ internal static class MotherBrainBeamWindowVerification
         AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "new attack resets HDMA color");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
-            beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(angle), 512, default);
+            beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), 512, default);
             bool up = angle is 96 or 128 or 160;
             MotherBrainRainbowBeamGeometry geometry = beam.Geometry ?? throw new InvalidOperationException("The beam resolved its geometry.");
             AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(114, 100), 128 - geometry.EdgeB, 128 - geometry.EdgeA),
@@ -118,7 +118,7 @@ internal static class MotherBrainBeamWindowVerification
     private static void VerifyRetainedCones(MotherBrainRainbowPalettePresentation colors)
     {
         var beam = new MotherBrainRainbowBeamEffect { PresentationColors = colors };
-        beam.Step(true, new(100, 95), RotationAngle.FromTableIndex(128), Width(32), default);
+        beam.Step(true, new(100, 95), RotationAngle.FromSteps(128), Width(32), default);
         ScreenWindow up = Cone(beam.RenderSnapshot);
         beam.Step(true, new(100, 95), RotationAngle.ThreeQuarterTurn, 512, default);
         AssertEqual(up, Cone(beam.RenderSnapshot), "retain keeps the previous cone");

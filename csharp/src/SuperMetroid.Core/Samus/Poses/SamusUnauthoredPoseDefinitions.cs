@@ -16,17 +16,17 @@ internal static class SamusUnauthoredPoseDefinitions
     internal static readonly UnauthoredPoseReads<SamusPoseId, SamusUnauthoredPoseDefinition> Poses = new(
         new Dictionary<SamusPoseId, SamusUnauthoredPoseDefinition>
         {
-            [SamusPoseId.AdjacentCodePoseFD] = new(
+            [SamusPoseId.FirstUnauthoredPose] = new(
                 SamusFacingDirection.Right,
                 SamusPoseAim.Unaimed(SamusFlareAim.WhileTurning(SamusTurningAim.Neutral)),
                 VerticalRadius: 138,
                 ProjectileYOffset: 194),
-            [SamusPoseId.AdjacentCodePoseFE] = new(
+            [SamusPoseId.SecondUnauthoredPose] = new(
                 SamusFacingDirection.ForwardOrSpecial,
                 SamusPoseAim.Unaimed(SamusFlareAim.AtMuzzle(SamusProjectileDirection.DownFacingLeft)),
                 VerticalRadius: 24,
                 ProjectileYOffset: 22),
-            [SamusPoseId.AdjacentCodePoseFF] = new(
+            [SamusPoseId.LastUnauthoredPose] = new(
                 SamusFacingDirection.ForwardOrSpecial,
                 SamusPoseAim.Unaimed(SamusFlareAim.AtMuzzle(SamusProjectileDirection.DownFacingRight)),
                 VerticalRadius: 16,

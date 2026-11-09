@@ -214,14 +214,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWrappedWholeX(
             state.MovementCenter.X +
             EnemyMath.ReadEightBitCosineProduct(state.Angle.ToByteAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.MaximumXRadius)));
+        // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it.
+        ByteAngle swayBehind = (state.Angle - RotationAngle.QuarterTurn).ToByteAngle();
         body.Position = body.Position.WithWrappedWholeY(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                ByteAngle.Wrapped(2 * (state.Angle.TableIndex - RotationAngle.QuarterTurn.TableIndex)),
+                swayBehind.TurnedBy(swayBehind),
                 CoordinateAxis.Wrap(state.MaximumXRadius - 16)));
 
         // The phase advances by the signed delta and wraps around the turn.
-        state.Angle = state.Angle.AddTableUnits(state.AngleDelta);
+        state.Angle = state.Angle.TurnedBySteps(state.AngleDelta);
     }
 
     /// <summary>Sets up Spore Spawn's death velocity.</summary>
@@ -229,7 +231,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ByteAngle direction = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTableAngle();
-        state.DeathAngle = RotationAngle.FromTableIndex(direction.RawValue);
+        state.DeathAngle = direction.ToAngle();
         state.DeathVelocityMagnitude = new(
             SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),
             SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 128)));

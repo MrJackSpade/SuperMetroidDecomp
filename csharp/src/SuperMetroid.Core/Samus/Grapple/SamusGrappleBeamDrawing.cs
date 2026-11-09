@@ -199,18 +199,16 @@ public static class SamusGrappleBeamDrawing
         RotationAngle drawAngle = SamusGrappleMovement.CalculateAngleFromXY(grapple.Anchor - grapple.BeamStart);
         // Preserve the fractional word across segments. Rounding each individual
         // displacement shortens diagonals and rounds negative steps incorrectly.
-        int stepX = SamusGrappleSwing.ReadSignedSine((drawAngle + RotationAngle.QuarterTurn).TableIndex)
+        int stepX = SamusGrappleSwing.ReadSignedSine(drawAngle + RotationAngle.QuarterTurn)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
-        int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle.TableIndex)
+        int stepY = SamusGrappleSwing.ReadSignedSine(drawAngle)
             * GrappleBeamDefinitions.Rendering.SegmentSampleToFixedPoint;
 
-        // The rope draw derives X/Y flip bits from the grapple angle while retaining the packed
-        // palette-five/priority-three instruction word. The rope's end tile marks the connected endpoint.
-        int angleHigh = grapple.Angle.TableIndex;
-        int flipBits = (angleHigh & 1 << 7) >> 1;
-        flipBits |= 2 * ((((angleHigh ^ flipBits) & 1 << 6) ^ 1 << 6));
-        SpriteMirror mirror = ((flipBits & 1 << 6) != 0 ? SpriteMirror.Horizontal : SpriteMirror.None) |
-            ((flipBits & 1 << 7) != 0 ? SpriteMirror.Vertical : SpriteMirror.None);
+        // The rope's tiles mirror by the quarter of the turn the grapple angle lies in: horizontally in the second half
+        // of the turn, vertically in the first and last quarters. The rope's end tile marks the connected endpoint.
+        int quarter = grapple.Angle.Sector(4);
+        SpriteMirror mirror = (quarter >= 2 ? SpriteMirror.Horizontal : SpriteMirror.None) |
+            (quarter is 0 or 3 ? SpriteMirror.Vertical : SpriteMirror.None);
         int screenXFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.X - cameraPosition.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
         int screenYFixed = unchecked(SixteenSixteen.FromWhole(grapple.BeamStart.Y - cameraPosition.Y - GrappleBeamDefinitions.Rendering.CharacterCenterOffset));
         // The game enters the loop before decrementing quotient-minus-one: even a

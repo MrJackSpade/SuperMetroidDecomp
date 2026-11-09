@@ -18,5 +18,5 @@ public static class ShinesparkEchoDefinitions
 
     /// <summary>The departure angles at two table indexes.</summary>
     internal static ShinesparkDepartureAngles Departure(int first, int second) =>
-        new ShinesparkDepartureAngles(RotationAngle.FromTableIndex(first), RotationAngle.FromTableIndex(second));
+        new ShinesparkDepartureAngles(RotationAngle.FromSteps(first), RotationAngle.FromSteps(second));
 }

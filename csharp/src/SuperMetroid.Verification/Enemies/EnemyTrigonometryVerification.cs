@@ -767,7 +767,7 @@ internal static class EnemyTrigonometryVerification
                 tide.TidePhase = (ushort)phase;
                 tide.TideFixedOffset = 12345;
                 step();
-                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).TableIndex);
+                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToByteAngle().RawValue);
                 bool small = (option & RoomLiquidOptions.SmallTide) != 0;
                 bool still = option == RoomLiquidOptions.None;
                 int scale = still ? 0 : small ? 8 : 32;

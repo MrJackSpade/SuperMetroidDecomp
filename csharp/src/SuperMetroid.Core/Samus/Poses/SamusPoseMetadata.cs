@@ -666,9 +666,7 @@ internal static class SamusPoseMetadata
 
             case SamusMovementType.Running:
             case SamusMovementType.Falling:
-            case SamusMovementType.Unused0B:
-            case SamusMovementType.Unused0C:
-            case SamusMovementType.Unused0D:
+            case SamusMovementType.CompactAirborne:
             case SamusMovementType.Moonwalking:
             case SamusMovementType.WallJumping:
             case SamusMovementType.RanIntoWall:

@@ -48,7 +48,7 @@ internal static class SamusComboMechanics
     {
         if ((uint)projectileSlot >= 4)
             throw new ArgumentOutOfRangeException(nameof(projectileSlot));
-        return new ByteAngle(0).AddTableUnits(ByteAngle.QuarterTurn.RawValue * projectileSlot);
+        return new ByteAngle(0).TurnedBySteps(ByteAngle.QuarterTurn.RawValue * projectileSlot);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ internal static class SamusComboMechanics
             return sample < 0 ? -magnitude : magnitude;
         }
 
-        return new(Component(angle.RawValue), Component(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue).RawValue));
+        return new(Component(angle.RawValue), Component(angle.TurnedBySteps(-ByteAngle.QuarterTurn.RawValue).RawValue));
     }
 
     /// <summary>The orbit radii a combo particle holds, in pixels; a radius grown past the last restarts from zero.</summary>

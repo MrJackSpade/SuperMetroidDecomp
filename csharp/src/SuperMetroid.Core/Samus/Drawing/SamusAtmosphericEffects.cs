@@ -20,8 +20,8 @@ internal static class SamusAtmosphericEffects
             SamusMovementType.Running or SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
                 SamusMovementType.Falling or SamusMovementType.UnusedGlitchBall or
                 SamusMovementType.MorphBallFalling or SamusMovementType.UnusedGlitchBallAlternate or
-                SamusMovementType.Knockback or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
-                SamusMovementType.Unused0D or SamusMovementType.SpringBallInAir or
+                SamusMovementType.Knockback or
+                SamusMovementType.CompactAirborne or SamusMovementType.SpringBallInAir or
                 SamusMovementType.SpringBallFalling or SamusMovementType.WallJumping or
                 SamusMovementType.Grappling or SamusMovementType.TurningWhileJumping or
                 SamusMovementType.TurningWhileFalling or SamusMovementType.DamageBoost or

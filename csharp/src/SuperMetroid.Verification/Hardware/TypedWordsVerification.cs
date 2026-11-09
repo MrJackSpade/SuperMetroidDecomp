@@ -184,15 +184,15 @@ internal static void VerifyTypedNativeWords()
     // preservation, and the signed modular subtraction used near the wrap seam.
     AssertEqual((ushort)0x4000, RotationAngle.QuarterTurn.RawValue,
         "SNES quarter-turn raw word");
-    AssertEqual((byte)0x40, RotationAngle.QuarterTurn.TableIndex,
+    AssertEqual((byte)0x40, RotationAngle.QuarterTurn.ToByteAngle().RawValue,
         "SNES quarter-turn sine index");
     AssertEqual(0x80, RotationAngle.QuarterTurn.SineTableByteOffset,
         "SNES quarter-turn word-table offset");
     AssertEqual(RotationAngle.Zero, RotationAngle.NormalizeRaw(0x1_0000),
         "SNES raw angle wraps at one turn");
-    AssertEqual(RotationAngle.Zero, RotationAngle.NormalizeTableIndex(0x100),
+    AssertEqual(RotationAngle.Zero, RotationAngle.WrappedSteps(0x100),
         "SNES table angle wraps at 256 units");
-    AssertEqual((ushort)0x41ab, RotationAngle.FromRaw(0x40ab).AddTableUnits(1).RawValue,
+    AssertEqual((ushort)0x41ab, RotationAngle.FromRaw(0x40ab).TurnedBySteps(1).RawValue,
         "SNES whole-unit addition retains fractional angle byte");
     AssertEqual((short)-0x4000, RotationAngle.Zero.SignedDeltaTo(RotationAngle.ThreeQuarterTurn),
         "SNES signed raw delta crosses wrap seam");

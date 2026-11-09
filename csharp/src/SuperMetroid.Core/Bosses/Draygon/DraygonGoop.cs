@@ -182,7 +182,7 @@ internal sealed class DraygonGoop
     {
         state.Body.Position = state.Body.Position.WithWholeY(
             384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.ToByteAngle(), 32));
-        state.GoopYOscillationAngle = state.GoopYOscillationAngle.AddTableUnits(1);
+        state.GoopYOscillationAngle = state.GoopYOscillationAngle.TurnedBySteps(1);
         DraygonMovement.MoveDraygonHorizontally(state, movingRight);
     }
 

@@ -65,9 +65,9 @@ public sealed class MotherBrainRainbowBeamEffect
         RotationAngle angle, int angularWidth)
     {
         int halfWidth = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, angularWidth)) / 2;
-        int a = angle.ToByteAngle().AddTableUnits(-halfWidth).RawValue;
-        int b = angle.ToByteAngle().AddTableUnits(halfWidth).RawValue;
-        int quadrant = (a / RotationAngle.QuarterTurn.TableIndex) * 4 + b / RotationAngle.QuarterTurn.TableIndex;
+        int a = angle.ToByteAngle().TurnedBySteps(-halfWidth).RawValue;
+        int b = angle.ToByteAngle().TurnedBySteps(halfWidth).RawValue;
+        int quadrant = (a / ByteAngle.QuarterTurn.RawValue) * 4 + b / ByteAngle.QuarterTurn.RawValue;
         var direction = MotherBrainBeamQuadrants.DirectionForPair(quadrant);
         // The leftward-straddling case is empty: retain the previous geometry for a beam straddling left.
         if (direction == MotherBrainBeamDirection.Retain) return;

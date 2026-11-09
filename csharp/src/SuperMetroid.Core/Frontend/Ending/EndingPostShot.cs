@@ -29,7 +29,7 @@ internal sealed class EndingPostShot
         ApplyFade(screen.Colours, EndingFade.ShootingSamus, samusFade);
         if (!RotationFinished)
         {
-            Angle = Angle.AddTableUnits(-EndingPostShotDefinitions.AngleStep);
+            Angle = Angle.TurnedBySteps(-EndingPostShotDefinitions.AngleStep);
             Scale -= EndingPostShotDefinitions.ScaleStep;
             if (Scale < EndingPostShotDefinitions.MinimumScale)
             {

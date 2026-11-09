@@ -144,7 +144,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             state.DistanceToSamus = YappingMawAttackGeometry.MaximumTargetDistance;
             state.AimAngle = new Bearing(checked((byte)aim));
             YappingMawBehavior.BeginYappingMawExtension(slot, state);
-            AssertEqual(RotationAngle.FromTableIndex(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");
+            AssertEqual(RotationAngle.FromSteps(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");
             AssertEqual(mirrored, state.MirroredBend, $"Yapping Maw aim {aim} bend");
             AssertEqual(YappingMawAnimationDefinitions.Aims.At(direction), state.Aim, $"Yapping Maw aim {aim} sector");
         }

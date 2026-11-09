@@ -54,8 +54,7 @@ public static class SamusGrappleSwing
     {
         int absoluteVelocity = Math.Abs(grapple.AngularVelocity);
         int doubledVelocity = absoluteVelocity * 2;
-        int cosine = ReadSignedSine(
-            (grapple.Angle + RotationAngle.QuarterTurn).TableIndex);
+        int cosine = ReadSignedSine(grapple.Angle + RotationAngle.QuarterTurn);
 
         // The swing speed is a short angular velocity doubled and the component at most one, so each product stays
         // below 2^24 65536ths of a pixel and never wraps.
@@ -68,8 +67,7 @@ public static class SamusGrappleSwing
 
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);
-        int horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
-        int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));
+        int horizontalSine = Math.Abs(Trigonometry.SignedSine(grapple.Angle.TurnedBySteps(-phaseOffset).ToByteAngle()));
         samus.HorizontalSpeed.BaseSpeed = UnsignedSixteenSixteen.ProductOfTwoFiftySixths(horizontalSine, doubledVelocity);
     }
 
@@ -89,6 +87,13 @@ public static class SamusGrappleSwing
     {
         return Trigonometry.SignedNegativeCosineWord(index);
     }
+
+    /// <summary>
+    /// The signed negative cosine of <paramref name="angle"/>'s whole step, the table's word at that step: the sine a
+    /// quarter turn behind it.
+    /// </summary>
+    internal static int ReadSignedSine(RotationAngle angle) =>
+        Trigonometry.SignedSine((angle - RotationAngle.QuarterTurn).ToByteAngle());
 
 
     /// <summary>Changes rope length on Up or Down edges and pumps the swing only where directional input can accelerate it.</summary>
@@ -215,7 +220,7 @@ public static class SamusGrappleSwing
     /// the release-time drop test instead requires exactly 32768.
     /// </summary>
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
-        grapple.Angle.TableIndex == RotationAngle.HalfTurn.TableIndex;
+        grapple.Angle.WholeStep == RotationAngle.HalfTurn;
 
 
     /// <summary>Assigns quadrant-based gravity and correction, attenuated underwater and stopped near the downward rest angle.</summary>
@@ -333,8 +338,8 @@ public static class SamusGrappleSwing
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
         RotationAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
-        int targetAngleByte = targetAngle.TableIndex;
-        int lastSafeAngleByte = grapple.Angle.TableIndex;
+        ByteAngle targetAngleByte = targetAngle.ToByteAngle();
+        ByteAngle lastSafeAngleByte = grapple.Angle.ToByteAngle();
         int byteDirection = combined < 0 ? -1 : 1;
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
@@ -344,18 +349,18 @@ public static class SamusGrappleSwing
              lastSafeAngleByte != targetAngleByte && angleSteps < 256;
              angleSteps++)
         {
-            int candidateAngleByte = ByteAngle.Wrapped(lastSafeAngleByte + byteDirection).RawValue;
+            ByteAngle candidateAngleByte = lastSafeAngleByte.TurnedBySteps(byteDirection);
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
                 level,
                 samus,
                 grapple,
-                new ByteAngle(candidateAngleByte));
+                candidateAngleByte);
             if (collision.Collided)
             {
                 // A collision restores the last safe whole angle byte and forces the
                 // fractional half value 128. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
-                grapple.Angle = RotationAngle.FromTableIndex(lastSafeAngleByte, fraction: 128);
+                grapple.Angle = RotationAngle.FromSteps(lastSafeAngleByte.RawValue, fraction: 128);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&

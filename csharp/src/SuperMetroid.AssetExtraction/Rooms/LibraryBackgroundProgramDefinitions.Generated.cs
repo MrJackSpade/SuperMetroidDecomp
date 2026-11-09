@@ -38,8 +38,8 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.Sky(2), LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
     ]);
 
-    /// <summary>The Brinstar1AKraidUpperLower library-background program.</summary>
-    public static LibraryBackgroundProgram Brinstar1AKraidUpperLower { get; } = new(LibraryBackgroundDefinitions.Brinstar1AKraidUpperLower, [
+    /// <summary>The Brinstar26KraidUpperLower library-background program.</summary>
+    public static LibraryBackgroundProgram Brinstar26KraidUpperLower { get; } = new(LibraryBackgroundDefinitions.Brinstar26KraidUpperLower, [
         new(LibraryBackgroundCommand.TransferForKraid, LibraryBackgroundSource.HudCharacters, LibraryBackgroundDestination.KraidLayer3Characters, 4096, null),
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.BrinstarKraidUpper), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.KraidBackgroundPages, 4096, null),
@@ -258,15 +258,15 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The Norfair9ASmallPatternBrownPurpleBright library-background program.</summary>
-    public static LibraryBackgroundProgram Norfair9ASmallPatternBrownPurpleBright { get; } = new(LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurpleBright, [
+    /// <summary>The Norfair9And10SmallPatternBrownPurpleBright library-background program.</summary>
+    public static LibraryBackgroundProgram Norfair9And10SmallPatternBrownPurpleBright { get; } = new(LibraryBackgroundDefinitions.Norfair9And10SmallPatternBrownPurpleBright, [
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairSmallPatternBrownPurpleBright), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The Norfair9ASmallPatternBrownPurple0 library-background program.</summary>
-    public static LibraryBackgroundProgram Norfair9ASmallPatternBrownPurple0 { get; } = new(LibraryBackgroundDefinitions.Norfair9ASmallPatternBrownPurple0, [
+    /// <summary>The Norfair9And10SmallPatternBrownPurple0 library-background program.</summary>
+    public static LibraryBackgroundProgram Norfair9And10SmallPatternBrownPurple0 { get; } = new(LibraryBackgroundDefinitions.Norfair9And10SmallPatternBrownPurple0, [
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairSmallPatternBrownPurple0), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
@@ -286,15 +286,15 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The Norfair9ACavernStalactites library-background program.</summary>
-    public static LibraryBackgroundProgram Norfair9ACavernStalactites { get; } = new(LibraryBackgroundDefinitions.Norfair9ACavernStalactites, [
+    /// <summary>The Norfair9And10CavernStalactites library-background program.</summary>
+    public static LibraryBackgroundProgram Norfair9And10CavernStalactites { get; } = new(LibraryBackgroundDefinitions.Norfair9And10CavernStalactites, [
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairCavernStalactites), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The Norfair9ACavernVertical library-background program.</summary>
-    public static LibraryBackgroundProgram Norfair9ACavernVertical { get; } = new(LibraryBackgroundDefinitions.Norfair9ACavernVertical, [
+    /// <summary>The Norfair9And10CavernVertical library-background program.</summary>
+    public static LibraryBackgroundProgram Norfair9And10CavernVertical { get; } = new(LibraryBackgroundDefinitions.Norfair9And10CavernVertical, [
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.NorfairCavernVertical), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
@@ -465,8 +465,8 @@ public static partial class LibraryBackgroundProgramDefinitions
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
     ]);
 
-    /// <summary>The TourianDEStatueHall library-background program.</summary>
-    public static LibraryBackgroundProgram TourianDEStatueHall { get; } = new(LibraryBackgroundDefinitions.TourianDEStatueHall, [
+    /// <summary>The Tourian13And14StatueHall library-background program.</summary>
+    public static LibraryBackgroundProgram Tourian13And14StatueHall { get; } = new(LibraryBackgroundDefinitions.Tourian13And14StatueHall, [
         new(LibraryBackgroundCommand.Decompress, LibraryBackgroundSource.Compressed(RoomBackgroundTilemap.TourianStatueHall), LibraryBackgroundDestination.TilemapStaging, 0, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundFirstPage, 2048, null),
         new(LibraryBackgroundCommand.Transfer, LibraryBackgroundSource.TilemapStaging, LibraryBackgroundDestination.BackgroundSecondPage, 2048, null),
@@ -479,7 +479,7 @@ public static partial class LibraryBackgroundProgramDefinitions
         ScrollingSkyTilemapsWreckedShipEntrance,
         ScrollingSkyTilemapsEastOcean,
         ScrollingSkyTilemapsBowlingAlley,
-        Brinstar1AKraidUpperLower,
+        Brinstar26KraidUpperLower,
         KraidDead,
         CrocomireDefault,
         CrocomireWhenAreaMiniBossDead,
@@ -511,12 +511,12 @@ public static partial class LibraryBackgroundProgramDefinitions
         Brinstar7NarrowVerticalTowerBrickVines0,
         Brinstar8NarrowVerticalTowerBrickGrey0,
         Brinstar7BlueGridBlocks,
-        Norfair9ASmallPatternBrownPurpleBright,
-        Norfair9ASmallPatternBrownPurple0,
+        Norfair9And10SmallPatternBrownPurpleBright,
+        Norfair9And10SmallPatternBrownPurple0,
         Norfair9HorizontalPatternBrick,
         Norfair9VerticalPatternBrick,
-        Norfair9ACavernStalactites,
-        Norfair9ACavernVertical,
+        Norfair9And10CavernStalactites,
+        Norfair9And10CavernVertical,
         Norfair9CavernHorizontalRuins,
         Norfair9CavernVerticalRuins,
         Norfair9CavernRoomPillars,
@@ -542,6 +542,6 @@ public static partial class LibraryBackgroundProgramDefinitions
         TourianDPipeRoomVerticalSeparation,
         TourianDPipeRoom,
         TourianEPipeRoomDark,
-        TourianDEStatueHall,
+        Tourian13And14StatueHall,
     ];
 }

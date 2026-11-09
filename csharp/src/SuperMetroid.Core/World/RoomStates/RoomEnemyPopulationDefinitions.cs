@@ -306,7 +306,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>The enemy population of the Magdollite Tunnel room.</summary>
     public static RoomEnemyPopulationDefinition MagdolliteTunnel { get; } = Find(nameof(MagdolliteTunnel));
     /// <summary>The enemy population of an unused room state.</summary>
-    public static RoomEnemyPopulationDefinition UnusedRoom8FB3EEA1AD06 { get; } = Find(nameof(UnusedRoom8FB3EEA1AD06));
+    public static RoomEnemyPopulationDefinition UnusedNorfairRoom { get; } = Find(nameof(UnusedNorfairRoom));
     /// <summary>The enemy population of the Lava Dive room.</summary>
     public static RoomEnemyPopulationDefinition LavaDive { get; } = Find(nameof(LavaDive));
     /// <summary>The enemy population of the Pillar room.</summary>

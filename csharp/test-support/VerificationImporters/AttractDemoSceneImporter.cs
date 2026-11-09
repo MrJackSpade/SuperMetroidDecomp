@@ -42,7 +42,7 @@ internal static class AttractDemoSceneImporter
             Equipment(AttractDemoSceneEquipmentFields.SuperMissiles), Equipment(AttractDemoSceneEquipmentFields.PowerBombs),
             Equipment(AttractDemoSceneEquipmentFields.Health), SamusEquipmentWordCodec.FromBeamWord(Equipment(AttractDemoSceneEquipmentFields.CollectedBeams)),
             SamusEquipmentWordCodec.FromBeamWord(Equipment(AttractDemoSceneEquipmentFields.EquippedBeams)),
-            DemoInputObjectDefinitions.FromNativeHeader(Equipment(AttractDemoSceneEquipmentFields.InputObject)));
+            AttractDemoInputDefinitions.FromNativeHeader(Equipment(AttractDemoSceneEquipmentFields.InputObject)));
     }
 
     /// <summary>Bounds a fixed-stride scene record within its native cartridge data bank.</summary>

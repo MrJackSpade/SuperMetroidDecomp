@@ -18,7 +18,7 @@ public sealed record AttractDemoScene(
     RoomHeaderDefinition Room, DoorDefinition Door, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset,
     int Duration, AttractDemoRoomSetup RoomSetup, AttractDemoSamusSetup SamusSetup,
     SuperMetroid.Core.Progression.SamusEquipmentFlags Items, int Missiles, int SuperMissiles, int PowerBombs,
-    int Health, SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeams, SuperMetroid.Core.Input.DemoInputObjectDefinition InputObject)
+    int Health, SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeams, AttractDemoInputDefinition Input)
 {
     /// <summary>Wrapping placement: camera + half-screen horizontally + the signed offset on each axis.</summary>
     public Position16<RoomPixels> SamusPosition => CameraPosition + LoadStationEntry.SamusOffsetOrigin + SamusOffset;

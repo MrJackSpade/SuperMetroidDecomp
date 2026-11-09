@@ -227,7 +227,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.QuadraticSpeedSign = EnemySpeedSign.Positive;
         state.SegmentRadius = state.DistanceToSamus / 2;
         state.CurlAngle = state.AimAngle.ToTableAngle().ToAngle();
-        state.MirroredBend = state.CurlAngle.TableIndex >= RotationAngle.HalfTurn.TableIndex;
+        state.MirroredBend = state.CurlAngle >= RotationAngle.HalfTurn;
 
         state.Baseline = new Offset16<RoomPixels>(
             CalculateYappingMawX(ByteAngle.HalfTurn, state.SegmentRadius),
@@ -263,8 +263,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int multiple = bendStep * (segment + 1);
             ByteAngle linkAngle = state.MirroredBend
-                ? ByteAngle.HalfTurn.AddTableUnits(multiple)
-                : ByteAngle.HalfTurn.AddTableUnits(-multiple);
+                ? ByteAngle.HalfTurn.TurnedBySteps(multiple)
+                : ByteAngle.HalfTurn.TurnedBySteps(-multiple);
 
             int rawX = CoordinateAxis.Wrap(CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X);
             int rawY = CoordinateAxis.Wrap(CalculateYappingMawY(linkAngle, state.SegmentRadius / 2) - state.Baseline.Y);
@@ -570,7 +570,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>X is the Y helper with a minus-64 angle adjustment.</summary>
     internal static int CalculateYappingMawX(ByteAngle angle, int length) =>
-        CalculateYappingMawY(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue), length);
+        CalculateYappingMawY(angle.TurnedBySteps(-ByteAngle.QuarterTurn.RawValue), length);
 
     /// <summary>
     /// Computes the link offsets exactly, including the high-byte sine approximation and the unusual

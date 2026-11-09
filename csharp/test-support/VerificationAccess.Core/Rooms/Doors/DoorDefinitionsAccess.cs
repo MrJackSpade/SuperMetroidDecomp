@@ -167,7 +167,7 @@ internal static class DoorDefinitionsAccess
         [0xb374] = RoomHeaderDefinitions.Ridley,
         [0xb3a1] = RoomHeaderDefinitions.LNFarming,
         [0xb3cc] = RoomHeaderDefinitions.FastPillarsSetup,
-        [0xb408] = RoomHeaderDefinitions.UnusedRoom8FB3E1,
+        [0xb408] = RoomHeaderDefinitions.UnusedNorfairRoom,
         [0xb431] = RoomHeaderDefinitions.MickeyMouse,
         [0xb47e] = RoomHeaderDefinitions.Pillar,
         [0xb4a9] = RoomHeaderDefinitions.Plowerhouse,

@@ -41,9 +41,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Head, five middle segments, and tail occupy consecutive enemy slots.</summary>
     private const int ShaktoolSegmentCount = 7;
 
-    /// <summary>The whole table step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
+    /// <summary>The whole step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
     private static RotationAngle OppositeOrbitStep(RotationAngle angle) =>
-        RotationAngle.FromTableIndex(angle.AddRaw(RotationAngle.HalfTurn.RawValue).TableIndex);
+        (angle + RotationAngle.HalfTurn).WholeStep;
 
     /// <summary>Initializes the Shaktool, establishing the segment's orbit and owner-slot offset.</summary>
     internal void InitializeShaktool(RoomEnemySlot slot)
@@ -181,9 +181,9 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.OrientationReversed)
             midpoint = midpoint.AddRaw(RotationAngle.HalfTurn.RawValue);
 
-        RotationAngle heading = midpoint.AddTableUnits(ShaktoolOrbitDefinitions.OrientationBucketLead);
+        RotationAngle heading = midpoint.TurnedBySteps(ShaktoolOrbitDefinitions.OrientationBucketLead);
         int directionBucket = heading.Sector(ShaktoolOrbitDefinitions.OrientationBuckets) *
-            (RotationAngle.TableUnitsPerTurn / ShaktoolOrbitDefinitions.OrientationBuckets);
+            (RotationAngle.StepsPerTurn / ShaktoolOrbitDefinitions.OrientationBuckets);
         state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
             ShaktoolPrograms.ForOrientationBucket(directionBucket));
@@ -231,7 +231,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.TargetAngle.TableIndex == state.OrbitAngle.TableIndex)
+        if (state.TargetAngle.WholeStep == state.OrbitAngle.WholeStep)
         {
             SynchronizeShaktoolOrbitTargets(slot, state.TargetAngle);
             // The game keeps only the high byte of the restarted progress, which is already whole.
@@ -336,13 +336,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         rightState.OrbitAngle = OppositeOrbitStep(saved);
     }
 
-    /// <summary>Runs the per-segment convergence speed calculation: four raw angle units per whole table step left to the target in the orbit direction.</summary>
+    /// <summary>Runs the per-segment convergence speed calculation: four raw angle units per whole step left to the target in the orbit direction.</summary>
     private static void CalculateShaktoolAngularVelocity(ShaktoolSegmentState state)
     {
-        int difference = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
-            ? CoordinateAxis.Wrap(state.OrbitAngle.RawValue - state.TargetAngle.RawValue)
-            : CoordinateAxis.Wrap(state.TargetAngle.RawValue - state.OrbitAngle.RawValue);
-        state.AngularVelocity = 4 * RotationAngle.FromRaw(difference).TableIndex;
+        RotationAngle turnLeft = (state.MotionFlags & ShaktoolMotionFlags.Clockwise) != ShaktoolMotionFlags.None
+            ? state.OrbitAngle - state.TargetAngle
+            : state.TargetAngle - state.OrbitAngle;
+        state.AngularVelocity = 4 * turnLeft.ToByteAngle().RawValue;
     }
 
     /// <summary>Runs group synchronization.</summary>
@@ -420,7 +420,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
-                        ? centerDirection.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn)
+                        ? centerDirection.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn)
                         : centerDirection);
                 break;
             }
@@ -432,7 +432,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.Lower
-                        ? targetDirection.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn)
+                        ? targetDirection.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn)
                         : targetDirection);
                 break;
             }

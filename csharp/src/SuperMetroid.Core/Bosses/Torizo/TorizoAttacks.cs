@@ -239,7 +239,7 @@ internal sealed class TorizoAttacks
         projectile.Position = projectile.Position.WithWrappedWholeY(torizo.Position.Y.Whole - 5);
 
         // The recurring low-health drool chooses a random direction. The
-        // turning branch's word index is random & $1FE; the X velocity is the sign-extended
+        // turning branch's angle is a random turning angle; the X velocity is the sign-extended
         // sine and the Y velocity the negative cosine of that angle.
         int angle;
         if (_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround))
@@ -787,8 +787,8 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>
-    /// Allocates the room-graphics enemy projectile a PLM's script requests, then runs the statue fragment's
-    /// initializer against the publishing PLM's block coordinates.
+    /// Allocates the room-graphics enemy projectile a room object's script requests, then runs the statue fragment's
+    /// initializer against the publishing room object's block coordinates.
     /// </summary>
     public RoomEnemyProjectileSlot? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
@@ -799,7 +799,7 @@ internal sealed class TorizoAttacks
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return null; // SpawnEprojInner silently drops work when all eighteen slots fill.
+            return null; // The projectile spawner silently drops work when all eighteen slots fill.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,

@@ -36,7 +36,7 @@ internal sealed class MotherBrainRainbowAndDeath
     private readonly IMotherBrainRoomActors _roomActors;
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;

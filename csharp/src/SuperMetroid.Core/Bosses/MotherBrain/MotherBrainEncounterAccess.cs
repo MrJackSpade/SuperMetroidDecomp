@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
+/// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainEncounterAccess
 {
@@ -25,7 +25,7 @@ internal sealed class MotherBrainEncounterAccess
     internal void RequestMotherBrainObject(Position16<RoomBlocks> block, MotherBrainRoomMutation mutation) =>
         _frameResults.MotherBrainObjects.Add(new RoomObjectSpawnRequest<MotherBrainRoomMutation>(block, mutation));
 
-    /// <summary>Ports <c>SetMotherBrainHeadInstList</c>: restarts the brain on <paramref name="program"/>.</summary>
+    /// <summary>Restarts the brain on <paramref name="program"/>.</summary>
     internal static void SetMotherBrainBrainProgram(MotherBrainEnemyState state, MotherBrainHeadProgram program)
     {
         state.BrainCursor = AnimationProgramCursor<MotherBrainHeadProgram>.Start(program);

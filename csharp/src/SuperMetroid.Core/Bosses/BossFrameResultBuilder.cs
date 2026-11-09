@@ -27,10 +27,10 @@ internal sealed class BossFrameResultBuilder
     /// <summary>Mother Brain's tube landed, removing the room's liquid effects.</summary>
     internal bool RemoveLiquidEffects { get; set; }
 
-    /// <summary>Botwoon's wall PLM.</summary>
+    /// <summary>Botwoon's wall room object.</summary>
     internal BotwoonWallMutation? BotwoonWall { get; set; }
 
-    /// <summary>Spore Spawn's ceiling PLM.</summary>
+    /// <summary>Spore Spawn's ceiling room object.</summary>
     internal SporeSpawnCeilingMutation? SporeSpawnCeiling { get; set; }
 
     /// <summary>The belly glow a Torizo's fight start asks the palette-FX handler for, or null.</summary>

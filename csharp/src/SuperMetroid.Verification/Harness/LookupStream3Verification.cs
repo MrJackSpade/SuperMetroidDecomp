@@ -1969,7 +1969,7 @@ internal static class LookupStream3Verification
             "stream 3 stock flash reuses final room paint basis");
         AssertEqual(0, MetadataShape.Fields(flash.GetType(), flags).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(RgbColor)),
             "stream 3 room flash keeps no per-instance selected paint");
-        for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
+        for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount; frame++)
         {
             ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
             int operand = MotherBrainSourceDefinitions.RoomColors.FlashBank + entry + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset;

@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's body function, the behaviour its body runs each frame. Each member names the behaviour it ports; the
-/// slot stores the member, not the routine's address. Members start at one so a cleared slot is never
-/// mistaken for a function.
+/// Draygon's body function, the behaviour its body runs each frame. Each member names that behaviour, and the slot
+/// stores the member. Members start at one so a cleared slot is never mistaken for a function.
 /// </summary>
 public enum DraygonAiFunction
 {
@@ -49,7 +48,7 @@ public enum DraygonAiFunction
     TryGrabSamus,
     /// <summary>Despite the managed name, drops an active grapple and enters release without grabbing Samus.</summary>
     GrabbedSamus,
-    /// <summary>Carries Samus toward room pixel ($100,$180), then starts the rising spiral.</summary>
+    /// <summary>Carries Samus toward room pixel (256,384), then starts the rising spiral.</summary>
     CarrySamus,
     /// <summary>Expands and raises the carry orbit, with RNG-selected incidental tail whips.</summary>
     FlailWithSamus,
@@ -63,10 +62,10 @@ public enum DraygonAiFunction
     ReleaseSamus,
     /// <summary>Retreats upward four pixels per frame, then resets for a rightward swoop.</summary>
     FlyStraightUp,
-    /// <summary>Drifts toward room pixel ($100,$1E0), then spawns burial Evirs and retires the arms and tail.</summary>
+    /// <summary>Drifts toward room pixel (256,480), then spawns burial Evirs and retires the arms and tail.</summary>
     Dying,
-    /// <summary>Despite the managed name, waits $1A0 frames while Evirs approach before the body sinks.</summary>
+    /// <summary>Despite the managed name, waits 416 frames while Evirs approach before the body sinks.</summary>
     DyingSink,
-    /// <summary>Sinks one pixel per frame to Y=$240, scatters drops, deletes the remaining parts, and persists defeat.</summary>
+    /// <summary>Sinks one pixel per frame to Y=576, scatters drops, deletes the remaining parts, and persists defeat.</summary>
     DyingFinish,
 }

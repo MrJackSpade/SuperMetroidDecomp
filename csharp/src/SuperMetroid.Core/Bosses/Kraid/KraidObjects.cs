@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Chooses the PLMs Kraid's sinking callbacks spawn.</summary>
+/// <summary>Chooses the room objects Kraid's sinking callbacks spawn.</summary>
 public static class KraidObjects
 {
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>

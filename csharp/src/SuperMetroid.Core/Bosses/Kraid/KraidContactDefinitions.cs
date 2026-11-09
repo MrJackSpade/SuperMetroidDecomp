@@ -29,8 +29,8 @@ internal static class KraidContactDefinitions
     internal const int MinimumBodyEjectionX = 40;
     /// <summary>Whole-pixel body ejection on both axes.</summary>
     internal const int BodyEjection = 8;
-    /// <summary>PushSamusBack horizontal extra displacement.</summary>
+    /// <summary>The extra horizontal displacement when Kraid pushes Samus back.</summary>
     internal const int ExtraX = 4;
-    /// <summary>PushSamusBack vertical extra displacement.</summary>
+    /// <summary>The extra vertical displacement when Kraid pushes Samus back.</summary>
     internal const int ExtraY = -8;
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
 /// Physical draw layouts selected by the reachable right- and left-facing
-/// Draygon cannon PLM programs. Unused diagonal orientations are not claimed.
+/// Draygon cannon room-object programs. Unused diagonal orientations are not claimed.
 /// These collision kinds and signed row offsets are gameplay definitions; what each frame shows is its installed
 /// picture (#1557).
 /// </summary>

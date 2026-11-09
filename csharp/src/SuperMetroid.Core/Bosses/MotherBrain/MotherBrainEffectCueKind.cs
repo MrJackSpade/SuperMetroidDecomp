@@ -11,6 +11,6 @@ internal enum MotherBrainEffectCueKind
     DropDrool,
     /// <summary>Marks Mother Brain's small purple breath inactive.</summary>
     EndSmallPurpleBreath,
-    /// <summary>Draws the projectile with palette zero.</summary>
+    /// <summary>Draws the projectile with its alternate colours.</summary>
     UsePaletteZero,
 }

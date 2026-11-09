@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The state of a Rinka.</summary>
 public sealed class RinkaEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<RinkaProgram> Program { get; set; }
 
     /// <summary>

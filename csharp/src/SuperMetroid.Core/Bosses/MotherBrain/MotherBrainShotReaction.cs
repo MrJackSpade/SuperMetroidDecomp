@@ -31,7 +31,7 @@ internal static class MotherBrainShotReaction
         };
         if (form == MotherBrainForm.ThirdPhase && reactionType == 2)
         {
-            // BPL keeps the nonnegative remainder without recoil, which is why
+            // The sign test keeps the nonnegative remainder without recoil, which is why
             // sustained Hyper Beam fire first consumes accumulated walk credit. On underflow
             // the counter is replaced by zero, not the wrapped subtraction.
             return walkCredit.CoversShot(MotherBrainWalkCredit.HyperBeamShotCost)

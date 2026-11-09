@@ -116,7 +116,7 @@ public sealed class PhantoonEnemyState
     public bool WreckedShipPowerPaletteComplete { get; internal set; }
 
     /// <summary>
-    /// The room PLM at block (0,6) closes/opens the boss door. The PLM system is an outer
+    /// The room object at block (0,6) closes/opens the boss door. The room objects are an outer
     /// owner, so the enemy publishes the exact authored request rather than editing terrain.
     /// </summary>
     public RoomObjectHeaderId? BossDoorObjectRequest { get; internal set; }

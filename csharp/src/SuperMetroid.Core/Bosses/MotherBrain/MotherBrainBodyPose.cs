@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Values written by Mother Brain's body instruction opcodes.</summary>
+/// <summary>Values written by Mother Brain's body program cues.</summary>
 public enum MotherBrainBodyPose
 {
     /// <summary>Pose 0; standing allows posture changes and ordinary attack/walking decisions.</summary>

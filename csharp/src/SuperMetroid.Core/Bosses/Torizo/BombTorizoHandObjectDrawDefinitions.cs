@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// The geometry and collision of the block draws Bomb Torizo's resident hand PLM selects. What each frame shows is its
+/// The geometry and collision of the block draws Bomb Torizo's resident hand room object selects. What each frame shows is its
 /// installed picture (#1557).
 /// </summary>
 internal static class BombTorizoHandObjectDrawDefinitions
@@ -13,7 +13,7 @@ internal static class BombTorizoHandObjectDrawDefinitions
     private const RoomCollisionType ClearedCell = RoomCollisionType.Air;
 
     /// <summary>
-    /// Each draw's horizontal strips in authored run order, each placed where it starts from the hand PLM block. Intact is
+    /// Each draw's horizontal strips in authored run order, each placed where it starts from the hand's block. Intact is
     /// four strips of solid blocks: the origin pair, the left singleton, the upper pair and the lower triple. Cleared
     /// splits the origin row into two halves, then clears the lower, top and upper rows of a four-by-four area.
     /// </summary>

@@ -10,11 +10,11 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
-/// The hardcoded PLMs and room writes enemy AI requested during one pass, in their producers' publication order. The
-/// runtime applies them right after EnemyMain, and the room loader after enemy initialization.
+/// The fixed room objects and room writes enemy AI requested during one pass, in their producers' publication order.
+/// The runtime applies them right after the enemies' update, and the room loader after enemy initialization.
 /// </summary>
-/// <param name="BotwoonWall">Botwoon's wall PLM: the defeated-room clear or the live crumble.</param>
-/// <param name="SporeSpawnCeiling">Spore Spawn's ceiling PLM: the defeated-room clear or the death crumble.</param>
+/// <param name="BotwoonWall">Botwoon's wall room object: the defeated-room clear or the live crumble.</param>
+/// <param name="SporeSpawnCeiling">Spore Spawn's ceiling room object: the defeated-room clear or the death crumble.</param>
 /// <param name="CrocomireObjects">Crocomire's arena mutations.</param>
 /// <param name="KraidObjects">Kraid's ceiling and platform mutations.</param>
 /// <param name="MotherBrainDeathStep">Mother Brain's death-sequence step and its palette, timer, boss-bit and event requests.</param>

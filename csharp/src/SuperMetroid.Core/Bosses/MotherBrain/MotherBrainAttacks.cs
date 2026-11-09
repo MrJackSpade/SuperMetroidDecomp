@@ -184,7 +184,7 @@ internal sealed class MotherBrainAttacks
 
         if (IsMotherBrainAirAttackMovement(movementType))
         {
-            // The helper removes its caller's return address: every airborne route
+            // The helper skips the rest of its caller: every airborne route
             // commits immediately and skips the proximity/fallback thresholds entirely.
             if (randomLow >= 128)
             {
@@ -192,7 +192,7 @@ internal sealed class MotherBrainAttacks
                 return;
             }
 
-            // The laser branch discards the strategy helper's return address, then installs and
+            // The laser branch abandons the strategy helper's caller, then installs and
             // jumps to the quick laser aim. Calling the first body state here reproduces that same-frame
             // tail call rather than introducing an otherwise visible idle frame.
             state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadQuickly;
@@ -411,7 +411,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>
     /// Positions the head quickly for the laser. Both neck joints initially turn by two angle units
     /// per frame toward one of two authored target indices chosen from the head/Samus Y
-    /// ordering; the head instruction list itself is deliberately left untouched here.
+    /// ordering; the head program itself is deliberately left untouched here.
     /// </summary>
     internal static void PositionMotherBrainHeadQuicklyForLaser(
         MotherBrainEnemyState state,
@@ -419,7 +419,7 @@ internal sealed class MotherBrainAttacks
     {
         RoomEnemySlot head = state.Head;
 
-        // The comparison takes the sign of the wrapped 16-bit difference. Arena coordinates
+        // The comparison takes the sign of the wrapped difference. Arena coordinates
         // never leave the signed range, and a wrapped coordinate keeps the same answer.
         int headMinusSamus = CoordinateAxis.Difference(head.Position.Y.Whole, samus.Position.Y.Whole);
         MotherBrainNeckMovement targetMovement = headMinusSamus >= 0

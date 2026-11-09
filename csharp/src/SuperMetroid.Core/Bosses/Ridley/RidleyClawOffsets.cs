@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Signed claw displacements used by Ridley's grab collision and carried-Samus placement.</summary>
 public static class RidleyClawOffsets
 {
-    /// <summary>HoldingSamusXDispacement: left/turning/right displacements decrease twelve pixels per facing.</summary>
+    /// <summary>The held Samus's horizontal offset: left/turning/right displacements decrease twelve pixels per facing.</summary>
     public static int ReadX(RidleyFacing facing) => facing switch
     {
         RidleyFacing.Left => 12,
@@ -13,7 +13,7 @@ public static class RidleyClawOffsets
     };
 
     /// <summary>
-    /// HoldingSamusYDispacement: the claw's height below Ridley's origin for each claw-height pose (zero
+    /// The held Samus's vertical offset: the claw's height below Ridley's origin for each claw-height pose (zero
     /// standing, one legs half extended, two legs extended), advancing 10.5 pixels per pose rounded upward.
     /// </summary>
     /// <remarks>

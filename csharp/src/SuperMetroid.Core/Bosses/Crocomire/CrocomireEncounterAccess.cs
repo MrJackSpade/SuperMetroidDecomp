@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and its sound and music requests.</summary>
+/// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and its sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class CrocomireEncounterAccess
 {
@@ -66,7 +66,7 @@ internal sealed class CrocomireEncounterAccess
         CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire death extension is not initialized for the current room.");
 
-    /// <summary>Queues a PLM block change for later room processing.</summary>
+    /// <summary>Queues a room-object block change for later room processing.</summary>
     internal void PublishCrocomireObject(Position16<RoomBlocks> block, CrocomireArenaMutation mutation) =>
         _frameResults.CrocomireObjects.Add(new RoomObjectSpawnRequest<CrocomireArenaMutation>(block, mutation));
 

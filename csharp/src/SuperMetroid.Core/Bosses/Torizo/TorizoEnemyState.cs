@@ -30,7 +30,7 @@ public sealed class TorizoEnemyState
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
     internal TorizoColours Colours { get; } = new();
 
-    /// <summary>The body program's cursor, in place of the instruction pointer.</summary>
+    /// <summary>The body program's cursor.</summary>
     internal AnimationProgramCursor<TorizoBodyProgram> BodyProgram { get; set; }
 
     /// <summary><c>toriz_var_00</c>: the body program's return/landing point.</summary>
@@ -83,7 +83,7 @@ public sealed class TorizoEnemyState
     /// <summary>The behaviour the Torizo runs before each animation step while active.</summary>
     public TorizoFrameBehavior FrameBehavior { get; internal set; }
 
-    /// <summary>Host lifecycle latch set when the awakening check observes the hand-trigger PLM gone and resumes Bomb Torizo's awakening animation script.</summary>
+    /// <summary>Host lifecycle latch set when the awakening check observes the hand trigger gone and resumes Bomb Torizo's awakening animation script.</summary>
     public bool AwakeningReleased { get; internal set; }
     /// <summary>Host latch preventing repeat entry into the death script after lethal damage; remains set for this state instance.</summary>
     public bool DeathStarted { get; internal set; }

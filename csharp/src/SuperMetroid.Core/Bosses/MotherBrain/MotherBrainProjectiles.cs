@@ -51,7 +51,7 @@ internal sealed class MotherBrainProjectiles
                 projectile.Graphics = default;
                 break;
             case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.DropDrool }:
-                // After changing to the falling pre-instruction, the released drool drops twelve pixels before its first
+                // After changing to the falling frame behaviour, the released drool drops twelve pixels before its first
                 // falling frame.
                 projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 12);
                 break;
@@ -277,7 +277,7 @@ internal sealed class MotherBrainProjectiles
         bomb.Velocity = bomb.Velocity.WithY(bomb.Velocity.Y + SignedEightEight.FromSignedRaw(acceleration));
         bomb.Position = bomb.Position.Advance(bomb.Velocity.ToSixteenSixteen());
 
-        // Both boundaries are signed CMP/BMI tests. X reflects without clamping; the floor
+        // Both boundaries are signed tests of the difference. X reflects without clamping; the floor
         // clamps Y to 208 and resets the two authored bounce velocities.
         if (CoordinateAxis.Difference(bomb.Position.X.Whole, 240) >= 0)
             bomb.Velocity = bomb.Velocity.WithX(bomb.Velocity.X.Negated());
@@ -385,8 +385,8 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Consumes one request emitted by the glass PLM's shard step. The request retains the
-    /// executing PLM's block origin because the shard initializer calls
+    /// Consumes one request emitted by the glass room object's shard step. The request retains the
+    /// glass's block origin because the shard initializer calls
     /// for the room object's block coordinates after the shared projectile allocator runs.
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
@@ -406,7 +406,7 @@ internal sealed class MotherBrainProjectiles
 
         RoomEnemyProjectileSlot? shard = _projectiles.AllocateEnemyProjectile();
         if (shard is null)
-            return; // SpawnEprojInner silently loses actors when all eighteen slots are full.
+            return; // The projectile spawner silently loses actors when all eighteen slots are full.
 
         MotherBrainProjectileStarts.Initialize(
             shard,
@@ -683,7 +683,7 @@ internal sealed class MotherBrainProjectiles
     {
         // The ring's impact clears the source before allocating parameter-three room dust. If the
         // allocator reuses this physical slot, the outer projectile scheduler will advance
-        // the newborn dust list during the same pass, matching EprojRunOne's original X.
+        // the newborn dust animation during the same pass, matching the original's projectile order.
         ring.Clear();
         _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
         _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);

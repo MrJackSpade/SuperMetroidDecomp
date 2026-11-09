@@ -3,9 +3,9 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// The body programs Crocomire's fight and death test as groups (#1452). The original game compares the body's
-/// instruction-list pointer against one list's address, so each test admits the programs it lays out on one side of
-/// that list; each group names those programs instead of ordering the program identities.
+/// The body programs Crocomire's fight and death test as groups (#1452). The original game tests the body's program
+/// by its place in the program layout, so each test admits the programs laid out on one side of one animation; each
+/// group names those programs instead of ordering the program identities.
 /// </summary>
 internal static class CrocomireBodyProgramGroups
 {

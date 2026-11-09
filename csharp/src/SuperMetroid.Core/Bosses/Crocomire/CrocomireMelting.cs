@@ -14,7 +14,7 @@ internal sealed class CrocomireMelting
 {
     /// <summary>Crocomire's body layer: where it is placed, what his body shows on it, the tongue placed with it and the acid smoke drawn with it.</summary>
     private readonly CrocomireBodyLayer _bodyLayer;
-    /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;

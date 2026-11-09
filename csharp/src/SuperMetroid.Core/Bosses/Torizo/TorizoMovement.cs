@@ -103,7 +103,7 @@ internal sealed class TorizoMovement
             TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.BombStatue));
     }
 
-    /// <summary>Interrupts active AI at the head and core health thresholds before normal pre-instructions resume.</summary>
+    /// <summary>Interrupts active AI at the head and core health thresholds before normal frame behaviours resume.</summary>
     internal void RunBombTorizoActiveState(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -134,7 +134,7 @@ internal sealed class TorizoMovement
         RunBombTorizoFrameBehavior(torizo, state, level);
     }
 
-    /// <summary>Dispatches the movement callback installed by the current Bomb or Golden instruction list.</summary>
+    /// <summary>Dispatches the movement callback installed by the current Bomb or Golden program.</summary>
     internal void RunBombTorizoFrameBehavior(
         RoomEnemySlot torizo,
         TorizoEnemyState state,
@@ -173,7 +173,7 @@ internal sealed class TorizoMovement
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Bomb Torizo pre-instruction {state.FrameBehavior} is not translated.");
+                    $"Bomb Torizo frame behaviour {state.FrameBehavior} is not translated.");
         }
     }
 

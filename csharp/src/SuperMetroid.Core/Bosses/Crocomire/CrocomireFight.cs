@@ -34,7 +34,7 @@ internal sealed class CrocomireFight
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Updates boss completion and room-state flags.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
 

@@ -263,7 +263,7 @@ internal static class MotherBrainSheetShades
     {
         Ensure.NotNull(room);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
+        for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount; frame++)
         {
             int shown = frame;
             shades.Add(Flash(MotherBrainShades.Flash(shown), colour => room.flash.Color(shown, colour)));

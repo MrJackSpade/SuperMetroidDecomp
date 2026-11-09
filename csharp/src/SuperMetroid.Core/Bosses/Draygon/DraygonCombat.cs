@@ -88,8 +88,8 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>
-    /// Runs Draygon's hurt AI. The body is rendered partly through background palette five
-    /// and partly through sprite palette seven, so a valid flash must update both surfaces.
+    /// Runs Draygon's hurt AI. The body is drawn partly as a background layer and partly
+    /// as sprites, so a valid flash must update the colours of both surfaces.
     /// </summary>
     internal void ApplyDraygonHurt(
         RoomEnemySlot body,
@@ -232,7 +232,7 @@ internal sealed class DraygonCombat
             return null;
 
         // Both sprite and body-layer art are replaceable presentation. Their
-        // component offsets and hitbox pointers remain fixed gameplay data.
+        // component offsets and hitboxes remain fixed gameplay data.
         foreach (EnemyCollisionComponent component in
                  DraygonCollision.ComponentsAt(enemy.Frame))
         {

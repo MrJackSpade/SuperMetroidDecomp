@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="angle">The flame's starting angle around the body.</param>
 internal sealed class PhantoonOrbitingFlameState(ByteAngle angle) : EnemyProjectileState
 {
-    /// <summary>How many radius values the eight-bit radius holds before it wraps.</summary>
+    /// <summary>How many radius values the radius holds before it wraps.</summary>
     private const int RadiusRange = 256;
 
     /// <summary>The flame's angle around Phantoon's body.</summary>

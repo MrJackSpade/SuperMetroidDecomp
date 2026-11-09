@@ -142,7 +142,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsSpecialRinka(slot))
             ReserveSpecialRinkaSpawn(slot, state);
 
-        // EnemySpawnData is a separate array and survives clearing the common 64-byte
+        // The spawn record is separate and survives clearing the common
         // actor. Special spawn selection deliberately mutates that snapshot; ordinary
         // Rinkas continue to return to their original population coordinate.
         slot.Position = slot.Position.WithWhole(new(slot.Spawn.Population.Position.X, slot.Spawn.Population.Position.Y));
@@ -533,7 +533,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
         => _projectiles.SpawnRoomGraphicsDustExplosion(position, RinkaDustAnimationIndex);
 
-    /// <summary>Ports <c>RinkasDeathAnimation(0)</c>.</summary>
+    /// <summary>Runs a Rinka's death animation.</summary>
     internal void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
         _deathsAndDrops.RecordKill(slot);

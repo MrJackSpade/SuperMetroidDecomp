@@ -25,7 +25,7 @@ internal static class DraygonIntroDanceDefinitions
     /// <remarks>Independently reviewed for #1165: integrating the original deltas visibly traces hidden
     /// lettering. Retain this drawing content under the nonsense exception: fitted splines, per-stroke
     /// corrections or a numeric switch would encode the same particular letter shapes and pen timing. This is not a
-    /// sampled physical trajectory. See draygonIntroTraceReview in the #1165 inventory.</remarks>
+    /// sampled physical trajectory. See the Draygon intro trace review in the #1165 inventory.</remarks>
     internal static readonly DraygonIntroMovement[] TracedPath =
     [
         Move(new(3, 0)), Move(new(3, 0)), Move(new(3, 0)), Move(new(3, 0)), Move(new(3, -1)), Move(new(2, -1)), Move(new(2, -2)), Move(new(2, -2)), Move(new(2, -3)),

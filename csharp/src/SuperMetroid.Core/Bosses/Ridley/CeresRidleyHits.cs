@@ -105,8 +105,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Ports <c>RidleyHurtFlashHandling</c> and the common extended-enemy
-    /// palette override. Ridley's composite is split between those two writers:
+    /// Runs Ridley's hurt flash and the common extended-enemy
+    /// colour override. Ridley's composite is split between those two writers:
     /// the ordinary body uses the current execution counter, while the manual tail/wings
     /// deliberately test the counter after an increment.
     /// </summary>

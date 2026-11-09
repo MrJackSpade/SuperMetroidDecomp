@@ -14,8 +14,8 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// The phase-three walking function.
-    /// This is deliberately separate from the visible body instruction list: the function
-    /// decides what Mother Brain wants to do only while the bytecode-owned pose is standing.
+    /// This is deliberately separate from the visible body program: the function
+    /// decides what Mother Brain wants to do only while the program-owned pose is standing.
     /// </summary>
     public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
         MotherBrainPhase3WalkingPhase.Inactive;
@@ -59,7 +59,7 @@ internal sealed class MotherBrainThirdPhaseFight
     {
         // The phase-three scheduler refuses to call the walking function while body bytecode advertises any
         // nonzero pose. This makes each request edge-triggered: the requested walk runs to
-        // its standing opcode before the scheduler is allowed to inspect its target again.
+        // its standing cue before the scheduler is allowed to inspect its target again.
         if (_state.Body.Pose != MotherBrainBodyPose.Standing)
             return false;
 
@@ -78,7 +78,7 @@ internal sealed class MotherBrainThirdPhaseFight
                     goto case MotherBrainPhase3WalkingPhase.RetreatQuickly;
                 }
 
-                // ADC/CMP is unsigned here. A wrapped counter can therefore spend
+                // The addition and comparison are unsigned here. A wrapped counter can therefore spend
                 // more calls below 256; no host integer widening or saturation belongs.
                 Phase3WalkCounter = Phase3WalkCounter.AddCredit(32);
                 if (Phase3WalkCounter.BelowStep)
@@ -87,7 +87,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3TargetXPosition = _state.Body.Position.X + 1;
                 int forwardDelay = (randomNumberSeed.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay) ? 2 : 0) + 4;
 
-                // MakeMotherBrainWalkForwards reports carry only for a strictly overshot
+                // The forward walk reports arrival only for a strictly overshot
                 // target or the independent X 128 limit. Equality still requests a walk.
                 bool reachedForwardTarget =
                     CoordinateAxis.Difference(Phase3TargetXPosition, _state.Body.Position.X) < 0 ||
@@ -245,7 +245,7 @@ internal sealed class MotherBrainThirdPhaseFight
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
             Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
 
-            // The setup has no return after installing the three function pointers;
+            // The setup has no return after installing the three functions;
             // execution falls directly into the main fighting function on this same enemy AI call.
             return true;
         }
@@ -277,7 +277,7 @@ internal sealed class MotherBrainThirdPhaseFight
             !frame.RandomNumberSeed.IsNegative)
             return false;
 
-        if (frame.RandomNumberSeed.LowByte < 128)
+        if (frame.RandomNumberSeed.LowPart < 128)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.BombPhase3);
         }

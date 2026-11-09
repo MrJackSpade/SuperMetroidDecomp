@@ -4,7 +4,7 @@ using SegmentStep = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>The typed animations that replace Botwoon's instruction lists (#641).</summary>
+/// <summary>Botwoon's typed animations (#641).</summary>
 internal static class BotwoonAnimations
 {
     /// <summary>Number of frames in a body link's cycle.</summary>

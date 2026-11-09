@@ -17,7 +17,7 @@ internal static class MotherBrainRandomSampleVerification
             ushort word = unchecked((ushort)raw);
             MotherBrainRandomSample sample = MotherBrainRandomSample.FromGenerator(word);
             AssertEqual(unchecked((short)word) < 0, sample.IsNegative, $"sign of {raw}");
-            AssertEqual(unchecked((byte)word), sample.LowByte, $"low byte of {raw}");
+            AssertEqual(unchecked((byte)word), sample.LowPart, $"low byte of {raw}");
             AssertEqual(word & 4095, sample.Read(MotherBrainRandomDefinitions.FinishOffAttackRoll), $"finish-off attack roll of {raw}");
             AssertEqual(word % 32, sample.Read(MotherBrainRandomDefinitions.CorpseDustOffset), $"corpse dust offset of {raw}");
             AssertEqual((word & 2) != 0, sample.IsSet(MotherBrainRandomDefinitions.ForwardInchLongerDelay), $"inching delay bit of {raw}");

@@ -39,7 +39,7 @@ internal sealed class DraygonTurrets
             SpawnDraygonWallTurret(state, samus, random);
     }
 
-    /// <summary>Runs <c>HandleFiringWallTurret</c> and the wall turret projectile's initializer.</summary>
+    /// <summary>Fires a wall turret and runs the wall turret projectile's initializer.</summary>
     internal void SpawnDraygonWallTurret(
         DraygonEnemyState state,
         SamusState samus,
@@ -61,8 +61,8 @@ internal sealed class DraygonTurrets
         turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(target.Origin);
 
-        // PlaceAndAim negates the common zero-up angle, then adds a quarter turn (64) before retaining the
-        // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
+        // The aim negates the common zero-up angle, then adds a quarter turn (64), keeping the angle within
+        // one turn. The speed conversion stores unsigned magnitudes; the shot's frame behaviour applies
         // signs from this retained angle on every frame.
         ByteAngle flightAngle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, turret.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, turret.Position.Y.Whole))).ToTableAngle();

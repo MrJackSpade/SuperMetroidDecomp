@@ -260,7 +260,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonDeathWaitFramesUs = 416;
     /// <summary>Whole-pixel speed of Draygon's direct chase before the carry spiral.</summary>
     internal const int DraygonChaseSpeed = 2;
-    /// <summary>The carry spiral's target and initial center, ($100, $180).</summary>
+    /// <summary>The carry spiral's target and initial center, (256, 384).</summary>
     internal static readonly Position16<RoomPixels> DraygonSpiralTarget = new(256, 384);
     /// <summary>Initial angular position used when the Samus-carry spiral begins: three quarters of a turn.</summary>
     internal static readonly RotationAngle DraygonInitialSpiralAngle = RotationAngle.ThreeQuarterTurn;
@@ -280,13 +280,13 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonTailWhipStartFrame = 63;
 
     /// <summary>
-    /// Disables a wall cannon for the PLM that names it. Cannon setup names one of
-    /// Draygon's wall cannons, then the damage instruction disables it here.
+    /// Disables a wall cannon for the room object that names it. Cannon setup names one of
+    /// Draygon's wall cannons, then the cannon's damage step disables it here.
     /// </summary>
     public void DisableDraygonCannon(DraygonWallCannon cannon)
     {
-        // The defeated room still has cannon PLMs even though its enemy population no
-        // longer includes Draygon; only a live Draygon reads the disabled words.
+        // The defeated room still has cannon room objects even though its enemy population no
+        // longer includes Draygon; only a live Draygon reads the disabled cannons.
         _room.EnsureLoaded();
         Parts.Draygon?.DisabledCannons.Add(cannon);
     }

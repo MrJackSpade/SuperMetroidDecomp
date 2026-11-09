@@ -4,8 +4,8 @@ using static SuperMetroid.Core.Bosses.Kraid.KraidRoomMutationDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Spawns Kraid's ceiling, platform and spike PLMs in the room's shared PLM slots.</summary>
-/// <param name="slotTable">The room's PLM slots, which Kraid's mutations contend for with every other room PLM.</param>
+/// <summary>Spawns Kraid's ceiling, platform and spike room objects in the room's shared room-object slots.</summary>
+/// <param name="slotTable">The room's room-object slots, which Kraid's mutations contend for with every other room object.</param>
 internal sealed class KraidRoomObjects(RoomObjectSlotTable slotTable)
 {
     /// <summary>
@@ -13,7 +13,7 @@ internal sealed class KraidRoomObjects(RoomObjectSlotTable slotTable)
     /// deactivates the block's collision while keeping its appearance; the mutation's terrain change then draws its
     /// crumble frames on the authored cadence and is gone.
     /// </summary>
-    /// <returns>False only when every PLM slot is occupied; nothing is spawned or changed then.</returns>
+    /// <returns>False only when every room-object slot is occupied; nothing is spawned or changed then.</returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<KraidRoomMutation> request)
     {
         Ensure.NotNull(level);

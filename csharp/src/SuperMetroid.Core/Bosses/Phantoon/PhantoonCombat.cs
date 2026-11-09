@@ -65,7 +65,7 @@ internal sealed class PhantoonCombat
         });
     }
 
-    /// <summary>Registers Phantoon flame initializers, pre-instructions, and instructions.</summary>
+    /// <summary>Adds Phantoon's flame initializers, frame behaviours, and program steps.</summary>
     internal void AddPhantoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -213,8 +213,8 @@ internal sealed class PhantoonCombat
 
             // The extended-hitbox walker marks the projectile before Phantoon's hitbox callback.
             // That callback's damage helper does not convert it into an explosion:
-            // the projectile pre-instruction owns the following-frame deletion, while
-            // penetrating Plasma retains its type, direction, and instruction stream.
+            // the projectile's frame behaviour owns the following-frame deletion, while
+            // penetrating Plasma retains its type, direction, and animation.
             projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(projectile.SlotIndex,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
@@ -393,7 +393,7 @@ internal sealed class PhantoonCombat
         {
             orbit.StartDelay--;
         }
-        // The orbit reads the 16-bit frame counter.
+        // The orbit reads the frame counter that wraps at 65536.
         else if ((_projectiles.CurrentFrame16 & 1) != 0)
         {
             orbit.Radius--;
@@ -449,7 +449,7 @@ internal sealed class PhantoonCombat
         flame.FrameHold = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole - 8);
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(-768));
-        // The flame's drift reads the 16-bit frame counter.
+        // The flame's drift reads the frame counter that wraps at 65536.
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? 128 : -128));
     }
 
@@ -656,7 +656,7 @@ internal sealed class PhantoonCombat
         if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))
             return null;
 
-        // Phantoon's extended frame roots include hitbox-list pointers,
+        // Phantoon's extended frame roots include hitbox lists,
         // but its editable background tilemap writes must never become collision
         // data. Preserve the component and rectangle order from
         // the compiled definitions, including point no-ops.

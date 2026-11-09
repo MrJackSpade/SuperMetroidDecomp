@@ -13,7 +13,7 @@ public static class KraidBodyContour
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165 against the complete table and both
-    /// CMP/BPL comparisons. The first bottom comparison wraps to
+    /// wrapped-sign comparisons. The first bottom comparison wraps to
     /// nonnegative for Y=-32768..-31746, selecting -48 before the ordinary staircase.
     /// Remaining inputs select the first inclusive top boundary. Preserve this
     /// wrapped-sign test, rather than replacing it with ordered signed comparison.

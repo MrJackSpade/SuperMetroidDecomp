@@ -9,6 +9,6 @@ internal enum DraygonProjectileCue
     SpawnDrops,
     /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Gives the wall turret's shot its fired pre-instruction.</summary>
+    /// <summary>Gives the wall turret's shot its fired frame behaviour.</summary>
     Fire,
 }

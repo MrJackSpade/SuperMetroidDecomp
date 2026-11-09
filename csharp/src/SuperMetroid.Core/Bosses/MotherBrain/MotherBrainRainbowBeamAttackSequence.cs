@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// updates readying the Baby's arrival, spawn request, final-beam hold, painful stagger, live neck
 /// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
 /// Palette, beam-effect, projectile, earthquake, graphics, spawn, and sound writes are retained as
-/// inspectable requests; coordinate, resource, timer, instruction-list, and Samus-command
+/// inspectable requests; coordinate, resource, timer, program, and Samus-command
 /// mutations execute directly.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamAttackSequence
@@ -109,11 +109,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Imports the physical room actor words before one live scheduler call. The standalone
+    /// Imports the physical room actor's state before one live scheduler call. The standalone
     /// verifier may continue to own <see cref="MotherBrainLateFightState.Body"/> directly; gameplay instead lets the
-    /// ordinary enemy bytecode move the real body and feeds those resulting words back here.
-    /// This deliberately does not copy instruction pointers or timers: there must be only
-    /// one visible animation interpreter in a live room.
+    /// ordinary enemy program move the real body and feeds the resulting state back here.
+    /// This deliberately does not copy program positions or timers: there must be only
+    /// one visible animation runner in a live room.
     /// </summary>
     internal void SynchronizeLiveActor(MotherBrainLiveActorSnapshot actor)
     {
@@ -142,14 +142,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// The list most recently requested by the state machine's body helper. Gameplay copies
-    /// this pointer into its physical body slot only when the step result reports a walk or
-    /// posture request; it never advances this private mirror's instruction timer.
+    /// The program most recently requested by the state machine's body helper. Gameplay copies
+    /// this program into its physical body slot only when the step result reports a walk or
+    /// posture request; it never advances this private mirror's program timer.
     /// </summary>
     internal MotherBrainBodyProgram? RequestedBodyProgram => State.Body.Program;
 
     /// <summary>
-    /// Ports the cross-enemy function-pointer write. The Baby actor
+    /// Carries out the cross-enemy function write. The Baby actor
     /// installs the taken-aback step after it has reached the brain; Mother Brain executes that new
     /// function on her next enemy-AI turn rather than inside the Baby's current turn.
     /// </summary>

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>
 /// One pickup request emitted by the flame's drop step after Samus shoots
 /// a destroyable Phantoon flame. Passes the Phantoon-eye enemy header to the common
-/// drop selector; retaining both that header and its table pointer makes the otherwise
+/// drop selector; retaining that header makes the otherwise
 /// implicit choice explicit to the eventual pickup-system owner.
 /// </summary>
 public readonly record struct PhantoonFlameDropRequest();

@@ -252,7 +252,7 @@ internal sealed class PhantoonPatterns
                 PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeCloseAndPickNewPattern);
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
-                // This flag makes PickNewPhantoonPattern choose the initial flame-rain
+                // This flag makes the next pattern choice take the initial flame-rain
                 // branch after the eye-close list invokes its flame-rain callback.
                 state.BodyState.FlameRainRequested = true;
                 return;
@@ -505,7 +505,7 @@ internal sealed class PhantoonPatterns
         }
         else
         {
-            // DEY/CPY/BPL includes direction eight: alternating waves
+            // The inclusive countdown includes direction eight: alternating waves
             // intentionally contain seven and eight flames, not seven each.
             for (int direction = PhantoonRageDefinitions.OddWaveFirstDirection; direction >= PhantoonRageDefinitions.OddWaveLastDirection; direction--)
                 SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, direction);

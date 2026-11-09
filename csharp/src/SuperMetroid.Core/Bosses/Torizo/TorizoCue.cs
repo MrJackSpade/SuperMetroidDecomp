@@ -46,8 +46,8 @@ internal abstract record TorizoCue
     /// <param name="Function">The main-AI function a <see cref="SetFunction"/> cue selects.</param>
     internal sealed record SetFunction(TorizoFunction Function) : TorizoCue;
 
-    /// <summary>Installs the body's pre-instruction.</summary>
-    /// <param name="FrameBehavior">The pre-instruction a <see cref="SetFrameBehavior"/> cue installs.</param>
+    /// <summary>Installs the body's frame behaviour.</summary>
+    /// <param name="FrameBehavior">The frame behaviour a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(TorizoFrameBehavior FrameBehavior) : TorizoCue;
 
     /// <summary>Shows a piece of artwork under the body's poses (the game's common artwork copy).</summary>

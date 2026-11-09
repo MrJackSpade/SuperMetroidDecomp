@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's wall-cannon block draws: which PLM draws are the cannon's, their run geometry and how their cells collide,
+/// Draygon's wall-cannon block draws: which room-object draws are the cannon's, their run geometry and how their cells collide,
 /// from <see cref="DraygonCannonObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class DraygonCannonDraws
@@ -48,7 +48,7 @@ internal static class DraygonCannonDraws
         }
     }
 
-    /// <summary>Decodes one of the twelve reachable cannon draw pointers into facing, shield state, and frame.</summary>
+    /// <summary>Decodes one of the twelve reachable cannon draws into facing, shield state, and frame.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
         if (request is not RoomObjectFrameDraw<DraygonCannonDraw>) { draw = default; return false; }

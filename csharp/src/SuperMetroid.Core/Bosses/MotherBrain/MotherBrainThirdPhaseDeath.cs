@@ -287,8 +287,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
         if (--_state.FunctionTimer < 0)
         {
-            // Disabling the brain's effects removes the neck/breath/palette producers, copies sprite
-            // palette 1 into palette 7, performs one health-palette refresh, and then
+            // Disabling the brain's effects removes the neck/breath/palette producers, copies the body's
+            // shared colours into the brain's, performs one health-palette refresh, and then
             // deliberately falls through with the already-negative timer.
             _state.LowerNeckMovement = MotherBrainNeckMovement.None;
             _state.UpperNeckMovement = MotherBrainNeckMovement.None;

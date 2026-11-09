@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Named equivalents of the entrance's function pointers.</summary>
+/// <summary>The phases of the Baby Metroid's entrance.</summary>
 public enum BabyMetroidCutscenePhase
 {
     /// <summary>No Baby Metroid cutscene function is active.</summary>

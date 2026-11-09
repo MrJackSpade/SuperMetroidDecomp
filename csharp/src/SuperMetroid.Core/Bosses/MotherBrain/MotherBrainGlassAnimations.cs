@@ -3,7 +3,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's typed glass programs (#641), in place of their instruction lists.</summary>
+/// <summary>Mother Brain's typed glass programs (#641).</summary>
 internal static class MotherBrainGlassAnimations
 {
     /// <summary>Frames in each shard loop.</summary>

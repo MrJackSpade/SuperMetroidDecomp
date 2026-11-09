@@ -127,7 +127,7 @@ public enum RidleyAiFunction
 
     /// <summary>Moves zero-health Ridley to the death spot while retaining any grabbed Samus.</summary>
     NorfairReleaseSamus,
-    /// <summary>Selects the death-roar instruction list and starts its thirty-two-frame phase.</summary>
+    /// <summary>Selects the death-roar animation and starts its thirty-two-frame phase.</summary>
     NorfairDeathStart,
     /// <summary>Continues death-spot convergence during the roar, then stops motion and starts acid drainage.</summary>
     NorfairDeathExplosions,

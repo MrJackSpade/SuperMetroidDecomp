@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public static class MotherBrainHealthPalette
 {
     /// <summary>
-    /// The damage band <c>MotherBrainHealthBasedPaletteHandling</c> selects for unsigned head health
+    /// The damage band her health-based colours select for unsigned head health
     /// <paramref name="health"/>: zero at 9000 or more, one from 5400, two from 1800, and three below.
     /// </summary>
     /// <remarks>The caller owns the recovered-corpse-state gate; this selects the band on every call without checking encounter phase.</remarks>

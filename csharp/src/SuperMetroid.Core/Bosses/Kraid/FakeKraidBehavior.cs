@@ -20,7 +20,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Provides the existing random word sampled for Mini-Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Checks the walk opcode's movement against room collision blocks.</summary>
+    /// <summary>Checks the walk cue's movement against room collision blocks.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates spit, spike, and death effects from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -44,14 +44,14 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of Mini-Kraid's animations. The action choice continues at the step or spit animation it
-    /// selects, as the opcode returns that list; every other cue runs on.
+    /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private FakeKraidProgram? ApplyFakeKraidCue(RoomEnemySlot slot, FakeKraidCue cue, SamusState? samus, RoomLevelData? level, Position16<RoomPixels> camera)
     {
         switch (cue.Kind)
         {
             case FakeKraidCueKind.Move:
-                // Walk opcode: advance one four-pixel step unless its random reversal
+                // Walk cue: advance one four-pixel step unless its random reversal
                 // clock expires, then refresh the live facing marker from Samus.
                 ProcessFakeKraidWalkInstruction(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
                 return null;
@@ -345,8 +345,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Mini-Kraid's shared death reaction: <c>EnemyDeath</c> spawns death
-    /// explosion three and clears the slot, then <c>MiniKraidDeathItemDropRoutine</c>
-    ///  scatters four pickups from the coordinates saved before the shot AI.
+    /// explosion three and clears the slot, then the death drop
+    /// scatters four pickups from the coordinates saved before the shot AI.
     /// The explosion therefore takes the first free projectile slot.
     /// </summary>
     private void KillFakeKraid(RoomEnemySlot slot)
@@ -381,7 +381,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Dispatches spit gravity and spike wall collision through their projectile pre-instructions.</summary>
+    /// <summary>Dispatches spit gravity and spike wall collision through their projectile frame behaviours.</summary>
     internal static void AddFakeKraidProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

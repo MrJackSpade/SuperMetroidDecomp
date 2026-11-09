@@ -4,16 +4,16 @@ using static SuperMetroid.Core.Bosses.MotherBrain.ShitroidWallMutationDefinition
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Spawns the Shitroid's invisible-wall PLM in the room's shared PLM slots.</summary>
-/// <param name="slotTable">The room's PLM slots, which the wall contends for with every other room PLM.</param>
+/// <summary>Spawns the Shitroid's invisible-wall room object in the room's shared room-object slots.</summary>
+/// <param name="slotTable">The room's room-object slots, which the wall contends for with every other room object.</param>
 internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
 {
     /// <summary>
-    /// Spawns the wall PLM performing the request's mutation at its block. The setup runs as the PLM is spawned: it
+    /// Spawns the wall room object performing the request's mutation at its block. The setup runs as it is spawned: it
     /// gives each block of the wall column the mutation's collision, keeping every block's appearance, and the object
     /// leaves the room on its first update.
     /// </summary>
-    /// <returns>False when every PLM slot is occupied; no terrain is changed then.</returns>
+    /// <returns>False when every room-object slot is occupied; no terrain is changed then.</returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<ShitroidWallMutation> request)
     {
         Ensure.NotNull(level);

@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Kraid.KraidPartProgram;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's typed part programs (#641), in place of their instruction lists.</summary>
+/// <summary>Kraid's typed part programs (#641).</summary>
 internal static class KraidAnimations
 {
     /// <summary>Every foot, arm, lint and fingernail program.</summary>

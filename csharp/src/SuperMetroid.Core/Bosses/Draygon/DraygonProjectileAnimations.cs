@@ -3,7 +3,7 @@ using P = SuperMetroid.Core.Bosses.Draygon.DraygonProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's typed projectile programs (#641), in place of their instruction lists.</summary>
+/// <summary>Draygon's typed projectile programs (#641).</summary>
 internal static class DraygonProjectileAnimations
 {
     /// <summary>Frames in the goop loop.</summary>

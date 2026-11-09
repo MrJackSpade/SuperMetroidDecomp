@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Spore Spawn's ceiling block draws: which PLM draws are the ceiling's and how the cells of each two-by-two square
+/// Spore Spawn's ceiling block draws: which room-object draws are the ceiling's and how the cells of each two-by-two square
 /// collide, from <see cref="SporeSpawnCeilingObjectDrawDefinitions"/>.
 /// </summary>
 internal static class SporeSpawnCeilingDraws

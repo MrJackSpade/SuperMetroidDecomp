@@ -52,7 +52,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // The low-energy check asks whether one more ordinary phase-two hit could put
         // Samus at the encounter's intended low-energy floor. The first nominal
         // damage is 80, suit-divided, multiplied by four, then padded by twenty.
-        // The BPL comparison treats equality as done and changes the body
+        // The sign test treats equality as done and changes the body
         // function without falling into the stand-up handler on this call.
         if (CalculateFinishOffHealthThreshold(samus, 80) >= samus.Health)
         {
@@ -113,7 +113,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
         // Stand-up falls through here, so the freshly written 16 becomes 15
-        // on the same AI call. BPL accepts zero and expires only after underflow.
+        // on the same AI call. The sign test accepts zero and expires only after underflow.
         if (--_state.FunctionTimer < 0)
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.StretchingPhase2);

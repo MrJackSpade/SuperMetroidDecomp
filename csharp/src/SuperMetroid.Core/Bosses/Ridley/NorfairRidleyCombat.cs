@@ -487,8 +487,8 @@ internal sealed class NorfairRidleyCombat
     {
         if (state.FacingDirection == RidleyFacing.Turning)
             return;
-        // D955 reads the word at Enemy.XPosition-1: its sign is bit 7 of
-        // the low X byte, not the sign of the full coordinate. Keep an inward
+        // The facing test reads whether X lies in the right half of its 256-pixel screen,
+        // not the sign of the full coordinate. Keep an inward
         // facing actor's current animation and timer untouched.
         bool rightHalf = RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) >= 128;
         if (state.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
@@ -516,7 +516,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c>, run before the function on
+    /// Lunges when a power bomb is active and Ridley is not holding Samus, run before the function on
     /// every main and even hurt frame. It reads the power-bomb state, which is set as soon as a power bomb is
     /// laid, so Ridley lunges in the same frame Samus lays one.
     /// </summary>

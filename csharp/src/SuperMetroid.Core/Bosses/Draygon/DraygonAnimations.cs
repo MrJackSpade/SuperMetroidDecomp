@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's typed programs (#641), in place of its instruction lists.</summary>
+/// <summary>Draygon's typed programs (#641).</summary>
 internal static class DraygonAnimations
 {
     /// <summary>Every body, eye, tail and arms program.</summary>

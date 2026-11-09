@@ -34,7 +34,7 @@ public static class PhantoonTimerDefinitions
     internal static readonly DurationChoice[] VulnerableChoices =
         [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
          DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Long];
-    /// <summary>RNG&amp;7 at D07C-D088; (frame counter&gt;&gt;1)&amp;3 at D5A6-D5B2 for the first round.</summary>
+    /// <summary>RNG&amp;7 selects the eye-closed delay; for the first round, (frame counter&gt;&gt;1)&amp;3 selects it.</summary>
     internal static readonly DurationChoice[] EyeClosedChoices =
         [DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long,
          DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long];

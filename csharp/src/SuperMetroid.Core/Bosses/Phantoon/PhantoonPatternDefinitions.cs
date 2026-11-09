@@ -30,7 +30,7 @@ public static class PhantoonPatternDefinitions
     /// <remarks>
     /// Issue1165 narrow nonsense exception: these are arbitrary random-bucket assignments,
     /// not direction, phase or geometric selectors. Eye variable B has no reader;
-    /// managed Phantoon reads of variable B address the other body/mouth/tentacle slots.
+    /// managed Phantoon reads of variable B belong to the other body/mouth/tentacle slots.
     /// The marker remains exposed state, so replacing this with a different 50/50 selection
     /// changes exact RNG-to-state behavior. Boolean cases would merely recite the same bucket
     /// choices. Retain only this mapping and preserve the existing RNG call/state write.

@@ -4,13 +4,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's glass block draws: which PLM draws are the glass's, their run geometry and how their cells collide,
+/// Mother Brain's glass block draws: which room-object draws are the glass's, their run geometry and how their cells collide,
 /// from <see cref="MotherBrainGlassObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class MotherBrainGlassDraws
 {
     /// <summary>
-    /// One of eleven named glass states. Offsets are signed and absolute from the PLM origin; panes draw down their
+    /// One of eleven named glass states. Offsets are signed and absolute from the glass's origin block; panes draw down their
     /// columns, and the shifted pane writes its origin block separately before its inner columns.
     /// </summary>
     internal readonly record struct Draw(MotherBrainGlassDraw Frame)
@@ -60,10 +60,10 @@ internal static class MotherBrainGlassDraws
         }
     }
 
-    /// <summary>Recognizes one of the eleven glass draw pointers without claiming adjacent PLM families.</summary>
+    /// <summary>Recognizes one of the eleven glass draws without claiming adjacent room-object families.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
-        // Pointers outside the eleven glass states belong to other draw families.
+        // Draws outside the eleven glass states belong to other draw families.
         bool owned = request is RoomObjectFrameDraw<MotherBrainGlassDraw>;
         draw = owned ? new(RoomObjectDraw.FrameOf<MotherBrainGlassDraw>(request, "MotherBrainGlassDraw")) : default;
         return owned;

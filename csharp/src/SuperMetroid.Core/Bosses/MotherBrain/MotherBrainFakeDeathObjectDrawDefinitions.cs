@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain fake-death room physical PLM draws: their shapes and how their cells collide. What each draw shows is
+/// Mother Brain fake-death room-object draws: their shapes and how their cells collide. What each draw shows is
 /// its installed picture (#1557).
 /// </summary>
 internal static class MotherBrainFakeDeathObjectDrawDefinitions

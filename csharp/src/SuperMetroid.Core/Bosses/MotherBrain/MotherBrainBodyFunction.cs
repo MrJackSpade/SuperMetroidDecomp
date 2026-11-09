@@ -40,11 +40,11 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentSetupPhase2Brain,
     /// <summary>Waits for signed underflow, then seeds the 32-count rising-preparation delay and falls into it.</summary>
     FakeDeathAscentPauseForSuspense,
-    /// <summary>Starts the floor-clipping effect, installs the hidden head list, and starts readying her standing body with a $100-count later pause.</summary>
+    /// <summary>Starts the floor-clipping effect, installs the hidden head list, and starts readying her standing body with a 256-count later pause.</summary>
     FakeDeathAscentPrepareForRising,
     /// <summary>Readies her standing body one update per call and decrements the suspense timer on the same call that finishes it.</summary>
     FakeDeathAscentReadyStandingBody,
-    /// <summary>Waits for the $100 timer's signed underflow before placing the hidden body/background and enabling its hitboxes.</summary>
+    /// <summary>Waits for the 256-count timer's signed underflow before placing the hidden body/background and enabling its hitboxes.</summary>
     FakeDeathAscentContinuePausing,
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
     FakeDeathAscentStartMusicAndEarthquake,
@@ -82,7 +82,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseLaserFinishAttack,
     /// <summary>Owns the ordinary red hand-beam attack sub-dispatcher, separate from the health-zero rainbow cutscene.</summary>
     SecondPhaseHandBeam,
-    /// <summary>Sets the initial extended neck geometry and installs the $100-count charging-start pause.</summary>
+    /// <summary>Sets the initial extended neck geometry and installs the 256-count charging-start pause.</summary>
     SecondPhaseRainbowExtendNeck,
     /// <summary>Expires the extension pause, installs charging head bytecode, and falls into backward-walk/neck retraction.</summary>
     SecondPhaseRainbowStartCharging,
@@ -110,17 +110,17 @@ public enum MotherBrainBodyFunction
     SecondPhaseRainbowWaitForSamusToLand,
     /// <summary>Lowers the neck targets and installs the 128-count next-action pause.</summary>
     SecondPhaseRainbowLowerHead,
-    /// <summary>After timer underflow, repeats the beam at health $190 or above; otherwise begins the low-health finish-off cutscene.</summary>
+    /// <summary>After timer underflow, repeats the beam at health 400 or above; otherwise begins the low-health finish-off cutscene.</summary>
     SecondPhaseRainbowDecideNextAction,
     /// <summary>Uses suit-adjusted health thresholds and sampled RNG to choose onion rings/bombs until Samus reaches the intended low-health floor.</summary>
     SecondPhaseFinishSamusOff,
     /// <summary>Waits for standing, then immediately enters the 16-count admiration pause.</summary>
     SecondPhaseFinishSamusOffStandUp,
-    /// <summary>Expires the admiration pause, installs the stretching head list, and starts a $100-count final-charge delay.</summary>
+    /// <summary>Expires the admiration pause, installs the stretching head list, and starts a 256-count final-charge delay.</summary>
     SecondPhaseFinishSamusOffAdmire,
     /// <summary>On timer underflow installs charging head bytecode and immediately begins readying the Baby Metroid's arrival.</summary>
     SecondPhaseFinishSamusOffChargeFinalBeam,
-    /// <summary>Readies the Baby Metroid's arrival one update per call; the last retracts the head, spawns the baby, and seeds a $100-count firing wait.</summary>
+    /// <summary>Readies the Baby Metroid's arrival one update per call; the last retracts the head, spawns the baby, and seeds a 256-count firing wait.</summary>
     SecondPhaseFinishSamusOffReadyBaby,
     /// <summary>Expires the final wait, starts firing head bytecode/neck extension and its sound, then installs its own empty step as the holding function.</summary>
     SecondPhaseFinishSamusOffFireFinalBeam,
@@ -142,7 +142,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseDrainedByBabyPrepareTransitionToGrey,
     /// <summary>Steps through eight drained-grey palettes and one step past the last, restores head health 36,000, and enters the inanimate revival setup.</summary>
     SecondPhaseDrainedByBabyTransitionToGrey,
-    /// <summary>Installs the $300-count revival wait and returns without decrementing it on this setup call.</summary>
+    /// <summary>Installs the 768-count revival wait and returns without decrementing it on this setup call.</summary>
     SecondPhaseReviveInanimateGrey,
     /// <summary>On signed wait underflow re-enables breath/drool, clears the palette counter, and starts the 224-count color-restoration delay.</summary>
     SecondPhaseReviveShowSignsOfLife,
@@ -176,48 +176,48 @@ public enum MotherBrainBodyFunction
     ThirdPhaseFightingMain,
     /// <summary>Pauses the neck/walking sub-handlers for the 64-count timer through zero and resumes main fighting only after signed underflow.</summary>
     ThirdPhaseFightingAttackCooldown,
-    /// <summary>Phase-three death/escape: MoveToBackOfRoom.</summary>
+    /// <summary>Phase-three death/escape: moves to the back of the room.</summary>
     ThirdPhaseDeathMoveToBackOfRoom,
-    /// <summary>Phase-three death/escape: IdleWhilstExploding.</summary>
+    /// <summary>Phase-three death/escape: idles while exploding.</summary>
     ThirdPhaseDeathIdleWhilstExploding,
-    /// <summary>Phase-three death/escape: StumbleToMiddleOfRoom.</summary>
+    /// <summary>Phase-three death/escape: stumbles to the middle of the room.</summary>
     ThirdPhaseDeathStumbleToMiddleOfRoom,
-    /// <summary>Phase-three death/escape: DisableBrainEffects.</summary>
+    /// <summary>Phase-three death/escape: disables the brain's effects.</summary>
     ThirdPhaseDeathDisableBrainEffects,
-    /// <summary>Phase-three death/escape: SetupBodyFadeOut.</summary>
+    /// <summary>Phase-three death/escape: sets up the body's fade-out.</summary>
     ThirdPhaseDeathSetupBodyFadeOut,
-    /// <summary>Phase-three death/escape: FadeOutBody.</summary>
+    /// <summary>Phase-three death/escape: fades out the body.</summary>
     ThirdPhaseDeathFadeOutBody,
-    /// <summary>Phase-three death/escape: FinalFewExplosions.</summary>
+    /// <summary>Phase-three death/escape: the final few explosions.</summary>
     ThirdPhaseDeathFinalFewExplosions,
-    /// <summary>Phase-three death/escape: RealizeDecapitation.</summary>
+    /// <summary>Phase-three death/escape: the brain realizes its decapitation.</summary>
     ThirdPhaseDeathRealizeDecapitation,
-    /// <summary>Phase-three death/escape: BrainFallsToGround.</summary>
+    /// <summary>Phase-three death/escape: the brain falls to the ground.</summary>
     ThirdPhaseDeathBrainFallsToGround,
     /// <summary>Phase-three death/escape: readies her corpse one update per call.</summary>
     ThirdPhaseDeathReadyCorpse,
-    /// <summary>Phase-three death/escape: SetupFadeToGrey.</summary>
+    /// <summary>Phase-three death/escape: sets up the fade to grey.</summary>
     ThirdPhaseDeathSetupFadeToGrey,
-    /// <summary>Phase-three death/escape: FadeToGrey.</summary>
+    /// <summary>Phase-three death/escape: fades to grey.</summary>
     ThirdPhaseDeathFadeToGrey,
-    /// <summary>Phase-three death/escape: CorpseTipsOver.</summary>
+    /// <summary>Phase-three death/escape: the corpse tips over.</summary>
     ThirdPhaseDeathCorpseTipsOver,
-    /// <summary>Phase-three death/escape: CorpseRotsAway.</summary>
+    /// <summary>Phase-three death/escape: the corpse rots away.</summary>
     ThirdPhaseDeathCorpseRotsAway,
-    /// <summary>Phase-three death/escape: 20FrameDelay.</summary>
+    /// <summary>Phase-three death/escape: waits twenty frames.</summary>
     ThirdPhaseDeath20FrameDelay,
     /// <summary>Phase-three death/escape: readies the escape timer and message one update per call.</summary>
     ThirdPhaseDeathReadyEscapeWarning,
-    /// <summary>Phase-three death/escape: StartEscape.</summary>
+    /// <summary>Phase-three death/escape: starts the escape.</summary>
     ThirdPhaseDeathStartEscape,
-    /// <summary>Phase-three death/escape: SpawnTimeBombSetSubtitle.</summary>
+    /// <summary>Phase-three death/escape: spawns the time bomb and sets its subtitle.</summary>
     ThirdPhaseDeathSpawnTimeBombSetSubtitle,
-    /// <summary>Phase-three death/escape: TypeOutZebesEscapeText.</summary>
+    /// <summary>Phase-three death/escape: types out the Zebes escape text.</summary>
     ThirdPhaseDeathTypeOutZebesEscapeText,
-    /// <summary>Phase-three death/escape: DoorExplodingStartTimer.</summary>
+    /// <summary>Phase-three death/escape: the door explodes and the timer starts.</summary>
     ThirdPhaseDeathDoorExplodingStartTimer,
-    /// <summary>Phase-three death/escape: BlowUpEscapeDoor.</summary>
+    /// <summary>Phase-three death/escape: blows up the escape door.</summary>
     ThirdPhaseDeathBlowUpEscapeDoor,
-    /// <summary>Phase-three death/escape: KeepEarthquakeGoing.</summary>
+    /// <summary>Phase-three death/escape: keeps the earthquake going.</summary>
     ThirdPhaseDeathKeepEarthquakeGoing,
 }

@@ -82,8 +82,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("A room population contains more than one Shitroid.");
 
         // The processing property is the scheduler's animation-processing bit; another bit blocks plasma
-        // from piercing the actor. The upstream C symbol calls the processing bit DisableSamusColl,
-        // but the executable scheduler also consumes that same bit for instructions, so
+        // from piercing the actor. The original's name for the processing bit says it disables Samus
+        // collision, but the scheduler also consumes that same bit for animation, so
         // the translated property enum retains the directly observed scheduler meaning.
         slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
         slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
@@ -378,7 +378,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.RoomScroll.Write(3, highState);
     }
 
-    /// <summary>Requests the two room-column wall PLMs at the authored Tourian positions.</summary>
+    /// <summary>Requests the two room-column wall objects at the authored Tourian positions.</summary>
     private void QueueShitroidWallObjects(ShitroidWallMutation mutation)
     {
         _frameResults.ShitroidObjects.Add(new RoomObjectSpawnRequest<ShitroidWallMutation>(new(48, 3), mutation));
@@ -477,9 +477,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        // CMP #4 leaves carry = (Y speed >= 4, unsigned) through the clamp and
+        // The speed clamp leaves carry = (Y speed >= 4, unsigned) through the clamp and
         // the shake-table loads; the X step adds Samus's X with no carry clear, so that carry is one
-        // extra pixel. BMI reads only the sign of the difference.
+        // extra pixel. The sign test reads only the sign of the difference.
         // A speed slowed past zero at the apex reads as below four by that sign, so it keeps its value (#1562).
         int ySpeed = samus.Kinematics.YSpeed.Whole;
         int xCarry = ySpeed >= 4 ? 1 : 0;
@@ -686,7 +686,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(firstShot.Position.Y.Whole, slot.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.Zero - sourceAngle;
         // The recoil strength is eight times the damage, capped at 240; no beam, missile or bomb deals the 8192
-        // damage whose multiple would pass a sixteen-bit quantity.
+        // damage whose multiple would pass 65535.
         int magnitude = Math.Min(8 * collisionDamage, 240);
         state.Velocity += new EightEightVector<RoomPixels>(
             EnemyMath.MultiplySineSample(magnitude, angle.ToByteAngle()),

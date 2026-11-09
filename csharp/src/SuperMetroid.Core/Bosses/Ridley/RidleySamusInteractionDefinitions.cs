@@ -2,11 +2,11 @@ using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Movement policies selected by CheckIfSamusMorphedSpinJumpingDamageBoosting.</summary>
+/// <summary>Movement policies selected by Samus's morphed, spin-jumping or damage-boosting movement.</summary>
 /// <remarks>
-/// The movement table's high byte holds the flags: bit7 controls grab eligibility,
-/// bit6 controls morphed release timing. Those are the only consumed fields in the two
-/// managed callers. No lower flag bits or adjacent-table reads are exposed by their contract.
+/// Each movement's flags: one controls grab eligibility,
+/// the other controls morphed release timing. Those are the only consumed fields in the two
+/// managed callers. No other flags or adjacent-table reads are exposed by their contract.
 /// </remarks>
 internal static class RidleySamusInteractionDefinitions
 {

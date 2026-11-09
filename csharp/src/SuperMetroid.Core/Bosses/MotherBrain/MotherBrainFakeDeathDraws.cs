@@ -47,11 +47,11 @@ internal static class MotherBrainFakeDeathDraws
         }
     }
 
-    /// <summary>Recognizes only the two unused fill rows and six tube-clear lists in the shared draw-pointer space.</summary>
+    /// <summary>Recognizes only the two unused fill rows and six tube-clear draws among the shared room-object draws.</summary>
     internal static bool TryDescribeRegular(RoomObjectDraw request, out RegularDraw draw)
     {
         draw = default;
-        // Shared draw-pointer space: draws outside this family belong to other owners.
+        // Shared room-object draws: draws outside this family belong to other owners.
         if (request is not RoomObjectFrameDraw<MotherBrainFakeDeathDraw>) return false;
         var list = RoomObjectDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
         if (MotherBrainFakeDeathObjectDrawDefinitions.RegularShapes.TryGetValue(list, out draw))
@@ -122,11 +122,11 @@ internal static class MotherBrainFakeDeathDraws
         }
     }
 
-    /// <summary>Recognizes only the wall-fill and escape-door pointers among the shared fake-death draws.</summary>
+    /// <summary>Recognizes only the wall-fill and escape-door draws among the shared fake-death draws.</summary>
     internal static bool TryDescribeBoundary(RoomObjectDraw request, out BoundaryDraw draw)
     {
         draw = default;
-        // Shared draw-pointer space: draws outside this family belong to other owners.
+        // Shared room-object draws: draws outside this family belong to other owners.
         if (request is not RoomObjectFrameDraw<MotherBrainFakeDeathDraw>) return false;
         var list = RoomObjectDraw.FrameOf<MotherBrainFakeDeathDraw>(request, "MotherBrainFakeDeathDraw");
         bool owned = list is MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public sealed class FakeKraidEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<FakeKraidProgram> Program { get; set; }
 
     /// <summary>Signed whole-pixel walk delta.</summary>

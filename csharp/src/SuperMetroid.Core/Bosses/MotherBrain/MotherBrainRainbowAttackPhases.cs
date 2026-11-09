@@ -60,7 +60,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
 
         // The rainbow's Samus command selects command five at 700 energy or above and command 24
-        // below it. CPY/BPL is a signed 16-bit branch, retained by AtLeastBySignedDifference.
+        // below it. The test takes the sign of the wrapped difference, retained by AtLeastBySignedDifference.
         if (samus.Health >= 700)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else
@@ -87,7 +87,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     internal MotherBrainWalkResult RequestWalkForwardReallySlow(int targetX) =>
         _state.MakeBodyWalkForwards(targetX, MotherBrainBodyProgram.WalkForwardReallySlow);
 
-    /// <summary>Widens the beam by $180 up to $C00 and refreshes its angle toward Samus.</summary>
+    /// <summary>Widens the beam by 384 up to 3072 and refreshes its angle toward Samus.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
     {
         AngularWidth = Math.Min(AngularWidth + 384, 3072);
@@ -128,7 +128,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     private void AimBeamAtSamus(SamusState samus)
     {
         // The aim step aims from brain position (+16,+4) to Samus. The angle routine consumes
-        // signed 16-bit offsets; the aim step converts its clockwise-up angle to the
+        // signed offsets; the aim step converts its clockwise-up angle to the
         // rainbow beam's anti-clockwise-down convention with `-angle + half turn`.
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
             samus.Position.Whole - (_state.BrainPosition + new Offset16<RoomPixels>(16, 4)));
@@ -151,8 +151,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
         // The drain step loads -2 in both branches. The meaningful Varia distinction is
-        // carry left by LSR EquippedItems: bit zero adds one back, producing -1 with Varia
-        // and -2 without it. CMP #1/BPL then clamps wrapped/below-one health to zero.
+        // carry left by the Varia test: Varia adds one back, producing -1 with Varia
+        // and -2 without it. The sign test then clamps wrapped/below-one health to zero.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 2;
         int candidate = samus.Health - damage;
         samus.Health = candidate >= 1 ? candidate : 0;
@@ -190,7 +190,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (decremented >= 1)
             return decremented;
 
-        // The original briefly reloads A with SelectedHUDItem for the comparison, but both the
+        // The original briefly reloads the selected HUD item for the comparison, but both the
         // matching and nonmatching branches converge at a label that first loads zero.
         // Therefore the depleted count is always zero; only the selected-item
         // store itself is conditional. Spell that convergence out to avoid the tempting but

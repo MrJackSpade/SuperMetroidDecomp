@@ -39,7 +39,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from the Baby's enemy definition.</summary>
     public const int YHitboxRadius = 36;
 
-    /// <summary>Current function-pointer equivalent.</summary>
+    /// <summary>The entrance's current phase.</summary>
     public BabyMetroidCutscenePhase Phase { get; internal set; } =
         BabyMetroidCutscenePhase.Inactive;
 
@@ -147,7 +147,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>
     /// Adds one call's 768/65536 of a rainbow palette frame to <paramref name="fraction"/>, returning
     /// the fraction left over and whether the addition completed a whole frame. This is the
-    /// original game's carry out of its 16-bit accumulator: the slowing rainbow advances one palette
+    /// original game's carry past 65536: the slowing rainbow advances one palette
     /// frame on every carry and keeps the remainder.
     /// </summary>
     internal static SamusRainbowFractionStep AdvanceSamusRainbowFraction(int fraction)
@@ -239,7 +239,7 @@ public sealed class BabyMetroidCutsceneState
         int? babyFadeShade = null;
         int? recoveryLightsFrame = null;
 
-        // EnemyCollisionHandling runs touch AI before main AI, against the Baby's
+        // Enemy collision handling runs touch AI before main AI, against the Baby's
         // position from the previous frame. The Baby's touch is active only while it latches onto Samus; broad
         // Samus/enemy hitboxes gate it, then its own divisor-16 acceleration helper decides when
         // both axes have reached the latch point. Main AI and its mover follow this frame.
@@ -370,8 +370,8 @@ public sealed class BabyMetroidCutsceneState
                 // burst happens on call 33 and that call also performs another acceleration.
                 if (--FunctionTimer < 0)
                 {
-                    // `SpawnThreeDustCloudsOnMotherBrainHead` performs these calls in this
-                    // exact order. Each helper adds its signed word offsets to the brain
+                    // The three dust clouds on Mother Brain's head are spawned in this
+                    // exact order. Each helper adds its signed offsets to the brain
                     // enemy's current room coordinate and passes animation parameter nine
                     // to the ordinary highest-free-slot allocator.
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
@@ -462,7 +462,7 @@ public sealed class BabyMetroidCutsceneState
                 Position = Position.WithWhole(samus.Position.Whole + ShakingOffsets[shakingIndex] + SamusLatchOffset);
 
                 // Healing adds exactly one energy per enemy-processing call. The compare is a
-                // signed 16-bit comparison; normal game maxima stay in its positive range.
+                // signed comparison in -32768..32767; normal game maxima stay in its positive range.
                 int candidateHealth = samus.Health + 1;
                 if (candidateHealth < samus.MaxHealth)
                 {
@@ -594,7 +594,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.TakeFinalBlow:
             {
-                // `ShakeBabyMetroidCutscene` first adds -1 to the Y velocity,
+                // The cutscene's shake first adds -1 to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
                 Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FromSignedRaw(1));
@@ -686,7 +686,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.FinalCutscene:
             {
                 // The room-lights step increments the shared counter, passes its previous value to the
-                // palette step, and treats pointer-table entry seven as the carry-set end.
+                // palette step, and treats its seventh step as the end.
                 int paletteIndex = RoomLightsTransitionCounter;
                 RoomLightsTransitionCounter++;
                 if (paletteIndex < 7)
@@ -712,7 +712,7 @@ public sealed class BabyMetroidCutsceneState
         MoveAccordingToVelocity();
 
         // The flash step is called after the common velocity mover. It decrements the same
-        // extra word that onion-ring hits write and shows palette zero while bit one of the
+        // extra timer that onion-ring hits write and shows the flash colours while bit one of the
         // decremented value is set. Starting from sixteen, the first post-hit enemy call sees
         // sixteen for its shake above, then displays the normal palette with timer fifteen.
         if (OnionRingHitFlashTimer != 0)
@@ -910,7 +910,7 @@ public sealed class BabyMetroidCutsceneState
     /// The ordinary enemy-versus-Samus contact check, for the Baby's radius hitbox.
     /// A non-zero contact-damage index clears Samus's invincibility and proceeds; otherwise an
     /// invincible Samus is not touched. Each axis then requires
-    /// <c>|delta| - SamusRadius &lt; enemy radius</c> (a delta inside Samus's own radius
+    /// <c>|delta| - Samus's radius &lt; enemy radius</c> (a delta inside Samus's own radius
     /// always passes), which is strict, unlike the rectangle check other actors use.
     /// </summary>
     private bool TouchesSamus(SamusState samus)
@@ -1025,7 +1025,7 @@ public sealed class BabyMetroidCutsceneState
         else
         {
             // Deliberately sends exact equality through the left branch; unlike Y,
-            // there is no BEQ before BPL.
+            // there is no equality test before the sign test.
             Velocity = Velocity.WithX(SignedEightEight.Max(Velocity.X - acceleration, -ApproachMaximumSpeed));
             int prediction = CoordinateAxis.Wrap(Position.X.Whole + Velocity.X.WholePixels);
             int predictedDifference = CoordinateAxis.Difference(prediction, targetX);

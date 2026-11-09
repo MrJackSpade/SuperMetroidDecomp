@@ -95,7 +95,7 @@ public sealed class RidleyEnemyState
     public int IdealInterSegmentTailAngle { get; internal set; }
     /// <summary>Gets the seven tail segments, base first, installed by shared initialization; the array is empty before that layout is initialized.</summary>
     public RidleyTailSegment[] TailSegments { get; internal set; } = [];
-    /// <summary>Gets whether Ridley's instruction list has enabled the roar presentation.</summary>
+    /// <summary>Gets whether Ridley's animation has enabled the roar presentation.</summary>
     public bool Roaring { get; internal set; }
     /// <summary>Gets the Ceres hover-cycle counter used to choose the next scripted attack; every attack resets it before it passes 124.</summary>
     public int HoverCounter { get; internal set; }
@@ -160,7 +160,7 @@ public sealed class RidleyEnemyState
     internal int BabyPoseDuration { get; set; }
     /// <summary>Gets the Ceres Baby's elapsed draw-update count in its current pose, compared with the pose's duration and restarted at one.</summary>
     public int BabyFrameHold { get; internal set; }
-    /// <summary>Gets the Ceres Baby's behavior pointer selecting hand attachment, falling setup, falling motion, or idle.</summary>
+    /// <summary>Gets the Ceres Baby's behavior selecting hand attachment, falling setup, falling motion, or idle.</summary>
     public CeresBabyFunction BabyFunction { get; internal set; }
     /// <summary>The pose the Ceres Baby's program currently shows, or null before it has shown one.</summary>
     internal CeresBabyPose? BabyCurrentPose { get; set; }

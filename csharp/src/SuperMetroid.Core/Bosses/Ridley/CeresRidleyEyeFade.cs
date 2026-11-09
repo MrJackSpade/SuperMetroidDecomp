@@ -15,8 +15,8 @@ internal static class CeresRidleyEyeFade
     /// completion marker. All 65 entries match the pinned release.
     /// The original reads overlapping pairs at each offset
     /// and keeps the low one. Offset 65 would read past the schedule
-    /// into the eye palette and is outside this schedule.
-    /// VerifyCeresRidleyEyeFadeDefinitions checks every shade and the terminal
+    /// into the eye's colours and is outside this schedule.
+    /// The eye-fade verification checks every shade and the terminal
     /// transition through the real fade consumer with schedule reads forbidden.
     /// </remarks>
     public static CeresRidleyEyeFadeStep Get(int offset) => offset switch

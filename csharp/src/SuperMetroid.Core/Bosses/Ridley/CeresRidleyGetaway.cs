@@ -78,8 +78,8 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Runs the room's Ceres Ridley getaway cutscene and
-    /// <c>HandleCeresRidleyGetawayCutsceneIfActive</c>. It runs after the
+    /// Runs the room's Ceres Ridley getaway cutscene while it is active.
+    /// It runs after the
     /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
     /// in which Ridley's escape handoff publishes Ceres status one.
     /// </summary>
@@ -183,7 +183,7 @@ internal sealed class CeresRidleyGetaway
     /// <param name="zoom">The floor's zoom, 0 through 65535.</param>
     internal static void UpdateCeresRidleyFloorPalette(RidleyEnemyState state, int zoom)
     {
-        // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped expression.
+        // The floor's zoom-level colours use this wrapped expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomStep = UnsignedEightEight.Whole(zoom);
         if (zoomStep < CeresRidleyPaletteDefinitions.GetawayZoomStepCount)
@@ -196,8 +196,8 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Ports the shared Ridley function for the Ceres branch: the warning runs through its phases
-    /// (<see cref="CeresSelfDestructPhase"/>, the C062/C08E/C09F/C0BB/C0F5/C104/C117 entries) in order. English skips
+    /// Runs the shared Ridley function for the Ceres branch: the warning runs through its phases
+    /// (<see cref="CeresSelfDestructPhase"/>) in order. English skips
     /// only the Japanese subtitle phase and types the game's three-line English warning. Japanese runs the
     /// subtitle phase first, installs its subtitle tilemap, and then uses the same typewriter.
     /// </summary>
@@ -222,7 +222,7 @@ internal sealed class CeresRidleyGetaway
             case CeresSelfDestructPhase.ReadyingBackgrounds:
                 if (ReadyCeresEscapeWarning(state))
                 {
-                    // The warning setup calls DrawEmergencyText immediately after the final
+                    // The warning setup draws the emergency text immediately after the final
                     // graphics record. The call was missing from the earlier
                     // translation, so the newly uploaded letter tiles existed but no
                     // tilemap entries ever referenced them on screen.
@@ -282,7 +282,7 @@ internal sealed class CeresRidleyGetaway
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // The escape-text sequence sets the area-boss bit inside Ridley's AI, so later slots (the
-                // room's exit door) observe it in this same EnemyMain pass.
+                // room's exit door) observe it in this same enemy update.
                 _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
                 _frameResults.CeresEscapeStarted = true;
                 return;

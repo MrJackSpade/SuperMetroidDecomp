@@ -207,7 +207,7 @@ internal sealed class MotherBrainLateFightState
         // The lean helper ignores every pose except standing (zero) and leaning (six), and its
         // low-byte threshold is inclusive at 192. A request still executes as body
         // instruction bytecode later in the enemy-processing stage.
-        if (randomNumberSeed.LowByte < 192)
+        if (randomNumberSeed.LowPart < 192)
             return false;
 
         if (Body.Pose == MotherBrainBodyPose.Standing)
@@ -249,10 +249,10 @@ internal sealed class MotherBrainLateFightState
         return false;
     }
 
-    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their 16-bit difference, as the original game compares positions.</summary>
+    /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their wrapped difference, as the original game compares positions.</summary>
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
         CoordinateAxis.Difference(value, threshold) >= 0;
 
-    /// <summary>How many head instruction lists the phases have requested; a change marks a new request.</summary>
+    /// <summary>How many head programs the phases have requested; a change marks a new request.</summary>
     internal uint HeadAnimationScriptRequestSerial { get; private set; }
 }

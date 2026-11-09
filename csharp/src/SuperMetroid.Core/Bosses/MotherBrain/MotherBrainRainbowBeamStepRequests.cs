@@ -78,7 +78,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The escape door's particle spawns requested.</summary>
     internal List<MotherBrainEscapeDoorParticleSpawnRequest> EscapeDoorParticleSpawns { get; } = new(capacity: 8);
 
-    /// <summary>The escape door's PLM requested, if any.</summary>
+    /// <summary>The escape door's room object requested, if any.</summary>
     internal RoomObjectSpawnRequest<MotherBrainRoomMutation>? EscapeDoorObject { get; set; }
 
     /// <summary>Whether the earthquake timer was refreshed.</summary>

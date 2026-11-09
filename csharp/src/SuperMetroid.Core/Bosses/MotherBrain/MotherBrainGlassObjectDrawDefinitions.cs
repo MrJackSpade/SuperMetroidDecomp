@@ -3,8 +3,8 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Physical draw layouts selected by Mother Brain's glass PLM: how each frame's cells collide. The glass's draws
-/// hold the frames' signed run offsets from the PLM origin, its typed object owns damage thresholds, shards and timing,
+/// Physical draw layouts selected by Mother Brain's glass room object: how each frame's cells collide. The glass's draws
+/// hold the frames' signed run offsets from its origin block, its typed object owns damage thresholds, shards and timing,
 /// and what each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class MotherBrainGlassObjectDrawDefinitions

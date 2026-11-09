@@ -274,8 +274,8 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Registers the Torizo hurt reaction for each variant; the common instruction interpreter still
-    /// advances after the hurt callback, as EnemyMain does.
+    /// Adds the Torizo hurt reaction for each variant; the common program runner still
+    /// advances after the hurt callback, as the enemies' update does.
     /// </summary>
     internal void AddBombTorizoHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,

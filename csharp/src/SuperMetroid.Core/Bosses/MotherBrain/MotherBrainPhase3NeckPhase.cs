@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Reachable third-phase neck function pointers.</summary>
+/// <summary>Reachable third-phase neck functions.</summary>
 public enum MotherBrainPhase3NeckPhase
 {
     /// <summary>No phase-three neck sub-function is active.</summary>

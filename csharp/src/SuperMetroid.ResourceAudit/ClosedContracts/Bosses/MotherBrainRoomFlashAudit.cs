@@ -28,7 +28,7 @@ internal static class MotherBrainRoomFlashAudit
 
     /// <summary>Checks all compiled Mother Brain flash presentation operands against the exported entry domain.</summary>
     internal static void Inspect(string source, ResourceIndex exports, AuditReport report) =>
-        RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
+        RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount)
             .Select(MotherBrainRoomColorExtractor.FlashPaletteOperandAddress).ToArray(), source, exports, report);
 
     /// <summary>Converts palette operand addresses to timed-entry keys and records resolved coverage for the resource audit.</summary>
@@ -54,7 +54,7 @@ internal static class MotherBrainRoomFlashAudit
         const ushort syntheticPalettePointer = 0xf000;
         var source = new SyntheticCartridge(
             address => new InvalidDataException($"Room-flash audit requested undeclared bytes at {address:X6}."));
-        for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; index++)
+        for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount; index++)
             source.SetWord(MotherBrainSourceDefinitions.RoomColors.FlashBank |
                 MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(index), syntheticPalettePointer);
         void AddColors(int start, int count) => source.DeclareZero(start, count * sizeof(ushort));

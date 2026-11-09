@@ -42,7 +42,7 @@ internal sealed class DraygonGoop
         SamusState? samus,
         int frameCounter)
     {
-        // Only the rightward setup calls HandleFiringWallTurret; the leftward setup omits it.
+        // Only the rightward setup fires a wall turret; the leftward setup omits it.
         // That asymmetry changes the random seed and is therefore material.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
@@ -52,7 +52,7 @@ internal sealed class DraygonGoop
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;
         // Retail's leftward setup briefly requests the right-facing apex arm list before
-        // the body reset opcode replaces all four lists. Preserve the literal write.
+        // the body's reset cue replaces all four programs. Preserve the literal write.
         _parts.StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingRightNearSwoopApex);
         state.Function = direction == HorizontalDirection.Right
             ? DraygonAiFunction.GoopRight
@@ -305,7 +305,7 @@ internal sealed class DraygonGoop
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
-        // The power-bomb deletion does not end this pre-instruction.
+        // The power-bomb deletion does not end this frame behaviour.
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;

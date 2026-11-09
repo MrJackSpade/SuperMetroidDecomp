@@ -142,6 +142,95 @@ internal static class DoorObjectNativeProgramOracle
     }
 
     /// <summary>
+    /// Every eye door's lists, both facings, equal the typed eye's and parts' sequences, nearness, count and wakes;
+    /// returns the images compared.
+    /// </summary>
+    internal static int CompareEyeDoors(IImportCartridgeSource cartridge)
+    {
+        int images = 0;
+        foreach (EyeDoorOrientation orientation in Enum.GetValues<EyeDoorOrientation>())
+        {
+            NativeEyeDoorEyeLists eye = DoorObjectNativeListAddresses.Eye(orientation);
+            ushort blueClosed = DoorObjectNativeListAddresses.Blue(orientation == EyeDoorOrientation.Left ? ColoredDoorOrientation.Left : ColoredDoorOrientation.Right).Closed;
+            RoomObjectInstruction makeBlue = orientation == EyeDoorOrientation.Left
+                ? RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft
+                : RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight;
+            string at = $"{orientation} eye";
+
+            ushort cursor = ExpectGoto(cartridge, eye.Start, RoomObjectInstruction.GotoIfDoorBitSet, eye.Opened, $"{at} turns blue once opened");
+            VerificationAssertions.AssertEqual(eye.Idle, cursor, $"{at} first look falls into its closed eye");
+
+            cursor = CompareEyeSteps(cartridge, eye.Idle, EyeDoorSequenceDefinitions.Closed, orientation, EyeDoorComponent.Eye, $"{at} closed");
+            cursor = ExpectNear(cartridge, cursor, EyeDoorSequenceDefinitions.WakeReach, eye.Activate, $"{at} opens once Samus is near");
+            _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Idle, $"{at} stays closed otherwise");
+
+            cursor = ExpectGoto(cartridge, eye.Activate, RoomObjectInstruction.LinkInstruction, eye.Hit, $"{at} wakes at its hit");
+            cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.InstallFrameBehavior, DoorsNativeWords.EyeDoorMissileWake, $"{at} takes missiles");
+            cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Opening, orientation, EyeDoorComponent.Eye, $"{at} opening");
+            VerificationAssertions.AssertEqual(eye.Watch, cursor, $"{at} opening falls into its watch");
+
+            cursor = ExpectNear(cartridge, eye.Watch, EyeDoorSequenceDefinitions.InFrontReach, eye.Close, $"{at} blinks while Samus is in front");
+            cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Watching, orientation, EyeDoorComponent.Eye, $"{at} watching");
+            cursor = ExpectNear(cartridge, cursor, EyeDoorSequenceDefinitions.WakeReach, eye.Watch, $"{at} watches again while Samus is near");
+            _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Idle, $"{at} closes once Samus has left");
+
+            cursor = CompareEyeSteps(cartridge, eye.Close, EyeDoorSequenceDefinitions.Blinking, orientation, EyeDoorComponent.Eye, $"{at} blinking");
+            _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Watch, $"{at} watches after its blink");
+
+            VerificationAssertions.AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, InstructionAt<RoomObjectInstruction>(cartridge, eye.Hit), $"{at} hit sounds");
+            VerificationAssertions.AssertEqual(EyeDoorSequenceDefinitions.HitSound,
+                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, eye.Hit + 2)), $"{at} hit sound");
+            VerificationAssertions.AssertEqual(SoundRequestPriority.Normal, EyeDoorSequenceDefinitions.HitSoundPriority, $"{at} hit sound priority");
+            cursor = Expect(cartridge, unchecked((ushort)(eye.Hit + QueueSoundLength)), RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} hit smokes");
+            cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} hit smokes again");
+            VerificationAssertions.AssertEqual(RoomObjectInstruction.IncrementDoorHitCounterAndGoto, InstructionAt<RoomObjectInstruction>(cartridge, cursor), $"{at} counts its hit");
+            VerificationAssertions.AssertEqual(EyeDoorSequenceDefinitions.HitThreshold, (int)ReadOperandByte(cartridge, cursor + 2), $"{at} hit count");
+            VerificationAssertions.AssertEqual(eye.Destroyed, Word(cartridge, cursor + 3), $"{at} is destroyed at its count");
+            cursor = CompareEyeSteps(cartridge, unchecked((ushort)(cursor + 5)), EyeDoorSequenceDefinitions.Flinching, orientation, EyeDoorComponent.Eye, $"{at} flinching");
+            _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, eye.Watch, $"{at} watches after its flinch");
+
+            cursor = Expect(cartridge, eye.Destroyed, RoomObjectInstruction.ClearFrameBehavior, 2, $"{at} destroyed takes no more shots");
+            cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnEyeDoorSmoke, 2, $"{at} destroyed smokes");
+            cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnEyeDoorSmoke, 2, $"{at} destroyed smokes again");
+            cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} destroyed scatters smoke");
+            cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} destroyed scatters smoke again");
+            cursor = Expect(cartridge, cursor, makeBlue, 2, $"{at} destroyed moves onto its blue cap");
+            VerificationAssertions.AssertEqual(RoomObjectInstruction.SetEightBitTimer, InstructionAt<RoomObjectInstruction>(cartridge, cursor), $"{at} counts its flashes");
+            VerificationAssertions.AssertEqual(EyeDoorSequenceDefinitions.OpeningFlashes, (int)ReadOperandByte(cartridge, cursor + 2), $"{at} flashes");
+            VerificationAssertions.AssertEqual(eye.Opening, unchecked((ushort)(cursor + 3)), $"{at} destroyed falls into its flashes");
+
+            cursor = CompareEyeSteps(cartridge, eye.Opening, EyeDoorSequenceDefinitions.OpeningFlash, orientation, EyeDoorComponent.Eye, $"{at} flash");
+            cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.DecrementTimerAndGoto, eye.Opening, $"{at} flashes again until counted");
+            _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, blueClosed, $"{at} turns into its closed blue cap");
+
+            cursor = Expect(cartridge, eye.Opened, makeBlue, 2, $"{at} of an opened door moves onto its blue cap");
+            _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, blueClosed, $"{at} of an opened door turns into its closed blue cap");
+            images += EyeDoorSequenceDefinitions.Closed.Count + EyeDoorSequenceDefinitions.Opening.Count + EyeDoorSequenceDefinitions.Watching.Count
+                + EyeDoorSequenceDefinitions.Blinking.Count + EyeDoorSequenceDefinitions.Flinching.Count + EyeDoorSequenceDefinitions.OpeningFlash.Count;
+
+            foreach (EyeDoorComponent component in (EyeDoorComponent[])[EyeDoorComponent.Door, EyeDoorComponent.Bottom])
+            {
+                NativeEyeDoorPartLists part = DoorObjectNativeListAddresses.Part(orientation, component);
+                string where = $"{orientation} eye door {component}";
+                cursor = ExpectGoto(cartridge, part.Start, RoomObjectInstruction.GotoIfDoorBitSet, part.Delete, $"{where} leaves once opened");
+                VerificationAssertions.AssertEqual(part.Idle, cursor, $"{where} first look falls into its still pose");
+                cursor = ExpectNear(cartridge, part.Idle, EyeDoorSequenceDefinitions.PulseReach, part.Activate, $"{where} pulses once Samus is near");
+                cursor = CompareEyeSteps(cartridge, cursor, EyeDoorSequenceDefinitions.Still, orientation, component, $"{where} still");
+                _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, part.Idle, $"{where} looks for Samus again");
+                cursor = ExpectGoto(cartridge, part.Activate, RoomObjectInstruction.LinkInstruction, part.Delete, $"{where} wakes at its delete");
+                cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.InstallFrameBehavior, DoorsNativeWords.EyeDoorOpenedDoorWake, $"{where} waits for its door");
+                VerificationAssertions.AssertEqual(part.Cycle, cursor, $"{where} falls into its pulse");
+                cursor = CompareEyeSteps(cartridge, part.Cycle, EyeDoorSequenceDefinitions.Pulse[orientation], orientation, component, $"{where} pulse");
+                cursor = ExpectNear(cartridge, cursor, EyeDoorSequenceDefinitions.PulseReach, part.Cycle, $"{where} pulses again while Samus is near");
+                _ = ExpectGoto(cartridge, cursor, RoomObjectInstruction.Goto, part.Idle, $"{where} stands still once Samus has left");
+                _ = Expect(cartridge, part.Delete, RoomObjectInstruction.Delete, 2, $"{where} leaves the room");
+                images += EyeDoorSequenceDefinitions.Still.Count + EyeDoorSequenceDefinitions.Pulse[orientation].Count;
+            }
+        }
+        return images;
+    }
+
+    /// <summary>
     /// The phase a recorded grey cap of <paramref name="variant"/> is in when its native instruction pointer rests at
     /// <paramref name="instructionPointer"/>: the list holding the instruction it last ran, which ends just before the
     /// pointer (a sleep rests on itself, after the closed image it follows).
@@ -191,6 +280,63 @@ internal static class DoorObjectNativeProgramOracle
             cursor = unchecked((ushort)(cursor + 4));
         }
         return cursor;
+    }
+
+    /// <summary>
+    /// Compares the native timed draws from <paramref name="cursor"/> with an eye door's <paramref name="sequence"/>, each
+    /// with the shot, smoke or sweat spawned just before it; returns the cursor after the last draw.
+    /// </summary>
+    private static ushort CompareEyeSteps(IImportCartridgeSource cartridge, ushort cursor, IReadOnlyList<EyeDoorStep> sequence,
+        EyeDoorOrientation orientation, EyeDoorComponent component, string at)
+    {
+        // The shot and sweat operands are the byte offsets of the facing's origin and launch pairs ($86:B65B and
+        // $86:B6B1), which LookupStream4 ties to the typed facings.
+        const ushort LeftOperand = 0;
+        const ushort RightShotOperand = 20;
+        const ushort RightSweatOperand = 4;
+        for (int index = 0; index < sequence.Count; index++)
+        {
+            EyeDoorStep step = sequence[index];
+            string where = $"{at} image {index} at $84:{cursor:X4}";
+            switch (step.Before)
+            {
+                case EyeDoorAction.None:
+                    break;
+                case EyeDoorAction.Shoot:
+                    cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.ShootEyeDoorProjectile,
+                        orientation == EyeDoorOrientation.Right ? RightShotOperand : LeftOperand, $"{where}: shot");
+                    break;
+                case EyeDoorAction.SpawnSweat:
+                    cursor = ExpectGoto(cartridge, cursor, RoomObjectInstruction.SpawnEyeDoorSweat,
+                        orientation == EyeDoorOrientation.Right ? RightSweatOperand : LeftOperand, $"{where}: sweat");
+                    break;
+                case EyeDoorAction.SpawnTwoSmoke:
+                    cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{where}: smoke");
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(EyeDoorAction)} {step.Before}.");
+            }
+            ushort duration = Word(cartridge, cursor);
+            VerificationAssertions.AssertTrue((duration & InstructionBit) == 0, $"{where}: the native list draws");
+            VerificationAssertions.AssertEqual((int)duration, step.Updates, $"{where}: updates the image stays");
+            VerificationAssertions.AssertEqual(Word(cartridge, cursor + 2),
+                RoomObjectDrawAddressCodec.Of(EyeDoorDraws.DrawList(orientation, component, step.Image)), $"{where}: draw");
+            cursor = unchecked((ushort)(cursor + 4));
+        }
+        return cursor;
+    }
+
+    /// <summary>
+    /// Asserts the Samus-nearness branch at <paramref name="cursor"/>: its reach across and up or down, and the list it
+    /// continues at; returns the cursor after it.
+    /// </summary>
+    private static ushort ExpectNear(IImportCartridgeSource cartridge, ushort cursor, Extent16<RoomBlocks> reach, ushort target, string at)
+    {
+        VerificationAssertions.AssertEqual(RoomObjectInstruction.GotoIfSamusNear, InstructionAt<RoomObjectInstruction>(cartridge, cursor), $"{at} at $84:{cursor:X4}");
+        VerificationAssertions.AssertEqual(reach, new Extent16<RoomBlocks>(ReadOperandByte(cartridge, cursor + 2), ReadOperandByte(cartridge, cursor + 3)),
+            $"{at}: reach");
+        VerificationAssertions.AssertEqual(target, Word(cartridge, cursor + 4), $"{at}: target");
+        return unchecked((ushort)(cursor + 6));
     }
 
     /// <summary>

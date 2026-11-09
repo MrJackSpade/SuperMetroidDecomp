@@ -51,8 +51,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
             [ShaktoolRoomFrameBehaviors.Controller] = ShaktoolRoomObjectNativeProgram.FrameBehavior,
             [WreckedShipAtticFrameBehaviors.NoOpCallback] = WreckedShipAtticObjectRomData.NoOpCallback,
             [SamusEaterFrameBehaviors.Hold] = SamusEaterObjectDefinitionsConstants.HoldFrameBehavior,
-            [EyeDoorFrameBehaviors.WakeWhenDoorBitSet] = DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.WakeWhenDoorBitSet),
-            [EyeDoorFrameBehaviors.MissileHit] = DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
             [DownwardGateFrameBehaviors.WakeIfTriggered] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggered),
             [DownwardGateFrameBehaviors.WakeIfTriggeredOrSamusBelow] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow),
             [DownwardGateFrameBehaviors.Inert] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.Inert),

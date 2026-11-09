@@ -153,34 +153,26 @@ internal static class RoomObjectPopulationVerification
 
     /// <summary>
     /// Verifies the fixed header+4 closing list of every resident door: a typed cap's or the escape gate's closing begins
-    /// exactly there, and the eye doors resolve their closing start by identity. Each then runs the real room-population
-    /// load and transition redirect with that source word absent from the sparse bus.
+    /// exactly there, and an eye door's body, whose closing list is the delete, leaves the room on its next update. Each
+    /// then runs the real room-population load and transition redirect with that source word absent from the sparse bus.
+    /// A room object at the door that has no closing fails loudly.
     /// </summary>
     internal static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
             0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
-        RoomObjectHeaderId[] resolved = [.. ResidentDoorClosingDefinitions.All.Select(entry => entry.Header)];
-        RoomObjectHeaderId[] identityClosers = [RoomObjectHeaderId.EyeDoorFacingRight, RoomObjectHeaderId.EyeDoorFacingLeft];
-        AssertTrue(resolved.SequenceEqual(identityClosers),
-            "Only the eye doors keep a closing start by identity");
-        foreach (RoomObjectHeaderId other in Enum.GetValues<RoomObjectHeaderId>())
-            if (!resolved.Contains(other))
-                AssertThrows<InvalidDataException>(() => ResidentDoorClosings.Resolve(other),
-                    "Resident closing complete unsupported-header domain");
 
         int definitionIndex = 0;
         foreach (ushort raw in headers)
         {
             RoomObjectHeaderId header = RoomObjectNativeWords.Header(raw);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
-            ushort? typedClosing = DoorObjectNativeListAddresses.TypedClosingEntry(header)
-                ?? (header == RoomObjectHeaderId.MotherBrainEscapeRoomGate ? DoorObjectNativeListAddresses.EscapeGateClosing : null);
-            if (typedClosing is { } typed)
-                AssertEqual(expected, typed, $"resident door $84:{raw:X4} closing program begins at its header's list");
-            else
-                AssertEqual(RoomObjectProgramStartOracle.ForNativeList(expected), ResidentDoorClosings.Resolve(header),
-                    $"resident door $84:{raw:X4} resolves by identity");
+            bool eyeDoorBody = header is RoomObjectHeaderId.EyeDoorFacingRight or RoomObjectHeaderId.EyeDoorFacingLeft;
+            ushort typedClosing = DoorObjectNativeListAddresses.TypedClosingEntry(header)
+                ?? (header == RoomObjectHeaderId.MotherBrainEscapeRoomGate ? DoorObjectNativeListAddresses.EscapeGateClosing
+                    : eyeDoorBody ? RoomObjectProgramStartOracle.SharedDeleteEntry
+                    : throw new InvalidOperationException($"Resident door $84:{raw:X4} has no typed closing."));
+            AssertEqual(expected, typedClosing, $"resident door $84:{raw:X4} closing begins at its header's list");
 
             // Typed placement metadata supplies the first list only. The transition
             // must obtain its closing program from the resident cap or catalog,
@@ -216,16 +208,32 @@ internal static class RoomObjectPopulationVerification
             AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
-            AssertTrue(typedClosing is null
-                    ? RoomObjectProgramStartOracle.IsRunning(ResidentDoorClosings.Resolve(header), slot)
-                    : TypedDoorObjectOracle.IsClosing(slot.Behaviour),
-                $"resident door $84:{raw:X4} starts its closing");
+            AssertTrue(TypedDoorObjectOracle.IsClosing(slot.Behaviour), $"resident door $84:{raw:X4} starts its closing");
+            if (eyeDoorBody)
+            {
+                roomObjects.Step(level);
+                AssertEqual(0, roomObjects.SlotTable.ActiveCount, $"resident eye door body $84:{raw:X4} leaves on its next update");
+            }
             definitionIndex++;
         }
 
+        // A shot blue cap at the door's block has no closing: the transition fails loudly rather than skipping it.
+        RoomLevelData blueLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
+        var blueObjects = RoomObjectFixtures.Unbound();
+        AssertTrue(blueObjects.DoorObjects.TrySpawnBlueDoorOpening(blueLevel, blueLevel.GetBlockIndex(new(1, 1)),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
+            "a shot blue cap stands at the door's block");
+        var blueDoor = new DoorDefinition(
+            Name: "fixture door",
+            DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+            Orientation: new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses),
+            RoomObjectBlock: new(1, 1),
+            DestinationScreen: new(0, 0),
+            SamusSpeed: DoorSamusSpeed.None,
+            SetupCode: DoorSetupCode.None);
         AssertThrows<InvalidDataException>(
-            () => ResidentDoorClosings.Resolve(RoomObjectHeaderId.BlueDoorFacingLeft),
-            "nonresident blue-door collision header is outside resident closing domain");
+            () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor, new SharedGameState(new SharedRandom())),
+            "a shot blue cap at the door is outside the resident closing domain");
     }
 
     /// <summary>Compares the three Speed Booster escape stages with retail control data and their runtime handoffs.</summary>

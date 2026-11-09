@@ -15,9 +15,6 @@ internal enum RoomObjectFamily
     /// <summary>The resident five-block downward gate.</summary>
     DownwardGate,
 
-    /// <summary>One component of a mirrored eye-door assembly.</summary>
-    EyeDoor,
-
     /// <summary>One of Draygon's three retail cannons.</summary>
     DraygonCannon,
 

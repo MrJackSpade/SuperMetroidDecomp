@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -18,12 +17,11 @@ internal static class DoorsNativeWords
         [ColoredDoorColor.Red] = 0xbd50,
     };
 
-    /// <summary>The bank-$84 routine word naming each <see cref="EyeDoorFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<EyeDoorFrameBehavior> EyeDoorFrameBehaviors = new(new Dictionary<EyeDoorFrameBehavior, ushort>
-    {
-        [EyeDoorFrameBehavior.WakeWhenDoorBitSet] = 0xd753,
-        [EyeDoorFrameBehavior.MissileHit] = 0xbd50,
-    });
+    /// <summary>The bank-$84 missile wake an opening eye-door eye installs.</summary>
+    internal const ushort EyeDoorMissileWake = 0xbd50;
+
+    /// <summary>The bank-$84 opened-door wake a pulsing eye-door body or bottom installs.</summary>
+    internal const ushort EyeDoorOpenedDoorWake = 0xd753;
 
     /// <summary>The bank-$84 any-shot wake an unlocked grey cap installs.</summary>
     internal const ushort GreyDoorShotWake = 0xbd0f;

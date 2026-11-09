@@ -63,13 +63,8 @@ internal sealed class DoorObjects
             }
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.
-            if (resident.Behaviour is IClosingDoor closing)
-            {
-                closing.CloseBehindSamus();
-                return true;
-            }
-            ResidentDoorClosings.Resolve(resident.Header).StartOn(resident);
-            resident.FrameHold = 1;
+            (resident.Behaviour as IClosingDoor ?? throw new InvalidDataException(
+                $"Room object {resident.Header} at the door's block has no closing behind Samus.")).CloseBehindSamus();
             return true;
         }
 
@@ -145,13 +140,6 @@ internal sealed class DoorObjects
             RequireSystem().OpenDoor(cap.Door);
             place.Argument = new SpentDoorArgument(cap.Door);
         }
-    }
-
-    /// <summary>An eye's opening step at its count: records its door opened for good and ends its wait for a shot.</summary>
-    internal void MarkDoorOpened(RoomObjectSlot slot)
-    {
-        RecordDoorOpened(slot);
-        slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
     }
 
     /// <summary>The room's door-bit persistence owner.</summary>

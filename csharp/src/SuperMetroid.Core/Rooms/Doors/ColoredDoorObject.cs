@@ -52,7 +52,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <inheritdoc/>
-    private protected override bool ReactToShot(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override bool React(RoomObjectSlot place, RoomObjectStepContext context)
     {
         if (!TakesShots || place.ProjectileHit is not { Family: var family })
             return false;

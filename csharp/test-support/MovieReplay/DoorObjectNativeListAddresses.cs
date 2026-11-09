@@ -51,73 +51,21 @@ internal static class DoorObjectNativeListAddresses
     /// <summary>Mother Brain's escape gate closing behind Samus (<c>InstList_PLM_MotherBrainsRoomEscapeDoor_1</c>).</summary>
     internal const ushort EscapeGateClosing = 0xbb44;
 
-    /// <summary>The left-facing eye door eye's lists (<c>InstList_PLM_EyeDoorEyeFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorObjectProgram>> EyeLeftEyeEntries =
-    [
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeStart, 0xd81e),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeIdle, 0xd822),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeActivate, 0xd830),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeWatch, 0xd83c),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeClose, 0xd878),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeHit, 0xd880),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeDestroyed, 0xd8c4),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeOpening, 0xd8d3),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeOpened, 0xd8e3),
-    ];
+    /// <summary>Each facing's eye-door eye lists (<c>InstList_PLM_EyeDoorEyeFacing*</c>).</summary>
+    private static readonly IReadOnlyDictionary<EyeDoorOrientation, NativeEyeDoorEyeLists> EyeLists = new Dictionary<EyeDoorOrientation, NativeEyeDoorEyeLists>
+    {
+        [EyeDoorOrientation.Left] = new(0xd81e, 0xd822, 0xd830, 0xd83c, 0xd878, 0xd880, 0xd8c4, 0xd8d3, 0xd8e3),
+        [EyeDoorOrientation.Right] = new(0xd955, 0xd959, 0xd967, 0xd973, 0xd9af, 0xd9b7, 0xd9fb, 0xda0a, 0xda1a),
+    };
 
-    /// <summary>The left-facing eye door door's lists (<c>InstList_PLM_EyeDoorFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorObjectProgram>> EyeLeftDoorEntries =
-    [
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentStart, 0xd8e9),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentIdle, 0xd8ed),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentActivate, 0xd8fb),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentCycle, 0xd903),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentDelete, 0xd91d),
-    ];
-
-    /// <summary>The left-facing eye door bottom's lists (<c>InstList_PLM_EyeDoorBottomFacingLeft_*</c>).</summary>
-    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorObjectProgram>> EyeLeftBottomEntries =
-    [
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentStart, 0xd91f),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentIdle, 0xd923),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentActivate, 0xd931),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentCycle, 0xd939),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentDelete, 0xd953),
-    ];
-
-    /// <summary>The right-facing eye door eye's lists (<c>InstList_PLM_EyeDoorEyeFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorObjectProgram>> EyeRightEyeEntries =
-    [
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeStart, 0xd955),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeIdle, 0xd959),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeActivate, 0xd967),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeWatch, 0xd973),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeClose, 0xd9af),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeHit, 0xd9b7),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeDestroyed, 0xd9fb),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeOpening, 0xda0a),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.EyeOpened, 0xda1a),
-    ];
-
-    /// <summary>The right-facing eye door door's lists (<c>InstList_PLM_EyeDoorFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorObjectProgram>> EyeRightDoorEntries =
-    [
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentStart, 0xda20),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentIdle, 0xda24),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentActivate, 0xda32),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentCycle, 0xda3a),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentDelete, 0xda54),
-    ];
-
-    /// <summary>The right-facing eye door bottom's lists (<c>InstList_PLM_EyeDoorBottomFacingRight_*</c>).</summary>
-    private static readonly IReadOnlyList<NativeProgramEntry<EyeDoorObjectProgram>> EyeRightBottomEntries =
-    [
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentStart, 0xda56),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentIdle, 0xda5a),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentActivate, 0xda68),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentCycle, 0xda70),
-        new NativeProgramEntry<EyeDoorObjectProgram>(EyeDoorObjectProgram.ComponentDelete, 0xda8a),
-    ];
+    /// <summary>Each facing's eye-door body and bottom lists (<c>InstList_PLM_EyeDoorFacing*</c>, <c>InstList_PLM_EyeDoorBottomFacing*</c>).</summary>
+    private static readonly IReadOnlyDictionary<EyeDoorPart, NativeEyeDoorPartLists> PartLists = new Dictionary<EyeDoorPart, NativeEyeDoorPartLists>
+    {
+        [new(EyeDoorComponent.Door, EyeDoorOrientation.Left)] = new(0xd8e9, 0xd8ed, 0xd8fb, 0xd903, 0xd91d),
+        [new(EyeDoorComponent.Bottom, EyeDoorOrientation.Left)] = new(0xd91f, 0xd923, 0xd931, 0xd939, 0xd953),
+        [new(EyeDoorComponent.Door, EyeDoorOrientation.Right)] = new(0xda20, 0xda24, 0xda32, 0xda3a, 0xda54),
+        [new(EyeDoorComponent.Bottom, EyeDoorOrientation.Right)] = new(0xda56, 0xda5a, 0xda68, 0xda70, 0xda8a),
+    };
 
     /// <summary>The blue cap facing <paramref name="orientation"/>'s lists.</summary>
     internal static NativeBlueDoorLists Blue(ColoredDoorOrientation orientation) => BlueLists[orientation];
@@ -132,18 +80,12 @@ internal static class DoorObjectNativeListAddresses
     /// <summary>Every grey cap: the four facings and Bomb Torizo's door.</summary>
     internal static IReadOnlyList<GreyDoorVariant> GreyVariants { get; } = [.. GreyLists.Keys];
 
-    /// <summary>The lists of eye-door <paramref name="component"/> facing <paramref name="orientation"/>.</summary>
-    internal static IReadOnlyList<NativeProgramEntry<EyeDoorObjectProgram>> EyeDoorEntries(EyeDoorOrientation orientation, EyeDoorComponent component) =>
-        new EyeDoorEntriesCase(orientation, component) switch
-        {
-            (EyeDoorOrientation.Left, EyeDoorComponent.Eye) => EyeLeftEyeEntries,
-            (EyeDoorOrientation.Left, EyeDoorComponent.Door) => EyeLeftDoorEntries,
-            (EyeDoorOrientation.Left, EyeDoorComponent.Bottom) => EyeLeftBottomEntries,
-            (EyeDoorOrientation.Right, EyeDoorComponent.Eye) => EyeRightEyeEntries,
-            (EyeDoorOrientation.Right, EyeDoorComponent.Door) => EyeRightDoorEntries,
-            (EyeDoorOrientation.Right, EyeDoorComponent.Bottom) => EyeRightBottomEntries,
-            _ => throw new InvalidOperationException($"Undefined eye-door component {orientation} {component}."),
-        };
+    /// <summary>The eye-door eye facing <paramref name="orientation"/>'s lists.</summary>
+    internal static NativeEyeDoorEyeLists Eye(EyeDoorOrientation orientation) => EyeLists[orientation];
+
+    /// <summary>The eye-door <paramref name="component"/> (body or bottom) facing <paramref name="orientation"/>'s lists.</summary>
+    internal static NativeEyeDoorPartLists Part(EyeDoorOrientation orientation, EyeDoorComponent component) =>
+        PartLists[new EyeDoorPart(component, orientation)];
 
     /// <summary>The native closing list a coloured or grey cap's header names, or null for a header that is not one.</summary>
     internal static ushort? TypedClosingEntry(RoomObjectHeaderId header)

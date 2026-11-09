@@ -56,7 +56,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     }
 
     /// <inheritdoc/>
-    private protected override bool ReactToShot(RoomObjectSlot place, RoomObjectStepContext context)
+    private protected override bool React(RoomObjectSlot place, RoomObjectStepContext context)
     {
         GreyDoorObjects doors = context.RoomObjects.GreyDoors;
         switch (Waits)

@@ -89,19 +89,22 @@ internal static class RoomObjectSystemAccess
                     entry.Door.Phase, checked((byte)entry.Door.HitCounter), entry.Door)),
         ];
 
-        /// <summary>Debugger-visible projections of every live eye-door component.</summary>
+        /// <summary>Views of every eye-door eye, body and bottom in the room.</summary>
         internal IReadOnlyList<EyeDoorObjectSnapshot> EyeDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door:slot.Family as EyeDoorObjects.EyeDoorObjectState))
-                .Where(entry => entry.Door is not null)
+            .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door: slot.Behaviour as EyeDoorEyeObject, Part: slot.Behaviour as EyeDoorPartObject))
+                .Where(entry => entry.Door is not null || entry.Part is not null)
                 .Select(entry => new EyeDoorObjectSnapshot(
                     entry.Slot.Header,
                     entry.Slot.BlockIndex,
                     entry.Slot.NativeRoomArgument,
-                    ((entry.Door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
-                    checked((byte)(entry.Door).HitCounter),
-                    entry.Slot.Animation,
-                    RoomObjectFrameBehaviorNativeRoutines.Of(entry.Slot.FrameBehavior))),
+                    entry.Door is not null ? EyeDoorComponent.Eye
+                        : (entry.Part ?? throw new InvalidOperationException("Verification requires an eye-door part.")).Component,
+                    checked((byte)(entry.Door?.HitCounter ?? 0)),
+                    entry.Slot.Behaviour,
+                    entry.Door is { } eye
+                        ? (eye.TakesShots ? DoorsNativeWords.EyeDoorMissileWake : RoomObjectFrameBehaviorDefinitions.SpawnDefault)
+                        : entry.Part is { WaitsForOpenedDoor: true } ? DoorsNativeWords.EyeDoorOpenedDoorWake : RoomObjectFrameBehaviorDefinitions.SpawnDefault)),
         ];
 
         /// <summary>
@@ -185,17 +188,12 @@ internal static class RoomObjectSystemAccess
         {
             foreach (var slot in self.SlotTable.Slots)
             {
-                if (!slot.Active || slot.BlockIndex != blockIndex ||
-                    slot.Family is not EyeDoorObjects.EyeDoorObjectState door ||
-                    door.Component != EyeDoorComponent.Eye)
-                {
+                if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not EyeDoorEyeObject)
                     continue;
-                }
 
-                // The pending hit is single. A later collision before the handler pass
-                // replaces it rather than accumulating a host-side queue.
+                // The pending hit is single. A later collision before the eye's update replaces it rather than
+                // accumulating a host-side queue.
                 slot.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
-                door.HasPendingHit = true;
                 return true;
             }
             return false;

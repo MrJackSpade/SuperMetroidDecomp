@@ -41,6 +41,7 @@ internal static class TypedDoorObjectOracle
         GreyDoorObject grey => grey.Phase == GreyDoorPhase.Closing,
         BlueDoorCapObject blue => blue.Phase == BlueDoorCapPhase.Closing,
         MotherBrainEscapeGateObject gate => gate.Change == MotherBrainEscapeGateDefinitions.Closing,
+        EyeDoorPartObject part => part.ClosesBehindSamus,
         _ => false,
     };
 }

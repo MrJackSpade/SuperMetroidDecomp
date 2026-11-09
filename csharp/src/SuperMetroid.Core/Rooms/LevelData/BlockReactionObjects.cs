@@ -124,7 +124,8 @@ internal sealed class BlockReactionObjects
         slot.Header =
             RoomObjectHeaders.ContactCrumbleByReactionIndex(behavior.Reaction.Entry);
         slot.BlockIndex = blockIndex;
-        RoomTerrainBlock restore = block.Terrain.WithBlock(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent).Block);
+        // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
+        RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent));
         slot.RestoreTerrain = restore;
         slot.Become(new BlockReactionObject(BlockReactionChanges.ContactCrumble(behavior.Reaction.Entry)));
         level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.SolidBlock));
@@ -176,7 +177,8 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.Header = definition.Header;
         slot.BlockIndex = blockIndex;
-        RoomTerrainBlock restore = block.Terrain.WithBlock(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent).Block);
+        // The struck block keeps only its collision; the parent shows unmirrored, whatever the block's mirroring (#1581).
+        RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent));
         slot.RestoreTerrain = restore;
         slot.Become(new BlockReactionObject(definition.Change));
         level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.Air));

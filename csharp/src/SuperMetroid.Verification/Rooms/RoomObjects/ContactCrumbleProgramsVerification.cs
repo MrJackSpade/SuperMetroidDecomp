@@ -144,6 +144,7 @@ internal static class ContactCrumbleProgramsVerification
         Suite(nameof(VerifyContactCrumbleControlMapping), () => VerifyContactCrumbleControlMapping(rom));
         Suite(nameof(VerifyContactCrumbleDrawMapping), () => VerifyContactCrumbleDrawMapping(rom));
         Suite(nameof(VerifyContactCrumbleSoundMapping), () => VerifyContactCrumbleSoundMapping(rom));
+        Suite(nameof(VerifyMirroredCrumbleShowsUnmirroredParent), VerifyMirroredCrumbleShowsUnmirroredParent);
         var forbidden = new HashSet<int>();
         foreach (ushort address in RoomObjectContactCrumbleProgramDefinitions.MechanicsWordAddresses())
         {
@@ -276,13 +277,24 @@ internal static class ContactCrumbleProgramsVerification
     internal sealed record ContactCrumbleFixture(
         RoomLevelData Level, RoomObjectSystem RoomObjects);
 
+    /// <summary>
+    /// A crumble block mirrored both ways keeps only its collision under its setup's parent block (#1581): the block it shows
+    /// and restores is the parent, unmirrored, as the cartridge's setup writes it.
+    /// </summary>
+    private static void VerifyMirroredCrumbleShowsUnmirroredParent()
+    {
+        ContactCrumbleFixture fixture = NewContactCrumbleFixture(0, BlockMirroring.Horizontal | BlockMirroring.Vertical);
+        AssertEqual(RoomBlockAppearance.Of(0x0bc), fixture.Level.GetCollisionBlockByIndex(27).Terrain.Appearance,
+            "a mirrored crumble block's setup shows the parent block unmirrored");
+    }
+
     /// <summary>Installs the selected contact-crumble BTS on a synthetic room block and spawns its native PLM program.</summary>
-    private static ContactCrumbleFixture NewContactCrumbleFixture(byte bts)
+    private static ContactCrumbleFixture NewContactCrumbleFixture(byte bts, BlockMirroring mirroring = BlockMirroring.None)
     {
         const int width = 8;
         const int blockIndex = 27;
         var words = new RoomTerrainBlock[width * width];
-        words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
+        words[blockIndex] = RoomTerrainBlock.Of(0x321, mirroring, RoomCollisionType.SpecialBlock);
         var behaviors = new RoomBlockBehavior[words.Length];
         behaviors[blockIndex] = RoomBlockBehaviorCodec.Decode(bts);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());

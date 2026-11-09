@@ -30,6 +30,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     {
         Suite(nameof(VerifyInactiveSpeedBlockRemainsSolid), () => VerifyInactiveSpeedBlockRemainsSolid());
         Suite(nameof(VerifyBoostedFloorContactRunsRespawningObject), () => VerifyBoostedFloorContactRunsRespawningObject());
+        Suite(nameof(VerifyMirroredSpeedBlockShowsUnmirroredParent), VerifyMirroredSpeedBlockShowsUnmirroredParent);
         Suite(nameof(VerifyBoostedWallContactRunsPermanentObject), () => VerifyBoostedWallContactRunsPermanentObject());
         Suite(nameof(VerifyBrinstarAreaTableVariants), () => VerifyBrinstarAreaTableVariants());
         Suite(nameof(VerifyCompiledSpeedBoosterObjectPrograms), () => VerifyCompiledSpeedBoosterObjectPrograms());
@@ -97,6 +98,21 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "respawning list restores synthesized visual parent $0B6");
     }
 
+    /// <summary>
+    /// A Speed Booster block mirrored both ways keeps only its collision under its setup's parent block (#1581): the block it
+    /// shows and restores is the parent, unmirrored, as the cartridge's setup writes it.
+    /// </summary>
+    private static void VerifyMirroredSpeedBlockShowsUnmirroredParent()
+    {
+        (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) = CreateSpeedBoosterBlockFixture(
+            RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria, BlockMirroring.Horizontal | BlockMirroring.Vertical);
+        SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus,
+            new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(4 << 16), ScanLeftToRight = true });
+        AssertEqual(RoomBlockAppearance.Of(0x0b6), level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
+            "a mirrored Speed Booster block's setup shows the parent block unmirrored");
+    }
+
     /// <summary>Confirms stage-four wall contact selects the permanent PLM and leaves its block as air after the crumble frames.</summary>
     private static void VerifyBoostedWallContactRunsPermanentObject()
     {
@@ -155,7 +171,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
 
     /// <summary>Places one type-$B speed block at room cell (2,4) with an empty PLM population and bank-$84 instruction fixtures.</summary>
     internal static CreateSpeedBoosterBlockFixtureResult
-        CreateSpeedBoosterBlockFixture(RoomBlockBehavior bts, AreaId area)
+        CreateSpeedBoosterBlockFixture(RoomBlockBehavior bts, AreaId area, BlockMirroring mirroring = BlockMirroring.None)
     {
         const int width = 8;
         const int height = 8;
@@ -168,7 +184,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         var words = new RoomTerrainBlock[width * height];
         var behaviors = new RoomBlockBehavior[words.Length];
         int blockIndex = blockY * width + blockX;
-        words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock);
+        words[blockIndex] = RoomTerrainBlock.Of(0x123, mirroring, RoomCollisionType.SpecialBlock);
         behaviors[blockIndex] = bts;
         RoomLevelData level = CreateRoom(new(width, height),
             words,

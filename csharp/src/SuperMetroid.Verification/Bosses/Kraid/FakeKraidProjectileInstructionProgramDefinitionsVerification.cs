@@ -107,7 +107,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Position16<RoomPixels>.Zero);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()), Position16<RoomPixels>.Zero);
         }
     }
 

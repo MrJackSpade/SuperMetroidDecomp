@@ -113,7 +113,7 @@ internal static class PipeBugBehaviorVerification
             { FrameCounter = 0,
                 Camera = Position16<RoomPixels>.Zero,
                 TimeIsFrozen = false,
-                Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(samusPosition) },
+                Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(samusPosition) },
             },
             new FrameCounters(0));
     }

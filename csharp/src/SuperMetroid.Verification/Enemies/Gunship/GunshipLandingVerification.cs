@@ -40,7 +40,7 @@ internal static class GunshipLandingVerification
 
         SeedPostCeresGunshipCartridge(bus, topDefinition, bottomDefinition, populationPointer, tilesetPointer);
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             // Load station eighteen places Samus at $007C before the initializer moves
             // the top to SamusY-17. The ordinary station-zero deck coordinate $0440 is

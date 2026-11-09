@@ -12,7 +12,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// Recorded by Samus's live horizontal and vertical movement, and by the camera's vertical tracking at the end of its
 /// update; read when a beam, missile or Super Missile sets its launch velocity; cleared of its four distances, keeping
-/// the camera subspeed, by the projectile update that precedes the next movement. Lifetime: Samus's.
+/// the camera subspeed, by the projectile update that precedes the next movement. Lifetime: Samus's; whoever builds a Samus creates
+/// one with her and hands it to her.
 /// </para>
 /// <para>
 /// Rules. The inherited velocity's whole pixels are the distance's whole pixels within a cycle of 256 pixels, read as

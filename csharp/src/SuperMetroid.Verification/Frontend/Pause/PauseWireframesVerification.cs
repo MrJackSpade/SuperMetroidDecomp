@@ -41,8 +41,8 @@ internal static class PauseWireframesVerification
             foreach (bool gravity in new[] { false, true })
             {
                 SamusEquipmentFlags equipped = SamusEquipmentWordCodec.FromEquipmentWord(items) | (gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.None);
-                var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
-                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+                var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = SamusBeamFlags.Charge };
+                var native = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CollectedItems = equipped, EquippedItems = equipped, CollectedBeams = samus.CollectedBeams }, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Maridia, RoomMapPosition = new(5, 5), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
                 // Every tick compares the complete render inputs; the pixels are compared once each page change settles,
                 // drawing the two frames only when their descriptions differ (#1532).
@@ -67,7 +67,7 @@ internal static class PauseWireframesVerification
             }
         }
         // Exercise selection through real menu actions, not only a direct bit fixture.
-        var toggledSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
+        var toggledSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots),
             EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.HiJumpBoots) };
         var toggles = new PauseMenuState(new PauseMenuEntry { Samus = toggledSamus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterEquipment(toggles); AssertPage(toggles, original, PauseWireframeKind.VariaSuitHiJump);

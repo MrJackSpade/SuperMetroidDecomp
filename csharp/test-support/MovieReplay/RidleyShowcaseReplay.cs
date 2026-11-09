@@ -422,7 +422,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus Samus knockback countdown", samus.KnockbackTimer, NativeSnapshotMemory.KnockbackTimer);
             Check("Samus Samus knockback direction", (ushort)samus.KnockbackDirection, NativeSnapshotMemory.KnockbackDirection);
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
-            Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlashCounter), NativeSnapshotMemory.HurtFlashCounter);
+            Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlash.Count), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.SubunitHealth), NativeSnapshotMemory.SubunitHealth);
             Check("Samus selected HUD weapon", samus.SelectedHudItem.ToWord(), NativeSnapshotMemory.SelectedHudItem);
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);

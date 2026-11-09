@@ -203,7 +203,7 @@ public static class SamusAerialMovement
         // mirroring the gameplay tail, so neither stale damage mode can leak into another pose.
         if (!fullySubmergedWithoutGravity && SamusPoseMetadata.IsScrewAttackPose(samus.Pose))
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
-        else if (!fullySubmergedWithoutGravity && samus.ProjectileFlareCounter >= 60)
+        else if (!fullySubmergedWithoutGravity && samus.BeamChargeCount.Count >= 60)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
 
         // Bomb-block breaking is independent of contact-damage publication above: liquid
@@ -303,7 +303,7 @@ public static class SamusAerialMovement
         // reaches 60. Frames 0..2 deliberately remain harmless even when fully charged.
         if (samus.AnimationFrame >= 23)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
-        else if (samus.AnimationFrame >= 3 && samus.ProjectileFlareCounter >= 60)
+        else if (samus.AnimationFrame >= 3 && samus.BeamChargeCount.Count >= 60)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(

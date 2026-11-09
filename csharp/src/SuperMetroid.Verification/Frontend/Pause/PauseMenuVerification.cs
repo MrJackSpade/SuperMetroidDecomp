@@ -101,7 +101,7 @@ internal static class PauseMenuVerification
         gameplayHud.BindPresentation(presentation.GameplayHud);
         gameplayHud.Initialize(HudSnapshot.CeresDebug);
         ShownHud retainedHud = gameplayHud.Shown();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
@@ -256,7 +256,7 @@ internal static class PauseMenuVerification
         SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");
         var restoredRevealSystem = new SharedGameState();
-        restoredRevealSlot.ApplyTo(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), restoredRevealSystem);
+        restoredRevealSlot.ApplyTo(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()), restoredRevealSystem);
         var restoredNonePause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = restoredRevealSystem, AreaIndex = AreaId.Crateria, RoomMapPosition = new(4, 3), GameplayHud = retainedHud, MapRevealMode = MapRevealMode.None, MapPresentation = presentation, SpriteSheets = MenuSheetFixtures.For(presentation) });
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),
             "map reveal mode does not persist a map-station flag through SRAM snapshot");

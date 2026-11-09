@@ -186,7 +186,7 @@ internal static class NativeSnapshotImport
         samus.KnockbackTimer = W(NativeSnapshotMemory.KnockbackTimer);
         samus.KnockbackDirection = (SamusKnockbackDirection)W(NativeSnapshotMemory.KnockbackDirection);
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
-        samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);
+        samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
         samus.SubunitHealth = W(NativeSnapshotMemory.SubunitHealth);
         samus.SelectedHudItem = HudItems.Decode(W(NativeSnapshotMemory.SelectedHudItem));
         samus.ArmCannon.PreviousSelectedHudItem = samus.SelectedHudItem;

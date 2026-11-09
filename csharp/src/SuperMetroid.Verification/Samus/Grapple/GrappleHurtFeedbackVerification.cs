@@ -45,7 +45,7 @@ internal static class GrappleHurtFeedbackVerification
             RotationAngle.QuarterTurn, 0, faceRight: true);
         samus.CommitPoseHistory();
         runtime.StepFrame(ControllerButton.X);
-        AssertEqual(0, samus.HurtFlashCounter, "undamaged hanging Samus has no hurt flash");
+        AssertEqual(0, samus.HurtFlash.Count, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.SlotTable.Slots[0];
         target.Bind(EnemyDefinitionId.Ripper, target.Definition);
@@ -63,12 +63,12 @@ internal static class GrappleHurtFeedbackVerification
         runtime.StepFrame(ControllerButton.X);
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "damage preserves the attached grapple");
         AssertTrue(!samus.KnockbackActive, "grapple suppresses the knockback mover");
-        AssertEqual(1, samus.HurtFlashCounter, "post-draw health loss starts hurt feedback independently of knockback");
+        AssertEqual(1, samus.HurtFlash.Count, "post-draw health loss starts hurt feedback independently of knockback");
         runtime.StepFrame(ControllerButton.X);
-        AssertEqual(2, samus.HurtFlashCounter, "first hurt palette call advances the counter");
+        AssertEqual(2, samus.HurtFlash.Count, "first hurt palette call advances the counter");
         samus.Health--; // Existing feedback must not restart on further health loss.
         runtime.StepFrame(ControllerButton.X);
-        AssertEqual(3, samus.HurtFlashCounter, "active hurt feedback does not restart");
+        AssertEqual(3, samus.HurtFlash.Count, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
             request.SoundEffect == Library1Sound.SamusDamaged && request.Priority == SoundRequestPriority.Normal),
             "counter two requests exactly one gasp at normal priority");
@@ -83,14 +83,14 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Checks pending health-loss history survives current saves, and that an older capture layout is rejected (#1270).</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
-        var state = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 77, PreviousHealthForHurtCheck = 99 };
+        var state = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 77, PreviousHealthForHurtCheck = 99 };
         using var current = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(current, state);
         current.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SamusState>(current);
         AssertEqual(99, restored.PreviousHealthForHurtCheck, "current captures preserve pending health-loss history");
         SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(restored);
-        AssertEqual(1, restored.HurtFlashCounter, "restored pending health loss starts feedback");
+        AssertEqual(1, restored.HurtFlash.Count, "restored pending health loss starts feedback");
 
         // Construct the immediately preceding graph layout by removing only this
         // primitive field. Reference IDs remain unchanged by primitive values.

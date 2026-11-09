@@ -439,7 +439,7 @@ internal static void VerifyControllerInputLatch()
 /// </summary>
 internal static void VerifyFrameRuntime()
 {
-    var infiniteAmmoSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+    var infiniteAmmoSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
     {
         Missiles = 1,
         MaxMissiles = 5,
@@ -471,7 +471,7 @@ internal static void VerifyFrameRuntime()
     AssertEqual(1, infiniteAmmoSamus.Missiles,
         "repeated frame-exit reconciliation cannot remove the one-unit floor");
 
-    var pickupDuringLoan = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Missiles = 1, MaxMissiles = 5 };
+    var pickupDuringLoan = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Missiles = 1, MaxMissiles = 5 };
     AmmoLoanGuard pickupGuard =
         AmmoLoanGuard.Begin(enabled: true, pickupDuringLoan);
     pickupDuringLoan.Missiles += 2;

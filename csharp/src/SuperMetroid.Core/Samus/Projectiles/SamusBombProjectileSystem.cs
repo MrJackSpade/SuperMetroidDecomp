@@ -342,7 +342,7 @@ public sealed class SamusBombProjectileSystem
                 samus.LiquidPhysics.QueueMovementSound(spinSound, priority: SoundRequestPriority.High);
             return;
         }
-        if (samus.ProjectileFlareCounter >= ChargeSoundFlareThreshold)
+        if (samus.BeamChargeCount.Count >= ChargeSoundFlareThreshold)
             samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
 
@@ -407,7 +407,7 @@ public sealed class SamusBombProjectileSystem
             // no bomb leaves a carried partial charge alive beyond its lifetime.
             // Earlier equipment/power-bomb guards do not execute helper two and must
             // preserve charge. Publish through the existing runtime palette/SFX bridge.
-            rejectedPlacementClearedCharge = samus.ProjectileFlareCounter != 0;
+            rejectedPlacementClearedCharge = samus.BeamChargeCount.Count != 0;
             return null;
         }
 
@@ -463,7 +463,7 @@ public sealed class SamusBombProjectileSystem
             // The outer Morph-Ball handler cancels charge before testing HUD selection
             //. Releasing Shoot must also cancel with Power Bombs selected;
             // only held Shoot reaches their branch. Runtime consumes the palette/SFX bridge.
-            return samus.ProjectileFlareCounter != 0
+            return samus.BeamChargeCount.Count != 0
                 ? BombSpreadAdmission.ChargeCancelled
                 : BombSpreadAdmission.NotApplicable;
         }
@@ -473,7 +473,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
 
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||
-            samus.ProjectileFlareCounter < MorphBallBombDefinitions.RequiredChargeFrames ||
+            samus.BeamChargeCount.Count < MorphBallBombDefinitions.RequiredChargeFrames ||
             BombCounter != 0)
         {
             return BombSpreadAdmission.NotApplicable;
@@ -516,7 +516,7 @@ public sealed class SamusBombProjectileSystem
         BombCounter = SlotCount;
         CooldownTimer = WrappingCountdown.Start(MorphBallBombDefinitions.NormalBombCooldown);
         samus.BombSpreadChargeTimeoutCounter = 0;
-        samus.ProjectileFlareCounter = 0;
+        samus.BeamChargeCount.Clear();
     }
 
     /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing only the cooldown's low byte after the first bomb.</summary>

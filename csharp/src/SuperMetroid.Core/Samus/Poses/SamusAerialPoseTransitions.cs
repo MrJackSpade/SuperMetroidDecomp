@@ -365,7 +365,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         // It also tears down the active beam flare so the wall-jump's charged-contact path
         // cannot inherit charge accumulated before grapple became active.
         samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.Priority);
-        samus.ProjectileFlareCounter = 0;
+        samus.BeamChargeCount.Clear();
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);

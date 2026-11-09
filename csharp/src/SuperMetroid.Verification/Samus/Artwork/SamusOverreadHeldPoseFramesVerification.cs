@@ -66,7 +66,7 @@ internal static class SamusOverreadHeldPoseFramesVerification
 
         // The Draygon-held ball has the Draygon-held movement type, whose normal entry only clears the vertical collision
         // result, so without Draygon placing her she does not move.
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Pose = SamusPoseId.DraygonHeldBallLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),

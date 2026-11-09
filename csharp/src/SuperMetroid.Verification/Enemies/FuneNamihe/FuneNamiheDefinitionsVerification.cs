@@ -36,7 +36,7 @@ internal static class FuneNamiheDefinitionsVerification
             AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), state.Program,
                 $"Fune/Namihe production idle list {variant}");
 
-            runMain(slot, (state), namihe ? new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
+            runMain(slot, (state), namihe ? new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
             AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), state.Program,
                 $"Fune/Namihe production active list {variant}");

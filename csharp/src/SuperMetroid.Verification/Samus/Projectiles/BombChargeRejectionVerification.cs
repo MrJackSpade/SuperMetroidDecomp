@@ -23,15 +23,14 @@ internal static class BombChargeRejectionVerification
         foreach (bool powerBombSelected in new[] { false, true })
         foreach (bool freshShoot in new[] { false, true })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
             {
                 Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | (bombsEquipped ? SamusEquipmentFlags.Bombs : 0)),
                 SelectedHudItem = powerBombSelected ? HudItem.PowerBomb : HudItem.Beam,
                 PowerBombs = 2,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-                ProjectileFlareCounter = charge,
-            };
+            }.WithBeamChargeCount(charge);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var bombs = CreateBombFixture();
             // Down postpones a valid full-charge spread. The no-edge rejection below
@@ -58,10 +57,10 @@ internal static class BombChargeRejectionVerification
         foreach (ushort charge in new ushort[] { 0, 1, 59, 60 })
         foreach (ushort selection in new ushort[] { 0, 3 })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.MorphBallGroundRightPose,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                SelectedHudItem = HudItems.Decode(selection), PowerBombs = 2, ProjectileFlareCounter = charge,
-                Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) };
+                SelectedHudItem = HudItems.Decode(selection), PowerBombs = 2,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) }.WithBeamChargeCount(charge);
             var bombs = CreateBombFixture();
             var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";

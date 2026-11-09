@@ -24,7 +24,7 @@ internal static class PauseSnapshotTestsVerification
     /// <summary>Compares captured packets to direct retail-frame rendering and verifies snapshot ownership.</summary>
     internal static void VerifyPauseRenderSnapshots()
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),

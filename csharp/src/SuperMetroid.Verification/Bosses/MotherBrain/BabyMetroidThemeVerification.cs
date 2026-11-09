@@ -20,7 +20,7 @@ internal static class BabyMetroidThemeVerification
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 0;
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         Action<BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
         var beginMotherBrain = new Action(state.BeginFrame);

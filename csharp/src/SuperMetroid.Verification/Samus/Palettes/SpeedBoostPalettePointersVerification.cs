@@ -39,7 +39,7 @@ internal static class SpeedBoostPalettePointersVerification
                 SamusPaletteDefinitions.FullBodyCycles.SpeedBoostPalettePointer(offset),
                 $"compiled Speed Booster pointer selection {selection} matches retail ROM");
 
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
             {
                 EquippedItems = equipment[selection],
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
@@ -56,7 +56,7 @@ internal static class SpeedBoostPalettePointersVerification
         }
 
         // Without an attacker the alternation leaves the palette alone.
-        var unattached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        var unattached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColours(), unattached),
             "no attachment, no alternation");
         AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentPalette,

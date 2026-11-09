@@ -199,10 +199,9 @@ level, targetPose, frameCounter, roomObjects))
         samus.BombJumpActive = false;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
 
-        // Writes one to the shared hurt-flash counter after cancelling
-        // bomb-jump/contact damage. This is an independent 60-call palette/audio lifetime,
-        // not the five-frame knockback timer established above.
-        samus.HurtFlashCounter = 1;
+        // Starts the hurt flash after cancelling bomb-jump/contact damage. This is an independent
+        // 60-call palette/audio lifetime, not the five-frame knockback timer established above.
+        samus.HurtFlash.Start();
 
         // Hurt launch retains the bottom-edge and Gravity-Suit selection.
         samus.Kinematics.YSpeed =

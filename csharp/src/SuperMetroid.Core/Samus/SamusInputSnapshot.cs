@@ -90,8 +90,8 @@ internal sealed class SamusInputSnapshot
     /// <summary>Health-feedback tail of the post-draw input filter, independent of knockback admission.</summary>
     internal static void UpdateHurtFlashFromHealthLoss(SamusState samus)
     {
-        if (samus.Health < samus.PreviousHealthForHurtCheck && samus.HurtFlashCounter == 0)
-            samus.HurtFlashCounter = 1;
+        if (samus.Health < samus.PreviousHealthForHurtCheck && samus.HurtFlash.IsIdle)
+            samus.HurtFlash.Start();
         samus.PreviousHealthForHurtCheck = samus.Health;
     }
 }

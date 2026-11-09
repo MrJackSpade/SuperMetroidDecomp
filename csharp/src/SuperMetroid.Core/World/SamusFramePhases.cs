@@ -333,7 +333,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
                 room.Projectiles.Firing.CancelChargeForHudSelection();
-                samus.ProjectileFlareCounter = 0;
+                samus.BeamChargeCount.Clear();
                 SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
             }
 
@@ -358,7 +358,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             if (bombFrame.BeamChargeConsumed)
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
-                samus.ProjectileFlareCounter = 0;
+                samus.BeamChargeCount.Clear();
                 SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
             }
 
@@ -388,10 +388,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             SamusAerialPoseTransitions.DropPendingTransitionShot(samus);
             samus.ProjectileInheritance.ClearMovement();
 
-            // The counter is one shared value, not independent projectile/movement
-            // state. Samus's spin/wall-jump contact-damage handlers run in beta and
-            // must see the counter that the projectile update just updated during alpha.
-            samus.ProjectileFlareCounter = room.Projectiles.Charge.FlareCounter;
+            // Samus's spin/wall-jump contact-damage handlers run in beta and must see the
+            // charge that the projectile update just updated during alpha.
+            samus.BeamChargeCount.Publish(room.Projectiles.Charge.FlareCounter);
         }
 
         // Samus's end-of-alpha step snapshots movement,

@@ -28,7 +28,7 @@ internal static class BoyonBehaviorVerification
         AssertTrue(!idle.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon idle stops off-screen processing");
 
         (RoomEnemySystem bounceSystem, RoomEnemySlot bounce, BoyonEnemyState bounceState) = Create();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(bounce.Position.Whole) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(bounce.Position.Whole) };
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         AssertEqual(AnimationProgramCursor<BoyonProgram>.Start(BoyonProgram.Bouncing), bounceState.Program, "Samus nearby starts the bounce");
@@ -49,7 +49,7 @@ internal static class BoyonBehaviorVerification
     internal static void VerifyBoyonCurveIndexWrapsAtTheTop()
     {
         (_, RoomEnemySlot slot, BoyonEnemyState state) = Create();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
         BoyonBehavior.RunBoyonMain(slot, state, samus);
         state.BounceMovement = BoyonBounceMovement.Rising;
         state.SpeedTableIndex = 0;
@@ -81,7 +81,7 @@ internal static class BoyonBehaviorVerification
             slot.Position = slot.Position.WithWhole(new(256, 512));
             BoyonBehavior.InitializeBoyon(slot);
             BoyonEnemyState state = slot.RequireSpeciesState<BoyonEnemyState>();
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
 
             BoyonBehavior.RunBoyonMain(slot, state, samus);
 

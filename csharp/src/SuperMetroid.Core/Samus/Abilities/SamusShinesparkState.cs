@@ -27,6 +27,17 @@ public sealed class SamusShinesparkState
     private bool _chargeCancellationSoundRequested;
 
     /// <summary>
+    /// The upward spark's 16.16 acceleration in pixels per frame per frame: 7.0 when windup begins, raised by Samus's
+    /// vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes. A suit pickup
+    /// during a suspended windup replaces it with the light beam's progress.
+    /// </summary>
+    private readonly SuitPickupSparkCarryover _acceleration;
+
+    /// <summary>Creates a spark owner whose upward acceleration lives in Samus's suit pickup carryover.</summary>
+    /// <param name="acceleration">Samus's suit pickup carryover, which holds the spark's upward acceleration.</param>
+    internal SamusShinesparkState(SuitPickupSparkCarryover acceleration) => _acceleration = Ensure.NotNull(acceleration);
+
+    /// <summary>
     /// Binds the room's projectile and sound owners before movement/palette production.
     /// </summary>
     internal void BindProjectileOwners(
@@ -58,23 +69,11 @@ public sealed class SamusShinesparkState
     /// <summary>The shared 30-frame windup/crash countdown.</summary>
     public int StartStopTimer { get; internal set; }
 
-    /// <summary>
-    /// The upward spark's 16.16 acceleration in pixels per frame per frame: 7.0 when windup begins, raised by
-    /// Samus's vertical acceleration on every vertical or diagonal spark call, and cleared when the crash finishes.
-    /// Its storage is shared with the suit pickup's scratch, which can replace it (see
-    /// <see cref="ApplySuitPickupScratch"/>); the adds wrap at 32 bits exactly as the game's word pair does.
-    /// </summary>
-    public SignedSixteenSixteen VerticalAcceleration { get; private set; }
+    /// <summary>The acceleration a shinespark windup starts its upward motion with.</summary>
+    private static readonly SignedSixteenSixteen InitialVerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
 
-    /// <summary>
-    /// Mirrors the suit pickup's stage number and light-beam position, which share their
-    /// storage with the spark acceleration pair the spark later reads.
-    /// A suspended windup must not retain its pre-pickup 7.0000 initializer.
-    /// </summary>
-    /// <param name="substate">The suit pickup's stage number, which becomes the acceleration's whole word.</param>
-    /// <param name="lightBeamPosition">The suit pickup's light-beam word, which becomes the acceleration's fraction.</param>
-    internal void ApplySuitPickupScratch(int substate, int lightBeamPosition) =>
-        VerticalAcceleration = SignedSixteenSixteen.FromParts(substate, lightBeamPosition);
+    /// <summary>The hurt flash count a moving spark holds, past the flash's colours and its damage sound.</summary>
+    private const int MovingSparkHurtFlashCount = 8;
 
     /// <summary>The shinespark movement handler currently installed.</summary>
     public ShinesparkPhase Phase { get; internal set; }
@@ -293,11 +292,11 @@ public sealed class SamusShinesparkState
         // charges are still torn down without a sound call. The live projectile owner
         // contains the flare layers and previous-counter word, while Samus mirrors the charge counter
         // for movement decisions. Keep both views synchronized at this seam.
-        int cancelledCharge = samus.ProjectileFlareCounter;
+        int cancelledCharge = samus.BeamChargeCount.Count;
         if (cancelledCharge != 0)
         {
             _charge?.CancelForShinespark();
-            samus.ProjectileFlareCounter = 0;
+            samus.BeamChargeCount.Clear();
             if (cancelledCharge >= BeamChargeDefinitions.ChargeSoundStartCounter)
             {
                 _chargeCancellationSoundRequested = true;
@@ -324,13 +323,13 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.BombJumpRequest = SamusBombJumpRequest.None;
 
-        VerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
+        _acceleration.StartSpark(InitialVerticalAcceleration);
         StartStopTimer = 30;
         ShineTimer = 60;
         PaletteType = SamusSpecialPaletteType.Shinesparking;
         PaletteStep = 0;
         Phase = ShinesparkPhase.Windup;
-        samus.HurtFlashCounter = 0;
+        samus.HurtFlash.Clear();
         LaunchSoundRequested = false;
         CrashSoundRequested = false;
     }
@@ -657,7 +656,7 @@ false);
         }
 
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.Shinespark;
-        samus.HurtFlashCounter = 8;
+        samus.HurtFlash.HoldAt(MovingSparkHurtFlashCount);
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
@@ -764,7 +763,7 @@ false);
         samus.HorizontalSpeed.SpeedBoostCounter = default;
         // EndSuperJump retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
-        samus.HurtFlashCounter = 0;
+        samus.HurtFlash.Clear();
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         FirstCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? 32 : 224);
         SecondCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? 160 : 96);
@@ -895,7 +894,7 @@ false);
         }
 
         ShineTimer = 1;
-        VerticalAcceleration = SignedSixteenSixteen.Zero;
+        _acceleration.StopSpark();
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(
 false,             CrashSequenceFinished: true);
@@ -1057,8 +1056,8 @@ false,             CrashSequenceFinished: true);
         ISamusRoomObjects? roomObjects)
     {
         ShineTimer = 15;
-        VerticalAcceleration += samus.Kinematics.YAcceleration.AsDisplacement();
-        samus.Kinematics.YSpeed += VerticalAcceleration;
+        _acceleration.Accelerate(samus.Kinematics.YAcceleration.AsDisplacement());
+        samus.Kinematics.YSpeed += _acceleration.SparkAcceleration;
 
         // The clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the speed even after movement reaches its cap.

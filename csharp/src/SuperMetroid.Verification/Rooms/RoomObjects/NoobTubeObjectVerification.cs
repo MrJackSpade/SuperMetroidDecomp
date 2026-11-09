@@ -57,7 +57,7 @@ internal static class NoobTubeObjectVerification
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new RoomTerrainBlock[roomWidth * 16],
             new RoomBlockBehavior[roomWidth * 16]);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         samus.Position = samus.Position.WithWholeY(0x0100);
         RoomFxOverlayState roomFx = CreateNoobTubeWaterFx();
         samus.LiquidPhysics.ConfigureFor(roomFx);
@@ -94,7 +94,7 @@ internal static class NoobTubeObjectVerification
         // Repeated #339: BTS $44 is a resident trigger, not a breakable-block index.
         // Exercise StepFiring (including endpoint collision), rather than bypassing
         // the missing caller dispatch with TryNotifyResidentProjectileHit directly.
-        var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
@@ -249,7 +249,7 @@ internal static class NoobTubeObjectVerification
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) });
 
         foreach (NoobTubeProjectileRequest request in requests)
             enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request, level.Size.X);

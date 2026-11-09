@@ -533,7 +533,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
                 // PickUpEquipment and the synchronous message. It is not part of the later
                 // transformation and therefore must already be clear throughout the fanfare.
                 if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
-                    samus.ProjectileFlareCounter = 0;
+                    samus.BeamChargeCount.Clear();
                 return;
             case InWorldCollectibleKind.ChargeBeam:
             case InWorldCollectibleKind.IceBeam:

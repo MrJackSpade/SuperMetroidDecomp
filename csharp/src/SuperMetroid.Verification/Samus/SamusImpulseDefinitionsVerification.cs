@@ -19,7 +19,7 @@ internal static class SamusImpulseDefinitionsVerification
     {
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
-        var bomb = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var bomb = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int bombBottom = 128 + SamusPoseCollisionRadii.ReadVerticalRadius(bomb.Pose) - 1;
         int bombCases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -58,7 +58,7 @@ internal static class SamusImpulseDefinitionsVerification
         for (ushort side = 0; side <= 1; side++)
         foreach (ControllerButton input in new ControllerButton[] { 0, ControllerButton.Left, ControllerButton.Right })
         {
-            var hurt = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+            var hurt = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             SamusPoseMetadata.RefreshCollisionRadii(hurt);
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
             hurt.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
@@ -77,7 +77,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(11, hurt.KnockbackTimer, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
             AssertEqual(SamusBombJumpRequest.None, hurt.BombJumpRequest, "Hurt drops the bomb-jump request");
-            AssertEqual(1, hurt.HurtFlashCounter, "Hurt starts flash");
+            AssertEqual(1, hurt.HurtFlash.Count, "Hurt starts flash");
             AssertEqual(SamusContactDamageIndex.None, hurt.HorizontalSpeed.ContactDamageIndex, "Hurt cancels contact attack");
             hurtCases++;
         }

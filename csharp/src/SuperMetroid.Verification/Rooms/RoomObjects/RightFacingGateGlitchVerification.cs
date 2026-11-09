@@ -109,7 +109,7 @@ internal static class RightFacingGateGlitchVerification
             {
                 level.RestoreFrom(pristine);
                 AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
-                var samus = new SamusState(animationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+                var samus = new SamusState(animationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
                 {
                     Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
                     PoseId = SamusPoseId.FacingRightNormalPose,

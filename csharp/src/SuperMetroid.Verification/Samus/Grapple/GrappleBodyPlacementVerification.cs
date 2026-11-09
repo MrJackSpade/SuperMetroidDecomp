@@ -16,7 +16,7 @@ internal static class GrappleBodyPlacementVerification
     internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
         var position = new Action<SamusState, SamusGrappleState>(SamusGrappleSwing.PositionSamusFromPendulum);
-        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
+        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()));
         byte[] json = GrappleSwingFrameExtractor.Extract(rom);
         var stock = GrappleSwingFrameFile.Load(new MemoryStream(json));
         foreach (bool installed in new[] { false, true })

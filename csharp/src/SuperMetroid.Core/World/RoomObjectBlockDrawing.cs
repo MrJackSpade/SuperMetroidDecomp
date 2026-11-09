@@ -346,19 +346,15 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     }
 
     /// <summary>
-    /// Writes each run of a reveal or wall frame from where the run starts: each cell collides as the frame's terrain does
+    /// Writes each run of a reveal or wall frame from where the run starts: each cell collides as the frame's geometry says
     /// and shows what the frame's installed <paramref name="image"/> shows there (#1557).
     /// </summary>
     private static void DrawRevealOrWall(RoomLevelData level, RoomObjectShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin,
         RoomObjectFrameImage image)
     {
         foreach (RoomObjectShotBlockDrawDefinitions.Run run in definition.Runs.Span)
-        {
-            bool vertical = run.Direction == RoomObjectRunDirection.Vertical;
             for (int offset = 0; offset < run.Count; offset++)
-                DrawImageCell(level, definition.Draw, origin, image, run.Start + new Offset16<RoomBlocks>(vertical ? 0 : offset, vertical ? offset : 0),
-                    run.Blocks.Span[offset].Collision);
-        }
+                DrawImageCell(level, definition.Draw, origin, image, run.CellAt(offset), run.Collisions.Span[offset]);
     }
 
     /// <summary>Converts a draw's block coordinate to a PLM block index before writing its terrain.</summary>

@@ -18,10 +18,10 @@ internal static class BombedRevealObjectDraws
             return false;
         }
         RoomObjectBombedRevealDraw frame = RoomObjectDraw.FrameOf<RoomObjectBombedRevealDraw>(request, "RoomObjectBombedRevealDraw");
-        RoomTerrainBlock block = Blocks.TryGetValue(frame, out RoomTerrainBlock found)
+        RoomCollisionType collision = Collisions.TryGetValue(frame, out RoomCollisionType found)
             ? found
             : throw new InvalidOperationException($"Undefined bombed-reveal draw {request}.");
-        draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[] { new(RoomObjectRunDirection.Horizontal, new[] { block }, new(0, 0)) });
+        draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[] { new(RoomObjectRunDirection.Horizontal, new[] { collision }, new(0, 0)) });
         return true;
     }
 }

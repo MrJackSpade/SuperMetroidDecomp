@@ -118,10 +118,10 @@ internal static class RoomObjectFrameImageFiles
         int pointer = RoomObjectDrawAddressCodec.Of(layout.Draw);
         var cells = new Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance>();
         int cursor = pointer;
-        ReadOnlySpan<RoomObjectFrameRun> runs = layout.Runs.Span;
+        ReadOnlySpan<RoomObjectShotBlockDrawDefinitions.Run> runs = layout.Runs.Span;
         for (int runIndex = 0; runIndex < runs.Length; runIndex++)
         {
-            RoomObjectFrameRun run = runs[runIndex];
+            RoomObjectShotBlockDrawDefinitions.Run run = runs[runIndex];
             if (ReadWord(bus, cursor) != RoomObjectRunHeaderCodec.Encode(run.Direction, run.Count))
                 throw new InvalidDataException($"{family} frame {layout.Draw} differs in run {runIndex}'s shape.");
             for (int cell = 0; cell < run.Count; cell++)

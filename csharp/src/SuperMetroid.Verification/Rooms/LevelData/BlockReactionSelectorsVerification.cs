@@ -53,8 +53,9 @@ internal static class BlockReactionSelectorsVerification
             ushort count = ReadRomWord(rom,0x840000 | pointer);
             AssertRunHeader(count,run,"bombed reveal native direction/count");
             AssertEqual(count & 0x7fff,run.Count,"bombed reveal native word count");
-            AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))),run.Blocks.Span[0],
-                "bombed reveal native physical parent and visual tile");
+            // What the reveal shows is its installed picture, which RevealAndWallVisualsVerification compares with the cartridge.
+            AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))).Collision,run.Collisions.Span[0],
+                "bombed reveal native physical parent");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodecConstants.X(draw, 0),"bombed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodecConstants.Y(draw, 0),"bombed reveal native terminal Y");
         }

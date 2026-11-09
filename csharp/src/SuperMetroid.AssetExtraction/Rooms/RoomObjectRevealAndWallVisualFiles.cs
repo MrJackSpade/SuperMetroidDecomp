@@ -32,7 +32,7 @@ public static class RoomObjectRevealAndWallVisualFiles
     public static InstalledRoomObjectRevealAndWallVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Every reveal and wall frame's draw list, built from the terrain the game writes.</summary>
+    /// <summary>Every reveal and wall frame's draw list, built from the geometry and collision the game writes.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
     {
         get

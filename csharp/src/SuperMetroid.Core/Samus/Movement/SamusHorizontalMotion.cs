@@ -8,8 +8,10 @@ internal static class SamusHorizontalMotion
 {
     /// <summary>Each movement type's position in <see cref="RecordOrder"/>; the records no movement type selects have none.</summary>
     private static readonly FrozenDictionary<SamusMovementType, int> RecordPosition =
-        Enumerable.Range(0, RecordOrder.Length).Where(position => RecordOrder[position] is not null)
-            .ToFrozenDictionary(position => RecordOrder[position]!.Value);
+        RecordOrder.SelectMany((movement, position) => movement is { } selected
+                ? [KeyValuePair.Create(selected, position)]
+                : Enumerable.Empty<KeyValuePair<SamusMovementType, int>>())
+            .ToFrozenDictionary();
 
     /// <summary>
     /// The row the horizontal speed-table selection picks for a movement type in a medium's table: the

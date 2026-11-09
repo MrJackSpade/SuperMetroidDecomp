@@ -1381,8 +1381,8 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(8, 27), null),
     ]);
 
-    /// <summary>The UnusedRoom8FB3EE room PLM population.</summary>
-    public static RoomObjectPopulation UnusedRoom8FB3EE { get; } = RoomObjectPopulation.FromRecords(nameof(UnusedRoom8FB3EE),
+    /// <summary>The UnusedNorfairRoom room PLM population.</summary>
+    public static RoomObjectPopulation UnusedNorfairRoom { get; } = RoomObjectPopulation.FromRecords(nameof(UnusedNorfairRoom),
     [
     ]);
 

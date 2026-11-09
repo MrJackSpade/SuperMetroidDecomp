@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Rooms;

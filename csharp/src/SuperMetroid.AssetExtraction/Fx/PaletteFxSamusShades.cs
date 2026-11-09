@@ -26,7 +26,7 @@ internal static class PaletteFxSamusShades
     /// <summary>Every heat program of every suit, its starting program and each phase's (#1512).</summary>
     private static readonly PaletteFxProgram[] HeatPrograms =
     [
-        PaletteFxProgram.SamusInHeatPowerSuit0, PaletteFxProgram.SamusInHeatVariaSuit0, PaletteFxProgram.SamusInHeatGravitySuit0,
+        PaletteFxProgram.SamusInHeatPowerSuitStep0, PaletteFxProgram.SamusInHeatVariaSuitStep0, PaletteFxProgram.SamusInHeatGravitySuitStep0,
         .. PaletteFxHeatPrograms.PowerPrograms, .. PaletteFxHeatPrograms.VariaPrograms, .. PaletteFxHeatPrograms.GravityPrograms,
     ];
 

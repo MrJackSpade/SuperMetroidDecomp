@@ -329,7 +329,7 @@ public static class NorfairRoomStateDefinitions
 
     /// <summary>The unused room's state.</summary>
     public static RoomStateSettings UnusedNorfairRoom { get; } =
-        new(nameof(UnusedNorfairRoom), RoomLevelDefinitions.UnusedNorfairRoom, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UnusedNorfairRoom, RoomEnemyPopulationDefinitions.UnusedNorfairRoom, Enemies.RoomEnemyGraphicsSetDefinitions.UnusedNorfairRoom, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.UnusedRoom8FB3EE, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9HorizontalPatternBrick, RoomSetupCallback.SharedReturnD);
+        new(nameof(UnusedNorfairRoom), RoomLevelDefinitions.UnusedNorfairRoom, 9, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.UnusedNorfairRoom, RoomEnemyPopulationDefinitions.UnusedNorfairRoom, Enemies.RoomEnemyGraphicsSetDefinitions.UnusedNorfairRoom, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.UnusedNorfairRoom, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.Norfair9HorizontalPatternBrick, RoomSetupCallback.SharedReturnD);
 
 
     /// <summary>The Mickey Mouse room's state.</summary>

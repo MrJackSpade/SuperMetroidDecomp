@@ -129,103 +129,103 @@ public enum PaletteFxProgram
     /// <summary>The Golden Torizo belly program, step 1.</summary>
     GoldenTorizoBelly1,
     /// <summary>The Samus in heat Power suit program, step 0.</summary>
-    SamusInHeatPowerSuit0,
+    SamusInHeatPowerSuitStep0,
     /// <summary>The Samus in heat Power suit program, step 1.</summary>
-    SamusInHeatPowerSuit1,
+    SamusInHeatPowerSuitStep1,
     /// <summary>The Samus in heat Power suit program, step 2.</summary>
-    SamusInHeatPowerSuit2,
+    SamusInHeatPowerSuitStep2,
     /// <summary>The Samus in heat Power suit program, step 3.</summary>
-    SamusInHeatPowerSuit3,
+    SamusInHeatPowerSuitStep3,
     /// <summary>The Samus in heat Power suit program, step 4.</summary>
-    SamusInHeatPowerSuit4,
+    SamusInHeatPowerSuitStep4,
     /// <summary>The Samus in heat Power suit program, step 5.</summary>
-    SamusInHeatPowerSuit5,
+    SamusInHeatPowerSuitStep5,
     /// <summary>The Samus in heat Power suit program, step 6.</summary>
-    SamusInHeatPowerSuit6,
+    SamusInHeatPowerSuitStep6,
     /// <summary>The Samus in heat Power suit program, step 7.</summary>
-    SamusInHeatPowerSuit7,
+    SamusInHeatPowerSuitStep7,
     /// <summary>The Samus in heat Power suit program, step 8.</summary>
-    SamusInHeatPowerSuit8,
+    SamusInHeatPowerSuitStep8,
     /// <summary>The Samus in heat Power suit program, step 9.</summary>
-    SamusInHeatPowerSuit9,
+    SamusInHeatPowerSuitStep9,
     /// <summary>The Samus in heat Power suit program, step A.</summary>
-    SamusInHeatPowerSuitA,
+    SamusInHeatPowerSuitStep10,
     /// <summary>The Samus in heat Power suit program, step B.</summary>
-    SamusInHeatPowerSuitB,
+    SamusInHeatPowerSuitStep11,
     /// <summary>The Samus in heat Power suit program, step C.</summary>
-    SamusInHeatPowerSuitC,
+    SamusInHeatPowerSuitStep12,
     /// <summary>The Samus in heat Power suit program, step D.</summary>
-    SamusInHeatPowerSuitD,
+    SamusInHeatPowerSuitStep13,
     /// <summary>The Samus in heat Power suit program, step E.</summary>
-    SamusInHeatPowerSuitE,
+    SamusInHeatPowerSuitStep14,
     /// <summary>The Samus in heat Power suit program, step F.</summary>
-    SamusInHeatPowerSuitF,
+    SamusInHeatPowerSuitStep15,
     /// <summary>The Samus in heat Power suit program, step 10.</summary>
     SamusInHeatPowerSuit10,
     /// <summary>The Samus in heat Varia suit program, step 0.</summary>
-    SamusInHeatVariaSuit0,
+    SamusInHeatVariaSuitStep0,
     /// <summary>The Samus in heat Varia suit program, step 2.</summary>
-    SamusInHeatVariaSuit2,
+    SamusInHeatVariaSuitStep2,
     /// <summary>The Samus in heat Varia suit program, step 3.</summary>
-    SamusInHeatVariaSuit3,
+    SamusInHeatVariaSuitStep3,
     /// <summary>The Samus in heat Varia suit program, step 4.</summary>
-    SamusInHeatVariaSuit4,
+    SamusInHeatVariaSuitStep4,
     /// <summary>The Samus in heat Varia suit program, step 5.</summary>
-    SamusInHeatVariaSuit5,
+    SamusInHeatVariaSuitStep5,
     /// <summary>The Samus in heat Varia suit program, step 6.</summary>
-    SamusInHeatVariaSuit6,
+    SamusInHeatVariaSuitStep6,
     /// <summary>The Samus in heat Varia suit program, step 7.</summary>
-    SamusInHeatVariaSuit7,
+    SamusInHeatVariaSuitStep7,
     /// <summary>The Samus in heat Varia suit program, step 8.</summary>
-    SamusInHeatVariaSuit8,
+    SamusInHeatVariaSuitStep8,
     /// <summary>The Samus in heat Varia suit program, step 9.</summary>
-    SamusInHeatVariaSuit9,
+    SamusInHeatVariaSuitStep9,
     /// <summary>The Samus in heat Varia suit program, step A.</summary>
-    SamusInHeatVariaSuitA,
+    SamusInHeatVariaSuitStep10,
     /// <summary>The Samus in heat Varia suit program, step B.</summary>
-    SamusInHeatVariaSuitB,
+    SamusInHeatVariaSuitStep11,
     /// <summary>The Samus in heat Varia suit program, step C.</summary>
-    SamusInHeatVariaSuitC,
+    SamusInHeatVariaSuitStep12,
     /// <summary>The Samus in heat Varia suit program, step D.</summary>
-    SamusInHeatVariaSuitD,
+    SamusInHeatVariaSuitStep13,
     /// <summary>The Samus in heat Varia suit program, step E.</summary>
-    SamusInHeatVariaSuitE,
+    SamusInHeatVariaSuitStep14,
     /// <summary>The Samus in heat Varia suit program, step F.</summary>
-    SamusInHeatVariaSuitF,
+    SamusInHeatVariaSuitStep15,
     /// <summary>The Samus in heat Varia suit program, step 10.</summary>
     SamusInHeatVariaSuit10,
     /// <summary>The Samus in heat Varia suit program, step 11.</summary>
     SamusInHeatVariaSuit11,
     /// <summary>The Samus in heat Gravity suit program, step 0.</summary>
-    SamusInHeatGravitySuit0,
+    SamusInHeatGravitySuitStep0,
     /// <summary>The Samus in heat Gravity suit program, step 2.</summary>
-    SamusInHeatGravitySuit2,
+    SamusInHeatGravitySuitStep2,
     /// <summary>The Samus in heat Gravity suit program, step 3.</summary>
-    SamusInHeatGravitySuit3,
+    SamusInHeatGravitySuitStep3,
     /// <summary>The Samus in heat Gravity suit program, step 4.</summary>
-    SamusInHeatGravitySuit4,
+    SamusInHeatGravitySuitStep4,
     /// <summary>The Samus in heat Gravity suit program, step 5.</summary>
-    SamusInHeatGravitySuit5,
+    SamusInHeatGravitySuitStep5,
     /// <summary>The Samus in heat Gravity suit program, step 6.</summary>
-    SamusInHeatGravitySuit6,
+    SamusInHeatGravitySuitStep6,
     /// <summary>The Samus in heat Gravity suit program, step 7.</summary>
-    SamusInHeatGravitySuit7,
+    SamusInHeatGravitySuitStep7,
     /// <summary>The Samus in heat Gravity suit program, step 8.</summary>
-    SamusInHeatGravitySuit8,
+    SamusInHeatGravitySuitStep8,
     /// <summary>The Samus in heat Gravity suit program, step 9.</summary>
-    SamusInHeatGravitySuit9,
+    SamusInHeatGravitySuitStep9,
     /// <summary>The Samus in heat Gravity suit program, step A.</summary>
-    SamusInHeatGravitySuitA,
+    SamusInHeatGravitySuitStep10,
     /// <summary>The Samus in heat Gravity suit program, step B.</summary>
-    SamusInHeatGravitySuitB,
+    SamusInHeatGravitySuitStep11,
     /// <summary>The Samus in heat Gravity suit program, step C.</summary>
-    SamusInHeatGravitySuitC,
+    SamusInHeatGravitySuitStep12,
     /// <summary>The Samus in heat Gravity suit program, step D.</summary>
-    SamusInHeatGravitySuitD,
+    SamusInHeatGravitySuitStep13,
     /// <summary>The Samus in heat Gravity suit program, step E.</summary>
-    SamusInHeatGravitySuitE,
+    SamusInHeatGravitySuitStep14,
     /// <summary>The Samus in heat Gravity suit program, step F.</summary>
-    SamusInHeatGravitySuitF,
+    SamusInHeatGravitySuitStep15,
     /// <summary>The Samus in heat Gravity suit program, step 10.</summary>
     SamusInHeatGravitySuit10,
     /// <summary>The Samus in heat Gravity suit program, step 11.</summary>

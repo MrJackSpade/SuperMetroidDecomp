@@ -48,7 +48,7 @@ internal static class RoomPaletteFxSelection
         PaletteFxObject.GreyOutTourianStatuePhantoon => new(ColourEffectStart.Plain, PaletteFxProgram.GreyOutTourianStatuePhantoon),
         PaletteFxObject.BombTorizoBelly => new(ColourEffectStart.Plain, PaletteFxProgram.BombTorizoBelly0),
         PaletteFxObject.GoldenTorizoBelly => new(ColourEffectStart.Plain, PaletteFxProgram.GoldenTorizoBelly0),
-        PaletteFxObject.SamusInHeat => new(ColourEffectStart.ChoosesHeatProgramForSuit, PaletteFxProgram.SamusInHeatPowerSuit0),
+        PaletteFxObject.SamusInHeat => new(ColourEffectStart.ChoosesHeatProgramForSuit, PaletteFxProgram.SamusInHeatPowerSuitStep0),
         PaletteFxObject.CrateriaLightning => new(ColourEffectStart.Plain, PaletteFxProgram.CrateriaLightning),
         PaletteFxObject.UnusedDarkLightning => new(ColourEffectStart.Plain, PaletteFxProgram.UnusedDarkLightning),
         PaletteFxObject.WreckedShipGreenLights => new(ColourEffectStart.Plain, PaletteFxProgram.WreckedShipGreenLights),

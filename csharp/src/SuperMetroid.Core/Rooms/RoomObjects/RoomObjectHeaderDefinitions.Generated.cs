@@ -40,7 +40,7 @@ internal static partial class RoomObjectHeaderDefinitions
         RoomObjectHeaderId.MotherBrainGlass,
         RoomObjectHeaderId.BombTorizoHand,
         RoomObjectHeaderId.NoobTube,
-        RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired,
+        RoomObjectHeaderId.MetroidRoomClearance,
         RoomObjectHeaderId.EyeDoorEyeFacingRight,
         RoomObjectHeaderId.EyeDoorFacingRight,
         RoomObjectHeaderId.EyeDoorBottomFacingRight,

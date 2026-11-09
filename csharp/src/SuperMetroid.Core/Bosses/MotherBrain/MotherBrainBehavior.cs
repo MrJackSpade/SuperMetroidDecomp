@@ -116,12 +116,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash:
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
             case MotherBrainBodyFunction.FakeDeathDescentCollapseTubes:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows3And4:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows5And6:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows7And8:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows9And10:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows11And12:
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:
                 RunMotherBrainFakeDeath(state, samus);
                 return;
@@ -327,46 +327,46 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 FakeDeath.RunMotherBrainFakeDeathExplosion(state);
                 return;
 
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRow2,
-                    MotherBrainRoomMutation.BackgroundRow3,
-                    MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5);
+                    MotherBrainRoomMutation.MuralRow1,
+                    MotherBrainRoomMutation.MuralRow2,
+                    MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows3And4);
                 return;
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows3And4:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRow4,
-                    MotherBrainRoomMutation.BackgroundRow5,
-                    MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7);
+                    MotherBrainRoomMutation.MuralRow3,
+                    MotherBrainRoomMutation.MuralRow4,
+                    MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows5And6);
                 return;
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows5And6:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRow6,
-                    MotherBrainRoomMutation.BackgroundRow7,
-                    MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9);
+                    MotherBrainRoomMutation.MuralRow5,
+                    MotherBrainRoomMutation.MuralRow6,
+                    MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows7And8);
                 return;
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows7And8:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRow8,
-                    MotherBrainRoomMutation.BackgroundRow9,
-                    MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB);
+                    MotherBrainRoomMutation.MuralRow7,
+                    MotherBrainRoomMutation.MuralRow8,
+                    MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows9And10);
                 return;
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows9And10:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRowA,
-                    MotherBrainRoomMutation.BackgroundRowB,
-                    MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD);
+                    MotherBrainRoomMutation.MuralRow9,
+                    MotherBrainRoomMutation.MuralRow10,
+                    MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows11And12);
                 return;
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows11And12:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRowC,
-                    MotherBrainRoomMutation.BackgroundRowD,
+                    MotherBrainRoomMutation.MuralRow11,
+                    MotherBrainRoomMutation.MuralRow12,
                     MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:
@@ -672,12 +672,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash:
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
             case MotherBrainBodyFunction.FakeDeathDescentCollapseTubes:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
-            case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows3And4:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows5And6:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows7And8:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows9And10:
+            case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows11And12:
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:
             default:
                 throw new InvalidDataException(

@@ -29,7 +29,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(30, 39), null),
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(30, 38), null),
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(30, 37), null),
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(4)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(4)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 38), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Transient))),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(142, 70), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x70, DoorOpeningPersistence.Transient))),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(142, 22), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x22, DoorOpeningPersistence.Transient))),
@@ -103,7 +103,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(61, 17), null),
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(62, 17), null),
         new(RoomObjectHeaderId.ScrollTrigger, new(52, 14), null, ScrollProgram: RoomScrollProgram.ParlorDefaultOrWhenZebesAwakeScroll9),
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(5)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(5)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt1x6, DoorOpeningPersistence.Transient))),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(17, 38), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x38, DoorOpeningPersistence.Transient))),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(17, 54), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingRightAt17x54, DoorOpeningPersistence.Transient))),
@@ -265,7 +265,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(8, 135), null),
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(8, 136), null),
         new(RoomObjectHeaderId.ScrollTrigger, new(8, 137), null, ScrollProgram: RoomScrollProgram.ClimbDefaultOrWhenZebesAwakeScroll7),
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(6)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(6)),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x6, DoorOpeningPersistence.Transient))),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(46, 118), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt46x118, DoorOpeningPersistence.Transient))),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(30, 134), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingLeftAt30x134, DoorOpeningPersistence.Transient))),
@@ -309,7 +309,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The BombTorizoWhenZebesTimebombSet room PLM population.</summary>
     public static RoomObjectPopulation BombTorizoWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(BombTorizoWhenZebesTimebombSet),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(7)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(7)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(6, new DoorBitArgument(LockedDoorDefinitions.BombTorizoWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
@@ -322,7 +322,7 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The FlywayWhenZebesTimebombSet room PLM population.</summary>
     public static RoomObjectPopulation FlywayWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(FlywayWhenZebesTimebombSet),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(8)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(8)),
     ]);
 
     /// <summary>The PreMapFlyway room PLM population.</summary>
@@ -2226,28 +2226,28 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The Metroids1 room PLM population.</summary>
     public static RoomObjectPopulation Metroids1 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids1),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(9)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(9)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids1GreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids2 room PLM population.</summary>
     public static RoomObjectPopulation Metroids2 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids2),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(10)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(10)),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(14, 22), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids2GreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids3 room PLM population.</summary>
     public static RoomObjectPopulation Metroids3 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids3),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(11)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(11)),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids3GreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids4 room PLM population.</summary>
     public static RoomObjectPopulation Metroids4 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids4),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(12)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(12)),
         new(RoomObjectHeaderId.GreyDoorFacingUp, new(6, 30), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids4GreyDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
@@ -2311,28 +2311,28 @@ internal static class RoomObjectPopulationDefinitions
     /// <summary>The TourianEscape1 room PLM population.</summary>
     public static RoomObjectPopulation TourianEscape1 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape1),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(0)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(0)),
         new(RoomObjectHeaderId.MotherBrainEscapeRoomGate, new(31, 6), null),
     ]);
 
     /// <summary>The TourianEscape2 room PLM population.</summary>
     public static RoomObjectPopulation TourianEscape2 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape2),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(1)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(1)),
         new(RoomObjectHeaderId.GreyDoorFacingDown, new(6, 3), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape2GreyDoorFacingDown, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The TourianEscape3 room PLM population.</summary>
     public static RoomObjectPopulation TourianEscape3 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape3),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(2)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(2)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape3GreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The TourianEscape4 room PLM population.</summary>
     public static RoomObjectPopulation TourianEscape4 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape4),
     [
-        new(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(3)),
+        new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(3)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 54), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape4GreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 

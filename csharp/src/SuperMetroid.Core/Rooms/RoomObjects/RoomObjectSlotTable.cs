@@ -1,14 +1,27 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The room's PLM slots and the three spawn operations, the only way a slot is claimed.
+/// The room's object update order: the places its room objects hold, and the three spawn operations, the only way a
+/// place is taken.
 /// </summary>
 /// <remarks>
-/// Slot order: the room holds at most <see cref="Capacity"/> PLMs, each in a slot with a fixed ordinal. Every pass over
-/// the PLMs runs in one processing order, from the highest ordinal down: the room update, every search for the PLM that
-/// owns a block, and every spawn's search for a free slot. A spawn therefore takes the free slot the update reaches
-/// first, so in a room where nothing has been deleted the PLMs update in the order they were spawned, and a spawn after a
-/// deletion takes the deleted PLM's place in that order.
+/// <para>
+/// The update-order rule (#1554). The room holds at most <see cref="Capacity"/> objects, each at a fixed place. Every
+/// pass over them runs in one order, the update order: the room-object update, every search for the object that owns
+/// a block, and every spawn's search for a free place. A spawn takes the first free place in that order, so in a room
+/// where nothing has been removed the objects update in the order they were spawned, and a spawn after a removal takes
+/// the removed object's place.
+/// </para>
+/// <para>
+/// The rule is kept because the game observes it. A room population's records spawn in authored order and update in
+/// it, and a record whose setup removes its object at once (every scroll extension) leaves its place to the next
+/// record. A spawn made during the room-object update into a place the update has still to reach runs on that same
+/// update, and into one it has passed, on the next. Two requests made in one update, such as the pair of mural rows
+/// Mother Brain's ascent asks for, update in the order of the places they took. A search for the object at a block
+/// (a gate's trigger finding its gate, a touch finding its station) takes the first match in the order. A full room
+/// drops a spawn: a gate trigger's shot, a Speed Booster block's contact and a boss's terrain change are lost then, as
+/// the original game loses them. Nothing else about the places is part of the game.
+/// </para>
 /// </remarks>
 internal sealed class RoomObjectSlotTable
 {

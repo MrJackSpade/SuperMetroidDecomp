@@ -183,7 +183,7 @@ internal sealed class RoomObjectPopulationLoader
             return true;
         }
 
-        if (header == RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired)
+        if (header == RoomObjectHeaderId.MetroidRoomClearance)
         {
             TourianObjects.SetupMetroidsClearedSlot(slot);
             return true;

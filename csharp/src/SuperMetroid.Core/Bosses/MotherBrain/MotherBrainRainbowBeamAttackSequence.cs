@@ -464,12 +464,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash:
                 case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
                 case MotherBrainBodyFunction.FakeDeathDescentCollapseTubes:
-                case MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3:
-                case MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5:
-                case MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7:
-                case MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9:
-                case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
-                case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
+                case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2:
+                case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows3And4:
+                case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows5And6:
+                case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows7And8:
+                case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows9And10:
+                case MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows11And12:
                 case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:
                 case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain:
                 case MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense:

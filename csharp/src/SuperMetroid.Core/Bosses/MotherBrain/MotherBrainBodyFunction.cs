@@ -22,18 +22,18 @@ public enum MotherBrainBodyFunction
     FakeDeathDescentFadeToGray,
     /// <summary>Runs the independent tube sequence and dust/explosion cadence until the falling main tube starts ascent.</summary>
     FakeDeathDescentCollapseTubes,
-    /// <summary>Requests foreground room-mutation PLMs for rows 2/3, then selects the next pair for the following body update.</summary>
-    FakeDeathAscentDrawRows2And3,
-    /// <summary>Requests the row-4/5 foreground mutation pair and advances to rows 6/7.</summary>
-    FakeDeathAscentDrawRows4And5,
-    /// <summary>Requests the row-6/7 foreground mutation pair and advances to rows 8/9.</summary>
-    FakeDeathAscentDrawRows6And7,
-    /// <summary>Requests the row-8/9 foreground mutation pair and advances to rows $A/$B.</summary>
-    FakeDeathAscentDrawRows8And9,
-    /// <summary>Requests the row-$A/$B foreground mutation pair and advances to rows $C/$D.</summary>
-    FakeDeathAscentDrawRowsAAndB,
-    /// <summary>Requests the final foreground row pair and hands off to phase-two graphics setup.</summary>
-    FakeDeathAscentDrawRowsCAndD,
+    /// <summary>Requests the first two rows of the mural behind her tank, then selects the next pair for the following body update.</summary>
+    FakeDeathAscentDrawMuralRows1And2,
+    /// <summary>Requests the mural's third and fourth rows and advances to the fifth and sixth.</summary>
+    FakeDeathAscentDrawMuralRows3And4,
+    /// <summary>Requests the mural's fifth and sixth rows and advances to the seventh and eighth.</summary>
+    FakeDeathAscentDrawMuralRows5And6,
+    /// <summary>Requests the mural's seventh and eighth rows and advances to the ninth and tenth.</summary>
+    FakeDeathAscentDrawMuralRows7And8,
+    /// <summary>Requests the mural's ninth and tenth rows and advances to the last two.</summary>
+    FakeDeathAscentDrawMuralRows9And10,
+    /// <summary>Requests the mural's last two rows and hands off to phase-two graphics setup.</summary>
+    FakeDeathAscentDrawMuralRows11And12,
     /// <summary>Installs attack/back-leg colors, enables the unpause hook, and transfers the prepared enemy background tilemap.</summary>
     FakeDeathAscentSetupPhase2Graphics,
     /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the 128-count suspense wait.</summary>

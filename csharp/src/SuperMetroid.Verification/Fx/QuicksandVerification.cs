@@ -308,8 +308,14 @@ internal static class QuicksandVerification
             AssertEqual(true, bts.Reaction.IsAreaSpecific, "special-air BTS sign selects area dispatch");
             AssertEqual((byte)index, bts.Reaction.Entry, "special-air BTS clears its sign bit");
             SpecialAirReactionDefinition actual = resolve(area, bts.Reaction.Entry);
-            AssertEqual(expected, setup ? FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup) : RoomObjectNativeWords.Word(actual.Header),
-                $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
+            // The cartridge gives Norfair's first three inside entries headers of their own that do nothing; the game has
+            // one no-op reaction, so an entry resolving to it is compared by the setup its native header names.
+            if (!setup && actual.Header == RoomObjectHeaderId.Nothing)
+                AssertEqual(ReadRomWord(rom, 0x840000 | header), FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup),
+                    $"special-air {nativePointers:X6} area {rawArea} index {index} does nothing");
+            else
+                AssertEqual(expected, setup ? FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup) : RoomObjectNativeWords.Word(actual.Header),
+                    $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
         }
     }
 

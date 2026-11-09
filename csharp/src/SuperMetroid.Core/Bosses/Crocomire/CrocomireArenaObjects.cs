@@ -9,24 +9,22 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed class CrocomireArenaObjects(RoomObjectSlotTable slotTable)
 {
     /// <summary>
-    /// Spawns one of Crocomire's arena mutations at its block. Each mutation's setup does nothing; its program draws
-    /// once and deletes the PLM.
+    /// Spawns one of Crocomire's arena mutations at its block. Each mutation's setup does nothing; its terrain change
+    /// draws once and is gone on the next update.
     /// </summary>
     /// <returns>False only when every PLM slot is occupied; the request is then lost, as the game loses it.</returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<CrocomireArenaMutation> request)
     {
         Ensure.NotNull(level);
         RoomObjectHeaderId roomObject = Ensure.Listed(RoomObjects, request.RoomObject);
-        CrocomireArenaProgram program = Ensure.Listed(CrocomireArenaMutationDefinitions.Programs, request.RoomObject);
+        TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
         int blockIndex = level.GetBlockIndex(request.Block);
         if (slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.LoopTimer = WrappingCountdown.Start(0);
-        slot.StartAnimation(new CrocomireArenaObjectAnimation(program));
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(change));
         slot.Header = roomObject;
         return true;
     }

@@ -16,16 +16,14 @@ internal sealed class SporeSpawnCeilingObjects(RoomObjectSlotTable slotTable)
     public bool TrySpawn(RoomLevelData level, SporeSpawnCeilingMutation mutation)
     {
         Ensure.NotNull(level);
-        SporeSpawnCeilingProgram program = Ensure.Listed(SporeSpawnCeilingMutationDefinitions.Programs, mutation);
+        TerrainChange change = Ensure.Listed(SporeSpawnCeilingMutationDefinitions.Changes, mutation);
 
         int blockIndex = level.GetBlockIndex(Block);
         if (slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.LoopTimer = WrappingCountdown.Start(0);
-        slot.StartAnimation(new SporeSpawnCeilingObjectAnimation(program));
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(change));
         return true;
     }
 }

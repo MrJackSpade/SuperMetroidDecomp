@@ -89,7 +89,7 @@ internal static class BotwoonWallObjectsVerification
         {
             roomObjects.Step(level, scrolls);
             soundCount += roomObjects.Sounds.SoundRequests.Count(request =>
-                request.SoundEffect == BotwoonWallObjectProgramDefinitions.CrumbleSound);
+                request.SoundEffect == BotwoonWallMutationDefinitions.CrumbleSound);
             if (clear && frame == 0)
             {
                 for (int y = 4; y <= 12; y++)

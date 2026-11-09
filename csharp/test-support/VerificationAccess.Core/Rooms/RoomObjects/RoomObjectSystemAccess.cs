@@ -35,7 +35,7 @@ internal static class RoomObjectSystemAccess
                 RoomObjectHeaderId.SpeedBoosterEscape or
                 RoomObjectHeaderId.WreckedShipAttic or
                 RoomObjectHeaderId.NoobTube or
-                RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired or
+                RoomObjectHeaderId.MetroidRoomClearance or
                 RoomObjectHeaderId.MotherBrainEscapeRoomGate or
                 RoomObjectHeaderId.DownwardGate or RoomObjectHeaderId.DownwardGateShotBlock ||
                 EyeDoorObjects.IsEyeDoorHeader(header) || DraygonCannonObjects.IsDraygonCannonHeader(header))
@@ -218,6 +218,7 @@ internal static class RoomObjectSystemAccess
                     LoopTimer: entry.Slot.LoopTimer.RawValue,
                     ProjectileHit: entry.Slot.ProjectileHit,
                     Animation: entry.Slot.Animation,
+                    Behaviour: entry.Slot.Behaviour,
                     SpentCap: entry.Slot.Argument is SpentDoorArgument)),
         ];
 

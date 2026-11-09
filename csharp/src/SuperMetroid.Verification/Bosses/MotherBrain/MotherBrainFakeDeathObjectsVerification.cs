@@ -18,7 +18,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Mother Brain's fake-death terrain mutation programs, draws, and reachable production PLMs.</summary>
 internal static class MotherBrainFakeDeathObjectsVerification
 {
-    /// <summary>Compares native programs and geometry, then exercises twenty room mutations without source reads.</summary>
+    /// <summary>Compares native lists and geometry, then exercises twenty room mutations without source reads.</summary>
     internal static void VerifyCompiledMotherBrainFakeDeathObjects()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -38,42 +38,21 @@ internal static class MotherBrainFakeDeathObjectsVerification
             RoomObjectMotherBrainFakeDeathVisualFiles.All.ToArray();
         AssertEqual(22, draws.Length,
             "Mother Brain fake death owns twenty-two physical draws");
-        foreach (MotherBrainFakeDeathProgram program in Enum.GetValues<MotherBrainFakeDeathProgram>())
-            AssertTrue(MotherBrainFakeDeathDraws.TryGet(RoomObjectDraw.Of(MotherBrainFakeDeathPrograms.Layout(program)), out _),
-                $"Mother Brain program {program} selects a compiled draw");
-        Reachable[] reachable =
-        [
-            new Reachable(MotherBrainRoomMutation.FillWall, MotherBrainFakeDeathProgram.FillWall),
-            new Reachable(MotherBrainRoomMutation.EscapeDoor, MotherBrainFakeDeathProgram.EscapeDoor),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow2, MotherBrainFakeDeathProgram.BackgroundRow2),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow3, MotherBrainFakeDeathProgram.BackgroundRow3),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow4, MotherBrainFakeDeathProgram.BackgroundRow4),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow5, MotherBrainFakeDeathProgram.BackgroundRow5),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow6, MotherBrainFakeDeathProgram.BackgroundRow6),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow7, MotherBrainFakeDeathProgram.BackgroundRow7),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow8, MotherBrainFakeDeathProgram.BackgroundRow8),
-            new Reachable(MotherBrainRoomMutation.BackgroundRow9, MotherBrainFakeDeathProgram.BackgroundRow9),
-            new Reachable(MotherBrainRoomMutation.BackgroundRowA, MotherBrainFakeDeathProgram.BackgroundRowA),
-            new Reachable(MotherBrainRoomMutation.BackgroundRowB, MotherBrainFakeDeathProgram.BackgroundRowB),
-            new Reachable(MotherBrainRoomMutation.BackgroundRowC, MotherBrainFakeDeathProgram.BackgroundRowC),
-            new Reachable(MotherBrainRoomMutation.BackgroundRowD, MotherBrainFakeDeathProgram.BackgroundRowD),
-            new Reachable(MotherBrainRoomMutation.ClearCeilingBlock, MotherBrainFakeDeathProgram.ClearCeilingBlock),
-            new Reachable(MotherBrainRoomMutation.ClearCeilingTube, MotherBrainFakeDeathProgram.ClearCeilingTube),
-            new Reachable(MotherBrainRoomMutation.ClearBottomMiddleSideTube, MotherBrainFakeDeathProgram.ClearBottomMiddleSideTube),
-            new Reachable(MotherBrainRoomMutation.ClearBottomMiddleTubes, MotherBrainFakeDeathProgram.ClearBottomMiddleTubes),
-            new Reachable(MotherBrainRoomMutation.ClearBottomLeftTube, MotherBrainFakeDeathProgram.ClearBottomLeftTube),
-            new Reachable(MotherBrainRoomMutation.ClearBottomRightTube, MotherBrainFakeDeathProgram.ClearBottomRightTube),
-        ];
-        foreach ((MotherBrainRoomMutation mutation, MotherBrainFakeDeathProgram program) in reachable)
-            VerifyMotherBrainFakeDeathMutation(mutation, program);
+        foreach (MotherBrainRoomMutation mutation in Enum.GetValues<MotherBrainRoomMutation>())
+        {
+            TerrainChange change = MotherBrainRoomMutationDefinitions.Changes[mutation];
+            AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out _),
+                $"Mother Brain mutation {mutation} draws a compiled layout");
+            VerifyMotherBrainFakeDeathMutation(mutation, change);
+        }
 
         Console.WriteLine(
-            "Mother Brain fake-death PLMs: 22 typed programs, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
+            "Mother Brain fake-death room objects: 22 full draws and 20 production mutations match ROM without source reads.");
     }
 
     /// <summary>Checks one spawned PLM's exact collision blocks, draw-frame lifetime, deletion, and source-read guard.</summary>
     private static void VerifyMotherBrainFakeDeathMutation(
-        MotherBrainRoomMutation mutation, MotherBrainFakeDeathProgram program)
+        MotherBrainRoomMutation mutation, TerrainChange change)
     {
         const int width = 32;
         const int height = 16;
@@ -86,10 +65,9 @@ internal static class MotherBrainFakeDeathObjectsVerification
         RoomTerrainBlock[] expected = Enumerable.Range(0, terrain.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).Terrain)
             .ToArray();
-        AssertTrue(roomObjects.PopulationSlots.Single().Animation is MotherBrainFakeDeathObjectAnimation { Program: var started } && started == program,
-            $"Mother Brain mutation {mutation} starts its typed program");
-        AssertTrue(MotherBrainFakeDeathDraws.TryGet(
-                RoomObjectDraw.Of(MotherBrainFakeDeathPrograms.Layout(program)), out var draw),
+        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is TerrainChangeObject { Change: var started } && started == change,
+            $"Mother Brain mutation {mutation} starts its terrain change");
+        AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out var draw),
             $"Mother Brain mutation {mutation} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {

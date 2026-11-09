@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Fx;
 /// Area-dependent special-air dispatch expressed as named reaction cases, without stored tables.
 /// The inside and collision dispatches select sixteen entries for each
 /// of seven retail areas; each selected PLM header supplies its setup callback.
-/// BTS callers clear bit seven before selection. Preserve distinct no-op header identities,
-/// repeated quicksand-surface cases, and rejection of non-retail areas or indexes above fifteen.
+/// BTS callers clear bit seven before selection. Every entry that does nothing is the one no-op reaction;
+/// repeated quicksand-surface cases and the rejection of non-retail areas or indexes above fifteen are preserved.
 /// These are engine dispatch rules, not editable room or presentation assets.
 /// </summary>
 public static class SpecialAirReactionDefinitions
@@ -18,20 +18,8 @@ public static class SpecialAirReactionDefinitions
     /// <summary>The empty PLM entry, whose setup does nothing.</summary>
     public static readonly SpecialAirReactionDefinition Nothing = new(RoomObjectHeaderId.Nothing, SpecialAirReactionSetup.Nothing);
 
-    /// <summary>
-    /// The collision-reaction entry whose setup clears the
-    /// carry.
-    /// </summary>
-    public static readonly SpecialAirReactionDefinition ClearCarry = new(RoomObjectHeaderId.CollisionReactionClearCarry, SpecialAirReactionSetup.ClearCarry);
-
-    /// <summary>Norfair inside-reaction no-op for the first special air block.</summary>
-    public static readonly SpecialAirReactionDefinition NorfairInsideNothing80 = new(RoomObjectHeaderId.InsideReactionNothingFirst, SpecialAirReactionSetup.Nothing);
-
-    /// <summary>Norfair inside-reaction no-op for the second special air block.</summary>
-    public static readonly SpecialAirReactionDefinition NorfairInsideNothing81 = new(RoomObjectHeaderId.InsideReactionNothingSecond, SpecialAirReactionSetup.Nothing);
-
-    /// <summary>Norfair inside-reaction no-op for the third special air block.</summary>
-    public static readonly SpecialAirReactionDefinition NorfairInsideNothing82 = new(RoomObjectHeaderId.InsideReactionNothingThird, SpecialAirReactionSetup.Nothing);
+    /// <summary>The collision-reaction entry through which Samus passes, as through air.</summary>
+    public static readonly SpecialAirReactionDefinition ClearCarry = new(RoomObjectHeaderId.CollisionReactionPassThrough, SpecialAirReactionSetup.ClearCarry);
 
     /// <summary>
     /// The Brinstar floor plant's inside reaction and its
@@ -49,7 +37,7 @@ public static class SpecialAirReactionDefinitions
     /// The Crateria inside reaction for the first special air block and its
     /// ice-physics setup.
     /// </summary>
-    public static readonly SpecialAirReactionDefinition CrateriaIcePhysics = new(RoomObjectHeaderId.InsideReactionCrateria80, SpecialAirReactionSetup.IcePhysics);
+    public static readonly SpecialAirReactionDefinition CrateriaIcePhysics = new(RoomObjectHeaderId.InsideReactionCrateriaIcePhysics, SpecialAirReactionSetup.IcePhysics);
 
     /// <summary>Maridia quicksand-surface inside reaction.</summary>
     public static readonly SpecialAirReactionDefinition QuicksandSurfaceInside = new(RoomObjectHeaderId.InsideReactionQuicksandSurface, SpecialAirReactionSetup.QuicksandSurface);

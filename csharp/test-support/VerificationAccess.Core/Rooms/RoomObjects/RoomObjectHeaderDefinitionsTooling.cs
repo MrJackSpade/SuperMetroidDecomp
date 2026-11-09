@@ -44,7 +44,7 @@ internal static class RoomObjectHeaderDefinitionsTooling
         yield return RoomObjectHeaders.Get(RoomObjectHeaderId.MotherBrainGlass);
         yield return RoomObjectHeaders.Get(RoomObjectHeaderId.BombTorizoHand);
         yield return RoomObjectHeaders.Get(RoomObjectHeaderId.NoobTube);
-        yield return RoomObjectHeaders.Get(RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired);
+        yield return RoomObjectHeaders.Get(RoomObjectHeaderId.MetroidRoomClearance);
         yield return RoomObjectHeaders.Get(RoomObjectHeaderId.EyeDoorEyeFacingRight);
         yield return RoomObjectHeaders.Get(RoomObjectHeaderId.EyeDoorFacingRight);
         yield return RoomObjectHeaders.Get(RoomObjectHeaderId.EyeDoorBottomFacingRight);

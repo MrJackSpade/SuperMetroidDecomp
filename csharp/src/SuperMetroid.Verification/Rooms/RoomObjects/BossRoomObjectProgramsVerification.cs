@@ -11,77 +11,85 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Rooms.RoomObjects.BossRoomObjectNativeListAddresses;
 using static SuperMetroid.TestSupport.MovieReplay.NativeObjectListDefinitions;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
 /// <summary>
-/// #1296: the boss-room PLM programs typed in place of their bank-$84 lists. Each typed program must equal its native
-/// list step by step: draws and durations, loop counts, fall-through, deletion, and the cue of every other instruction.
-/// The families' runtime suites check the room mutations those programs make.
+/// The boss-room room objects beside their bank-$84 lists. Each terrain change (#1554) must play as its native list
+/// does, frame by frame: its draws and how long each stays, the moves and sounds between them, and when it ends. Each
+/// program typed by #1296 must equal its native list step by step. The families' runtime suites check the room changes
+/// these make.
 /// </summary>
 internal static class BossRoomObjectProgramsVerification
 {
-    /// <summary>Botwoon's wall programs equal their native lists.</summary>
+    /// <summary>Botwoon's wall changes play as their native lists do; only the crumble opens the scrolls as it starts.</summary>
     internal static void VerifyBotwoonWallPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BotwoonWallObjectProgramDefinitions.Programs, BotwoonWallEntries,
-            BotwoonWallDrawList, BotwoonWallCueAt, "Botwoon wall");
-        Console.WriteLine($"  Botwoon wall programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        int frames = 0;
+        foreach ((BotwoonWallMutation mutation, ushort entry) in BotwoonWallEntries)
+        {
+            TerrainChange change = mutation == BotwoonWallMutation.Crumble ? BotwoonWallMutationDefinitions.Crumble : BotwoonWallMutationDefinitions.Clear;
+            frames += NativeTerrainChanges.Compare(cartridge, change, entry, BotwoonWallStepAt, $"Botwoon wall {mutation}", out bool began);
+            AssertEqual(mutation == BotwoonWallMutation.Crumble, began, $"Botwoon wall {mutation} opens the scrolls exactly when it crumbles");
+        }
+        AssertEqual(Enum.GetValues<BotwoonWallMutation>().Length, BotwoonWallEntries.Count, "every Botwoon wall mutation has a native list");
+        Console.WriteLine($"  Botwoon wall changes: {frames} typed frames match bank $84.");
     }
 
-    /// <summary>The draw a Botwoon wall frame shows: the crumble frames are the shared single shot-block breakup.</summary>
-    private static RoomObjectDraw BotwoonWallDrawList(BotwoonWallDraw frame) => frame switch
-    {
-        BotwoonWallDraw.CrumbleFirst => ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0),
-        BotwoonWallDraw.CrumbleSecond => ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 1),
-        BotwoonWallDraw.CrumbleThird => ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 2),
-        BotwoonWallDraw.CrumbleFourth => ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 3),
-        BotwoonWallDraw.Clear => BotwoonWallObjectDrawDefinitions.Clear,
-        _ => throw new InvalidOperationException($"Undefined {nameof(BotwoonWallDraw)} {frame}."),
-    };
+    /// <summary>The Kraid room's changes play as their native lists do.</summary>
+    internal static void VerifyKraidRoomPrograms(ISnesAddressSpace rom) =>
+        CompareChanges(rom, KraidRoomEntries, KraidRoomMutationDefinitions.Changes, KraidRoomStepAt, "Kraid room");
 
-    /// <summary>The Kraid room programs equal their native lists.</summary>
-    internal static void VerifyKraidRoomPrograms(ISnesAddressSpace rom)
+    /// <summary>Crocomire's arena changes play as their native lists do.</summary>
+    internal static void VerifyCrocomireArenaPrograms(ISnesAddressSpace rom) =>
+        CompareChanges(rom, CrocomireArenaEntries, CrocomireArenaMutationDefinitions.Changes, NativeTerrainChanges.NoSteps, "Crocomire arena");
+
+    /// <summary>Mother Brain's fake-death changes play as their native lists do.</summary>
+    internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom) =>
+        CompareChanges(rom, MotherBrainFakeDeathEntries, MotherBrainRoomMutationDefinitions.Changes, NativeTerrainChanges.NoSteps, "Mother Brain fake death");
+
+    /// <summary>Spore Spawn's ceiling changes play as their native lists do.</summary>
+    internal static void VerifySporeSpawnCeilingPrograms(ISnesAddressSpace rom) =>
+        CompareChanges(rom, SporeSpawnCeilingEntries, SporeSpawnCeilingMutationDefinitions.Changes,
+            (IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step) =>
+                TryCrumbleSound(cartridge, cursor, SporeSpawnCeilingMutationDefinitions.CrumbleSoundId, "Spore Spawn ceiling", out step),
+            "Spore Spawn ceiling");
+
+    /// <summary>
+    /// Plays every mutation's native list beside its typed change; every mutation has a list and none of these changes
+    /// opens anything as it starts.
+    /// </summary>
+    private static void CompareChanges<TMutation>(ISnesAddressSpace rom, IReadOnlyList<NativeProgramEntry<TMutation>> entries,
+        IReadOnlyDictionary<TMutation, TerrainChange> changes, NativeTerrainChanges.StepReader steps, string family)
+        where TMutation : struct, Enum
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), KraidRoomObjectProgramDefinitions.Programs, KraidRoomEntries,
-            draw => RoomObjectDraw.Of(draw), KraidRoomCueAt, "Kraid room");
-        Console.WriteLine($"  Kraid room programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        AssertEqual(Enum.GetValues<TMutation>().Length, entries.Count, $"every {family} mutation has a native list");
+        AssertEqual(entries.Count, changes.Count, $"every {family} mutation has a typed change");
+        int frames = 0;
+        foreach ((TMutation mutation, ushort entry) in entries)
+        {
+            frames += NativeTerrainChanges.Compare(cartridge, changes[mutation], entry, steps, $"{family} {mutation}", out bool began);
+            AssertTrue(!began, $"{family} {mutation} opens nothing as it starts");
+        }
+        Console.WriteLine($"  {family} changes: {frames} typed frames match bank $84.");
     }
 
-    /// <summary>Crocomire's arena programs equal their native lists.</summary>
-    internal static void VerifyCrocomireArenaPrograms(ISnesAddressSpace rom)
+    /// <summary>A queued crumble sound of the enemies' library at normal priority, which comes with the next frame.</summary>
+    private static bool TryCrumbleSound(IImportCartridgeSource cartridge, ushort cursor, SoundEffectId expected, string family,
+        out NativeTerrainChanges.NativeStep step)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), CrocomireArenaObjectProgramDefinitions.Programs, CrocomireArenaEntries,
-            draw => RoomObjectDraw.Of(draw), NoCues<RoomObjectNoCue>(), "Crocomire arena");
-        Console.WriteLine($"  Crocomire arena programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>Mother Brain's fake-death programs equal their native lists.</summary>
-    internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom)
-    {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainFakeDeathObjectProgramDefinitions.Programs,
-            MotherBrainFakeDeathEntries, draw => RoomObjectDraw.Of(draw), NoCues<RoomObjectNoCue>(), "Mother Brain fake death");
-        Console.WriteLine($"  Mother Brain fake-death programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>Spore Spawn's ceiling programs equal their native lists.</summary>
-    internal static void VerifySporeSpawnCeilingPrograms(ISnesAddressSpace rom)
-    {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SporeSpawnCeilingObjectProgramDefinitions.Programs, SporeSpawnCeilingEntries,
-            draw => RoomObjectDraw.Of(draw),
-            (IImportCartridgeSource cartridge, ushort cursor, out SporeSpawnCeilingCue cue, out int length) =>
-            {
-                cue = SporeSpawnCeilingCue.QueueCrumbleSound;
-                length = 3;
-                if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.QueueSoundLibrary2Maximum6)
-                    return false;
-                AssertEqual(SporeSpawnCeilingObjectProgramDefinitions.CrumbleSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "Spore Spawn ceiling sound");
-                AssertEqual(SoundRequestPriority.Normal, SporeSpawnCeilingObjectProgramDefinitions.CrumbleSoundPriority, "Spore Spawn ceiling sound priority");
-                return true;
-            }, "Spore Spawn ceiling");
-        Console.WriteLine($"  Spore Spawn ceiling programs: {steps} typed steps match bank $84.");
+        step = default;
+        if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.QueueSoundLibrary2Maximum6)
+            return false;
+        SoundEffectId sound = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
+        AssertEqual(expected, sound, $"{family} crumble sound");
+        step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero, sound, Begins: false, Length: 3);
+        return true;
     }
 
     /// <summary>Draygon's cannon programs equal their native lists, each facing's links and branches staying on its side.</summary>
@@ -382,30 +390,29 @@ internal static class BossRoomObjectProgramsVerification
         }
     }
 
-    /// <summary>Botwoon's scroll, crumble-sound and move-down instructions.</summary>
-    private static bool BotwoonWallCueAt(IImportCartridgeSource cartridge, ushort cursor, out BotwoonWallCue cue, out int length)
+    /// <summary>Botwoon's crumble sound, its opening of the scrolls and its move down a block.</summary>
+    private static bool BotwoonWallStepAt(IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step)
     {
-        if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) == RoomObjectInstruction.QueueSoundLibrary2Maximum6)
+        if (TryCrumbleSound(cartridge, cursor, BotwoonWallMutationDefinitions.CrumbleSound, "Botwoon wall", out step))
+            return true;
+        BossRoomObjectNativeRoutine routine = InstructionAt<BossRoomObjectNativeRoutine>(cartridge, cursor);
+        if (routine == BossRoomObjectNativeRoutine.BotwoonWallScrollsBlue)
         {
-            AssertEqual(BotwoonWallObjectProgramDefinitions.CrumbleSound,
-                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
-                "Botwoon wall crumble sound");
-            AssertEqual(SoundRequestPriority.Normal, BotwoonWallObjectProgramDefinitions.CrumbleSoundPriority, "Botwoon wall crumble sound priority");
-            cue = BotwoonWallCue.QueueCrumbleSound;
-            length = 3;
+            step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero, Sound: null, Begins: true, Length: 2);
             return true;
         }
-        BossRoomObjectNativeRoutine routine = InstructionAt<BossRoomObjectNativeRoutine>(cartridge, cursor);
-        cue = routine == BossRoomObjectNativeRoutine.BotwoonWallMoveDown ? BotwoonWallCue.MoveDownOneBlock : BotwoonWallCue.SetScrollsBlue;
-        length = 2;
-        return routine is BossRoomObjectNativeRoutine.BotwoonWallScrollsBlue or BossRoomObjectNativeRoutine.BotwoonWallMoveDown;
+        if (routine == BossRoomObjectNativeRoutine.BotwoonWallMoveDown)
+        {
+            step = new NativeTerrainChanges.NativeStep(new Offset16<RoomBlocks>(0, 1), Sound: null, Begins: false, Length: 2);
+            return true;
+        }
+        return false;
     }
 
-    /// <summary>The Kraid room's move-right instruction.</summary>
-    private static bool KraidRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, out KraidRoomCue cue, out int length)
+    /// <summary>The Kraid room's move right a block.</summary>
+    private static bool KraidRoomStepAt(IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step)
     {
-        cue = KraidRoomCue.MoveRightOneBlock;
-        length = 2;
+        step = new NativeTerrainChanges.NativeStep(new Offset16<RoomBlocks>(1, 0), Sound: null, Begins: false, Length: 2);
         return InstructionAt<BossRoomObjectNativeRoutine>(cartridge, cursor) == BossRoomObjectNativeRoutine.KraidRoomMoveRight;
     }
 }

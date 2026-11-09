@@ -50,19 +50,27 @@ internal static class RoomObjectNativeListAddresses
     [
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.ElevatorPlatform, 0xafb6),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.ShaktoolRoomController, 0xb8d6),
-        new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.MaridiaElevatube, 0xb8f0),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.OldTourianWallWait, 0xb919),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.OldTourianWallOpen, 0xb91f),
-        new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.EscapeAnimalReaction, 0xb9a2),
-        new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.CrateriaPassage, 0xbb19),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.MotherBrainEscapeGate, 0xbb34),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.MotherBrainEscapeGateClosing, 0xbb44),
-        new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.EnemyBreakableTerrain, 0xcd53),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.ChozoCrumblePlug, 0xd0f6),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.LowerNorfairChozoHand, 0xd13f),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.LowerNorfairChozoHandLowered, 0xd14d),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.ChozoClearSlope, 0xd3cf),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.ChozoBlockSlope, 0xd3ec),
+    ];
+
+    /// <summary>
+    /// The lists of the room objects that left the scripted program set for typed terrain changes (#1554): the Maridia
+    /// elevatube, the critters' wall breakthrough, Crateria's escape passage and the enemy-breakable block.
+    /// </summary>
+    internal static IReadOnlyList<NativeProgramEntry<string>> ScriptedTerrainChangeEntries { get; } =
+    [
+        new NativeProgramEntry<string>(nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube), 0xb8f0),
+        new NativeProgramEntry<string>(nameof(ScriptedTerrainChangeDefinitions.CritterWallBreakthrough), 0xb9a2),
+        new NativeProgramEntry<string>(nameof(ScriptedTerrainChangeDefinitions.CrateriaEscapePassage), 0xbb19),
+        new NativeProgramEntry<string>(nameof(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak), 0xcd53),
     ];
 
     /// <summary>The native entry of block-reaction program <paramref name="program"/>.</summary>
@@ -160,11 +168,10 @@ internal static class RoomObjectNativeListAddresses
     internal const int DownwardGateSleepContinuationOffset = 12;
 
     /// <summary>The Tourian elevator access lists (<c>InstList_PLM_CrumbleAccessToTourianElevator_0..1</c>, <c>..ClearAccess..</c>).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<TourianAccessProgram>> TourianAccessEntries { get; } =
+    internal static IReadOnlyList<NativeProgramEntry<TourianAccessFloor>> TourianAccessEntries { get; } =
     [
-        new NativeProgramEntry<TourianAccessProgram>(TourianAccessProgram.Crumble, 0xaae5),
-        new NativeProgramEntry<TourianAccessProgram>(TourianAccessProgram.CrumbleRow, 0xaae8),
-        new NativeProgramEntry<TourianAccessProgram>(TourianAccessProgram.Clear, 0xab0c),
+        new NativeProgramEntry<TourianAccessFloor>(TourianAccessFloor.Crumble, 0xaae5),
+        new NativeProgramEntry<TourianAccessFloor>(TourianAccessFloor.Clear, 0xab0c),
     ];
 
     /// <summary>The Wrecked Ship attic's list (<c>InstList_PLM_WreckedShipAttic</c>, $84:BAFF).</summary>

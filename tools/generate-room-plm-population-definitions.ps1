@@ -70,7 +70,7 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
             return 'new DoorBitArgument(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
         }
         if ($name -in @('EnergyStation', 'MissileStation', 'SaveStation')) { return 'new StationArgument({0})' -f $word }
-        if ($name -eq 'SetMetroidsClearedStatesWhenRequired' -or $name -eq 'DownwardGateShotBlock') {
+        if ($name -eq 'MetroidRoomClearance' -or $name -eq 'DownwardGateShotBlock') {
             if (($word -band 1) -ne 0) { throw ('{0} argument {1:X4} is odd.' -f $name, $word) }
             $type = if ($name -eq 'DownwardGateShotBlock') { 'GateTriggerArgument' } else { 'MetroidRoomArgument' }
             return 'new {0}({1})' -f $type, ($word -shr 1)

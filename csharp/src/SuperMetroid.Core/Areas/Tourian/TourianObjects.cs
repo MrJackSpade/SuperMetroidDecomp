@@ -97,7 +97,7 @@ internal sealed class TourianObjects
         (_enemies ?? throw new InvalidOperationException(
             "Old Tourian escape-shaft wall has no enemy-projectile owner.")).SpawnOldTourianEscapeShaftWallExplosion();
     }
-    /// <summary>Spawns the clear or crumble animation at block (6,12).</summary>
+    /// <summary>Spawns the clear or crumble of the access floor at block (6,12).</summary>
     public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
         TourianAccessObjectDefinition definition = TourianAccessFloors.ForState(floor);
@@ -106,8 +106,7 @@ internal sealed class TourianObjects
 
         slot.Header = definition.Header;
         slot.BlockIndex = level.GetBlockIndex(new(6, 12));
-        slot.StartAnimation(new TourianAccessObjectAnimation(definition.Program));
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(definition.Change));
         return true;
     }
 }

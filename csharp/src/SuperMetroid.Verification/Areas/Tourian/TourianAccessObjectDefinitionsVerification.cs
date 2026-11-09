@@ -38,9 +38,9 @@ internal static class TourianAccessObjectDefinitionsVerification
             AssertEqual(0, slot.ProcessingPosition, "Tourian access takes the first free slot in processing order");
             AssertEqual(definition.Header, slot.HeaderPointer, "Tourian access header identity");
             AssertEqual(12 * width + 6, slot.BlockIndex, "Tourian access fixed block coordinate");
-            AssertTrue(slot.Animation is TourianAccessObjectAnimation animation && animation.Program == definition.Program,
-                "Tourian access starts its typed program");
-            AssertEqual(1, slot.FrameHold, "Tourian access starts on timer one");
+            AssertTrue(slot.Behaviour is TerrainChangeObject { Change: var change } && change == definition.Change,
+                "Tourian access starts its terrain change");
+            AssertEqual(1, definition.Change.FirstFrameDelay, "Tourian access draws on its first update");
         }
     }
 
@@ -64,8 +64,9 @@ internal static class TourianAccessObjectDefinitionsVerification
             if (instruction)
             {
                 ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (header + 2));
-                AssertEqual(RoomObjectNativeListAddresses.TourianAccessEntries.Single(entry => entry.Entry == list).Program, actual.Program,
-                    $"Tourian native spawn clear={item.Clear} starts its typed program");
+                AssertEqual(item.Clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble,
+                    RoomObjectNativeListAddresses.TourianAccessEntries.Single(entry => entry.Entry == list).Program,
+                    $"Tourian native spawn clear={item.Clear} starts its floor's list");
             }
             else
                 AssertEqual(header, RoomObjectNativeWords.Word(actual.Header), $"Tourian native spawn header clear={item.Clear}");

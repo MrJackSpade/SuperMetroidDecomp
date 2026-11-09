@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The room PLM and program of each of Kraid's room mutations.</summary>
+/// <summary>The room object and terrain change of each of Kraid's room mutations.</summary>
 internal static class KraidRoomMutationDefinitions
 {
-    /// <summary>The room PLM each mutation occupies its slot as.</summary>
+    /// <summary>The room object each mutation is.</summary>
     internal static readonly IReadOnlyDictionary<KraidRoomMutation, RoomObjectHeaderId> RoomObjects =
         new Dictionary<KraidRoomMutation, RoomObjectHeaderId>
         {
@@ -19,17 +19,50 @@ internal static class KraidRoomMutationDefinitions
             [KraidRoomMutation.CrumbleSpikes] = RoomObjectHeaderId.CrumbleKraidSpikes,
         };
 
-    /// <summary>The room program each mutation runs: a platform variant only sets its block to its background.</summary>
-    internal static readonly IReadOnlyDictionary<KraidRoomMutation, KraidRoomProgram> Programs =
-        new Dictionary<KraidRoomMutation, KraidRoomProgram>
+    /// <summary>Updates each crumble image, background or spike image shows.</summary>
+    internal const int CrumbleFrameDuration = 3;
+
+    /// <summary>The passes of the spike crumble, each crumbling two columns.</summary>
+    internal const int SpikePassCount = 11;
+
+    /// <summary>One block to the right: the spike crumble's step to its next column.</summary>
+    private static readonly Offset16<RoomBlocks> NextColumn = new(1, 0);
+
+    /// <summary>One crumble image or final block, shown for the crumble's frame duration.</summary>
+    private static TerrainChangeFrame Shown(KraidRoomDraw draw) => new(RoomObjectDraw.Of(draw), CrumbleFrameDuration);
+
+    /// <summary>The three crumble images and then <paramref name="final"/>, the first image drawn after <paramref name="moveBefore"/>.</summary>
+    private static TerrainChangeFrame[] CrumbleInto(KraidRoomDraw final, Offset16<RoomBlocks> moveBefore) =>
+    [
+        Shown(KraidRoomDraw.CrumbleFirst) with { MoveBefore = moveBefore },
+        Shown(KraidRoomDraw.CrumbleSecond),
+        Shown(KraidRoomDraw.CrumbleThird),
+        Shown(final),
+    ];
+
+    /// <summary>A spike pass after the first: its two columns, each one block right of the column before.</summary>
+    private static readonly TerrainChangeFrame[] LaterSpikePass =
+        [.. CrumbleInto(KraidRoomDraw.SpikeFirst, NextColumn), .. CrumbleInto(KraidRoomDraw.SpikeSecond, NextColumn)];
+
+    /// <summary>
+    /// The change each mutation makes: a ceiling block crumbles into its background; a platform variant only sets its
+    /// block to its background; the clears draw once; the spike crumble crumbles eleven pairs of columns left to right.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<KraidRoomMutation, TerrainChange> Changes =
+        new Dictionary<KraidRoomMutation, TerrainChange>
         {
-            [KraidRoomMutation.CrumbleCeilingIntoBackground1] = KraidRoomProgram.CrumbleCeilingIntoBackground1,
-            [KraidRoomMutation.CrumblePlatformVariant1] = KraidRoomProgram.SetCeilingToBackground2,
-            [KraidRoomMutation.CrumbleCeilingIntoBackground2] = KraidRoomProgram.CrumbleCeilingIntoBackground2,
-            [KraidRoomMutation.CrumblePlatformVariant2] = KraidRoomProgram.SetCeilingToBackground3,
-            [KraidRoomMutation.CrumbleCeilingIntoBackground3] = KraidRoomProgram.CrumbleCeilingIntoBackground3,
-            [KraidRoomMutation.ClearCeiling] = KraidRoomProgram.ClearCeiling,
-            [KraidRoomMutation.ClearSpikes] = KraidRoomProgram.ClearSpikes,
-            [KraidRoomMutation.CrumbleSpikes] = KraidRoomProgram.CrumbleSpikes,
+            [KraidRoomMutation.CrumbleCeilingIntoBackground1] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackground1, Offset16<RoomBlocks>.Zero)),
+            [KraidRoomMutation.CrumblePlatformVariant1] = new(1, [Shown(KraidRoomDraw.CeilingBackground2)]),
+            [KraidRoomMutation.CrumbleCeilingIntoBackground2] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackground2, Offset16<RoomBlocks>.Zero)),
+            [KraidRoomMutation.CrumblePlatformVariant2] = new(1, [Shown(KraidRoomDraw.CeilingBackground3)]),
+            [KraidRoomMutation.CrumbleCeilingIntoBackground3] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackground3, Offset16<RoomBlocks>.Zero)),
+            [KraidRoomMutation.ClearCeiling] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(KraidRoomDraw.ClearCeiling)),
+            [KraidRoomMutation.ClearSpikes] = TerrainChange.DrawnOnce(RoomObjectDraw.Of(KraidRoomDraw.ClearSpikes)),
+            [KraidRoomMutation.CrumbleSpikes] = new(1,
+            [
+                .. CrumbleInto(KraidRoomDraw.SpikeFirst, Offset16<RoomBlocks>.Zero),
+                .. CrumbleInto(KraidRoomDraw.SpikeSecond, NextColumn),
+                .. Enumerable.Repeat(LaterSpikePass, SpikePassCount - 1).SelectMany(pass => pass),
+            ]),
         };
 }

@@ -55,9 +55,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         slot.BlockIndex = level.GetBlockIndex(
             new(CrateriaMainstreetEscapePassageObjectDefinitions.BlockX, CrateriaMainstreetEscapePassageObjectDefinitions.BlockY));
         slot.Header = RoomObjectHeaderId.CrateriaMainstreetEscapePassage;
-        slot.LoopTimer = WrappingCountdown.Start(0);
-        slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.CrateriaPassage));
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(ScriptedTerrainChangeDefinitions.CrateriaEscapePassage));
         return true;
     }
 
@@ -72,8 +70,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.EscapeAnimalReaction));
-        slot.FrameHold = 1;
+        slot.Become(new CritterWallBreakthroughObject());
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         // The reaction keeps the wall's collision type and shows the reaction block; until its list runs, the block
         // is deactivated, staying solid only when it was.

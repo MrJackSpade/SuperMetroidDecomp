@@ -77,6 +77,61 @@ internal static class RoomObjectProgramsVerification
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), ScriptedRoomObjectProgramDefinitions.Programs, ScriptedRoomEntries,
             frame => ScriptedRoomObjectDrawDefinitions.DrawLists[frame], ScriptedRoomCueAt, "scripted room");
         Console.WriteLine($"  Scripted room programs: {steps} typed steps match bank $84.");
+        VerifyScriptedTerrainChanges(rom);
+    }
+
+    /// <summary>
+    /// The room objects that left the scripted program set play as their native lists do (#1554); the critters' wall
+    /// marks the critters escaped and the elevatube plays its sound as each ends.
+    /// </summary>
+    private static void VerifyScriptedTerrainChanges(ISnesAddressSpace rom)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        var changes = new Dictionary<string, TerrainChange>
+        {
+            [nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube)] = ScriptedTerrainChangeDefinitions.MaridiaElevatube,
+            [nameof(ScriptedTerrainChangeDefinitions.CritterWallBreakthrough)] = ScriptedTerrainChangeDefinitions.CritterWallBreakthrough,
+            [nameof(ScriptedTerrainChangeDefinitions.CrateriaEscapePassage)] = ScriptedTerrainChangeDefinitions.CrateriaEscapePassage,
+            [nameof(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak)] = ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak,
+        };
+        int frames = 0;
+        foreach ((string name, ushort entry) in ScriptedTerrainChangeEntries)
+        {
+            frames += NativeTerrainChanges.Compare(cartridge, changes[name], entry, ScriptedTerrainStepAt, name, out bool began,
+                out IReadOnlyList<NativeTerrainChanges.NativeStep> atEnd);
+            AssertTrue(!began, $"{name} opens nothing as it starts");
+            string ending = string.Join(", ", atEnd.Select(step => step.Effect ?? $"{step.Sound} at {step.Priority}"));
+            string expected = name == nameof(ScriptedTerrainChangeDefinitions.CritterWallBreakthrough) ? "critters escaped"
+                : name == nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube) ? $"{(SoundEffectId?)EnemySound.Elevatube} at {SoundRequestPriority.Normal}"
+                : "";
+            AssertEqual(expected, ending, $"{name} acts as it ends exactly as its typed object does");
+        }
+        Console.WriteLine($"  Scripted terrain changes: {frames} typed frames match bank $84.");
+    }
+
+    /// <summary>The enemies' crumble and elevatube sounds at their priorities, the critters' escape and the four-block move right.</summary>
+    private static bool ScriptedTerrainStepAt(IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step)
+    {
+        RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
+        if (instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 || instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum6)
+        {
+            step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero,
+                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Begins: false, Length: 3,
+                Priority: instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
+            return true;
+        }
+        if (instruction == RoomObjectInstruction.SetAnimalsEscapedEvent)
+        {
+            step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero, Sound: null, Begins: false, Length: 2, Effect: "critters escaped");
+            return true;
+        }
+        if (instruction == RoomObjectInstruction.MoveRightFourBlocks)
+        {
+            step = new NativeTerrainChanges.NativeStep(new Offset16<RoomBlocks>(4, 0), Sound: null, Begins: false, Length: 2);
+            return true;
+        }
+        step = default;
+        return false;
     }
 
     /// <summary>The scripted rooms' instructions, with their operands.</summary>
@@ -86,14 +141,6 @@ internal static class RoomObjectProgramsVerification
         length = 2;
         switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
         {
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-                cue = new ScriptedRoomObjectCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Priority: SoundRequestPriority.Low);
-                length = 3;
-                return true;
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-                cue = new ScriptedRoomObjectCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Priority: SoundRequestPriority.Normal);
-                length = 3;
-                return true;
             case RoomObjectInstruction.InstallFrameBehavior:
                 ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
                 ScriptedRoomObjectFrameBehavior installed =
@@ -106,12 +153,6 @@ internal static class RoomObjectProgramsVerification
                 return true;
             case RoomObjectInstruction.ClearFrameBehavior:
                 cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.ClearFrameBehavior);
-                return true;
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.SetAnimalsEscapedEvent);
-                return true;
-            case RoomObjectInstruction.MoveRightFourBlocks:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.MoveRightFourBlocks);
                 return true;
             case RoomObjectInstruction.GotoIfEventSet:
                 AssertEqual(StoryEvent.LowerNorfairChozoLoweredAcid.Number(), cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
@@ -129,6 +170,10 @@ internal static class RoomObjectProgramsVerification
             case RoomObjectInstruction.RevertSlopesToSpikes:
                 cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.RevertSlopesToSpikes);
                 return true;
+            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
+            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
+            case RoomObjectInstruction.SetAnimalsEscapedEvent:
+            case RoomObjectInstruction.MoveRightFourBlocks:
             case RoomObjectInstruction.SetGreyDoorFrameBehavior:
             case RoomObjectInstruction.Sleep:
             case RoomObjectInstruction.Delete:
@@ -423,18 +468,23 @@ internal static class RoomObjectProgramsVerification
         return true;
     }
 
-    /// <summary>The Tourian elevator access programs equal their native lists.</summary>
+    /// <summary>The Tourian elevator access changes play as their native lists do.</summary>
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), TourianAccessObjectProgramDefinitions.Programs, TourianAccessEntries,
-            draw => RoomObjectDraw.Of(draw),
-            (IImportCartridgeSource cartridge, ushort cursor, out TourianAccessCue cue, out int length) =>
-            {
-                cue = TourianAccessCue.MoveDown;
-                length = 2;
-                return InstructionAt<RoomObjectInstruction>(cartridge, cursor) == RoomObjectInstruction.MoveTourianAccessDown;
-            }, "Tourian access");
-        Console.WriteLine($"  Tourian access programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        AssertEqual(Enum.GetValues<TourianAccessFloor>().Length, TourianAccessEntries.Count, "every Tourian access floor has a native list");
+        int frames = 0;
+        foreach ((TourianAccessFloor floor, ushort entry) in TourianAccessEntries)
+        {
+            frames += NativeTerrainChanges.Compare(cartridge, TourianAccessFloors.ForState(floor).Change, entry,
+                (IImportCartridgeSource source, ushort cursor, out NativeTerrainChanges.NativeStep step) =>
+                {
+                    step = new NativeTerrainChanges.NativeStep(new Offset16<RoomBlocks>(0, 1), Sound: null, Begins: false, Length: 2);
+                    return InstructionAt<RoomObjectInstruction>(source, cursor) == RoomObjectInstruction.MoveTourianAccessDown;
+                }, $"Tourian access {floor}", out bool began);
+            AssertTrue(!began, $"Tourian access {floor} opens nothing as it starts");
+        }
+        Console.WriteLine($"  Tourian access changes: {frames} typed frames match bank $84.");
     }
 
     /// <summary>The Wrecked Ship attic's program equals its native list.</summary>

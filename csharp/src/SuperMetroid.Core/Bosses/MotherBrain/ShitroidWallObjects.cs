@@ -10,8 +10,8 @@ internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
 {
     /// <summary>
     /// Spawns the wall PLM performing the request's mutation at its block. The setup runs as the PLM is spawned: it
-    /// gives each block of the wall column the mutation's collision, keeping every block's appearance, and the PLM
-    /// deletes itself on its first pass.
+    /// gives each block of the wall column the mutation's collision, keeping every block's appearance, and the object
+    /// leaves the room on its first update.
     /// </summary>
     /// <returns>False when every PLM slot is occupied; no terrain is changed then.</returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<ShitroidWallMutation> request)
@@ -25,14 +25,10 @@ internal sealed class ShitroidWallObjects(RoomObjectSlotTable slotTable)
 
         slot.Header = roomObject;
         slot.BlockIndex = level.GetBlockIndex(request.Block);
-        slot.LoopTimer = WrappingCountdown.Start(0);
-        slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
-        slot.Argument = null;
-        RoomObjectProgramStart.Delete.StartOn(slot);
-        slot.FrameHold = 1;
+        slot.Become(new TerrainChangeObject(TerrainChange.MadeAtSpawn));
 
-        // The setup walks down the wall column. The change is part of setup, so it happens before the PLM handler's
-        // timer can consume and delete this slot.
+        // The setup walks down the wall column. The change is made as the object spawns, before its first update
+        // removes it.
         for (int rowOffset = 0; rowOffset < WallHeight; rowOffset++)
         {
             int blockIndex = level.GetBlockIndex(request.Block + new Offset16<RoomBlocks>(0, rowOffset));

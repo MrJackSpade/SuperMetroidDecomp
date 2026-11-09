@@ -2,35 +2,39 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>Fixed PLM header/list identities published by the two Chozo-statue actors.</summary>
+/// <summary>The room objects the two Chozo statues spawn, and the authored timing of their terrain changes.</summary>
 internal static class ChozoStatueObjectDefinitions
 {
-    /// <summary>The sleeping Lower Norfair hand and its initial animation.</summary>
-    public static ChozoStatueObjectDefinition LowerNorfairHand =>
-        new(RoomObjectHeaderId.LowerNorfairChozoHand, RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.LowerNorfairChozoHand));
+    /// <summary>The five room objects a Chozo statue spawns, in their authored order; no other object is a statue's.</summary>
+    internal static IReadOnlyList<RoomObjectHeaderId> Headers { get; } =
+    [
+        RoomObjectHeaderId.LowerNorfairChozoHand,
+        RoomObjectHeaderId.WreckedShipChozoHand,
+        RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo,
+        RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo,
+        RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+    ];
 
-    /// <summary>The Wrecked Ship hand and its delete animation.</summary>
-    public static ChozoStatueObjectDefinition WreckedShipHand =>
-        new(RoomObjectHeaderId.WreckedShipChozoHand, RoomObjectProgramStart.Delete);
+    /// <summary>What the Lower Norfair hand draws once the acid is lowered.</summary>
+    internal static RoomObjectDraw LoweredHand => ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.LowerNorfairChozoHand];
 
-    /// <summary>The clear-slope-access PLM and its program.</summary>
-    public static ChozoStatueObjectDefinition ClearSlopeAccess =>
-        new(RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo, RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.ChozoClearSlope));
+    /// <summary>The Wrecked Ship hand: its whole effect is its spawn's block, and it leaves the room on its first update.</summary>
+    internal static TerrainChange WreckedShipHand => TerrainChange.MadeAtSpawn;
 
-    /// <summary>The block-slope-access PLM and its program.</summary>
-    public static ChozoStatueObjectDefinition BlockSlopeAccess =>
-        new(RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo, RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.ChozoBlockSlope));
+    /// <summary>The Wrecked Ship slope access opening, drawn once before the spikes become slopes.</summary>
+    internal static TerrainChange ClearSlopeAccess { get; } =
+        TerrainChange.DrawnOnce(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.ChozoSlopeCleared]);
 
-    /// <summary>The crumbling Lower Norfair plug and its draw program.</summary>
-    public static ChozoStatueObjectDefinition CrumblePlug =>
-        new(RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug, RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.ChozoCrumblePlug));
-    /// <summary>The five supported headers' definitions; no other data is interpreted.</summary>
-    internal static readonly Dictionary<RoomObjectHeaderId, ChozoStatueObjectDefinition> ByHeader = new()
-    {
-        [RoomObjectHeaderId.LowerNorfairChozoHand] = LowerNorfairHand,
-        [RoomObjectHeaderId.WreckedShipChozoHand] = WreckedShipHand,
-        [RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo] = ClearSlopeAccess,
-        [RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo] = BlockSlopeAccess,
-        [RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug] = CrumblePlug,
-    };
+    /// <summary>The Wrecked Ship slope access closing, drawn once before the slopes become spikes again.</summary>
+    internal static TerrainChange BlockSlopeAccess { get; } =
+        TerrainChange.DrawnOnce(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.ChozoSlopeBlocked]);
+
+    /// <summary>The Lower Norfair plug crumbling: a one-block breakup whose last image, the cleared block, shows for one update.</summary>
+    internal static TerrainChange CrumblePlug { get; } = new(1,
+    [
+        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup0], ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
+        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup1], ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
+        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup2], ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
+        new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup3], 1),
+    ]);
 }

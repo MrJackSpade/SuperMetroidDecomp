@@ -306,19 +306,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     {
         ScriptedRoomObjectFrameBehavior.ShaktoolRoomController => ShaktoolRoomFrameBehaviors.Controller,
         ScriptedRoomObjectFrameBehavior.OldTourianWallWaitForSamus => TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus,
-        ScriptedRoomObjectFrameBehavior.LowerNorfairChozoHandWait => ChozoStatueFrameBehaviors.WaitForLowerNorfairHand,
         _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomObjectFrameBehavior)} {frameBehavior}."),
     };
-
-    /// <inheritdoc/>
-    bool IScriptedRoomObjectHooks.HasLoweredLowerNorfairAcid => ChozoStatue.HasLoweredLowerNorfairAcid;
-
-    /// <inheritdoc/>
-    void IScriptedRoomObjectHooks.SetLoweredAcidHeight() => ChozoStatue.SetLoweredAcidHeight();
-
-    /// <inheritdoc/>
-    void IScriptedRoomObjectHooks.TransformSpikesToSlopes(RoomLevelData level) => ChozoStatueObjects.TransformSpikesToSlopes(level);
-
-    /// <inheritdoc/>
-    void IScriptedRoomObjectHooks.RevertSlopesToSpikes(RoomLevelData level) => ChozoStatueObjects.RevertSlopesToSpikes(level);
 }

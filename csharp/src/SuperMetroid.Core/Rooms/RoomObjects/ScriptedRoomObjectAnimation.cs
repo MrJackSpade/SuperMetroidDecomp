@@ -29,17 +29,6 @@ internal sealed class ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram prog
             case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.ClearFrameBehavior }:
                 slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
                 return null;
-            case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.ContinueIfLowerNorfairAcidLowered }:
-                return context.RoomObjects.ScriptedHooks.HasLoweredLowerNorfairAcid ? ScriptedRoomObjectProgram.LowerNorfairChozoHandLowered : null;
-            case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.SetLoweredAcidHeight }:
-                context.RoomObjects.ScriptedHooks.SetLoweredAcidHeight();
-                return null;
-            case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.TransformSpikesToSlopes }:
-                context.RoomObjects.ScriptedHooks.TransformSpikesToSlopes(context.Level);
-                return null;
-            case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.RevertSlopesToSpikes }:
-                context.RoomObjects.ScriptedHooks.RevertSlopesToSpikes(context.Level);
-                return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomObjectCueKind)} {cue}.");
         }

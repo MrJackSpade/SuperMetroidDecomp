@@ -20,10 +20,5 @@ internal static class ScriptedRoomObjectProgramDefinitions
             [P.OldTourianWallOpen] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.ClearFrameBehavior)), Step.Show(F.OldTourianWallOpen, 1), Step.Stop],
             [P.MotherBrainEscapeGate] = [Step.Show(F.MotherBrainGateClosed, 6), Step.Stop],
             [P.MotherBrainEscapeGateClosing] = [Step.Show(F.MotherBrainGateOpen, 2), Step.Show(F.MotherBrainGateHalfClosed, 2), Step.Show(F.MotherBrainGateClosed, 2), Step.Stop],
-            [P.ChozoCrumblePlug] = [Step.Show(F.SingleBreakup0, 4), Step.Show(F.SingleBreakup1, 4), Step.Show(F.SingleBreakup2, 4), Step.Show(F.SingleBreakup3, 1), Step.Stop],
-            [P.LowerNorfairChozoHand] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.ContinueIfLowerNorfairAcidLowered)), Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.LowerNorfairChozoHandWait)), Step.Hold],
-            [P.LowerNorfairChozoHandLowered] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.SetLoweredAcidHeight)), Step.Show(F.LowerNorfairChozoHand, 1), Step.Stop],
-            [P.ChozoClearSlope] = [Step.Show(F.ChozoSlopeCleared, 1), Step.Publish(new ScriptedRoomObjectCue.Command(K.TransformSpikesToSlopes)), Step.Stop],
-            [P.ChozoBlockSlope] = [Step.Show(F.ChozoSlopeBlocked, 1), Step.Publish(new ScriptedRoomObjectCue.Command(K.RevertSlopesToSpikes)), Step.Stop],
         });
 }

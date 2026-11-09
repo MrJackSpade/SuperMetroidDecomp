@@ -47,7 +47,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
             [DraygonCannonFrameBehaviors.MissileHit] = DraygonNativeWords.MissileHitFrameBehavior,
             [MotherBrainGlassFrameBehaviors.Hit] = MotherBrainGlassObjectProgramDefinitionsConstants.HitFrameBehavior,
             [BombTorizoHandFrameBehaviors.WakeIfSamusHasBombs] = BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior,
-            [ChozoStatueFrameBehaviors.WaitForLowerNorfairHand] = ChozoStatueObjectNativeRoutines.WaitForLowerNorfairHand,
             [ShaktoolRoomFrameBehaviors.Controller] = ShaktoolRoomObjectNativeProgram.FrameBehavior,
             [WreckedShipAtticFrameBehaviors.NoOpCallback] = WreckedShipAtticObjectRomData.NoOpCallback,
             [SamusEaterFrameBehaviors.Hold] = SamusEaterObjectDefinitionsConstants.HoldFrameBehavior,

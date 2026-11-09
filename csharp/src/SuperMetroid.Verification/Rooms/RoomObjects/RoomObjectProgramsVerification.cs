@@ -146,7 +146,6 @@ internal static class RoomObjectProgramsVerification
                 ScriptedRoomObjectFrameBehavior installed =
                     routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomFrameBehaviors.Controller) ? ScriptedRoomObjectFrameBehavior.ShaktoolRoomController
                     : routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomObjectFrameBehavior.OldTourianWallWaitForSamus
-                    : routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Chozo.ChozoStatueFrameBehaviors.WaitForLowerNorfairHand) ? ScriptedRoomObjectFrameBehavior.LowerNorfairChozoHandWait
                     : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
                 cue = new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: installed);
                 length = 4;
@@ -155,21 +154,9 @@ internal static class RoomObjectProgramsVerification
                 cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.ClearFrameBehavior);
                 return true;
             case RoomObjectInstruction.GotoIfEventSet:
-                AssertEqual(StoryEvent.LowerNorfairChozoLoweredAcid.Number(), cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
-                AssertEqual(ScriptedRoomEntries.Single(entry => entry.Program == ScriptedRoomObjectProgram.LowerNorfairChozoHandLowered).Entry,
-                    cartridge.ReadCartridgeWord(ProgramBank | (cursor + 4)), "Chozo hand lowered-acid target");
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.ContinueIfLowerNorfairAcidLowered);
-                length = 6;
-                return true;
             case RoomObjectInstruction.SetLoweredAcidHeight:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.SetLoweredAcidHeight);
-                return true;
             case RoomObjectInstruction.TransformSpikesToSlopes:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.TransformSpikesToSlopes);
-                return true;
             case RoomObjectInstruction.RevertSlopesToSpikes:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.RevertSlopesToSpikes);
-                return true;
             case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
             case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
             case RoomObjectInstruction.SetAnimalsEscapedEvent:

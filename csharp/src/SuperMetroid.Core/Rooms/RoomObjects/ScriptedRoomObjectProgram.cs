@@ -15,14 +15,4 @@ internal enum ScriptedRoomObjectProgram
     MotherBrainEscapeGate,
     /// <summary>Mother Brain's escape gate closing.</summary>
     MotherBrainEscapeGateClosing,
-    /// <summary>The Lower Norfair Chozo room plug crumbling.</summary>
-    ChozoCrumblePlug,
-    /// <summary>The Lower Norfair Chozo hand: waits for Samus, or continues to the lowered-acid program.</summary>
-    LowerNorfairChozoHand,
-    /// <summary>The Lower Norfair Chozo hand once its acid is lowered.</summary>
-    LowerNorfairChozoHandLowered,
-    /// <summary>The Wrecked Ship Chozo slope access cleared.</summary>
-    ChozoClearSlope,
-    /// <summary>The Wrecked Ship Chozo slope access blocked.</summary>
-    ChozoBlockSlope,
 }

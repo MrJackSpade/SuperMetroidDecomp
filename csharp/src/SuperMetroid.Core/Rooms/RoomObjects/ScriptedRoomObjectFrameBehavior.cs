@@ -7,6 +7,4 @@ internal enum ScriptedRoomObjectFrameBehavior
     ShaktoolRoomController,
     /// <summary>The old Tourian escape wall waiting for Samus.</summary>
     OldTourianWallWaitForSamus,
-    /// <summary>The Lower Norfair Chozo hand waiting for Samus.</summary>
-    LowerNorfairChozoHandWait,
 }

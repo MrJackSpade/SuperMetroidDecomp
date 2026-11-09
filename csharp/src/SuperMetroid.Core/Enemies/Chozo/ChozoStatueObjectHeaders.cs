@@ -1,13 +1,13 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>Finds the definition of a PLM a Chozo statue publishes.</summary>
+/// <summary>Checks that a room object a Chozo statue publishes is one of the statues' own.</summary>
 internal static class ChozoStatueObjectHeaders
 {
-    /// <summary>Resolves a supported header without interpreting adjacent data.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="header"/> is not one of the five Chozo PLMs.</exception>
-    internal static ChozoStatueObjectDefinition Resolve(RoomObjectHeaderId header) =>
-        ChozoStatueObjectDefinitions.ByHeader.TryGetValue(header, out ChozoStatueObjectDefinition definition)
-            ? definition
-            : throw new InvalidDataException($"Unsupported Chozo PLM {header}.");
+    /// <summary>Returns <paramref name="header"/> when it is one of the five Chozo statue objects.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="header"/> is not one of the five Chozo statue objects.</exception>
+    internal static RoomObjectHeaderId Require(RoomObjectHeaderId header) =>
+        ChozoStatueObjectDefinitions.Headers.Contains(header)
+            ? header
+            : throw new InvalidDataException($"{header} is not a Chozo statue's room object.");
 }

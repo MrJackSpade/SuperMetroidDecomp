@@ -79,7 +79,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </summary>
     public static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
     {
-        // The falling pose selection indexes its pair with PoseXDirection, not the muzzle direction.
+        // The falling pose selection indexes its pair with the pose's facing, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics facing; aim input is reconsidered
         // by the next frame's input handler after this ordinary falling pose is installed.
         return SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
@@ -91,7 +91,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     /// </summary>
     /// <remarks>
     /// Playable room code must call <see cref="SamusPoseTransitions.TryApplyAerialLanding"/> instead. The game
-    /// sends every prospective landing pose through <c>HandleCollDueToChangedPose</c>; omitting
+    /// sends every prospective landing pose through the changed-pose collision; omitting
     /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
     /// point remains for cinematic movement and focused collision-free fixtures only.
     /// </remarks>
@@ -160,13 +160,13 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
-        // F404 compares the requested pose with the post-collision pose. A rejected
+        // The changed-pose collision compares the requested pose with the post-collision pose. A rejected
         // expansion or crouch substitution returns carry and skips command five; this
-        // is not an accepted landing and must retain the vertical motion words.
+        // is not an accepted landing and must retain the vertical motion.
         if (collision == LargerPoseCollisionOutcome.Allowed)
             ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack);
         else if (leavingScrewAttack)
-            // Palette restoration belongs to F433, before the command carry gate.
+            // Palette restoration belongs to the pose change, before the command carry gate.
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
@@ -282,7 +282,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             samus.Pose = targetPose;
             // Leaves the collision radius at the compact body's radius: this frame's enemy and
-            // projectile collision still use it, and alpha's SetSamusRadius takes the
+            // projectile collision still use it, and alpha's radius update takes the
             // landing body only next frame, as for an ordinary landing.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
@@ -292,7 +292,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
-        // Like ordinary landings, F404's changed-pose result gates command five.
+        // Like ordinary landings, the changed-pose collision's result gates command five.
         // A collision-selected crouch is not allowed to clear velocity or arm autojump.
         if (collision == LargerPoseCollisionOutcome.Allowed)
             ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack: false);
@@ -457,7 +457,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             // same radius and animation writes as the game's pose initializer.
             samus.Drained.CompleteRelease();
         }
-        // Super-special command three does not run FBBB/FC99. An input-table
+        // Super-special command three does not run the jump initializers. An input-table
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
         samus.MorphBallBounceState = SamusBallBounceState.None;

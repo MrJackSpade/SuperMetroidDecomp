@@ -46,7 +46,7 @@ internal static class DraygonScrollingSpeedCapVerification
         state.Body.Position = state.Body.Position.WithWhole(body);
         state.FacingRight = true;
         enemies.DraygonBehavior.Grab.MoveSamusWithDraygon(state, samus);
-        return samus.PeekPreviousPositionWords(checkpoint);
+        return samus.PeekPreviousPosition(checkpoint);
     }
 
     /// <summary>Runs the focused Draygon camera-follow cap verification command.</summary>

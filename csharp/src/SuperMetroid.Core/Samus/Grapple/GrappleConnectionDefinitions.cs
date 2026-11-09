@@ -67,7 +67,7 @@ internal static class GrappleConnectionDefinitions
     internal const int ReflectionAngle = 256;
 
     /// <summary>
-    /// GrappleBeamSpecialAngles stores eight exact collision-stop records. They are four
+    /// The grapple's special angles are eight exact collision-stop records. They are four
     /// authored stops, each immediately followed by its left/right reflection: the angle reflects
     /// as 256 - angle, X negates and the pose swaps facing; Y and the next function are shared.
     /// </summary>

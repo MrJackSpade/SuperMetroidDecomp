@@ -35,7 +35,7 @@ internal sealed class SamusInputSnapshot
     /// <summary>Held input published by the post-draw input filter and the main loop's tail.</summary>
     public ControllerButton PreviousDrawHeldInput { get; internal set; }
 
-    /// <summary>PoseInputHandler currently selects the one-shot auto-jump handler.</summary>
+    /// <summary>The pose input handler currently selects the one-shot auto-jump handler.</summary>
     public bool AutoJumpInputPending { get; internal set; }
 
     /// <summary>
@@ -45,7 +45,7 @@ internal sealed class SamusInputSnapshot
     /// </summary>
     public bool ShinesparkPoseInputLocked { get; internal set; }
 
-    /// <summary>Crystal Flash's empty input pointer survives grab/release until input is restored.</summary>
+    /// <summary>Crystal Flash's empty input handler survives grab/release until input is restored.</summary>
     public bool CrystalFlashPoseInputLocked { get; internal set; }
 
     /// <summary>Local input substitution from the auto-jump handler; does not alter the controller's real edge.</summary>

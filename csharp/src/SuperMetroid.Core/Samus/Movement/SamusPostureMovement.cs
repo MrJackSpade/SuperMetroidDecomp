@@ -104,7 +104,7 @@ public static class SamusPostureMovement
         return new GroundedMovementResult(horizontal, vertical);
     }
 
-    /// <summary>Requires the address space, level, and Samus state used by both posture handlers.</summary>
+    /// <summary>Requires the level and Samus state used by both posture handlers.</summary>
     private static void Validate(
         RoomLevelData level,
         SamusState samus)

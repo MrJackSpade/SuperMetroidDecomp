@@ -7,8 +7,8 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Literal translation of the ordinary hurt-counter branch in
-/// <c>HandleMiscSamusPalette</c>.
+/// Literal translation of the ordinary hurt-counter branch of
+/// Samus's miscellaneous colours.
 /// </summary>
 /// <remarks>
 /// The caller must first dispatch any nonzero super-special palette flag, just as the

@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// Independent subsystem-disable words cleared by X-Ray setup and restored
+/// Independent subsystem disables cleared by X-Ray setup and restored
 /// by its teardown.
 /// </summary>
 /// <remarks>
-/// The game stores these as four separate composable words: enemy projectiles,
-/// PLMs, animated tiles, and palette FX.
-/// Automatic Reserve recovery clears only the shared time-freeze word,
+/// The game stores these as four separate composable flags: enemy projectiles,
+/// room objects, animated tiles, and palette FX.
+/// Automatic Reserve recovery clears only the shared time freeze,
 /// leaving this complete set suspended to create G-Mode.
 /// </remarks>
 [Flags]
@@ -17,7 +17,7 @@ public enum XraySuspendedSubsystems
     None = 0,
     /// <summary>Host mask for the enemy-projectile enable word cleared by X-ray setup; suppresses enemy-projectile updates and drawing independently of shared time freeze.</summary>
     EnemyProjectiles = 1 << 0,
-    /// <summary>Host mask for the PLM enable word cleared by X-ray setup; suspends room-object processing, including door-transition PLMs.</summary>
+    /// <summary>Host mask for the room-object enable cleared by X-ray setup; suspends room-object processing, including door-transition room objects.</summary>
     RoomObjects = 1 << 1,
     /// <summary>Host mask for the animated-tile enable word cleared by X-ray setup; prevents animated-tile objects from advancing.</summary>
     AnimatedTiles = 1 << 2,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The X-ray Scope's definitions: its visor cycle, animation angle bands and window growth (#1411).</summary>
 /// <remarks>
-/// The room state's X-ray pointer remains room-authored data. This catalog owns the shared
+/// The room state's X-ray reveal choice remains room-authored data. This catalog owns the shared
 /// palette, angle bands, tangent table, and cone-window units used by every room.
 /// </remarks>
 public static class XrayScopeDefinitions

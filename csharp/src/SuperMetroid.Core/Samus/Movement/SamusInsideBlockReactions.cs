@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>Body-overlap scroll, conveyor and sand reactions from BlockInsideDetection.</summary>
+/// <summary>Body-overlap scroll, conveyor and sand reactions from Samus's inside-block detection.</summary>
 public static class SamusInsideBlockReactions
 {
     /// <summary>Half a pixel in fraction steps: quicksand keeps only the part of the base speed's fraction below it.</summary>
@@ -31,10 +31,10 @@ public static class SamusInsideBlockReactions
                 // Admits only inside-block sample one (the center).
                 // Feet/head contacts belong to the separate movement scans. Keeping
                 // this center wake-up lets a lower trigger win after the torso clears
-                // an upper trigger, without changing PLM slot priority.
+                // an upper trigger, without changing room-object slot priority.
                 if (centerPoint && block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
                     (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
-                    throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
+                    throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active room-object owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
                 ApplyConveyor(block.Behavior.Reaction);
@@ -65,7 +65,7 @@ public static class SamusInsideBlockReactions
                     break;
                 case SpecialAirReactionSetup.BrinstarFloorPlant:
                 case SpecialAirReactionSetup.BrinstarCeilingPlant:
-                    (roomObjects ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
+                    (roomObjects ?? throw new InvalidOperationException("Samus Eater reaction requires the room-object owner."))
                         .SamusEater.TrySpawnSamusEater(level, block, header, samus.RoomView);
                     break;
                 case SpecialAirReactionSetup.QuicksandSurface:
@@ -151,7 +151,7 @@ public static class SamusInsideBlockReactions
     }
 
     /// <summary>
-    /// Executes the sand subset of the area-specific collision PLM table. Contact is
+    /// Executes the sand subset of the area-specific collision room-object table. Contact is
     /// separate from carry: downward movement grounds on sand without discarding
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>

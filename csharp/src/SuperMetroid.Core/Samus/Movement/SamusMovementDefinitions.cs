@@ -4,10 +4,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>The definitions Samus's movement and pose selection read: speeds, timers, frames and sentinels (#1411).</summary>
 /// <remarks>
-/// Addresses are grouped by their subsystem rather than by the C# class that happens
-/// to read them. Full 24-bit locations use <see cref="int"/>;
-/// values stored as short pointers use <see cref="ushort"/> so callers must explicitly supply the rest.
-/// Runtime velocity, timers, and selected pointers do not belong in this catalog.
+/// Definitions are grouped by their subsystem rather than by the C# class that happens
+/// to read them. Runtime velocity, timers, and selected handlers do not belong in this catalog.
 /// </remarks>
 public static class SamusMovementDefinitions
 {

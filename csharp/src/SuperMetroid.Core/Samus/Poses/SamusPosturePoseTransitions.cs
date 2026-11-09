@@ -14,9 +14,9 @@ internal static class SamusPosturePoseTransitions
     /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
     /// <param name="targetPose">Final normal standing-right or standing-left pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
-    /// <param name="roomObjects">Optional live PLM owner receiving those collision reactions.</param>
+    /// <param name="roomObjects">Optional live room-object owner receiving those collision reactions.</param>
     /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
-    /// <remarks>These six-byte input records bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching the larger-radius check's previous-pose radius publication.</remarks>
+    /// <remarks>These input records bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until the next alpha pass, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
     public static bool TryApplyDirectCrouchToStandingTransition(SamusState samus, 
@@ -126,7 +126,7 @@ internal static class SamusPosturePoseTransitions
         // below must not publish it during this frame's pose-commit stage.
         // The normal-jumping jump transition performs this after pose
         // initialization/collision but before the jump starts. It writes only current Y;
-        // the desktop state has no separately exposed PreviousYPosition word to mirror.
+        // the desktop state has no separately exposed previous Y position to mirror.
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 10);
 
@@ -139,7 +139,7 @@ internal static class SamusPosturePoseTransitions
     /// <summary>
     /// Applies the ordinary or aimed crouch-start/stand-start transition records,
     /// including command seven's bottom alignment and the larger-radius collision branch
-    /// from <c>HandlePoseChangeCollision</c>. The admitted target set is exactly
+    /// of the pose-change collision. The admitted target set is exactly
     /// the unaimed and aimed crouching and standing transitions.
     /// </summary>
     /// <returns>
@@ -494,8 +494,8 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             (previousDirection == SamusFacingDirection.Left && currentDirection == SamusFacingDirection.Right);
         if (reversed)
         {
-            // Folds run momentum into base speed with one 16-bit carry,
-            // clears the extra words, and selects mode one so displacement initially keeps
+            // Folds run momentum into base speed with one carry past the whole pixels,
+            // clears the extra speeds, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             samus.HorizontalSpeed.BaseSpeed += samus.HorizontalSpeed.ExtraRunSpeed;
             // Cancels the speed boost between the 16.16 fold and the

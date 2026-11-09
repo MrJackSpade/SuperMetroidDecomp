@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <remarks>
 /// This class is intentionally narrower than a general-purpose desktop physics body. Every
-/// property corresponds to a 16-bit word of Samus's state, and every operation below preserves
-/// the game's word-sized wrapping and comparisons. Room/enemy collision consumes
+/// property corresponds to one value of Samus's state, and every operation below preserves
+/// the game's wrapping at 65536 and its comparisons. Room/enemy collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
@@ -64,7 +64,7 @@ public sealed class SamusHorizontalSpeedState
     public bool EchoSoundRequested { get; set; }
 
     /// <summary>
-    /// SamusEchoesSFXFlag: set before the echo sound's start request,
+    /// The echo sound's flag: set before the echo sound's start request,
     /// consumed after boost ends, or cleared silently by quicksand: one while set, zero while clear, and the setter rejects
     /// any other value.
     /// </summary>
@@ -395,7 +395,7 @@ public sealed class SamusHorizontalSpeedState
             if (frame.AnimationFrame < 3)
             {
                 // The wall-jump animation command reserves frames 0..2 for the normal suit colors;
-                // its Screw family begins on frame three and shares the same six pointers.
+                // its Screw family begins on frame three and shares the same six colour steps.
                 CyclePaletteStep = 0;
                 return paletteCopied;
             }
@@ -806,7 +806,7 @@ public sealed class SamusHorizontalSpeedState
 
         BaseSpeed += entry.Acceleration;
 
-        // The comparisons are signed 16-bit. Exact equality in both halves is
+        // The comparisons are signed, wrapping at 65536. Exact equality in both halves is
         // deliberately *not* considered a cap: the routine reports no cap in that case.
         UnsignedSixteenSixteen maximum = UnsignedSixteenSixteen.FromDisplacement(entry.MaximumSpeed);
         bool exceedsMaximum = SamusSpeedMagnitude.Exceeds(BaseSpeed.Whole, maximum.Whole) ||

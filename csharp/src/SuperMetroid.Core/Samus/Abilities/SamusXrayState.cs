@@ -48,7 +48,7 @@ public sealed class SamusXrayState
     public bool AreEnemyProjectilesSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != XraySuspendedSubsystems.None;
 
-    /// <summary>Whether X-ray's independent PLM disable remains set, suppressing room-object instruction processing separately from shared time freeze.</summary>
+    /// <summary>Whether X-ray's independent room-object disable remains set, suppressing room-object program processing separately from shared time freeze.</summary>
     public bool AreObjectsSuspended =>
         (SuspendedSubsystems & XraySuspendedSubsystems.RoomObjects) != XraySuspendedSubsystems.None;
 
@@ -63,7 +63,7 @@ public sealed class SamusXrayState
     /// <summary>Interrupted pose published by alpha, awaiting pose commit in beta.</summary>
     public SamusPoseId? PendingActivationPose { get; private set; }
 
-    /// <summary>X-ray freezes enemy/projectile/PLM/animated-tile time.</summary>
+    /// <summary>X-ray freezes enemy/projectile/room-object/animated-tile time.</summary>
     public bool TimeIsFrozen { get; private set; }
 
     /// <summary>
@@ -138,7 +138,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Ports the admission tests and pose selection in <c>XraySetup</c>.
+    /// Runs the admission tests and pose selection of the X-ray setup.
     /// The caller represents the already selected/equipped HUD item; item ownership is
     /// checked by the HUD selector one layer above this routine.
     /// </summary>
@@ -217,7 +217,7 @@ public sealed class SamusXrayState
     /// </summary>
     private void BeginAdmittedBeam(bool facingLeft)
     {
-        // The cone setup runs inside XraySetup itself, before UpdateSamusPose
+        // The cone setup runs inside the X-ray setup itself, before Samus's pose update
         // arbitrates the special command that installs X-Ray's Samus handlers. If a
         // same-frame hurt expiry wins that later arbitration, the beam effect's lifecycle,
         // frozen-time word, and four subsystem disables still remain live: X-Mode.
@@ -252,8 +252,8 @@ public sealed class SamusXrayState
         SpecialPaletteKind = SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
-        // The X-ray command installs both X-Ray handler pointers, so an interrupted Flash's no-op
-        // pose-input pointer is gone as well as its movement pointer. Keeping the host lock
+        // The X-ray command installs both X-Ray handlers, so an interrupted Flash's no-op
+        // pose-input handler is gone as well as its movement handler. Keeping the host lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // The same routine replaces the shared movement/palette handlers and clears
@@ -330,7 +330,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Executes <c>XraySamusPoseInputHandler</c>, including the exact
+    /// Runs X-ray's pose input handler, including the exact
     /// standing/crouching turn bodies and the frame-two/timer-one completion gate.
     /// </summary>
     public XrayPoseInputResult HandlePoseInput(
@@ -422,7 +422,7 @@ public sealed class SamusXrayState
 
         if (SetupStage != XraySetupStage.Complete)
         {
-            // The eight calls execute in order. After the eighth the instruction list
+            // The eight calls execute in order. After the eighth the program
             // installs the beam's main frame behaviour; beam state zero itself first runs on the following call.
             SetupStage = SetupStage.Advance();
             return SnapshotBeamStep(phaseAtStart, completed: false);
@@ -580,7 +580,7 @@ public sealed class SamusXrayState
             return;
         }
 
-        // Left-facing up rotates toward `$100`; clamp the upper beam edge at exactly 256.
+        // Left-facing up rotates toward 256; clamp the upper beam edge at exactly 256.
         int leftEdge = CenterSteps + AngularWidth;
         if (leftEdge == RotationAngle.StepsPerTurn)
             return;
@@ -659,8 +659,8 @@ public sealed class SamusXrayState
         if (radiusDifference >= 0)
             samus.Position -= new Offset16<RoomPixels>(0, radiusDifference);
 
-        // The teardown restores both normal Samus handler pointers. X-Mode can arrange for
-        // an active spark to own the movement word while the old visor effect reaches this
+        // The teardown restores both normal Samus handlers. X-Mode can arrange for
+        // an active spark to own the movement handler while the old visor effect reaches this
         // teardown; replacing that spark while retaining the spark's palette timer is the Blue Suit result.
         samus.Shinespark.RelinquishMovementHandler();
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;

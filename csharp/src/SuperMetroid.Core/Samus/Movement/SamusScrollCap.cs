@@ -1,8 +1,8 @@
 ﻿namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// <c>CapScrollingSpeed</c> for enemies that place Samus (Draygon and Yapping Maw): it rewrites her
-/// previous-position words so the camera follows at most thirteen pixels a frame.
+/// The scrolling-speed cap for enemies that place Samus (Draygon and Yapping Maw): it rewrites her
+/// previous position so the camera follows at most thirteen pixels a frame.
 /// </summary>
 internal sealed class SamusScrollCap
 {
@@ -18,14 +18,14 @@ internal sealed class SamusScrollCap
         _samusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint;
 
     /// <summary>
-    /// <c>CapScrollingSpeed</c>, called by Draygon and Yapping Maw after they place
+    /// The scrolling-speed cap, called by Draygon and Yapping Maw after they place
     /// Samus. An axis that moved twelve or more pixels from its previous whole position gets a
     /// previous position twelve pixels away, so the camera follows at most thirteen a frame.
     /// </summary>
     /// <remarks>
     /// The offset takes the movement's sign: a downward or rightward move puts the previous
     /// position beyond Samus, not behind her. Only the distance reaches the camera, whose
-    /// direction comes from separate words. A magnitude of 32768 stays negative after
+    /// direction comes from separate values. A magnitude of 32768 stays negative after
     /// negation but compares as not below twelve, so it is capped too.
     /// </remarks>
     internal void CapSamusScrollingSpeed(SamusState samus)
@@ -34,7 +34,7 @@ internal sealed class SamusScrollCap
         if (_samusPreviousPositionCheckpoint is not { } checkpoint)
             return;
 
-        Position16<RoomPixels> previous = samus.PeekPreviousPositionWords(checkpoint);
+        Position16<RoomPixels> previous = samus.PeekPreviousPosition(checkpoint);
         if (CappedPreviousPosition(samus.Position.Y.Whole, previous.Y) is { } cappedY)
             samus.WritePreviousYPosition(cappedY);
         if (CappedPreviousPosition(samus.Position.X.Whole, previous.X) is { } cappedX)

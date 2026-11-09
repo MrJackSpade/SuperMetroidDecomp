@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>The pose input-transition lists selected by each Samus pose.</summary>
 internal enum SamusPoseInputList
 {
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: diagnostic list identity.</summary>
     EmptyTransitionList,
     /// <summary>The input-transition list of the forward facing power suit poses.</summary>
     ForwardFacingPowerSuitPoseList,
@@ -47,9 +47,9 @@ internal enum SamusPoseInputList
     MorphBallMovingLeftPoseList,
     /// <summary>The input-transition list of the morph ball ground left poses.</summary>
     MorphBallGroundLeftPoseList,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallRightPose"/>: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallRightPose"/>: diagnostic list identity.</summary>
     GlitchBallRightPoseList,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallLeftPose"/>: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallLeftPose"/>: diagnostic list identity.</summary>
     GlitchBallLeftPoseList,
     /// <summary>The input-transition list of the crouching right poses.</summary>
     CrouchingRightPoseList,
@@ -63,9 +63,9 @@ internal enum SamusPoseInputList
     MorphBallFallingRightPoseList,
     /// <summary>The input-transition list of the morph ball falling left poses.</summary>
     MorphBallFallingLeftPoseList,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: diagnostic list identity.</summary>
     UnusedKnockbackRightPoseList,
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackLeftPose"/>: diagnostic list identity.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.UnusedKnockbackLeftPose"/>: diagnostic list identity.</summary>
     UnusedKnockbackLeftPoseList,
     /// <summary>The input-transition list of the moonwalk facing left poses.</summary>
     MoonwalkFacingLeftPoseList,

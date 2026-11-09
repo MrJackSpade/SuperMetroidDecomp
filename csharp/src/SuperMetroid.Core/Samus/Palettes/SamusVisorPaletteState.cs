@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
-/// Room visor-colour animation run by <c>HandleVisorPalette</c>: a countdown of
+/// Room visor-colour animation run by Samus's visor colours: a countdown of
 /// palette-handler calls and the visor shade shown next.
 /// </summary>
 /// <remarks>
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// countdown and the shade are only ever set by this type: the reset installs countdown one at the cycle's first shade,
 /// and every expiry reloads the countdown to the frame delay and moves through the cycle's three shades. The countdown
 /// therefore holds one through the frame delay between calls and never decrements from zero, which is why the
-/// game's word-wide decrement of the countdown and the shade beside it never borrows into the shade.
+/// game's combined decrement of the countdown and the shade beside it never borrows into the shade.
 /// </remarks>
 public sealed class SamusVisorPaletteState
 {

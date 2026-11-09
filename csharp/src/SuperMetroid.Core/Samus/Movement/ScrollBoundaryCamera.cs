@@ -432,7 +432,7 @@ public sealed class ScrollBoundaryCamera
         int proposed = Position.X.Whole;
 
         // The signed comparison of ideal against current: if movement overshot the ideal in signed
-        // 16-bit space, snap to it and discard the fractional camera position.
+        // wrapped space, snap to it and discard the fractional camera position.
         if (CoordinateAxis.Difference(IdealPosition.X, Position.X.Whole) < 0)
         {
             // Overshoot snaps to the ideal word and discards the fractional camera position.
@@ -510,7 +510,7 @@ public sealed class ScrollBoundaryCamera
         bool blockedBelow = false;
         if (!beyondRoomBottom)
         {
-            // Preserve the assembly branch order: if the physical room maximum was already
+            // Preserve the original branch order: if the physical room maximum was already
             // exceeded, the boundary check branches before reading the cell below. This also prevents
             // a legitimate bottom-row/right-edge camera from indexing beyond the scroll grid.
             blockedBelow = Scrolls.ReadCameraState(currentCell + Scrolls.Size.X) ==
@@ -573,7 +573,7 @@ public sealed class ScrollBoundaryCamera
     private static int NextScreenStart(int pixel) => CoordinateAxis.Wrap(ScreenStart(pixel) + 2 * HalfScreen);
 
     /// <summary>
-    /// Compares only the integer words as signed 16-bit values, then
+    /// Compares only the whole pixels as signed wrapped values, then
     /// subtracts the complete 16.16 pair in the selected direction and adds exactly
     /// one whole pixel. Modular arithmetic keeps the routine's noted subpixel corner case, where
     /// the result can still be less than 1.0.

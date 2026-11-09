@@ -19,7 +19,7 @@ internal sealed class SamusHandlerFrame
     /// <summary>The pose alpha sampled before any movement.</summary>
     internal SamusPoseId PoseAtFrameStart { get; private set; }
 
-    /// <summary>The pose beta dispatches on, which EnemyMain can replace after alpha.</summary>
+    /// <summary>The pose beta dispatches on, which the enemy update can replace after alpha.</summary>
     internal SamusPoseId PoseAtBetaMovement { get; private set; }
 
     /// <summary>The movement type of the pose at frame start.</summary>
@@ -50,16 +50,16 @@ internal sealed class SamusHandlerFrame
     internal bool DeceleratingFallbackHasMomentum { get; private set; }
 
     /// <summary>
-    /// Whether Samus movement was enabled when alpha's head finished; alpha's tail, the post-EnemyMain resample and beta
+    /// Whether Samus movement was enabled when alpha's head finished; alpha's tail, the resample after the enemy update and beta
     /// movement run only then.
     /// </summary>
     internal bool MovementEnabled { get; private set; }
 
-    /// <summary>Whether EnemyMain ran before Samus because this frame has no movement to wait for.</summary>
+    /// <summary>Whether the enemy update ran before Samus because this frame has no movement to wait for.</summary>
     internal bool EnemyMainAlreadyRan { get; private set; }
 
     /// <summary>
-    /// Whether that hoisted EnemyMain restored the normal handler pair (the gunship). The locked alpha has
+    /// Whether that hoisted enemy update restored the normal handler pair (the gunship). The locked alpha has
     /// already been installed for this frame, so only alpha's checks still see the lock.
     /// </summary>
     internal bool EnemyMainReleasedAlphaLock { get; private set; }
@@ -88,7 +88,7 @@ internal sealed class SamusHandlerFrame
     /// <summary>Replaces the camera point's whole pixels with a grapple snap's corrected words, keeping its subpositions.</summary>
     internal void SnapCameraPoint(Position16<RoomPixels> whole) => PreviousCameraPoint = PreviousCameraPoint.WithWhole(whole);
 
-    /// <summary>Samples the pose alpha dispatches on, which beta also dispatches on until EnemyMain replaces it.</summary>
+    /// <summary>Samples the pose alpha dispatches on, which beta also dispatches on until the enemy update replaces it.</summary>
     internal void SampleFrameStartPose(SamusPoseId pose)
     {
         PoseAtFrameStart = pose;
@@ -149,10 +149,10 @@ internal sealed class SamusHandlerFrame
     /// <summary>Samples the pose beta movement dispatches on.</summary>
     internal void SampleBetaMovementPose(SamusPoseId pose) => PoseAtBetaMovement = pose;
 
-    /// <summary>Records whether EnemyMain ran before Samus because this frame has no movement to wait for.</summary>
+    /// <summary>Records whether the enemy update ran before Samus because this frame has no movement to wait for.</summary>
     internal void RecordHoistedEnemyMain(bool hoisted) => EnemyMainAlreadyRan = hoisted;
 
-    /// <summary>Records whether that hoisted EnemyMain restored the normal handler pair.</summary>
+    /// <summary>Records whether that hoisted enemy update restored the normal handler pair.</summary>
     internal void RecordEnemyMainReleasedAlphaLock(bool released) => EnemyMainReleasedAlphaLock = released;
 
     /// <summary>

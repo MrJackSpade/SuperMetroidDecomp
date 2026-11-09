@@ -94,7 +94,7 @@ public sealed class InstalledXrayReveals
     /// independent 16-by-256 reveal oracle finds all seven commands;
     /// its drawable behaviour groups total 305, matching the installed visual
     /// catalog's exhaustive coverage assertion. Named membership is
-    /// clearer than a pointer interval, since the two extension routines
+    /// clearer than a range of the commands' layout, since the two extension routines
     /// precede the copy commands but are not drawable.
     /// </remarks>
     public static bool IsDrawable(XrayRevealCommand command) => command is

@@ -66,7 +66,7 @@ public sealed class SamusArmCannonState
     };
 
     /// <summary>
-    /// Runs the HUD selection stability update and `HandleArmCannonOpenState`. Calling once
+    /// Runs the HUD selection stability update and the arm cannon's open-state update. Calling once
     /// per gameplay frame reproduces the selection stability update followed later by the cover update.
     /// </summary>
     public SamusArmCannonUpdateResult Update(SamusState samus)

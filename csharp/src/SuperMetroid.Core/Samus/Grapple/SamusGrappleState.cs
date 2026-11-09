@@ -9,7 +9,7 @@ public sealed class SamusGrappleState
     public SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements? FlarePlacement { get; set; }
     /// <summary>Current displayed orientation mapping, never a collision/body offset source.</summary>
     public SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames? SwingFrames { get; set; }
-    /// <summary>Gets or sets the current grapple function-pointer phase.</summary>
+    /// <summary>Gets or sets the current grapple function phase.</summary>
     public GrapplePhase Phase { get; set; }
     /// <summary>Gets or sets the grapple anchor (beam endpoint) in room pixels.</summary>
     public Position16<RoomPixels> Anchor { get; set; }
@@ -176,7 +176,7 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// Position in the main-flare delay stream, 0 through 65535. The flare step advances and rewinds it as a
-    /// sixteen-bit counter, so a malformed rewind operand wraps it exactly as the game's word arithmetic does;
+    /// counter wrapping at 65536, so a malformed rewind operand wraps it exactly as the game's arithmetic does;
     /// values outside that range are rejected.
     /// </summary>
     public int FlareAnimationFrame { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
@@ -210,8 +210,8 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// Host-readable marker for the rope draw's special first timer expiry. The original stores
-    /// the distinction implicitly in each instruction pointer; this flag keeps the C# state
-    /// honest without exposing raw pointers as mutable gameplay data.
+    /// the distinction implicitly in each segment's program position; this flag keeps the C# state
+    /// honest without exposing raw program positions as mutable gameplay data.
     /// </summary>
     public bool[] SegmentAnimationStarted { get; } = new bool[16];
 }

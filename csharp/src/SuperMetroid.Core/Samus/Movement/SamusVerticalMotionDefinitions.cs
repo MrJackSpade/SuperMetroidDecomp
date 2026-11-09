@@ -30,7 +30,7 @@ internal static class SamusVerticalMotionDefinitions
     };
 
     /// <summary>
-    /// InitialYSpeeds/InitialYSubSpeeds: the launch magnitude with High Jump equipped by medium and
+    /// The initial Y speeds: the launch magnitude with High Jump equipped by medium and
     /// whether Samus kicks away from a wall, as unsigned 16.16 speeds. In lava or acid High Jump outweighs the wall kick.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> HighJumpLaunchSpeeds =
@@ -45,7 +45,7 @@ internal static class SamusVerticalMotionDefinitions
     };
 
     /// <summary>
-    /// InitialYSpeeds/InitialYSubSpeeds: the launch magnitude without High Jump by medium and whether
+    /// The initial Y speeds: the launch magnitude without High Jump by medium and whether
     /// Samus kicks away from a wall, as unsigned 16.16 speeds.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> UnassistedLaunchSpeeds =

@@ -91,11 +91,11 @@ internal sealed class SamusPresentation
 
     /// <summary>
     /// Restarts the animation's program after a scripted controller writes Pose and
-    /// literal animation words without calling ordinary pose initialization.
+    /// literal animation values without calling ordinary pose initialization.
     /// </summary>
     /// <remarks>
     /// Drained-controller functions one and four do exactly that.
-    /// The game's animation pass resolves the pointer from Pose every call, whereas
+    /// The game's animation pass resolves the animation from Pose every call, whereas
     /// this C# port caches it as a consistency check. This narrow method updates only that
     /// cache plus the controller's explicit writes; it intentionally does not recompute the
     /// liquid animation buffer or silently refresh collision radius.
@@ -128,11 +128,11 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Ports <c>AnimateSamus</c>, including movement-visible FX delay state.
+    /// Animates Samus, including movement-visible FX delay state.
     /// </summary>
     /// <remarks>
     /// The FX dispatcher publishes water/lava delay buffering, remembered medium,
-    /// atmospheric slots, sound requests, and periodic-damage words before the timer
+    /// atmospheric slots, sound requests, and periodic damage before the timer
     /// decrement.
     /// </remarks>
     public static void AnimateNoFx(SamusState samus, SamusAnimationStep step)
@@ -160,7 +160,7 @@ internal sealed class SamusPresentation
             samus.AnimationFrameTimer = WrappingCountdown.Start(4);
         }
 
-        // The decrement is 16-bit. A timer accidentally initialized to zero becomes 65535; the negative test then
+        // The decrement wraps at 65536. A timer accidentally initialized to zero becomes 65535; the negative test then
         // advances just like an ordinary 1 -> 0 expiration.
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)

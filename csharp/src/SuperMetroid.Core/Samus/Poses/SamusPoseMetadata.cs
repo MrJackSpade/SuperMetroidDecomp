@@ -135,7 +135,7 @@ internal static class SamusPoseMetadata
     public static bool IsLeftFacingStandingPose(SamusPoseId pose) => IsRightFacingStandingPose(SamusPoseMirror.Of(pose));
 
     /// <summary>
-    /// True for the two front-view records selected by <c>MakeSamusFaceForward</c>.
+    /// True for the two front-view records selected when Samus faces forward.
     /// Their pose-X direction is zero and must never be guessed as left/right.
     /// </summary>
     public static bool IsForwardFacingPose(SamusPoseId pose) => pose is
@@ -155,7 +155,7 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// Applies the pose part of Samus command 9, <c>SetupSamusForZebesStart</c>:
+    /// Applies the pose part of Samus command 9, the setup for the Zebes start:
     /// the suit's front-view pose and its initialization. Unlike
     /// <see cref="SamusPoseMetadata.ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
     /// Samus nor clears motion. Callers own the palette object and the special frame.
@@ -167,14 +167,14 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// Samus command 7, <c>SetupSamusForElevator</c>: MakeSamusFaceForward, then
+    /// Samus command 7, the setup for an elevator: facing forward, then
     /// the riding-elevator handlers. Used on boarding and on a downward
     /// arrival's door finish.
     /// </summary>
     public static void SetupForElevator(SamusState samus)
     {
         ApplyForwardFacingPoseSetup(samus);
-        // Command seven replaces both physical movement/input pointers. An uncrashed
+        // Command seven replaces both physical movement/input handlers. An uncrashed
         // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
         // admitted Flash keeps only its independent palette timer. Neither movement owner
         // may resume after elevator travel; the command restores ordinary pose input.
@@ -187,15 +187,15 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>
-    /// Applies the movement/animation subset of <c>MakeSamusFaceForward</c>.
+    /// Applies the movement/animation subset of facing Samus forward.
     /// </summary>
     /// <remarks>
     /// The routine also locks the global current/new-state handlers, kills grapple,
-    /// clears beam-flare presentation words, and reloads the suit palette. Those owners do
+    /// clears beam-flare presentation state, and reloads the suit palette. Those owners do
     /// not live in this state object. This method deliberately covers only the state it can
     /// own exactly: equipment-selected pose, its delay list, the radius-dependent lift and
-    /// all motion words cleared by the routine. It does not write the collision radius;
-    /// the next alpha's SetSamusRadius does. Runtime/debug callers remain responsible for
+    /// all motion values cleared by the routine. It does not write the collision radius;
+    /// the next alpha's radius update does. Runtime/debug callers remain responsible for
     /// input lock, palette, grapple, and priming the first graphics transfer before their first
     /// displayed frame.
     /// </remarks>
@@ -678,7 +678,7 @@ internal static class SamusPoseMetadata
                     ? SamusPoseId.NormalJumpForwardLeftPose
                     : SamusPoseId.NormalJumpForwardRightPose;
 
-                // UpdateSamusPose routes the special target through the same larger-radius
+                // The pose update routes the special target through the same larger-radius
                 // expansion collision used by controller-selected pose changes. This is
                 // observable for a crouching bomb jump: radius 16 grows to 21 and may be
                 // rejected by a low ceiling instead of clipping Samus into terrain.
@@ -724,7 +724,7 @@ internal static class SamusPoseMetadata
             case SamusMovementType.SpringBallGround:
             case SamusMovementType.SpringBallInAir:
             case SamusMovementType.SpringBallFalling:
-                // Copies the current pose into SpecialProspectivePose. Because
+                // Copies the current pose into the special prospective pose. Because
                 // that pose already matches, Samus's pose handling immediately executes command three.
                 ArmPublishedBombJump(samus);
                 return true;
@@ -752,13 +752,13 @@ internal static class SamusPoseMetadata
     /// <summary>Executes special prospective-pose command three.</summary>
     internal static void ArmPublishedBombJump(SamusState samus)
     {
-        // Command three replaces, rather than suspends, the movement pointer.
+        // Command three replaces, rather than suspends, the movement handler.
         // A suit-interrupted spark may still own it despite the ordinary body pose.
-        // Keep its independently running palette/boost words, but never resume it
+        // Keep its independently running palette/boost state, but never resume it
         // when the bomb arc restores normal movement and input.
         samus.Shinespark.RelinquishMovementHandler();
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        // The same pointer replacement applies when suit pickup suspended Flash.
+        // The same handler replacement applies when suit pickup suspended Flash.
         // Its palette keeps running, but its raising/drain handler must never
         // resume after the bomb arc returns control to normal movement.
         samus.CrystalFlash.RelinquishMovementHandler();

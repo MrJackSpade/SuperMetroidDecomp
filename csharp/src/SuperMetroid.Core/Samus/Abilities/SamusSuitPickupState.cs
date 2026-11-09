@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The item PLM grants the equipment bit and displays message first. Only after
+/// The item room object grants the equipment bit and displays message first. Only after
 /// that synchronous message returns does the suit pickup center and lock Samus,
 /// while the light beam's per-line display effect advances this seven-stage sequence
 /// once per gameplay frame. This owner deliberately begins after the message rather than
@@ -50,16 +50,16 @@ public sealed class SamusSuitPickupState
 
     /// <summary>
     /// Effect updates left before the light beam's stage step is installed.
-    /// The handler runs an object's pre-instruction before its instructions; the list's
+    /// The handler runs an object's frame behaviour before its program; the program's
     /// first call ends on a one-frame table entry and its second installs the
-    /// pre-instruction and sleeps, so the first stage runs on the third.
+    /// frame behaviour and sleeps, so the first stage runs on the third.
     /// </summary>
     private int _frameBehaviorInstallCallsRemaining;
 
     /// <summary>The suit whose stage-three function is installed.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
 
-    /// <summary>The light-beam stage the next pre-instruction call runs; it returns to the first stage when the transformation finishes.</summary>
+    /// <summary>The light-beam stage the next frame-behaviour call runs; it returns to the first stage when the transformation finishes.</summary>
     public SamusSuitPickupStage Stage { get; private set; }
 
     /// <summary>
@@ -70,7 +70,7 @@ public sealed class SamusSuitPickupState
 
     /// <summary>
     /// The beam's inclusive left screen column while it is a column or centre line (the uniform, curved,
-    /// dissipating and finishing stages); only X is meaningful. Its arithmetic wraps at the eight-bit window column.
+    /// dissipating and finishing stages); only X is meaningful. Its arithmetic wraps at the window's 256 columns.
     /// </summary>
     private Position16<ScreenPixels> _lightBeamLeft;
 
@@ -93,7 +93,7 @@ public sealed class SamusSuitPickupState
     public SamusSuitPickupBeam Beam { get; private set; }
 
     /// <summary>
-    /// Executes <c>VariaSuitPickup</c> or <c>GravitySuitPickup</c> after its message closes.
+    /// Runs the Varia or Gravity suit pickup after its message closes.
     /// </summary>
     public void Begin(
         SamusState samus,

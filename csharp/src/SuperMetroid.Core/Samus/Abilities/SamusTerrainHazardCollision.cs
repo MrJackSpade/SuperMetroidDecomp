@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class SamusTerrainHazardCollision
 {
     /// <summary>
-    /// Runs the damaging subset of <c>BlockInsideDetection</c> and
+    /// Runs the damaging subset of Samus's inside-block detection and
     /// publishes the room-dependent heavy-spike gate used later during movement.
     /// </summary>
     public static void PrepareFrame(

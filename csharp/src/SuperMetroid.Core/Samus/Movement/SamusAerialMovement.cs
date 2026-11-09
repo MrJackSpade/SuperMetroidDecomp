@@ -31,8 +31,8 @@ public static class SamusAerialMovement
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
-        // The two words remain independent. Speed Booster's fractional
-        // bonus likewise uses an independent 16-bit add and intentionally drops its overflow.
+        // The two speeds remain independent. Speed Booster's fractional
+        // bonus likewise uses an independent addition wrapping at 65536 and intentionally drops its overflow.
         samus.Kinematics.YSpeed =
             SamusVerticalMotion.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
@@ -42,7 +42,7 @@ public static class SamusAerialMovement
 
     /// <summary>
     /// Starts a wall jump without duplicating its three
-    /// liquid entries in pose code. Extra-run bonus and 16-bit arithmetic match normal jump.
+    /// liquid entries in pose code. Extra-run bonus and wrapping arithmetic match normal jump.
     /// </summary>
     public static void InitializeWallJump(SamusState samus)
     {
@@ -409,7 +409,7 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         }
 
-        // CheckAndMoveY selects the no-speed probe for direction zero even in
+        // The vertical check-and-move selects the no-speed probe for direction zero even in
         // airborne turn art. Moonfall therefore pauses gravity during its turn;
         // this is the same branch used by grounded aimed crouching turns.
         AerialMovementResult result;
@@ -473,7 +473,7 @@ public static class SamusAerialMovement
         }
 
         AerialMovementResult result = FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
-        // The movement wrapper selects fast-fall art after physics, before AnimateSamus.
+        // The movement wrapper selects fast-fall art after physics, before Samus is animated.
         // Aimed falling poses have their own lists and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
@@ -488,7 +488,7 @@ public static class SamusAerialMovement
     /// Executes one frame of Samus's flight after release from a grapple swing.
     /// </summary>
     /// <remarks>
-    /// This is a movement-handler pointer, not movement type two. It begins on the same
+    /// This is a movement handler, not movement type two. It begins on the same
     /// frame that the grapple release derives launch velocity, survives the beam's following-frame
     /// cleanup, uses the three standalone authored acceleration records,
     /// and restores the normal handler after upward-speed underflow, any downward pass, or
@@ -826,7 +826,7 @@ public static class SamusAerialMovement
         speed.AccelerationMode = SamusAccelerationMode.Accelerating;
     }
 
-    /// <summary>Checks that terrain, address space and Samus state are available before an aerial step.</summary>
+    /// <summary>Checks that terrain and Samus state are available before an aerial step.</summary>
     private static void ValidateCommon(
         RoomLevelData level,
         SamusState samus)

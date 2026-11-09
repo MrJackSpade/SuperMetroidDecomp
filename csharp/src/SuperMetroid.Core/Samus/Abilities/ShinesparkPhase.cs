@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Host names for the installed shinespark movement-handler pointers.</summary>
+/// <summary>Host names for the installed shinespark movement handlers.</summary>
 public enum ShinesparkPhase
 {
     /// <summary>No shinespark special movement handler is installed; independent palette timers, boost state, and released echo storage may still remain live.</summary>

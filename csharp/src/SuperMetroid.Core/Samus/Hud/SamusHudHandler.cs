@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Hud;
 
-/// <summary>The HUD selection handlers that movement types dispatch to, valued by handler address.</summary>
+/// <summary>The HUD selection handlers that movement types dispatch to.</summary>
 internal enum SamusHudHandler
 {
     /// <summary>Standard HUD handler.</summary>

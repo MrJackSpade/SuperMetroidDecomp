@@ -9,7 +9,7 @@ public sealed class InstalledXrayOverlays
 {
     /// <summary>The installed block the X-ray reveal shows for each tank kind, in tank order.</summary>
     /// <remarks>
-    /// Issue #1038: the original data reveals the four tanks as blocks $04A, $04D, $04F and $050. These are authored
+    /// Issue #1038: the original data reveals the four tanks as four particular blocks of the tileset. These are authored
     /// visual choices and reveals.json may replace them, so no universal formula can replace this bounded installed
     /// array. Every other uncollected item is revealed as its kind's own picture (#1538).
     /// </remarks>

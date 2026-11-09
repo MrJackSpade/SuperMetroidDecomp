@@ -46,7 +46,7 @@ internal static class SamusHorizontalMotionDefinitions
 
     /// <summary>Normal-air speed records end after damage boost.</summary>
     internal const int AirRecordCount = 26;
-    /// <summary>And A1DD water/lava records additionally include held and special movement.</summary>
+    /// <summary>The water and lava/acid records additionally include held and special movement.</summary>
     internal const int LiquidRecordCount = 28;
     /// <summary>Records across the three adjacent tables: air, then water, then lava/acid.</summary>
     internal const int RowCount = AirRecordCount + 2 * LiquidRecordCount;

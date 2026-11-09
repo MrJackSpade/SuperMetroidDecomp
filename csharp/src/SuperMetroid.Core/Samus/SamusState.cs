@@ -174,7 +174,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Ceres Ridley's dedicated push/fall handler. This is not ordinary damage
-    /// knockback: the shove replaces the movement and gamma-handler pointers without
+    /// knockback: the shove replaces the movement and gamma handlers without
     /// consuming energy, and owns Samus until horizontal room collision.
     /// Keeping that lifetime separate prevents the five-frame hurt timer from ending the
     /// scripted ejection early or making normal controller input steer it.
@@ -197,7 +197,7 @@ public sealed class SamusState
     public int Health { get; set; } = 99;
 
     /// <summary>
-    /// PreviousEnergyHurtCheck: initialized from Energy when Samus is initialized,
+    /// The previous energy for the hurt check: initialized from Energy when Samus is initialized,
     /// then compared and refreshed after Samus/projectile drawing by the post-draw input filter.
     /// </summary>
     public int PreviousHealthForHurtCheck { get; set; } = 99;
@@ -387,7 +387,7 @@ public sealed class SamusState
     public SharedHurtFlashCount HurtFlash { get; }
 
     /// <summary>
-    /// <c>ResumeChargingBeamSFXFlag</c>. Hurt-flash recovery sets one at counter forty
+    /// The charging-beam sound's resume latch. Hurt-flash recovery sets one at counter forty
     /// when a non-spinning Samus is still holding a sufficiently charged beam; the
     /// post-draw sound handler consumes and clears it later in the same gameplay pass.
     /// </summary>
@@ -409,7 +409,7 @@ public sealed class SamusState
     public int KnockbackTimer { get; set; }
 
     /// <summary>
-    /// Ports the two Samus-owned words from <c>DecrementSamusHurtTimers</c>.
+    /// Decrements Samus's two own hurt timers.
     /// This deliberately lives outside every individual movement
     /// handler: grapple spikes can start the timers without installing knockback movement,
     /// and the gameplay tail ages them even while time is frozen.
@@ -438,7 +438,7 @@ public sealed class SamusState
     public SamusVisorPaletteState VisorPalette { get; } = new();
 
     /// <summary>
-    /// <c>EnemyIndexToShake</c>, written when an ordinary or grapple wall jump
+    /// The enemy to shake, written when an ordinary or grapple wall jump
     /// launches from a solid/frozen enemy instead of room terrain.
     /// </summary>
     /// <remarks>
@@ -567,7 +567,7 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Resolves the block-only portion of `HandlePoseChangeCollision` for
+    /// Resolves the block-only portion of the pose-change collision for
     /// a target whose Y radius is larger than the live body's radius.
     /// </summary>
     /// <remarks>
@@ -645,7 +645,7 @@ public sealed class SamusState
         if (downward.Collided)
         {
             // Move away from the floor by
-            // radiusDifference-spaceToMoveDown, preserving the old bottom boundary.
+            // the radius difference less the space to move down, preserving the old bottom boundary.
             int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement.WholePixels);
             centerAdjustment = -(radiusDifference - freeWholePixels);
 
@@ -736,7 +736,7 @@ level,
         int wholePixels = displacement.WholePixels;
         if (Math.Abs(wholePixels) >= 8)
         {
-            // Computes `(signedWhole & 65520) | 8`. Retain the literal
+            // Computes `(wholePixels & 65520) | 8`. Retain the literal
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
             // The whole pixels lie within -32768 through 32767, and so does the intermediate boundary.
@@ -810,9 +810,9 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     private int? _previousXPositionWrite;
 
     /// <summary>
-    /// Records a direct write of SamusPreviousXPosition by an owner that runs
-    /// before MainScrollingRoutine, such as the landed gunship placing Samus.
-    /// Only the whole word changes; the previous X fraction is untouched (Mother Brain's
+    /// Records a direct write of Samus's previous X position by an owner that runs
+    /// before the main scrolling, such as the landed gunship placing Samus.
+    /// Only the whole pixels change; the previous X fraction is untouched (Mother Brain's
     /// rainbow-beam push records its fraction in <see cref="RainbowBeamCameraCheckpoint"/>).
     /// </summary>
     internal void WritePreviousXPosition(int xPosition) =>
@@ -831,9 +831,9 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     }
 
     /// <summary>
-    /// Records a direct write of SamusPreviousYPosition, such as
-    /// changed-pose collision correction or MakeSamusFaceForward's lift. The previous
-    /// fraction is deliberately not changed: the game writes only the whole word, not the fraction.
+    /// Records a direct write of Samus's previous Y position, such as
+    /// changed-pose collision correction or facing forward's lift. The previous
+    /// fraction is deliberately not changed: the game writes only the whole pixels, not the fraction.
     /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
     /// </summary>
     internal void WritePreviousYPosition(int correctedY)
@@ -843,10 +843,10 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     }
 
     /// <summary>
-    /// The live SamusPreviousXPosition/SamusPreviousYPosition words: the
+    /// Samus's live previous X and Y positions: the
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
-    internal Position16<RoomPixels> PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(        _previousXPositionWrite ?? previous.X.Whole,
+    internal Position16<RoomPixels> PeekPreviousPosition(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(        _previousXPositionWrite ?? previous.X.Whole,
         CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta));
 
     /// <summary>
@@ -870,9 +870,9 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     public SamusHealthWarningState HealthWarning => field ??= new();
 
     /// <summary>
-    /// Copies the inventory and energy words, which lie below the Samus
-    /// state that <c>InitializeSamus</c> clears. A Samus created
-    /// fresh and given these words is that routine's result for the same player.
+    /// Copies the inventory and energy, which lie below the Samus
+    /// state that Samus's initialization clears. A Samus created
+    /// fresh and given these values is that routine's result for the same player.
     /// </summary>
     internal void CopyInventoryFrom(SamusState source)
     {

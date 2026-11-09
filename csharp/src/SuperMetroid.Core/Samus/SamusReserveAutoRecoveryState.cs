@@ -27,7 +27,7 @@ public sealed class SamusReserveAutoRecoveryState
 
         // The reserve-recovery Samus command conditionally installs the ordinary locked handler pair.
         // The pair suppresses animation as well as input/movement. A generic input
-        // gate alone leaves AnimateSamus running during the frozen recovery frames.
+        // gate alone leaves Samus's animation running during the frozen recovery frames.
         // If X-Ray installed its own pair earlier in this gameplay frame, the reserve-recovery
         // command replaces those handlers without ending the independently running cone effect.
         // It leaves Mother Brain's rainbow-beam pair in place.

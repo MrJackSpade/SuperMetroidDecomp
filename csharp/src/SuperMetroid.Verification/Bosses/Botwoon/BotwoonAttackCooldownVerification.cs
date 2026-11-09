@@ -54,7 +54,7 @@ internal static class BotwoonAttackCooldownVerification
         Console.WriteLine("  Botwoon attack cooldown: steps to zero, runs below it and pins to zero, and gates the hidden spit on zero.");
 
         static ClockedEnemyAiFrame Frame() => new(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) },
+            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) },
             new FrameCounters(0));
     }
 

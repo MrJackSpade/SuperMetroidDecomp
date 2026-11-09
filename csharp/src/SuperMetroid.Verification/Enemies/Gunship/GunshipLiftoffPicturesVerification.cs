@@ -51,7 +51,7 @@ internal static class GunshipLiftoffPicturesVerification
             // The ship landed, then in its takeoff look.
             IReadOnlyList<EncounterLook> reached = look.Name == EncounterLook.LoadedName ? [] : [look];
             runtime.EnemySession.Looks.Show(look);
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
+            runtime.Enemies.StepFrame(new RoomEnemyFrame { FrameCounter = runtime.Enemies.StandaloneFrameCounter, Camera = camera, TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
             SpriteArtwork live = EnemySheetFixtures.LivePage(set, reached);
             var sprites = new SpriteFrameBuffer();
             sprites.BeginFrame();

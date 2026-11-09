@@ -57,7 +57,7 @@ internal static class PowerBombDeathDrawingVerification
 
             // Freeze only the AI while producing the real draw queue. The following
             // explicit damage call represents the later runtime power-bomb phase.
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true });
+            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = true });
             var before = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(before, new(0, 0), 0, 7);
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");

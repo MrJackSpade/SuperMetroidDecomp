@@ -85,7 +85,7 @@ internal static class YappingMawExtensionVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
         var frame = new ClockedEnemyAiFrame(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
+            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
             new FrameCounters(0));
         enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);
         enemies.YappingMawBehavior.RunYappingMawMainAi(slot, frame);

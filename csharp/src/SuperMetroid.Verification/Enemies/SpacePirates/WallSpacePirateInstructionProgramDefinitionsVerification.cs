@@ -148,7 +148,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(
                 jumpingRight ? WallSpacePirateProgram.FireAndJumpRight : WallSpacePirateProgram.FireAndJumpLeft);
             var frame = new ClockedEnemyAiFrame(
-                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
+                new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
                 new FrameCounters(0));
             for (int update = 1; update <= 32; update++)
             {

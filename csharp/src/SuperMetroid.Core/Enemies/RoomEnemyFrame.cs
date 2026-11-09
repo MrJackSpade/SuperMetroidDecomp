@@ -54,8 +54,8 @@ public sealed record RoomEnemyFrame
     /// <summary>Optional room PLMs participating in the scoped enemy terrain-collision probes.</summary>
     internal EnemyBreakableTerrainObjects? CollisionObjects { get; init; } = null;
 
-    /// <summary>The game's frame counter; null uses the standalone enemy-pass clock.</summary>
-    public int? FrameCounter { get; init; } = null;
+    /// <summary>The game's frame counter.</summary>
+    public required int FrameCounter { get; init; }
 
     /// <summary>True when <see cref="EnemyProcessingWindow.PrepareEnemyProcessingList"/> already ran at the pre-Samus boundary; false prepares the lists here for standalone callers.</summary>
     public bool ProcessingListPrepared { get; init; } = false;

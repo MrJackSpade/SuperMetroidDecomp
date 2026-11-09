@@ -198,28 +198,14 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>How many passes the standalone clock counts before it returns to zero, as the byte-wide frame counter does.</summary>
-    private const int StandaloneShortCounterPeriod = 256;
-
-    /// <summary>Fallback frame clock for standalone calls without a supplied frame counter, 0 through 255.</summary>
-    private int _standaloneShortCounter;
-
-    /// <summary>Returns the standalone clock's current frame and advances it, wrapping after 255.</summary>
-    private int AdvanceStandaloneShortCounter()
-    {
-        int frame = _standaloneShortCounter;
-        _standaloneShortCounter = (frame + 1) % StandaloneShortCounterPeriod;
-        return frame;
-    }
-
     /// <summary>One projectile pass: every live slot's pre-instruction, then its instruction list.</summary>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int? frameCounterByte,
+        int frameCounterByte,
         SamusBombProjectileSystem? samusBombs,
-        int? frameCounter)
+        int frameCounter)
     {
         Ensure.NotNull(level);
 
@@ -236,10 +222,8 @@ internal sealed class EnemyProjectileEngine
         // pass after the pre-instruction returns. Reading each array entry at loop time
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
-        int projectileFrame = frameCounterByte ?? AdvanceStandaloneShortCounter();
-        CurrentFrame8 = projectileFrame;
-        // Standalone audits seed both counters from the same projectile clock.
-        CurrentFrame16 = frameCounter ?? projectileFrame;
+        CurrentFrame8 = frameCounterByte;
+        CurrentFrame16 = frameCounter;
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
              projectileIndex--)
@@ -253,7 +237,7 @@ internal sealed class EnemyProjectileEngine
                 level,
                 samus,
                 camera,
-                projectileFrame,
+                frameCounterByte,
                 samusBombs);
             // The pass does not re-read the identity after the frame behaviour: a slot whose identity
             // the pre-instruction released still runs its instructions in this pass (a power-bombed

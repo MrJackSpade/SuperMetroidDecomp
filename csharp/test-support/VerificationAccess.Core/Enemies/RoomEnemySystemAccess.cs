@@ -64,9 +64,34 @@ using SuperMetroid.Core.World;
 /// <summary>Verification access to <see cref="RoomEnemySystem"/> members production does not use.</summary>
 internal static class RoomEnemySystemAccess
 {
+    /// <summary>How many frames a check's standalone projectile clock counts before it returns to zero, as a byte does.</summary>
+    private const int StandaloneProjectileClockPeriod = 256;
+
+    /// <summary>Each enemy system's standalone projectile clock, which a check's projectile pass steps when it names no frame.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<RoomEnemySystem, System.Runtime.CompilerServices.StrongBox<int>>
+        StandaloneProjectileClocks = [];
+
     /// <summary>Exposes live enemy-slot state and focused collision, projectile, and draw steps for gameplay verification.</summary>
     extension(RoomEnemySystem self)
     {
+        /// <summary>
+        /// The frame counter a check's standalone enemy pass runs at: the system's random enemy counter, which advances
+        /// once a pass.
+        /// </summary>
+        internal int StandaloneFrameCounter => self.FrameContext.RandomEnemyCounter;
+
+        /// <summary>
+        /// The next frame of the system's standalone projectile clock, 0 through 255, for a check's projectile pass that
+        /// names no frame: the clock advances one frame a pass, as the byte-wide frame counter does.
+        /// </summary>
+        internal int NextStandaloneProjectileFrame()
+        {
+            System.Runtime.CompilerServices.StrongBox<int> clock = StandaloneProjectileClocks.GetValue(self, _ => new(0));
+            int frame = clock.Value;
+            clock.Value = (frame + 1) % StandaloneProjectileClockPeriod;
+            return frame;
+        }
+
         /// <summary>
         /// Runs the native mouth pass followed by the outer mouth/body pass outside Kraid's AI.
         /// <c>MainAI_Kraid</c> itself interleaves palette handling between the two passes.
@@ -357,7 +382,9 @@ internal static class RoomEnemySystemAccess
             int? frameCounterByte = null,
             SamusBombProjectileSystem? samusBombs = null)
         {
-            self.StepEnemyProjectileInstructions(level, samus, camera, frameCounterByte, samusBombs);
+            // A check that names no frame steps the system's own standalone clock, one frame a pass.
+            int frame = frameCounterByte ?? self.NextStandaloneProjectileFrame();
+            self.StepEnemyProjectileInstructions(level, samus, camera, frame, samusBombs, backgroundScroll: null, frameCounter: frame);
             self.Projectiles.ResolveEnemyProjectileSamusHits(samus);
         }
 

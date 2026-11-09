@@ -110,7 +110,7 @@ internal static class PipeBugBehaviorVerification
 
         static ClockedEnemyAiFrame Frame(Position16<RoomPixels> samusPosition) => new(
             new RoomEnemyFrame
-            {
+            { FrameCounter = 0,
                 Camera = Position16<RoomPixels>.Zero,
                 TimeIsFrozen = false,
                 Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(samusPosition) },

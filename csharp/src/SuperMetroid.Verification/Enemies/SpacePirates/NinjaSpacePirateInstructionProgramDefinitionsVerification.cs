@@ -147,7 +147,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             state.Function = rising;
             state.Speed = new SignedEightEight(initialDiveSpeed);
             var frame = new ClockedEnemyAiFrame(
-                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
+                new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(0));
             ushort nativeSpeed = initialDiveSpeed;
             int risingUpdates = 0;

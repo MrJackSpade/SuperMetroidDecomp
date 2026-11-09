@@ -61,15 +61,14 @@ internal sealed class EnemyFrameContext
     internal void RequestFullSweep() => ProcessAllEnemies = true;
 
     /// <summary>
-    /// Enemy frame start: the freeze flag, the live projectiles, and the sixteen-bit frame counter, which standalone
-    /// passes without a runtime clock take from the random counter.
+    /// Enemy frame start: the freeze flag, the live projectiles, and the sixteen-bit frame counter.
     /// </summary>
-    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int? frameCounter)
+    internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int frameCounter)
     {
         TimeIsFrozen = timeIsFrozen;
         SamusProjectiles = samusProjectiles;
         SamusColours = samusColours;
-        FrameCounter = frameCounter ?? RandomEnemyCounter;
+        FrameCounter = frameCounter;
     }
 
     /// <summary>The end-of-pass advance of the random counter, wrapping from 65535 to zero.</summary>

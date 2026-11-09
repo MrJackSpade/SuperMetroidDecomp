@@ -37,7 +37,7 @@ internal static class SporeSpawnSwayVerification
             };
             enemies.SporeSpawnBehavior.SporeSpawn = state;
             var frame = new ClockedEnemyAiFrame(
-                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
+                new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
                 new FrameCounters(0));
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, frame);

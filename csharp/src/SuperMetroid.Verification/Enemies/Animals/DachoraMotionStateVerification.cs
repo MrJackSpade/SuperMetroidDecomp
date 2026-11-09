@@ -39,7 +39,7 @@ internal static class DachoraMotionStateVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, AirGravityFraction);
         var frame = new ClockedEnemyAiFrame(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
+            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
             new FrameCounters(0));
         foreach ((short whole, ushort fraction, ushort expectedWhole, ushort expectedFraction) in new VerifyDachoraMotionStateCase[]
                  {
@@ -71,7 +71,7 @@ internal static class DachoraMotionStateVerification
     internal static void VerifyDachoraEchoLifetime()
     {
         var frame = new ClockedEnemyAiFrame(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
+            new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
         foreach ((int lifetime, ushort expected, bool invisible) in new VerifyDachoraEchoLifetimeCase[] { new VerifyDachoraEchoLifetimeCase(8, 7, false), new VerifyDachoraEchoLifetimeCase(1, 0, false), new VerifyDachoraEchoLifetimeCase(0, 0, true) })
         {

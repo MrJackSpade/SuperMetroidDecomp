@@ -47,7 +47,7 @@ internal static class OperationContractsVerification
         // The grapple wrapper hands main AI the enemy's frame without projectiles, Mode 7, bombs or a VRAM queue.
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         var frame = new RoomEnemyFrame
-        {
+        { FrameCounter = 3,
             Camera = new(0x0120, 0x0040),
             TimeIsFrozen = false,
             Samus = samus,

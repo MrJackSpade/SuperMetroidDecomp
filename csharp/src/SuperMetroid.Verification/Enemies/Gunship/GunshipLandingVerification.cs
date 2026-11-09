@@ -74,7 +74,7 @@ internal static class GunshipLandingVerification
             ushort cameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
+            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
             frames++;
             observedEngineSound |= enemies.Audio.SoundRequests.Contains(
                 new SoundRequest(Library2Sound.GunshipHover, Priority: SoundRequestPriority.Normal));
@@ -148,12 +148,12 @@ internal static class GunshipLandingVerification
 
         var openingSound = new SoundRequest(
             Library3Sound.GunshipPadOpening, Priority: SoundRequestPriority.Normal);
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus });
+        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus });
         AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
             "idle ship does not publish an entrance sound without Down");
         ushort deckX = samus.Position.X.Whole;
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 16)));
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
+        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
         AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
             "Down outside entrance does not publish an opening sound");
         samus.Position = samus.Position.WithWholeX(deckX);
@@ -161,14 +161,14 @@ internal static class GunshipLandingVerification
         // Re-entering after Mother Brain's event takes the native function-17 branch at
         // RestoreSamusInGunship: there is no refill wait, save prompt, or ordinary exit.
         zebesTimebombSet = true;
-        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
+        enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
         AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastEnemyFrame.Gunship,
             "endgame Down input begins ordinary gunship entry");
         AssertEqual(1, enemies.Audio.SoundRequests.Count(request => request == openingSound),
             "entry frame requests exactly one landing sound");
         if (entrySoundOnly)
         {
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
+            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });
             AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
                 "opening animation does not republish the entry sound");
             Console.WriteLine("Gunship entry sound: exact entry edge, input/position guards and no repeat verified.");
@@ -184,7 +184,7 @@ internal static class GunshipLandingVerification
             ushort takeoffCameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, takeoffCameraY), TimeIsFrozen = false, Samus = samus });
+            enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0x0400, takeoffCameraY), TimeIsFrozen = false, Samus = samus });
             observedTakeoffStart |=
                 enemies.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffStarted;
             maximumLiftoffDustActors = Math.Max(

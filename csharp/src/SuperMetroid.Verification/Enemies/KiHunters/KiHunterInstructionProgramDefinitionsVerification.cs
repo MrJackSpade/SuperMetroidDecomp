@@ -158,7 +158,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             var frame = new ClockedEnemyAiFrame(
                 new RoomEnemyFrame
-                {
+                { FrameCounter = 0,
                     Camera = Position16<RoomPixels>.Zero,
                     TimeIsFrozen = false,
                     Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },

@@ -1278,11 +1278,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     public void StepEnemyProjectileInstructions(
         RoomLevelData level,
         SamusState? samus,
-        Position16<RoomPixels> camera = default,
-        int? frameCounterByte = null,
-        SamusBombProjectileSystem? samusBombs = null,
-        BackgroundScrollState? backgroundScroll = null,
-        int? frameCounter = null)
+        Position16<RoomPixels> camera,
+        int frameCounterByte,
+        SamusBombProjectileSystem? samusBombs,
+        BackgroundScrollState? backgroundScroll,
+        int frameCounter)
     {
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(samus);

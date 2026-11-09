@@ -22,10 +22,10 @@ internal static class EndingArtworkSources
     /// <summary>An explosion fragment's compressed source, decompressed by $8B:D5AF..D5F2.</summary>
     public static int ObjectFragment(EndingObjectFragmentId id) => id switch
     {
-        EndingObjectFragmentId.Segment70 => EndingSourceDefinitions.Artwork.WideExplosionTilemap,
-        EndingObjectFragmentId.Segment74 => EndingSourceDefinitions.Artwork.ConcentricExplosionTilemap,
-        EndingObjectFragmentId.Segment78 => EndingSourceDefinitions.Artwork.EclipseTilemap,
-        EndingObjectFragmentId.Segment7C => EndingSourceDefinitions.Artwork.BlankTilemap,
+        EndingObjectFragmentId.WideExplosion => EndingSourceDefinitions.Artwork.WideExplosionTilemap,
+        EndingObjectFragmentId.ConcentricExplosion => EndingSourceDefinitions.Artwork.ConcentricExplosionTilemap,
+        EndingObjectFragmentId.Eclipse => EndingSourceDefinitions.Artwork.EclipseTilemap,
+        EndingObjectFragmentId.Blank => EndingSourceDefinitions.Artwork.BlankTilemap,
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 }

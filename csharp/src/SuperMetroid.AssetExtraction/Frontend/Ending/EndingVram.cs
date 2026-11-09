@@ -33,10 +33,10 @@ internal readonly struct EndingVram(SnesVram vram)
     /// <summary>The explosion OBJ fragment uploaded for <paramref name="fragment"/>.</summary>
     public VramRegion ObjectFragment(EndingObjectFragmentId fragment) => new(vram, fragment switch
     {
-        EndingObjectFragmentId.Segment70 => EndingVramLayout.Fragment70,
-        EndingObjectFragmentId.Segment74 => EndingVramLayout.Fragment74,
-        EndingObjectFragmentId.Segment78 => EndingVramLayout.Fragment78,
-        EndingObjectFragmentId.Segment7C => EndingVramLayout.Fragment7C,
+        EndingObjectFragmentId.WideExplosion => EndingVramLayout.Fragment70,
+        EndingObjectFragmentId.ConcentricExplosion => EndingVramLayout.Fragment74,
+        EndingObjectFragmentId.Eclipse => EndingVramLayout.Fragment78,
+        EndingObjectFragmentId.Blank => EndingVramLayout.Fragment7C,
         _ => throw new ArgumentOutOfRangeException(nameof(fragment), fragment, "Not an explosion OBJ fragment."),
     });
 }

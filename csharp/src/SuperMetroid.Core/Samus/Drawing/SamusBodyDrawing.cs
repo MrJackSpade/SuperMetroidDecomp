@@ -71,7 +71,7 @@ internal static class SamusBodyDrawing
             animationFrame < 2 || animationFrame >= 9;
         // The draw suppresses the lower half for vertical shinesparks and for the drained crouch's frames zero and one.
         // Every other special-movement pose draws it.
-        bool specialType1BBottom = movementType != SamusMovementType.Special ||
+        bool specialMovementBottom = movementType != SamusMovementType.Special ||
             (pose is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
              (pose is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose) ||
               animationFrame >= 2));
@@ -84,7 +84,7 @@ internal static class SamusBodyDrawing
             SamusMovementType.SpringBallInAir or
             SamusMovementType.SpringBallFalling) &&
             ordinarySpinBottom && knockbackBottom && transitionBottom &&
-            wallJumpBottom && damageBoostBottom && specialType1BBottom;
+            wallJumpBottom && damageBoostBottom && specialMovementBottom;
     }
 
     /// <summary>

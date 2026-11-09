@@ -180,7 +180,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.AdvanceY(state.GrowthSpeed);
         Position16<RoomPixels> target = state.OriginForLevel() + new Offset16<RoomPixels>(0, GrowingShutterSectionLength);
 
-        // BPL returns at equality. A section advances only after its center has passed the
+        // The non-negative test returns at equality. A section advances only after its center has passed the
         // full sixteen-pixel threshold, after which the first three sections are inset seven.
         if ((target - slot.Position.Whole).Y >= 0)
             return;

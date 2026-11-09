@@ -138,7 +138,7 @@ internal sealed class FallingSparksBehavior
             projectile.Graphics);
     }
 
-    /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>
+    /// <summary>Connects the falling-spark frame behaviour to the projectile handler table.</summary>
     internal void AddFallingSparksProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

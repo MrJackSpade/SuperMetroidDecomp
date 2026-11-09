@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
-/// The elevator platform's block draws: which PLM draws are the platform's, the strips each frame lays from
+/// The elevator platform's block draws: which room-object draws are the platform's, the strips each frame lays from
 /// <see cref="ElevatorPlatformObjectDefinitions"/>.
 /// </summary>
 internal static class ElevatorPlatformDraws
@@ -18,7 +18,7 @@ internal static class ElevatorPlatformDraws
         internal int RunCount => Strips.Length;
         /// <summary>Gets one edge cell or four lower-row cells for a selected strip.</summary>
         internal int BlockCount(int run) => Strip(run).Cells.Length;
-        /// <summary>Where a strip starts, in blocks from the PLM origin.</summary>
+        /// <summary>Where a strip starts, in blocks from the room object's origin.</summary>
         internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
         /// <summary>How a platform cell collides: solid.</summary>
         internal RoomCollisionType CollisionAt(int run, int cell)

@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The pass-through callbacks of Spark and the Blue Brinstar face block. They never enter common
-/// shot AI: they only clear direction bit 0x10 on the colliding projectile or bomb, so the beam or missile continues instead
-/// of becoming an impact. The shot stage must run before TryStartEnemyImpact, which would rewrite the family to 0x0700.
+/// shot AI: they only clear the hit mark on the colliding projectile or bomb, so the beam or missile continues instead
+/// of becoming an impact. The shot stage must run before TryStartEnemyImpact, which would turn it into an impact.
 /// </summary>
 internal static class ProjectilePassThrough
 {

@@ -158,8 +158,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // A wall collision reverses the dispatcher and immediately installs the opposite
-        // vertically-still list. The first opcode in that list republishes the same index
-        // when instruction processing runs later in this enemy frame.
+        // vertically-still program. The first step of that program republishes the same index
+        // when the programs run later in this enemy frame.
         state.XMovement = movingLeft
             ? PlatformHorizontalMovement.Right
             : PlatformHorizontalMovement.Left;
@@ -199,7 +199,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        // Signed BMI comparison is intentional. Normal platforms stop once they have risen
+        // The signed comparison is intentional. Normal platforms stop once they have risen
         // from their depressed position to one pixel below their original spawn center.
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingHeight.Y) < 0)
         {

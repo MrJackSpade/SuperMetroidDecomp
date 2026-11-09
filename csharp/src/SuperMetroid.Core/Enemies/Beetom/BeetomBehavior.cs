@@ -293,7 +293,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomProgram.HopRight);
     }
 
-    /// <summary>Starts the attached blood-drain instruction list for the current facing.</summary>
+    /// <summary>Starts the attached blood-drain program for the current facing.</summary>
     internal static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimationScript(
@@ -359,7 +359,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBeetomVerticalArc(slot, state, level, risingDelta, fallingDelta);
 
         // The horizontal half still runs on the exact frame that vertical collision changes
-        // the function pointer. That ordering is easy to lose when expressing the two axes
+        // the AI function. That ordering is easy to lose when expressing the two axes
         // as a single host movement vector.
         SignedSixteenSixteen displacement = arc == BeetomArcKind.Lunge
             ? (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-3) : SignedSixteenSixteen.FromWholePixels(3))

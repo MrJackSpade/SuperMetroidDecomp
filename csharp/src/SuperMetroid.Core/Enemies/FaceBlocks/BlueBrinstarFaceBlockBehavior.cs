@@ -178,7 +178,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Blue Brinstar face-block state.");
 
-    /// <summary>Advances BlueBrinstarFaceBlock's typed animation.</summary>
+    /// <summary>Advances the blue Brinstar face block's typed animation.</summary>
     internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -189,13 +189,13 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         state.Program = cursor;
     }
 
-    /// <summary>Ports BlueBrinstarFaceBlock's initialization AI.</summary>
+    /// <summary>Runs the blue Brinstar face block's initialization AI.</summary>
     internal void RunBlueBrinstarFaceBlockInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
         InitializeBlueBrinstarFaceBlock(slot, surroundings.Samus);
     }
 
-    /// <summary>Ports BlueBrinstarFaceBlock's main AI.</summary>
+    /// <summary>Runs the blue Brinstar face block's main AI.</summary>
     internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBlueBrinstarFaceBlockMain(

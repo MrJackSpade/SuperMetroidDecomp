@@ -118,7 +118,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (horizontalDistance >= MetareeHorizontalActivationDistance)
             return;
 
-        // The unsigned divider input is the wrapped 16-bit Y difference. If Samus is
+        // The unsigned divider input is the Y difference wrapped to 0 through 65535. If Samus is
         // above Metaree, this deliberately creates the game's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
         int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
@@ -192,7 +192,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
-    /// <summary>Changes the instruction pointer only when the requested animation phase differs from the installed one.</summary>
+    /// <summary>Changes the program only when the requested animation phase differs from the installed one.</summary>
     internal static void InstallRequestedMetareeInstruction(
         RoomEnemySlot slot,
         MetareeEnemyState state)

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The game-state services enemy AI calls during a room: the union of every child operation's
-/// service contract plus the RNG, events, boss bits and PLM presence the AI uses directly.
+/// service contract plus the RNG, events, boss bits and room-object presence the AI uses directly.
 /// </summary>
 public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoomServices
 {
@@ -23,7 +23,7 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>The current area's boss bits.</summary>
     IAreaBossFlags Bosses { get; }
 
-    /// <summary>The active PLM population.</summary>
+    /// <summary>The active room-object population.</summary>
     IRoomObjectPresence RoomObjects { get; }
 
     /// <summary>Draws <paramref name="frame"/>'s picture over the part of the room's turning floor it covers (#1349, #1467).</summary>

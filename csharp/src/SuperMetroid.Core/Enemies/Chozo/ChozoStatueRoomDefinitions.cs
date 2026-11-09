@@ -25,7 +25,7 @@ internal static class ChozoStatueRoomDefinitions
 
     /// <summary>
     /// The block the room-load crumbling plug writes: its setup never chooses one, so it writes what the room loader's
-    /// last draw left behind, block $1A0 mirrored both ways, as air.
+    /// last draw left behind, block 416 mirrored both ways, as air.
     /// </summary>
     public static readonly RoomTerrainBlock HardcodedCrumbleSetupBlock =
         RoomTerrainBlock.Of(416, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air);
@@ -40,12 +40,12 @@ internal static class ChozoStatueRoomDefinitions
     /// <summary>The row of the block whose blank air triggers the lowered Lower Norfair hand.</summary>
     public const int LowerNorfairTriggerY = 8;
 
-    /// <summary>The Wrecked Ship hand's trigger block, where the hand PLM is also placed.</summary>
+    /// <summary>The Wrecked Ship hand's trigger block, where the hand room object is also placed.</summary>
     public static readonly Position16<RoomBlocks> WreckedShipHandBlock = new(74, 23);
 
-    /// <summary>The block where the Wrecked Ship statue's slope-access PLMs are placed.</summary>
+    /// <summary>The block where the Wrecked Ship statue's slope-access room objects are placed.</summary>
     public static readonly Position16<RoomBlocks> WreckedShipSlopeAccessBlock = new(23, 29);
 
-    /// <summary>The block where the Lower Norfair hand and room-plug PLMs are placed.</summary>
+    /// <summary>The block where the Lower Norfair hand and room-plug room objects are placed.</summary>
     public static readonly Position16<RoomBlocks> LowerNorfairHandBlock = new(12, 29);
 }

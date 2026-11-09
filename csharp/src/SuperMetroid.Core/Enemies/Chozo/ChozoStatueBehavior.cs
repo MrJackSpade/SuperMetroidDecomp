@@ -45,7 +45,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomFx = roomFx;
     }
 
-    /// <summary>Pending hardcoded and footstep PLM requests consumed by the shared allocator.</summary>
+    /// <summary>Pending hardcoded and footstep room-object requests consumed by the shared allocator.</summary>
     internal readonly List<ChozoStatueObjectRequest> ChozoStatueObjectRequests = new();
 
     /// <summary>Consumes each published request once through the shared slot allocator.</summary>
@@ -132,7 +132,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Represents the exact enemy-slot side effect produced by the Chozo hand
-    /// trigger. Collision/pose/item admission remains the PLM owner's responsibility; once
+    /// trigger. Collision/pose/item admission remains the room object's responsibility; once
     /// admitted, both trigger setups write parameter one and disable Samus controls.
     /// </summary>
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, int? collisionBlockIndex = null)
@@ -150,7 +150,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
         // Both setup routines clear only the block's collision kind. Its behaviour and
-        // appearance survive until their subsequently spawned hardcoded PLM runs.
+        // appearance survive until their subsequently spawned hardcoded room object runs.
         level.SetTerrain(
             triggerBlockIndex,
             triggerBlock.Terrain.WithCollision(RoomCollisionType.Air));
@@ -167,7 +167,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             // The Wrecked Ship hand sets two pairs of scroll cells before handing the statue to
-            // its carry: cells 7 and 8 become green and 13 and 14 blue. The clear-slope-access PLM then
+            // its carry: cells 7 and 8 become green and 13 and 14 blue. The clear-slope-access room object then
             // queues the authored slope-access terrain transition.
             _room.Services.RoomScroll.Write(7, RoomScrollState.Green);
             _room.Services.RoomScroll.Write(8, RoomScrollState.Green);
@@ -207,7 +207,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Chozo statue pre-instruction {state.FrameBehavior?.ToString() ?? "none"} is not translated.");
+                    $"Chozo statue frame behaviour {state.FrameBehavior?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -293,8 +293,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CarryRecord = carryRecord;
         int signedVelocity = motion.Velocity;
 
-        // The slope-ignoring horizontal mover receives a signed 8.8 word promoted to 16.16 by
-        // an eight-bit shift. The vertical mover receives its absolute magnitude in the same format.
+        // The slope-ignoring horizontal mover receives a signed 8.8 speed promoted to 16.16 by
+        // a shift by 256. The vertical mover receives its absolute magnitude in the same format.
         _ = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             statue,
@@ -310,7 +310,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + motion.SamusOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + motion.SamusOffset.Y)));
     }
 
-    /// <summary>Spawns a plug-crumble PLM and spike-footstep only when the offset floor block has the special type.</summary>
+    /// <summary>Spawns a plug-crumble room object and spike-footstep only when the offset floor block has the special type.</summary>
     private void ProcessChozoStatueFootstep(
         RoomEnemySlot statue,
         RoomLevelData level,
@@ -352,8 +352,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         EnableChozoStatueSamusControls();
 
-        // The assembly performs overlapping 16-bit stores at raw scroll indexes 6, 8, 9,
-        // and 13. Publish the resulting bytes (6..10 = 0, 13 = 1, 14 = 0) exactly.
+        // The game sets overlapping pairs of scroll cells from cells 6, 8, 9
+        // and 13. Publish the resulting cells (6..10 = 0, 13 = 1, 14 = 0) exactly.
         for (int index = 6; index <= 10; index++)
             _room.Services.RoomScroll.Write(index, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
@@ -378,7 +378,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.SamusControls.DisableControls();
     }
 
-    /// <summary>Queues an authored PLM spawn at its fixed room block.</summary>
+    /// <summary>Queues an authored room-object spawn at its fixed room block.</summary>
     private void PublishHardcodedChozoObject(RoomObjectHeaderId header, Position16<RoomBlocks> block) =>
         ChozoStatueObjectRequests.Add(new ChozoStatueObjectRequest(
             header,

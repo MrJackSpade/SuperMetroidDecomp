@@ -56,7 +56,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
                 break;
             case MetroidCueKind.PlayRandomCry:
-                // GenerateRandomNumber advances exactly once and the low three result bits choose one of the eight
+                // The shared random sequence advances exactly once and the result's remainder by eight chooses one of the eight
                 // authored idle cries.
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
@@ -328,9 +328,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileFamily family = collisionProjectileType.Family;
         if (state.Function == MetroidAiFunction.AttachedToSamus)
         {
-            // The bomb collision pass presents the exploding power bomb as family 0x0500;
-            // family 0x0300 is its earlier expansion/controller record and is not the value
-            // tested by the Metroid's shot reaction.
+            // The bomb collision pass presents the exploding power bomb as its explosion;
+            // its earlier expansion record is not what the Metroid's shot reaction tests.
             if (family == SamusProjectileFamily.Bomb)
                 DetachMetroidWithPowerBomb(slot, state, samus);
             return;
@@ -449,7 +448,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
     internal void AddMetroidBombReactions(EnemySharedReactions table)
     {
-        // Metroid shot AI ignores bombs while frozen, detaches an attached body for family 0x0500, or applies its
+        // Metroid shot AI ignores bombs while frozen, detaches an attached body for a power-bomb explosion, or applies its
         // peculiar recoil from the first projectile otherwise (MetroidRecoilOrigin).
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metroid &&
                                   EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.MetroidShot,

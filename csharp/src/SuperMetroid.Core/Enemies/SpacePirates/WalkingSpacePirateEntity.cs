@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>One WalkingSpacePirate occupant: its own AI handlers, with the shared reactions.</summary>
-/// <param name="species">The WalkingSpacePirate species owner.</param>
+/// <summary>One walking Space Pirate occupant: its own AI handlers, with the shared reactions.</summary>
+/// <param name="species">The walking Space Pirate species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)

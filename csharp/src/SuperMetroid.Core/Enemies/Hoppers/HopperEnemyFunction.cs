@@ -14,9 +14,9 @@ public enum HopperEnemyFunction
     PrepareSmallHop,
     /// <summary>Installs the precomputed big-hop speed index, index delta 4, and positive three-pixel X velocity before choosing floor or ceiling direction setup.</summary>
     PrepareBigHop,
-    /// <summary>Compares Samus X against a floor Hopper and selects the leftward/backward or rightward/forward start pointer.</summary>
+    /// <summary>Compares Samus X against a floor Hopper and selects the leftward/backward or rightward/forward start.</summary>
     ChooseDirectionUpsideUp,
-    /// <summary>Compares Samus X against a ceiling Hopper and selects the leftward/backward or rightward/forward start pointer.</summary>
+    /// <summary>Compares Samus X against a ceiling Hopper and selects the leftward/backward or rightward/forward start.</summary>
     ChooseDirectionUpsideDown,
     /// <summary>Negates X velocity, installs the floor jumping list, and selects the floor backward movement entry.</summary>
     StartBackwardHopUpsideUp,

@@ -464,13 +464,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             c => ResolveDeadSidehopperShot(c.Enemy));
     }
 
-    /// <summary>Ports DeadSidehopper's main AI.</summary>
+    /// <summary>Runs the dead Sidehopper's main AI.</summary>
     internal void RunDeadSidehopperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDeadSidehopperMain(slot, frame.Samus, frame.Level, frame.Camera);
     }
 
-    /// <summary>Advances DeadSidehopper's typed animation.</summary>
+    /// <summary>Advances the dead Sidehopper's typed animation.</summary>
     internal static void AdvanceDeadSidehopperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))

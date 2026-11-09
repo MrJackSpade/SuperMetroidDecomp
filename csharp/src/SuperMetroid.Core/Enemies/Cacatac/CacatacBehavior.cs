@@ -145,8 +145,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Animation cue: restore patrol from the direction word.</summary>
     private static void RestoreCacatacPatrol(CacatacEnemyState state)
     {
-        // The assembly uses BEQ, not CMP #1. Its special initial direction two therefore
-        // becomes moving-right once the first idle instruction executes.
+        // The game tests the direction against zero, not against one. Its special initial direction two therefore
+        // becomes moving-right once the first idle step executes.
         state.Function = state.Direction == CacatacDirection.Left
             ? CacatacEnemyFunction.MovingLeft
             : CacatacEnemyFunction.MovingRight;
@@ -222,7 +222,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Shared clone of signed four-CMP viewport cull. Equality with the right or
+    /// Shared clone of the signed four-edge viewport cull. Equality with the right or
     /// bottom edge remains alive; only strictly outside coordinates delete the projectile.
     /// </summary>
     internal static void DeleteEnemyProjectileIfOutsideInclusiveViewport(

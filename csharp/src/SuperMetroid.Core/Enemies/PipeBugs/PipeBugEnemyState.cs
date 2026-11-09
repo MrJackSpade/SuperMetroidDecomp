@@ -43,9 +43,9 @@ public sealed class PipeBugEnemyState
 
     /// <summary>
     /// A Norfair formation member's stagger counter, counting up from zero to <see cref="LargestCount"/> and wrapping
-    /// to zero past it, as the game's word does. It returns to zero only when the member departs, so a member
+    /// to zero past it, as the game's counter does. It returns to zero only when the member departs, so a member
     /// reset off screen keeps its count into the next rise; <see cref="HasReachedStaggerTarget"/> compares it with
-    /// the target by the sign of their sixteen-bit difference.
+    /// the target by the sign of their wrapped difference.
     /// </summary>
     public int FormationCounter { get; internal set; }
 

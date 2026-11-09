@@ -113,13 +113,13 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound queued when an on-screen shutter begins moving.</summary>
     internal static readonly SoundEffectId ShutterActivationSound = EnemySound.SplashOut;
 
-    /// <summary>Enemy-library cue requested by the wall-jump opcode.</summary>
+    /// <summary>Enemy-library cue requested by the wall-jump program step.</summary>
     internal static readonly SoundEffectId WallPirateJumpSound = EnemySound.ShotSpacePirate;
 
     /// <summary>Enemy-library cue requested after a successful laser allocation.</summary>
     internal static readonly SoundEffectId WallPirateLaserSound = EnemySound.Laser;
 
-    /// <summary>Enemy-library cue requested by the footstep opcode.</summary>
+    /// <summary>Enemy-library cue requested by the footstep program step.</summary>
     internal static readonly SoundEffectId WorkRobotFootstepSound = EnemySound.WorkRobot;
 
     /// <summary>Enemy-library cue requested after a robot laser projectile is allocated.</summary>

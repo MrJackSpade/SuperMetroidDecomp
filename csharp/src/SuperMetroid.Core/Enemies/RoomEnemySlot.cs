@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// One of the room's enemy places and the enemy occupying it: its identity, where it is, how it collides, its health and
-/// timers, and the species state installed for it. A place is addressed by the slot object or its ordinal
+/// timers, and the species state installed for it. A place is found by the slot object or its ordinal
 /// (<see cref="SlotIndex"/>); <see cref="EnemySlotOrder"/> sets how places are allocated and processed.
 /// </summary>
 public sealed class RoomEnemySlot
@@ -56,9 +56,9 @@ public sealed class RoomEnemySlot
 
     /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
-    /// here, at the statement that changes the header pointer, because the game re-reads the header each dispatch.
+    /// here, at the statement that changes the definition, because the game re-reads the definition each dispatch.
     /// </summary>
-    /// <param name="definitionId">The occupant's header pointer.</param>
+    /// <param name="definitionId">The occupant's definition.</param>
     /// <param name="definition">The occupant's header.</param>
     internal void Bind(EnemyDefinitionId definitionId, RoomEnemyDefinition definition)
     {

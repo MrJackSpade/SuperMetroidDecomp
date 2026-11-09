@@ -63,7 +63,7 @@ internal sealed class EnemyCollision
     /// <param name="samus">Live player state receiving the touch reaction.</param>
     /// <param name="controllerInput">Current held input used by touch handlers.</param>
     /// <param name="level">Room terrain required by collision-aware touch handlers.</param>
-    /// <param name="onlyEnemy">The enemy EnemyMain is processing, or null for a standalone whole-list audit.</param>
+    /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-list audit.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
         ControllerButton controllerInput,
@@ -96,9 +96,9 @@ internal sealed class EnemyCollision
 
             // Touch collision does not interpret the invisible property as a collision flag;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
-            // slot remains invisible while its instruction stream moves a live hitbox.
+            // slot remains invisible while its program moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
-            // solved tail tip. EnemyMain dispatches its body at this same pre-AI seam;
+            // solved tail tip. The enemy pass dispatches its body at this same pre-AI seam;
             // tail processing checks the tip later. Do not flatten either to the header's
             // dummy 8x8 radius here. An actor with no translated touch reaction is skipped.
             if (slot.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
@@ -159,7 +159,7 @@ internal sealed class EnemyCollision
     /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions; may be null only for paths that do not require it, while player-dependent reactions such as Yard beam launch reject its absence.</param>
-    /// <param name="onlyEnemy">The enemy EnemyMain is processing, or null for a standalone whole-population audit.</param>
+    /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-population audit.</param>
     public int ResolveOrdinaryProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
@@ -310,8 +310,8 @@ internal sealed class EnemyCollision
                 if (reaction.AlwaysUsesCollisionPrelude || family is SamusProjectileFamily.Beam or
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
-                    // The collision walker marks the direction word, not a
-                    // terrain impact. Projectile pre-instructions consume that marker
+                    // The collision walker marks the projectile's direction, not a
+                    // terrain impact. Projectile frame behaviours consume that marker
                     // on the next alpha pass; normal shot AI owns its separate hit graphic.
                     // Super Missiles must retain their handler so it also clears their
                     // collision links. Terrain conversion strands a live link that can
@@ -412,12 +412,12 @@ internal sealed class EnemyCollision
         stage is not null && stage(in context);
 
     /// <summary>
-    /// Runs the ordinary-radius half of <c>EnemyBombCollHandler</c>.
+    /// Runs the ordinary-radius half of the enemies' bomb collision.
     /// </summary>
     /// <remarks>
     /// Normal bombs occupy physical projectile slots five through nine. They are not part
-    /// of the five-slot beam/missile walk above: the bomb pass waits for the shared bomb-variable
-    /// word to reach zero, marks the overlapping bomb with direction bit 0x10, and dispatches
+    /// of the five-slot beam/missile walk above: the bomb pass waits for the shared bomb
+    /// countdown to reach zero, marks the overlapping bomb as having hit, and dispatches
     /// the enemy's shot reaction with that physical slot selected. The original translation
     /// implemented only Metroid's private detach/recoil reaction, which meant ordinary bombs
     /// could never damage the many enemies that install common shot AI.
@@ -507,7 +507,7 @@ internal sealed class EnemyCollision
                     !selectedTranslatedPrivate)
                     continue;
 
-                // EnemyBombCollHandler marks the physical bomb before dispatch. Unlike an
+                // The bomb collision marks the physical bomb before dispatch. Unlike an
                 // ordinary beam impact, the bomb is already running its explosion program;
                 // common shot AI must not replace it with an impact animation.
                 bomb.IsSpent = true;
@@ -566,7 +566,7 @@ internal sealed class EnemyCollision
         owner.OwnsPrivateShotReaction(reaction);
 
     /// <summary>
-    /// Executes the family-0x0500 branch of the shot AI that skips the death animation,
+    /// Executes the branch of the shot AI that skips the death animation,
     /// followed by the ordinary shot AI's death tail.
     /// </summary>
     internal void ApplyCommonNormalBombDamage(
@@ -849,7 +849,7 @@ internal sealed class EnemyCollision
     /// rendering while their shot paths use a header radius or encounter-specific geometry.
     /// Keeping this predicate beside the dispatcher gives data-backed probes the same boundary
     /// as gameplay and prevents them from interpreting unrelated component metadata as a
-    /// hitbox pointer.
+    /// hitbox.
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
         enemy.DrawsExtendedFrames &&
@@ -961,7 +961,7 @@ internal sealed class EnemyCollision
         // expires even if the old movement handler remains active (e.g. a boss grab).
         samus.KnockbackTimer = 5;
         samus.KnockbackXDirection = direction;
-        // EnemyMain only publishes the request. The common post-animation
+        // The enemy pass only publishes the request. The common post-animation
         // interruption owns pose/handler initialization later in this frame.
     }
 

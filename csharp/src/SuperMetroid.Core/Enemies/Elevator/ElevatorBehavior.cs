@@ -87,14 +87,14 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>
-    /// Publishes type-$9 pseudo-door collision before the next EnemyMain pass.
-    /// Repeated collision scans may set the same word again; the waiting AI clears it when
+    /// Publishes the elevator's pseudo-door collision before the next enemy pass.
+    /// Repeated collision scans may set the same status again; the waiting AI clears it when
     /// the direction button is not newly pressed, exactly like the elevator's waiting step.
     /// </summary>
     public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
 
     /// <summary>
-    /// <c>ResumeGameplay</c> reloads the tiles through the elevator's tile reload, whose first
+    /// Resuming gameplay reloads the tiles through the elevator's tile reload, whose first
     /// write clears the elevator's journey status. Unpausing mid-ride therefore leaves the elevator's pseudo-door
     /// unarmed: reaching it starts the door at once, without the 48-frame down-elevator wait.
     /// </summary>
@@ -274,7 +274,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;
     }
 
-    /// <summary>Ports the direct 16.16 <c>AddToHiLo</c> used by both travel directions.</summary>
+    /// <summary>The direct 16.16 addition used by both travel directions.</summary>
     private static void AddElevatorYVelocity(RoomEnemySlot slot, SignedSixteenSixteen velocity)
     {
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(velocity));

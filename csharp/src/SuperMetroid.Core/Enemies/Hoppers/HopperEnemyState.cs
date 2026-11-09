@@ -2,13 +2,13 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
-/// The state of a hopper, with the seven parallel extension words. These names intentionally retain “speed table index”
+/// The state of a hopper, with its seven extra values. These names intentionally retain “speed table index”
 /// where the game does: replacing them with host gravity fields would hide the buggy quadratic table that defines the
 /// retail jump arc.
 /// </summary>
 public sealed class HopperEnemyState
 {
-    /// <summary>The current hopper dispatcher pointer, advanced one setup stage per AI call.</summary>
+    /// <summary>The current hopper AI step, advanced one setup stage per AI call.</summary>
     public HopperEnemyFunction? Function { get; internal set; }
 
     /// <summary>

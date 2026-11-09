@@ -11,7 +11,7 @@ public sealed class MorphBallEyeEnemyState
     internal AnimationProgramCursor<MorphBallEyeProgram> Program { get; set; }
 
     /// <summary>
-    /// Whether the eye is activated (<c>Eye.activatedFlag</c>): set once the beam object has initialized, cleared once
+    /// Whether the eye is activated: set once the beam object has initialized, cleared once
     /// the body starts closing. The beam keeps cycling its colours only while it is set.
     /// </summary>
     public bool IsActivated { get; internal set; }

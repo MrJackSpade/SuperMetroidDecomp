@@ -28,7 +28,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Spawns paired landing dust sprites.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
-    /// <summary>Receives sound requests from shared Space Pirate instruction opcodes.</summary>
+    /// <summary>Receives sound requests from shared Space Pirate program steps.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
     /// <summary>Captures the room, collision, projectile, sprite, and sound owners for ninja AI.</summary>
@@ -242,7 +242,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         for (int index = Math.Min(4, samusProjectiles.Slots.Count - 1); index >= 0; index--)
         {
             // The check selects by nonzero projectile type, not by the projectile's
-            // animation-list pointer. This includes the invisible zero-list Murder Beam.
+            // animation. This includes the invisible zero-animation Murder Beam.
             if (samusProjectiles.Slots[index].HasEnemyCollisionPayload)
             {
                 projectile = samusProjectiles.Slots[index];
@@ -487,7 +487,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
-    /// <summary>Walks back to the selected post and restores its landing instruction list.</summary>
+    /// <summary>Walks back to the selected post and restores its landing program.</summary>
     private static void StepNinjaPirateWalkToPost(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -598,7 +598,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
-    /// Samus, as the opcode returns that list; every other cue runs on.
+    /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private NinjaSpacePirateProgram? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState? samus)
     {
@@ -667,7 +667,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             EnemyProjectileFrameBehavior.PirateClawThrownRight);
     }
 
-    /// <summary>Ports NinjaSpacePirate's main AI.</summary>
+    /// <summary>Runs the ninja Space Pirate's main AI.</summary>
     internal void RunNinjaSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunNinjaSpacePirateMain(
@@ -678,7 +678,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             frame.SamusProjectiles);
     }
 
-    /// <summary>Advances NinjaSpacePirate's typed animation.</summary>
+    /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
     internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
         EnemyProgramAnimation.Advance(slot, NinjaSpacePirateAnimations.Programs, NinjaSpacePirateFrameDefinitions.ShownFrames.Of,
             static (NinjaSpacePirateEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,

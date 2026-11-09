@@ -489,7 +489,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity.Y + SignedSixteenSixteen.FromParts(0, 8192));
         }
 
-        // Only the whole word is passed to MoveEnemyDown; the fraction influences later
+        // Only the whole part is passed to the downward move; the fraction influences later
         // whole-speed carries but is not itself part of this frame's displacement.
         if (!_terrain.MoveEnemyVertically(level, mama, state.Velocity.Y.WithoutFraction()))
             return;
@@ -587,7 +587,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle main-AI pointer {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Baby Turtle main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

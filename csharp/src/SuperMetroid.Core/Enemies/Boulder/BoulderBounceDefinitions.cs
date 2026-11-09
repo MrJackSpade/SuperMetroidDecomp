@@ -8,11 +8,11 @@ public static class BoulderBounceDefinitions
     /// installs the leading zero before the counter passes below zero into rolling.
     /// </summary>
     /// <remarks>
-    /// #625 / #647 retained table: all three words are
+    /// #625 / #647 retained table: all three speeds are
     /// authored values. A formula for counters
     /// 1 and 2 needs a separate exception for counter 0, the last impact before rolling, so
     /// the three explicit choices state the collision sequence more clearly.
-    /// VerifyCompiledBoulderBounces exercises each real floor collision, the
+    /// The compiled boulder bounce check exercises each real floor collision, the
     /// zero-to-minus-one handoff, and both invalid counter boundaries.
     /// </remarks>
     internal static readonly int[] SpeedIndices = [0, 4096, 6144];

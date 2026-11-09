@@ -44,7 +44,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Wait before an offscreen Brinstar bug may emerge again.</summary>
     private const int BrinstarPipeBugRespawnFrames = 48;
 
-    /// <summary>Leader plus four consecutive followers addressed by Norfair's routine.</summary>
+    /// <summary>Leader plus four consecutive followers driven by Norfair's routine.</summary>
     private const int NorfairFormationSize = 5;
 
     /// <summary>Forward horizontal range that wakes a yellow pipe bug.</summary>
@@ -123,7 +123,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case PipeBugEnemyFunction.BrinstarWaitUntilOnScreen:
-                // The poorly named CheckIfEnemyIsOnScreen returns zero when the
+                // The game's on-screen check returns zero when the
                 // origin is visible. The wait branches on that zero result, so this initial
                 // state arms the proximity check on-screen, not after a despawn boundary.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
@@ -294,7 +294,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
-    /// <summary>Installs a strong or ordinary Brinstar instruction list only when the selected animation changes.</summary>
+    /// <summary>Installs a strong or ordinary Brinstar program only when the selected animation changes.</summary>
     internal static void SelectBrinstarPipeBugAnimation(
         RoomEnemySlot slot,
         PipeBugEnemyState state)
@@ -394,7 +394,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.CountFormationTick();
         // Negative offsets move upward and positive offsets downward, one pixel per frame. The
-        // game clamps exactly at emergenceY +/- 16/32.
+        // game clamps exactly at the emergence Y +/- 16/32.
         AddPipeBugLinearVelocity(
             slot,
             axis: Axis.Vertical,
@@ -436,8 +436,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// <c>ResetEnemyIfOffScreen</c> tests the bare enemy center with
-    /// <c>CheckIfEnemyCenterIsOnScreen</c>, not the sprite-padded visibility check.
+    /// The off-screen reset tests the bare enemy center against the screen, not the sprite-padded visibility check.
     /// </summary>
     private static void ResetNorfairPipeBugIfOffScreen(
         RoomEnemySlot slot,
@@ -598,7 +597,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         Position16<RoomPixels> camera)
     {
-        // Every Geega flight function resets through CheckIfEnemyCenterIsOnScreen.
+        // Every Geega flight function resets through the bare center's on-screen test.
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
             return false;
         slot.Position = FixedPosition<RoomPixels>.FromWhole(state.SpawnPosition);

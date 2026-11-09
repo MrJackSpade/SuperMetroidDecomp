@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
 /// Dispatch-table indexes stored in ordinary Metroid variable F. These are indexes,
-/// not function addresses: main AI uses the word directly to select one of four
+/// not functions: main AI uses the value directly to select one of four
 /// movement routines.
 /// </summary>
 public enum MetroidAiFunction

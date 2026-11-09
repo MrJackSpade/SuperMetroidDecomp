@@ -14,7 +14,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public int RequestedAnimationScriptIndex { get; internal set; }
 
-    /// <summary>The last requested animation <c>SetOumInstList</c> installed, 0 through 7.</summary>
+    /// <summary>The last requested animation the snail installed, 0 through 7.</summary>
     public int InstalledAnimationScriptIndex { get; internal set; }
 
     /// <summary>Extra word two: set by the attack animation's cue when it ends.</summary>

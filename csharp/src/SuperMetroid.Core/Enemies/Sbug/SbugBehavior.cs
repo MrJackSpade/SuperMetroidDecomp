@@ -32,7 +32,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int SbugRandomSeed = 11;
     /// <summary>Random and forward-then-wait legs last 32 enemy frames before selection changes.</summary>
     private const int SbugMovementSegmentFrames = 32;
-    /// <summary>Long wandering mode tracks $200 frames before dropping its distance-based reversal gate.</summary>
+    /// <summary>Long wandering mode tracks 512 frames before dropping its distance-based reversal gate.</summary>
     private const int SbugLongRandomLifetime = 512;
     /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
     private const int SbugReverseDistance = 96;
@@ -52,7 +52,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The forward velocity uses the game-derived unsigned quarter-circle magnitudes and lets
         // the shared helper apply signs later from the original angle. The side velocities instead use the signed,
-        // intentionally imperfect eight-bit multiply routine.
+        // intentionally imperfect short multiply routine.
         int speed = state.Speed;
         RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.EighthTurn);
         RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn);
@@ -99,7 +99,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             // Activation functions deliberately consume a frame merely replacing
-            // their own pointer. Movement begins on the following enemy-main invocation.
+            // their own AI function. Movement begins on the following main AI call.
             case SbugEnemyFunction.ActivateMoveForward:
                 state.Function = SbugEnemyFunction.MoveForward;
                 return;
@@ -176,7 +176,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SbugHeading relativeHeading)
     {
-        // CalculateAngleOfSamusFromEnemy uses zero-up/clockwise units. Subtracting it from
+        // The angle of Samus from the enemy uses zero-up/clockwise units. Subtracting it from
         // 64 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding 128 selects the exact opposite direction for behavior six.
         TrigonometryAngle heading = EnemyMath.CalculateBearing(
@@ -324,7 +324,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies unsigned quarter-wave magnitudes with signs from the original angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
     {
-        // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
+        // Moving the enemy by its angle and speeds applies signs to the unsigned magnitudes by
         // testing the original mathematical angle independently for X and Y.
         TrigonometryAngle initialAngle = state.InitialAngle.ToTrigonometryAngle();
         bool subtractX = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn).IsInSecondHalf;
@@ -359,15 +359,15 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         int speed,
         int phase)
     {
-        // ConvertAngleToXy indexes a 128-word unsigned quarter-circle table,
-        // then performs a complete 16x16->32 multiplication. Population speed is a byte,
-        // but retaining uint arithmetic documents the actual width of the result.
+        // Converting the angle to X and Y reads a 128-entry unsigned quarter-circle table,
+        // then performs a complete multiplication into a 16.16 result. Population speed is at most 255,
+        // but retaining uint arithmetic documents the actual range of the result.
         int tableIndex = angle.TurnedBySteps(phase).HalfWaveIndex;
         uint product = (uint)Trigonometry.UnsignedHalfWave(tableIndex) * (uint)speed;
         return UnsignedSixteenSixteen.FromRaw(product);
     }
 
-    /// <summary>Samples the signed eight-bit multiply path for X and Y phase offsets.</summary>
+    /// <summary>Samples the signed short multiply path for X and Y phase offsets.</summary>
     private static void CalculateSignedSbugVelocities(
         TrigonometryAngle angle,
         int speed,
@@ -378,11 +378,11 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         yVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyTrigonometryAngleDefinitions.HalfTurn);
     }
 
-    /// <summary>Reproduces the eight-bit sine multiply and independent negative-word conversion.</summary>
+    /// <summary>Reproduces the short sine multiply and independent negation of each part.</summary>
     internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase)
     {
-        // The eight-bit sine multiplication multiplies two bytes, swaps the product's bytes into 16.16 words, then
-        // (when negative) negates those words independently. Recreate the operations rather
+        // The short sine multiplication multiplies two values of 0 through 255, takes the product as a 16.16
+        // displacement in 256ths, then (when negative) negates its whole and fraction parts independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         TrigonometryAngle tableAngle = angle.TurnedBySteps(phase);
         int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);

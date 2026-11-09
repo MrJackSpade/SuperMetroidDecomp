@@ -19,8 +19,8 @@ public sealed class FirefleaEnemyState
     internal AnimationProgramCursor<FirefleaProgram> Program { get; set; }
 
     /// <summary>
-    /// The signed angular speed, its spawn speed toward its spawn sign, in 256ths of a turn per update with a 16-bit
-    /// fraction.  The circle advances by its middle sixteen bits, an 8.8 turn delta.
+    /// The signed angular speed, its spawn speed toward its spawn sign, in 256ths of a turn per update with a fraction
+    /// in 65536ths. The circle advances by an 8.8 turn delta: its whole 256ths and the fraction's top 256ths.
     /// </summary>
     public SignedSixteenSixteen AngularSpeed { get; internal set; }
 
@@ -28,7 +28,7 @@ public sealed class FirefleaEnemyState
     public int Radius { get; internal set; }
 
     /// <summary>
-    /// The circle angle, wrapping around the turn. Main AI uses its table index as the eight-bit circle angle.
+    /// The circle angle, wrapping around the turn. Main AI uses its table index as the circle's trigonometry angle.
     /// </summary>
     public RotationAngle Angle { get; internal set; }
 

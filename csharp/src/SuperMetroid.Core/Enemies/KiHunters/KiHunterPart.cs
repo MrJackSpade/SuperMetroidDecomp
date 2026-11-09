@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>Which KiHunter occupant a slot holds, one per definition the species installs.</summary>
+/// <summary>Which Ki-Hunter occupant a slot holds, one per definition the species installs.</summary>
 internal enum KiHunterPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.KihunterGreen"/> occupant.</summary>

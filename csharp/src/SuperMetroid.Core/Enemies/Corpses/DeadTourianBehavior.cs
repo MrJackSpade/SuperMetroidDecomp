@@ -199,7 +199,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             c => TriggerDeadTourianCorpseRotting(c.Enemy));
     }
 
-    /// <summary>Advances DeadTourian's typed animation.</summary>
+    /// <summary>Advances the Tourian corpses' typed animation.</summary>
     internal static void AdvanceDeadTourianTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -211,7 +211,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = cursor;
     }
 
-    /// <summary>Ports DeadTourian's main AI.</summary>
+    /// <summary>Runs the Tourian corpses' main AI.</summary>
     internal void RunDeadTourianMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDeadTourianCorpseMain(slot, frame.Samus);

@@ -126,7 +126,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shaktool pre-instruction {state.FrameBehavior?.ToString() ?? "none"} " +
+                    $"Shaktool frame behaviour {state.FrameBehavior?.ToString() ?? "none"} " +
                     "is not translated.");
         }
     }
@@ -201,8 +201,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> candidate = slot.Position.Whole;
         Offset16<RoomPixels> step = candidate - previous;
 
-        // The helper restores only whole-pixel words before collision. Subpositions
-        // remain those produced by DC2A, a subtle asymmetry that affects wall alignment.
+        // The helper restores only whole pixels before collision. Subpositions
+        // remain those the orbit step produced, a subtle asymmetry that affects wall alignment.
         slot.Position = slot.Position.WithWhole(previous);
         SignedSixteenSixteen xDisplacement = SignedSixteenSixteen.FromWholePixels(step.X);
         bool collided = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -270,7 +270,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Position = slot.Position.WithWhole(previous);
             ReverseShaktoolChainEndpoints(slot);
 
-            // DB0E is called twice. The second call reads the parameter word just written
+            // The group's motion flags are set twice. The second call reads the parameter just written
             // by the first, leaving the reversed-once bit set while clearing the straightening bit.
             SetShaktoolGroupMotionFlags(slot, flags | ShaktoolMotionFlags.ReversedOnce);
             SetShaktoolGroupMotionFlags(

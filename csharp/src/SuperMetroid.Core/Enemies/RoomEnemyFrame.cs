@@ -51,7 +51,7 @@ public sealed record RoomEnemyFrame
     /// <summary>Whether to perform the configured projectile, bomb, and player-contact pass against each actor's pre-AI state.</summary>
     public bool ResolveSamusContactBeforeAi { get; init; } = false;
 
-    /// <summary>Optional room PLMs participating in the scoped enemy terrain-collision probes.</summary>
+    /// <summary>Optional room objects participating in the scoped enemy terrain-collision probes.</summary>
     internal EnemyBreakableTerrainObjects? CollisionObjects { get; init; } = null;
 
     /// <summary>The game's frame counter.</summary>

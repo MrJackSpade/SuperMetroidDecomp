@@ -126,8 +126,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MoveStokeAndTurnAtTerrain(slot, state, level, horizontalDisplacement);
 
-        // GenerateRandomNumber advances the global seed before the comparison. Only low
-        // byte sums zero and one attack; byte wrapping is intentional and observable.
+        // The shared random sequence advances before the comparison. Only sums of zero and one, within 256,
+        // attack; the wrap past 255 is intentional and observable.
         int random = _room.Random.Generate();
         int attackRoll = (StokeAttackDefinitions.AttackRoll.Of(random) + slot.FrameCounter) % StokeAttackDefinitions.AttackRoll.Outcomes;
         if (attackRoll >= 2)
@@ -152,8 +152,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The attachment probe is not MoveEnemyDown: it computes a candidate Y coordinate and
-        // scans for any level word with bit 15 set without changing Stoke's Y/subposition.
+        // The attachment probe is not the downward move: it computes a candidate Y coordinate and
+        // scans for any solid level block without changing Stoke's Y/subposition.
         // Conflating it with vertical movement makes the actor sink two pixels every frame.
         if (!StokeHasSolidFloorTwoPixelsBelow(level, slot))
             TurnStokeAround(slot, state);
@@ -189,7 +189,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Direction = direction;
     }
 
-    /// <summary>Connects the fireball's horizontal motion and viewport cull pre-instruction.</summary>
+    /// <summary>Connects the fireball's horizontal motion and viewport cull frame behaviour.</summary>
     internal static void AddStokeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

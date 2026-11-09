@@ -115,9 +115,9 @@ public sealed class KiHunterEnemyState
     public Extent16<RoomPixels> SwoopRadius { get; internal set; }
     /// <summary>The body's signed 16.16 velocity in pixels per gameplay frame; positive Y is downward and gravity accumulates through the Y fraction.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>The wings' signed pixel correction for the non-colliding arc, calculated at angle 0xE0 and radius 48.</summary>
+    /// <summary>The wings' signed pixel correction for the non-colliding arc, calculated seven eighths of a turn round and at radius 48.</summary>
     public Offset16<RoomPixels> OrbitOffset { get; internal set; }
-    /// <summary>The wings' signed pixel correction for the collision-bearing arc, calculated at angle 0xA0 and radius 48.</summary>
+    /// <summary>The wings' signed pixel correction for the collision-bearing arc, calculated five eighths of a turn round and at radius 48.</summary>
     public Offset16<RoomPixels> FallingArcOffset { get; internal set; }
     /// <summary>The wings' room-pixel anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
     public Position16<RoomPixels> OrbitCenter { get; internal set; }

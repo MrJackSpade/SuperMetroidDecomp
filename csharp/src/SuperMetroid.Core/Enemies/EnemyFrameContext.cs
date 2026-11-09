@@ -30,12 +30,12 @@ internal sealed class EnemyFrameContext
     }
 
     /// <summary>
-    /// The sixteen-bit frame counter for the current enemy pass, 0 through 65535, copied from the frame clock (or the
-    /// random counter when the pass has none). It is independent of the eight-bit counter; standalone audits seed both
+    /// The frame counter for the current enemy pass, 0 through 65535, copied from the frame clock (or the
+    /// random counter when the pass has none). It is independent of the counter of 0 through 255; standalone audits seed both
     /// from the same enemy clock. Readers take its low bits.
     /// </summary>
     internal int FrameCounter { get; private set; }
-    /// <summary>Live projectile system supplied by EnemyMain to both ordinary and custom enemy-touch callbacks.</summary>
+    /// <summary>Live projectile system supplied by the enemy pass to both ordinary and custom enemy-touch callbacks.</summary>
     internal SamusProjectileSystem? SamusProjectiles { get; private set; }
     /// <summary>Samus's colours for the pass, which Pseudo Screw's enemy contact changes (#1405).</summary>
     internal SamusColours? SamusColours { get; private set; }
@@ -61,7 +61,7 @@ internal sealed class EnemyFrameContext
     internal void RequestFullSweep() => ProcessAllEnemies = true;
 
     /// <summary>
-    /// Enemy frame start: the freeze flag, the live projectiles, and the sixteen-bit frame counter.
+    /// Enemy frame start: the freeze flag, the live projectiles, and the frame counter of 0 through 65535.
     /// </summary>
     internal void BeginFrame(bool timeIsFrozen, SamusProjectileSystem? samusProjectiles, SamusColours? samusColours, int frameCounter)
     {

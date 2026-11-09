@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>The state of the Wrecked Ship ghost, with its extension words.</summary>
+/// <summary>The state of the Wrecked Ship ghost, with its extra values.</summary>
 public sealed class WreckedShipGhostEnemyState
 {
     /// <summary>Where the animation resumes.</summary>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// Population parameter-one's low-byte domain. The idle animation treats either nonzero
-/// value as right, but the initializer's three-word pointer table distinguishes the shipped
+/// Population parameter one's direction, its lower half. The idle animation treats either nonzero
+/// value as right, but the initializer's three-entry table distinguishes the shipped
 /// value two as an initial stop.
 /// </summary>
 public enum CacatacDirection

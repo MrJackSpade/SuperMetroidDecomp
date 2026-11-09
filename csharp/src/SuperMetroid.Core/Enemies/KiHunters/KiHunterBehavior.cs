@@ -615,7 +615,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Walks the quadratic speed table until the detached wing's speed sum reaches its threshold. The reset cannot wrap:
-    /// the table read rejects an index past its last record long before the reset would leave its sixteen-bit range.
+    /// the table read rejects an index past its last record long before the reset would pass 65535.
     /// </summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
@@ -743,10 +743,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
-        // NormalEnemyShotAi clears the complete body record before returning to Ki-Hunter's
+        // The normal enemy shot AI clears the complete body record before returning to Ki-Hunter's
         // private shot tail on a fatal hit. The game nevertheless keeps the
         // dead body's physical slot and accesses the next slot to delete its wings. Once the
-        // typed state has established this slot as a body, a cleared definition word is
+        // typed state has established this slot as a body, a cleared definition is
         // therefore valid until the callback finishes; revalidating only the mutable header
         // converts the ordinary fatal-shot path into a host exception. A place the room set up as a body stays one.
         bool initializedBody = _wingsOfBody.IsPlaced(body);
@@ -847,7 +847,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Connects acid spit startup and gravity movement to pre-instructions.</summary>
+    /// <summary>Connects acid spit startup and gravity movement to frame behaviours.</summary>
     internal static void AddKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -866,13 +866,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight);
     }
 
-    /// <summary>Ports KiHunter's main AI.</summary>
+    /// <summary>Runs the Ki-Hunter's main AI.</summary>
     internal void RunKiHunterMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKiHunterMain(slot, slot.RequireSpeciesState<KiHunterEnemyState>(), frame.Samus, frame.Level);
     }
 
-    /// <summary>Advances KiHunter's typed animation.</summary>
+    /// <summary>Advances the Ki-Hunter's typed animation.</summary>
     internal void AdvanceKiHunterTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, KiHunterAnimations.Programs, KiHunterFrameDefinitions.ShownFrames.Of,
             static (KiHunterEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,

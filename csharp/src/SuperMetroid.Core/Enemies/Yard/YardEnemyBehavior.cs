@@ -47,7 +47,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Yard's animations. Repeating the previous pose resumes at the pose shown just before the
-    /// cue, as the instruction steps its pointer back four bytes; every other cue runs on.
+    /// cue, as the cue steps the program back one pose; every other cue runs on.
     /// </summary>
     private AnimationProgramCursor<YardProgram>? ApplyYardCue(
         RoomEnemySlot slot, YardEnemyState state, YardCue cue, AnimationProgramCursor<YardProgram> continuation)
@@ -112,7 +112,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the sign-pair arithmetic: each axis takes the live crawl speed or its sixteen-bit negation, rather
+    /// Reproduces the sign-pair arithmetic: each axis takes the live crawl speed or its negation wrapped past 65535, rather
     /// than a host signed table.
     /// </summary>
     internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
@@ -397,8 +397,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             else
             {
-                // Horizontal velocity decays by 0.1000 toward zero. Stores the low
-                // word unconditionally but declines to replace the high word when ADC makes
+                // Horizontal velocity decays by a sixteenth of a pixel toward zero. Stores the fraction
+                // unconditionally but declines to replace the whole part when the addition makes
                 // it exactly zero; preserve that observable arithmetic quirk.
                 SignedSixteenSixteen velocity = state.AirborneVelocity.X;
                 SignedSixteenSixteen decelerated = velocity + SignedSixteenSixteen.FromSixteenthsOfPixel(
@@ -457,7 +457,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BlockSide = state.AirborneFacingDirection == YardAirborneFacing.Right
             ? CrawlerSurfaceOrientation.UpsideLeft
             : CrawlerSurfaceOrientation.UpsideRight;
-        // Surface direction can still describe a wall or ceiling. E67A instead uses
+        // Surface direction can still describe a wall or ceiling. The landing instead uses
         // the new floor-facing block side for its downward probe and horizontal sign.
         var landing = new EightEightVector<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.UpsideRight ? landing.ReversedX() : landing;
@@ -469,7 +469,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Selects visible and hiding instruction lists from Yard's airborne facing direction.</summary>
+    /// <summary>Selects visible and hiding programs from Yard's airborne facing direction.</summary>
     private static void SetYardAirborneLists(
         RoomEnemySlot slot,
         YardEnemyState state)

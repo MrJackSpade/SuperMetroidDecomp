@@ -1,22 +1,22 @@
 ﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The projectile engine's dispatch table: each pre-instruction maps to exactly one handler.
+/// The projectile engine's dispatch table: each frame behaviour maps to exactly one handler.
 /// Registering an identity twice fails immediately with both registrations' identities.
 /// </summary>
 internal sealed class EnemyProjectileHandlerTable
 {
-    /// <summary>Each pre-instruction and its sole registered implementation.</summary>
+    /// <summary>Each frame behaviour and its sole registered implementation.</summary>
     private readonly Dictionary<EnemyProjectileFrameBehavior, EnemyProjectileFrameBehaviorHandler> _frameBehaviors = [];
 
-    /// <summary>Registers <paramref name="handler"/> for every listed pre-instruction.</summary>
+    /// <summary>Registers <paramref name="handler"/> for every listed frame behaviour.</summary>
     internal void AddFrameBehavior(EnemyProjectileFrameBehaviorHandler handler, params EnemyProjectileFrameBehavior[] ids)
     {
         Ensure.NotNull(handler);
         foreach (EnemyProjectileFrameBehavior id in ids)
         {
             if (!_frameBehaviors.TryAdd(id, handler))
-                throw new InvalidOperationException($"Enemy projectile pre-instruction {id} is registered twice.");
+                throw new InvalidOperationException($"Enemy projectile frame behaviour {id} is registered twice.");
         }
     }
 

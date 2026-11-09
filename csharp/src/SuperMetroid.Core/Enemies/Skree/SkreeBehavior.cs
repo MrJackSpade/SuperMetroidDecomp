@@ -35,7 +35,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Starts a Skree in its idle function and initial shared instruction list.</summary>
+    /// <summary>Starts a Skree in its idle function and initial shared program.</summary>
     internal static void InitializeSkree(RoomEnemySlot slot)
     {
         var state = new SkreeEnemyState
@@ -177,8 +177,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Handles lethal bombs with Skree's particle burst and death variant zero after the shared hit path.</summary>
-    /// <remarks>Skree's callback owns its four-piece burst and death animation because it called
-    /// `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).</remarks>
+    /// <remarks>Skree's callback owns its four-piece burst and death animation because it calls the normal enemy shot
+    /// AI that skips the death animation. A normal bomb selects death variant zero (only missiles select two).</remarks>
     internal void AddSkreeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Skree &&

@@ -218,7 +218,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 
-        // Kago samples the existing random word and never advances it. SpawnEprojInner has
+        // Kago samples the existing random value and never advances it. The projectile spawn has
         // already cleared subpositions, velocities, flags, and collision scratch for us.
         int initialIdleFrames = KagoDefinitions.FirstIdleFrames.Of(ReadKagoRandomNumber()) + 1;
         projectile.State = new KagoBugState(source)

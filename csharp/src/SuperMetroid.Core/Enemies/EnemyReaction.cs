@@ -172,7 +172,7 @@ public enum EnemyReaction
     BullShot,
     /// <summary>Kago shot reaction.</summary>
     KagoShot,
-    /// <summary>KiHunter shot reaction.</summary>
+    /// <summary>Ki-Hunter shot reaction.</summary>
     KiHunterShot,
     /// <summary>Spark shot reaction.</summary>
     SparkShot,

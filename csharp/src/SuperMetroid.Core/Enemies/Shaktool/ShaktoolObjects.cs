@@ -13,10 +13,10 @@ internal sealed class ShaktoolObjects
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
-    /// <summary>Physical PLM slots scanned from highest index for the hardcoded spawn.</summary>
+    /// <summary>Physical room-object slots scanned from highest index for the hardcoded spawn.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Connects Shaktool's room controller to the resident PLM slots and room owners.</summary>
+    /// <summary>Connects Shaktool's room controller to the resident room-object slots and room owners.</summary>
     internal ShaktoolObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomObjectSlotTable slotTable)
     {
         _samus = samus;

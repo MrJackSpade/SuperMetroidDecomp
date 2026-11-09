@@ -3,10 +3,10 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The persistent event bits, the Zebetite count and one area's boss bits, as a room's PLMs and enemies read and write them.
+/// The persistent event bits, the Zebetite count and one area's boss bits, as a room's room objects and enemies read and write them.
 /// </summary>
 /// <param name="system">The session's progression owner.</param>
-/// <param name="area">The room's area, whose boss bits these address.</param>
+/// <param name="area">The room's area, whose boss bits these are.</param>
 internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IGlobalEventFlags, IAreaBossFlags, IZebetiteProgress
 {
     /// <summary>The Zebetites destroyed, kept by the session's progress.</summary>

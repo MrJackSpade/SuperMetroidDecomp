@@ -27,9 +27,9 @@ internal sealed class EyeDoorBehavior
     private SharedGameState? _eyeDoorProjectileSystem;
 
     /// <summary>
-    /// Replays <c>SpawnEprojWithRoomGfx</c> and the definition-specific initializer selected
-    /// by the eye-door PLM instruction. The PLM block index and room argument are retained
-    /// because the game initializers read both directly from their spawning PLM slot.
+    /// Replays spawning a projectile with room graphics and the definition-specific initializer selected
+    /// by the eye-door room object's program. The room object's block index and room argument are retained
+    /// because the game initializers read both directly from their spawning room object.
     /// </summary>
     public void SpawnEyeDoorProjectile(
         EyeDoorProjectileRequest request,
@@ -254,7 +254,7 @@ internal sealed class EyeDoorBehavior
         MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
-        // Stores only the list pointer, keeping the definition's one-update timer.
+        // Stores only the program, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
@@ -431,7 +431,8 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Scans every touched room block along one projectile collision edge.</summary>
     /// <remarks>
-    /// The block scans count the blocks to test as ((end) - (start &amp; 0xFFF0)) &gt;&gt; 4 in 16 bits
+    /// The block scans count the blocks to test as the distance from the start's block edge to the end, over 16,
+    /// wrapping past 65535,
     /// and test one more than that, stepping the level index by a row (horizontal edge) or a
     /// block (vertical edge). A zero radius on a block boundary makes the count underflow to
     /// 4095, so the scan runs on through the room until it meets a solid block.

@@ -14,6 +14,6 @@ public sealed class EscapeEtecoonEnemyState
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; set; }
 
-    /// <summary>The installed pre-instruction.</summary>
+    /// <summary>The installed frame behaviour.</summary>
     public EscapeEtecoonFrameBehavior? FrameBehavior { get; set; }
 }

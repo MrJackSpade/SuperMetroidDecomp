@@ -12,7 +12,7 @@ internal sealed class EnemyFrameResultBuilder
     /// <summary>The elevator lifecycle event, if any.</summary>
     internal ElevatorFrameEvent Elevator { get; set; }
 
-    /// <summary>The elevator called <c>ResetProjectileData</c>.</summary>
+    /// <summary>The elevator reset every projectile.</summary>
     internal bool ElevatorClearedProjectileData { get; set; }
 
     /// <summary>The gunship lifecycle event, if any.</summary>

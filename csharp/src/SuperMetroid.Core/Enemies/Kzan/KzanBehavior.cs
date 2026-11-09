@@ -149,7 +149,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousPosition = slot.Position.Whole;
         slot.Position = slot.Position.AdvanceY(state.FallingSpeed);
 
-        // CMP/BMI tests only the sign of the wrapped subtraction, which the spatial difference
+        // The comparison tests only the sign of the wrapped difference, which the spatial difference
         // keeps: coordinates near the room's edge retain the same game behavior.
         if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
         {
@@ -182,8 +182,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousPosition = slot.Position.Whole;
 
-        // The NTSC build rises by exactly 0.8000h pixels per actor frame. Perform the same
-        // split SEC/SBC so a fractional borrow decrements the whole position word.
+        // The NTSC build rises by exactly half a pixel per actor frame. Subtract the fraction and the whole part
+        // separately, as the game does, so a fractional borrow decrements the whole position.
         SubtractKzanY(slot, wholeSpeed: 0, KzanNtscRisingSubspeed);
         if ((slot.Position.Whole - state.RisingTarget).Y < 0)
         {
@@ -207,7 +207,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports Kzan's private copy of <c>CheckIfEnemyIsTouchingSamusFromBelow</c>. Its only
+    /// Kzan's private copy of the check whether an enemy touches Samus from below. Its only
     /// difference from the common helper is the five-pixel shifted Y sample. Horizontal
     /// overlap is strict; vertical tangency is accepted after the shifted center test.
     /// </summary>

@@ -327,7 +327,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two angle
+        // The angle of Samus from the enemy is zero up and runs clockwise. The two angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
         TrigonometryAngle transformedAngle = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(activeSamus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(activeSamus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTableAngle();

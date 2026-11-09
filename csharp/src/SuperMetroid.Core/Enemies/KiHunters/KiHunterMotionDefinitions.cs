@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>KiHunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
+/// <summary>Ki-Hunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
 public static class KiHunterMotionDefinitions
 {
     /// <summary>Tested with signed distance comparison.</summary>
@@ -33,10 +33,10 @@ public static class KiHunterMotionDefinitions
     /// <summary>The detached wing's falling-arc offset angle, five-eighths of a byte-angle turn.</summary>
     public static TrigonometryAngle FallingArcOffsetAngle { get; } = new(160);
 
-    /// <summary>The detached wing orbit's starting 16-bit angle, an eighth of a turn below zero.</summary>
+    /// <summary>The detached wing orbit's starting rotation angle, an eighth of a turn below zero.</summary>
     public static RotationAngle DetachedOrbitStartAngle { get; } = RotationAngle.NormalizeRaw(-8192);
 
-    /// <summary>The detached wing's falling-arc starting 16-bit angle, three eighths of a turn below zero.</summary>
+    /// <summary>The detached wing's falling-arc starting rotation angle, three eighths of a turn below zero.</summary>
     public static RotationAngle FallingArcStartAngle { get; } = RotationAngle.NormalizeRaw(-24576);
 
     /// <summary>The detached speed accumulator stops summing once it reaches this.</summary>

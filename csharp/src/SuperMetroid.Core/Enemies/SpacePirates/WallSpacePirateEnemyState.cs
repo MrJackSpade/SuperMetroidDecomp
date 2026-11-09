@@ -27,8 +27,8 @@ public sealed class WallSpacePirateEnemyState
     }
 
     /// <summary>
-    /// Binary direction; starts downward, reverses on a blocked vertical move, and is reselected from RNG bit zero by
-    /// the climb-list direction opcodes.
+    /// Binary direction; starts downward, reverses on a blocked vertical move, and is reselected from whether the
+    /// random sample is odd by the climb animation's direction cues.
     /// </summary>
     public WallSpacePirateClimbDirection ClimbDirection { get; internal set; }
 

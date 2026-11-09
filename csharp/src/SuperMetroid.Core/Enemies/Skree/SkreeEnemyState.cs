@@ -10,13 +10,13 @@ public sealed class SkreeEnemyState
     /// <summary>Reloaded to 21 while diving and counted down while burrowing.</summary>
     public int BurrowTimer { get; internal set; }
 
-    /// <summary>The literal phase-function pointer.</summary>
+    /// <summary>The current phase function.</summary>
     public SkreeEnemyFunction? Function { get; internal set; }
 
     /// <summary>The animation phase requested by the current AI transition.</summary>
     public SkreeMetareeAnimationPhase RequestedInstructionIndex { get; internal set; }
 
-    /// <summary>The animation phase whose instruction list is currently installed.</summary>
+    /// <summary>The animation phase whose program is currently installed.</summary>
     public SkreeMetareeAnimationPhase InstalledInstructionIndex { get; internal set; }
 
     /// <summary>The wind-up instruction's one-shot authorization to begin diving.</summary>

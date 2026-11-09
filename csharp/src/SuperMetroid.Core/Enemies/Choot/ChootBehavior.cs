@@ -85,7 +85,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
-    /// <summary>Decrements the delay word until it turns negative, then starts the jumping instruction list.</summary>
+    /// <summary>Decrements the delay until it turns negative, then starts the jumping program.</summary>
     internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         if (--state.JumpDelayTimer >= 0)

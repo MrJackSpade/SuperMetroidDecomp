@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The behaviours a projectile's instruction list switches on and off. The projectile interpreter tests each on its
-/// own, so they compose: a list's property OR sets every named behaviour, and its AND clears every behaviour its mask
-/// leaves out. Where each sits in the game's property word is the import's knowledge.
+/// The behaviours a projectile's program switches on and off. The projectile interpreter tests each on its
+/// own, so they compose: a program's property set turns on every named behaviour, and its property mask clears every
+/// behaviour the mask leaves out. How the game stores them is the import's knowledge.
 /// </summary>
 [Flags]
 internal enum EnemyProjectilePropertyFlags

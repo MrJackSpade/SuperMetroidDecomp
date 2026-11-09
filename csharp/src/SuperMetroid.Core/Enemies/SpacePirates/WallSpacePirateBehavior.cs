@@ -16,7 +16,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WallSpacePirateEntity(this, slot, common);
 
-    /// <summary>Advances the shared random source when a climbing opcode chooses a new direction.</summary>
+    /// <summary>Advances the shared random source when a climbing cue chooses a new direction.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Clamps vertical climbing to room blocks before a collision reverses direction.</summary>
     private readonly EnemyTerrain _terrain;
@@ -221,7 +221,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             return null;
 
         // A collision retains the collision helper's clamped position, flips only bit zero,
-        // and continues at a fresh climb. It does not resume after the opcode operand.
+        // and continues at a fresh climb. It does not resume after the cue.
         state.ClimbDirection = state.ClimbDirection == WallSpacePirateClimbDirection.Down
             ? WallSpacePirateClimbDirection.Up
             : WallSpacePirateClimbDirection.Down;
@@ -291,8 +291,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>
     /// Carries out one cue of the wall Space Pirates' animations. A climb continues at the opposite climb after terrain
-    /// contact and a random direction choice always continues at the chosen climb, as the opcodes return those
-    /// lists; every other cue runs on.
+    /// contact and a random direction choice always continues at the chosen climb, as the cues return those
+    /// animations; every other cue runs on.
     /// </summary>
     private WallSpacePirateProgram? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
     {
@@ -330,7 +330,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         }
     }
 
-    /// <summary>Ports WallSpacePirate's main AI.</summary>
+    /// <summary>Runs the wall Space Pirate's main AI.</summary>
     internal static void RunWallSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWallSpacePirateMain(
@@ -339,7 +339,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             frame.Samus);
     }
 
-    /// <summary>Advances WallSpacePirate's typed animation.</summary>
+    /// <summary>Advances the wall Space Pirate's typed animation.</summary>
     internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
         EnemyProgramAnimation.Advance(slot, WallSpacePirateAnimations.Programs, WallSpacePirateFrameDefinitions.ShownFrames.Of,
             static (WallSpacePirateEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
@@ -363,9 +363,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             {
                 if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)
                     return false;
-                // The Gold Ninja's death records its position as the drop origin before EnemyDeath clears the slot;
-                // it then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine
-                // spawns the drops.
+                // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
+                // slot; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
                 bool spawnsGoldNinjaDrops = c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja;
                 Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
                 _deathsAndDrops.StartGenericEnemyDeath(
@@ -386,7 +385,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             context =>
             {
                 // Space Pirate extended maps currently use the shared Pirate touch
-                // callback in every retail hitbox. Keep the pointer check explicit: silently
+                // callback in every retail hitbox. Keep the callback check explicit: silently
                 // treating a later family-specific attack box as ordinary body contact would
                 // recreate the exact radius-flattening bug this path is intended to remove.
                 if (context.UsesExtendedHitboxes && context.HitboxTouchAi != EnemyReaction.SpacePirateTouch)

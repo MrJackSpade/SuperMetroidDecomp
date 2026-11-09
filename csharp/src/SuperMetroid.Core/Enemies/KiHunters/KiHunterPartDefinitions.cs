@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
-/// <summary>The definitions the KiHunter species installs and the part each one is.</summary>
+/// <summary>The definitions the Ki-Hunter species installs and the part each one is.</summary>
 internal static class KiHunterPartDefinitions
 {
-    /// <summary>Each KiHunter definition and its part.</summary>
+    /// <summary>Each Ki-Hunter definition and its part.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, KiHunterPart> Parts { get; } = new Dictionary<EnemyDefinitionId, KiHunterPart>
     {
         [EnemyDefinitionId.KihunterGreen] = KiHunterPart.KihunterGreen,

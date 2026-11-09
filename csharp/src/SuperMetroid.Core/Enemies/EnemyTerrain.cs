@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Enemy movement against room terrain: horizontal and vertical steps with square and
-/// non-square slopes, solid-ahead probes, and the spike/enemy-breakable block reaction that spawns its PLM
-/// through the active room PLM owner supplied for each enemy frame.
+/// non-square slopes, solid-ahead probes, and the spike/enemy-breakable block reaction that spawns its room object
+/// through the active room-object owner supplied for each enemy frame.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyTerrain
@@ -60,7 +60,7 @@ internal sealed class EnemyTerrain
         int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
         int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int spanMinusOne = CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)) >> 4;
-        // The eight-bit multiplier forms the top row's place within 256 rows times the width, the target
+        // The short multiplier forms the top row's place within 256 rows times the width, the target
         // column is added unbounded, and each scanned row adds the width again.
         int firstIndex = MultiplierRow(topPixel >> 4) * level.Size.X + (targetEdge >> 4);
         bool collided = false;
@@ -247,7 +247,7 @@ internal sealed class EnemyTerrain
         return false;
     }
 
-    /// <summary>Classifies the next horizontal block, including square-slope quadrants and spike-block PLM reactions.</summary>
+    /// <summary>Classifies the next horizontal block, including square-slope quadrants and spike-block room-object reactions.</summary>
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -604,35 +604,35 @@ internal sealed class EnemyTerrain
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior behavior, int xWithinBlock) =>
         SlopeHeights.Read(behavior.Slope.Shape, xWithinBlock);
     /// <summary>
-    /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
+    /// The active frame's room-object owner for enemy-breakable blocks. This synchronous call
     /// context belongs to one frame; every enemy frame supplies it again, including after a saved game state is restored.
     /// </summary>
     private EnemyBreakableTerrainObjects? _collisionObjects;
 
-    /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
+    /// <summary>Spawns the breakable-block room object for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
-        var roomObjects = _collisionObjects ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
+        var roomObjects = _collisionObjects ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room-object owner.");
         roomObjects.TrySpawnEnemyBreakableBlock(level, blockIndex);
-        return false; // The block reaction reports no collision even if the PLM pool was full.
+        return false; // The block reaction reports no collision even if the room-object pool was full.
     }
 
-    /// <summary>Supplies the active room PLM owner to <see cref="EnemyTerrain"/> for one enemy frame.</summary>
+    /// <summary>Supplies the active room-object owner to <see cref="EnemyTerrain"/> for one enemy frame.</summary>
     internal readonly struct EnemyTerrainScope : IDisposable
     {
-        /// <summary>Terrain owner whose active PLM context is temporarily replaced.</summary>
+        /// <summary>Terrain owner whose active room-object context is temporarily replaced.</summary>
         private readonly EnemyTerrain owner;
-        /// <summary>PLM context restored when the enemy frame leaves this scope.</summary>
+        /// <summary>Room-object context restored when the enemy frame leaves this scope.</summary>
         private readonly EnemyBreakableTerrainObjects? previous;
-        /// <summary>Installs the frame's room PLM owner while retaining the previous context.</summary>
+        /// <summary>Installs the frame's room-object owner while retaining the previous context.</summary>
         public EnemyTerrainScope(EnemyTerrain owner, EnemyBreakableTerrainObjects? current)
         {
             this.owner = owner;
             previous = owner._collisionObjects;
             owner._collisionObjects = current;
         }
-        /// <summary>Restores the terrain owner's prior PLM context.</summary>
+        /// <summary>Restores the terrain owner's prior room-object context.</summary>
         public void Dispose() => owner._collisionObjects = previous;
     }
 }

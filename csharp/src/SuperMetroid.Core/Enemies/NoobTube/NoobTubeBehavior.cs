@@ -37,7 +37,7 @@ internal sealed class NoobTubeBehavior
 
     /// <summary>
     /// Executes the initializer selected by the tube-crack definitions. The request
-    /// retains the executing PLM block because the projectile spawn reads the global PLM index
+    /// retains the executing room object's block because the projectile spawn reads the current room object
     /// while constructing each actor.
     /// </summary>
     public void SpawnNoobTubeProjectile(

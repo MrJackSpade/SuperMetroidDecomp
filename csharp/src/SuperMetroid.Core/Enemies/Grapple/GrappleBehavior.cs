@@ -45,8 +45,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
             if (xDistance >= enemy.Radius.X + 8 || yDistance >= enemy.Radius.Y + 8)
                 continue;
 
-            // The collision routine stores exactly one, rather than ORing it into an old
-            // hurt/frozen handler. The next EnemyMain pass therefore dispatches grapple AI.
+            // The collision stores exactly one, rather than combining it with an old
+            // hurt/frozen handler. The next enemy pass therefore dispatches grapple AI.
             enemy.AiStates = EnemyAiStates.Grappled;
             GrappleEnemyReaction reaction = enemy.Definition.GrappleAi switch
             {

@@ -1,8 +1,8 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Stateless enemy arithmetic shared by the species routines: byte angles, eight-bit velocity
-/// steps and eight-bit sine/cosine products.
+/// Stateless enemy arithmetic shared by the species routines: trigonometry angles, whole-pixel velocity
+/// steps and sine/cosine products by radii of 0 through 255.
 /// </summary>
 internal static class EnemyMath
 {
@@ -74,7 +74,7 @@ internal static class EnemyMath
 
     /// <summary>
     /// Implements the shared proximity helpers' strict <c>magnitude &lt; limit</c>
-    /// test. Equality is outside, and subtraction happens in wrapped 16-bit world space.
+    /// test. Equality is outside, and subtraction wraps past 65535 in world space.
     /// </summary>
     internal static bool IsWithinStrictModularDistance(
         int firstCoordinate,
@@ -83,9 +83,9 @@ internal static class EnemyMath
         CoordinateAxis.Distance(firstCoordinate, secondCoordinate) < limit;
 
     /// <summary>
-    /// Computes the integer result of the eight-bit sine multiplication. The
-    /// routine multiplies an unsigned table byte by the low byte of radius, then negates the
-    /// integer and fractional words independently for angles with bit seven set. Returning
+    /// Computes the integer result of the short sine multiplication. The
+    /// game multiplies an unsigned table sample of 0 through 255 by the radius within 256, then negates the
+    /// integer and fractional parts independently for angles in the second half of the turn. Returning
     /// <c>-floor(product / 256)</c> therefore preserves its documented negative-fraction bug;
     /// <c>Math.Sin</c> or a normal fixed-point negation would disagree by one pixel.
     /// </summary>
@@ -96,26 +96,26 @@ internal static class EnemyMath
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>Computes the eight-bit cosine multiplication.</summary>
+    /// <summary>Computes the short cosine multiplication.</summary>
     internal static int ReadEightBitCosineProduct(TrigonometryAngle angle, int radius) =>
         ReadEightBitSineProduct(angle.TurnedBySteps(TrigonometryAngle.QuarterTurn.RawValue), radius);
 
-    /// <summary>Computes the eight-bit negative sine multiplication.</summary>
+    /// <summary>Computes the short negative sine multiplication.</summary>
     internal static int ReadEightBitNegativeSineProduct(TrigonometryAngle angle, int radius) =>
         ReadEightBitSineProduct(angle.TurnedBySteps(TrigonometryAngle.HalfTurn.RawValue), radius);
 
     /// <summary>
-    /// The point on a circle at an eight-bit angle: the cosine product as X and the negative-sine
-    /// product as Y, each truncated to its sixteen-bit word.
+    /// The point on a circle at a trigonometry angle: the cosine product as X and the negative-sine
+    /// product as Y, each wrapped to 0 through 65535.
     /// </summary>
     internal static Offset16<RoomPixels> CircleOffset(TrigonometryAngle angle, int radius) => Offset16<RoomPixels>.Wrapped(
         ReadEightBitCosineProduct(angle, radius),
         ReadEightBitNegativeSineProduct(angle, radius));
 
     /// <summary>
-    /// Returns the complete signed 16.16 result produced by the eight-bit sine
+    /// Returns the complete signed 16.16 result produced by the short sine
     /// multiplier, including its independent whole/fraction negation bug. Evir needs both
-    /// words for projectile motion; callers that only need pixels use the helpers above.
+    /// parts for projectile motion; callers that only need pixels use the helpers above.
     /// </summary>
     internal static SignedSixteenSixteen ReadEightBitSineFixedProduct(
         TrigonometryAngle angle,
@@ -144,11 +144,11 @@ internal static class EnemyMath
 
     /// <summary>
     /// Computes one half of the shared sine/cosine velocity product.
-    /// It reads a 16-bit unsigned quarter-circle sample, multiplies it
-    /// by an unsigned 16-bit magnitude, and returns the complete 16.16 product. Callers
-    /// supply either 0x40 (absolute cosine) or 0x80 (absolute sine) as the angle offset.
+    /// It reads an unsigned quarter-circle sample of 0 through 65535, multiplies it
+    /// by an unsigned magnitude of 0 through 65535, and returns the complete 16.16 product. Callers
+    /// supply either a quarter turn (absolute cosine) or a half turn (absolute sine) as the angle offset.
     /// Keeping sample generation deterministic avoids host floating-point rounding and makes the raw
-    /// velocity words directly comparable with the game's multiplication result.
+    /// velocities directly comparable with the game's multiplication result.
     /// </summary>
     internal static int ReadUnsignedSineMagnitudeProduct(
         TrigonometryAngle angle,
@@ -194,11 +194,11 @@ internal static class EnemyMath
     internal static SignedEightEight MultiplySineSample(int speed, TrigonometryAngle angle) =>
         Trigonometry.MultiplySignedSine(speed, angle);
 
-    /// <summary>The span of an eight-bit operand or result: values past it continue from zero.</summary>
+    /// <summary>The span of a short multiplication's operand or result: values past it continue from zero.</summary>
     private const int OperandSpan = 256;
 
     /// <summary>
-    /// The eight-bit multiplier operand a radius, zero or more, supplies: the eight-bit sine multiplication
+    /// The multiplier operand of 0 through 255 a radius, zero or more, supplies: the short sine multiplication
     /// takes only its place within 256, so a radius of 256 or more continues from zero.
     /// </summary>
     private static int RadiusMultiplierOperand(int radius) => Ensure.AtLeastZero(radius) % OperandSpan;

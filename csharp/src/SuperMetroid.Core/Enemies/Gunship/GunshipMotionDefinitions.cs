@@ -14,8 +14,8 @@ internal static class GunshipMotionDefinitions
 
     /// <summary>The idle bob's four phases: timer 16 and signed delta +1,-1,-1,+1.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against each of the two byte fields in
-    /// NTSC J/U v1.0 and pinned ProcessShipHover. Timer and delta have separate
+    /// Independently reviewed for #1165 against each of the two fields in
+    /// NTSC J/U v1.0 and the pinned ship hover. Timer and delta have separate
     /// original-data proofs. Endpoint phases move down, middle phases move up.
     /// The caller owns expiration and phase wrap.
     /// </remarks>

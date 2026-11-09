@@ -310,7 +310,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Connects Dragon fireballs to their per-frame gravity and camera-boundary pre-instruction.</summary>
+    /// <summary>Connects Dragon fireballs to their per-frame gravity and camera-boundary frame behaviour.</summary>
     internal static void AddDragonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

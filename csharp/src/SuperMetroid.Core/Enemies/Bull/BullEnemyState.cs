@@ -26,7 +26,7 @@ public sealed class BullEnemyState
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BullProgram> Program { get; set; }
 
-    /// <summary>The current delay, target, acceleration, or deceleration dispatcher pointer.</summary>
+    /// <summary>The current delay, target, acceleration, or deceleration step.</summary>
     public BullEnemyFunction? Function { get; internal set; }
 
     /// <summary>

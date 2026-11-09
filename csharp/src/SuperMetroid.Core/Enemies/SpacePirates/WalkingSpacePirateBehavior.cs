@@ -36,7 +36,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
-    /// animation it selects, as the opcode returns that list; every other cue runs on.
+    /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private WalkingSpacePirateProgram? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState? samus)
     {
@@ -113,8 +113,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : WalkingSpacePirateProgram.WalkingLeft);
         state.Function = WalkingSpacePirateFunction.NoOperation;
 
-        // The game's additions wrap at 16 bits. A modded patrol radius can therefore straddle the
-        // world-coordinate seam; keeping ushort arithmetic preserves its signed CMP behavior.
+        // The game's additions wrap past 65535. A modded patrol radius can therefore straddle the
+        // world-coordinate seam; keeping ushort arithmetic preserves its signed comparison.
         state.RightPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.PatrolReach), 0);
         state.LeftPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PatrolReach), 0);
     }
@@ -317,7 +317,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         CoordinateAxis.Distance(samus.Position.Y.Whole, slot.Position.Y.Whole) <
             WalkingPirateFiringBandPixels;
 
-    /// <summary>Chooses a left or right laser instruction list from Samus's current side.</summary>
+    /// <summary>Chooses a left or right laser program from Samus's current side.</summary>
     private static void InstallWalkingSpacePirateAttack(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -329,7 +329,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 ? WalkingSpacePirateProgram.FireLasersRight
                 : WalkingSpacePirateProgram.FireLasersLeft);
 
-    /// <summary>Arms a newly selected instruction list for processing on the next tick.</summary>
+    /// <summary>Arms a newly selected program for processing on the next tick.</summary>
     private static void InstallWalkingSpacePirateInstruction(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -354,7 +354,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>
     /// Runs the common laser initializer. Wall and walking Pirates
-    /// use different actor opcodes and muzzle offsets, but the allocated projectile is the
+    /// use different actor program steps and muzzle offsets, but the allocated projectile is the
     /// same retail definition and therefore belongs in one shared implementation.
     /// </summary>
     internal bool SpawnSpacePirateLaser(
@@ -398,7 +398,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>
     /// Runs the common laser initializer after the caller has chosen
     /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
-    /// different actor opcodes, but the game deliberately funnels all of them through
+    /// different actor program steps, but the game deliberately funnels all of them through
     /// this definition so animation, speed flags, collision damage, and disposal agree.
     /// </summary>
     /// <param name="source">The enemy firing the laser, whose damage the laser takes.</param>
@@ -430,8 +430,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
-        // The initializer replaces the projectile definition's property word with enemy damage OR
-        // 0x1000. The source palette and tiles are *not* copied: SpawnEprojWithRoomGfx passes a
+        // The initializer replaces the projectile definition's properties with the enemy's damage and the
+        // laser's own property. The source palette and tiles are *not* copied: spawning with room graphics passes a
         // graphics index of zero so the laser uses the room projectile tiles/palette.
         projectile.Damage = source.Definition.Damage;
         projectile.CanDamageSamus = true;
@@ -475,7 +475,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         slot.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
 
-    /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>
+    /// <summary>Registers laser movement and the cue that immediately runs its installed frame behaviour.</summary>
     internal static void AddWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(
@@ -488,14 +488,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         table.AddCue<SpacePirateProjectileCue>((context, cue) =>
         {
             context.Projectile.FrameBehavior = cue.Movement;
-            // A050 returns the argument cursor unchanged, so the common interpreter dispatches the installed
+            // The start-moving cue leaves the program where it was, so the common interpreter dispatches the installed
             // movement once at once: the laser moves on the update it starts and may leave the screen then.
             if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
                 FlyPirateLaser(context.Projectile, context.Camera, LaserFlightDirection(cue.Movement));
         });
     }
 
-    /// <summary>Ports WalkingSpacePirate's main AI.</summary>
+    /// <summary>Runs the walking Space Pirate's main AI.</summary>
     internal void RunWalkingSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWalkingSpacePirateMain(
@@ -506,7 +506,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             frame.SamusProjectiles);
     }
 
-    /// <summary>Advances WalkingSpacePirate's typed animation.</summary>
+    /// <summary>Advances the walking Space Pirate's typed animation.</summary>
     internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
         if (!EnemyProgramAnimation.Expire(slot))

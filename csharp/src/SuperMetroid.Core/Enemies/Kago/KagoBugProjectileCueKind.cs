@@ -11,6 +11,6 @@ internal enum KagoBugProjectileCueKind
     StartIdle,
     /// <summary>Launches the bug's jump.</summary>
     StartJump,
-    /// <summary>Draws the bug with palette zero.</summary>
+    /// <summary>Draws the bug in its first colours.</summary>
     UsePaletteZero,
 }

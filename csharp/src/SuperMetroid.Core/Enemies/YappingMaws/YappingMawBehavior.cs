@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 [RoomLifetime]
 internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The span of the lengths the eight-bit multiplier distinguishes: a longer length continues from zero.</summary>
+    /// <summary>The span of the lengths the short multiplier distinguishes: a longer length continues from zero.</summary>
     private const int LengthMultiplierSpan = 256;
 
     /// <inheritdoc/>
@@ -128,7 +128,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BodyProjectiles[parameter] = body;
         }
 
-        // CreateSpriteAtPos uses object number 56 for parameter zero and 57 otherwise. Its
+        // The sprite-object spawn uses object number 56 for parameter zero and 57 otherwise. Its
         // returned index is represented by the retained physical slot reference.
         state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
             new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
@@ -179,10 +179,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Yapping Maw function {state.Function} is not translated.");
         }
 
-        // The mouth actor owns the final point. The four eprojs own root, quarter, half,
-        // and three-quarter points in variables 40..43. Hardware writes coordinates even
+        // The mouth actor owns the final point. The four projectiles own root, quarter, half,
+        // and three-quarter points in variables 40..43. The game writes coordinates even
         // though their frame behaviours are empty; the projectile pass advances only their one-frame
-        // map selection and permanent sleep opcode.
+        // map selection and permanent sleep step.
         PositionYappingMawBodyProjectile(state, 0, state.Origin);
         PositionYappingMawBodyProjectile(state, 1, YappingMawLinkPosition(state, 0));
         PositionYappingMawBodyProjectile(state, 2, YappingMawLinkPosition(state, 1));
@@ -503,7 +503,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyShades.FrozenLook;
     }
 
-    /// <summary>Animation callback used by all six held-Samus offset opcodes.</summary>
+    /// <summary>Animation callback used by all six held-Samus offset cues.</summary>
     internal static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
         int directionIndex)
@@ -559,8 +559,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(absoluteY, 255) >= 0)
             return new YappingMawTarget(absoluteY, default);
 
-        // Both magnitudes are below 255 here, so each eight-bit product is below 255 pixels and their sum below 510:
-        // neither the products' magnitudes nor their sum reach the word's sign.
+        // Both magnitudes are below 255 here, so each short product is below 255 pixels and their sum below 510:
+        // neither the products' magnitudes nor their sum reach 32768, where the sum would read as negative.
         TrigonometryAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(new(absoluteX, absoluteY)).ToMirroredTableAngle();
         int distance =
             Math.Abs(EnemyMath.ReadEightBitNegativeSineProduct(positiveQuadrantAngle, absoluteX)) +
@@ -583,7 +583,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             TrigonometryAngle.Wrapped(-angle.RawValue));
         bool negative = signedSample < 0;
         int magnitude = negative ? -signedSample : signedSample;
-        // The eight-bit multiplier takes only the length's place within 256. A sample's whole part and that place are
+        // The short multiplier takes only the length's place within 256. A sample's whole part and that place are
         // each below 256, so the product stays below 65536.
         int product = UnsignedEightEight.Whole(magnitude) * (Ensure.AtLeastZero(length) % LengthMultiplierSpan);
         if (product == 0)

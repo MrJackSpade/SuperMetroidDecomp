@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// One of the eighteen fixed enemy-projectile slots.
-/// Positions retain separate 16-bit subpositions because a fireball's signed 8.8 velocity
-/// is added to the high byte of that fraction by the original movement helpers.
+/// Positions retain separate subpositions in 65536ths because a fireball's signed 8.8 velocity
+/// is added to that fraction's 256ths by the original movement helpers.
 /// </summary>
 public sealed class RoomEnemyProjectileSlot
 {
-    /// <summary>Assigns the fixed pool index used for projectile slot addressing.</summary>
+    /// <summary>Assigns the fixed pool index used to find the projectile slot.</summary>
     internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Gets the slot's position in the pool, zero through seventeen.</summary>
@@ -19,9 +19,9 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>Gets whether the slot has a nonzero definition identity and participates in projectile passes.</summary>
     public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>
-    /// Gets the 16.16 position: wrapped sixteen-bit whole words plus fractional words into
-    /// whose high byte signed 8.8 motion adds. Room pixels for every family except the few
-    /// pre-instructions that deliberately keep screen-relative words here.
+    /// Gets the 16.16 position: whole pixels wrapped to 0 through 65535 plus fractions in 65536ths, to
+    /// whose 256ths signed 8.8 motion adds. Room pixels for every family except the few
+    /// frame behaviours that deliberately keep screen-relative positions here.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Gets the signed 8.8 velocity the shared movement helpers and the families that move by it apply.</summary>

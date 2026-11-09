@@ -47,10 +47,15 @@ internal static class LookupDownwardGateSelectionVerification
                 AssertTrue(!began, $"Downward gate argument {raw} trigger opens nothing");
                 continue;
             }
-            // The cartridge stores zero for a side that receives no block.
-            RoomTerrainBlock? nativeBlock = native == 0 ? null : RoomLevelWordCodec.Decode(native);
-            AssertEqual(nativeBlock, field == 1 ? action.LeftBlock : action.RightBlock,
-                $"Downward gate original field {field}, argument {raw}");
+            // The cartridge stores zero for a side that is left alone. Its other words give the side's block a collision
+            // kind (the high nibble) and a behaviour (the low byte) and keep what the block shows (#1580).
+            RoomCollisionType? nativeCollision = native == 0 ? null : RoomLevelWordCodec.Decode(native).Collision;
+            AssertEqual(nativeCollision, field == 1 ? action.LeftCollision : action.RightCollision,
+                $"Downward gate original field {field}, argument {raw} collision");
+            if (native != 0)
+                AssertEqual(native & 0xff,
+                    RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(action.Trigger))),
+                    $"Downward gate original field {field}, argument {raw} behaviour");
         }
     }
 }

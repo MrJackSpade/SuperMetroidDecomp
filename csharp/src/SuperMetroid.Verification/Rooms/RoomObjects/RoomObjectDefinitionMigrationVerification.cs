@@ -48,7 +48,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
         AssertEqual(RoomBlockBehaviorCodec.Decode(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         AssertEqual(0x1000, DownwardGateDefinitions.OneBlockDistance, "gate projectile block distance");
-        AssertEqual(RoomTerrainBlock.Of(0x044, BlockMirroring.None, RoomCollisionType.SolidBlock), NoobTubeObjectDefinitions.SolidProjectileTrigger, "n00b tube origin block");
+        AssertEqual(RoomCollisionType.SolidBlock, NoobTubeObjectDefinitions.OriginCollision, "n00b tube origin collision");
         AssertEqual(0x000b, NoobTubeObjectDefinitions.EarthquakeType, "n00b tube earthquake type");
         AssertEqual(0x0040, NoobTubeObjectDefinitions.EarthquakeTimer, "n00b tube earthquake timer");
         AssertEqual(0xfb00, NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue, "bubble velocity");
@@ -71,8 +71,8 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(RoomBlockAppearance.Of(0x180), InstalledRoomObjectMaridiaElevatubeVisuals.Stock().Image(MaridiaElevatubeObjectDefinitions.BlockDraw).At(new(0, 0)),
             "elevatube block picture");
 
-        AssertEqual(RoomTerrainBlock.Of(0x046, BlockMirroring.None, RoomCollisionType.ShootableBlock), GateObjects.DownwardGateShotBlock(0).LeftBlock, "blue-left gate trigger block");
-        AssertEqual(RoomTerrainBlock.Of(0x04d, BlockMirroring.None, RoomCollisionType.ShootableBlock), GateObjects.DownwardGateShotBlock(7).RightBlock, "yellow-right gate trigger block");
+        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, GateObjects.DownwardGateShotBlock(0).LeftCollision, "blue-left gate trigger collision");
+        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, GateObjects.DownwardGateShotBlock(7).RightCollision, "yellow-right gate trigger collision");
         // A restoration's geometry holds its collision; what it shows is its installed picture (#1557).
         InstalledRoomObjectLinkedRestoreVisuals restorations = InstalledRoomObjectLinkedRestoreVisuals.Stock();
         var bombHorizontal = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Horizontal, LinkedRestoreObjectFamily.BombBlock);

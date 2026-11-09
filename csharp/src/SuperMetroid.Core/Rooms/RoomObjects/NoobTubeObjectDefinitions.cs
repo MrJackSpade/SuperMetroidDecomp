@@ -11,9 +11,8 @@ public static class NoobTubeObjectDefinitions
     public const ControllerButton AcceptedWakeInputMask =
         ControllerButton.B | ControllerButton.Y | ControllerButton.Left | ControllerButton.Right | ControllerButton.A | ControllerButton.X;
 
-    /// <summary>The tube's origin block: a solid block showing block 68.</summary>
-    public static RoomTerrainBlock SolidProjectileTrigger { get; } =
-        RoomTerrainBlock.Of(68, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    /// <summary>The collision kind the tube's setup gives its origin block, which keeps what it shows.</summary>
+    public const RoomCollisionType OriginCollision = RoomCollisionType.SolidBlock;
 
     /// <summary>The story event set after the tube has finished breaking.</summary>
     public const StoryEvent BrokenEvent = StoryEvent.MaridiaNoobTubeBroken;

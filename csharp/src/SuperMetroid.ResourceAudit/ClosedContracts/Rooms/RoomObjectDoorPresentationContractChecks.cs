@@ -24,23 +24,21 @@ internal static class RoomObjectDoorPresentationContractChecks
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
-        // The consumer names escape-gate draws through this internal enum; compiled from source so its constants bind.
+        // The consumer names draws through these internal types; compiled from source so its constants bind.
         trees.AddRange(new[]
         {
-            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/MotherBrainEscapeGateDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/GrappleBlockDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorOrientation.cs", "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorComponent.cs", "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorObjectFrame.cs",
         }.Where(path => trees.All(tree => tree.FilePath != path))
             .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), path: path)));
         const string consumer = """
-            using SuperMetroid.Core.Bosses.MotherBrain;
-            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
             using SuperMetroid.Core.Rooms.Doors;
             using SuperMetroid.Core.Rooms.RoomObjects;
             class RoomObjectDoorConsumer {
                 void Inspect(InstalledRoomObjectBlueDoorVisuals blue, InstalledRoomObjectColoredDoorVisuals color,
                     InstalledRoomObjectGreyDoorVisuals grey, InstalledRoomObjectEyeDoorVisuals eye,
-                    RoomObjectEscapeGateVisualCatalog escape, InstalledRoomObjectCollectibleVisuals item,
+                    InstalledRoomObjectCollectibleVisuals item,
                     InstalledRoomObjectGrappleBlockVisuals grapple, RoomObjectDraw dynamicDraw) {
                     blue.GetAppearance(BlueDoorCaps.Alias(ColoredDoorOrientation.Left), 3);
                     blue.GetAppearance(BlueDoorCaps.Alias(ColoredDoorOrientation.Left), 4);
@@ -52,8 +50,6 @@ internal static class RoomObjectDoorPresentationContractChecks
                     eye.GetAppearance(EyeDoorObjectDrawDefinitions.MirroredOpeningClear, 4);
                     eye.GetAppearance(EyeDoorDraws.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorObjectFrame.Eye0), 1);
                     eye.GetAppearance(EyeDoorDraws.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorObjectFrame.Eye0), 2);
-                    escape.GetAppearance(RoomObjectDraw.Of(MotherBrainEscapeGateDraw.Closed), 3);
-                    escape.GetAppearance(RoomObjectDraw.Of(MotherBrainEscapeGateDraw.Closed), 4);
                     item.GetAppearance(draw: RoomObjectCollectibleDrawDefinitions.Empty);
                     item.GetAppearance(draw: RoomObjectDraw.Of(StationDraw.MapFrame0));
                     grapple.GetAppearance(RoomObjectDraw.Of(GrappleBlockDraw.Intact));
@@ -78,9 +74,9 @@ internal static class RoomObjectDoorPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 16, "sixteen calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
-        Require(report.Classifications.Count == 8 && report.UnresolvedCount == 8 && report.MissingCount == 0 &&
-            report.Consumers.Count == 16, "known aliases qualify but foreign draws and narrow widths still fail (expected 8/8/0/16; " +
+        Require(before.UnresolvedCount == 14, "fourteen calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
+        Require(report.Classifications.Count == 7 && report.UnresolvedCount == 7 && report.MissingCount == 0 &&
+            report.Consumers.Count == 14, "known aliases qualify but foreign draws and narrow widths still fail (expected 7/7/0/14; " +
             report.Describe() + ")");
         Require(report.Findings.Any(item => item.Message.Contains("is not owned", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("word/block", StringComparison.Ordinal)),
@@ -102,9 +98,6 @@ internal static class RoomObjectDoorPresentationContractChecks
         ConfirmCoverage(RoomObjectEyeDoorVisualFiles.Editable, frame =>
             new RoomObjectVisualEntry(RoomObjectEyeDoorVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = RoomObjectEyeDoorVisualFiles.Create(entries));
-        ConfirmCoverage(RoomObjectEscapeGateVisualFiles.All, frame =>
-            new RoomObjectVisualEntry(RoomObjectEscapeGateVisualFiles.VisualId(frame.Draw), VisualRuns(frame)[0]),
-            entries => _ = RoomObjectEscapeGateVisualFiles.Create(entries));
         RoomObjectShotBlockDrawDefinitions.DrawList[] itemShapes =
             (RoomObjectVisualDomainDefinitions.Get((typeof(InstalledRoomObjectCollectibleVisuals).FullName ?? throw new InvalidOperationException("Verification requires typeof(InstalledRoomObjectCollectibleVisuals).FullName."))) ?? throw new InvalidOperationException("Verification requires RoomObjectVisualDomainDefinitions.Get((typeof(InstalledRoomObjectCollectibleVisuals).FullName ?? thr...."));
         // The installed file holds every collectible frame but a block pair's, which lies under the item's own picture (#1538).

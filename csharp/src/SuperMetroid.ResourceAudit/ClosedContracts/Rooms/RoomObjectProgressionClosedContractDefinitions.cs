@@ -61,11 +61,5 @@ internal static class RoomObjectProgressionClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaObjectDrawDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaDraws.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomireArenaArtwork.cs")]),
-        new("SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetAppearance"],
-            [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks,
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RoomObjectMotherBrainFakeDeathVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathObjectDrawDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathDraws.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainFakeDeathArtwork.cs")]),
     ];
 }

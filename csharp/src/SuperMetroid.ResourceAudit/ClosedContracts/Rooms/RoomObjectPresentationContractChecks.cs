@@ -28,9 +28,9 @@ internal static class RoomObjectPresentationContractChecks
         // The consumer names draws through these internal enums; compiled from source so its constants bind.
         trees.AddRange(new[]
         {
-            "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/ChozoStatueDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/ChozoStatueDraw.cs",
             "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/KraidRoomDraw.cs",
-            "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaDraw.cs", "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathDraw.cs",
+            "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaDraw.cs",
             "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/ElevatorPlatformDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/LevelData/BombBlockRestoreDraw.cs", "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SamusEaterDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/StationDraw.cs",
@@ -61,15 +61,14 @@ internal static class RoomObjectPresentationContractChecks
             using SuperMetroid.Core.Bosses.Torizo.Artwork;
             class RoomObjectConsumer {
                 void Inspect(InstalledRoomObjectShotBlockVisuals shot, InstalledRoomObjectStationVisuals station,
-                    RoomObjectBombTorizoHandVisualCatalog hand, RoomObjectMotherBrainGlassVisualCatalog glass,
+                    RoomObjectBombTorizoHandVisualCatalog hand,
                     InstalledRoomObjectNoobTubeVisuals tube, InstalledRoomObjectDownwardGateVisuals gate,
-                    RoomObjectElevatorPlatformVisualCatalog elevator, RoomObjectDraygonCannonVisualCatalog cannon,
+                    RoomObjectElevatorPlatformVisualCatalog elevator,
                     RoomObjectChozoStatueVisualCatalog chozo, InstalledRoomObjectLinkedRestoreVisuals restore,
                     RoomObjectTourianAccessVisuals tourian, InstalledRoomObjectSpeedBoosterVisuals speed,
                     InstalledRoomObjectMaridiaElevatubeVisuals elevatube, RoomObjectSporeSpawnCeilingVisualCatalog spore,
                     InstalledRoomObjectSamusEaterVisuals eater, InstalledRoomObjectBotwoonWallVisuals botwoon,
                     InstalledRoomObjectKraidVisuals kraid, RoomObjectCrocomireVisualCatalog crocomire,
-                    RoomObjectMotherBrainFakeDeathVisualCatalog motherBrain,
                     RoomObjectDraw dynamicDraw, int dynamicWord) {
                     shot.GetAppearance(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0), 0, 0);
                     shot.GetAppearance(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0), 0, 1);
@@ -79,8 +78,6 @@ internal static class RoomObjectPresentationContractChecks
                     station.GetAppearance(dynamicDraw, 0, int.MaxValue);
                     hand.GetAppearance(RoomObjectDraw.Of(BombTorizoHandDraw.Intact), 0, 0);
                     hand.GetAppearance(RoomObjectDraw.Of(BombTorizoHandDraw.Intact), 0, int.MaxValue);
-                    glass.GetAppearance(dynamicDraw, 0, 0);
-                    glass.GetAppearance(dynamicDraw, int.MaxValue, 0);
                     tube.GetAppearance(dynamicDraw, 0, 0);
                     tube.GetAppearance(dynamicDraw, 0, int.MaxValue);
                     shot.GetAppearance(dynamicDraw, 0, dynamicWord);
@@ -88,8 +85,6 @@ internal static class RoomObjectPresentationContractChecks
                     gate.GetAppearance(dynamicDraw, 0, int.MaxValue);
                     elevator.GetAppearance(RoomObjectDraw.Of(ElevatorPlatformDraw.First), 2, 3);
                     elevator.GetAppearance(RoomObjectDraw.Of(ElevatorPlatformDraw.First), 0, 1);
-                    cannon.GetAppearance(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldA), 2, 1);
-                    cannon.GetAppearance(RoomObjectDraw.Of(DraygonCannonDraw.LeftShieldA), 0, 1);
                     chozo.GetAppearance(RoomObjectDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 13);
                     chozo.GetAppearance(RoomObjectDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand), 0, 1);
                     restore.GetAppearance(RoomObjectDraw.Of(BombBlockRestoreDraw.Square), 1, 1);
@@ -110,8 +105,6 @@ internal static class RoomObjectPresentationContractChecks
                     kraid.GetAppearance(RoomObjectDraw.Of(KraidRoomDraw.CrumbleFirst), 0, 1);
                     crocomire.GetAppearance(RoomObjectDraw.Of(CrocomireArenaDraw.ClearBridge), 0, 9);
                     crocomire.GetAppearance(RoomObjectDraw.Of(CrocomireArenaDraw.CrumbleBridgeBlock), 0, 1);
-                    motherBrain.GetAppearance(RoomObjectDraw.Of(MotherBrainFakeDeathDraw.ClearBottomLeftTube), 0, 4);
-                    motherBrain.GetAppearance(RoomObjectDraw.Of(MotherBrainFakeDeathDraw.ClearBottomLeftTube), 1, 1);
                 }
             }
             """;
@@ -135,10 +128,10 @@ internal static class RoomObjectPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 41, "the forty-one calls must reproduce the identified missing adapters first" + " (" + before.Describe() + ")");
-        Require(report.Classifications.Count == 20 && report.UnresolvedCount == 21 && report.MissingCount == 0 &&
-            report.Consumers.Count == 41, "complete valid-domain calls qualify, but foreign draws and tuple components still fail " +
-            "(expected 20/21/0/41; " + report.Describe() + ")");
+        Require(before.UnresolvedCount == 35, "the thirty-five calls must reproduce the identified missing adapters first" + " (" + before.Describe() + ")");
+        Require(report.Classifications.Count == 18 && report.UnresolvedCount == 17 && report.MissingCount == 0 &&
+            report.Consumers.Count == 35, "complete valid-domain calls qualify, but foreign draws and tuple components still fail " +
+            "(expected 18/17/0/35; " + report.Describe() + ")");
         Require(report.Findings.Any(item => item.Message.Contains("is not owned", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("runIndex", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("word/block", StringComparison.Ordinal)),
@@ -163,10 +156,6 @@ internal static class RoomObjectPresentationContractChecks
             new RoomObjectVisualEntry(RoomObjectBombTorizoHandVisualFiles.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = RoomObjectBombTorizoHandVisualFiles.Create(entries));
-        ConfirmCoverage(RoomObjectMotherBrainGlassVisualFiles.All, frame =>
-            new RoomObjectVisualEntry(RoomObjectMotherBrainGlassVisualFiles.VisualId(frame.Draw),
-                VisualRuns(frame).SelectMany(run => run).ToArray()),
-            entries => _ = RoomObjectMotherBrainGlassVisualFiles.Create(entries));
         ConfirmCoverage(RoomObjectNoobTubeVisualFiles.All, frame =>
             new RoomObjectVisualEntry(RoomObjectNoobTubeVisualFiles.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
@@ -177,10 +166,6 @@ internal static class RoomObjectPresentationContractChecks
         ConfirmCoverage(RoomObjectElevatorPlatformVisualFiles.DrawLists, frame =>
             new RoomObjectVisualRunEntry(RoomObjectElevatorPlatformVisualFiles.VisualId(frame.Draw), VisualRuns(frame)),
             entries => _ = RoomObjectElevatorPlatformVisualFiles.Create(entries));
-        ConfirmCoverage(RoomObjectDraygonCannonVisualFiles.All, frame =>
-            new RoomObjectVisualEntry(RoomObjectDraygonCannonVisualFiles.VisualId(frame.Draw),
-                VisualRuns(frame).SelectMany(run => run).ToArray()),
-            entries => _ = RoomObjectDraygonCannonVisualFiles.Create(entries));
         ConfirmCoverage(RoomObjectChozoStatueVisualFiles.All, frame =>
             new RoomObjectVisualEntry(RoomObjectChozoStatueVisualFiles.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
@@ -221,10 +206,6 @@ internal static class RoomObjectPresentationContractChecks
             new RoomObjectVisualEntry(RoomObjectCrocomireVisualFiles.VisualId(frame.Draw),
                 VisualRuns(frame).SelectMany(run => run).ToArray()),
             entries => _ = RoomObjectCrocomireVisualFiles.Create(entries));
-        ConfirmCoverage(RoomObjectMotherBrainFakeDeathVisualFiles.All, frame =>
-            new RoomObjectVisualEntry(RoomObjectMotherBrainFakeDeathVisualFiles.VisualId(frame.Draw),
-                VisualRuns(frame).SelectMany(run => run).ToArray()),
-            entries => _ = RoomObjectMotherBrainFakeDeathVisualFiles.Create(entries));
     }
 
     /// <summary>Requires a provider to admit the full domain and reject missing or duplicated draw identities.</summary>

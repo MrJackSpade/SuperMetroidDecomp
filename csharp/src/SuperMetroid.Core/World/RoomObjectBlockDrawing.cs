@@ -139,7 +139,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             RoomObjectFrameImage kraidRoom = Installed(KraidVisuals, "Kraid room").Image(draw);
             for (int block = 0; block < kraidDraw.BlockCount; block++)
-                DrawImageCell(level, draw, origin, kraidRoom, new Offset16<RoomBlocks>(block, 0), kraidDraw.BlockAt(block).Collision);
+                DrawImageCell(level, draw, origin, kraidRoom, new Offset16<RoomBlocks>(block, 0), kraidDraw.CollisionAt(block));
             return;
         }
         if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)
@@ -211,7 +211,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             RoomObjectFrameImage wall = Installed(BotwoonWallVisuals, "Botwoon wall").Image(draw);
             for (int row = 0; row < BotwoonWallObjectDrawDefinitions.BlockCount; row++)
-                DrawImageCell(level, draw, origin, wall, new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.BlockAt(row).Collision);
+                DrawImageCell(level, draw, origin, wall, new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.CollisionAt(row));
             return;
         }
         if (LinkedRestoreObjectFamily.TryDescribeAny(draw, out var linkedRestore))

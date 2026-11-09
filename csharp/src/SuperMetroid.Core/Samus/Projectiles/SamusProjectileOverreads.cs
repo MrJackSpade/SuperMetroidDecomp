@@ -14,7 +14,7 @@ public sealed class SamusProjectileOverreads
 {
     /// <summary>Keeps every decoded service the projectiles consult.</summary>
     /// <param name="trailStarts">Where a projectile trail starts when its read passes its placement list.</param>
-    /// <param name="spaceTimeOverwrite">What SpaceTime's palette copy overwrites in saved progression.</param>
+    /// <param name="spaceTimeOverwrite">What Spacetime's palette copy overwrites in saved progression.</param>
     /// <param name="chainsawFuseShift">Where the Chainsaw beam's animation lands when its fuse speeds up.</param>
     /// <param name="chargeFlareDelays">The delays a charge-flare frame reads below the flare's programs.</param>
     /// <param name="postureAdmission">Whether the posture-transition admission admits weapons for a pose outside its table.</param>
@@ -41,7 +41,7 @@ public sealed class SamusProjectileOverreads
     /// <summary>Where a projectile trail starts when its read passes its placement list.</summary>
     internal TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> TrailStarts { get; }
 
-    /// <summary>What SpaceTime's palette copy overwrites in saved progression.</summary>
+    /// <summary>What Spacetime's palette copy overwrites in saved progression.</summary>
     internal SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> SpaceTimeOverwrite { get; }
 
     /// <summary>Where the Chainsaw beam's animation lands when its borrowed Power Bomb fuse speeds up.</summary>

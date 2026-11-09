@@ -13,7 +13,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The five bomb slots shared by projectile logic, instruction lists,
+/// The five bomb slots shared by projectile logic, animations,
 /// block reactions, and Samus/projectile overlap handling.
 /// </summary>
 /// <remarks>
@@ -155,7 +155,7 @@ public sealed class SamusBombProjectileSystem
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         // The forward-facing branch skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
-        // Command-zero alpha calls HandleProjectile directly, skipping the HUD
+        // Command-zero alpha runs the projectile update directly, skipping the HUD
         // dispatcher that owns cooldown and new bomb placement.
         if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
             StepCooldown(samus.Xray.TimeIsFrozen);
@@ -200,7 +200,7 @@ public sealed class SamusBombProjectileSystem
 
             bool wasNormalBomb = slot.Type.Family == SamusProjectileFamily.Bomb;
             // Spawn queues its startup cue before setting the active bit. Preserve
-            // that earlier guard separately from sounds produced after the pre-instruction.
+            // that earlier guard separately from sounds produced after the frame behaviour.
             bool soundSuppressedBeforeFrameBehavior = PowerBombExplosion.IsActive;
             bool slotExplosionStarted = RunBombFrameBehavior(
                 terrain.Level,
@@ -233,7 +233,7 @@ public sealed class SamusBombProjectileSystem
             }
 
             // The loop still steps the animation after a frame behaviour clears a slot.
-            // Its cleared timer underflows and returns without reading pointer zero. An
+            // Its cleared timer underflows and returns without reading an empty animation. An
             // inactive host slot has the same externally visible result, so skip the
             // otherwise meaningless decrement rather than pretending an empty animation ran.
             if (!slot.IsActive)
@@ -526,8 +526,8 @@ public sealed class SamusBombProjectileSystem
             return false;
 
         // The first bomb is allowed regardless of cooldown. With any active bomb,
-        // five slots or a nonzero LOW cooldown byte reject the edge. The high byte is not
-        // part of this test; that oddity is intentional eight-bit-width behavior.
+        // five slots or a cooldown that is not a whole multiple of 256 reject the edge. Only the cooldown
+        // modulo 256 is tested; that oddity is intentional.
         if (BombCounter != 0 &&
             (BombCounter >= SlotCount || CooldownTimer.EightBitCount != 0))
         {
@@ -551,7 +551,7 @@ public sealed class SamusBombProjectileSystem
             slotIndex++;
             if (slotIndex >= SlotCount)
             {
-                // This is the assembly's defensive/corrupt-state fallback: decrement X
+                // This is the original's defensive/corrupt-state fallback: step the index back
                 // once and reuse the last slot. Consistent BombCounter state never needs it.
                 slotIndex = SlotCount - 1;
                 break;
@@ -626,8 +626,8 @@ public sealed class SamusBombProjectileSystem
             }
             else if (slot.BombTimer.IsZero)
             {
-                // The explosion reads the pointer word embedded in the bomb-explosion data
-                // record and resets the instruction timer to one.
+                // The explosion reads the animation embedded in the bomb-explosion data
+                // record and resets the animation timer to one.
                 slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
                 slot.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
@@ -776,7 +776,7 @@ public sealed class SamusBombProjectileSystem
             (explosion.Y + verticalRadius) >> 4);
 
         // The traversal visits all four inclusive edges in this exact order. Corners are
-        // intentionally visited twice; synchronous PLM terrain mutation means the second
+        // intentionally visited twice; synchronous room-object terrain mutation means the second
         // visit can observe a different collision type than the first.
         for (int x = left; x <= right; x++)
             CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, top), reactions, roomObjects, areaIndex, projectileType);
@@ -825,7 +825,7 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
-    /// <summary>Resolves a bombed tile through extension, item, door and special-block dispatch, including synchronous PLM changes.</summary>
+    /// <summary>Resolves a bombed tile through extension, item, door and special-block dispatch, including synchronous room-object changes.</summary>
     internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
@@ -840,8 +840,8 @@ public sealed class SamusBombProjectileSystem
         reactions.Add(new BombBlockReaction());
 
         // The block reactions do not react to an extension block directly. A nonzero signed
-        // behaviour redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
-        // (type $D), then rewinds the dispatcher return address so the resolved parent
+        // behaviour redirects the current block horizontally (a horizontal extension) or by whole room rows
+        // (a vertical extension), then the dispatch restarts so the resolved parent
         // is dispatched again. A zero-behaviour extension is simply air for this reaction.
         RoomCollisionBlock block = visitedBlock;
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
@@ -857,11 +857,11 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The shot dispatch selects the temporary generic trigger PLM for both type-$8 special collision and
+        // The shot dispatch selects the temporary generic trigger room object for both type-$8 special collision and
         // shootable collision with the resident-object trigger behaviour. Its setup deletes that temporary
         // slot, finds the resident actor at the same block, and publishes this projectile
         // word. The n00b tube begins as a solid block but its intact draw changes the live origin
-        // to a shootable block, so narrowing this seam to colored doors strands the progression PLM.
+        // to a shootable block, so narrowing this seam to colored doors strands the progression room object.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
@@ -869,7 +869,7 @@ public sealed class SamusBombProjectileSystem
                 !roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
             {
                 throw new InvalidOperationException(
-                    $"Bombed resident-trigger block {block.Index} has no active PLM owner.");
+                    $"Bombed resident-trigger block {block.Index} has no active room-object owner.");
             }
             return;
         }
@@ -886,7 +886,7 @@ public sealed class SamusBombProjectileSystem
             if (roomObjects is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed blue-door cap at ({x},{y}) requires a room PLM owner.");
+                    $"Bombed blue-door cap at ({x},{y}) requires a room-object owner.");
             }
             roomObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 level,
@@ -897,7 +897,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         // The bomb dispatch sends these types to immediate clear/set-carry routines. They
-        // spawn no PLM and do not alter the room's terrain or behaviours, so recording the visit is
+        // spawn no room object and do not alter the room's terrain or behaviours, so recording the visit is
         // the complete observable effect for this runtime.
         if (block.CollisionType is
             RoomCollisionType.Air or
@@ -915,26 +915,26 @@ public sealed class SamusBombProjectileSystem
         {
             // Both bombable-air and bombable-solid handlers use the bomb-block table. Negative
             // behaviour takes the duplicate/area-dependent early return and therefore
-            // neither allocates a PLM nor mutates terrain.
+            // neither allocates a room object nor mutates terrain.
             if (block.Behavior.Reaction.IsAreaSpecific)
                 return;
             if (!block.Behavior.Reaction.IsCommonEntryBelow(16))
             {
-                // The bomb-block table is a literal sixteen-word table. Retail room data must keep a
+                // The bomb-block table is a literal sixteen-entry table. Retail room data must keep a
                 // nonnegative bombable behaviour within that table; a larger value would make
-                // the game read unrelated following data as a PLM header.
+                // the game read unrelated following data as a room-object header.
                 throw new InvalidDataException(
                     $"Bombable block {block.Index} has behaviour ({block.Behavior}) outside " +
                     "the bomb-block reaction table.");
             }
             if (roomObjects is null)
             {
-                // Gameplay always owns the room's PLM pool. Null is supported only for
+                // Gameplay always owns the room's room-object pool. Null is supported only for
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
                 // caller-composition error rather than untranslated game behavior.
                 throw new InvalidOperationException(
                     $"Bombed block reaction type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                    $"at ({x},{y}) requires a room PLM owner.");
+                    $"at ({x},{y}) requires a room-object owner.");
             }
 
             // Spawn is synchronous: accepted behaviour 0..7 applies CEDA's temporary type-$8
@@ -950,14 +950,14 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
             // Gate shot blocks reuse shootable collision with the private gate-trigger behaviours. They
-            // select temporary trigger PLMs rather than the ordinary 0..F bomb table.
+            // select temporary trigger room objects rather than the ordinary 0..F bomb table.
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
                 block.Behavior.TryGetDownwardGateTrigger(out _))
             {
                 if (roomObjects is null)
                 {
                     throw new InvalidOperationException(
-                        $"Bombed downward gate trigger at ({x},{y}) requires a room PLM owner.");
+                        $"Bombed downward gate trigger at ({x},{y}) requires a room-object owner.");
                 }
                 roomObjects.Gates.TrySpawnDownwardGateTrigger(
                     level,
@@ -993,7 +993,7 @@ public sealed class SamusBombProjectileSystem
             {
                 throw new InvalidOperationException(
                     $"Bombed shootable type {block.CollisionType}/behaviour ({block.Behavior}) " +
-                    $"at ({x},{y}) requires a room PLM owner.");
+                    $"at ({x},{y}) requires a room-object owner.");
             }
 
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
@@ -1011,7 +1011,7 @@ public sealed class SamusBombProjectileSystem
             {
                 throw new InvalidOperationException(
                     $"Bombed special block behaviour ({block.Behavior}) at ({x},{y}) " +
-                    "requires a room PLM owner.");
+                    "requires a room-object owner.");
             }
 
             roomObjects.BlockReactions.TrySpawnBombedSpecialBlock(
@@ -1031,11 +1031,11 @@ public sealed class SamusBombProjectileSystem
             $"behaviour ({block.Behavior}) at ({x},{y}).");
     }
 
-    /// <summary>Ticks the bomb instruction list, including timed maps, delete and goto instructions.</summary>
+    /// <summary>Ticks the bomb animation, including timed maps, delete and goto steps.</summary>
     internal bool RunProjectileInstructionHandler(
         SamusBombProjectileSlot slot)
     {
-        // The animation timer is a wrapping 16-bit decrement. A legitimate initialized timer is always at
+        // The animation timer is a decrement wrapping at 65536. A legitimate initialized timer is always at
         // least one, but preserving wrap gives corrupt-state inspection the same behavior.
         slot.FrameHold = slot.FrameHold.Decrement().Remaining;
         if (!slot.FrameHold.IsZero)

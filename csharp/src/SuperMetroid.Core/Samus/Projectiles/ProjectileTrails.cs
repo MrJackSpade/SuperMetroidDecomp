@@ -86,7 +86,7 @@ internal sealed class ProjectileTrails
             ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."), starts);
     }
 
-    /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with 16-bit position wrap.</summary>
+    /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with the position wrapping at 65536.</summary>
     private static int AddOffset(int origin, int offset) => CoordinateAxis.Wrap(origin + offset - 4);
 
     /// <summary>Advances one side's instruction stream unless time is frozen.</summary>

@@ -14,7 +14,7 @@ internal sealed class BeamCombos
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>Spawns periodic Wave and other combo trails from their live particle slots.</summary>
     private readonly ProjectileTrails _trails;
-    /// <summary>What the SpaceTime shot's runaway palette copy overwrites in saved progression.</summary>
+    /// <summary>What the Spacetime shot's runaway palette copy overwrites in saved progression.</summary>
     private readonly SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> _spaceTimeOverwrite;
 
     /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>
@@ -36,9 +36,9 @@ internal sealed class BeamCombos
     public int ComboState { get; internal set; }
 
     /// <summary>
-    /// FireSBA: debit the selected beam cost before attempting its family.
+    /// Fires the special beam attack: debit the selected beam cost before attempting its family.
     /// This is the allocation boundary; the normal producer must call it only after
-    /// charge/input eligibility, and particles require their own pre-instruction updates.
+    /// charge/input eligibility, and particles require their own frame behaviour updates.
     /// </summary>
     internal bool TryActivateCombo(SamusState samus,
         SamusBombProjectileSystem shared, out SoundEffectId? sound)
@@ -145,7 +145,7 @@ internal sealed class BeamCombos
     {
         bool outward = slot.FrameBehavior == SamusProjectileFrameBehavior.IceComboOutward;
         if (!outward && slot.FrameBehavior != SamusProjectileFrameBehavior.IceCombo)
-            throw new InvalidOperationException("Ice combo update requires its own pre-instruction.");
+            throw new InvalidOperationException("Ice combo update requires its own frame behaviour.");
         if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
@@ -199,7 +199,7 @@ internal sealed class BeamCombos
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
         if (slot.FrameBehavior != SamusProjectileFrameBehavior.PlasmaCombo)
-            throw new InvalidOperationException("Plasma update requires its own pre-instruction.");
+            throw new InvalidOperationException("Plasma update requires its own frame behaviour.");
         if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
@@ -235,13 +235,13 @@ internal sealed class BeamCombos
         }
     }
     /// <summary>
-    /// Runs the SpaceTime shot's callback, which falls back into the beam palette's copy loop and, from an animation that
+    /// Runs the Spacetime shot's callback, which falls back into the beam palette's copy loop and, from an animation that
     /// sends the copy far enough, copies on through saved progression (<see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/>). Before the
     /// shot's first frame is installed, or with no animation, the copy starts low and ends long before progression, and
     /// only the progression part of the copy is kept (owner decision on #1318).
     /// </summary>
     /// <param name="progression">The session's progression, which the copy overwrites; required when it reaches it.</param>
-    /// <param name="slot">The SpaceTime shot.</param>
+    /// <param name="slot">The Spacetime shot.</param>
     internal void RunSpacetimePaletteCopyTail(SharedGameState? progression, SamusProjectileSlot slot)
     {
         Ensure.NotNull(slot);
@@ -257,7 +257,7 @@ internal sealed class BeamCombos
     {
         bool falling = slot.FrameBehavior == SamusProjectileFrameBehavior.SpazerComboFalling;
         if (!falling && slot.FrameBehavior != SamusProjectileFrameBehavior.SpazerCombo)
-            throw new InvalidOperationException("Spazer update requires its own pre-instruction.");
+            throw new InvalidOperationException("Spazer update requires its own frame behaviour.");
         if (slot.IsSpent)
         {
             int partner = slot.SlotIndex ^ 2;
@@ -359,7 +359,7 @@ internal sealed class BeamCombos
         SamusProjectileSlot slot, SamusBombProjectileSystem shared)
     {
         if (slot.FrameBehavior != SamusProjectileFrameBehavior.WaveCombo)
-            throw new InvalidOperationException("Wave update requires its own pre-instruction.");
+            throw new InvalidOperationException("Wave update requires its own frame behaviour.");
         // A hit skips even the lifetime decrement. Expiry and collision both queue
         // the terminal sound, unlike Ice's silent outward-phase removal.
         if (slot.IsSpent)

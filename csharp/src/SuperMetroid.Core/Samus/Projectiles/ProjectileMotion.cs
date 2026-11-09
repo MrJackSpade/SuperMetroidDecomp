@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Per-frame projectile movement: the beam, wave, Hyper Beam, missile and Super Missile pre-instructions, Super Missile links, and the movement-window deletion check.</summary>
+/// <summary>Per-frame projectile movement: the beam, wave, Hyper Beam, missile and Super Missile frame behaviours, Super Missile links, and the movement-window deletion check.</summary>
 [RoomLifetime]
 internal sealed class ProjectileMotion
 {
@@ -127,7 +127,7 @@ internal sealed class ProjectileMotion
         }
 
         // Hyper's update falls directly into the shared Wave movement. Hyper deliberately has
-        // no projectile-trail timer or SpawnProjectileTrail call; its long beam spritemap
+        // no projectile-trail timer or trail spawn; its long beam spritemap
         // and the separately counting muzzle flare provide the complete presentation.
         RunWaveBeamShared(level, slot, cameraPosition, roomObjects);
     }
@@ -146,7 +146,7 @@ internal sealed class ProjectileMotion
         // the projectile radii, but deliberately return carry clear unconditionally. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
         // or clips the shot. The span scanners below now publish ordinary shootable-block
-        // PLMs while intentionally discarding their carry result, matching this fallthrough.
+        // room objects while intentionally discarding their carry result, matching this fallthrough.
         if (MovesHorizontally(direction))
         {
             slot.Position = slot.Position.AdvanceX(slot.Velocity.X.ToSixteenSixteenDelta());
@@ -485,7 +485,7 @@ internal sealed class ProjectileMotion
             level, slot, roomObjects: roomObjects);
     }
 
-    /// <summary>Resolves the missile center's extension chain, PLM reaction, and collision carry by block type.</summary>
+    /// <summary>Resolves the missile center's extension chain, room-object reaction, and collision carry by block type.</summary>
     private static bool MissilePointReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -523,10 +523,10 @@ internal sealed class ProjectileMotion
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Bombable reactions always index the bomb-block PLM table for nonnegative behaviour.
+            // Bombable reactions always index the bomb-block room-object table for nonnegative behaviour.
             // A missile or Super Missile still spawns the room object, but the bomb-block setup
             // immediately clears the new slot because its family is neither a bomb
-            // nor a power bomb; no terrain write, timer, sound, or persistent PLM survives that call.
+            // nor a power bomb; no terrain write, timer, sound, or persistent room object survives that call.
             // The reaction's carry is independent of setup: bombable air passes through,
             // while bombable solid destroys the missile.
             return block.CollisionType == RoomCollisionType.BombableBlock;

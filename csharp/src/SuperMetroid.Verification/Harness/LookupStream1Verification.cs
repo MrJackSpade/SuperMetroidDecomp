@@ -1237,22 +1237,22 @@ internal static class LookupStream1Verification
         for (int address = SamusSourceDefinitions.ChargeFlarePrograms.Value; address < 0x90c4b5; address++)
         {
             AssertEqual(LookupStream1CadenceProgramsRomByte(rom, address),
-                ChargeFlareAnimations.ReadByte(address - SamusSourceDefinitions.ChargeFlarePrograms.Value), "stream1 original flare cadence byte");
+                ChargeFlareAnimations.ReadCadence(address - SamusSourceDefinitions.ChargeFlarePrograms.Value), "stream1 original flare cadence byte");
             if (address < 0x90c4b4)
                 AssertEqual(Word(address), ChargeFlareAnimationDefinitions.ReadWord(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                     "stream1 original flare unaligned word");
         }
         foreach (int invalid in new[] { int.MinValue, 0x90c486, 0x90c4b5, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadByte(invalid - SamusSourceDefinitions.ChargeFlarePrograms.Value),
+            AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadCadence(invalid - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "stream1 flare byte domain");
 
         // A frame wrapping below the programs reads the table naming them: the three program words, which hold each
         // program's place in the bank. The installed delays must be those bytes, read through the production lookup.
         var below = InstalledFixtures.SamusOverreads.Projectiles.ChargeFlareDelays;
         int[] programStarts = [ChargeFlareAnimationDefinitions.MainFlare, ChargeFlareAnimationDefinitions.SlowSparks, ChargeFlareAnimationDefinitions.FastSparks];
-        for (int distance = 1; distance <= ChargeFlareAnimationDefinitions.ProgramTableByteCount; distance++)
+        for (int distance = 1; distance <= ChargeFlareAnimationDefinitions.ProgramTableLength; distance++)
         {
-            int tableByte = ChargeFlareAnimationDefinitions.ProgramTableByteCount - distance;
+            int tableByte = ChargeFlareAnimationDefinitions.ProgramTableLength - distance;
             ushort programWord = (ushort)(SamusSourceDefinitions.ChargeFlarePrograms.Offset + programStarts[tableByte / sizeof(ushort)]);
             byte expected = tableByte % sizeof(ushort) == 0 ? LittleEndianBytes.LowByte(programWord) : LittleEndianBytes.HighByte(programWord);
             AssertEqual(LookupStream1CadenceProgramsRomByte(rom, SamusSourceDefinitions.ChargeFlarePrograms.Value - distance), expected,
@@ -1260,7 +1260,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected, below.DelayBelow(distance), "stream1 installed flare delay below the programs");
             AssertEqual(expected, ChargeFlareAnimations.ReadDelay(0, -distance, below), "stream1 main flare reads the table below its program");
         }
-        AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadDelay(0, -(ChargeFlareAnimationDefinitions.ProgramTableByteCount + 1), below),
+        AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadDelay(0, -(ChargeFlareAnimationDefinitions.ProgramTableLength + 1), below),
             "stream1 flare read below the program table is rejected");
     }
 

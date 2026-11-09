@@ -19,8 +19,8 @@ internal static class SamusBeamCallbacks
             Translated(SamusBeamCallback.WaveFourFrameTrail, SamusProjectileFrameBehavior.WaveBeamFourFrameTrail),
         // The four glitched combinations read past the twelve authored callbacks.
         SamusBeamCombination.SpazerPlasma => charged
-            ? Untranslated(SamusBeamCallback.ChargedCombinationTwelveAdjacentWord)
-            : Untranslated(SamusBeamCallback.UnchargedCombinationTwelveAdjacentWord),
+            ? Untranslated(SamusBeamCallback.ChargedCombinationTwelveOverrun)
+            : Untranslated(SamusBeamCallback.UnchargedCombinationTwelveOverrun),
         SamusBeamCombination.SpazerPlasmaWave => charged
             ? Translated(SamusBeamCallback.ChargedChainsawOverrun,
                 SamusProjectileFrameBehavior.ChargedChainsawOverrun)
@@ -34,11 +34,11 @@ internal static class SamusBeamCallbacks
         SamusBeamCombination.SpazerPlasmaIceWave => charged
             ? Translated(SamusBeamCallback.MurderBeamMisalignedExecution,
                 SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
-            : Untranslated(SamusBeamCallback.UnchargedCombinationFifteenAdjacentWord),
+            : Untranslated(SamusBeamCallback.UnchargedCombinationFifteenOverrun),
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 
-    /// <summary>Pairs a callback with an implemented projectile pre-instruction.</summary>
+    /// <summary>Pairs a callback with an implemented projectile frame behaviour.</summary>
     private static SamusBeamCallbackDefinition Translated(
         SamusBeamCallback callback,
         SamusProjectileFrameBehavior translated) =>

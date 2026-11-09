@@ -11,25 +11,25 @@ internal static class ChargeFlareAnimationDefinitions
     internal const int SlowSparks = 32;
     /// <summary>The flare's fast sparks: six delays followed by restart.</summary>
     internal const int FastSparks = 39;
-    /// <summary>The bytes the three programs fill, end to end.</summary>
-    internal const int RegionByteCount = 46;
-    /// <summary>The three words just before the programs, naming the main-flare, slow-spark and fast-spark programs.</summary>
-    internal const int ProgramTableByteCount = 6;
-    /// <summary>HandleGrappleBeamFlare: counter one force-selects main frame sixteen.</summary>
+    /// <summary>The entries the three programs fill, end to end.</summary>
+    internal const int RegionLength = 46;
+    /// <summary>The places just before the programs, which name the main-flare, slow-spark and fast-spark programs.</summary>
+    internal const int ProgramTableLength = 6;
+    /// <summary>The grapple beam's flare: counter one force-selects main frame sixteen.</summary>
     internal const int GrappleInitialFrame = 16;
-    /// <summary>HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
+    /// <summary>The grapple beam's flare: counter one seeds three before the ordinary decrement.</summary>
     internal const int GrappleInitialDelay = 3;
-    /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
-    internal const int RewindByte = 254;
+    /// <summary>The stream entry that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
+    internal const int RewindCode = 254;
 
-    /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Restart"/>.</summary>
-    internal const int RestartByte = 255;
+    /// <summary>The stream entry that encodes <see cref="ChargeFlareDelayCommand.Restart"/>.</summary>
+    internal const int RestartCode = 255;
 
-    /// <summary>The command each command byte of a delay stream encodes; every other stream byte is a delay.</summary>
-    internal static readonly FrozenDictionary<int, ChargeFlareDelayCommand> CommandBytes =
+    /// <summary>The command each command entry of a delay stream encodes; every other stream entry is a delay.</summary>
+    internal static readonly FrozenDictionary<int, ChargeFlareDelayCommand> CommandCodes =
         new Dictionary<int, ChargeFlareDelayCommand>
         {
-            [RewindByte] = ChargeFlareDelayCommand.Rewind,
-            [RestartByte] = ChargeFlareDelayCommand.Restart,
+            [RewindCode] = ChargeFlareDelayCommand.Rewind,
+            [RestartCode] = ChargeFlareDelayCommand.Restart,
         }.ToFrozenDictionary();
 }

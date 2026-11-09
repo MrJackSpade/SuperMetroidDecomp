@@ -93,7 +93,7 @@ internal static class ProjectileTrailPlacementDefinitions
 
     /// <summary>
     /// The placements each list gives an animation frame: its own records, then the records stored after it, up to the
-    /// next pointer table or the end of the trail data.
+    /// next table or the end of the trail data.
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailPlacementList, ProjectileTrailPlacement[]> Records =
         new Dictionary<ProjectileTrailPlacementList, ProjectileTrailPlacement[]>

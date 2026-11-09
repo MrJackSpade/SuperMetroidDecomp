@@ -87,7 +87,7 @@ internal sealed class ProjectileAnimation
     /// <summary>Advances a flare component only after its countdown underflows, honoring restart and rewind delay commands.</summary>
     internal void AdvanceFlareComponent(int component)
     {
-        // The game advances only when the 16-bit decrement crosses zero into 65535. A timer
+        // The game advances only when the decrement crosses zero into 65535. A timer
         // value of zero therefore survives one visible call; testing equality here would
         // make every authored delay one frame too short.
         CountdownStep timer = _charge.DecrementFlareTimer(component);
@@ -156,9 +156,9 @@ internal sealed class ProjectileAnimation
             ? component switch { 0 => 0, 1 => 42, _ => 48 }
             : component switch { 0 => 0, 1 => 30, _ => 36 });
         int tableIndex = CoordinateAxis.Wrap(indexOffset + ChargeFlareAnimations.DrawnFrame(_charge.FlareFrame(component)));
-        // A frame that wrapped to 255 selects a pointer past the end of the flare table. The game then
+        // A frame that wrapped to 255 selects an entry past the end of the flare table. The game then
         // draws a "spritemap" out of unrelated memory (into the sprite list only; the
-        // index is masked to $1FF). That garbage needs full memory emulation and has no
+        // index is kept below 512). That garbage needs full memory emulation and has no
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
             return;

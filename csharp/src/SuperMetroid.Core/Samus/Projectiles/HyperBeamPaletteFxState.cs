@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// installed when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
-/// The state retains the instruction pointer and timer. Fixed program control is
+/// The state retains the program position and timer. Fixed program control is
 /// compiled separately from the live colours so presentation replacement cannot
 /// silently change engine cadence or route restored state into adjacent game data.
 /// </remarks>

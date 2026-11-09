@@ -17,7 +17,7 @@ public static class MorphBallBombDefinitions
     /// <summary>Initial normal- and power-bomb fuse written by their firing routines.</summary>
     public const int InitialBombTimer = 60;
 
-    /// <summary>Minimum flare counter accepted by <c>FireBombOrBombSpread</c>.</summary>
+    /// <summary>Minimum flare counter accepted by bomb or bomb-spread firing.</summary>
     public const int RequiredChargeFrames = 60;
 
     /// <summary>

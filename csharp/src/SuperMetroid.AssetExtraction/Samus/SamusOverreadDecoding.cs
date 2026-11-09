@@ -264,7 +264,7 @@ internal static class SamusOverreadDecoding
 
     /// <summary>The bytes stored just before the charge flare's programs, nearest first: the table naming the programs.</summary>
     private static int[] ChargeFlareDelaysBelowPrograms(IImportCartridgeSource cartridge) =>
-        [.. Enumerable.Range(1, ChargeFlareAnimationDefinitions.ProgramTableByteCount)
+        [.. Enumerable.Range(1, ChargeFlareAnimationDefinitions.ProgramTableLength)
             .Select(distance => (int)cartridge.ReadCartridgeByte(SamusSourceDefinitions.ChargeFlarePrograms.Value - distance))];
 
     /// <summary>

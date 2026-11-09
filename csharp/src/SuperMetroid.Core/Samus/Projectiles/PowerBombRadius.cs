@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// A Power Bomb radius, or a per-frame change of radius, in 1/256 pixels from 0 through 65535. The explosion advances
-/// its radii and their shared speed with sixteen-bit wraparound: a speed decelerated below zero wraps to a large value
+/// its radii and their shared speed with wraparound at 65536: a speed decelerated below zero wraps to a large value
 /// and a radius advanced past the top wraps to a small one, and the window shapes follow those wrapped values. The
 /// wrapping and carry-testing operations below are the only arithmetic the explosion performs on it.
 /// </summary>

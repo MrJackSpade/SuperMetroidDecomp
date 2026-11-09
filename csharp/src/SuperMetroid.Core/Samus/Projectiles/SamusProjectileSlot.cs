@@ -114,7 +114,7 @@ public sealed class SamusProjectileSlot
 
     /// <summary>The Spazer special attack's particle phase; it survives slot reuse.</summary>
     public SpazerComboPhase AuxiliaryPhase { get; internal set; }
-    /// <summary>The slot's projectile pre-instruction.</summary>
+    /// <summary>The slot's projectile frame behaviour.</summary>
     public SamusProjectileFrameBehavior FrameBehavior { get; internal set; }
 
     /// <summary>A live projectile program marks the slot allocated and drawable.</summary>

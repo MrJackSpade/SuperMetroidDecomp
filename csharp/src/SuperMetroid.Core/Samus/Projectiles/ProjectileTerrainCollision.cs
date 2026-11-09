@@ -101,7 +101,7 @@ internal sealed class ProjectileTerrainCollision
             return true;
         }
 
-        // Wave collision deliberately discards carry after retaining every block/PLM side
+        // Wave collision deliberately discards carry after retaining every block/room-object side
         // effect. Its caller will overwrite the temporary zero/-1 speeds immediately.
         return false;
     }
@@ -286,7 +286,7 @@ internal sealed class ProjectileTerrainCollision
         return Solid(rowCell) || Solid(rowCell.OtherColumn);
     }
 
-    /// <summary>Resolves an extension and applies its slope, PLM, shootable, or ordinary solid reaction to one scanned block.</summary>
+    /// <summary>Resolves an extension and applies its slope, room-object, shootable, or ordinary solid reaction to one scanned block.</summary>
     private static bool RunShotReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -299,7 +299,7 @@ internal sealed class ProjectileTerrainCollision
         endSpan = false;
         // The extension-block resolution is shared by shot, bomb, grapple, collision, and inside
         // dispatch. Door caps deliberately put the shootable origin at one end and vertical
-        // extension words across the other three cells. Resolve those signed behaviour
+        // extension blocks across the other three cells. Resolve those signed behaviour
         // links before selecting a reaction; otherwise a centered horizontal beam merely
         // explodes against the middle extension and can never reach the blue-door behaviours.
         RoomCollisionBlock? resolvedBlock = ResolveShotReactionExtension(level, block);
@@ -329,7 +329,7 @@ internal sealed class ProjectileTerrainCollision
 
         // Chozo orbs and concealed item blocks are shootable blocks of the item-trigger behaviour. Their special
         // reaction does not use the ordinary behaviour 0..F shot-block table: its header
-        // finds and triggers the already-loaded permanent-item PLM at this origin.
+        // finds and triggers the already-loaded permanent-item room object at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
         {
@@ -338,7 +338,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Both the solid and the shootable resident-object trigger collision routes allocate the generic shot trigger,
-        // which publishes the live projectile word to the resident PLM at this block.
+        // which publishes the live projectile type to the resident room object at this block.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
@@ -351,7 +351,7 @@ internal sealed class ProjectileTerrainCollision
             if (block.Behavior.Reaction.IsShotCollisionProbe)
             {
                 // Gate setup ends the caller's span and forces its collision counter.
-                // A full PLM pool skips setup entirely, so it must not end the scan.
+                // A full room-object pool skips setup entirely, so it must not end the scan.
                 endSpan = roomObjects?.BlockReactions.TrySpawnProjectileShotBlock(
                     level, block.Index, block.Behavior, slot.Type,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
@@ -422,7 +422,7 @@ internal sealed class ProjectileTerrainCollision
             $"Projectile extension chain from block {initialBlock.Index} did not terminate.");
     }
 
-    /// <summary>Routes a shootable behaviour to its downward gate, resident PLM, blue door, or ordinary shot-block owner.</summary>
+    /// <summary>Routes a shootable behaviour to its downward gate, resident room object, blue door, or ordinary shot-block owner.</summary>
     internal static void TrySpawnShootableReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -433,7 +433,7 @@ internal sealed class ProjectileTerrainCollision
             return;
 
         // The gate-trigger behaviours bypass the normal 16-entry shot-block table and
-        // allocates one of eight temporary trigger PLMs. Dispatch it before the table-range
+        // allocates one of eight temporary trigger room objects. Dispatch it before the table-range
         // validation below; those behaviours are intentionally outside that ordinary domain.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
@@ -443,15 +443,15 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
-        // actors all share the shootable resident-object trigger. The resident PLM determines the accepted family
-        // after the generic shot trigger publishes the projectile word.
+        // actors all share the shootable resident-object trigger. The resident room object determines the accepted family
+        // after the generic shot trigger publishes the projectile type.
         if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
             NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return;
         }
 
-        // The shot-block table's entries 40..43 select the four blue-door entry PLMs. These are not
+        // The shot-block table's entries 40..43 select the four blue-door entry room objects. These are not
         // ordinary breakable blocks: setup changes the cap origin to type $8 and the
         // door's animation opens all four blocks over eighteen frames. Keep this dispatch
         // beside the general table lookup so every beam/missile/bomb collision reaches the
@@ -467,7 +467,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // Nonnegative behaviour 0..15 indexes the ordinary retail shot-block entries, and 16 is
-        // the table's deliberate collision-probe/no-op PLM. Negative behaviour
+        // the table's deliberate collision-probe/no-op room object. Negative behaviour
         // 0..7 is also admitted so shootable-solid can preserve its area-table no-op
         // slot; shootable-air's method exits without allocating. The RoomObject owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
@@ -487,7 +487,7 @@ internal sealed class ProjectileTerrainCollision
         }
     }
 
-    /// <summary>Publishes the projectile type to the PLM occupying a resident-trigger block and fails if none owns it.</summary>
+    /// <summary>Publishes the projectile type to the room object occupying a resident-trigger block and fails if none owns it.</summary>
     private static void NotifyResidentProjectileHit(
         ISamusRoomObjects? roomObjects,
         RoomCollisionBlock block,
@@ -500,7 +500,7 @@ internal sealed class ProjectileTerrainCollision
         }
 
         throw new InvalidOperationException(
-            $"Projectile hit resident-trigger block {block.Index} with no active PLM owner.");
+            $"Projectile hit resident-trigger block {block.Index} with no active room-object owner.");
     }
 
     /// <summary>
@@ -619,13 +619,13 @@ internal sealed class ProjectileTerrainCollision
                 block = block with { Terrain = Straddling(block.Terrain, next) };
             }
             RunShotReaction(level, slot, block, roomObjects, new ShotSpan(span, span - step, targetX), out bool endSpan);
-            // Wave discards collision carry, but still honors PLM scan termination.
+            // Wave discards collision carry, but still honors room-object scan termination.
             if (endSpan) return;
         }
     }
 
     /// <summary>
-    /// Preserves the vertical scan's linear tile addressing across the room's side edges.
+    /// Preserves the vertical scan's linear block order across the room's side edges.
     /// </summary>
     internal static void ScanVerticalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomObjects? roomObjects)

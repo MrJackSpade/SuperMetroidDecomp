@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
@@ -14,22 +13,16 @@ internal static class RoomObjectNativeListAddresses
     /// <summary>The n00b tube's first list (<c>InstList_PLM_NoobTube_0</c>, $84:D4D4).</summary>
     internal const ushort NoobTubeList = 0xd4d4;
 
-    /// <summary>The shared one-instruction lists (<c>InstList_PLM_Delete</c> $84:AAE3, the metroids-cleared sleep $84:DB42).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<RoomObjectSharedProgram>> SharedEntries { get; } =
-    [
-        new NativeProgramEntry<RoomObjectSharedProgram>(RoomObjectSharedProgram.Delete, 0xaae3),
-        new NativeProgramEntry<RoomObjectSharedProgram>(RoomObjectSharedProgram.Sleep, 0xdb42),
-    ];
+    /// <summary>The native list that only deletes its object ($84:AAE3).</summary>
+    internal const ushort DeleteList = 0xaae3;
+
+    /// <summary>The native list the Metroid room's clearance sleeps on ($84:DB42).</summary>
+    internal const ushort MetroidsClearedSleepList = 0xdb42;
 
     /// <summary>The Speed Booster lavaquake's list (<c>InstList_PLM_SpeedBoosterEscape</c>, $84:B88A), one wait per sleep.</summary>
     internal const ushort SpeedBoosterEscapeList = 0xb88a;
 
     /// <summary>The Speed Booster blocks' lists ($84:C928 and $84:C951..C9F8).</summary>
-    /// <summary>Every scripted room program's native entry.</summary>
-    internal static IReadOnlyList<NativeProgramEntry<ScriptedRoomObjectProgram>> ScriptedRoomEntries { get; } =
-    [
-    ];
-
     /// <summary>
     /// The lists of the room objects that left the scripted program set for typed terrain changes (#1554): the Maridia
     /// elevatube, the critters' wall breakthrough, Crateria's escape passage and the enemy-breakable block.

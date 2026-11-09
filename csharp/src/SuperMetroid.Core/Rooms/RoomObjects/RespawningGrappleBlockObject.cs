@@ -7,7 +7,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal sealed class RespawningGrappleBlockObject() : BlockReactionObject(BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock)
 {
-    /// <inheritdoc/>
-    private protected override void BeforeRestoringBlock(RoomObjectSlot place, RoomObjectStepContext context) =>
+    /// <summary>Gives the block its respawning Grapple reaction again, then restores its saved terrain.</summary>
+    private protected override void RestoreBlock(RoomObjectSlot place, RoomObjectStepContext context)
+    {
+        Ensure.NotNull(place);
         context.Level.SetBehavior(place.BlockIndex, BlockReactionObjectDefinitions.RespawningGrappleBehavior);
+        base.RestoreBlock(place, context);
+    }
 }

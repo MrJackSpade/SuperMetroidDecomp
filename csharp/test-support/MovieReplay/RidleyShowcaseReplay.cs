@@ -631,16 +631,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check($"PLM {slotIndex} grey-door wait", DoorsNativeWords.GreyDoorWaitWord(typedDoor.Waits, typedDoor.Condition),
                         NativeSnapshotMemory.RoomObjectFrameBehavior + offset);
                     // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
-                    // compared as the family the recorded word decodes to, otherwise the loop counter is compared.
+                    // compared as the family the recorded word decodes to. A grey cap counts no loops of its own, its
+                    // repeated flashes being steps of its sequence, so the counter is not compared otherwise.
                     if (slot.ProjectileHit is { } pendingHit)
                     {
                         SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.RoomObjectLoopTimer + offset)).Family;
                         if (recordedHit != pendingHit.Family)
                             mismatches.Add($"PLM {slotIndex} projectile hit: native={recordedHit} port={pendingHit.Family}");
-                    }
-                    else
-                    {
-                        Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.RoomObjectLoopTimer + offset);
                     }
                     // A spent cap's word is compared by its spent mark; the open doors the cartridge leaves beside it are read by nothing.
                     if (slot.SpentCap)

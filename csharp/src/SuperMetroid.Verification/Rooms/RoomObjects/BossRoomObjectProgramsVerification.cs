@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Audio;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -147,7 +146,7 @@ internal static class BossRoomObjectProgramsVerification
             int updates = cartridge.ReadCartridgeWord(ProgramBank | cursor);
             AssertTrue(updates < 0x8000, $"{at} image {index} is a draw");
             AssertEqual(expected[index].Updates, updates, $"{at} image {index} updates");
-            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(expected[index].Draw),
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(expected[index].Draw),
                 (int)cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), $"{at} image {index} draw");
         }
         after = cursor;
@@ -170,7 +169,7 @@ internal static class BossRoomObjectProgramsVerification
         void AssertShown(int cursor, MotherBrainGlassDraw image, int updates, string at)
         {
             AssertEqual(updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
         void AssertBurst(int cursor, IReadOnlyList<MotherBrainGlassShard> shards, string at)
         {
@@ -241,7 +240,7 @@ internal static class BossRoomObjectProgramsVerification
         void AssertShown(int cursor, BombTorizoHandDraw image, int updates, string at)
         {
             AssertEqual(updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
 
         int cursor = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.BombTorizoHand) + 2);

@@ -40,7 +40,7 @@ internal sealed class SamusEaterObjects
 
     /// <summary>The plant one supported header places, without interpreting adjacent data.</summary>
     internal static SamusEaterObjectDefinition Plant(RoomObjectHeaderId header) =>
-        SamusEaterObjectDefinitions.ByHeader.TryGetValue(header, out SamusEaterObjectDefinition plant)
+        SamusEaterObjectDefinitions.ByHeader.TryGetValue(header, out SamusEaterObjectDefinition? plant)
             ? plant
             : throw new InvalidDataException($"Unsupported Samus Eater PLM {header}.");
 

@@ -113,7 +113,7 @@ internal sealed class RoomObjectPopulationLoader
         return spawnedRecordCount;
     }
 
-    /// <summary>Claims the highest inactive slot, resets recycled family state, and installs record identity before setup runs.</summary>
+    /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's identity before setup runs.</summary>
     private RoomObjectSlot? AllocateRoomPopulationSlot(
         RoomObjectPopulationRecord record,
         int blockIndex)
@@ -123,7 +123,6 @@ internal sealed class RoomObjectPopulationLoader
 
         slot.Header = record.Header;
         slot.BlockIndex = blockIndex;
-        slot.FrameHold = 1;
         slot.Argument = record.Argument;
         return slot;
     }

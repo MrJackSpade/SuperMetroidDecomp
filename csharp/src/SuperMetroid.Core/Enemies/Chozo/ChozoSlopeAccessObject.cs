@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -7,6 +8,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// The Wrecked Ship Chozo statue's slope access opening or closing (#1554): it draws the access once and, as it leaves
 /// the room on its second update, turns the statue room's spikes into slopes or its slopes back into spikes.
 /// </summary>
+[RoomLifetime]
 internal sealed class ChozoSlopeAccessObject : TerrainChangeObject
 {
     /// <summary>The terrain change the access makes to the statue room's slope as it ends.</summary>

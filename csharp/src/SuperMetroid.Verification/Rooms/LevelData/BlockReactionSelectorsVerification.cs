@@ -136,7 +136,7 @@ internal static class BlockReactionSelectorsVerification
 
     /// <summary>The native list a bomb-special reaction stands for: the shared delete, the speed reveal or a crumble reveal.</summary>
     private static ushort BombSpecialNativeList(BlockReactionChange change) =>
-        change == BlockReactionChange.MadeAtSpawn ? RoomObjectProgramStartOracle.SharedDeleteEntry
+        change == BlockReactionChange.MadeAtSpawn ? RoomObjectNativeListAddresses.DeleteList
             : change == SpeedBoosterBlockObjectDefinitions.BombReveal
                 ? RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Program == change).Entry
                 : RoomObjectNativeListAddresses.BlockReactionEntry(change);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -9,6 +10,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// it queues the boss music and leaves the room, taking its identity with it so Bomb Torizo sees it gone.
 /// </summary>
 /// <param name="owner">The room's hand owner, which drops the fragments, queues the music and reads Samus.</param>
+[RoomLifetime]
 internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's hand owner.</summary>

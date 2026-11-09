@@ -192,7 +192,7 @@ internal static class RoomObjectPopulationVerification
             bool eyeDoorBody = header is RoomObjectHeaderId.EyeDoorFacingRight or RoomObjectHeaderId.EyeDoorFacingLeft;
             ushort typedClosing = DoorObjectNativeListAddresses.TypedClosingEntry(header)
                 ?? (header == RoomObjectHeaderId.MotherBrainEscapeRoomGate ? DoorObjectNativeListAddresses.EscapeGateClosing
-                    : eyeDoorBody ? RoomObjectProgramStartOracle.SharedDeleteEntry
+                    : eyeDoorBody ? RoomObjectNativeListAddresses.DeleteList
                     : throw new InvalidOperationException($"Resident door $84:{raw:X4} has no typed closing."));
             AssertEqual(expected, typedClosing, $"resident door $84:{raw:X4} closing begins at its header's list");
 
@@ -984,11 +984,8 @@ internal static class RoomObjectPopulationVerification
     internal static void VerifyMetroidsClearedStateObject(TestAddressSpace bus)
     {
         const ushort population = 0x9500;
-        SeedObjectProgramWords(bus, 0xdb46, RoomObjectNativeListAddresses.SharedEntries[1].Entry);
+        SeedObjectProgramWords(bus, 0xdb46, RoomObjectNativeListAddresses.MetroidsClearedSleepList);
         SeedObjectProgramWords(bus, 0xdb42, 0xdead);
-        if (File.Exists("Super Metroid.smc"))
-            RoomObjectProgramsVerification.VerifySharedPrograms(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         SeedRoomObjectPopulation(bus, population,
         [
             0x44, 0xdb, 0x01, 0x01, 0x10, 0x00,

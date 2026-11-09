@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// a shot sets while the gate moves stays until the gate next rests.
 /// </summary>
 /// <param name="owner">The room's gates, which reach Samus and the gate projectiles.</param>
+[RoomLifetime]
 internal sealed class DownwardGateObject(GateObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's gates.</summary>

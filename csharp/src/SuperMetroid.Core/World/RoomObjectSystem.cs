@@ -158,13 +158,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
         BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
-        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[])
-            source.AddObjectFamilies(_families);
-        _families.RequireEveryFamily();
     }
-
-    /// <summary>Each PLM family's step, run before a family slot's shared pass.</summary>
-    private readonly RoomObjectFamilyTable _families = new();
 
     /// <summary>Door-object instruction owner bound to this room's allocation and draw state.</summary>
     internal DoorObjects DoorObjects { get; }
@@ -185,32 +179,12 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         BombTorizoHand.BeginBombTorizoHandFrame();
 
         var context = new RoomObjectStepContext(this, level, frame);
+        // Each typed room object advances by its own steps, at its place in the update order; a place that holds no
+        // typed object (one whose setup did all its work) stays idle until it is freed.
         foreach (RoomObjectSlot slot in SlotTable.InProcessingOrder)
         {
-            if (!slot.Active)
-                continue;
-
-            // A typed room object advances by its own steps, at its place in the update order.
-            if (slot.Behaviour is { } behaviour)
-            {
+            if (slot.Active && slot.Behaviour is { } behaviour)
                 behaviour.Update(slot, context);
-                continue;
-            }
-
-            // A family that consumes the pass skips the pre-instruction, the shared timer and the interpreter.
-            if (slot.Family is { } family && _families.Step(slot, family, context) == RoomObjectStepOutcome.Consumed)
-                continue;
-
-            // The slot's one frame behaviour. A routine it installs runs from the next pass.
-            slot.FrameBehavior.Run(slot, context);
-            if (!slot.Active)
-                continue;
-
-            if (--slot.FrameHold != 0)
-                continue;
-
-            (slot.Animation ?? throw new InvalidOperationException(
-                $"PLM {slot.Header} runs neither a typed program nor a family step.")).Advance(slot, context);
         }
 
     }
@@ -222,10 +196,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     {
         slot.Delete();
         MotherBrainGlass.OnObjectDeleted(slot);
-        // Semantic family references are discriminators, not retained debug
-        // history. A later spawn can reuse this slot and must never inherit
-        // door-only pre-handler behavior.
-        slot.Family = null;
     }
 
     /// <inheritdoc/>

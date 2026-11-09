@@ -110,8 +110,8 @@ internal static class ChozoStatueVisualsVerification
                      address <= (0x840000 | ChozoStatueObjectProgramDefinitions.ClearSlopeEnd)) ||
                     (address >= (0x840000 | ChozoStatueObjectProgramDefinitions.BlockSlopeStart) &&
                      address <= (0x840000 | ChozoStatueObjectProgramDefinitions.BlockSlopeEnd)) ||
-                    (address >= (0x840000 | RoomObjectProgramStartOracle.SharedDeleteEntry) &&
-                     address <= (0x840000 | (RoomObjectProgramStartOracle.SharedDeleteEntry + 1))) ||
+                    (address >= (0x840000 | RoomObjectNativeListAddresses.DeleteList) &&
+                     address <= (0x840000 | (RoomObjectNativeListAddresses.DeleteList + 1))) ||
                     RoomObjectChozoStatueVisualFiles.All.Any(draw =>
                     {
                         int first = 0x840000 | RoomObjectDrawAddressCodec.Of(draw.Draw);

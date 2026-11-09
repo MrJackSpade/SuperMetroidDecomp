@@ -129,7 +129,7 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(RoomObjectInstruction.Sleep, InstructionWord(entry + 4), "the wall sleeps while it waits");
         AssertEqual(RoomObjectInstruction.ClearFrameBehavior, InstructionWord(entry + 6), "past its sleep the wall stops waiting");
         AssertEqual(1, (int)Word(entry + 8), "the open wall shows for one update");
-        AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw),
+        AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw),
             (int)Word(entry + 10), "the open wall's draw");
         AssertEqual(RoomObjectInstruction.Delete, InstructionWord(entry + 12), "the wall ends after it opens");
     }

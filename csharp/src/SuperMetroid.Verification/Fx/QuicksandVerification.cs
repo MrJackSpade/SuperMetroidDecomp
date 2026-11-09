@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;

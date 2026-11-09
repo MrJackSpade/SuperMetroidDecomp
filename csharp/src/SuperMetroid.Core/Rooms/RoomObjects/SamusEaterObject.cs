@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="owner">The room's plants, which reach Samus.</param>
 /// <param name="plant">The plant's mounting and authored chew.</param>
 /// <param name="heldPosition">Where the plant holds Samus.</param>
+[RoomLifetime]
 internal sealed class SamusEaterObject(SamusEaterObjects owner, SamusEaterObjectDefinition plant, Position16<RoomPixels> heldPosition)
     : RoomObjectBehaviour
 {

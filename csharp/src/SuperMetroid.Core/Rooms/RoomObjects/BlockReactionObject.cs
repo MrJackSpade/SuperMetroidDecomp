@@ -41,16 +41,13 @@ internal class BlockReactionObject(BlockReactionChange change) : RoomObjectBehav
         }
         else
         {
-            BeforeRestoringBlock(place, context);
-            context.DrawRestoredBlock(place);
+            RestoreBlock(place, context);
         }
         _updatesBeforeNextStep = frame.Updates;
     }
 
-    /// <summary>Runs just before the reaction restores its block's saved terrain; nothing by default.</summary>
+    /// <summary>Restores the block's saved terrain where an image asks for it.</summary>
     /// <param name="place">The reaction's place.</param>
     /// <param name="context">The update.</param>
-    private protected virtual void BeforeRestoringBlock(RoomObjectSlot place, RoomObjectStepContext context)
-    {
-    }
+    private protected virtual void RestoreBlock(RoomObjectSlot place, RoomObjectStepContext context) => context.DrawRestoredBlock(place);
 }

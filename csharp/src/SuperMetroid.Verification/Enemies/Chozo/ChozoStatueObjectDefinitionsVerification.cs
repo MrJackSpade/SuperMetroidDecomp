@@ -1,4 +1,3 @@
-using SuperMetroid.Verification.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoLayoutsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoProgramVerification;
@@ -28,7 +27,6 @@ internal static class ChozoStatueObjectDefinitionsVerification
         Suite(nameof(VerifyChozoProgramTargets), () => VerifyChozoProgramTargets(rom));
         Suite(nameof(VerifyChozoProgramCallback), () => VerifyChozoProgramCallback(rom));
         Suite(nameof(VerifyChozoProgramEvent), () => VerifyChozoProgramEvent(rom));
-        Suite(nameof(RoomObjectProgramsVerification.VerifySharedPrograms), () => RoomObjectProgramsVerification.VerifySharedPrograms(rom));
         Suite(nameof(VerifyChozoLayoutGeometry), () => VerifyChozoLayoutGeometry(rom));
         Suite(nameof(VerifyChozoLayoutCollision), () => VerifyChozoLayoutCollision(rom));
         Suite(nameof(VerifyChozoLayoutVisuals), () => VerifyChozoLayoutVisuals(rom));
@@ -159,7 +157,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
         AssertEqual(RoomObjectInstruction.Sleep, InstructionAt<RoomObjectInstruction>(cartridge, entry + 10), "Lower Norfair hand sleeps while it waits");
         AssertEqual(RoomObjectInstruction.SetLoweredAcidHeight, InstructionAt<RoomObjectInstruction>(cartridge, lowered), "lowered hand lowers the acid first");
         AssertEqual(1, (int)Word(lowered + 2), "lowered hand shows for one update");
-        AssertEqual((int)RoomObjectDrawAddressCodec.Of(ChozoStatueObjectDefinitions.LoweredHand), (int)Word(lowered + 4), "lowered hand's draw");
+        AssertEqual(RoomObjectDrawAddressCodec.Of(ChozoStatueObjectDefinitions.LoweredHand), (int)Word(lowered + 4), "lowered hand's draw");
         AssertEqual(RoomObjectInstruction.Delete, InstructionAt<RoomObjectInstruction>(cartridge, lowered + 6), "lowered hand ends after its draw");
     }
 }

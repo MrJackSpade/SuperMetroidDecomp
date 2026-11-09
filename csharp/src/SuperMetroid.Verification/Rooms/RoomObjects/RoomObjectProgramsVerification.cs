@@ -1,13 +1,11 @@
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Progression;
 using static SuperMetroid.TestSupport.MovieReplay.NativeObjectListDefinitions;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectNativeListAddresses;
 
@@ -36,7 +34,7 @@ internal static class RoomObjectProgramsVerification
         void AssertShown(int cursor, TerrainChangeFrame frame, string at)
         {
             AssertEqual(frame.Updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
         }
 
         int main = NoobTubeList;
@@ -77,14 +75,6 @@ internal static class RoomObjectProgramsVerification
         AssertEqual(RoomObjectInstruction.UnlockSamus, At(cursor + 17), "the open tube releases Samus");
         AssertEqual(RoomObjectInstruction.Delete, At(cursor + 19), "the open tube ends");
         Console.WriteLine("  N00b tube lists match its typed course in bank $84.");
-    }
-
-    /// <summary>The shared delete and sleep programs equal their one-instruction native lists.</summary>
-    internal static void VerifySharedPrograms(ISnesAddressSpace rom)
-    {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), RoomObjectSharedProgramDefinitions.Programs, SharedEntries,
-            draw => throw new InvalidOperationException($"The shared programs never draw; got {draw}."), NoCues<RoomObjectNoCue>(), "shared PLM");
-        Console.WriteLine($"  Shared PLM programs: {steps} typed steps match bank $84.");
     }
 
     /// <summary>
@@ -155,7 +145,7 @@ internal static class RoomObjectProgramsVerification
                 BlockReactionFrame expected = change.Frames[frame];
                 RoomObjectDraw draw = expected.Draw ?? throw new InvalidDataException($"{at}: the native image draws where the typed one restores the block.");
                 AssertEqual(expected.Updates, word, $"{at}: updates");
-                AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(draw), (int)Word(cursor + 2), $"{at}: draw");
+                AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(draw), (int)Word(cursor + 2), $"{at}: draw");
                 AssertEqual(sound, expected.SoundBefore, $"{at}: sound with the image");
                 if (sound is not null)
                     AssertEqual(priority, expected.SoundPriority, $"{at}: sound priority");
@@ -210,14 +200,8 @@ internal static class RoomObjectProgramsVerification
         throw new InvalidDataException($"Block reaction list $84:{entry:X4} ran past its instruction limit without its end.");
     }
 
-    /// <summary>The scripted room programs equal their native lists.</summary>
-    internal static void VerifyScriptedRoomPrograms(ISnesAddressSpace rom)
-    {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), ScriptedRoomObjectProgramDefinitions.Programs, ScriptedRoomEntries,
-            frame => ScriptedRoomObjectDrawDefinitions.DrawLists[frame], NoCues<RoomObjectNoCue>(), "scripted room");
-        Console.WriteLine($"  Scripted room programs: {steps} typed steps match bank $84.");
-        VerifyScriptedTerrainChanges(rom);
-    }
+    /// <summary>The objects that were the scripted room programs play as their native lists do.</summary>
+    internal static void VerifyScriptedRoomPrograms(ISnesAddressSpace rom) => VerifyScriptedTerrainChanges(rom);
 
     /// <summary>
     /// The room objects that left the scripted program set play as their native lists do (#1554); the critters' wall
@@ -303,7 +287,7 @@ internal static class RoomObjectProgramsVerification
     }
 
     /// <summary>The native instruction of every typed gate state, walked once.</summary>
-    private static IReadOnlyDictionary<GateState, ushort>? downwardGateAddresses;
+    private static Dictionary<GateState, ushort>? downwardGateAddresses;
 
     /// <summary>
     /// Walks the gate's native lists from its header, checking each against the typed course, and returns the instruction
@@ -317,7 +301,7 @@ internal static class RoomObjectProgramsVerification
         void AssertShown(int cursor, TerrainChangeFrame frame, string at)
         {
             AssertEqual(frame.Updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
         }
         void AssertMovementSound(int cursor, string at)
         {
@@ -452,7 +436,7 @@ internal static class RoomObjectProgramsVerification
         void AssertShown(int cursor, SamusEaterDraw image, int updates, string at)
         {
             AssertEqual(updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
 
         string plantName = plant.Ceiling ? "ceiling plant" : "floor plant";

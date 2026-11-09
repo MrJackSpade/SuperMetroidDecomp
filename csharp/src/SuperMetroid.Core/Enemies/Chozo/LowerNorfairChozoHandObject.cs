@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -10,6 +11,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// the hand's special block again and leaves the room on that update.
 /// </summary>
 /// <param name="statue">The room's Chozo statue objects, which hold the acid and the lowered-acid event.</param>
+[RoomLifetime]
 internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : RoomObjectBehaviour
 {
     /// <summary>The room's Chozo statue objects.</summary>

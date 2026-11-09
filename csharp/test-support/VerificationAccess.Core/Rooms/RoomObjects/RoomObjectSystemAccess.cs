@@ -159,22 +159,6 @@ internal static class RoomObjectSystemAccess
         }
 
         /// <summary>
-        /// Redirects the sole live PLM to a constructed bank-$84 program for interpreter tests.
-        /// This is not a gameplay operation: the real setup still owns allocation, block
-        /// position, restore word and BTS, while the test controls only the next instruction.
-        /// Keeping synthetic opcodes at nonretail addresses avoids rewriting an immutable
-        /// compiled cartridge program in a fake address space.
-        /// </summary>
-        internal void StartSoleProgramForVerification(RoomObjectProgramStart start)
-        {
-            RoomObjectSlot[] active = [.. self.SlotTable.Slots.Where(slot => slot.Active)];
-            if (active.Length != 1)
-                throw new InvalidOperationException("Program probe requires exactly one active PLM slot.");
-            start.StartOn(active[0]);
-            active[0].FrameHold = 1;
-        }
-
-        /// <summary>
         /// Publishes the projectile word to the resident eye controller at a type-$C/BTS-$44
         /// block. The following PLM pre-instruction performs the missile-family filtering.
         /// </summary>
@@ -211,11 +195,7 @@ internal static class RoomObjectSystemAccess
                     HeaderPointer: entry.Slot.Header,
                     BlockIndex: entry.Slot.BlockIndex,
                     RoomArgument: entry.Slot.NativeRoomArgument,
-                    FrameBehavior: RoomObjectFrameBehaviorNativeRoutines.Of(entry.Slot.FrameBehavior),
-                    FrameHold: checked((ushort)entry.Slot.FrameHold),
-                    LoopTimer: entry.Slot.LoopTimer.RawValue,
                     ProjectileHit: entry.Slot.ProjectileHit,
-                    Animation: entry.Slot.Animation,
                     Behaviour: entry.Slot.Behaviour,
                     SpentCap: entry.Slot.Argument is SpentDoorArgument)),
         ];

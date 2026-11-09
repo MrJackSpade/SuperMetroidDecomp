@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// One place in the room's update order (<see cref="RoomObjectSlotTable"/>) and the room object it holds: the object's
-/// identity and block, and either a typed object that holds its own state (<see cref="Behaviour"/>, #1554) or, for the
-/// families not yet converted, the program, frame hold, loop count and per-update routine they still run.
+/// identity and block, what it was placed with, a shot on its block it has yet to take, and the typed object that holds
+/// its own state and advances it (<see cref="Behaviour"/>, #1554).
 /// </summary>
 internal sealed class RoomObjectSlot
 {
     /// <summary>
-    /// The typed room object this place holds, which advances by its own steps and uses none of the program state
-    /// below; null for a free place or one running a not-yet-converted family.
+    /// The typed room object this place holds, which advances by its own steps; null for a free place, or one whose setup
+    /// did all its work.
     /// </summary>
     internal RoomObjectBehaviour? Behaviour { get; private set; }
     /// <summary>
@@ -28,36 +28,14 @@ internal sealed class RoomObjectSlot
     /// saves the dimension parent instead.
     /// </summary>
     public RoomTerrainBlock RestoreTerrain { get; set; } = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
-    /// <summary>The typed program the slot runs (#1296), or null for a slot a family step drives or a free slot.</summary>
-    internal RoomObjectAnimation? Animation { get; private set; }
-    /// <summary>Countdown until the slot's next instruction-list step.</summary>
-    public int FrameHold { get; set; }
-    /// <summary>The pre-instruction run before the timer/list pass.</summary>
-    internal IRoomObjectFrameBehavior FrameBehavior { get; set; } = RoomObjectFrameBehaviors.Inert;
     /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
     public RoomObjectRoomArgument? Argument { get; set; }
-    /// <summary>
-    /// The slot's loop countdown, distinct from the instruction countdown: a counted program loop repeats until it
-    /// reaches zero. A downward gate keeps its trigger in it (nonzero once shot), stepped by the gate's owner.
-    /// </summary>
-    public WrappingCountdown LoopTimer { get; set; }
-    /// <summary>
-    /// The projectile hit on the slot's trigger block that its pre-instruction has not yet consumed, or null for none.
-    /// The original game keeps the hit in the loop counter's storage; no PLM that reads hits runs a counted loop while its
-    /// block still triggers (the eye door turns its block into a blue door before its counted opening flashes), so the
-    /// two are kept apart.
-    /// </summary>
+    /// <summary>The projectile hit on the place's block that its object has not yet taken, or null for none.</summary>
     public ResidentObjectProjectileHit? ProjectileHit { get; set; }
-    /// <summary>
-    /// The semantic state of the family this slot belongs to, or null while the slot runs only its shared state under the
-    /// shared pre-instruction, timer and instruction interpreter.
-    /// </summary>
-    internal RoomObjectFamilyState? Family { get; set; }
 
     /// <summary>
-    /// Clears every field and the family reference, so a recycled slot cannot run its former family. Claiming a free slot
-    /// replaces every prior discriminator; every population and runtime spawn passes through this reset before setting its
-    /// own state.
+    /// Clears every field, so a recycled place cannot run its former object. Every population and runtime spawn passes
+    /// through this reset before setting its own state.
     /// </summary>
     internal void Clear()
     {
@@ -65,22 +43,17 @@ internal sealed class RoomObjectSlot
         Header = 0;
         BlockIndex = 0;
         RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
-        Animation = null;
-        FrameHold = 0;
-        FrameBehavior = RoomObjectFrameBehaviors.Inert;
         Argument = null;
-        LoopTimer = WrappingCountdown.Start(0);
         ProjectileHit = null;
-        Family = null;
         Behaviour = null;
     }
 
     /// <summary>Makes this freshly claimed place hold <paramref name="behaviour"/>, which advances it from the next update on.</summary>
-    /// <exception cref="InvalidOperationException">The place is free, or already runs a program or a typed object.</exception>
+    /// <exception cref="InvalidOperationException">The place is free, or already holds a typed object.</exception>
     internal void Become(RoomObjectBehaviour behaviour)
     {
         Ensure.NotNull(behaviour);
-        if (!Active || Behaviour is not null || Animation is not null || Family is not null)
+        if (!Active || Behaviour is not null)
             throw new InvalidOperationException("Only a freshly claimed room-object place can become a typed room object.");
         Behaviour = behaviour;
     }
@@ -95,9 +68,6 @@ internal sealed class RoomObjectSlot
         Ensure.NotNull(next);
         if (!Active)
             throw new InvalidOperationException("Only an occupied room-object place can turn into another typed room object.");
-        Animation = null;
-        Family = null;
-        FrameBehavior = RoomObjectFrameBehaviors.Inert;
         Behaviour = next;
     }
 
@@ -118,21 +88,4 @@ internal sealed class RoomObjectSlot
     /// slot is claimed again.
     /// </summary>
     internal void Delete() => Active = false;
-
-    /// <summary>Runs <paramref name="animation"/>; the caller keeps the slot's timer.</summary>
-    internal void StartAnimation(RoomObjectAnimation animation) => Animation = Ensure.NotNull(animation);
-
-    /// <summary>A pre-instruction's wake: the typed program resumes at the program it linked, on the next pass.</summary>
-    internal void WakeAtLink()
-    {
-        (Animation ?? throw new InvalidOperationException("A PLM woke at its link without a typed program.")).WakeAtLink();
-        FrameHold = 1;
-    }
-
-    /// <summary>A pre-instruction's wake past the sleep the slot rests on: the typed program steps over its hold, on the next pass.</summary>
-    internal void WakePastSleep()
-    {
-        (Animation ?? throw new InvalidOperationException("A PLM woke past its sleep without a typed program.")).WakePastSleep();
-        FrameHold = 1;
-    }
 }

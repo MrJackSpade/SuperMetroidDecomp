@@ -1,10 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Shaktool;
-using SuperMetroid.Core.Enemies.WreckedShip;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -17,15 +10,7 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
     /// <summary>The first of its four sixteen-byte quota observers (<c>$84:DADE</c>).</summary>
     private const ushort MetroidsClearedFirstQuotaObserver = 0xdade;
 
-    /// <summary>Every shared pre-instruction with its routine.</summary>
-    private static readonly Dictionary<IRoomObjectFrameBehavior, ushort> Routines = Build();
 
-    /// <summary>The routine <paramref name="frameBehavior"/> ports.</summary>
-    /// <exception cref="InvalidOperationException">The instance is not a shared pre-instruction.</exception>
-    internal static ushort Of(IRoomObjectFrameBehavior frameBehavior) =>
-        Routines.TryGetValue(frameBehavior, out ushort routine)
-            ? routine
-            : throw new InvalidOperationException($"PLM pre-instruction {frameBehavior} has no native routine mapping.");
 
     /// <summary>The routine a Metroids-cleared PLM installs for <paramref name="roomArgument"/>.</summary>
     internal static ushort MetroidsCleared(ushort roomArgument)
@@ -36,13 +21,4 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
         return (ushort)(entry < 9 ? MetroidsClearedFirstNoOp + entry : MetroidsClearedFirstQuotaObserver + (entry - 9) * 16);
     }
 
-    /// <summary>Maps every shared instance, rejecting an instance listed twice.</summary>
-    private static Dictionary<IRoomObjectFrameBehavior, ushort> Build()
-    {
-        var routines = new Dictionary<IRoomObjectFrameBehavior, ushort>
-        {
-            [RoomObjectFrameBehaviors.Inert] = RoomObjectFrameBehaviorDefinitions.SpawnDefault,
-        };
-        return routines;
-    }
 }

@@ -11,15 +11,15 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks imported Samus atmospheric art and the special live-WRAM null-pointer path.</summary>
+/// <summary>Checks imported Samus atmospheric art.</summary>
 internal static class SamusAtmosphereArtworkBoundaryVerification
 {
-
-    /// <summary>Seeds the WRAM bytes a null bank-$90 atmospheric pointer reads through its system-bank mirror.</summary>
-    private static void SeedNullAtmosphericPointerWram(SuperMetroidAddressSpace bus)
+    /// <summary>Particles holding one particle of <paramref name="kind"/> on <paramref name="step"/>, shown for two updates.</summary>
+    private static SamusParticles OneParticle(SamusParticleKind kind, int step)
     {
-        bus.WriteByte(SamusSourceDefinitions.MovementBank.Value, 0x5a);
-        bus.WriteByte(SamusSourceDefinitions.MovementBank.Value + 1, 0x34);
+        var particles = new SamusParticles();
+        particles.Add(new SamusParticle(kind, step, SamusParticleStart.Shown(2), new(128, 128), Offset16<RoomPixels>.Zero));
+        return particles;
     }
 
     /// <summary>Compares authored atmospheric frame attributes with cartridge words and checks missing-art rejection.</summary>
@@ -27,7 +27,6 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
     {
         var importBus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         InstalledSamusAtmosphericArtwork artwork = InstalledFixtures.SamusBody.Atmosphere;
-        var runtimeBus = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
         foreach (byte type in new byte[] { 1, 4, 6, 7 })
         for (byte frame = 0; frame < SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount; frame++)
@@ -37,8 +36,8 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 : SamusSourceDefinitions.SharedAtmosphericAttributes;
             int source = SamusSourceDefinitions.MovementBank.Value | (list + frame * sizeof(ushort));
             ushort expected = importBus.ReadCartridgeWord(source);
-            var effects = new SamusAtmosphericEffectsState();
-            effects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, 2, new(128, 128));
+            SamusParticles effects = OneParticle(SamusAtmosphericEffectWordCodec.KindNumbered(type)
+                ?? throw new InvalidDataException($"Effect number {type} names no particle."), frame);
             var oamFrame = new SpriteFrameBuffer();
             oamFrame.BeginFrame();
             OamBuffer oam;
@@ -51,8 +50,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 $"atmospheric type {type} frame {frame} high attribute uses imported art");
         }
 
-        var missing = new SamusAtmosphericEffectsState();
-        missing.SetSlot(0, SamusAtmosphericEffectType.FootstepSplash, 0, 2, new(128, 128));
+        SamusParticles missing = OneParticle(SamusParticleKind.SurfaceSplash, 0);
         AssertThrows<InvalidOperationException>(() =>
         {
             var oamFrame = new SpriteFrameBuffer();
@@ -62,17 +60,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
             oam = oamFrame.FinalizeAsOam();
         }, "authored atmospheric art cannot fall back to ROM");
 
-        SeedNullAtmosphericPointerWram(runtimeBus);
-        var mutable = new SamusAtmosphericEffectsState();
-        mutable.SetSlot(0, SamusAtmosphericEffectType.AlternateFootstepSplash, 0, 2, new(128, 128));
-        OamBuffer mutableOam = SpriteFrameBuffer.DrawnOam(frame =>
-            mutable.UpdateAndDraw(frame, new(0, 0), 128));
-        OamBuffer emptyOam = SpriteFrameBuffer.DrawnOam(frame =>
-            new SamusAtmosphericEffectsState().UpdateAndDraw(frame, new(0, 0), 128));
-        AssertTrue(mutableOam.LowTable.ToArray().SequenceEqual(emptyOam.LowTable.ToArray()),
-            "type two's null list pointer draws nothing, whatever WRAM holds (#1318)");
-
-        Console.WriteLine("Samus atmospheric artwork: all 16 authored frames use installed assets; null-pointer type two draws nothing.");
+        Console.WriteLine("Samus atmospheric artwork: all 16 authored frames use installed assets.");
     }
 
     /// <summary>Runs the atmospheric artwork boundary check using the repository cartridge.</summary>

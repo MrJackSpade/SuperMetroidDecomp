@@ -366,20 +366,25 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1AtmosphericCadenceRomByte(rom, address), LookupStream1AtmosphericCadenceRomByte(rom, address + 1));
-        for (byte type = 1; type <= 7; type++)
+        // Every effect number a producer starts names a particle kind (six and seven both dust); two names none.
+        foreach (int type in new[] { 1, 3, 4, 5, 6, 7 })
         {
+            SamusParticleKind kind = SamusAtmosphericEffectWordCodec.KindNumbered(type) ?? throw new InvalidDataException($"Effect number {type} names no particle.");
             int pointer = 0x900000 | Word(0x908b93 + type * 2);
-            byte count = (byte)Word(0x908bef + type * 2);
-            AssertEqual(count, SamusAtmosphericAnimations.FrameCount((SamusAtmosphericEffectType)type), "Named atmospheric frame domain matches native source");
-            for (byte frame = 0; frame < count; frame++)
-                AssertEqual(Word(pointer + frame * 2), SamusAtmosphericAnimations.FrameTimer((SamusAtmosphericEffectType)type, frame), "Calculated atmospheric cadence preserves every native duration");
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimations.FrameTimer((SamusAtmosphericEffectType)type, count), "Atmospheric first out-of-range frame still rejects");
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimations.FrameTimer((SamusAtmosphericEffectType)type, byte.MaxValue), "Atmospheric byte-max frame still rejects");
+            int count = Word(0x908bef + type * 2);
+            AssertEqual(count, SamusParticleAnimations.StepCount(kind), "Named atmospheric frame domain matches native source");
+            for (int frame = 0; frame < count; frame++)
+                AssertEqual(Word(pointer + frame * 2), SamusParticleAnimations.StepUpdates(kind, frame), "Calculated atmospheric cadence preserves every native duration");
+            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepUpdates(kind, count), "Atmospheric first out-of-range frame still rejects");
+            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepUpdates(kind, byte.MaxValue), "Atmospheric byte-max frame still rejects");
         }
-        foreach (byte invalid in new byte[] { 0, 8, byte.MaxValue })
+        AssertTrue(SamusAtmosphericEffectWordCodec.KindNumbered(0) is null, "Effect number zero is an empty place");
+        foreach (int invalid in new[] { 2, 8, byte.MaxValue })
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectWordCodec.KindNumbered(invalid), "An unstarted or out-of-domain atmospheric type names no particle");
+        foreach (int invalid in new[] { -1, Enum.GetValues<SamusParticleKind>().Length })
         {
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimations.FrameCount((SamusAtmosphericEffectType)invalid), "Inactive/out-of-domain atmospheric type rejects");
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimations.FrameTimer((SamusAtmosphericEffectType)invalid, 0), "Invalid atmospheric type fails before frame selection");
+            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepCount((SamusParticleKind)invalid), "An undefined particle kind rejects");
+            AssertThrows<InvalidDataException>(() => SamusParticleAnimations.StepUpdates((SamusParticleKind)invalid, 0), "An undefined particle kind fails before step selection");
         }
         Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence());
     }

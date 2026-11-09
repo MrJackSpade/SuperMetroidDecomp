@@ -97,7 +97,8 @@ internal static class InstalledSporesTests
                 }
                 if (frame is < 50 or 510 or 511 or 512 or 1024 or 1049)
                 {
-                    var liquid = new SamusLiquidPhysicsState(); liquid.ConfigureFor(baseline);
+                    var liquid = new SamusLiquidPhysicsState(new BreathBubbleAndLavaSprayWaits(), new SuperMetroid.Core.Samus.Drawing.SamusParticles());
+                    liquid.ConfigureFor(baseline);
                     Require(liquid.FxType == RoomFxType.Spores && liquid.WaterSurfaceY is null &&
                         liquid.LavaAcidSurfaceY is null, "Spore artwork activated liquid physics.");
                 }

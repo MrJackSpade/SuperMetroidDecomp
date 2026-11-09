@@ -363,10 +363,10 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
     SamusAerialPoseTransitions.ApplyWallJumpTrigger(eligible);
-    SamusAtmosphericEffectSlot wallDust = eligible.LiquidPhysics.AtmosphericEffects.Slots[3];
-    AssertEqual(SamusAtmosphericEffectType.Dust, wallDust.Type, "wall jump creates dust in slot three");
-    AssertEqual(0, wallDust.AnimationFrame, "wall dust starts at its first frame");
-    AssertEqual(3, wallDust.AnimationTimer.RawValue, "wall dust begins with timer three");
+    SamusParticle wallDust = eligible.Presentation.Particles.All[^1];
+    AssertEqual(SamusParticleKind.Dust, wallDust.Kind, "wall jump creates dust");
+    AssertEqual(0, wallDust.AnimationStep, "wall dust starts at its first frame");
+    AssertEqual(3, wallDust.StepUpdatesLeft, "wall dust begins with timer three");
     AssertEqual(eligible.Position.X.Whole - 6, wallDust.Position.X, "right-facing wall dust is six pixels behind Samus");
     // $91:FA76 runs after the wall-jump pose is installed: Get_Samus_Bottom_Boundary uses
     // that pose's radius (Y + radius - 1), not the spin radius still live in kinematics.

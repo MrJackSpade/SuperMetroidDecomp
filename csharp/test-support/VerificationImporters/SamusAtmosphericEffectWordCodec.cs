@@ -56,6 +56,11 @@ internal static class SamusAtmosphericEffectWordCodec
         return EffectOrder[number];
     }
 
+    /// <summary>The kind of particle the cartridge's effect number <paramref name="number"/> names, or none for zero.</summary>
+    /// <param name="number">An effect number, as the cartridge's per-effect tables are indexed.</param>
+    /// <exception cref="InvalidDataException">The number names no effect, or the effect no producer starts.</exception>
+    public static SamusParticleKind? KindNumbered(int number) => DecodeKind(number << FrameBits);
+
     /// <summary>The animation step a place word records.</summary>
     /// <param name="word">An atmospheric effect place word.</param>
     public static int DecodeStep(int word) => word & ((1 << FrameBits) - 1);

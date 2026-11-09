@@ -616,7 +616,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Atmospheric cadence oracle revision");
         Suite(nameof(VerifyLookupStream1AtmosphericCadence), () => VerifyLookupStream1AtmosphericCadence(rom));
-        Console.WriteLine("Atmospheric cadence:37 native holds, seven domains,74 actual expiry/delayed-start cases and rejection contracts pass.");
+        Console.WriteLine("Atmospheric cadence: 33 native holds of six started effect numbers, 66 actual expiry/delayed-start cases and rejection contracts pass.");
         return 0;
     }
 

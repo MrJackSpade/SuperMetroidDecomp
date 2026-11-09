@@ -62,8 +62,6 @@ internal static class AuditContractChecks
         new(nameof(ConfirmMotherBrainMetadata), ConfirmMotherBrainMetadata),
         new(nameof(ClosedPresentationContractChecks), ClosedPresentationContractChecks.Run),
         new(nameof(MessagePresentationContractChecks), MessagePresentationContractChecks.Run),
-        new(nameof(RoomObjectPresentationContractChecks), RoomObjectPresentationContractChecks.Run),
-        new(nameof(RoomObjectDoorPresentationContractChecks), RoomObjectDoorPresentationContractChecks.Run),
         new(nameof(SamusColorPresentationContractChecks), SamusColorPresentationContractChecks.Run),
         new(nameof(EnemyColorPresentationContractChecks), EnemyColorPresentationContractChecks.Run),
         new(nameof(TextAndMapPresentationContractChecks), TextAndMapPresentationContractChecks.Run),

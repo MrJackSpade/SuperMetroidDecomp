@@ -24,4 +24,11 @@ public sealed class RoomObjectFrameImage
         Cells.TryGetValue(cell, out RoomBlockAppearance shown)
             ? shown
             : throw new InvalidDataException($"The installed room-object frame covers no cell at ({cell.X},{cell.Y}).");
+
+    /// <summary>
+    /// This picture with every cell's block flipped left to right, as a mirrored twin of a frame shows the frame it
+    /// mirrors; the cells keep their places.
+    /// </summary>
+    internal RoomObjectFrameImage MirroredHorizontally() =>
+        new(Cells.ToDictionary(cell => cell.Key, cell => cell.Value.WithMirroring(cell.Value.Mirroring ^ BlockMirroring.Horizontal)));
 }

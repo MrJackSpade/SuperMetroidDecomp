@@ -4,8 +4,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed pictures of one room object's frames (#1557), keyed by the frame's identity. The import pictures every
 /// frame the object draws; there is no compiled copy to fall back on.
 /// </summary>
-/// <typeparam name="TFrame">The object's frame identity.</typeparam>
-internal sealed class RoomObjectFrameImages<TFrame> where TFrame : struct, Enum
+/// <typeparam name="TFrame">
+/// The object's frame identity: its frame enum, or the <see cref="RoomObjectDraw"/> of a family whose frames are typed
+/// records or span several frame types.
+/// </typeparam>
+internal sealed class RoomObjectFrameImages<TFrame> where TFrame : notnull
 {
 
     /// <summary>Holds the pictures of the frames, which the import has checked cover every frame the object draws.</summary>

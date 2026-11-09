@@ -413,7 +413,7 @@ internal static class RoomObjectContentIdentity
     /// top to bottom and left to right, with its place and what it shows.
     /// </summary>
     private static string FrameImagesIdentity<TFrame>(string domain, RoomObjectFrameImages<TFrame> images, RoomObjectFrameFamily<TFrame> family)
-        where TFrame : struct, Enum =>
+        where TFrame : notnull =>
         SelectedPresentationHash.Create(domain, content =>
         {
             Span<RoomBlockAppearance> shown = stackalloc RoomBlockAppearance[1];

@@ -29,6 +29,32 @@ internal static class RoomObjectFrameImageFiles
         Converters = { new JsonStringEnumConverter() },
     };
 
+    /// <summary>
+    /// A room object whose frames are keyed by their draw: each of <paramref name="frames"/> laid out from the runs the
+    /// game draws it by, under its published name.
+    /// </summary>
+    /// <param name="fileName">The installed file holding the frames' pictures.</param>
+    /// <param name="name">The object's name in diagnostics.</param>
+    /// <param name="frames">Every frame the object draws, as the game draws it, in the installed file's order.</param>
+    /// <param name="visualId">The published name of a frame.</param>
+    /// <exception cref="InvalidDataException">A frame has no run, or its first run does not start at its origin.</exception>
+    /// <exception cref="ArgumentException">Two frames are the same draw.</exception>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> DrawFamily(string fileName, string name,
+        IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> frames, Func<RoomObjectDraw, string> visualId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        Ensure.NotNull(visualId);
+        var layouts = new Dictionary<RoomObjectDraw, RoomObjectFrameLayout>();
+        var ids = new Dictionary<RoomObjectDraw, string>();
+        foreach (RoomObjectShotBlockDrawDefinitions.DrawList frame in Ensure.NotNull(frames))
+        {
+            layouts.Add(frame.Draw, RoomObjectFrameLayout.Of(frame));
+            ids.Add(frame.Draw, visualId(frame.Draw));
+        }
+        return new(fileName, name, layouts, ids);
+    }
+
     /// <summary>Pictures every frame of <paramref name="family"/> from the cartridge and writes the installed document.</summary>
     /// <param name="bus">The cartridge the frames' draw lists are read from.</param>
     /// <param name="directory">The family's installed directory, created if absent; its document must not already exist.</param>
@@ -37,14 +63,14 @@ internal static class RoomObjectFrameImageFiles
     /// <exception cref="InvalidDataException">A frame's draw list differs from the geometry or collision the game draws by.</exception>
     /// <exception cref="IOException">The document already exists or cannot be written.</exception>
     internal static void Extract<TFrame>(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256,
-        RoomObjectFrameFamily<TFrame> family) where TFrame : struct, Enum
+        RoomObjectFrameFamily<TFrame> family) where TFrame : notnull
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(family);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         var frames = new List<FrameEntry>();
-        foreach (TFrame frame in Enum.GetValues<TFrame>())
+        foreach (TFrame frame in family.Layouts.Keys)
         {
             RoomObjectFrameImage image = Picture(bus, family.Name, Layout(family, frame));
             frames.Add(new FrameEntry(Id(family, frame), image.Cells
@@ -64,7 +90,7 @@ internal static class RoomObjectFrameImageFiles
     /// picture does not cover exactly the frame's cells.
     /// </exception>
     /// <exception cref="IOException">The document cannot be read.</exception>
-    internal static RoomObjectFrameImages<TFrame> Load<TFrame>(string directory, RoomObjectFrameFamily<TFrame> family) where TFrame : struct, Enum
+    internal static RoomObjectFrameImages<TFrame> Load<TFrame>(string directory, RoomObjectFrameFamily<TFrame> family) where TFrame : notnull
     {
         Ensure.NotNull(family);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
@@ -113,7 +139,7 @@ internal static class RoomObjectFrameImageFiles
     }
 
     /// <summary>Builds the frames' pictures from an installed document, checking every frame covers exactly its cells.</summary>
-    private static RoomObjectFrameImages<TFrame> Create<TFrame>(FrameDocument document, RoomObjectFrameFamily<TFrame> family) where TFrame : struct, Enum
+    private static RoomObjectFrameImages<TFrame> Create<TFrame>(FrameDocument document, RoomObjectFrameFamily<TFrame> family) where TFrame : notnull
     {
         if (document.Version != FormatVersion ||
             !string.Equals(document.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
@@ -123,15 +149,15 @@ internal static class RoomObjectFrameImageFiles
         var images = new Dictionary<TFrame, RoomObjectFrameImage>();
         foreach (FrameEntry entry in document.Frames)
         {
-            if (entry?.Id is null || !byId.TryGetValue(entry.Id, out TFrame frame))
+            if (entry?.Id is null || !byId.TryGetValue(entry.Id, out TFrame? frame))
                 throw new InvalidDataException($"frame {entry?.Id ?? "(unnamed)"} is not one of {family.Name}'s frames.");
             if (images.ContainsKey(frame))
                 throw new InvalidDataException($"frame {entry.Id} is pictured twice.");
             images.Add(frame, Image(entry, Layout(family, frame).Cells()));
         }
-        foreach (TFrame frame in Enum.GetValues<TFrame>())
-            if (!images.ContainsKey(frame))
-                throw new InvalidDataException($"frame {Id(family, frame)} is not pictured.");
+        foreach (TFrame drawn in family.Layouts.Keys)
+            if (!images.ContainsKey(drawn))
+                throw new InvalidDataException($"frame {Id(family, drawn)} is not pictured.");
         return new RoomObjectFrameImages<TFrame>(images);
     }
 
@@ -166,13 +192,13 @@ internal static class RoomObjectFrameImageFiles
     }
 
     /// <summary>The geometry of <paramref name="frame"/>.</summary>
-    private static RoomObjectFrameLayout Layout<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : struct, Enum =>
+    private static RoomObjectFrameLayout Layout<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
         family.Layouts.TryGetValue(frame, out RoomObjectFrameLayout layout)
             ? layout
             : throw new InvalidOperationException($"{family.Name} frame {frame} has no geometry.");
 
     /// <summary>The published name of <paramref name="frame"/>.</summary>
-    private static string Id<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : struct, Enum =>
+    private static string Id<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
         family.Ids.TryGetValue(frame, out string? id)
             ? id
             : throw new InvalidOperationException($"{family.Name} frame {frame} has no published name.");

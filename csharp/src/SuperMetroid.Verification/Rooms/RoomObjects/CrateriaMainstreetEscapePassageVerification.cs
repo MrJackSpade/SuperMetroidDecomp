@@ -35,10 +35,10 @@ internal static class CrateriaMainstreetEscapePassageVerification
 
         RoomLevelData opened = Load(crittersEscaped: true);
         foreach (int x in new[] { 0x3d, 0x3e, 0x41, 0x42 })
-            AssertEqual(RoomTerrainBlocks.BlankAir, Word(opened, x), $"block (${x:X2},$0B) opens when the critters escaped");
+            AssertEqual(BlankAirBlock.Value, Word(opened, x), $"block (${x:X2},$0B) opens when the critters escaped");
 
         RoomLevelData shut = Load(crittersEscaped: false);
-        AssertTrue(Word(shut, 0x3d) != RoomTerrainBlocks.BlankAir, "the passage stays shut when the critters were left behind");
+        AssertTrue(Word(shut, 0x3d) != BlankAirBlock.Value, "the passage stays shut when the critters were left behind");
         Console.WriteLine("Crateria mainstreet escape passage: setup $8F:9194 opens both pairs only after the critters escaped.");
     }
 

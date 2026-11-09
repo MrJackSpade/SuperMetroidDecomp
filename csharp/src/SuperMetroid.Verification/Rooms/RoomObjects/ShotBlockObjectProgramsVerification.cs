@@ -51,7 +51,7 @@ internal static class ShotBlockObjectProgramsVerification
                 1 => RoomTerrainBlock.Of(0x096, BlockMirroring.None, RoomCollisionType.ShootableBlock),
                 2 => RoomTerrainBlock.Of(0x098, BlockMirroring.None, RoomCollisionType.ShootableBlock),
                 3 => RoomTerrainBlock.Of(0x099, BlockMirroring.None, RoomCollisionType.ShootableBlock),
-                _ => RoomTerrainBlocks.BlankAir,
+                _ => BlankAirBlock.Value,
             };
             AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).Terrain,
                 $"shot-block BTS {behavior} restores or permanently clears the native parent");

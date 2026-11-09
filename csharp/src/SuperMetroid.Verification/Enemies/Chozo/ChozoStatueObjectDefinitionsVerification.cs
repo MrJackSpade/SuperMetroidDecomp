@@ -172,7 +172,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
                 $"the trigger block stands broken open from its breakup's last stage, update {update}");
             // The stock breakup's last stage is the first to show blank air, so the cartridge's comparison could not fire
             // before it.
-            AssertEqual(update >= lastStageUpdate, level.GetCollisionBlockByIndex(trigger).Terrain == RoomTerrainBlocks.BlankAir,
+            AssertEqual(update >= lastStageUpdate, level.GetCollisionBlockByIndex(trigger).Terrain == BlankAirBlock.Value,
                 $"the trigger block first shows blank air on its breakup's last stage, update {update}");
         }
 

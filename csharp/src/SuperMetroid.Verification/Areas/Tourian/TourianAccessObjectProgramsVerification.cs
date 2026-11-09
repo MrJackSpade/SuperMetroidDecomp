@@ -145,7 +145,7 @@ internal static class TourianAccessObjectProgramsVerification
             $"Tourian {(clear ? "clear" : "crumble")} PLM deletes on its native frame");
         for (int y = 12; y < 18; y++)
         for (int x = 6; x < 10; x++)
-            AssertEqual(RoomTerrainBlocks.BlankAir,
+            AssertEqual(BlankAirBlock.Value,
                 level.GetCollisionBlockByIndex(y * width + x).Terrain,
                 $"Tourian {(clear ? "clear" : "crumble")} clears ({x},{y}) physically");
         AssertEqual(0, bus.ForbiddenReadAttempts,

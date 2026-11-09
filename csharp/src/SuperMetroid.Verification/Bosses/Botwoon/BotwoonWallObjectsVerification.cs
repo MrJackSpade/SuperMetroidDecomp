@@ -112,7 +112,7 @@ internal static class BotwoonWallObjectsVerification
                     0 => RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
                     1 => RoomTerrainBlock.Of(0x054, BlockMirroring.None, RoomCollisionType.Air),
                     2 => RoomTerrainBlock.Of(0x055, BlockMirroring.None, RoomCollisionType.Air),
-                    _ => RoomTerrainBlocks.BlankAir,
+                    _ => BlankAirBlock.Value,
                 };
                 AssertEqual(appearance,
                     level.GetCollisionBlockByIndex((4 + row) * width + 15).Terrain,

@@ -49,7 +49,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
 
         ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
         // RoomObjectHeaderId's values are arbitrary (#1414): the domain is every member, each translated to its cartridge word.
-        AssertTrue(headers.SequenceEqual(definitions.Select(RoomObjectNativeWords.Word)), "Chozo original header enumeration");
+        AssertTrue(headers.SequenceEqual(definitions.Select(identity => RoomObjectNativeWords.Word(identity))), "Chozo original header enumeration");
         foreach (RoomObjectHeaderId candidate in Enum.GetValues<RoomObjectHeaderId>())
         {
             if (!headers.Contains(RoomObjectNativeWords.Word(candidate)))

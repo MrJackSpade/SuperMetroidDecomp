@@ -155,8 +155,8 @@ public static class RoomFxDefinitions
     public static RoomFxHeader FlywayDefaultOrWhenAreaTorizoDead { get; } = new(nameof(FlywayDefaultOrWhenAreaTorizoDead), [],
         null);
 
-    /// <summary>The VariousRooms8381C2 room FX.</summary>
-    public static RoomFxHeader VariousRooms8381C2 { get; } = new(nameof(VariousRooms8381C2), [],
+    /// <summary>The SharedWithoutRecords room FX.</summary>
+    public static RoomFxHeader SharedWithoutRecords { get; } = new(nameof(SharedWithoutRecords), [],
         null);
 
     /// <summary>The CrateriaSuper room FX.</summary>
@@ -171,8 +171,8 @@ public static class RoomFxDefinitions
     public static RoomFxHeader FinalMissileDefault { get; } = new(nameof(FinalMissileDefault), [],
         new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Animated, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.Fog));
 
-    /// <summary>The VariousRooms8381F4 room FX.</summary>
-    public static RoomFxHeader VariousRooms8381F4 { get; } = new(nameof(VariousRooms8381F4), [],
+    /// <summary>The SharedPlain room FX.</summary>
+    public static RoomFxHeader SharedPlain { get; } = new(nameof(SharedPlain), [],
         new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [], [], RoomFxPaletteBlend.None));
 
     /// <summary>The GreenBrinstarMainShaft room FX.</summary>
@@ -343,8 +343,8 @@ public static class RoomFxDefinitions
     public static RoomFxHeader Spazer { get; } = new(nameof(Spazer), [],
         null);
 
-    /// <summary>The VariousRooms8383D2 room FX.</summary>
-    public static RoomFxHeader VariousRooms8383D2 { get; } = new(nameof(VariousRooms8383D2), [],
+    /// <summary>The SharedBeaconFlashing room FX.</summary>
+    public static RoomFxHeader SharedBeaconFlashing { get; } = new(nameof(SharedBeaconFlashing), [],
         new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.BeaconFlashing], [], RoomFxPaletteBlend.None));
 
     /// <summary>The MiniKraid room FX.</summary>
@@ -647,8 +647,8 @@ public static class RoomFxDefinitions
     public static RoomFxHeader FastPillarsSetup { get; } = new(nameof(FastPillarsSetup), [],
         new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
 
-    /// <summary>The UnusedRoom8387EC room FX.</summary>
-    public static RoomFxHeader UnusedRoom8387EC { get; } = new(nameof(UnusedRoom8387EC), [],
+    /// <summary>The UnusedNorfairRoom room FX.</summary>
+    public static RoomFxHeader UnusedNorfairRoom { get; } = new(nameof(UnusedNorfairRoom), [],
         new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
 
     /// <summary>The MickeyMouse room FX.</summary>

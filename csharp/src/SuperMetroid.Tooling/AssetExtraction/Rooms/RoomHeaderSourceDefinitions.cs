@@ -157,7 +157,7 @@ internal static class RoomHeaderSourceDefinitions
         [0xb32e] = RoomHeaderDefinitions.Ridley,
         [0xb37a] = RoomHeaderDefinitions.LNFarming,
         [0xb3a5] = RoomHeaderDefinitions.FastPillarsSetup,
-        [0xb3e1] = RoomHeaderDefinitions.UnusedRoom8FB3E1,
+        [0xb3e1] = RoomHeaderDefinitions.UnusedNorfairRoom,
         [0xb40a] = RoomHeaderDefinitions.MickeyMouse,
         [0xb457] = RoomHeaderDefinitions.Pillar,
         [0xb482] = RoomHeaderDefinitions.Plowerhouse,

@@ -161,7 +161,7 @@ public static class RoomHeaderDefinitions
         new(nameof(Ridley), 58, AreaId.Norfair, new(23, 16), new(1, 2), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(LNFarming), 59, AreaId.Norfair, new(24, 16), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(FastPillarsSetup), 60, AreaId.Norfair, new(25, 12), new(1, 3), 112, 160, RoomDoorTransitionStyle.Standard),
-        new(nameof(UnusedRoom8FB3E1), 61, AreaId.Norfair, new(26, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
+        new(nameof(UnusedNorfairRoom), 61, AreaId.Norfair, new(26, 11), new(1, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(MickeyMouse), 62, AreaId.Norfair, new(26, 9), new(4, 4), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Pillar), 63, AreaId.Norfair, new(26, 14), new(4, 1), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(Plowerhouse), 64, AreaId.Norfair, new(27, 16), new(3, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -581,7 +581,7 @@ public static class RoomHeaderDefinitions
     /// <summary>The Fast Pillars Setup room.</summary>
     public static RoomHeaderDefinition FastPillarsSetup { get; } = Find(nameof(FastPillarsSetup));
     /// <summary>An unused room that no door leads to.</summary>
-    public static RoomHeaderDefinition UnusedRoom8FB3E1 { get; } = Find(nameof(UnusedRoom8FB3E1));
+    public static RoomHeaderDefinition UnusedNorfairRoom { get; } = Find(nameof(UnusedNorfairRoom));
     /// <summary>The Mickey Mouse room.</summary>
     public static RoomHeaderDefinition MickeyMouse { get; } = Find(nameof(MickeyMouse));
     /// <summary>The Pillar room.</summary>

@@ -188,7 +188,7 @@ public static class RoomStateDefinitions
         NorfairRoomStateDefinitions.RidleyWhenAreaBossDead,
         NorfairRoomStateDefinitions.LNFarming,
         NorfairRoomStateDefinitions.FastPillarsSetup,
-        NorfairRoomStateDefinitions.UnusedRoom8FB3EE,
+        NorfairRoomStateDefinitions.UnusedNorfairRoom,
         NorfairRoomStateDefinitions.MickeyMouse,
         NorfairRoomStateDefinitions.Pillar,
         NorfairRoomStateDefinitions.Plowerhouse,

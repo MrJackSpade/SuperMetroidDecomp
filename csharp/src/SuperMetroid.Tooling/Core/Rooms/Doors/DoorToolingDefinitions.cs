@@ -4,7 +4,7 @@
 internal static class DoorToolingDefinitions
 {
     /// <summary>The <c>UNUSED_Door_83A804</c> door.</summary>
-    public static DoorDefinition UnusedRoom83A804 { get; } = DoorDefinitions.Find(nameof(UnusedRoom83A804));
+    public static DoorDefinition UnlistedDoorToHalfieClimb { get; } = DoorDefinitions.Find(nameof(UnlistedDoorToHalfieClimb));
     /// <summary>The <c>UNUSED_Door_83A810</c> door.</summary>
-    public static DoorDefinition UnusedRoom83A810 { get; } = DoorDefinitions.Find(nameof(UnusedRoom83A810));
+    public static DoorDefinition UnlistedDoorToMaridiaMissileRefill { get; } = DoorDefinitions.Find(nameof(UnlistedDoorToMaridiaMissileRefill));
 }

@@ -146,7 +146,7 @@ internal static class RoomEnemyPopulationDefinitionsAccess
         [0xaa8d] = RoomEnemyPopulationDefinitions.Plowerhouse,
         [0xab80] = RoomEnemyPopulationDefinitions.LNFireflea,
         [0xac53] = RoomEnemyPopulationDefinitions.MagdolliteTunnel,
-        [0xad06] = RoomEnemyPopulationDefinitions.UnusedRoom8FB3EEA1AD06,
+        [0xad06] = RoomEnemyPopulationDefinitions.UnusedNorfairRoom,
         [0xad09] = RoomEnemyPopulationDefinitions.LavaDive,
         [0xad6c] = RoomEnemyPopulationDefinitions.Pillar,
         [0xad8f] = RoomEnemyPopulationDefinitions.CrocomireEscape,

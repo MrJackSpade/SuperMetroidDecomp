@@ -1,6 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -66,7 +67,7 @@ internal static class OwtchPatrolStateVerification
     /// <summary>An initialized Owtch at room position (100, 64) in <paramref name="behavior"/>, with the first travel distance and speed.</summary>
     private static NewOwtchResult NewOwtch(OwtchBehaviorState behavior)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // A walk rolls the sink chance each update; a high roll keeps the Owtch walking.
         enemies.VerificationServices().NextRandom = () => 0x80;
         enemies.VerificationServices().ReadRandom = () => 0x80;

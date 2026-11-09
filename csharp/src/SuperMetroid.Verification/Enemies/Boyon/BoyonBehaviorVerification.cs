@@ -73,7 +73,7 @@ internal static class BoyonBehaviorVerification
     {
         foreach ((int heightSelector, int expected) in new VerifyBoyonJumpHeightComparesByWordSignCase[] { new VerifyBoyonJumpHeightComparesByWordSignCase(5, 144), new VerifyBoyonJumpHeightComparesByWordSignCase(6, 1) })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Boyon, checked((ushort)(heightSelector * 256)));
@@ -93,7 +93,7 @@ internal static class BoyonBehaviorVerification
     /// <summary>A Boyon with a 64-pixel trigger range after its real initializer.</summary>
     private static BoyonBehaviorCreateResult Create()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

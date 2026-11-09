@@ -66,7 +66,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BossDisplayFixture(EnemyDefinitionId definition, InstalledEnemyArtwork artwork, int slot = 0)
         {
             _slot = slot;
-            session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+            session = EnemySessionFixtures.WithInstalledServices();
             Enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             {
                 TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, 

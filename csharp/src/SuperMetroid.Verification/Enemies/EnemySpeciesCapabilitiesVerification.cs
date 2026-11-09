@@ -4,6 +4,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Corpses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -163,7 +164,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             EnemyReaction.CrocomireMouthShot, EnemyReaction.CrocomireAlternateDustHitboxShot,
         ];
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
         int bound = 0;
         int answers = 0;

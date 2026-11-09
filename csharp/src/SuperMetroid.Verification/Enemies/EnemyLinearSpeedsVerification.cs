@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -26,7 +27,7 @@ internal static class EnemyLinearSpeedsVerification
 
         if (definitionsOnly) return;
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace());
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Stoke and Ripper do not need any bus for their speed setup.
         var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);

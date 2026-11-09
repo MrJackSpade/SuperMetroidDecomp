@@ -19,11 +19,6 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state = state;
     }
 
-    /// <summary>The session's record of what the beam's push hides from the camera, which every push requires.</summary>
-    private static RainbowBeamCameraCheckpoint CameraCheckpointOf(RainbowBeamAttackFrame frame) =>
-        frame.CameraCheckpoint ?? throw new InvalidOperationException(
-            "Mother Brain's rainbow-beam push requires the session's camera checkpoint.");
-
     /// <summary>Rainbow-beam angular width in 8.8 table units, initialized and floored and capped.</summary>
     public int AngularWidth { get; internal set; }
 
@@ -314,7 +309,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             frame.EnemyFrameCounter,
             growth: MotherBrainRainbowBeamGrowth.Widening,
             requests);
-        requests.Movement = _movement.MoveTowardWall(samus, CameraCheckpointOf(frame));
+        requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay;
@@ -334,7 +329,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             frame.EnemyFrameCounter,
             growth: MotherBrainRainbowBeamGrowth.Widening,
             requests);
-        requests.Movement = _movement.MoveTowardWall(samus, CameraCheckpointOf(frame));
+        requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
 
         // The start-draining step decrements zero to -1; the sign test fails on this very call.
         if (--_state.FunctionTimer < 0)
@@ -374,7 +369,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests);
         DamageSamusDueToRainbowBeam(samus);
         DecrementAmmoDueToRainbowBeam(samus, frame.MainEnemyExecutionCounter);
-        requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, CameraCheckpointOf(frame));
+        requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, frame.CameraCheckpoint);
 
         if (--_state.FunctionTimer < 0)
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring;
@@ -429,7 +424,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowWaitForSamusToLand(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.Movement = _movement.StepFallingAfterRainbowBeam(samus, CameraCheckpointOf(frame));
+        requests.Movement = _movement.StepFallingAfterRainbowBeam(samus, frame.CameraCheckpoint);
         if (requests.Movement.Value.ReachedVerticalBoundary)
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLowerHead;
         return false;

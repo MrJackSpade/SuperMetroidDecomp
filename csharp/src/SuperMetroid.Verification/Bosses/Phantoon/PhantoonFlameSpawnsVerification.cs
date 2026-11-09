@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
@@ -25,7 +26,7 @@ internal static class PhantoonFlameSpawnsVerification
         foreach (ushort origin in new ushort[] { 0, 128, 0xfff8 })
         foreach (ushort parameter in parameters)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             // A rain parameter's index byte packs the column in its low nibble and the fall delay over eight above it.
             Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool> spawn = (flameBody, flameType, flameIndex) =>
                 flameType == PhantoonFlameSpawnType.Rain

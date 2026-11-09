@@ -177,7 +177,7 @@ internal static class ShotCallbackDefinitionsVerification
 
         static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy);

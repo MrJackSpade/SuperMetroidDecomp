@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -14,7 +15,7 @@ internal static class OwtchRecordLayoutVerification
     /// </summary>
     internal static void VerifyOwtchRecordLayout()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new OwtchEnemyState();
         slot.SetSpeciesState(state);

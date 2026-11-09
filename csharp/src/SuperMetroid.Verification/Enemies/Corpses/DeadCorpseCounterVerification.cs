@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -16,7 +17,7 @@ internal static class DeadCorpseCounterVerification
     /// </summary>
     internal static void VerifyDeadSidehopperPreRotDelayWrap()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 2, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.InitiallyDead.RowCount));
 
@@ -49,7 +50,7 @@ internal static class DeadCorpseCounterVerification
     /// <summary>Counts a dead Zoomer's pre-rot calls through the named operation, including its wrap from 65535 to zero.</summary>
     internal static void VerifyDeadTourianPreRotDelayWrap()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianCorpseProfileDefinitions.DeadZoomerProfile;
         var state = new DeadTourianCorpseEnemyState(slot, profile.Species, 0, profile,

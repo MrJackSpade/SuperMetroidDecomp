@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -14,7 +15,7 @@ internal static class MultiviolaBehaviorVerification
     /// <summary>The real initializer starts the Flying program, which the runtime then plays through once and back.</summary>
     internal static void VerifyMultiviolaBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

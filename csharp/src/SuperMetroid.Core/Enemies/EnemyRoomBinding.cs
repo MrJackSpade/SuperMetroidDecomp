@@ -50,17 +50,13 @@ internal sealed class EnemyRoomBinding
     internal UnauthoredBoostCadence UnauthoredBoostCadence => Session.UnauthoredBoostCadence;
 
     /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera.</summary>
-    internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;
+    internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;
 
     /// <summary>The session's installed services reproducing what enemies read past their authored data (#1500).</summary>
-    /// <exception cref="InvalidOperationException">The host installed none.</exception>
-    internal EnemyOverreadServices Overreads => Session.Overreads ?? throw new InvalidOperationException(
-        "An enemy read past its authored data in an enemy session without installed enemy over-read services.");
+    internal EnemyOverreadServices Overreads => Session.Overreads;
 
     /// <summary>The session's installed services reproducing what Kraid's nails and Crocomire's volley read past their data.</summary>
-    /// <exception cref="InvalidOperationException">The session has none bound.</exception>
-    internal BossAndIntroOverreadServices BossOverreads => Session.BossOverreads ?? throw new InvalidOperationException(
-        "Kraid's fingernails and Crocomire's volley require the installed boss and intro overread services.");
+    internal BossAndIntroOverreadServices BossOverreads => Session.BossOverreads;
 
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
     internal IRoomEnemyDefinitionSource LoadedDefinitions =>

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 using SuperMetroid.Verification.Harness;
@@ -13,7 +14,7 @@ internal static class BabyMetroidVictimVerification
     /// </summary>
     internal static void VerifyBabyMetroidVictim()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         IReadOnlyList<RoomEnemySlot> slots = enemies.SlotTable.Slots;
         AssertTrue(ReferenceEquals(slots[1], BabyMetroidVictim.Of(slots, 0)), "the retail Baby's victim is the enemy placed after it");
         AssertTrue(ReferenceEquals(slots[6], BabyMetroidVictim.Of(slots, 5)), "a Baby placed later feeds on the enemy placed after it");

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Atomic.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Atomic;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -34,7 +35,7 @@ internal static class AtomicMovementDefinitionsVerification
     {
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
 
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Atomic, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

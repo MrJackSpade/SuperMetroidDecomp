@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MamaTurtles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.MamaTurtles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -33,7 +34,7 @@ internal static class MamaTurtleOwnedStateVerification
         AssertEqual(SignedSixteenSixteen.FromParts(-1, 0x1000), state.XAcceleration, "the carried reversal skips the acceleration's final increment");
 
         // Her fall and contact box read the first slot's values, so a Mama anywhere else is refused (#1500).
-        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot misplaced = enemies.SlotTable.Slots[1];
         misplaced.Bind(EnemyDefinitionId.MamaTurtle, misplaced.Definition);
         AssertThrows<InvalidDataException>(() => enemies.MamaTurtleBehavior.InitializeMamaTurtle(misplaced),

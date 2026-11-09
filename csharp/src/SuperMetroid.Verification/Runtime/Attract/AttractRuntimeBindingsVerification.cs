@@ -22,6 +22,7 @@ internal static class AttractRuntimeBindingsVerification
         {
             SamusOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads,
             BossAndIntroOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossAndIntroOverreads,
+            EnemyOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyOverreads,
             EnemyTileArtwork = enemyArtwork.Enemies,
             EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, BossArtwork = enemyArtwork.Bosses, 
         });

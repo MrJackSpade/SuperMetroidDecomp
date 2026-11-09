@@ -31,7 +31,7 @@ internal static class GrappleGatesVerification
             var (bus, level, roomObjects, gateIndex) = CreateDownwardGateFixture(trigger);
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
             SeedRetailGateSpriteMaps(bus, retail);
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => 0, SeedRandom = _ => { } }) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => 0, SeedRandom = _ => { } }) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
             // The gate draws from the sheets of the set its room loads; Green Hill Zone, the room this fixture models, loads
             // its set with its own population (an empty population would keep the session's standard sprites).
             enemies.Load(new RoomEnemyLoadRequest(RoomEnemyPopulationDefinitions.GreenHillZone, RoomEnemyGraphicsSetDefinitions.GreenHillZone, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) });

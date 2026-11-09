@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -37,7 +38,7 @@ internal static void VerifyStrictFailureBoundaries()
     AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectHeaderId)(-1)),
         "unknown PLM is absent from the production dispatcher");
 
-    var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
     AssertThrows<InvalidOperationException>(
         () => _ = enemies.Room.Services,
         "enemy AI services are rejected before Load installs them");

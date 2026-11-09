@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -31,7 +32,7 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
         var guarded = NewMotherBrainDoorFragmentReadGuard(rom);
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDoorFragment(parameter);
 
             MotherBrainDoorFragmentDefinition definition =

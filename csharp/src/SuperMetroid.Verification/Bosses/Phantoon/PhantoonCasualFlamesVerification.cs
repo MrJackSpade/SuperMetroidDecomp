@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -26,7 +27,7 @@ internal static class PhantoonCasualFlamesVerification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer + (flames + 1 - flame) * 2),
                     compiled.Intervals[flame], "Native casual flame interval");
         }
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.SlotTable.Slots[0];
         var mouth = enemies.SlotTable.Slots[3];
         var state = new PhantoonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = mouth };

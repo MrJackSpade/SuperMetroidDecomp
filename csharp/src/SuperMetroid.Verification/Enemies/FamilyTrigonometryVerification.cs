@@ -8,6 +8,7 @@ using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -100,7 +101,7 @@ internal static class FamilyTrigonometryVerification
         ParallelSweep.For(0, origins.Length * AngleBlocks, block =>
         {
             uint initial = origins[block / AngleBlocks];
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var previous = enemies.SlotTable.Slots[0];
             var segment = enemies.SlotTable.Slots[1];
             previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);

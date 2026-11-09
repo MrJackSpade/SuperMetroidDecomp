@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 
@@ -22,7 +23,7 @@ internal static class TourianStatueSoulExitVerification
         int[] startHeights = [2, 100, 258, 400, 600];
         foreach (int start in startHeights)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyProjectileSlot soul = enemies.Projectiles.EnemyProjectiles[0];
             soul.FrameBehavior = EnemyProjectileFrameBehavior.TourianStatueSoulMotion;
             soul.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(132, checked((ushort)start)));

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.MorphBallEye;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -70,7 +71,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// </summary>
     internal static void VerifyMorphBallEyeBeamWideningAndFade()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         MorphBallEyeBeamState beam = enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
         beam.Phase = MorphBallEyeBeamPhase.Widening;
         int[] widths = [0, 0, 1, 2, 3, 4];
@@ -104,7 +105,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// <summary>An eye body or mount after its real initializer.</summary>
     private static MorphBallEyeBehaviorCreateResult Create(ushort parameter1, ushort parameter2)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

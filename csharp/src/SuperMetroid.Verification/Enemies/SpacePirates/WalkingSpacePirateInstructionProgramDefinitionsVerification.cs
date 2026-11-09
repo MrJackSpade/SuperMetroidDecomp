@@ -101,7 +101,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
 
         WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult CreateSystem()
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

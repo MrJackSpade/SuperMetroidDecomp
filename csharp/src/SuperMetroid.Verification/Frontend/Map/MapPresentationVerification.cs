@@ -649,7 +649,7 @@ internal static class MapPresentationVerification
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(game);
         AssertEqual(original.ContentIdentity, restored.MapPresentationIdentity, "restored graph names its bound map content");
 
-        var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
+        var runtime =SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, InstalledFixtures.EnemyOverreads);
         runtime.Artwork.MapPresentation = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

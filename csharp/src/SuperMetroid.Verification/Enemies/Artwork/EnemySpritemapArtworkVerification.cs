@@ -89,7 +89,7 @@ internal static class EnemySpritemapArtworkVerification
     private static void VerifyInstalledBullInstructionFrames(
         InstalledEnemyArtwork stock)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
         bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
@@ -504,7 +504,7 @@ internal static class EnemySpritemapArtworkVerification
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemySlot, RoomEnemySystem>? inspect = null, byte? spritemapBank = null)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(definition));
             enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), enemies.SlotTable.Slots[0]);
@@ -657,7 +657,7 @@ internal static class EnemySpritemapArtworkVerification
     /// <summary>Mother Brain's room's graphics set, which gives the tile base and colours it loads her head with.</summary>
     private static EnemyGraphicsSet MotherBrainHeadSet()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
         return enemies.GraphicsSet;
     }
@@ -667,7 +667,7 @@ internal static class EnemySpritemapArtworkVerification
         InstalledEnemyArtwork art, ushort pointer,
         Position16<RoomPixels> world)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
         // She draws from the sheet her room's set composes from this artwork, at the indexes it loads her with.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.MotherBrainHead);
         var oam = new OamBuffer();

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 
@@ -17,7 +18,7 @@ internal static class ShaktoolProjectileBehaviorVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, ShaktoolProjectileNativeListAddresses.Extent, "Shaktool attack circle");
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         foreach ((RoomEnemyProjectileKind kind, ShaktoolProjectileProgram program) in new VerifyShaktoolProjectileBehaviorCase[]
                  {
                      new VerifyShaktoolProjectileBehaviorCase(RoomEnemyProjectileKind.ShaktoolAttackFrontCircle, ShaktoolProjectileProgram.Front),

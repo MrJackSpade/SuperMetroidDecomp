@@ -39,7 +39,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordCount,
                 FakeKraidProjectileInstructionProgramDefinitionsTooling.PresentationWordAddress);
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {

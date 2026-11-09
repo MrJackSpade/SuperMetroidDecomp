@@ -18,10 +18,7 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         Suite(nameof(VerifyKraidNailPastLedges), () => VerifyKraidNailPastLedges(rom));
-        var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
-        {
-            BossOverreads = InstalledFixtures.BossAndIntroOverreads,
-        };
+        var session = EnemySessionFixtures.WithInstalledServices();
         var enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Access.Kraid = state;

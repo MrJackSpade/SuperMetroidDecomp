@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -45,7 +46,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// <summary>A Puyo after its real initializer.</summary>
     private static PuyoInstructionProgramDefinitionsCreateResult Create(InstalledEnemyArtwork? artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

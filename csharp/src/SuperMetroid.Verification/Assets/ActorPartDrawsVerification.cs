@@ -46,7 +46,7 @@ internal static class ActorPartDrawsVerification
     internal static void VerifyEnemyPartDraws()
     {
         InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
-        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
             { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         EnemyExtendedFrameCatalog compositions = artwork.Enemies.ExtendedFrames
             ?? throw new InvalidOperationException("Verification requires the installed extended frames.");

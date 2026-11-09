@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 
@@ -37,7 +38,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         }
 
         var installedOverlay = new RecordedBg1Overlay();
-        var installed = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+        var installed = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: installedOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         installed.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
@@ -75,7 +76,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> _),
             "stock English Ceres title resolves");
         var shownOverlay = new RecordedBg1Overlay();
-        var shownEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+        var shownEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: shownOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         shownEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         int titleWord = TwoScreenTilemapCells.IndexOf(CeresEscapeOverlayTilemapDefinitions.Emergency.Cell);

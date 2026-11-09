@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -69,7 +70,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             const int roomBlocks = 32;
             const int floorRow = FloorY / 16;
             Level = CreateSolidRowsRoom(new(roomBlocks, roomBlocks), floorRow, roomBlocks - floorRow);
-            session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
+            session = EnemySessionFixtures.WithInstalledServices();
             Enemies = new RoomEnemySystem(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.VerificationServices().NextRandom = NextRandom;

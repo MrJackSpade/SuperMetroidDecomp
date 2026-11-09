@@ -21,7 +21,7 @@ internal static class PhantoonPositionVerification
     {
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
-        var capEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var capEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var capBody = capEnemies.SlotTable.Slots[0];
         var capTentacles = capEnemies.SlotTable.Slots[2];
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };

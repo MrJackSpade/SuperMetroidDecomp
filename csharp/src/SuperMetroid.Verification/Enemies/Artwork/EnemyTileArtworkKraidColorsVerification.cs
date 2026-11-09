@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -51,7 +52,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         }
         // Gameplay keeps only Kraid's eye colours (#1512): the hurt flash's and each health band's, which his eye glow
         // reads back. They are the installed health colours at the eyes' inks.
-        var eyeReaderOwner = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var eyeReaderOwner = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         KraidEyeColours eyes = eyeReaderOwner.KraidBehavior.Background.EyeColours;
         for (int band = -1; band < KraidHealthThresholdDefinitions.EighthCount; band++)
         {
@@ -92,7 +93,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// </summary>
     private static void VerifyKraidBackdropSurvivesReinitialization(InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
         var fade = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.Background.AdvanceKraidRoomBackgroundFade);
         int growthSteps = 0;
@@ -225,7 +226,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>Loads Kraid into a fresh room and makes the import's backdrop shades for a room whose fifth colour group holds distinct colours.</summary>
     private static KraidBackdropFixture NewKraidBackdropFixture(InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         enemies.KraidBehavior.Access.Kraid = new KraidEnemyState();
         // A room whose fifth colour group holds distinct colours, so every step of a fade moves them.
         var standard = new RgbColor[ImageColourGroup.HalfColours];
@@ -352,7 +353,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         InstalledEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
         var colours = new RgbColor[SnesCgram.ColorCount];
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;

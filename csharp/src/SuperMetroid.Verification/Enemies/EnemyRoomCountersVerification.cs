@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -13,7 +14,7 @@ internal static class EnemyRoomCountersVerification
     /// <summary>Checks the darkness, slot-table and kill-count ranges.</summary>
     internal static void VerifyEnemyRoomCounters()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
 
         enemies.RoomStatus.FirefleaDarknessStep = EnemyRoomStatus.MaximumFirefleaDarknessStep;
         AssertEqual(6, enemies.RoomStatus.FirefleaDarknessStep, "darkness reaches its last step");

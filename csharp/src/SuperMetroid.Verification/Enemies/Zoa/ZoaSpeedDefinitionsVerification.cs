@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Zoa;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -29,7 +30,7 @@ internal static class ZoaSpeedDefinitionsVerification
             Console.WriteLine("Zoa speed cases: all four stage speeds match the cartridge records.");
             return;
         }
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState();

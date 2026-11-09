@@ -36,6 +36,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         "Native", "Rom", "Bank", "Pointer", "Address", "Cartridge", "Mode7", "Register",
         // #1481: routine labels name the CPU's return and jump instructions.
         "Rts", "Rtl", "Jsr", "Jsl", "Jmp", "Jml",
+        // #1558: the machine's storage widths, its save memory, opcodes, and the program's PLM and enemy-projectile labels.
+        "Word", "Byte", "Sram", "Opcode", "Plm", "Eproj",
     ];
 
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>

@@ -31,6 +31,11 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void Run(int[] values) { foreach (int ppuLine in values) { } } }", "'ppuLine' names the hardware ('Ppu')");
         Expect("class P { void Run(object value) { if (value is int nativeWord) { } } }", "'nativeWord' names the hardware ('Native')");
         Expect("record RomTable(int First);", "'RomTable' names the hardware ('Rom')");
+        // Storage widths, save memory, opcodes and the program's labels (#1558).
+        Expect("class P { int PresentationWordCount => 0; }", "'PresentationWordCount' names the hardware ('Word')");
+        Expect("class P { void Run() { int frameCounterByte = 0; } }", "'frameCounterByte' names the hardware ('Byte')");
+        Expect("class P { void SaveToSram() { } }", "'SaveToSram' names the hardware ('Sram')");
+        Expect("class P { void SpawnEprojInner() { } }", "'SpawnEprojInner' names the hardware ('Eproj')");
         Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
         Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
         Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");

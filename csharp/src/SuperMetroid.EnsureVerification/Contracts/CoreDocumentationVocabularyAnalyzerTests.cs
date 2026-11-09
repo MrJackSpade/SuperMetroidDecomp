@@ -41,12 +41,40 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Matches bank_87.asm.</summary>\nvoid Run() { } }", "('bank_87.asm')");
         Expect("class P { // as Handle_MapScrollArrows does\n }", "('Handle_MapScrollArrows')");
         Expect("class P { /* the game natively wraps it */ }", "('natively')");
+        // A bank run on to its number, three-digit and bare hexadecimal values, and comment hex literals (#1558).
+        Expect("class P { // the copy at native8C:D629\n }", "('native8C')");
+        Expect("class P { /// <summary>Matches bank87's table.</summary>\nvoid Run() { } }", "('bank87')");
+        Expect("class P { // the speed starts at $1A0\n }", "('$1A0')");
+        Expect("class P { // F32B disables the layers\n }", "('F32B')");
+        Expect("class P { // keeps 0x4000 set\n }", "('0x4000')");
+        // The program's vocabulary, word widths, mnemonics, registers, palettes and priorities (#1558).
+        Expect("class P { /// <summary>The handler address it jumps to.</summary>\nvoid Run() { } }", "('address')");
+        Expect("class P { // the instruction pointer moves on\n }", "('pointer')");
+        Expect("class P { /* the opcode table */ }", "('opcode')");
+        Expect("class P { // read from the X register\n }", "('register')");
+        Expect("class P { /// <summary>The PLM that spawns it.</summary>\nvoid Run() { } }", "('PLM')");
+        Expect("class P { // the pre-instruction runs first\n }", "('pre-instruction')");
+        Expect("class P { // in eight-bit accumulator mode\n }", "('eight-bit')");
+        Expect("class P { // two extension words follow\n }", "('extension words')");
+        Expect("class P { // shifted LSR ×4\n }", "('LSR')");
+        Expect("class P { // passed through A\n }", "('through A')");
+        Expect("class P { /// <summary>Drawn in palette seven.</summary>\nint F => 0; }", "('palette seven')");
+        Expect("class P { // drawn at priority three\n }", "('priority three')");
+        // A compound name in a comment is a routine label unless Core's code spells it (#1558).
+        Expect("class P { // as EnemyMain does\n }", "('EnemyMain')");
+        Expect("class P { // set by InitAI\n }", "('InitAI')");
+        Expect("class P { int SamusPose => 0; // SamusPose holds the pose\n }");
+        Expect("class P { int Pose(int frameCount) => frameCount; // frameCount counts frames\n }");
+        Expect("class P { /// <summary>See <see cref=\"Pose\"/>.</summary>\nint Pose => 0; }");
+        // Hex literals and compound names are read only in comments.
+        Expect("class P { string Name => \"0x10 SpeedEcho\"; }");
         // Routine labels are read only in comments: a string literal's underscore-joined frame name is a presentation key.
         Expect("class P { string Frame => \"mother_brain_body_initial\"; }");
         // A lower-case frame name is a presentation key, not a routine label, even in a comment.
         Expect("class P { /// <summary>The draygon_frame_12 picture.</summary>\nint F => 0; }");
         // Identifiers are not prose, and a word that only begins the same is not the term.
         Expect("class P { /// <summary>The ramp, the object and the background fade up; time is 12:30.</summary>\nint Ram => 0; }");
+        Expect("/// <summary>The addressee opens the pointed door; 1200 frames pass.</summary>\nclass P { }");
         Expect("class P { bool Debugger => false; int DirectPage => 0; }");
         Expect("/// <summary>The cursor moves directly to the next page; the debug grapple selection stays.</summary>\nclass P { }");
         // Outside Core the rule reads nothing.

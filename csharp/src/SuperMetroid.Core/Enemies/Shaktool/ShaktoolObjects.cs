@@ -36,7 +36,7 @@ internal sealed class ShaktoolObjects
         slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.ShaktoolRoomController));
         slot.FrameHold = 1;
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-            scrolls.SetStorage(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
+            scrolls.SetCell(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
         return true;
     }
 
@@ -49,7 +49,7 @@ internal sealed class ShaktoolObjects
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
         if (powerBombExplosionActive)
             for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-                scrolls.SetStorage(cell, RoomScrollState.Blue);
+                scrolls.SetCell(cell, RoomScrollState.Blue);
         if (samus.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary) return;
         _events.Set(EventNumber.ShaktoolClearedPath);
         // Retiring clears only the identity; inactive instruction/timer words remain in place.

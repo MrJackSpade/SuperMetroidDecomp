@@ -28,7 +28,7 @@ public static class KraidRockLaunchDefinitions
     /// <summary>
     /// The gravity on a spat or rising rock, in 256ths of a pixel an update, each update. A rock is removed when its
     /// terrain probe finds a block, which it does at the latest as it leaves the room, at most fifty screens tall
-    /// (<see cref="Rooms.Scrolling.RoomScrollGrid.StorageByteCount"/>); from its steepest launch, five pixels an update
+    /// (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>); from its steepest launch, five pixels an update
     /// upward, its fall speed therefore stays below 96 pixels an update.
     /// </summary>
     internal static SignedEightEight RockGravity { get; } = SignedEightEight.FromSignedRaw(64);

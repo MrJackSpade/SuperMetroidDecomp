@@ -30,7 +30,7 @@ internal static class RoomScrollDefinitionsVerification
             .Order()
             .ToArray();
 
-        var storage = new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn());
+        var storage = RoomScrollGrid.PowerOnCells();
         var auditedStates = new HashSet<ushort>();
         var explicitPointers = new HashSet<ushort>();
         int explicitStateCount = 0;
@@ -44,17 +44,19 @@ internal static class RoomScrollDefinitionsVerification
                 continue;
 
             ushort scrollPointer = header.State.ScrollPointer;
-            byte[] expected = new byte[RoomScrollGrid.StorageByteCount];
+            var expected = new RoomScrollState[RoomScrollGrid.KeptCellCount];
             if (unchecked((short)scrollPointer) < 0)
             {
                 explicitStateCount++;
                 explicitPointers.Add(scrollPointer);
                 int source = RoomTilesetTableConstants.DefinitionBank | scrollPointer;
-                for (int index = 0; index < expected.Length; index++)
-                    expected[index] = bus.ReadCartridgeByte(source + index);
-                AssertTrue(expected.SequenceEqual(
-                        RoomScrollDefinitions.Get(scrollPointer).Storage.Span),
-                    $"compiled explicit scroll allocation $8F:{scrollPointer:X4}");
+                var native = new byte[RoomScrollGrid.KeptCellCount];
+                for (int index = 0; index < native.Length; index++)
+                    native[index] = bus.ReadCartridgeByte(source + index);
+                // The table's fifty bytes are compared as the cells the camera reads them as.
+                expected = RoomScrollStates.FromStorageBytes(native);
+                AssertTrue(expected.SequenceEqual(RoomScrollDefinitions.Get(scrollPointer).Cells),
+                    $"compiled explicit scroll table $8F:{scrollPointer:X4}");
             }
             else
             {
@@ -65,13 +67,13 @@ internal static class RoomScrollDefinitionsVerification
                 int logicalCount = header.Size.X * header.Size.Y;
                 for (int index = 0; index < expected.Length; index++)
                 {
-                    // $82:E88D writes only the room's cells; the rest keeps the bytes the
+                    // $82:E88D writes only the room's cells; the rest keeps the cells the
                     // previous grid (here, the previous audited state) left behind.
                     expected[index] = index < logicalCount
-                        ? (byte)(index / header.Size.X == header.Size.Y - 1
+                        ? index / header.Size.X == header.Size.Y - 1
                             ? lastRow
-                            : RoomScrollState.Green)
-                        : storage[index];
+                            : RoomScrollState.Green
+                        : storage.Read(index);
                 }
             }
 
@@ -79,7 +81,7 @@ internal static class RoomScrollDefinitionsVerification
                 storage,
                 header.State.Scroll,
                 header.Size);
-            AssertTrue(expected.SequenceEqual(compiled.StorageBytes.ToArray()),
+            AssertTrue(expected.SequenceEqual(compiled.KeptStates),
                 $"compiled scroll grid for state $8F:{header.State.Pointer:X4}");
         }
 
@@ -92,16 +94,16 @@ internal static class RoomScrollDefinitionsVerification
         AssertEqual(RoomScrollDefinitionsConstants.ExplicitDefinitionCount, explicitPointers.Count,
             "compiled scroll catalog contains every distinct explicit allocation");
         AssertThrows<ArgumentException>(
-            () => RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), [0], new Extent16<RoomScreens>(1, 1)),
+            () => RoomScrollGrid.LoadNativeTable([0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");
 
         SelectedRoom ceres = SelectedRoom.LoadUsingCompiledSelection(
             LoadStations.Get(AreaId.Ceres, 0).Room ?? throw new InvalidDataException("Ceres station has no room."));
         var guardedCeres = CreateRetailRuntimeFixture();
-        // A new session's scroll allocation starts zeroed, so Ceres's tail past its cells reads zero.
-        var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];
+        // A new session's scroll cells start cleared, so Ceres's cells past its own read red.
+        RoomScrollState[] ceresResidue = [.. Enumerable.Repeat(RoomScrollState.RedBoundary, RoomScrollGrid.KeptCellCount)];
         guardedCeres.RoomLoader.InitializeStartingCeresRoom();
-        var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
+        var expectedCeres = new RoomScrollState[RoomScrollGrid.KeptCellCount];
         int ceresLogicalCount = ceres.Size.X * ceres.Size.Y;
         RoomScrollState ceresLastRow = RoomScrollAuthoredBytes.FromAuthored(
             unchecked((byte)(ceres.State.ScrollPointer + 1)),
@@ -109,12 +111,12 @@ internal static class RoomScrollDefinitionsVerification
         for (int index = 0; index < expectedCeres.Length; index++)
         {
             expectedCeres[index] = index < ceresLogicalCount
-                ? (byte)(index / ceres.Size.X == ceres.Size.Y - 1
+                ? index / ceres.Size.X == ceres.Size.Y - 1
                     ? ceresLastRow
-                    : RoomScrollState.Green)
+                    : RoomScrollState.Green
                 : ceresResidue[index];
         }
-        AssertTrue(expectedCeres.SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.StorageBytes.ToArray()),
+        AssertTrue(expectedCeres.SequenceEqual(guardedCeres.Room.LoadedCamera.Scrolls.KeptStates),
             "production Ceres entry installs compiled scroll storage");
 
         Console.WriteLine(

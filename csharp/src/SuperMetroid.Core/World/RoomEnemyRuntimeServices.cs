@@ -51,11 +51,11 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Installs an enemy-supplied seed into the shared system RNG.</summary>
     public void Seed(int value) => system.SetRandomNumber(value);
 
-    /// <summary>Reads a camera scroll-zone cell without mutating its storage.</summary>
+    /// <summary>Reads a camera scroll-zone cell without changing it.</summary>
     RoomScrollState IRoomScrollZoneAccess.Read(int index) => room.LoadedCamera.Scrolls.ReadState(index);
 
-    /// <summary>Writes one camera scroll-zone cell through the room's storage owner.</summary>
-    public void Write(int index, RoomScrollState state) => room.LoadedCamera.Scrolls.SetStorage(index, state);
+    /// <summary>Writes one camera scroll-zone cell of the room's kept scroll cells.</summary>
+    public void Write(int index, RoomScrollState state) => room.LoadedCamera.Scrolls.SetCell(index, state);
 
     /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>
     public void EnableControls()

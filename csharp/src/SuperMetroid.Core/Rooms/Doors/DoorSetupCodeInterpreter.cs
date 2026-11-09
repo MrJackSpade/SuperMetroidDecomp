@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>Scroll-cell portion of translated door setup programs.</summary>
 internal static class DoorSetupCodeInterpreter
 {
-    /// <summary>Applies only scroll-byte effects of a door setup program; non-scroll setup remains with the runtime.</summary>
+    /// <summary>Applies only the scroll-cell effects of a door setup program; non-scroll setup remains with the runtime.</summary>
     public static void ApplyScrollWrites(
         DoorSetupCode setupCode,
         string doorName,
@@ -28,10 +28,10 @@ internal static class DoorSetupCodeInterpreter
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnSouthExit:
-                // The routine performs one 16-bit store over the first two cells. The typed grid
-                // expresses the same two green storage bytes before Samus is unlocked.
-                scrolls.SetStorage(0, RoomScrollState.Green);
-                scrolls.SetStorage(1, RoomScrollState.Green);
+                // The routine sets the first two cells together; the grid
+                // takes both as green before Samus is unlocked.
+                scrolls.SetCell(0, RoomScrollState.Green);
+                scrolls.SetCell(1, RoomScrollState.Green);
                 return;
 
             case DoorSetupCode.DoorCode_Scroll6_Green:

@@ -166,8 +166,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            // The Wrecked Ship hand performs two little-endian word stores before handing the statue to
-            // its carry: scroll bytes 7/8 become green and 13/14 become blue. The clear-slope-access PLM then
+            // The Wrecked Ship hand sets two pairs of scroll cells before handing the statue to
+            // its carry: cells 7 and 8 become green and 13 and 14 blue. The clear-slope-access PLM then
             // queues the authored slope-access terrain transition.
             _room.Services.RoomScroll.Write(7, RoomScrollState.Green);
             _room.Services.RoomScroll.Write(8, RoomScrollState.Green);

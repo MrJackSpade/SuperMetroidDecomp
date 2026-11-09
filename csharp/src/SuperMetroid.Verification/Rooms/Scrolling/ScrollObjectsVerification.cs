@@ -66,7 +66,7 @@ internal static class ScrollObjectsVerification
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), size: new Extent16<RoomScreens>(2, 2),
+            RoomScrollGrid.PowerOnCells(), size: new Extent16<RoomScreens>(2, 2),
             lastRowState: RoomScrollState.RedBoundary);
 
         // $94:9956 reacts only to the center sample, including extension resolution.
@@ -90,15 +90,15 @@ internal static class ScrollObjectsVerification
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
         roomObjects.Step(level, scrolls);
-        AssertEqual(1, scrolls.ReadStorage(1),
-            "scroll byte-pair program mutates active room grid");
+        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(1),
+            "scroll program mutates active room grid");
         AssertTrue(!roomObjects.ScrollObjectTriggered(origin),
             "scroll object returns to resident sleep after program terminator");
 
         // Place a seven-pixel-tall test body immediately left of the right extension. The
         // normal horizontal scanner reaches type five, follows signed BTS `$FF` to the
         // origin, and executes the same `$B393` wakeup—there is no route-specific callback.
-        scrolls.SetStorage(1, RoomScrollState.RedBoundary);
+        scrolls.SetCell(1, RoomScrollState.RedBoundary);
         var body = new SamusKinematicsState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
@@ -110,14 +110,14 @@ internal static class ScrollObjectsVerification
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "horizontal extension resolves and wakes B703 owner");
         roomObjects.Step(level, scrolls);
-        AssertEqual(1, scrolls.ReadStorage(1),
+        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(1),
             "extension-triggered contact executes the same scroll program");
 
         // Repeat the identical contact through the public Morph Ball wrapper. This guards
         // the composition seam that originally dropped RoomObjectSystem while ordinary Samus
         // movement passed it correctly: type-five resolves to the resident `$B703` owner,
         // and the ball remains controller/collision driven throughout the call.
-        scrolls.SetStorage(1, RoomScrollState.RedBoundary);
+        scrolls.SetCell(1, RoomScrollState.RedBoundary);
         WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.MorphBallGroundRightPose),
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
         var ball = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -139,7 +139,7 @@ internal static class ScrollObjectsVerification
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "Morph Ball wrapper forwards live PLM owner to block collision");
         roomObjects.Step(level, scrolls);
-        AssertEqual(1, scrolls.ReadStorage(1),
+        AssertEqual(RoomScrollState.Blue, scrolls.ReadState(1),
             "Morph Ball scroll contact executes resident bank-$8F program");
 
         // Reproduce the recorded block-940 failure through the distinct `$90:E032`
@@ -147,7 +147,7 @@ internal static class ScrollObjectsVerification
         // above the resident trigger and must resolve it back to the same `$B703` owner.
         // Ordinary Morph Ball movement already forwards that owner; this assertion guards
         // the special movement-handler composition seam used only during bomb-jump ascent.
-        scrolls.SetStorage(1, RoomScrollState.RedBoundary);
+        scrolls.SetCell(1, RoomScrollState.RedBoundary);
         var bombJump = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,

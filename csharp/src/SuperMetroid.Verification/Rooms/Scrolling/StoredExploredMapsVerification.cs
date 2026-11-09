@@ -55,7 +55,7 @@ internal static class StoredExploredMapsVerification
     internal static void VerifyStoredExploredMaps()
     {
         StoredExploredMaps<AreaId> maps = StoredExploredMapLoads.PowerOn();
-        RoomScrollGrid grid = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(maps), new Extent16<RoomScreens>(1, 1), RoomScrollState.Green);
+        RoomScrollGrid grid = RoomScrollGrid.CreateImplicit(RoomScrollGrid.KeepCellsAcrossRooms(maps), new Extent16<RoomScreens>(1, 1), RoomScrollState.Green);
         var native = new byte[KeptMaps * MapBytes];
 
         // Each area's map is marked on the live map and stored as that area's, as a save or an exchanging door stores it.
@@ -73,10 +73,10 @@ internal static class StoredExploredMapsVerification
             for (int offset = 0; offset < native.Length; offset++)
             {
                 AssertEqual(RoomScrollStates.FromStorageByte(native[offset]),
-                    grid.ReadCameraState(RoomScrollGrid.StorageByteCount + offset),
-                    $"{when}: index {RoomScrollGrid.StorageByteCount + offset} reads the original map byte's scroll state");
+                    grid.ReadCameraState(RoomScrollGrid.KeptCellCount + offset),
+                    $"{when}: index {RoomScrollGrid.KeptCellCount + offset} reads the original map byte's scroll state");
             }
-            AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(RoomScrollGrid.StorageByteCount + native.Length),
+            AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(RoomScrollGrid.KeptCellCount + native.Length),
                 $"{when}: the first index past the eighth stored map is rejected");
             AssertThrows<ArgumentOutOfRangeException>(() => grid.ReadCameraState(ushort.MaxValue),
                 $"{when}: the last index is rejected");

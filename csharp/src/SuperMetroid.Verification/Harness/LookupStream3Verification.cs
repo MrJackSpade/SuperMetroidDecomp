@@ -800,15 +800,19 @@ internal static class LookupStream3Verification
             AssertThrows<InvalidOperationException>(
                 () => SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.Contains((DoorSetupCode)undefined),
                 "stream 3 undefined door setup code");
+        // Each callback runs over a grid of red cells and one of blue cells, so every write differs from the cells it
+        // replaces in at least one run; the native writes are compared as the cells the camera reads them as.
         foreach (DoorSetupCode pointer in expectedDoorCallbacks)
+        foreach (RoomScrollState fill in new[] { RoomScrollState.RedBoundary, RoomScrollState.Blue })
         {
-            byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
-            var actual = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), expected, new Extent16<RoomScreens>(10, 5));
+            byte[] expected = Enumerable.Repeat(fill.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray();
+            var actual = RoomScrollGrid.LoadNativeTable(expected, new Extent16<RoomScreens>(10, 5));
             ExecuteStream3DoorScroll(rom, DoorIdentityWords.SetupRoutines.Word(pointer), expected);
             AssertTrue(SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
-            AssertTrue(actual.StorageBytes.ToArray().SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
+            AssertTrue(actual.KeptStates.SequenceEqual(RoomScrollStates.FromStorageBytes(expected)),
+                "stream 3 native ordered door writes and all untouched cells");
         }
-        var unchangedScroll = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), new byte[50], new Extent16<RoomScreens>(10, 5));
+        var unchangedScroll = RoomScrollGrid.LoadNativeTable(new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.Doors.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
         for (int pair = 0; pair < 16; pair++)
         {
@@ -2028,7 +2032,7 @@ internal static class LookupStream3Verification
                     int destination = (CartridgeImportSource.Require(bus).ReadCartridgeLong(pc));
                     pc += 3;
                     int storageIndex = destination - RoomScrollGrid.WorkRamAddress;
-                    if ((uint)storageIndex >= RoomScrollGrid.StorageByteCount)
+                    if ((uint)storageIndex >= RoomScrollGrid.KeptCellCount)
                         throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 4);
                     scrolls[storageIndex] = unchecked((byte)accumulator);
                     if (!accumulatorIsEightBit)

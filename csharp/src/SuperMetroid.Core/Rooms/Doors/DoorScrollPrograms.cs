@@ -15,7 +15,7 @@ internal static class DoorScrollPrograms
         if (Writes(setupCode) is not { } writes)
             return false;
         foreach (DoorScrollWrite write in writes)
-            scrolls.SetStorage(write.ScrollIndex, write.State);
+            scrolls.SetCell(write.ScrollIndex, write.State);
         return true;
     }
 

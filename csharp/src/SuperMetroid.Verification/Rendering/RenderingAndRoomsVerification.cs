@@ -45,14 +45,14 @@ internal static class RenderingAndRoomsVerification
 private static RoomScrollGrid LoadExplicitScrollFixture(
     ReadOnlySpan<byte> source, Extent16<RoomScreens> size)
 {
-    byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
+    byte[] storage = new byte[RoomScrollGrid.KeptCellCount];
     source[..Math.Min(source.Length, storage.Length)].CopyTo(storage);
-    return RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), storage, size);
+    return RoomScrollGrid.LoadNativeTable(storage, size);
 }
 
 /// <summary>An explicit scroll table whose 50 copied bytes are all blue (one).</summary>
 private static byte[] AllBlueExplicitScrollTable() =>
-    Enumerable.Repeat((byte)1, RoomScrollGrid.StorageByteCount).ToArray();
+    Enumerable.Repeat((byte)1, RoomScrollGrid.KeptCellCount).ToArray();
 
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
 internal static void VerifyObjRendering()
@@ -386,27 +386,28 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
 {
     byte[] source = AllBlueExplicitScrollTable();
 
-    // The logical 3x2 grid begins fully blue. Give the five copied padding bytes distinct
-    // values to prove LoadExplicit does not synthesize zeroes after the sixth logical cell.
-    for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
+    // The logical 3x2 grid begins fully blue. Give the copied padding bytes values past the
+    // three authored states to prove the load keeps every cell after the sixth logical one, read
+    // as green, rather than synthesizing red cells there.
+    for (int index = 6; index < RoomScrollGrid.KeptCellCount; index++)
         source[index] = (byte)(0x80 + index);
 
     RoomScrollGrid grid = LoadExplicitScrollFixture(source, new Extent16<RoomScreens>(3, 2));
-    AssertEqual(0x86, grid.StorageBytes[6], "scroll loader retains first nonlogical byte");
-    AssertEqual(0xb1, grid.StorageBytes[49], "scroll loader retains fiftieth byte");
+    AssertEqual(RoomScrollState.Green, grid.KeptStates[6], "scroll loader retains first nonlogical cell");
+    AssertEqual(RoomScrollState.Green, grid.KeptStates[49], "scroll loader retains fiftieth cell");
 
     // Single Chamber's neighboring room uses a four-byte explicit table for a 4x2 room.
     // The native fixed-size copy makes the following room header ($1F,$02,$1D,$04) its
     // logical second row. Those bytes are not corrupt enum values: bank $80 compares them
     // only with zero (blocked) and one (blue alignment), treating every other nonzero byte
-    // like the conventional green value. Preserve that exact cartridge behavior.
+    // like the conventional green value, so the import reads them as green cells.
     byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableAndFollowingHeader,
         new Extent16<RoomScreens>(4, 2));
-    AssertEqual(0x1f, shortTableGrid.ReadStorage(4),
-        "short explicit scroll table preserves following room-header byte");
-    AssertEqual(0x04, shortTableGrid.ReadStorage(7),
+    AssertEqual(RoomScrollState.Green, shortTableGrid.ReadState(4),
+        "short explicit scroll table preserves following room-header byte as a green cell");
+    AssertEqual(RoomScrollState.Green, shortTableGrid.ReadState(7),
         "short explicit scroll table preserves complete logical overread row");
 
     var camera = new ScrollBoundaryCamera(grid);
@@ -452,31 +453,31 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
         DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue,
         DoorDefinitions.Get(DoorPointers.ConstructionZoneFromFirstMissile).Name,
         grid);
-    AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(0),
+    AssertEqual(RoomScrollState.Green, grid.ReadState(0),
         "$8F:BE25 writes Construction Zone screen zero green");
-    AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(1),
+    AssertEqual(RoomScrollState.Blue, grid.ReadState(1),
         "$8F:BE25 writes Construction Zone screen one blue");
-    grid.SetStorage(6, RoomScrollState.RedBoundary);
+    grid.SetCell(6, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorCode_Scroll6_Green,
         DoorDefinitions.Get(DoorPointers.ParlorFromClimb).Name,
         grid);
-    AssertEqual((byte)RoomScrollState.Green, grid.ReadStorage(6),
+    AssertEqual(RoomScrollState.Green, grid.ReadState(6),
         "$8F:B981 writes early-route screen six green");
 
     // Door $83:AB4C leaves the Ceres Mode-7 shaft through `$8F:E513`. That routine
     // restores ordinary PPU state but performs no writes to the destination scroll array.
     // The scroll interpreter must accept it without corrupting an otherwise valid grid;
     // runtime-owned Mode-7 state is cleared by the paired door dispatcher.
-    grid.SetStorage(7, RoomScrollState.Blue);
+    grid.SetCell(7, RoomScrollState.Blue);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorASM_FromCeresElevatorShaft,
         DoorDefinitions.Get(DoorPointers.FromCeresElevatorShaft).Name,
         grid);
-    AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(7),
-        "$8F:E513 preserves destination scroll storage");
+    AssertEqual(RoomScrollState.Blue, grid.ReadState(7),
+        "$8F:E513 preserves the destination scroll cells");
 
-    Console.WriteLine("  Scrolls: 50-byte load and four directional boundary handlers agree.");
+    Console.WriteLine("  Scrolls: fifty-cell load and four directional boundary handlers agree.");
 }
 
 /// <summary>

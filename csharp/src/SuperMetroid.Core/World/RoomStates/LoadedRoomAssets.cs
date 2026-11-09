@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -46,9 +47,9 @@ public sealed class LoadedRoomAssets
     public RoomBlockSheet BlockSheet => Pictures.Get(Tileset);
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
-    public static LoadedRoomAssets Load(RoomScrollStorage scrollStorage, SelectedRoom header, RoomAssetCatalogs catalogs)
+    public static LoadedRoomAssets Load(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> scrollCells, SelectedRoom header, RoomAssetCatalogs catalogs)
     {
-        Ensure.NotNull(scrollStorage);
+        Ensure.NotNull(scrollCells);
         Ensure.NotNull(header);
         Ensure.NotNull(catalogs);
         RoomLevelArtworks visualLayouts = catalogs.VisualLayouts;
@@ -58,7 +59,7 @@ public sealed class LoadedRoomAssets
         // blocks initially show comes from the separately replaceable layout catalog.
         RoomLevelData levelData = LoadLevelData(header, catalogs.LevelStreams.Get(header.State.Level),
             visualLayouts.Get(header.State.Level));
-        RoomScrollGrid scrolls = LoadScrolls(scrollStorage, header);
+        RoomScrollGrid scrolls = LoadScrolls(scrollCells, header);
         return new LoadedRoomAssets(
             header,
             levelData,
@@ -99,9 +100,9 @@ public sealed class LoadedRoomAssets
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
-    private static RoomScrollGrid LoadScrolls(RoomScrollStorage scrollStorage, SelectedRoom header)
+    private static RoomScrollGrid LoadScrolls(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> scrollCells, SelectedRoom header)
         => RoomScrollGrid.FromDefinition(
-            scrollStorage,
+            scrollCells,
             header.State.Scroll,
             header.Size);
 }

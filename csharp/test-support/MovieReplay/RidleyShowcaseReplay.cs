@@ -142,16 +142,6 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             {
                 if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
             }
-            void CheckBytes(string name, int count, Func<int, byte> read, int address)
-            {
-                for (int index = 0; index < count; index++)
-                {
-                    byte actual = read(index);
-                    byte expected = memory[address + index];
-                    if (actual != expected)
-                        mismatches.Add($"{name}[{index}]: native={expected:X2} port={actual:X2}");
-                }
-            }
             // Progress is compared as the native tables decode: each event, boss, item, door, station and map.
             var nativeProgress = new PersistentProgress();
             ProgressionTableCodec.ReadAreaBosses(memory.Slice(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), nativeProgress);
@@ -266,8 +256,14 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (samus.ArmCannon.DrawOrder != recordedDrawOrder)
                     mismatches.Add($"Cannon draw order: native={recordedDrawOrder} port={samus.ArmCannon.DrawOrder}");
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
-                CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
-                    runtime.Room.LoadedCamera.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);
+                // The recorded scroll bytes are compared as the cells the camera reads them as.
+                for (int cell = 0; cell < RoomScrollGrid.KeptCellCount; cell++)
+                {
+                    RoomScrollState recorded = RoomScrollStates.FromStorageByte(memory[NativeSnapshotMemory.ScrollStorage + cell]);
+                    RoomScrollState kept = runtime.Room.LoadedCamera.Scrolls.ReadState(cell);
+                    if (kept != recorded)
+                        mismatches.Add($"Room scroll cell {cell}: native={recorded} port={kept}");
+                }
                 for (int area = 0; area < AreaIds.RetailCount; area++)
                 {
                     int plane = area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :

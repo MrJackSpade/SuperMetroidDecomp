@@ -72,12 +72,12 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
         if (scroll.Program is null)
         {
             RoomObjectScrollPrograms.Apply(scroll.CompiledProgram ?? throw new InvalidOperationException(
-                "A scroll trigger has neither a retail program nor constructed writes."), scrolls.SetStorage);
+                "A scroll trigger has neither a retail program nor constructed writes."), scrolls.SetCell);
         }
         else
         {
             foreach (RoomScrollWrite write in scroll.Program)
-                scrolls.SetStorage(write.Index, write.State);
+                scrolls.SetCell(write.Index, write.State);
         }
         FinishScrollMutation(level, slot);
         return true;

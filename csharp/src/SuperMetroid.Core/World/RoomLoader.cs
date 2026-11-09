@@ -72,8 +72,8 @@ internal sealed class RoomLoader
     private readonly GameplayOptions _options;
     /// <summary>Holds Samus and her load-time presentation state.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>The session's room scroll allocation; it outlives each room so implicit tables keep the previous room's tail.</summary>
-    private readonly RoomScrollStorage _scrollStorage;
+    /// <summary>The session's kept scroll cells; they outlive each room, so an implicit layout keeps the previous room's cells past its own.</summary>
+    private readonly ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> _scrollCells;
     /// <summary>Constructs room PLMs after persistent state has been restored.</summary>
     private readonly RoomObjectVisuals _shotBlockVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
@@ -122,7 +122,7 @@ internal sealed class RoomLoader
         _tourianStatueDependencies = dependencies.TourianStatueDependencies;
         _system = dependencies.System;
         _assists = dependencies.Assists;
-        _scrollStorage = new RoomScrollStorage(_system.StoredExploredMaps);
+        _scrollCells = RoomScrollGrid.KeepCellsAcrossRooms(_system.StoredExploredMaps);
 
     }
     /// <summary>The door's four-pixel scroll trajectory, retained across atomic room construction.</summary>
@@ -708,7 +708,7 @@ internal sealed class RoomLoader
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
         // the door transition with no destination on the following frame.
-        LoadedRoomAssets assets = LoadedRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
+        LoadedRoomAssets assets = LoadedRoomAssets.Load(_scrollCells, room, RequireRoomAssetCatalogs());
         DoorDefinition consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
@@ -791,7 +791,7 @@ internal sealed class RoomLoader
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
         LoadedRoomAssets assets = entry.PreloadedAssets ??
-            LoadedRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
+            LoadedRoomAssets.Load(_scrollCells, room, RequireRoomAssetCatalogs());
 
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.

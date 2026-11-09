@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 
@@ -19,7 +20,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
         foreach ((ushort facing, YappingMawBodyProjectileProgram program) in new VerifyYappingMawBodyProjectileBehaviorCase[]
                  { new VerifyYappingMawBodyProjectileBehaviorCase(0, YappingMawBodyProjectileProgram.FacingDown), new VerifyYappingMawBodyProjectileBehaviorCase(1, YappingMawBodyProjectileProgram.FacingUp) })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot owner = enemies.SlotTable.Slots[0];
             owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
             owner.Bind(owner.DefinitionId, default(RoomEnemyDefinition));

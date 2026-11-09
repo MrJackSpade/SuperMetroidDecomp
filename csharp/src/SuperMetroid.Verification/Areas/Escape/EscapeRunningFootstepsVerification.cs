@@ -42,7 +42,7 @@ internal static class EscapeRunningFootstepsVerification
             // Begin at the identified native timer-handoff phase, not a boss playthrough.
             var sequence = new MotherBrainRainbowBeamAttackSequence();
             sequence.State.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer;
-            var request = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
+            var request = sequence.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
             // The death step's requests are applied in Mother Brain's room, whose PLMs, FX and enemies the room load owns.

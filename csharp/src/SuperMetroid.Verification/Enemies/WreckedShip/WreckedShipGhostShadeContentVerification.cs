@@ -22,16 +22,14 @@ internal static class WreckedShipGhostShadeContentVerification
     {
         // Colour zero of the ghost's own colours is (0, 0, 14): materialized, then brightened 17 times, its blue is full;
         // the next brightening carries blue out of the colour, leaving it at zero, as the word addition does.
-        var fade = new WreckedShipGhostFade();
-        fade.Darken();
-        fade.BeginMaterializing();
-        for (int moved = 1; moved != 0;)
-            moved = fade.StepTowardTarget();
+        WreckedShipGhostFade fade = WreckedShipGhostFade.Dark.Materializing(WreckedShipGhostAppearance.Colours);
+        for (WreckedShipGhostFadeStep moved = fade.SteppedTowardTarget(); moved.Changes != 0; moved = fade.SteppedTowardTarget())
+            fade = moved.Next;
         AssertEqual(WreckedShipGhostAppearance.Colour(0), fade.Shown[0], "the materialized ghost shows its own colour zero");
         for (int step = 0; step < 17; step++)
-            fade.Brighten();
+            fade = fade.Brightened().Next;
         AssertEqual(new RgbColor(140, 140, 255), fade.Shown[0], "seventeen brightenings fill colour zero's blue");
-        fade.Brighten();
+        fade = fade.Brightened().Next;
         AssertEqual(new RgbColor(148, 148, 0), fade.Shown[0], "the next brightening carries blue out of the colour");
         AssertEqual(new RgbColor(255, 0, 0), fade.Shown[10], "a colour whose red is full is not brightened");
 

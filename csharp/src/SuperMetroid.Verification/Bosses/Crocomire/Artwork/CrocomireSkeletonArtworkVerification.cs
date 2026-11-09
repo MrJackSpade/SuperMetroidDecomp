@@ -11,6 +11,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks Crocomire skeleton tile uploads against native source bytes and full VRAM results.</summary>
@@ -85,7 +86,7 @@ internal static class CrocomireSkeletonArtworkVerification
         static RunInstalledResult RunInstalled(InstalledEnemyArtwork art)
         {
             // The skeleton look shows on the last update of the baring, and an update after it bares nothing more (#1538).
-            var system = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
+            var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses };
             var vram = new SnesVram();
             var guard = NewCrocomireSkeletonNoReadBus();
             var state = new CrocomireDeathState();

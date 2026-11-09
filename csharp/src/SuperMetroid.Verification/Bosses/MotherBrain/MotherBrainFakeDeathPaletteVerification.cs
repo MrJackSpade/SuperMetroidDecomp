@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Checks Mother Brain's fake-death gray fades against native full-CGRAM frames.</summary>
@@ -70,7 +71,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
 
     /// <summary>Creates a Mother Brain actor with installed colors.</summary>
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(MotherBrainRainbowPalettePresentation colors) =>
-        new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
+        new(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRainbowColors = colors } };
 
     /// <summary>
     /// The colours Mother Brain's sprites show over black: the import's shades of <paramref name="colors"/>, laid as her

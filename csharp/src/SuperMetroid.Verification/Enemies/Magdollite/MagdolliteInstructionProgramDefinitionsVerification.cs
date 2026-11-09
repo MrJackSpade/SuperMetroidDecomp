@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -124,7 +125,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         CreateSystemResult CreateSystem(
             MagdollitePart selectedPart)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             for (int index = 0; index < 3; index++)
             {

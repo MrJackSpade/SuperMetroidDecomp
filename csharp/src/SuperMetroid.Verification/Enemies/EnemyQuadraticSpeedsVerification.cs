@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -72,7 +73,7 @@ internal static class EnemyQuadraticSpeedsVerification
                 "KiHunter high-byte index and coarse angle delta");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
-        var maw = new YappingMawEnemyState(new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0]);
+        var maw = new YappingMawEnemyState(new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0]);
         int mawAdditions = 0;
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int row = 0; row < EnemyQuadraticSpeedDefinitions.RowCount; row++)

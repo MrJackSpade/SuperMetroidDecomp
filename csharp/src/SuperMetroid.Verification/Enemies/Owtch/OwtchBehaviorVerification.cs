@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Owtch;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -23,7 +24,7 @@ internal static class OwtchBehaviorVerification
                      new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingLeft, OwtchProgram.MovingRight, OwtchProgram.MovingRightLoop, OwtchBehaviorState.MovingRight),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

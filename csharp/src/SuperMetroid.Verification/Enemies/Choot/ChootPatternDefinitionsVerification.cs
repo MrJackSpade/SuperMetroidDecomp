@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Choot;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -58,7 +59,7 @@ internal static class ChootPatternDefinitionsVerification
 
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+                var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var initialize = new Action<RoomEnemySlot>(ChootBehavior.InitializeChoot);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
@@ -80,7 +81,7 @@ internal static class ChootPatternDefinitionsVerification
                     $"Choot production initial falling Y {patternIndex}/{loopCount}");
             }
 
-            var fallEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var fallEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var initializeFall = new Action<RoomEnemySlot>(ChootBehavior.InitializeChoot);
             RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
             fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);

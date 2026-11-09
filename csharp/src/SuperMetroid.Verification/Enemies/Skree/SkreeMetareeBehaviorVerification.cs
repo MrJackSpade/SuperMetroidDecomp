@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Metaree;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Skree;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -58,7 +59,7 @@ internal static class SkreeMetareeBehaviorVerification
     /// <summary>A freshly initialized Skree or Metaree and accessors for its typed animation and attack-ready flag.</summary>
     private static SkreeMetareeBehaviorCreateResult Create(bool metaree)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

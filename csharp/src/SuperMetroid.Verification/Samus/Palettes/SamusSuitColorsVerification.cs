@@ -165,7 +165,7 @@ internal static class SamusSuitColorsVerification
             samusColours.ShownSuit(installedSources)[1],
             "Screw Attack recovery restores the installed Varia color");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, InstalledFixtures.EnemyOverreads);
         runtime.Artwork.MapPresentation = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

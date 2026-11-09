@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
@@ -30,7 +31,7 @@ internal static class KilledEnemyCompatibilityVerification
         AssertEqual(EvirFacing.Right, KilledEvirBodyFacing.Facing(EvirFacing.Right, EvirFacing.Left, bodyKilled: false), "a living body reads as it faces");
         AssertEqual(EvirFacing.Left, KilledEvirBodyFacing.Facing(EvirFacing.Right, EvirFacing.Left, bodyKilled: true), "a killed body reads as facing left");
 
-        var enemies = new RoomEnemySystem(new EnemySession(new UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot killedPlace = enemies.SlotTable.Slots[3];
         RoomEnemySlot otherPlace = enemies.SlotTable.Slots[4];
         var segments = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>();

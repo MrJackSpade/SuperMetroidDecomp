@@ -9,6 +9,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -48,7 +49,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         PaletteRgb5 original = document.Frames[1][0];
         // Exercise the actual global graphics-drawn hook, not a palette helper.
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
         // The hook names the glow frame every Magdollite shows (#1512); the frame's colours are the import's shade.
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = 8;

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Evir;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -97,7 +98,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     /// <summary>Creates an enemy system bound to the supplied address space.</summary>
     internal static RoomEnemySystem NewEvirInstructionSystem()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 

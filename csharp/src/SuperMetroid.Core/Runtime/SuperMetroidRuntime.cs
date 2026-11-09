@@ -109,7 +109,7 @@ internal sealed class SuperMetroidRuntime
     internal GameplayActorDrawing ActorDrawing { get; }
 
     /// <summary>
-    /// What Mother Brain's rainbow-beam push hides from the camera this update, bound into the enemies and consumed by
+    /// What Mother Brain's rainbow-beam push hides from the camera this update, injected into the enemy session and consumed by
     /// the update's scrolling.
     /// </summary>
     internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
@@ -145,7 +145,8 @@ internal sealed class SuperMetroidRuntime
     /// <param name="assists">The assists the runtime plays under; <see cref="GameplayAssists.None"/> for the unassisted game.</param>
     /// <param name="artwork">
     /// The installed catalogs; their initial palette is loaded into the colour table during construction, their Samus overread services
-    /// are handed to the owners that consult them, their boss overread services are bound to the enemy session, and
+    /// are handed to the owners that consult them, their enemy and boss overread services and the rainbow-beam camera
+    /// checkpoint are injected into the enemy session it builds, and
     /// <see cref="BindArtwork"/> binds the rest.
     /// </param>
     /// <param name="session">
@@ -168,10 +169,11 @@ internal sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        EnemySession = new EnemySession(unauthoredBoostCadence);
-        EnemySession.RainbowBeamCameraCheckpoint = RainbowBeamCameraCheckpoint;
-        EnemySession.BossOverreads = artwork.BossAndIntroOverreads ?? throw new InvalidOperationException(
-            "Gameplay requires the installed boss and intro overread services.");
+        EnemySession = new EnemySession(
+            unauthoredBoostCadence,
+            artwork.EnemyOverreads ?? throw new InvalidOperationException("Gameplay requires the installed enemy overread services."),
+            artwork.BossAndIntroOverreads ?? throw new InvalidOperationException("Gameplay requires the installed boss and intro overread services."),
+            RainbowBeamCameraCheckpoint);
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
@@ -258,7 +260,6 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
         Bind(a => a.SpriteSheets, value => Artwork.SpriteSheets = value);
         Bind(a => a.EnemySheets, value => EnemySession.Sheets = value);
-        Bind(a => a.EnemyOverreads, value => EnemySession.Overreads = value);
         Bind(a => a.ChargeFlarePlacement, value => Artwork.ChargeFlarePlacement = value);
         Bind(a => a.GrappleFlarePlacement, value => Artwork.GrappleFlarePlacement = value);
         Bind(a => a.GrappleSwingFrames, value => Artwork.GrappleSwingFrames = value);

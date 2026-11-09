@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Rios;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -25,7 +26,7 @@ internal static class RioInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rio = enemies.SlotTable.Slots[0];
         rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
         rio.Bind(rio.DefinitionId, default(RoomEnemyDefinition));

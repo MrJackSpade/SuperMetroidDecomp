@@ -11,6 +11,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 using SuperMetroid.Verification.Harness;
@@ -59,7 +60,7 @@ internal static class MotherBrainAnimationsVerification
     /// <summary>Creates Mother Brain's body and head in a fresh enemy system.</summary>
     private static NewMotherBrainResult NewMotherBrain()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         RoomEnemySlot bodySlot = enemies.SlotTable.Slots[0];
         bodySlot.Bind(EnemyDefinitionId.MotherBrainBody, bodySlot.Definition);
         RoomEnemySlot headSlot = enemies.SlotTable.Slots[1];

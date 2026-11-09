@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
@@ -509,30 +510,43 @@ internal sealed class EnemySheetShades
     internal static IReadOnlyList<ShadeColours> GhostFadeSteps()
     {
         var steps = new Dictionary<PictureShade, RgbColor[]>();
-        var fade = new WreckedShipGhostFade();
-        fade.Darken();
+        WreckedShipGhostFade fade = WreckedShipGhostFade.Dark;
         Record(steps, fade);
-        while (fade.Brighten() != 0)
+        for (WreckedShipGhostFadeStep step = fade.Brightened(); step.Changes != 0; step = fade.Brightened())
+        {
+            fade = step.Next;
             Record(steps, fade);
+        }
         for (int cycle = 0; cycle < 2; cycle++)
         {
-            fade.BeginMaterializing();
-            while (fade.StepTowardTarget() != 0)
-                Record(steps, fade);
-            fade.BeginVanishing();
-            while (fade.StepTowardTarget() != 0)
-                Record(steps, fade);
+            fade = fade.Materializing(WreckedShipGhostAppearance.Colours);
+            fade = RecordFade(steps, fade);
+            fade = fade.Vanishing();
+            fade = RecordFade(steps, fade);
         }
         return [.. steps.Select(step => new ShadeColours(step.Key, step.Value))];
+    }
+
+    /// <summary>Steps <paramref name="fade"/> toward its target until a step moves nothing, recording each step's colours.</summary>
+    /// <returns>The fade at its target.</returns>
+    private static WreckedShipGhostFade RecordFade(Dictionary<PictureShade, RgbColor[]> steps, WreckedShipGhostFade fade)
+    {
+        for (WreckedShipGhostFadeStep step = fade.SteppedTowardTarget(); step.Changes != 0; step = fade.SteppedTowardTarget())
+        {
+            fade = step.Next;
+            Record(steps, fade);
+        }
+        return fade;
     }
 
     /// <summary>Records the fade's colours under its shade.</summary>
     private static void Record(Dictionary<PictureShade, RgbColor[]> steps, WreckedShipGhostFade fade)
     {
-        RgbColor[] shown = fade.Shown.ToArray();
-        if (steps.TryGetValue(fade.Shade, out RgbColor[]? known) && !known.SequenceEqual(shown))
-            throw new InvalidDataException($"Wrecked Ship ghost shade {fade.Shade.Key} names two colourings.");
-        steps[fade.Shade] = shown;
+        RgbColor[] shown = [.. fade.Shown];
+        PictureShade shade = WreckedShipGhostFadeShade.Of(fade);
+        if (steps.TryGetValue(shade, out RgbColor[]? known) && !known.SequenceEqual(shown))
+            throw new InvalidDataException($"Wrecked Ship ghost shade {shade.Key} names two colourings.");
+        steps[shade] = shown;
     }
 
     /// <summary>The ice beam's colours, which a frozen enemy shows.</summary>

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Hibashi;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Hibashi;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -13,7 +14,7 @@ internal static class HibashiOwnedStateVerification
     /// </summary>
     internal static void VerifyHibashiOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
         graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.SetSpawnParameter1(EnemyDefinitionId.Hibashi, ushort.MaxValue);

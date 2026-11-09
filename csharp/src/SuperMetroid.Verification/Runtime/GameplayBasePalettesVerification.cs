@@ -34,7 +34,7 @@ internal static class GameplayBasePalettesVerification
                 baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
         // Runtime construction reads no cartridge and binds no base palette: only the import reads it (#1512).
-        _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads);
+        _ = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads, InstalledFixtures.EnemyOverreads);
 
         Console.WriteLine("Gameplay base palettes: 256+16 cartridge colors and guarded runtime construction pass.");
 

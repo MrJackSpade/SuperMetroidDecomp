@@ -74,7 +74,8 @@ internal static class RepositoryInstallation
         var assists = new GameplayAssists { SamusCannotDie = playerInvincibilityEnabled, AmmoNeverRunsOut = infiniteAmmoEnabled, MapReveal = mapRevealMode, EscapeTimerHoldsAtOneSecond = preventEscapeTimeout, EncounterResetOnLoad = encounterResetOnLoad };
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork.SamusOverreads ?? throw new InvalidOperationException(
             "The installation's artwork carries no Samus overread services."), Artwork.BossAndIntroOverreads ?? throw new InvalidOperationException(
-            "The installation's artwork carries no boss and intro overread services."), random);
+            "The installation's artwork carries no boss and intro overread services."), Artwork.EnemyOverreads ?? throw new InvalidOperationException(
+            "The installation's artwork carries no enemy overread services."), random);
         BindRuntime(runtime);
         return runtime;
     }

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 /// <summary>
 /// The effects the Wrecked Ship ghost's shades are named for (#1512): its darkened colours, its brightening, and its
 /// fades that materialize and vanish it. Each step's shade is the effect and the steps it has taken
-/// (WreckedShipGhostFade.Shade); the import pre-colours every one the ghost passes through.
+/// (WreckedShipGhostFadeShade); the import pre-colours every one the ghost passes through.
 /// </summary>
 public static class WreckedShipGhostShades
 {

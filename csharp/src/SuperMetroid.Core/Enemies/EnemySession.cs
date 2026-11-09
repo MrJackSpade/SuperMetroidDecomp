@@ -7,16 +7,37 @@ namespace SuperMetroid.Core.Enemies;
 /// The enemy-side words that outlive each room, as the game keeps them across enemy loading (#1329): the
 /// elevator journey, the shared fade counter, Ceres's escape progress, the critical-energy drop bias, the language
 /// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces and how far the
-/// room's encounters have played their artwork; the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind; and the
-/// host's installed enemy artwork, which every room's enemies draw from.
+/// room's encounters have played their artwork; the compatibility services its enemies consult, which it receives when it
+/// is built: the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind, the
+/// installation's enemy and boss over-read services and the runtime's rainbow-beam camera checkpoint; and the host's
+/// installed enemy artwork, which every room's enemies draw from.
 /// </summary>
 [ArchitectureReview("context-bag", "The enemy state that outlives each room and the installed enemy content every room binds: each member is session-lifetime state or installed data a room reads, not a service looked up.")]
 public sealed class EnemySession
 {
-    /// <summary>Creates the enemy words a fresh power-on holds, bound to the session's unauthored Speed Booster cadence.</summary>
+    /// <summary>
+    /// Creates the enemy words a fresh power-on holds, bound to the compatibility services its enemies consult.
+    /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives every runtime.</param>
-    public EnemySession(UnauthoredBoostCadence unauthoredBoostCadence) =>
+    /// <param name="overreads">The installation's services reproducing what enemies read past their authored data (#1500).</param>
+    /// <param name="bossOverreads">
+    /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data (#1500).
+    /// </param>
+    /// <param name="rainbowBeamCameraCheckpoint">
+    /// The runtime's record of what Mother Brain's rainbow-beam push hides from the camera, which the runtime's scrolling
+    /// consumes.
+    /// </param>
+    public EnemySession(
+        UnauthoredBoostCadence unauthoredBoostCadence,
+        EnemyOverreadServices overreads,
+        BossAndIntroOverreadServices bossOverreads,
+        RainbowBeamCameraCheckpoint rainbowBeamCameraCheckpoint)
+    {
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
+        Overreads = Ensure.NotNull(overreads);
+        BossOverreads = Ensure.NotNull(bossOverreads);
+        RainbowBeamCameraCheckpoint = Ensure.NotNull(rainbowBeamCameraCheckpoint);
+    }
 
     /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway wing frames leave behind.</summary>
     internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
@@ -56,14 +77,17 @@ public sealed class EnemySession
     /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; empty-population initialization retains the previous quota. 0 through 255.</summary>
     internal int DeathQuota { get; set; }
 
-    /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera; the runtime binds it.</summary>
-    internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint { get; set; }
+    /// <summary>
+    /// The runtime's record of what Mother Brain's rainbow-beam push hides from the camera, which the push writes during
+    /// the enemy pass.
+    /// </summary>
+    internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; }
 
     /// <summary>
     /// The installation's services reproducing what Kraid's fingernails and Crocomire's volley read past their data
-    /// (#1500); the runtime binds them, and a boss that reads past its data without them fails.
+    /// (#1500).
     /// </summary>
-    internal BossAndIntroOverreadServices? BossOverreads { get; set; }
+    internal BossAndIntroOverreadServices BossOverreads { get; }
 
     /// <summary>
     /// The look each of the room's encounters shows (#1538), which the frames its looks change and the Ceres
@@ -81,9 +105,8 @@ public sealed class EnemySession
     internal IEnemySheetSource? Sheets { get; set; }
 
     /// <summary>
-    /// The installed services reproducing what enemies read past their authored data (#1500), bound with the game's
-    /// artwork. An enemy that reaches one of those reads requires them; null
-    /// does not enable a fallback.
+    /// The installation's services reproducing what enemies read past their authored data (#1500), consulted only on the
+    /// path that reads past an enemy's data.
     /// </summary>
-    internal EnemyOverreadServices? Overreads { get; set; }
+    internal EnemyOverreadServices Overreads { get; }
 }

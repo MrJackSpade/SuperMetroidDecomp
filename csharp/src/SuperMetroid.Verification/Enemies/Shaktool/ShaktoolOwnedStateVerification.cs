@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -50,7 +51,7 @@ internal static class ShaktoolOwnedStateVerification
         }
 
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).
-        var misplacedEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var misplacedEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot misplaced = misplacedEnemies.SlotTable.Slots[1];
         misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.Definition);
         misplaced.Bind(misplaced.DefinitionId, default(RoomEnemyDefinition));
@@ -63,7 +64,7 @@ internal static class ShaktoolOwnedStateVerification
     /// <summary>Initializes the seven Shaktool segments in slots zero through six.</summary>
     private static RoomEnemySystem CreateShaktoolGroup()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 7; index++)
         {
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];

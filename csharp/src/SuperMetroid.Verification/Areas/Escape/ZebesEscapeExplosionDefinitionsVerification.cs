@@ -6,6 +6,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 
@@ -29,7 +30,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         for (ushort choice = 0; choice < 16; choice++)
         for (ushort inherited = 0; inherited < 8; inherited++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(new(0x1234, 0x5678), choice, inherited);
 
             int selectedIndex = choice < 8 ? choice : inherited;

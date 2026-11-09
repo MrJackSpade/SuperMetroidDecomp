@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Boyon;
 
@@ -13,7 +14,7 @@ internal static class BoyonSpeedDefinitionsVerification
     /// multipliers, including out-of-range inputs and saturated curve indexes.</summary>
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot> initialize = BoyonBehavior.InitializeBoyon;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);

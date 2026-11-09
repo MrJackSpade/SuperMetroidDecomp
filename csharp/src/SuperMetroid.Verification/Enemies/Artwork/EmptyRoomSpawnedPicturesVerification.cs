@@ -25,7 +25,7 @@ internal static class EmptyRoomSpawnedPicturesVerification
         var graphics = new EnemyGraphicsSet();
         VerificationAssertions.AssertEqual(RoomEnemyGraphicsSetDefinitions.SessionStart, graphics.LoadedSet,
             "a room that loads no set draws under the session-start set");
-        var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
         {
             TileArtwork = InstalledFixtures.EnemyTiles,
             Sheets = InstalledFixtures.EnemySheets,

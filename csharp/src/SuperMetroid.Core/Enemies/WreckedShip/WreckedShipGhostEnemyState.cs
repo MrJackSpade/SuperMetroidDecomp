@@ -59,8 +59,8 @@ public sealed class WreckedShipGhostEnemyState
     public int StableDirectionTimer { get; internal set; }
 
     /// <summary>
-    /// The ghost's fading colours and the target its fade moves toward (#1512): the compatibility value whose step
-    /// results end the ghost's brightening and fades.
+    /// The ghost's fading colours and the target its fade moves toward (#1512, #1552): the compatibility value the ghost
+    /// owns, whose step results end its brightening and fades. A ghost starts with its colours darkened.
     /// </summary>
-    public WreckedShipGhostFade Fade { get; } = new();
+    public WreckedShipGhostFade Fade { get; internal set; } = WreckedShipGhostFade.Dark;
 }

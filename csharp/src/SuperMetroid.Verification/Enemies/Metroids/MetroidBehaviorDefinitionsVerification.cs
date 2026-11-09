@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 
 using SuperMetroid.Verification.Harness;
@@ -90,7 +91,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         for (ushort random = 0; random < 8; random++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = () => selectedRandom;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

@@ -4,37 +4,29 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable yellow, green, and red door-cap visual references, and the editable identities that name them.</summary>
+/// <summary>The installed pictures of the forty-eight yellow, green and red door-cap frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectColoredDoorVisualFiles
 {
     /// <summary>JSON filename for yellow, green, and red door-cap visual frames.</summary>
     public const string VisualFileName = "colored-doors.json";
 
-    /// <summary>Verifies all forty-eight native colored-door frames and creates four-block visual entries plus their provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of door-cap block and horizontal or vertical run geometry.</param>
-    /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled colored-door definitions.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Colored-door", All, VisualId);
+    /// <summary>The coloured-door cap as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Colored-door", All, VisualId);
 
-    /// <summary>Validates the installed Colored-door manifest's provenance and loads the installed Colored-door JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Colored-door JSON.</param>
-    /// <returns>The three-color, four-orientation cap artwork; collision and door-opening mechanics remain compiled.</returns>
-    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate frame coverage or visual-word rules.</exception>
+    /// <summary>Pictures every coloured-door cap frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed coloured-door cap pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectColoredDoorVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<InstalledRoomObjectColoredDoorVisuals>(VisualFileName, "Colored-door", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates complete coverage of the forty-eight colored-door frames and builds the visuals from every frame's picture as installed.</summary>
-    /// <param name="entries">Exactly one four-block, visual-only entry for each compiled color, orientation, and frame identity.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    internal static InstalledRoomObjectColoredDoorVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Colored-door", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates yellow, green, and red cap frames in their authored order.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
@@ -72,10 +64,6 @@ public static class RoomObjectColoredDoorVisualFiles
         };
         return $"{color}-{direction}-frame-{draw.Frame}";
     }
-
-    /// <summary>Resolves an exact ordinal visual identity back to its compiled draw record.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 
     /// <summary>Every colour's caps, each facing's four frames in turn.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()

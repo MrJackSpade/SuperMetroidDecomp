@@ -44,10 +44,7 @@ internal static class LookupChozoLayoutsVerification
                 }
             }
             foreach (string id in new[] { "LOWER-NORFAIR-CLEARED-HAND", "broken", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectChozoStatueVisualFiles.TryGetByVisualId(id, out var missing), "Chozo layout ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Chozo layout rejected ID output");
-            }
+                AssertTrue(!RoomObjectChozoStatueVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Chozo layout ordinal ID domain");
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
@@ -55,12 +52,12 @@ internal static class LookupChozoLayoutsVerification
             ushort pointer = pointers[index];
             ChozoStatueDraws.TryDescribe(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var shape);
             RoomObjectChozoStatueVisualFiles.TryGet(NativeObjectDraws.At<ChozoStatueDraw>(pointer), out var dto);
-            RoomObjectChozoStatueVisualFiles.TryGetByVisualId(ids[index], out var byId);
+            RoomObjectDraw byId = RoomObjectChozoStatueVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
             if (field == 0)
             {
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Chozo layout original export order");
                 AssertEqual(ids[index], RoomObjectChozoStatueVisualFiles.VisualId(NativeObjectDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout published ID");
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Chozo layout reverse ID");
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Chozo layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Chozo layout run bounds");
@@ -98,7 +95,7 @@ internal static class LookupChozoLayoutsVerification
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Chozo layout native DTO geometry");
                         AssertEqual(count, part.Blocks.Length, "Chozo layout native DTO count");
-                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "Chozo layout native DTO offset");
+                        AssertEqual(offset, RoomObjectRunContinuationCodecConstants.Encode(frame, run), "Chozo layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2)),

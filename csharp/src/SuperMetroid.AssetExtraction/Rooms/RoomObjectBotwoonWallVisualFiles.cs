@@ -11,38 +11,23 @@ public static class RoomObjectBotwoonWallVisualFiles
     /// <summary>Editable Botwoon wall-clear visual JSON filename.</summary>
     public const string VisualFileName = "botwoon-wall.json";
 
-    /// <summary>Verifies every native Botwoon wall draw and creates stock JSON plus the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time bank-$84 comparisons.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Botwoon wall", All, VisualId);
+    /// <summary>The Botwoon wall as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Botwoon wall", All, VisualId);
 
-    /// <summary>Validates the installed Botwoon wall manifest's provenance and loads the installed Botwoon wall JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Botwoon wall JSON.</param>
-    /// <returns>The immutable Botwoon wall visual catalog.</returns>
+    /// <summary>Pictures every Botwoon wall frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Botwoon wall pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectBotwoonWallVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<InstalledRoomObjectBotwoonWallVisuals>(VisualFileName, "Botwoon wall", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates the single nine-block wall-clear picture and builds the visuals from an owned copy of it as installed.</summary>
-    /// <param name="entries">Exactly one known clear-frame entry containing nine visual-only appearances; crumble frames belong to the separate shot-block catalog.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">The entry count, identity, or block count is invalid.</exception>
-    internal static InstalledRoomObjectBotwoonWallVisuals Create(IEnumerable<RoomObjectVisualEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        RoomObjectVisualEntry[] selected = entries.ToArray();
-        if (selected.Length != 1 || selected[0] is null ||
-            selected[0].Id != VisualId(BotwoonWallObjectDrawDefinitions.Clear) ||
-            selected[0].Blocks is null || selected[0].Blocks.Length != BotwoonWallObjectDrawDefinitions.BlockCount)
-            throw new InvalidDataException(
-                "Botwoon wall visuals must contain exactly one nine-block clear frame.");
-        return new([.. selected[0].Blocks]);
-    }
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Assigns the lone wall-clear draw its stable artwork key and rejects other draw identities.</summary>
     internal static string VisualId(RoomObjectDraw draw) => draw == BotwoonWallObjectDrawDefinitions.Clear

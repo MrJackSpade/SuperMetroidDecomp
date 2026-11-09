@@ -20,17 +20,11 @@ internal static class DownwardGateVisualsVerification
     internal static void VerifyDownwardGateVisuals()
     {
         InstalledRoomObjectDownwardGateVisuals stock = InstalledRoomObjectDownwardGateVisuals.Stock();
-        RoomObjectVisualRunEntry[] entries = RoomObjectDownwardGateVisualFiles.All
-            .Select(list => new RoomObjectVisualRunEntry(
-                RoomObjectDownwardGateVisualFiles.VisualId(list.Draw),
-                list.Runs.Span
-                    .SelectToArray(run => run.Blocks.Span
-                        .SelectToArray(block => block.Appearance))
-                    ))
-            .ToArray();
         // The synthetic population's header begins at the opening list, which
         // selects the sixth resident column frame before its gate pre-instruction.
-        AssertEqual(RoomBlockAppearance.Of(0x0ff), stock.GetAppearance(NativeObjectDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
+        RoomObjectDraw sixthColumn = NativeObjectDraws.At<DownwardGateDraw>(0xa55d);
+        AssertEqual(RoomBlockAppearance.Of(0x0ff),
+            stock.Image(sixthColumn).At(RoomObjectDownwardGateVisualFiles.Family.Layouts[sixthColumn].Runs.Span[0].CellAt(1)),
             "stock gate visual retains the physical column art");
 
         DownwardGateVisualsRenderResult
@@ -59,13 +53,6 @@ internal static class DownwardGateVisualsVerification
         AssertEqual(RoomBlockAppearance.Of(0x0ff), native.Streamed,
             "stock gate block streams its native block");
 
-        AssertThrows<InvalidDataException>(
-            () => RoomObjectDownwardGateVisualFiles.Create(entries.Skip(1)),
-            "gate visual catalog rejects missing frames");
-        AssertThrows<InvalidDataException>(
-            () => RoomObjectDownwardGateVisualFiles.Create(entries.Select(entry =>
-                entry.Id == "column-frame-5" ? entry with { Id = "unknown-frame" } : entry)),
-            "gate visual catalog rejects unknown frame IDs");
 
         Suite(nameof(VerifyDownwardGateVisualInstallation), () => VerifyDownwardGateVisualInstallation());
     }
@@ -90,5 +77,4 @@ internal static class DownwardGateVisualsVerification
             () => installation.LoadRoomObjectDownwardGateVisuals(),
             "gate stock manifest hash rejects corruption");
     }
-
 }

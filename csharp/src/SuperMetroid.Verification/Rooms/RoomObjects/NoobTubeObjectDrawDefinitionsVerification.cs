@@ -31,12 +31,9 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
 
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             RoomObjectNoobTubeVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectVisualEntry[] entries = lists.Select(draw =>
-            new RoomObjectVisualEntry(
-                RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw),
-                draw.Appearances())).ToArray();
-        AssertEqual(entries.Single(entry => entry.Id == "cleared").Blocks[24],
-            InstalledRoomObjectNoobTubeVisuals.Stock().GetAppearance(NativeObjectDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
+        RoomObjectShotBlockDrawDefinitions.DrawList cleared = lists.Single(draw => RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw) == "cleared");
+        AssertEqual(cleared.Runs.Span[2].Blocks.Span[0].Appearance,
+            InstalledRoomObjectNoobTubeVisuals.Stock().Image(NativeObjectDraws.At<NoobTubeDraw>(0x98e3)).At(cleared.Runs.Span[2].Start),
             "stock n00b-tube catalog retains the native row tile");
         AssertEqual(7, lists.Length,
             "n00b-tube program selects seven distinct physical draw lists");

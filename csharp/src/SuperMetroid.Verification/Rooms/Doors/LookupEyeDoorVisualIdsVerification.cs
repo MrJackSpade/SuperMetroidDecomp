@@ -33,16 +33,13 @@ internal static class LookupEyeDoorVisualIdsVerification
             var entry = expected[index];
             AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Eye door original editable order");
             AssertEqual(entry.Id, RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>(entry.Pointer)), "Eye door original artwork ID");
-            AssertTrue(RoomObjectEyeDoorVisualFiles.TryGetByVisualId(entry.Id,out var named), "Eye door reverse ID");
-            AssertEqual(entry.Pointer,RoomObjectDrawAddressCodec.Of(named.Draw),"Eye door reverse draw selection");
+            RoomObjectDraw named = RoomObjectEyeDoorVisualFiles.Family.Ids.Single(pair => pair.Value == entry.Id).Key;
+            AssertEqual(entry.Pointer,RoomObjectDrawAddressCodec.Of(named),"Eye door reverse draw selection");
             foreach (string bad in new[] {entry.Id.ToUpperInvariant()," " + entry.Id,entry.Id + " "})
-            {
-                AssertTrue(!RoomObjectEyeDoorVisualFiles.TryGetByVisualId(bad,out var missing), "Eye door ordinal identity");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList),missing,"Eye door rejected ID output");
-            }
+                AssertTrue(!RoomObjectEyeDoorVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal), "Eye door ordinal identity");
         }
         foreach (string bad in new[] {"","left-eye-frame-5","right-middle-frame-3","left-bottom-frame-01","right-eye-clear"})
-            AssertTrue(!RoomObjectEyeDoorVisualFiles.TryGetByVisualId(bad,out _),"Eye door unsupported identity");
+            AssertTrue(!RoomObjectEyeDoorVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal),"Eye door unsupported identity");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             if (!expected.Any(entry => entry.Pointer == raw))

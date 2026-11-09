@@ -80,8 +80,8 @@ internal static class KraidDrawMappingsVerification
             AssertEqual(expected.Count, run.Count, "Kraid export word extent");
             ushort tail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + expected.Count * 2));
             AssertEqual((ushort)0, tail, "Kraid native terminator has zero displacement");
-            AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.X(exported[expected.Pointer], 0), "Kraid export terminal X");
-            AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.Y(exported[expected.Pointer], 0), "Kraid export terminal Y");
+            AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.X(exported[expected.Pointer], 0), "Kraid export terminal X");
+            AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.Y(exported[expected.Pointer], 0), "Kraid export terminal Y");
         }
     }
 
@@ -133,17 +133,14 @@ internal static class KraidDrawMappingsVerification
         foreach (var entry in expected)
         {
             AssertEqual(entry.Id, RoomObjectKraidVisualFiles.VisualId(NativeObjectDraws.At<KraidRoomDraw>(entry.Pointer)), "Kraid published visual ID");
-            AssertTrue(RoomObjectKraidVisualFiles.TryGetByVisualId(entry.Id, out var draw), "Kraid reverse visual ID");
-            AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(draw.Frame)), "Kraid reverse ID pointer");
+            RoomObjectDraw draw = RoomObjectKraidVisualFiles.Family.Ids.Single(pair => pair.Value == entry.Id).Key;
+            AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(draw), "Kraid reverse ID pointer");
             foreach (string invalid in new[] { entry.Id.ToUpperInvariant(), entry.Id + " ", " " + entry.Id })
-            {
-                AssertTrue(!RoomObjectKraidVisualFiles.TryGetByVisualId(invalid, out var missing),
+                AssertTrue(!RoomObjectKraidVisualFiles.Family.Ids.Values.Contains(invalid, StringComparer.Ordinal),
                     "Kraid IDs preserve ordinal exact matching");
-                AssertEqual(default(KraidRoomObjectDraws.Draw), missing, "Kraid missing ID clears result");
-            }
         }
         foreach (string invalid in new[] { "", "unknown" })
-            AssertTrue(!RoomObjectKraidVisualFiles.TryGetByVisualId(invalid, out _), "Kraid invalid visual ID");
+            AssertTrue(!RoomObjectKraidVisualFiles.Family.Ids.Values.Contains(invalid, StringComparer.Ordinal), "Kraid invalid visual ID");
         var pointers = expected.Select(draw => draw.Pointer).ToHashSet();
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)
             if (!pointers.Contains((ushort)pointer))

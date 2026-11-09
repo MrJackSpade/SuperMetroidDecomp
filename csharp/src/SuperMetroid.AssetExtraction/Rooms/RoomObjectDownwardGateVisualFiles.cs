@@ -8,82 +8,29 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>
-/// Installs named gate-block appearances. Native draw geometry and physical level
-/// words are checked against the compiled cartridge definitions.
-/// </summary>
+/// <summary>The installed pictures of the fourteen downward-gate column and trigger frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectDownwardGateVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
     public const string VisualFileName = "downward-gates.json";
-    /// <summary>Stock provenance manifest filename; records format version one, cartridge SHA-256, and the visual JSON's byte hash.</summary>
-    public const string ManifestFileName = "manifest.json";
-    /// <summary>Schema revision shared by the exported visual document and stock provenance manifest.</summary>
-    private const int FormatVersion = 1;
 
-    /// <summary>Serializes family documents with the published camel-case JSON field names.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() },
-    };
+    /// <summary>The downward-gate as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Downward gate", All, VisualId);
 
-    /// <summary>Checks bank-$84 downward-gate draw shapes, terrain, and continuation offsets before exporting appearance in native run order.</summary>
-    /// <param name="bus">Cartridge source for column draws $84:A517–A56A and trigger draws $84:A5D7–A626; upward gates are not included.</param>
-    /// <param name="directory">Family directory, created before native validation; receives new visual JSON and manifest files.</param>
-    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; stock loading requires the supported cartridge identity.</param>
-    /// <remarks>Words contain only bits 0..11, not collision types. Create-new outputs are separate writes and are not rolled back together on failure.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Native draw data differs from the compiled gate definitions.</exception>
-    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256)
-    {
-        Ensure.NotNull(bus);
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
-        Directory.CreateDirectory(directory);
-        RoomObjectVisualRunEntry[] entries = ReadAndVerifyNative(bus);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new VisualDocument(FormatVersion, entries), JsonOptions);
-        using (var output = new FileStream(Path.Combine(directory, VisualFileName),
-                   FileMode.CreateNew, FileAccess.Write))
-            output.Write(json);
-        using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
-            FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
-    }
+    /// <summary>Pictures every downward-gate frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
 
-    /// <summary>Validates the installed downward-gate manifest's provenance and loads the installed downward-gate JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed family directory containing the version-one downward-gate JSON and its manifest.</param>
-    /// <returns>A ROM-independent catalog with copied authored words and compiled collision, draw placement, and gate timing unchanged.</returns>
-    /// <exception cref="ArgumentException"><paramref name="directory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Manifest provenance, schema, identities, frame coverage, shapes, or appearance are invalid.</exception>
-    /// <exception cref="IOException">The installed manifest or downward-gate JSON cannot be read.</exception>
-    public static InstalledRoomObjectDownwardGateVisuals Load(
-        string directory)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, ManifestFileName);
-        VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
-        if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"Downward gate visual manifest {manifestPath} is incompatible.");
-        string path = Path.Combine(directory, VisualFileName);
-        return CreateCatalog(ReadJson<VisualDocument>(path), path);
-    }
-
-    /// <summary>Validates complete downward-gate and shot-trigger coverage and builds the visuals from every frame's picture as installed.</summary>
-    /// <param name="entries">One entry per compiled layout, retaining its exact run count and block counts with visual-only payloads.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    internal static InstalledRoomObjectDownwardGateVisuals Create(IEnumerable<RoomObjectVisualRunEntry> entries) =>
-        new(RoomObjectFramePictureReader.RunByRun(entries, "Downward gate", TryGetByVisualId, All.Count()));
+    /// <summary>Loads the installed downward-gate pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
+    public static InstalledRoomObjectDownwardGateVisuals Load(string directory) =>
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates six column stages followed by four left/right trigger color pairs.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
@@ -114,10 +61,6 @@ public static class RoomObjectDownwardGateVisualFiles
         return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
     }
 
-    /// <summary>Looks up a published visual name against supported column and trigger draws.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
-
     /// <summary>Builds every column and trigger draw list from its calculated shape.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
     {
@@ -130,82 +73,4 @@ public static class RoomObjectDownwardGateVisualFiles
             }
         }
     }
-
-    /// <summary>Reads each downward-gate draw list, verifying native shape and block before retaining only appearance.</summary>
-    private static RoomObjectVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
-    {
-        var entries = new List<RoomObjectVisualRunEntry>();
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in
-                 All.OrderBy(item => RoomObjectDrawAddressCodec.Of(item.Draw)))
-        {
-            int cursor = RoomObjectDrawAddressCodec.Of(list.Draw);
-            var visuals = new List<RoomBlockAppearance[]>();
-            for (int runIndex = 0; runIndex < list.Runs.Length; runIndex++)
-            {
-                RoomObjectShotBlockDrawDefinitions.Run run = list.Runs.Span[runIndex];
-                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != RoomObjectRunHeaderCodec.Encode(run))
-                    throw new InvalidDataException(
-                        $"Downward gate draw list {list.Draw} differs in source cartridge shape.");
-                cursor = unchecked((ushort)(cursor + 2));
-                var appearances = new RoomBlockAppearance[run.Count];
-                for (int index = 0; index < appearances.Length; index++)
-                {
-                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)));
-                    if (source != run.Blocks.Span[index])
-                        throw new InvalidDataException(
-                            $"Downward gate draw list {list.Draw} differs at ${cursor:X4}.");
-                    appearances[index] = source.Appearance;
-                    cursor = unchecked((ushort)(cursor + 2));
-                }
-
-                if (bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, cursor)) != unchecked((byte)RoomObjectRunContinuationCodec.X(list, runIndex)) ||
-                    bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, unchecked((ushort)(cursor + 1)))) !=
-                        unchecked((byte)RoomObjectRunContinuationCodec.Y(list, runIndex)))
-                    throw new InvalidDataException(
-                        $"Downward gate draw list {list.Draw} differs in next-record offset.");
-                cursor = unchecked((ushort)(cursor + 2));
-                visuals.Add(appearances);
-            }
-
-            entries.Add(new RoomObjectVisualRunEntry(
-                VisualId(list.Draw), visuals.ToArray()));
-        }
-
-        return entries.ToArray();
-    }
-
-    /// <summary>Checks document revision and wraps entry validation errors with the source path.</summary>
-    private static InstalledRoomObjectDownwardGateVisuals CreateCatalog(
-        VisualDocument document, string path)
-    {
-        if (document.Version != FormatVersion || document.Entries is null)
-            throw new InvalidDataException($"Downward gate visuals {path} have an incompatible format.");
-        try { return Create(document.Entries); }
-        catch (InvalidDataException error)
-        {
-            throw new InvalidDataException(
-                $"Invalid downward gate visuals {path}: {error.Message}", error);
-        }
-    }
-
-    /// <summary>Reads a family JSON file and reports failures using its path.</summary>
-    private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
-    /// <summary>Deserializes a nonempty family document, converting malformed JSON to a path-specific data error.</summary>
-    private static T ReadJson<T>(byte[] bytes, string path)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<T>(bytes, JsonOptions)
-                ?? throw new InvalidDataException($"Downward gate JSON {path} is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid downward gate JSON {path}.", error);
-        }
-    }
-
-    /// <summary>Stock provenance and byte-integrity record for the downward-gate visual document.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
-    /// <summary>Versioned set of named downward-gate visual runs stored in JSON.</summary>
-    private sealed record VisualDocument(int Version, RoomObjectVisualRunEntry[] Entries);
 }

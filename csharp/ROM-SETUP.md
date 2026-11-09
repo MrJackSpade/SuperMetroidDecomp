@@ -828,19 +828,21 @@ visual words; it cannot modify the installed physical allocation or the native
 overread tail. Development verifiers can still read the pinned ROM to compare
 every installed byte with its original source.
 
+Every room-object family below installs its frames in one shape: `frames` lists each frame by its `id`, and each
+frame's `cells` list every cell it shows by its `x`/`y` place in blocks from the object's origin, with the `block` it
+shows and that block's `mirroring`. Edit a cell's `block` or `mirroring` in the installed file and restart. Keep every
+frame and every cell: the import checks each frame against the shape and collision the game draws it by, and rejects a
+missing, repeated or unknown frame and a missing, repeated or foreign cell. Collision is never part of a picture.
+
 Ordinary shot-block PLM appearances are installed as
-`game/room-plm-shot-blocks/shot-blocks.json`. Edit a `runs` visual word in the
-installed file and restart. Each decimal
-`drawPointer` identifies one of 19 compiled animation/restoration draw lists;
-each nested run retains its native block count and direction. A visual word may
-be 0..4095 (block index and two flip bits). Do not change the pointers, run
-counts, or word counts, and do not add collision bits. The native instruction
+`game/room-plm-shot-blocks/shot-blocks.json`. Each of its 19 frames is one
+compiled animation or restoration draw. The native instruction
 timers, sounds, draw geometry and complete physical level words remain compiled
 and immutable. An edited word changes both the immediate PLM redraw and later
 camera streaming, without changing shot-block collision or respawn timing.
 The visual block still needs a valid definition in the active room's combined
 CRE/area block table. Bomb blocks reuse the same 16 breakup-frame
-`drawPointer` entries, so these edits also change their break/reverse animation.
+frames, so these edits also change their break/reverse animation.
 Their three linked-block restoration lists retain fixed collision words and use
 visual block `$058`; repaint that block's pictures in the block sheet to
 change its restored appearance. Neither route changes bomb-block collision,
@@ -851,9 +853,8 @@ display visual block `$0BC`; repaint that block's pictures in the block sheet to
 restored appearance. Neither edit changes contact collision or crumble timing.
 
 Breakable Grapple-block appearances are installed separately as
-`game/room-plm-grapple-blocks/grapple-blocks.json`. Edit a `visualWord` (0..4095)
-in the installed file. Keep all five
-`drawPointer` entries: they select compiled Grapple and breakup frames. The full
+`game/room-plm-grapple-blocks/grapple-blocks.json`. Keep all five
+frames: they are the compiled Grapple and breakup frames. The full
 native level words, including Grapple/air collision, and both instruction
 timelines remain fixed. Edited art appears in immediate redraws and later camera
 streaming without changing collision or respawn timing. The chosen visual block
@@ -861,12 +862,12 @@ must exist in the active room's block-definition table. Other PLM families use
 their own resources or remain ROM-backed.
 
 Station PLM appearances are installed as
-`game/room-plm-stations/stations.json`. In the installed file, edit only `runs` visual words
-(0..4095), then restart. Every entry has a semantic `id`, such as
+`game/room-plm-stations/stations.json`. In the installed file, edit only the cells' `block` and `mirroring`,
+then restart. Every frame has a semantic `id`, such as
 `map-frame-0`, `save-active-a`, or `resource-right-extended`; keep all 20
-IDs and each nested run/word count. The values select visual blocks from the
+IDs and every cell. The values select visual blocks from the
 active room's common room elements and tileset, whose pictures can be
-repainted in the block sheet. Do not put collision bits in a visual word.
+repainted in the block sheet.
 Station timing, access selection, full physical level words, map
 rewards, refills, and save behavior stay compiled. Edited station art affects
 the immediate redraw and later camera streaming without changing those rules.
@@ -874,8 +875,7 @@ Other room-object
 families still need separate presentation resources.
 
 Blue-door cap appearances are installed as
-`game/room-plm-blue-doors/blue-doors.json`. In the installed file, edit only `blocks` visual
-words (0..4095), and restart. Keep all 16 IDs: four animation frames for
+`game/room-plm-blue-doors/blue-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 16 IDs: four animation frames for
 each of `left`, `right`, `up`, and `down`. Each frame contains four visual
 blocks from the active room's combined CRE/area definitions. The full
 physical level words, door collision, animation cadence, and sound stay
@@ -884,8 +884,8 @@ camera streaming. Invalid content fails loudly. Colored, grey, and eye-door
 artwork is not covered by this blue-cap resource.
 
 Yellow, green, and red door-cap appearances are installed as
-`game/room-plm-colored-doors/colored-doors.json`. In the installed file, edit only `blocks`
-visual words (0..4095), and restart. Keep all 48 IDs: four frames for each
+`game/room-plm-colored-doors/colored-doors.json`. In the installed file, edit only the cells'
+`block` and `mirroring`, and restart. Keep all 48 IDs: four frames for each
 color and orientation. Each frame contains four visual blocks from the active
 room's combined CRE/area definitions. The full physical level words, shot
 filters, hit counters, opening cadence, sounds, and door-bit persistence stay
@@ -894,8 +894,7 @@ streaming. Invalid content fails loudly. Grey-door art uses the separate resourc
 eye-door art uses the separate resource below.
 
 Grey-door caps and the four shared door-clear frames are installed as
-`game/room-plm-grey-doors/grey-doors.json`. In the installed file, edit only `blocks` visual
-words (0..4095), and restart. Keep all 20 IDs: four frames for each grey
+`game/room-plm-grey-doors/grey-doors.json`. In the installed file, edit only the cells' `block` and `mirroring`, and restart. Keep all 20 IDs: four frames for each grey
 orientation and `clear-left`, `clear-right`, `clear-up`, `clear-down`. The
 clear frames are also used by blue and colored doors. Bomb Torizo's special
 grey-door program selects the ordinary right-facing grey cap. Physical level
@@ -903,8 +902,8 @@ words, collision, condition gates, timing, sound, and door-bit persistence
 remain cartridge-defined. Invalid content fails loudly.
 
 Eye-door components are installed as `game/room-plm-eye-doors/eye-doors.json`.
-In the installed file, edit only `blocks`
-visual words (0..4095), and restart. Keep all 23 IDs: five animated eye
+In the installed file, edit only the cells'
+`block` and `mirroring`, and restart. Keep all 23 IDs: five animated eye
 frames per orientation, three middle and three bottom frames per orientation,
 and `left-eye-clear`. Each entry carries one, two or four visual blocks, as
 listed in the stock file; replacements use the active room's CRE/area tile
@@ -914,17 +913,15 @@ fails loudly.
 
 Mother Brain's glass frames are installed as
 `game/room-plm-mother-brain-glass/mother-brain-glass.json`. In the installed file, edit only the
-0..4095 `blocks` visual words, and restart. Keep all eleven frame IDs. A
-multi-run frame lists its blocks in the native run order shown by the stock
-file; the compiled application keeps each run's shape and signed placement.
+cells' `block` and `mirroring`, and restart. Keep all eleven frame IDs and their
+cells; the compiled application keeps each run's shape and signed placement.
 The active room's CRE/area definitions supply the tiles. Glass collision,
 damage thresholds, shatter timing, shards, and progression cannot be changed
 by this appearance file. Malformed content fails loudly.
 
 The n00b-tube break-apart frames are installed as
-`game/room-plm-noob-tube/noob-tube.json`. In the installed file, edit only the 0..4095
-`blocks` visual words, and restart. Keep all seven frame IDs. Twelve-block
-rows are flattened in native run order in the stock file; run placement,
+`game/room-plm-noob-tube/noob-tube.json`. In the installed file, edit only the
+cells' `block` and `mirroring`, and restart. Keep all seven frame IDs and their cells; run placement,
 physical blocks, the power-bomb trigger, shards, and event timing remain
 compiled. The tube's two reachable instruction branches are compiled as
 engine behavior too. The active room's tile definitions supply the actual art.
@@ -946,8 +943,8 @@ tile uploads are compiled definitions with installed, editable PNGs and palettes
 other PLM instruction-program ROM dependencies remain to be migrated.
 
 Downward-gate PLM block appearances are installed as
-`game/room-plm-downward-gates/downward-gates.json`. In the installed file, edit only `runs`
-visual words (0..4095), then restart. Keep all 14 semantic IDs and each
+`game/room-plm-downward-gates/downward-gates.json`. In the installed file, edit only the cells'
+`block` and `mirroring`, then restart. Keep all 14 semantic IDs and each
 run/word count: six `column-frame-*` entries and left/right trigger entries
 for blue, green, red, and yellow gates. These words select visual blocks from
 the active room's combined CRE/area definitions. The compiled draw geometry,
@@ -957,14 +954,13 @@ not replaced by this resource. Invalid data fails loudly.
 
 Elevator-platform PLM frames are installed as
 `game/room-plm-elevator-platforms/elevator-platforms.json`. In the installed file, edit only
-the `runs` visual words (0..4095), then restart. Keep all three named frames
+the cells' `block` and `mirroring`, then restart. Keep all three named frames
 and their run lengths. Each word selects a visual block from the active room
 tileset; the four-step frame loop, draw offsets, and physical collision words
 remain compiled. Invalid edits fail loudly.
 
 Mother Brain's escape-gate appearances are installed as
-`game/room-plm-escape-gate/escape-gate.json`. In the installed file, edit only `blocks` visual
-words (0..4095), then restart. Keep all three four-block frames: `open`,
+`game/room-plm-escape-gate/escape-gate.json`. In the installed file, edit only the cells' `block` and `mirroring`, then restart. Keep all three four-block frames: `open`,
 `half-closed`, and `closed`. These words select visual blocks from the active
 room's combined CRE/area definitions; the cartridge's collision, closing
 timing, and door-transition handoff remain compiled mechanics. Malformed
@@ -972,22 +968,21 @@ content fails loudly.
 
 Bomb Torizo's resident hand PLM appearances are installed as
 `game/room-plm-bomb-torizo-hand/bomb-torizo-hand.json`. In the installed file, edit only
-`blocks` visual words (0..4095), then restart. Keep both `intact` (eight
-blocks in native run order) and `cleared` (sixteen blocks). The authored
+the cells' `block` and `mirroring`, then restart. Keep both `intact` (eight
+cells) and `cleared` (sixteen cells). The authored
 geometry, collision words, Bombs gate, debris timing, and music are not
 editable through this file. Invalid files fail loudly.
 
 Reachable Draygon cannon appearances are installed as
 `game/room-plm-draygon-cannons/draygon-cannons.json`. In the installed file, edit only
-`blocks` visual words (0..4095), then restart. Keep all twelve semantic
-right/left shield and damaged-frame IDs, four blocks per frame in native run
-order. This does not alter cannon collision, projectile thresholds, or boss
+the cells' `block` and `mirroring`, then restart. Keep all twelve semantic
+right/left shield and damaged-frame IDs, four cells per frame. This does not alter cannon collision, projectile thresholds, or boss
 control-word writes. The unused diagonal orientations are not part of this
 resource. Invalid content fails loudly.
 
 Chozo statue terrain appearances are installed as
-`game/room-plm-chozo-statues/chozo-statues.json`. In the installed file, edit only `blocks`
-visual words (0..4095), then restart. Keep the three IDs for the cleared
+`game/room-plm-chozo-statues/chozo-statues.json`. In the installed file, edit only the cells'
+`block` and `mirroring`, then restart. Keep the three IDs for the cleared
 Lower Norfair hand and the two Wrecked Ship slope-access states. These edits
 cannot change draw geometry, slope collision, or the statue's event/acid
 behavior. The crumble plug continues to use the shared shot-block frames.
@@ -999,10 +994,10 @@ separate executable behavior.
 Linked bomb-block and Samus-contact crumble-block restoration appearances
 are installed as `game/room-plm-linked-restores/linked-restores.json`.
 In the installed file, edit
-only `blocks` visual words (0..4095), then restart. Keep the six IDs:
+only the cells' `block` and `mirroring`, then restart. Keep the six IDs:
 `bomb-horizontal`, `bomb-vertical`, `bomb-square`, `crumble-horizontal`,
-`crumble-vertical`, and `crumble-square`, with their existing two- or
-four-block counts. These choices change restored appearance, not the
+`crumble-vertical`, and `crumble-square`, with their existing two or
+four cells. These choices change restored appearance, not the
 linked parent/child collision, respawn timer, or contact/bomb trigger.
 Malformed content fails loudly.
 
@@ -1017,35 +1012,33 @@ draw, sound, and deletion data, leaving its physical tile and sound behavior
 unchanged without reading that bank-$84 source at runtime.
 The Tourian entrance access floor also uses compiled clear/crumble programs
 and physical draw rows. Its five appearances are installed as
-`game/room-plm-tourian-access/tourian-access.json`. In the installed file, edit only `blocks`
-visual words (0..4095), retaining all five IDs and each frame's native block
-count. The six-row removal, collision words, and frame timing remain compiled.
+`game/room-plm-tourian-access/tourian-access.json`. In the installed file, edit only the cells'
+`block` and `mirroring`, retaining all five IDs and each frame's cells. The six-row removal, collision words, and frame timing remain compiled.
 Invalid content fails loudly.
 
 The bomb-revealed Speed Booster block uses
 `game/room-plm-speed-booster/speed-booster.json`. In the installed file, edit the sole
-`bomb-reveal` entry's `blocks` word (0..4095). Its type-B collision and
+`bomb-reveal` frame's one cell. Its type-B collision and
 one-frame reveal timing remain compiled. Invalid edits fail validation.
 
 The Maridia elevatube's one-block PLM appearance is installed at
 `game/room-plm-maridia-elevatube/maridia-elevatube.json`. In the installed file, edit the
-`elevatube-block` entry's `blocks` word (0..4095). The sixteen-frame hold,
+`elevatube-block` frame's one cell. The sixteen-frame hold,
 physical block, sound, and deletion remain compiled and unchanged.
 
 Spore Spawn's four 2×2 ceiling frames are installed at
 `game/room-plm-spore-spawn-ceiling/spore-spawn-ceiling.json`. In the installed file, edit only
-the `blocks` visual words (0..4095). Retain all four frame IDs and four blocks
-per frame in native top-row-then-bottom-row order. The crumble/clear sequence,
+the cells' `block` and `mirroring`. Retain all four frame IDs and their four cells. The crumble/clear sequence,
 sound, timing, and physical terrain changes remain compiled.
 
 Permanent collectible PLM appearances are installed as
-`game/room-plm-collectibles/collectibles.json`. In the installed file, edit only `visualWord`
-(0..4095), then restart. Keep all 16 semantic IDs: the empty block, Chozo orb
+`game/room-plm-collectibles/collectibles.json`. In the installed file, edit only each frame's cell,
+then restart. Keep all 16 semantic IDs: the empty block, Chozo orb
 and burst, the four two-frame tank kinds, and the three shot-block reveal
 frames. The words select visual blocks from the active room's combined CRE/area
 definitions. Every other item shows its own pictures, described below.
 Item acquisition, collision, room-item and Chozo persistence, sound, frame
-timing, and physical level words remain compiled. An edited word changes the
+timing, and physical level words remain compiled. An edited cell changes the
 immediate redraw and later camera streaming without changing the item reward.
 Invalid data fails loudly.
 

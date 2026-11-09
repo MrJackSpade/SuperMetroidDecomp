@@ -54,7 +54,8 @@ internal static class LookupEyeDoorLayoutsVerification
             var views = new List<RoomObjectShotBlockDrawDefinitions.DrawList> {direct,exported[index]};
             if (pointer != 0x9bf7)
             {
-                AssertTrue(RoomObjectEyeDoorVisualFiles.TryGetByVisualId(RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer)),out var named),"Eye door reverse layout");
+                string id = RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>(pointer));
+                AssertTrue(RoomObjectEyeDoorVisualFiles.TryGet(RoomObjectEyeDoorVisualFiles.Family.Ids.Single(pair => pair.Value == id).Key,out var named),"Eye door reverse layout");
                 views.Add(named);
             }
             ushort header = ReadSamusEaterObjectWord(rom,0x840000 | pointer);
@@ -78,8 +79,8 @@ internal static class LookupEyeDoorLayoutsVerification
                 {
                     AssertRunHeader(header,run,"Eye door DTO direction/count");
                     AssertEqual(count,run.Count,"Eye door DTO length");
-                    AssertEqual(0,(int)RoomObjectRunContinuationCodec.X(view, 0),"Eye door terminal X");
-                    AssertEqual(0,(int)RoomObjectRunContinuationCodec.Y(view, 0),"Eye door terminal Y");
+                    AssertEqual(0,(int)RoomObjectRunContinuationCodecConstants.X(view, 0),"Eye door terminal X");
+                    AssertEqual(0,(int)RoomObjectRunContinuationCodecConstants.Y(view, 0),"Eye door terminal Y");
                 }
                 else
                     for (int cell = 0; cell < count; cell++)

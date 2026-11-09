@@ -49,19 +49,44 @@ internal static class InstalledFramePictureAssertions
     }
 
     /// <summary>
+    /// The number of cells the geometry of every frame of <paramref name="family"/> writes, a cell written twice counted
+    /// twice: the total the cartridge's draw lists must write.
+    /// </summary>
+    internal static int WrittenCells<TFrame>(RoomObjectFrameFamily<TFrame> family) where TFrame : notnull
+    {
+        int cells = 0;
+        foreach (RoomObjectFrameLayout layout in family.Layouts.Values)
+            foreach (RoomObjectFrameRun run in layout.Runs.Span)
+                cells += run.Count;
+        return cells;
+    }
+
+    /// <summary>
+    /// The frame of <paramref name="family"/> published as <paramref name="frame"/>'s name, which the game must draw from
+    /// <paramref name="frame"/>'s cartridge address: the oracle's address and name pin the frame's identity.
+    /// </summary>
+    internal static TFrame Identity<TFrame>(RoomObjectFrameFamily<TFrame> family, LookupEscapeGateStockFrame frame) where TFrame : notnull
+    {
+        TFrame[] named = family.Ids.Where(pair => pair.Value == frame.Id).Select(pair => pair.Key).ToArray();
+        AssertEqual(1, named.Length, family.Name + " publishes frame " + frame.Id + " once");
+        AssertEqual(frame.Pointer, RoomObjectDrawAddressCodec.Of(family.Layouts[named[0]].Draw), family.Name + " frame " + frame.Id + "'s address");
+        return named[0];
+    }
+
+    /// <summary>
     /// Requires the geometry the game draws each of <paramref name="frames"/> by, as the import pictures it, to be the
     /// cartridge's: the frame's address and published name, each run's header, the start of the run after it and, when
     /// <paramref name="collision"/> is set, how each cell collides.
     /// </summary>
     internal static void AssertLayoutsAsNative<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameFamily<TFrame> family,
-        IReadOnlyList<LookupEscapeGateStockFrame> frames, bool collision) where TFrame : struct, Enum
+        IReadOnlyList<LookupEscapeGateStockFrame> frames, bool collision) where TFrame : notnull
     {
-        AssertEqual(Enum.GetValues<TFrame>().Length, family.Layouts.Count, family.Name + " lays out every frame");
+        AssertEqual(family.Ids.Count, family.Layouts.Count, family.Name + " names every frame it lays out");
+        if (typeof(TFrame).IsEnum)
+            AssertEqual(Enum.GetValues(typeof(TFrame)).Length, family.Layouts.Count, family.Name + " lays out every frame");
         foreach (LookupEscapeGateStockFrame frame in frames)
         {
-            TFrame identity = RoomObjectDraw.FrameOf<TFrame>(NativeObjectDraws.At<TFrame>(frame.Pointer), family.Name);
-            AssertEqual(frame.Id, family.Ids[identity], family.Name + " frame's published name");
-            AssertEqual(frame.Pointer, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(identity)), family.Name + " frame's address");
+            TFrame identity = Identity(family, frame);
             RoomObjectFrameLayout layout = family.Layouts[identity];
             int cursor = frame.Pointer;
             for (int run = 0; run < layout.Runs.Length; run++)
@@ -90,15 +115,14 @@ internal static class InstalledFramePictureAssertions
     /// <param name="frames">Each frame's draw-list address and published name.</param>
     /// <param name="writtenCells">The number of cells the frames' draw lists write in all.</param>
     internal static void AssertPicturedAsNative<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameImages<TFrame> images,
-        RoomObjectFrameFamily<TFrame> family, IReadOnlyList<LookupEscapeGateStockFrame> frames, int writtenCells) where TFrame : struct, Enum
+        RoomObjectFrameFamily<TFrame> family, IReadOnlyList<LookupEscapeGateStockFrame> frames, int writtenCells) where TFrame : notnull
     {
         AssertEqual(frames.Count, images.All.Count, family.Name + " pictures every frame");
-        AssertEqual(frames.Count, Enum.GetValues<TFrame>().Length, family.Name + " names every frame's address");
+        AssertEqual(frames.Count, family.Layouts.Count, family.Name + " names every frame's address");
         int written = 0;
         foreach (LookupEscapeGateStockFrame frame in frames)
         {
-            TFrame identity = RoomObjectDraw.FrameOf<TFrame>(NativeObjectDraws.At<TFrame>(frame.Pointer), family.Name);
-            AssertEqual(frame.Id, family.Ids[identity], family.Name + " frame's published name");
+            TFrame identity = Identity(family, frame);
             Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> native = NativePicture(rom, frame.Pointer, out int frameWritten);
             written += frameWritten;
             RoomObjectFrameImage image = images.Image(identity);
@@ -114,6 +138,18 @@ internal static class InstalledFramePictureAssertions
     }
 
     /// <summary>
+    /// Requires <paramref name="shown"/>, the picture a frame's second identity shows, to be what the cartridge's draw list
+    /// at <paramref name="pointer"/> draws: the same cells, each showing the cartridge's block and mirroring.
+    /// </summary>
+    internal static void AssertAliasPicturedAsNative(SuperMetroidAddressSpace rom, RoomObjectFrameImage shown, int pointer, string label)
+    {
+        Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> native = NativePicture(rom, pointer, out _);
+        AssertEqual(native.Count, shown.Cells.Count, label + " covers the cartridge's cells");
+        foreach (KeyValuePair<Offset16<RoomBlocks>, RoomBlockAppearance> cell in native)
+            AssertEqual(cell.Value, shown.At(cell.Key), label + " shows the cartridge's block");
+    }
+
+    /// <summary>
     /// Requires the importer's pictures of every frame, read from <paramref name="rom"/>, to equal the installed ones, and
     /// the installed file to be rejected when a frame is missing, repeated, misnamed or misshapen.
     /// </summary>
@@ -122,9 +158,9 @@ internal static class InstalledFramePictureAssertions
     /// <param name="family">The family's frames and installed file.</param>
     /// <param name="installedDirectory">The repository installation's directory of the family's pictures.</param>
     internal static void AssertImportAndRejections<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameImages<TFrame> installed,
-        RoomObjectFrameFamily<TFrame> family, string installedDirectory) where TFrame : struct, Enum
+        RoomObjectFrameFamily<TFrame> family, string installedDirectory) where TFrame : notnull
     {
-        foreach (TFrame frame in Enum.GetValues<TFrame>())
+        foreach (TFrame frame in family.Layouts.Keys)
         {
             RoomObjectFrameImage imported = RoomObjectFrameImageFiles.Picture(rom, family.Name, family.Layouts[frame]);
             RoomObjectFrameImage image = installed.Image(frame);

@@ -46,10 +46,7 @@ internal static class LookupColoredCapVerification
                 }
             }
             foreach (string id in new[] { "YELLOW-LEFT-FRAME-0", "green-left-frame-4", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectColoredDoorVisualFiles.TryGetByVisualId(id, out var missing), "Colored cap ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Colored cap missing ID output");
-            }
+                AssertTrue(!RoomObjectColoredDoorVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Colored cap ordinal ID domain");
         }
         for (int index = 0; index < pointers.Length; index++)
         {
@@ -60,8 +57,8 @@ internal static class LookupColoredCapVerification
             {
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Colored cap original order");
                 AssertEqual(ids[index], RoomObjectColoredDoorVisualFiles.VisualId(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer)), "Colored cap published ID");
-                AssertTrue(RoomObjectColoredDoorVisualFiles.TryGetByVisualId(ids[index], out var byId), "Colored cap reverse ID");
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Colored cap ID identity");
+                RoomObjectDraw byId = RoomObjectColoredDoorVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
+                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Colored cap ID identity");
                 AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), dto.Runs.Span[0].Direction, 4, "Colored cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 10)), "Colored cap native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})
@@ -69,8 +66,8 @@ internal static class LookupColoredCapVerification
                     AssertEqual(1, frame.Runs.Length, "Colored cap one run");
                     AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Colored cap DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].Count, "Colored cap DTO width");
-                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.X(frame, 0), "Colored cap DTO final X");
-                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.Y(frame, 0), "Colored cap DTO final Y");
+                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.X(frame, 0), "Colored cap DTO final X");
+                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.Y(frame, 0), "Colored cap DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Colored cap calculated row bounds");

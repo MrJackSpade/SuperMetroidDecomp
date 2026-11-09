@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -9,28 +8,27 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 public sealed class InstalledRoomObjectEyeDoorVisuals
 {
-    /// <summary>The installed pictures of every eye-door frame but the mirrored opening clear.</summary>
-    private readonly RoomObjectFramePictures pictures;
+    /// <summary>The shared clear's picture mirrored left to right, which the right door's opening clear shows.</summary>
+    private readonly RoomObjectFrameImage mirroredClear;
 
-    /// <summary>Holds the installed pictures of every eye-door frame but the mirrored opening clear.</summary>
-    /// <param name="pictures">Each installed eye-door frame's cell pictures, keyed by frame.</param>
-    internal InstalledRoomObjectEyeDoorVisuals(RoomObjectFramePictures pictures) =>
-        this.pictures = Ensure.NotNull(pictures);
-
-    /// <summary>The installed picture of one cell of an eye-door frame; the opening clear shows the shared clear's, mirrored.</summary>
-    /// <param name="draw">The eye-door frame.</param>
-    /// <param name="blockIndex">Zero-based block ordinal within the component's single run: two eye blocks, one middle or bottom block, or four clearing blocks.</param>
-    /// <returns>The block picture and its mirroring, the horizontal flip toggled for the opening clear.</returns>
-    /// <exception cref="InvalidDataException">The draw is not an eye-door frame, or the installation lacks it.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the selected component's draw shape.</exception>
-    internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int blockIndex)
+    /// <summary>Holds the pictures the import made of every eye-door frame but the mirrored opening clear.</summary>
+    /// <param name="images">Every eye-door frame's picture but the mirrored opening clear's, keyed by its draw.</param>
+    /// <exception cref="InvalidDataException">The shared clear is not pictured.</exception>
+    internal InstalledRoomObjectEyeDoorVisuals(RoomObjectFrameImages<RoomObjectDraw> images)
     {
-        RoomObjectDraw visualSource = EyeDoorDraws.VisualSource(draw);
-        if (!EyeDoorDraws.TryDescribe(visualSource, out var shape))
+        Images = Ensure.NotNull(images);
+        mirroredClear = images.Image(EyeDoorObjectDrawDefinitions.SharedClear).MirroredHorizontally();
+    }
+
+    /// <summary>Every eye-door frame's picture but the mirrored opening clear's, keyed by its draw.</summary>
+    internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
+
+    /// <summary>The picture <paramref name="draw"/> shows; the mirrored opening clear shows the shared clear mirrored.</summary>
+    /// <exception cref="InvalidDataException">The draw is not an eye-door frame, or the installation lacks it.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw)
+    {
+        if (!EyeDoorDraws.TryDescribe(draw, out _))
             throw new InvalidDataException($"Eye-door visuals lack frame {draw}.");
-        if ((uint)blockIndex >= (uint)shape.BlockCount)
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        RoomBlockAppearance appearance = pictures.At(visualSource, blockIndex);
-        return draw == visualSource ? appearance : appearance.WithMirroring(appearance.Mirroring ^ BlockMirroring.Horizontal);
+        return EyeDoorDraws.VisualSource(draw) == draw ? Images.Image(draw) : mirroredClear;
     }
 }

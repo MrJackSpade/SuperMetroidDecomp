@@ -35,13 +35,10 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
 
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             RoomObjectGreyDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectVisualEntry[] entries = lists.Select(draw =>
-            new RoomObjectVisualEntry(
-                RoomObjectGreyDoorVisualFiles.VisualId(draw.Draw),
-                draw.Runs.Span[0].Blocks.Span
-                    .SelectToArray(block => block.Appearance))).ToArray();
+        RoomBlockAppearance greyRightCompiled = lists.Single(draw => RoomObjectGreyDoorVisualFiles.VisualId(draw.Draw) == "grey-right-frame-0")
+            .Runs.Span[0].Blocks.Span[0].Appearance;
         InstalledRoomObjectGreyDoorVisuals stock = InstalledRoomObjectGreyDoorVisuals.Stock();
-        AssertEqual(entries.Single(entry => entry.Id == "grey-right-frame-0").Blocks[0], stock.GetAppearance(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
+        AssertEqual(greyRightCompiled, stock.Image(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7)).At(Offset16<RoomBlocks>.Zero),
             "stock grey-door visual retains native tile choice");
         Suite(nameof(VerifyGreyCapGeometry), () => VerifyGreyCapGeometry(rom));
         Suite(nameof(VerifyGreyCapCollision), () => VerifyGreyCapCollision(rom));
@@ -248,5 +245,4 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             () => installation.LoadRoomObjectGreyDoorVisuals(),
             "tampered grey-door stock fails loudly where it is read");
     }
-
 }

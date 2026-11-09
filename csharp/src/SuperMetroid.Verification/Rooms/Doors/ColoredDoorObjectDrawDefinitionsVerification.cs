@@ -31,13 +31,10 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
 
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             RoomObjectColoredDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectVisualEntry[] entries = lists.Select(draw =>
-            new RoomObjectVisualEntry(
-                RoomObjectColoredDoorVisualFiles.VisualId(draw.Draw),
-                draw.Runs.Span[0].Blocks.Span
-                    .SelectToArray(block => block.Appearance))).ToArray();
+        RoomBlockAppearance greenLeftCompiled = lists.Single(draw => RoomObjectColoredDoorVisualFiles.VisualId(draw.Draw) == "green-left-frame-0")
+            .Runs.Span[0].Blocks.Span[0].Appearance;
         InstalledRoomObjectColoredDoorVisuals stock = InstalledRoomObjectColoredDoorVisuals.Stock();
-        AssertEqual(entries.Single(entry => entry.Id == "green-left-frame-0").Blocks[0], stock.GetAppearance(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+        AssertEqual(greenLeftCompiled, stock.Image(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)).At(Offset16<RoomBlocks>.Zero),
             "stock colored-door visual retains native tile choice");
         Suite(nameof(VerifyColoredCapGeometry), () => VerifyColoredCapGeometry(rom));
         Suite(nameof(VerifyColoredCapCollision), () => VerifyColoredCapCollision(rom));

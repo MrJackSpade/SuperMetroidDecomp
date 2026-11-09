@@ -35,6 +35,20 @@ internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadO
         return new(draw, runs);
     }
 
+    /// <summary>
+    /// The layout of a frame the game draws as <paramref name="list"/>: the same runs, directions and starts, each cell
+    /// colliding as the list's terrain does. What the list's terrain shows is not taken; the import pictures it from the
+    /// cartridge.
+    /// </summary>
+    /// <param name="list">The frame's runs as the game draws them.</param>
+    /// <exception cref="InvalidDataException">The frame has no run, or its first run does not start at its origin.</exception>
+    internal static RoomObjectFrameLayout Of(RoomObjectShotBlockDrawDefinitions.DrawList list)
+    {
+        ReadOnlyMemory<RoomObjectShotBlockDrawDefinitions.Run> runs = list.Runs;
+        return Of(list.Draw, runs.Length, run => runs.Span[run].Count, (run, cell) => runs.Span[run].Blocks.Span[cell].Collision,
+            run => runs.Span[run].Direction, run => runs.Span[run].Start);
+    }
+
     /// <summary>Where the run after <paramref name="run"/> starts, or the origin after the last run, which ends the list.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the frame's runs.</exception>
     internal Offset16<RoomBlocks> NextStart(int run)

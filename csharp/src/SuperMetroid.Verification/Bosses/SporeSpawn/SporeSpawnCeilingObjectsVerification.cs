@@ -87,10 +87,10 @@ internal static class SporeSpawnCeilingObjectsVerification
                 foreach (RoomTerrainBlock cell in run.Blocks.Span)
                     AssertDrawBlock(cell);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)RoomObjectRunContinuationCodec.X(draw, runIndex)),
+                    unchecked((byte)RoomObjectRunContinuationCodecConstants.X(draw, runIndex)),
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} signed X offset");
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)RoomObjectRunContinuationCodec.Y(draw, runIndex)),
+                    unchecked((byte)RoomObjectRunContinuationCodecConstants.Y(draw, runIndex)),
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} signed Y offset");
             }
             AssertEqual(16, cursor - RoomObjectDrawAddressCodec.Of(draw.Draw),

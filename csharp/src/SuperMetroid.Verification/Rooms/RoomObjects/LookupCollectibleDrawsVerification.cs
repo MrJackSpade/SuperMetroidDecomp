@@ -49,12 +49,13 @@ internal static class LookupCollectibleDrawsVerification
             RoomObjectCollectibleDrawFrame[] values;
             if (RoomObjectCollectibleVisualFiles.IsEditable(direct.Draw))
             {
-                AssertTrue(RoomObjectCollectibleVisualFiles.TryGetById(entry.Id, out var named), "Collectible reverse identity");
+                RoomObjectCollectibleDrawFrame named = RoomObjectCollectibleVisualFiles.Editable.Single(frame =>
+                    RoomObjectCollectibleVisualFiles.Family.Ids[RoomObjectDraw.Of(frame.Draw)] == entry.Id);
                 values = [direct, named, exported[index]];
             }
             else
             {
-                AssertTrue(!RoomObjectCollectibleVisualFiles.TryGetById(entry.Id, out _), "Collectible block-pair frame is not an installed identity");
+                AssertTrue(!RoomObjectCollectibleVisualFiles.Family.Ids.Values.Contains(entry.Id, StringComparer.Ordinal), "Collectible block-pair frame is not an installed identity");
                 values = [direct, exported[index]];
             }
             foreach (var value in values)
@@ -76,13 +77,10 @@ internal static class LookupCollectibleDrawsVerification
             }
             if (field == 3)
                 foreach (string bad in new[] {entry.Id.ToUpperInvariant(), " " + entry.Id, entry.Id + " "})
-                {
-                    AssertTrue(!RoomObjectCollectibleVisualFiles.TryGetById(bad, out var missing), "Collectible ordinal identity");
-                    AssertEqual(default(RoomObjectCollectibleDrawFrame), missing, "Collectible rejected identity output");
-                }
+                    AssertTrue(!RoomObjectCollectibleVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal), "Collectible ordinal identity");
         }
         if (field == 3)
             foreach (string bad in new[] {"","energy-tank-2","dynamic-slot-0-frame-0","block-pair-0-frame-0","chozo-orb-3","shot-reveal-3"})
-                AssertTrue(!RoomObjectCollectibleVisualFiles.TryGetById(bad, out _), "Collectible unsupported ID");
+                AssertTrue(!RoomObjectCollectibleVisualFiles.Family.Ids.Values.Contains(bad, StringComparer.Ordinal), "Collectible unsupported ID");
     }
 }

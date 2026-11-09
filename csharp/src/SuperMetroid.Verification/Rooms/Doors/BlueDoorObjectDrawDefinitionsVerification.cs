@@ -29,13 +29,11 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
 
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             BlueDoorObjectDrawDefinitionsTooling.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectVisualEntry[] entries = RoomObjectBlueDoorVisualFiles.Editable.Select(draw =>
-            new RoomObjectVisualEntry(RoomObjectBlueDoorVisualFiles.VisualId(draw.Draw),
-                draw.Runs.Span[0].Blocks.Span
-                    .SelectToArray(block => block.Appearance))).ToArray();
+        RoomBlockAppearance leftFirstCompiled = RoomObjectBlueDoorVisualFiles.Editable
+            .Single(draw => RoomObjectBlueDoorVisualFiles.VisualId(draw.Draw) == "left-frame-1").Runs.Span[0].Blocks.Span[0].Appearance;
         InstalledRoomObjectBlueDoorVisuals stock = InstalledRoomObjectBlueDoorVisuals.Stock();
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
-        AssertEqual(entries.Single(entry => entry.Id == "left-frame-1").Blocks[0], stock.GetAppearance(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
+        AssertEqual(leftFirstCompiled, stock.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)).At(Offset16<RoomBlocks>.Zero),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
         Suite(nameof(VerifyBlueCapCollision), () => VerifyBlueCapCollision(rom));

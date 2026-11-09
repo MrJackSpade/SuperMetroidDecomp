@@ -1,42 +1,22 @@
-using SuperMetroid.Core.Rooms.LevelData;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Visual-only Kraid ceiling and floor-spike selections. Block appearances,
-/// animation timing and movement callbacks remain compiled and immutable.
+/// The installed pictures of Kraid's room's ten ceiling and floor-spike frames (#1557). Their terrain, animation timing
+/// and movement callbacks stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectKraidVisuals
 {
-    /// <summary>Each draw role's installed block appearances.</summary>
-    internal readonly IReadOnlyDictionary<KraidRoomDraw, RoomBlockAppearance[]> frames;
+    /// <summary>Holds the pictures the import made of every Kraid room frame.</summary>
+    /// <param name="images">Every Kraid room frame's picture, keyed by its draw.</param>
+    internal InstalledRoomObjectKraidVisuals(RoomObjectFrameImages<RoomObjectDraw> images) => Images = Ensure.NotNull(images);
 
-    /// <summary>The installed block appearances of one of the ten named Kraid draw roles.</summary>
-    private RoomBlockAppearance[] Frame(KraidRoomDraw draw) =>
-        frames.TryGetValue(draw, out RoomBlockAppearance[]? frame)
-            ? frame : throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}.");
+    /// <summary>Every Kraid room frame's picture, keyed by its draw.</summary>
+    internal RoomObjectFrameImages<RoomObjectDraw> Images { get; }
 
-    /// <summary>Holds the import-validated block appearances of all ten Kraid ceiling and spike layouts.</summary>
-    /// <param name="frames">Each draw role's owned block appearances.</param>
-    internal InstalledRoomObjectKraidVisuals(IReadOnlyDictionary<KraidRoomDraw, RoomBlockAppearance[]> frames) =>
-        this.frames = Ensure.NotNull(frames);
-
-    /// <summary>Resolves the installed appearance of one Kraid-layout block while its terrain remains compiled.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Run ordinal; must be zero because each layout has one horizontal run.</param>
-    /// <param name="blockIndex">Zero-based block ordinal along that run, not a room coordinate.</param>
-    /// <returns>The copied frame's appearance.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported Kraid layout.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run is nonzero or the block ordinal is outside the compiled draw shape.</exception>
-    internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex)
-    {
-        if (!KraidRoomObjectDraws.TryGet(draw, out var definition))
-            throw new InvalidDataException(
-                $"Kraid room visuals lack draw {draw}.");
-        RoomBlockAppearance[] appearances = Frame(definition.Frame);
-        if (runIndex != 0 ||
-            (uint)blockIndex >= (uint)definition.BlockCount)
-            throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return appearances[blockIndex];
-    }
+    /// <summary>The picture <paramref name="draw"/> shows.</summary>
+    /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
+    internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
+        KraidRoomObjectDraws.TryGet(draw, out _)
+            ? Images.Image(draw)
+            : throw new InvalidDataException($"Kraid room visuals lack frame {draw}.");
 }

@@ -10,36 +10,23 @@ public static class RoomObjectLinkedRestoreVisualFiles
     /// <summary>Family-relative JSON filename for the six bomb/contact-crumble horizontal, vertical, and square restoration layouts.</summary>
     public const string VisualFileName = "linked-restores.json";
 
-    /// <summary>Verifies the native bank-$84 linked-restore draw data and exports visible block/flip words while keeping bomb and contact-crumble mechanics compiled.</summary>
-    /// <param name="bus">Cartridge source for all three bomb and three contact-crumble restoration draws.</param>
-    /// <param name="directory">Family directory, created if absent; receives new <see cref="VisualFileName"/> and <c>manifest.json</c> files.</param>
-    /// <param name="sourceCartridgeSha256">Nonblank provenance hash supplied by the importer, not recomputed here; stock loading requires the supported cartridge identity.</param>
-    /// <remarks>Visual words are flattened in native run/cell order. Files use create-new semantics, and a partial JSON/manifest write is not rolled back.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Native run shapes, terrain, or offsets do not match compiled definitions.</exception>
-    /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Linked restore", All, VisualId);
+    /// <summary>The linked restoration as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Linked restore", All, VisualId);
 
-    /// <summary>Validates the installed Linked restore manifest's provenance and loads the installed Linked restore JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Linked restore JSON.</param>
-    /// <returns>A ROM-independent appearance catalog; distinct bomb/contact collision classes and restoration programs remain unchanged.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance, JSON version, coverage, identity, shape, or appearance are invalid.</exception>
-    /// <exception cref="IOException">The installed manifest or Linked restore JSON cannot be read.</exception>
+    /// <summary>Pictures every linked restoration frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed linked restoration pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectLinkedRestoreVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<InstalledRoomObjectLinkedRestoreVisuals>(VisualFileName, "Linked restore", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates all six linked restoration layouts and builds the visuals from every frame's picture as installed, without changing linked parent/child collision or restoration programs.</summary>
-    /// <param name="entries">One visual-only entry per compiled layout with two appearances per run and complete identity coverage.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    internal static InstalledRoomObjectLinkedRestoreVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Linked restoration", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The three bomb-block and three contact-crumble restoration layouts, bomb blocks first.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All =>
@@ -72,10 +59,6 @@ public static class RoomObjectLinkedRestoreVisualFiles
         RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Square } => "crumble-square",
         _ => throw new InvalidDataException($"{draw} is not a linked restoration draw."),
     };
-
-    /// <summary>Finds the compiled restoration draw whose stable visual key equals the supplied identifier.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>Every bomb-block and contact-crumble restoration draw, each family's in horizontal, vertical, square order.</summary>
     private static IEnumerable<RoomObjectDraw> RestorationDraws() =>

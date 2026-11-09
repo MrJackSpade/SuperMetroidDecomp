@@ -41,12 +41,9 @@ internal static class SpeedBoosterObjectProgramsVerification
         }
         AssertThrows<InvalidDataException>(() => RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.Unowned),"speed reveal rejects unknown visual identity");
         AssertEqual("bomb-reveal",RoomObjectSpeedBoosterVisualFiles.VisualId(NativeObjectDraws.At<SpeedBoosterBlockObjectDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
-        AssertTrue(RoomObjectSpeedBoosterVisualFiles.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
+        RoomObjectShotBlockDrawDefinitions.DrawList byId = RoomObjectSpeedBoosterVisualFiles.All.Single(draw => RoomObjectSpeedBoosterVisualFiles.Family.Ids[draw.Draw] == "bomb-reveal");
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
-        {
-            AssertTrue(!RoomObjectSpeedBoosterVisualFiles.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
-            AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
-        }
+            AssertTrue(!RoomObjectSpeedBoosterVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal),"speed reveal ordinal ID rejection");
         RoomTerrainBlock nativeTerrain = RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2)));
         AssertEqual(nativeTerrain,SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain,"speed reveal calculated physical terrain");
         foreach (var draw in new[] {exported[0],byId,RoomObjectSpeedBoosterVisualFiles.BombReveal})
@@ -57,8 +54,8 @@ internal static class SpeedBoosterObjectProgramsVerification
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),run,"speed reveal native direction/count");
             AssertEqual(1,run.Count,"speed reveal single word");
             AssertEqual(nativeTerrain,run.Blocks.Span[0],"speed reveal exported native terrain");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodec.X(draw, 0),"speed reveal native terminal X");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodec.Y(draw, 0),"speed reveal native terminal Y");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodecConstants.X(draw, 0),"speed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodecConstants.Y(draw, 0),"speed reveal native terminal Y");
         }
     }
 

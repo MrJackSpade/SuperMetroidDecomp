@@ -49,10 +49,7 @@ internal static class LookupDownwardGateDrawsVerification
                 }
             }
             foreach (string invalid in new[] { "column-frame-6", "column-frame-00", "Blue-left-trigger", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectDownwardGateVisualFiles.TryGetByVisualId(invalid, out var missing), "Gate ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Gate missing ID output");
-            }
+                AssertTrue(!RoomObjectDownwardGateVisualFiles.Family.Ids.Values.Contains(invalid, StringComparer.Ordinal), "Gate ID domain");
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
@@ -62,8 +59,8 @@ internal static class LookupDownwardGateDrawsVerification
             RoomObjectDownwardGateVisualFiles.TryGet(NativeObjectDraws.At<DownwardGateDraw>(pointer), out var dto);
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Gate export order");
             AssertEqual(ids[index], RoomObjectDownwardGateVisualFiles.VisualId(NativeObjectDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");
-            AssertTrue(RoomObjectDownwardGateVisualFiles.TryGetByVisualId(ids[index], out var byId), "Gate ID ownership");
-            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Gate reverse ID mapping");
+            RoomObjectDraw byId = RoomObjectDownwardGateVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
+            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Gate reverse ID mapping");
             int cursor = pointer, run = 0;
             while (true)
             {
@@ -100,10 +97,10 @@ internal static class LookupDownwardGateDrawsVerification
                     // The cartridge ends each run with the next run's start, and the last with no offset.
                     AssertEqual(x, run + 1 < shape.RunCount ? shape.Start(run + 1).X : (short)0, "Gate original continuation X");
                     AssertEqual((sbyte)0, y, "Gate runtime continuation Y");
-                    AssertEqual(x, RoomObjectRunContinuationCodec.X(dto, run), "Gate DTO X");
-                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(dto, run), "Gate DTO Y");
-                    AssertEqual(x, RoomObjectRunContinuationCodec.X(exported[index], run), "Gate export X");
-                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(exported[index], run), "Gate export Y");
+                    AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(dto, run), "Gate DTO X");
+                    AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(dto, run), "Gate DTO Y");
+                    AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(exported[index], run), "Gate export X");
+                    AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(exported[index], run), "Gate export Y");
                 }
                 run++;
                 if (x == 0 && y == 0) break;

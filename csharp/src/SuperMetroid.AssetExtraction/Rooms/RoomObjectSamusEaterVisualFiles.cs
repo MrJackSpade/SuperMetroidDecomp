@@ -9,31 +9,23 @@ public static class RoomObjectSamusEaterVisualFiles
     /// <summary>Editable Samus Eater plant visual JSON filename.</summary>
     public const string VisualFileName = "samus-eater.json";
 
-    /// <summary>Verifies every native Samus Eater plant draw and creates stock JSON plus the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time bank-$84 comparisons.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Samus Eater plant",
-            All,
-            VisualId);
+    /// <summary>The Samus Eater plant as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Samus Eater plant", All, VisualId);
 
-    /// <summary>Validates the installed Samus Eater plant manifest's provenance and loads the installed Samus Eater plant JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Samus Eater plant JSON.</param>
-    /// <returns>The immutable Samus Eater visual catalog.</returns>
+    /// <summary>Pictures every Samus Eater plant frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Samus Eater plant pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectSamusEaterVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<InstalledRoomObjectSamusEaterVisuals>(VisualFileName, "Samus Eater plant", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates all eight three-run plant poses and builds the visuals from every frame's picture as installed, without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
-    /// <param name="entries">Exactly one eight-block visual-only entry for each compiled floor and ceiling pose.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
-    internal static InstalledRoomObjectSamusEaterVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Samus Eater", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Maps a validated draw to the artwork catalog's orientation and phase ID.</summary>
     internal static string VisualId(RoomObjectDraw request) =>
@@ -52,10 +44,6 @@ public static class RoomObjectSamusEaterVisualFiles
         SamusEaterDraw.CeilingChew3 => "ceiling-chew-3",
         _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {frame}."),
     };
-
-    /// <summary>Finds the layout matching an artwork catalog ID by searching the eight supported lists.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>Builds the three runs of a supported plant draw from its phase and orientation.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable Crocomire arena bridge and wall tile art.</summary>
+/// <summary>The installed pictures of Crocomire's five bridge and invisible-wall frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectCrocomireVisualFiles
 {
     /// <summary>The run layout the exported draw lists record for a bridge or wall draw.</summary>
@@ -27,33 +27,23 @@ public static class RoomObjectCrocomireVisualFiles
     /// <summary>JSON filename for Crocomire bridge and invisible-wall visual layouts.</summary>
     public const string VisualFileName = "crocomire-arena.json";
 
-    /// <summary>Verifies all five native Crocomire arena layouts and creates flattened block-appearance JSON plus its provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of decoded bridge and wall terrain blocks, run shapes, and origin-relative offsets.</param>
-    /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled arena definitions.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Crocomire arena",
-            All,
-            VisualId);
+    /// <summary>The Crocomire arena as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Crocomire arena", All, VisualId);
 
-    /// <summary>Validates the installed Crocomire arena manifest's provenance and loads the installed Crocomire arena JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Crocomire arena JSON.</param>
-    /// <returns>The bridge and wall art, independent of compiled solidity, crumble programs, and placement.</returns>
-    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate layout coverage.</exception>
+    /// <summary>Pictures every Crocomire arena frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Crocomire arena pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static RoomObjectCrocomireVisualCatalog Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates all five Crocomire arena layouts and builds the visuals from every frame's picture as installed, without changing terrain blocks, run geometry, or PLM programs.</summary>
-    /// <param name="entries">Exactly one visual-only entry per compiled draw identity with its full flattened block count.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
-    internal static RoomObjectCrocomireVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Crocomire", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of every bridge and wall draw.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
@@ -82,8 +72,4 @@ public static class RoomObjectCrocomireVisualFiles
     /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>
     internal static string VisualId(RoomObjectDraw draw) =>
         RoomObjectVisualIdDefinitions.CrocomireArena[RoomObjectDraw.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena")];
-
-    /// <summary>Finds the physical bridge or wall layout for one editable visual identity.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList draw) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out draw);
 }

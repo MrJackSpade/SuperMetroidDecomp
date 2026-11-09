@@ -55,8 +55,8 @@ internal static class BlockReactionSelectorsVerification
             AssertEqual(count & 0x7fff,run.Count,"bombed reveal native word count");
             AssertEqual(RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2))),run.Blocks.Span[0],
                 "bombed reveal native physical parent and visual tile");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodec.X(draw, 0),"bombed reveal native terminal X");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodec.Y(draw, 0),"bombed reveal native terminal Y");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodecConstants.X(draw, 0),"bombed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodecConstants.Y(draw, 0),"bombed reveal native terminal Y");
         }
     }
 

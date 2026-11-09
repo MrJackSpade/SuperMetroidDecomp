@@ -12,30 +12,23 @@ public static class RoomObjectTourianAccessVisualFiles
     /// <summary>Editable Tourian entrance access-floor visual JSON filename.</summary>
     public const string VisualFileName = "tourian-access.json";
 
-    /// <summary>Verifies every native Tourian access-floor draw and creates stock JSON plus the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time bank-$84 comparisons.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Tourian access", All,
-            VisualId);
+    /// <summary>The Tourian access floor as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Tourian access", All, VisualId);
 
-    /// <summary>Validates the installed Tourian access manifest's provenance and loads the installed Tourian access JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Tourian access JSON.</param>
-    /// <returns>The immutable Tourian access-floor visual catalog.</returns>
+    /// <summary>Pictures every Tourian access floor frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed Tourian access floor pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static RoomObjectTourianAccessVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectTourianAccessVisuals>(VisualFileName, "Tourian access", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates all five Tourian access-floor layouts and builds the visuals from every frame's picture as installed.</summary>
-    /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and appearances.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Coverage, uniqueness, layout identity, or block-array dimensions are invalid.</exception>
-    internal static RoomObjectTourianAccessVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Tourian access", TryGetByVisualId, All.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of every Tourian access draw.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
@@ -54,10 +47,6 @@ public static class RoomObjectTourianAccessVisualFiles
     internal static string VisualId(TourianAccessDraw draw) =>
         RoomObjectVisualIdDefinitions.TourianAccess.TryGetValue(draw, out string? id)
             ? id : throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
-
-    /// <summary>Finds a compiled floor draw by its case-sensitive visual identity.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>Builds the four-air-cell runs of a Tourian access draw.</summary>
     internal static RoomObjectShotBlockDrawDefinitions.DrawList Compile(TourianAccessDraw draw)

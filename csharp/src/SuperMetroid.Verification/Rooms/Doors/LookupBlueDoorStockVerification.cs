@@ -1,18 +1,20 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
-/// <summary>Checks blue door visual catalogs against native frames, physical aliases, and editable asset constraints.</summary>
+/// <summary>Checks the installed pictures of the blue-door caps against the cartridge's draw lists, closed caps included (#1557).</summary>
 internal static class LookupBlueDoorStockVerification
 {
-    /// <summary>Compares all four orientations and their aliases with bank-$84 art, then checks validation.</summary>
+    /// <summary>
+    /// Compares all four orientations' sixteen frames and their four closed caps with the cartridge, then the import and
+    /// its rejections.
+    /// </summary>
     internal static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
         InstalledRoomObjectBlueDoorVisuals installed)
     {
@@ -22,48 +24,15 @@ internal static class LookupBlueDoorStockVerification
             new LookupEscapeGateStockFrame(0xaa2b,"up-frame-0"),new LookupEscapeGateStockFrame(0xaa37,"up-frame-1"),new LookupEscapeGateStockFrame(0xaa43,"up-frame-2"),new LookupEscapeGateStockFrame(0xaa4f,"up-frame-3"),
             new LookupEscapeGateStockFrame(0xaa67,"down-frame-0"),new LookupEscapeGateStockFrame(0xaa73,"down-frame-1"),new LookupEscapeGateStockFrame(0xaa7f,"down-frame-2"),new LookupEscapeGateStockFrame(0xaa8b,"down-frame-3")];
         ushort[] aliases = [0xa9a7,0xa9e3,0xaa1f,0xaa5b];
-        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
-        foreach (var frame in frames)
+        foreach (InstalledRoomObjectBlueDoorVisuals pictures in new[] { InstalledRoomObjectBlueDoorVisuals.Stock(), installed })
         {
-            var words = new RoomBlockAppearance[4];
-            for (int row = 0; row < words.Length; row++)
-                words[row] = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterObjectWord(rom, 0x840000 | (frame.Pointer + 2 + row * 2)));
-            native.Add(frame.Pointer, words);
-        }
-        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = InstalledRoomObjectBlueDoorVisuals.Stock();
-        var imported = RoomObjectBlueDoorVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(InstalledRoomObjectBlueDoorVisuals), words.ToDictionary(pair => RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(pair.Key)), pair => pair.Value));
-        foreach (var catalog in new[] {stock,imported,installed})
-        {
-            AssertEqual(Hash(native), catalog.ContentIdentity, "Blue door original stock identity");
-            foreach (var frame in frames)
-            {
-                for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetAppearance(NativeObjectDraws.At<BlueDoorCaps.Draw>(frame.Pointer),row), "Blue door native stock visual");
-                foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<BlueDoorCaps.Draw>(frame.Pointer),bad), "Blue door stock row bounds");
-            }
-        }
-        foreach (var catalog in new[] {stock,imported,installed})
-        foreach (ushort alias in aliases)
-        {
-            for (int row = 0; row < 4; row++)
-                AssertEqual(RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterObjectWord(rom, 0x840000 | (alias + 2 + row * 2))),
-                    catalog.GetAppearance(NativeObjectDraws.At<BlueDoorCaps.Draw>(alias),row), "Blue physical alias original stock visuals");
-            foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<BlueDoorCaps.Draw>(alias),bad), "Blue alias cell bounds");
+            AssertPicturedAsNative(rom, pictures.Images, RoomObjectBlueDoorVisualFiles.Family, frames, 64);
+            foreach (ushort alias in aliases)
+                AssertAliasPicturedAsNative(rom, pictures.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(alias)), alias, "Blue physical alias original stock visuals");
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            if (!native.ContainsKey((ushort)raw) && !aliases.Contains((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<BlueDoorCaps.Draw>((ushort)raw),0), "Blue door unknown stock pointer");
-        AssertThrows<InvalidDataException>(() => RoomObjectBlueDoorVisualFiles.Create(entries[..15]), "Blue door missing frame");
-        AssertThrows<InvalidDataException>(() => RoomObjectBlueDoorVisualFiles.Create(entries.Append(entries[0])), "Blue door duplicate frame");
-        var invalid = entries.ToArray();
-        invalid[0] = new("LEFT-FRAME-0", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => RoomObjectBlueDoorVisualFiles.Create(invalid), "Blue door ordinal identity");
-        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => RoomObjectBlueDoorVisualFiles.Create(invalid), "Blue door exact shape");
+            if (frames.All(frame => frame.Pointer != raw) && !aliases.Contains((ushort)raw))
+                AssertThrows<InvalidDataException>(() => installed.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>((ushort)raw)), "Blue door unknown stock pointer");
+        AssertImportAndRejections(rom, installed.Images, RoomObjectBlueDoorVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectBlueDoorVisualDirectory);
     }
 }

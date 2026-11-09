@@ -37,18 +37,8 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBlueDoorVisuals"/>.</summary>
     extension(InstalledRoomObjectBlueDoorVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectBlueDoorVisuals), content =>
-        {
-            Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
-            foreach (var frame in RoomObjectBlueDoorVisualFiles.Editable.OrderBy(item => RoomObjectBlueDoorVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                for (int row = 0; row < appearances.Length; row++) appearances[row] = visuals.GetAppearance(frame.Draw, row);
-                content.AppendName("frame", RoomObjectBlueDoorVisualFiles.VisualId(frame.Draw));
-                content.Append("runs", 1);
-                content.AppendAppearances("blocks", appearances);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectBlueDoorVisuals), visuals.Images, RoomObjectBlueDoorVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectRevealAndWallVisuals"/>.</summary>

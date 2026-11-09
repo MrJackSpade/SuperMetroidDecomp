@@ -45,10 +45,7 @@ internal static class LookupBlueCapVerification
                 }
             }
             foreach (string id in new[] { "LEFT-FRAME-0", "left-frame-4", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectBlueDoorVisualFiles.TryGetByVisualId(id, out var missing), "Blue cap ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Blue cap missing ID output");
-            }
+                AssertTrue(!RoomObjectBlueDoorVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Blue cap ordinal ID domain");
         }
         for (int index = 0; index < pointers.Length; index++)
         {
@@ -59,8 +56,8 @@ internal static class LookupBlueCapVerification
             {
                 AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Blue cap original order");
                 AssertEqual(ids[index], RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)), "Blue cap published ID");
-                AssertTrue(RoomObjectBlueDoorVisualFiles.TryGetByVisualId(ids[index], out var byId), "Blue cap reverse ID");
-                AssertEqual(index < 16 ? pointer : pointers[(index - 16) * 4], RoomObjectDrawAddressCodec.Of(byId.Draw), "Blue cap ID identity");
+                RoomObjectDraw byId = RoomObjectBlueDoorVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
+                AssertEqual(index < 16 ? pointer : pointers[(index - 16) * 4], RoomObjectDrawAddressCodec.Of(byId), "Blue cap ID identity");
                 AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | pointer), dto.Runs.Span[0].Direction, 4, "Blue cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 10)), "Blue cap native final offset");
                 foreach (var frame in new[] {dto,exported[index]})

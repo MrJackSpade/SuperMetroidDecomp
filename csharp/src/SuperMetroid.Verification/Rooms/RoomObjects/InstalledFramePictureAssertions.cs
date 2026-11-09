@@ -125,6 +125,18 @@ internal static class InstalledFramePictureAssertions
     }
 
     /// <summary>
+    /// Requires <paramref name="shown"/>, the picture a frame's second identity shows, to be what the cartridge's draw list
+    /// at <paramref name="pointer"/> draws: the same cells, each showing the cartridge's block and mirroring.
+    /// </summary>
+    internal static void AssertAliasPicturedAsNative(SuperMetroidAddressSpace rom, RoomObjectFrameImage shown, int pointer, string label)
+    {
+        Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> native = NativePicture(rom, pointer, out _);
+        AssertEqual(native.Count, shown.Cells.Count, label + " covers the cartridge's cells");
+        foreach (KeyValuePair<Offset16<RoomBlocks>, RoomBlockAppearance> cell in native)
+            AssertEqual(cell.Value, shown.At(cell.Key), label + " shows the cartridge's block");
+    }
+
+    /// <summary>
     /// Requires the importer's pictures of every frame, read from <paramref name="rom"/>, to equal the installed ones, and
     /// the installed file to be rejected when a frame is missing, repeated, misnamed or misshapen.
     /// </summary>

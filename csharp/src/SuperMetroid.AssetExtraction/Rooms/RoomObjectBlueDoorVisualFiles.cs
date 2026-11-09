@@ -4,35 +4,29 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable blue-door cap visual block references, and the editable identities that name them.</summary>
+/// <summary>The installed pictures of the sixteen blue-door cap frames (#1557), and the published names that key them.</summary>
 public static class RoomObjectBlueDoorVisualFiles
 {
     /// <summary>Editable blue-door cap and shared clear-frame JSON filename.</summary>
     public const string VisualFileName = "blue-doors.json";
 
-    /// <summary>Verifies every editable native blue-door draw and creates stock JSON plus the shared provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge source used only for extraction-time bank-$84 comparisons.</param>
-    /// <param name="directory">Destination directory; output files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source-cartridge identity recorded in the manifest.</param>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Blue-door", Editable, VisualId);
+    /// <summary>The blue-door cap as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Blue-door", Editable, VisualId);
 
-    /// <summary>Validates the installed Blue-door manifest's provenance and loads the installed Blue-door JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Blue-door JSON.</param>
-    /// <returns>The immutable blue-door visual catalog.</returns>
+    /// <summary>Pictures every blue-door cap frame from the cartridge's draw lists and writes the installed file (#1557).</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the frames' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the game draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
+
+    /// <summary>Loads the installed blue-door cap pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
     public static InstalledRoomObjectBlueDoorVisuals Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<InstalledRoomObjectBlueDoorVisuals>(VisualFileName, "Blue-door", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
-
-    /// <summary>Validates complete canonical blue-door frame coverage and builds the visuals from every frame's picture as installed.</summary>
-    /// <param name="entries">Exactly one entry for every editable frame, each retaining the four-block run geometry.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is null, changes an identity/shape, repeats a frame, or leaves coverage incomplete.</exception>
-    internal static InstalledRoomObjectBlueDoorVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectFramePictureReader.Flattened(entries, "Blue-door", TryGetByVisualId, Editable.Count()));
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Sixteen original artwork identities; the four physical aliases share frame zero.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Editable
@@ -64,8 +58,4 @@ public static class RoomObjectBlueDoorVisualFiles
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
         return $"{direction}-frame-{Math.Max(draw.Frame, 0)}";
     }
-
-    /// <summary>Finds a blue-door draw by its exact editable visual identity.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(Editable, VisualId, id, out list);
 }

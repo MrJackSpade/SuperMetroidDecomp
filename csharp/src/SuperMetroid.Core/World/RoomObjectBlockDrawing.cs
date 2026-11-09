@@ -224,11 +224,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (BlueDoorCaps.TryDescribe(draw, out var blueDoor))
         {
+            RoomObjectFrameImage cap = Installed(BlueDoorVisuals, "blue-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-            {
-                RoomTerrainBlock physical = blueDoor.BlockAt(cell);
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), physical, Installed(BlueDoorVisuals, "blue-door").GetAppearance(draw, cell));
-            }
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), blueDoor.BlockAt(cell).Collision);
             return;
         }
         if (ColoredDoorCaps.TryDescribe(draw, out var coloredDoor))

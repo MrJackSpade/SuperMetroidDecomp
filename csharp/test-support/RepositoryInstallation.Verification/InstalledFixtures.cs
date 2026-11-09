@@ -303,7 +303,7 @@ internal static class InstalledFixtures
         ending.Flyaway.BindFlightArtwork(IntroArtwork.CeresFlight);
         ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
         ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
-        ending.InstalledArtwork.BindPaletteFxColors(Maps.RoomPaletteFx);
+        ending.InstalledArtwork.BindSpaceBackdrops(Maps.EndingSpaceBackdrops);
         ending.Stage.BindEndingFont(Maps.EndingFont);
         return ending;
     }

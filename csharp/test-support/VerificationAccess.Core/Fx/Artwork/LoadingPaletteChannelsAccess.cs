@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Verification view of one stored loading-palette channel input.</summary>

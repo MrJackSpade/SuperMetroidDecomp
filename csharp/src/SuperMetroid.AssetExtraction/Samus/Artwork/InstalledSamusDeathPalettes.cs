@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Assets;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 

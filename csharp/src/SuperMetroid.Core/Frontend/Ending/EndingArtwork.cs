@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -90,20 +89,19 @@ internal sealed class EndingArtwork
     }
 
     /// <summary>
-    /// Uses the same editable palette-FX color payloads as gameplay while leaving
-    /// ending-specific object allocation, palette destinations and timing as the game has them.
-    /// Rebinding affects future interpreter reads without resetting a live fade.
+    /// Binds the installed backdrops of the space behind the exploding planet when the game is bound to its installed
+    /// content (#1583). Rebinding affects the next record shown without resetting a live fade.
     /// </summary>
-    internal void BindPaletteFxColors(RoomPaletteFxPresentation? value)
+    internal void BindSpaceBackdrops(EndingSpaceBackdrops? value)
     {
-        PaletteFxArtwork = value;
+        SpaceBackdrops = value;
     }
 
     /// <summary>Final logo actor created after the white flash.</summary>
     internal EndingLogo? CurrentEndingLogo { get; set; }
 
-    /// <summary>The palette effects' installed colors.</summary>
-    internal RoomPaletteFxPresentation? PaletteFxArtwork { get; private set; }
+    /// <summary>The installed backdrops of the space behind the exploding planet, one for each of its palette-effect records.</summary>
+    internal EndingSpaceBackdrops? SpaceBackdrops { get; private set; }
 
     /// <summary>The ending text's installed content.</summary>
     internal EndingTypewriterText? EndingText { get; private set; }

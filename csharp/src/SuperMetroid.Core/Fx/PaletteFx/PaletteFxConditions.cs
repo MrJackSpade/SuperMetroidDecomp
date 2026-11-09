@@ -7,7 +7,7 @@ public sealed record PaletteFxConditions
 {
     /// <summary>
     /// Samus's whole-pixel room height this update, which the lightning compares with
-    /// <see cref="CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight"/>; a smaller value is higher in
+    /// <see cref="CrateriaLightningDefinitions.SamusHighOnSurfaceHeight"/>; a smaller value is higher in
     /// the room. It holds 0 through 65535, and values outside that range are rejected.
     /// </summary>
     public required int SamusY { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }

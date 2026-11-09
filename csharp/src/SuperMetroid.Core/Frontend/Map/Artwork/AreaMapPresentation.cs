@@ -54,7 +54,7 @@ public class AreaMapPresentation : IGameplayPresentationContent
         TitleGraphics = parts.TitleGraphics;
         TitleBackdrop = parts.TitleBackdrop;
         TitleGradient = parts.TitleGradient;
-        RoomPaletteFx = parts.RoomPaletteFx;
+        EndingSpaceBackdrops = parts.EndingSpaceBackdrops;
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
         CeresHaze = parts.CeresHaze;
         PowerBombFixedColors = parts.PowerBombFixedColors;
@@ -112,8 +112,8 @@ public class AreaMapPresentation : IGameplayPresentationContent
     public RgbColor TitleBackdrop { get; }
     /// <summary>Title-screen gradient presentation, separate from its static palette and character artwork.</summary>
     public TitleGradientPresentation TitleGradient { get; }
-    /// <summary>Room and cinematic palette-animation colors; step timing, colour destinations, and side effects remain compiled.</summary>
-    public RoomPaletteFxPresentation RoomPaletteFx { get; }
+    /// <summary>The backdrop each record of the space behind the exploding planet shows (#1512, #1583); the import pre-colours every other palette-effect colour into its sheets.</summary>
+    public EndingSpaceBackdrops EndingSpaceBackdrops { get; }
     /// <summary>Mother Brain's rainbow beam backdrop colours.</summary>
     public MotherBrainRainbowPalettePresentation MotherBrainRainbowPalette { get; }
     /// <summary>Selected room-FX effect overlay pages, separate from animated characters and palette-blend colors.</summary>

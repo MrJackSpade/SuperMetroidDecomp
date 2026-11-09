@@ -98,9 +98,9 @@ internal static class FxNativeWords
         NativePaletteFxPreInstruction.DeleteWhenEnemyZeroDies => ColourEffectCondition.EndsWhenTorizoDies.Instance,
         NativePaletteFxPreInstruction.Heat => ColourEffectCondition.BurnsSamusInHeat.Instance,
         NativePaletteFxPreInstruction.SwitchAboveY380 => new ColourEffectCondition.RestartsWhileSamusIsHigh(
-            CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.CrateriaLightningCycle),
+            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.CrateriaLightningCycle),
         NativePaletteFxPreInstruction.SwitchAboveY380Second => new ColourEffectCondition.RestartsWhileSamusIsHigh(
-            CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.UnusedDarkLightningCycle),
+            CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, PaletteFxProgram.UnusedDarkLightningCycle),
         NativePaletteFxPreInstruction.DeleteWhenAreaMiniBossDies => ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance,
         _ => throw new ArgumentOutOfRangeException(nameof(preInstruction), preInstruction, "Undefined palette-FX pre-instruction."),
     };

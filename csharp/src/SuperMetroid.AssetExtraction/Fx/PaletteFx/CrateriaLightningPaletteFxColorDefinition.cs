@@ -1,0 +1,28 @@
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
+
+/// <summary>Calculated setup, two repeated flash groups and neutral intervals for one lightning owner.</summary>
+public sealed class CrateriaLightningPaletteFxColorDefinition
+{
+    /// <summary>Only the catalog creates definitions.</summary>
+    internal CrateriaLightningPaletteFxColorDefinition()
+    {
+    }
+
+    /// <summary>Program identity selecting either the live surface lightning or the retained unused dark-lightning mechanics and color resource.</summary>
+    public required CrateriaLightningPaletteOwner Owner { get; init; }
+
+    /// <summary>Live colours per timed record: eight for surface lightning, or seven for dark lightning.</summary>
+    public required int ColorsPerFrame { get; init; }
+
+    /// <summary>The dark program inserts a second 240-update neutral record before its last flash group.</summary>
+    internal int NeutralCount { get; init; }
+
+    /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
+    public required PaletteFxColorFrames ColorFrames { get; init; }
+
+    /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
+    public PaletteFxColorKey Color(int frame, int color) => ColorFrames.Color(frame, color);
+}

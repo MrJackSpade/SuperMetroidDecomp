@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -28,7 +29,7 @@ internal static class RoomSheetShades
     {
         Ensure.NotNull(inputs);
         SelectedRoom[] rooms = [.. RoomsOf(tileset)];
-        var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
+        var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, ImportAreaMapPresentation.RoomPaletteFxOf(inputs.Maps)));
         if (rooms.Any(room => room.State.EnemyPopulation.Records.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid)))
         {
             RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));

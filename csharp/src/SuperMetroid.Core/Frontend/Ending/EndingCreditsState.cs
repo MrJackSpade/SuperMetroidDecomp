@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -32,7 +31,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
         {
             InstalledArtwork.BindEndingText(artwork.MapPresentation?.EndingText);
-            InstalledArtwork.BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
+            InstalledArtwork.BindSpaceBackdrops(artwork.MapPresentation?.EndingSpaceBackdrops);
             Stage.BindEndingFont(artwork.MapPresentation?.EndingFont);
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
@@ -420,10 +419,10 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
         // The cinematic runs its colour effects after actors; each record shown shows over the colours
         // the scenes loaded before it, as its write does (#1512).
-        IPaletteFxColorSource paletteFxColours = InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
-            "Ending palette FX requires installed palette colors.");
+        EndingSpaceBackdrops spaceBackdrops = InstalledArtwork.SpaceBackdrops ?? throw new InvalidOperationException(
+            "Ending palette FX requires the installed backdrops of the space behind the exploding planet.");
         Stage.PaletteFxSystem.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
-            (colours, record) => screen.Colours.PaletteFx(colours, record, PaletteFxBackdrop(colours, record, paletteFxColours)));
+            (colours, record) => screen.Colours.PaletteFx(colours, record, PaletteFxBackdrop(colours, record, spaceBackdrops)));
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         // The ending follows cinematic actors even while a text-only screen hides sprites.
@@ -438,15 +437,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// the exploding planet is the backdrop, and every record writes its first colour before any colour it skips, so a
     /// record of its colours shows that colour behind every layer; any other record leaves the backdrop as it was.
     /// </summary>
-    /// <exception cref="InvalidDataException">The record's first colour is not installed.</exception>
-    private static RgbColor? PaletteFxBackdrop(PaletteFxColours colours, PaletteFxFrame record, IPaletteFxColorSource installed)
-    {
-        if (colours != EndingPaletteFxDefinitions.SpaceColours)
-            return null;
-        return installed.TryReadColor(new PaletteFxColorKey(record, 0), out RgbColor backdrop)
-            ? backdrop
-            : throw new InvalidDataException($"Palette-FX record {record.Record}'s first colour has no installed definition.");
-    }
+    /// <exception cref="InvalidDataException">The record's backdrop is not installed.</exception>
+    private static RgbColor? PaletteFxBackdrop(PaletteFxColours colours, PaletteFxFrame record, EndingSpaceBackdrops installed) =>
+        colours == EndingPaletteFxDefinitions.SpaceColours ? installed.Of(record) : null;
 
     /// <summary>Rotates the turning floor every other cinematic call while applying the current zoom delta.</summary>
     private void StepAtmosphericTransform(int scaleDelta)

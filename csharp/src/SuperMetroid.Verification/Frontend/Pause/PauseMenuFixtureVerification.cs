@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>
@@ -97,7 +98,7 @@ internal static class PauseMenuFixtureVerification
             TitleGraphics = stock.TitleGraphics,
             TitleBackdrop = stock.TitleBackdrop,
             TitleGradient = stock.TitleGradient,
-            RoomPaletteFx = stock.RoomPaletteFx,
+            EndingSpaceBackdrops = stock.EndingSpaceBackdrops,
             MotherBrainRainbowPalette = stock.MotherBrainRainbowPalette,
             CeresHaze = stock.CeresHaze,
             PowerBombFixedColors = stock.PowerBombFixedColors,

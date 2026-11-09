@@ -4,12 +4,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.EnsureVerification.PaletteFx;
 
-/// <summary>Checks that palette FX execution writes no colours: a step takes its conditions and no colour source (#1512).</summary>
+/// <summary>Checks that palette FX execution writes no colours: a step takes its conditions alone (#1512, #1583).</summary>
 internal static class PaletteFxContractTests
 {
     /// <summary>
@@ -20,16 +20,13 @@ internal static class PaletteFxContractTests
     internal static void VerifyPaletteFxDependencyContract()
     {
         VerifyPaletteCall("conditions only", "fx.Step(frame);");
-        VerifyPaletteCall("removed optional binding", "fx.BindPresentationColors(colors);", "CS1061");
+        VerifyPaletteCall("removed optional binding", "fx.BindPresentationColors(frame);", "CS1061");
 
-        // Guard against a compatibility overload or a hidden colour source that would bring colour writing back.
+        // Guard against a compatibility overload that would bring colour writing back: the one Step takes the conditions
+        // alone. Core declares no colour source at all; the palette-effect colours are the import's (#1583).
         MethodInfo[] steps = typeof(RoomPaletteFxSystem).GetMethods().Where(method => method.Name == "Step").ToArray();
-        if (steps.Length != 1 || steps[0].GetParameters().Any(parameter =>
-                typeof(IPaletteFxColorSource).IsAssignableFrom(parameter.ParameterType)))
-            throw new InvalidOperationException("Palette FX must expose exactly one Step, which takes no colour source.");
-        if (MetadataShape.Fields(typeof(RoomPaletteFxSystem), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Any(field => typeof(IPaletteFxColorSource).IsAssignableFrom(field.FieldType)))
-            throw new InvalidOperationException("Palette FX must not retain a colour source across execution/state restore.");
+        if (steps.Length != 1 || steps[0].GetParameters() is not [{ ParameterType: var conditions }] || conditions != typeof(PaletteFxConditions))
+            throw new InvalidOperationException("Palette FX must expose exactly one Step, which takes the conditions alone.");
 
         // A frontend screen's step writes no colours either: it hands the screen each record as it is shown, which the
         // screen shades its pictures with. The gunship engine flickers on the Ceres destruction cinematic, so its first
@@ -40,7 +37,8 @@ internal static class PaletteFxContractTests
         var shown = new List<(PaletteFxColours Colours, PaletteFxFrame Record)>();
         fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
             (colours, record) => shown.Add((colours, record)));
-        PaletteFxFrame first = PaletteFxColorFrames.Of(PaletteFxProgram.CutsceneGunshipEngineFlicker1, colorsPerFrame: 1).Color(0, 0).Frame;
+        PaletteFxFrame first = PaletteFxAnimations.Programs.Steps(PaletteFxProgram.CutsceneGunshipEngineFlicker1)
+            .OfType<AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep>().First().Frame;
         if (shown.Count != 1 || shown[0] != (PaletteFxColours.CutsceneGunshipEngine, first)
             || fx.RecordOf(PaletteFxColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first screen step did not show the gunship engine's first record.");
@@ -52,11 +50,10 @@ internal static class PaletteFxContractTests
     {
         string source = $$"""
             using SuperMetroid.Core.Fx;
-            using SuperMetroid.Core.Fx.Artwork;
             using SuperMetroid.Core.Fx.PaletteFx;
             class PaletteCaller
             {
-                void Run(RoomPaletteFxSystem fx, IPaletteFxColorSource colors, PaletteFxConditions frame)
+                void Run(RoomPaletteFxSystem fx, PaletteFxConditions frame)
                 {
                     {{statement}}
                 }

@@ -3,7 +3,8 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -16,21 +17,19 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingShownColours
 {
     /// <summary>The colours <paramref name="ending"/>'s pictures show now.</summary>
-    /// <exception cref="InvalidOperationException">The ending's palette-effect colours are not bound.</exception>
     /// <exception cref="KeyNotFoundException">The screen names a shade the import installs on no ending sheet.</exception>
     internal static RgbColor[] Of(EndingCreditsState ending) => Of(ending, InstalledShades(ending));
 
     /// <summary>
-    /// The shades the import installs for <paramref name="ending"/>'s screen, by shade, from the ending's colours and its
-    /// bound palette-effect colours: a check reading the shown colours of many states of one ending builds them once.
+    /// The shades the import installs for <paramref name="ending"/>'s screen, by shade, from the ending's colours and the
+    /// installation's palette-effect colours, which only the import reads (#1583): a check reading the shown colours of many
+    /// states of one ending builds them once.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The ending's palette-effect colours are not bound.</exception>
     internal static Dictionary<PictureShade, SheetShade> InstalledShades(EndingCreditsState ending)
     {
         Ensure.NotNull(ending);
         EndingPaletteSet palettes = InstalledFixtures.EndingColours;
-        IPaletteFxColorSource paletteFx = ending.InstalledArtwork.PaletteFxArtwork
-            ?? throw new InvalidOperationException("The ending's shown colours require its installed palette-effect colours.");
+        IPaletteFxColorSource paletteFx = ImportAreaMapPresentation.RoomPaletteFxOf(InstalledFixtures.Maps);
         return EndingScreenShades.Screen(palettes, paletteFx).ToDictionary(shade => shade.Shade);
     }
 

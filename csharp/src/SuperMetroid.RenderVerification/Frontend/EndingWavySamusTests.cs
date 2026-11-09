@@ -27,7 +27,7 @@ internal static class EndingWavySamusTests
         var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
         scene.InstalledArtwork.BindFixtureObjectArtwork(installed.LoadEndingObjectArt());
         scene.InstalledArtwork.BindBackdrops(installed.LoadEndingBackdrops());
-        scene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
+        scene.InstalledArtwork.BindSpaceBackdrops(maps.EndingSpaceBackdrops);
         scene.Stage.BindEndingFont(maps.EndingFont);
         scene.InstalledArtwork.BindEndingText(maps.EndingText);
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();

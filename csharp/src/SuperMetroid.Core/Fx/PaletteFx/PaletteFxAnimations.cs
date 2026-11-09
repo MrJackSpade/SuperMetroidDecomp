@@ -894,7 +894,7 @@ public static class PaletteFxAnimations
         ],
         [P.CrateriaLightning] =
         [
-            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, P.CrateriaLightningCycle))),
+            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, P.CrateriaLightningCycle))),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.LandingSiteLightning)),
             FallInto(P.CrateriaLightningCycle),
         ],
@@ -929,7 +929,7 @@ public static class PaletteFxAnimations
         ],
         [P.UnusedDarkLightning] =
         [
-            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, P.UnusedDarkLightningCycle))),
+            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningDefinitions.SamusHighOnSurfaceHeight, P.UnusedDarkLightningCycle))),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.UnusedDarkLightning)),
             FallInto(P.UnusedDarkLightningCycle),
         ],

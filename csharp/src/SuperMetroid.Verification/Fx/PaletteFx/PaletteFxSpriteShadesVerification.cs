@@ -6,6 +6,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.Verification.Fx.PaletteFx;
 

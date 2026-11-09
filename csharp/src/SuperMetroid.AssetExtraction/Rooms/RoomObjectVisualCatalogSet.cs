@@ -95,4 +95,7 @@ public sealed record RoomObjectVisualCatalogSet
 
     /// <summary>Bombed reveals, escape passage, escape shaft wall and rescue wall.</summary>
     public required InstalledRoomObjectRevealAndWallVisuals RevealAndWall { get; init; }
+
+    /// <summary>The blocks room-object setups and block reactions write of their own accord.</summary>
+    public required InstalledRoomObjectSetupBlocks SetupBlocks { get; init; }
 }

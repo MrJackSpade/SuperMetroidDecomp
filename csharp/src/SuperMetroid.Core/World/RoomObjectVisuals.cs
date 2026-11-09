@@ -102,4 +102,7 @@ internal sealed class RoomObjectVisuals
 
     /// <summary>The installed pictures of the bombed reveals, the escape passage, the escape shaft wall and the animals' rescue wall.</summary>
     public InstalledRoomObjectRevealAndWallVisuals? RoomObjectRevealAndWallVisuals { get; set; }
+
+    /// <summary>The installed pictures of the blocks room-object setups and block reactions write of their own accord (#1580).</summary>
+    public InstalledRoomObjectSetupBlocks? RoomObjectSetupBlocks { get; set; }
 }

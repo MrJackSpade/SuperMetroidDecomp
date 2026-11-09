@@ -13,12 +13,15 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     private readonly IGlobalEventFlags? _events;
     /// <summary>Room-object slot pool searched from the final slot toward the first.</summary>
     private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>What the struck rescue wall shows: its installed picture (#1580).</summary>
+    private readonly IRoomObjectDrawing _drawing;
 
-    /// <summary>Binds the animal-rescue room-object behaviors to room events and the shared slot table.</summary>
-    internal EscapeAnimalObjects(IGlobalEventFlags? events, RoomObjectSlotTable slotTable)
+    /// <summary>Binds the animal-rescue room-object behaviors to room events, the shared slot table and the installed pictures.</summary>
+    internal EscapeAnimalObjects(IGlobalEventFlags? events, RoomObjectSlotTable slotTable, IRoomObjectDrawing drawing)
     {
         _events = events;
         _slotTable = slotTable;
+        _drawing = Ensure.NotNull(drawing);
     }
     /// <summary>Makes the three-block rescue wall shootable, preserving artwork.</summary>
     public void SetupCrittersEscapeBlock(RoomLevelData level, int blockIndex)
@@ -72,10 +75,10 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
         slot.BlockIndex = blockIndex;
         slot.Become(new CritterWallBreakthroughObject());
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        // The reaction keeps the wall's collision type and shows the reaction block; until its list runs, the block
-        // is deactivated, staying solid only when it was.
-        slot.RestoreTerrain = block.Terrain.WithAppearance(EscapeAnimalWallDefinitions.ReactionAppearance);
-        level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+        // The reaction shows the struck wall's installed picture over the wall's collision type; until its list runs, the
+        // block is deactivated, staying solid only when it was. The wall breaks open for good, so it saves no block to
+        // restore.
+        level.SetTerrain(blockIndex, block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.CritterWallStruck)).Deactivated());
         return true;
     }
 }

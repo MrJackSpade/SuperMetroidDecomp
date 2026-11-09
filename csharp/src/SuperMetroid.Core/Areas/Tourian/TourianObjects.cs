@@ -48,7 +48,6 @@ internal sealed class TourianObjects
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
         slot.Header = RoomObjectHeaderId.OldTourianEscapeShaftFakeWall;
         DoorObjects.SetupDoorTransitionDeactivatedSlot(level, slot);
         slot.Become(new OldTourianWallObject(_samus, _enemies));

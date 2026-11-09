@@ -7,4 +7,11 @@ internal interface IRoomObjectDrawing
 {
     /// <summary>Draws <paramref name="draw"/> with its block origin at <paramref name="blockIndex"/>, with its family's installed visuals and its compiled collision.</summary>
     void Draw(RoomLevelData level, int blockIndex, RoomObjectDraw draw);
+
+    /// <summary>
+    /// What <paramref name="block"/>, a block a setup or a reaction writes of its own accord, shows: its installed picture
+    /// (#1580). The writer gives it its collision.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installed setup-block pictures are not bound, or lack the block.</exception>
+    RoomBlockAppearance SetupBlock(RoomObjectSetupBlock block);
 }

@@ -88,6 +88,19 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 0)), "contact crumble parent picture");
         AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 1)), "contact crumble vertical child picture");
 
+        // The blocks setups and reactions write of their own accord are installed pictures that show what the deleted
+        // compiled appearances held (#1580).
+        InstalledRoomObjectSetupBlocks setupBlocks = InstalledRoomObjectSetupBlocks.Stock();
+        AssertEqual(RoomBlockAppearance.Of(0x058), setupBlocks.Shown(RoomObjectSetupBlock.BombBlockParent), "bomb block parent setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x0bc), setupBlocks.Shown(RoomObjectSetupBlock.CrumbleBlockParent), "crumble block parent setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x0b6), setupBlocks.Shown(RoomObjectSetupBlock.SpeedBoosterBlockParent), "Speed Booster block parent setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x052), setupBlocks.Shown(RoomObjectSetupBlock.ShotBlockParent), "shot block parent setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x057), setupBlocks.Shown(RoomObjectSetupBlock.PowerBombBlockParent), "Power Bomb block parent setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x09f), setupBlocks.Shown(RoomObjectSetupBlock.SuperMissileBlockParent), "Super Missile block parent setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x09f), setupBlocks.Shown(RoomObjectSetupBlock.CritterWallStruck), "struck rescue wall setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x0ff), setupBlocks.Shown(RoomObjectSetupBlock.TreadmillIdle), "idle treadmill row setup picture");
+        AssertEqual(RoomBlockAppearance.Of(0x0ff), setupBlocks.Shown(RoomObjectSetupBlock.TreadmillRunning), "running treadmill row setup picture");
+
         Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and terrain blocks keep their values.");
     }
 

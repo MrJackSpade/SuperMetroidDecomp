@@ -325,7 +325,7 @@ public static class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallGrab)
             return StepWallGrab(terrain.Level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrabRelease)
-            return StepWallGrabRelease(terrain.Level, samus, newlyPressedInput);
+            return StepWallGrabRelease(terrain, samus, newlyPressedInput);
         if (grapple.Phase == GrapplePhase.WallJumping)
             return CompleteGrappleWallJump(terrain.Level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
@@ -546,7 +546,7 @@ public static class SamusGrappleMovement
     /// <summary>During the release window, accepts a fresh Jump only when a 16-pixel probe finds a wall or solid enemy.</summary>
     private static GrappleMovementResult StepWallGrabRelease(
 
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
         ControllerButton newlyPressedInput)
     {
@@ -567,11 +567,13 @@ public static class SamusGrappleMovement
         // square slopes, behaviour dispatch, available distance, and enemy identity.
         SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromParts(
             SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -WallJumpProbePixels : WallJumpProbePixels, 0);
+        // The probe spawns no room object; a bomb block it breaks shows its parent's installed picture.
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
 
-            level,
+            terrain.Level,
             samus.Kinematics, samus,
-            signedProbe);
+            signedProbe,
+            roomObjectDrawing: terrain.RoomObjects?.Drawing);
         bool jumpNew = (newlyPressedInput & ControllerButton.A) != ControllerButton.None;
         if (wall.Collided && jumpNew)
         {

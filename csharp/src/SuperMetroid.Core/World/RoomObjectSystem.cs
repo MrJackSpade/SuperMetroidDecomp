@@ -137,10 +137,10 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         BreakableTerrain = new EnemyBreakableTerrainObjects(SlotTable);
         Quicksand = new QuicksandObjects(SlotTable);
         Scrolls = new ScrollObjects(SlotTable);
-        WreckedShipTreadmill = new WreckedShipTreadmillObjects(SlotTable);
+        WreckedShipTreadmill = new WreckedShipTreadmillObjects(SlotTable, Drawing);
         Shaktool = new ShaktoolObjects(services.Samus, services.Events, SlotTable);
         SamusEater = new SamusEaterObjects(services.Samus, SlotTable);
-        EscapeAnimals = new EscapeAnimalObjects(services.Events, SlotTable);
+        EscapeAnimals = new EscapeAnimalObjects(services.Events, SlotTable, Drawing);
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
         ChozoStatue = new ChozoStatueObjects(room.System, room.AreaIndex, SlotTable);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
@@ -155,7 +155,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, SlotTable);
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
-        BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
+        BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
     }
 

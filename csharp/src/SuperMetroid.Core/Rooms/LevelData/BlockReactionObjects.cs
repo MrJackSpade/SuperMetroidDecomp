@@ -13,13 +13,16 @@ internal sealed class BlockReactionObjects
     private readonly ICrittersEscapeReaction _escapeAnimals;
     /// <summary>Allocates reaction room objects in descending slot order.</summary>
     private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>What the parent blocks the setups write show: their installed pictures (#1580).</summary>
+    private readonly IRoomObjectDrawing _drawing;
 
-    /// <summary>Connects block reactions to the active room, escape-animal branch, and shared room-object pool.</summary>
-    internal BlockReactionObjects(AreaId area, ICrittersEscapeReaction escapeAnimals, RoomObjectSlotTable slotTable)
+    /// <summary>Connects block reactions to the active room, escape-animal branch, shared room-object pool and installed pictures.</summary>
+    internal BlockReactionObjects(AreaId area, ICrittersEscapeReaction escapeAnimals, RoomObjectSlotTable slotTable, IRoomObjectDrawing drawing)
     {
         _area = area;
         _escapeAnimals = escapeAnimals;
         _slotTable = slotTable;
+        _drawing = Ensure.NotNull(drawing);
     }
 
     /// <summary>Starts a respawning or permanent grapple-block program while preserving its original terrain for restoration.</summary>
@@ -77,9 +80,10 @@ internal sealed class BlockReactionObjects
 
         // This is not the original appearance. The setup deliberately replaces the block and its mirroring with the
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
-        slot.RestoreTerrain = new RoomTerrainBlock(RoomObjectVisualBlockDefinitions.CollisionBombParent, block.CollisionType);
+        RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
+        slot.RestoreTerrain = new RoomTerrainBlock(parent, block.CollisionType);
         slot.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Reaction.Entry)));
-        level.SetTerrain(blockIndex, new RoomTerrainBlock(RoomObjectVisualBlockDefinitions.CollisionBombParent, RoomCollisionType.Air));
+        level.SetTerrain(blockIndex, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
     }
 
@@ -114,7 +118,7 @@ internal sealed class BlockReactionObjects
         slot.Header =
             RoomObjectHeaders.ContactCrumbleByReactionIndex(behavior.Reaction.Entry);
         slot.BlockIndex = blockIndex;
-        RoomTerrainBlock restore = block.Terrain.WithBlock(RoomObjectVisualBlockDefinitions.ContactCrumbleParent.Block);
+        RoomTerrainBlock restore = block.Terrain.WithBlock(_drawing.SetupBlock(RoomObjectSetupBlock.CrumbleBlockParent).Block);
         slot.RestoreTerrain = restore;
         slot.Become(new BlockReactionObject(BlockReactionChanges.ContactCrumble(behavior.Reaction.Entry)));
         level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.SolidBlock));
@@ -166,9 +170,10 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.Header = definition.Header;
         slot.BlockIndex = blockIndex;
-        slot.RestoreTerrain = block.Terrain.WithBlock(RoomObjectVisualBlockDefinitions.SpeedBoosterParent.Block);
+        RoomTerrainBlock restore = block.Terrain.WithBlock(_drawing.SetupBlock(RoomObjectSetupBlock.SpeedBoosterBlockParent).Block);
+        slot.RestoreTerrain = restore;
         slot.Become(new BlockReactionObject(definition.Change));
-        level.SetTerrain(blockIndex, slot.RestoreTerrain.WithCollision(RoomCollisionType.Air));
+        level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.Air));
         return true;
     }
 
@@ -206,20 +211,20 @@ internal sealed class BlockReactionObjects
         if (!behavior.Reaction.IsCommonEntryBelow(8))
         {
             // Table entries 8..15 are all the empty reaction, whose setup does nothing and which leaves on its first update.
-            slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
             slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
             return true;
         }
 
         // The setup discards the original appearance rather than preserving the visible block. Dimension-specific final
         // draws reconstruct linked extension blocks; the 1x1 respawn tail uses this exact restore block.
-        slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.CollisionBombParent);
+        RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent));
+        slot.RestoreTerrain = restore;
         // Only normal bombs skip the reaction sound: a normal bomb starts the shared break tail.
         slot.Become(new BlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
             ? BlockReactionChanges.BombBreak(behavior.Reaction.Entry)
             : BlockReactionChanges.ReactionBomb(behavior.Reaction.Entry)));
 
-        level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+        level.SetTerrain(blockIndex, restore.Deactivated());
         return true;
     }
 
@@ -274,7 +279,6 @@ internal sealed class BlockReactionObjects
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
-        slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
 
         switch (reaction)
         {
@@ -294,9 +298,8 @@ internal sealed class BlockReactionObjects
             case ShotBlockReaction.RespawningBreak:
                 // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame
                 // restoration, and deactivates the live block immediately.
-                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.ShotBlockParent);
-                slot.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(ShotBlockReactions.BreakShape(behavior.Reaction))));
-                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+                RestoreAsParent(level, slot, block, RoomObjectSetupBlock.ShotBlockParent,
+                    new BlockReactionObject(BlockReactionChanges.RespawningShot(ShotBlockReactions.BreakShape(behavior.Reaction))));
                 return true;
 
             case ShotBlockReaction.PermanentBreak:
@@ -319,11 +322,10 @@ internal sealed class BlockReactionObjects
                 // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live
                 // block, and runs its header's program. The respawning block uses the ordinary four-frame breakup; the
                 // permanent one its shorter 3/2/1-frame counterpart.
-                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.PowerBombBlockParent);
-                slot.Become(new BlockReactionObject(reaction == ShotBlockReaction.RespawningPowerBombBreak
-                    ? BlockReactionChangeDefinitions.RespawningPowerBombBlock
-                    : BlockReactionChangeDefinitions.PermanentPowerBombBlock));
-                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+                RestoreAsParent(level, slot, block, RoomObjectSetupBlock.PowerBombBlockParent,
+                    new BlockReactionObject(reaction == ShotBlockReaction.RespawningPowerBombBreak
+                        ? BlockReactionChangeDefinitions.RespawningPowerBombBlock
+                        : BlockReactionChangeDefinitions.PermanentPowerBombBlock));
                 return true;
 
             case ShotBlockReaction.RespawningSuperMissileBreak:
@@ -338,11 +340,10 @@ internal sealed class BlockReactionObjects
 
                 // Super Missiles keep the collision kind with the Super Missile parent's appearance; one header owns the
                 // respawning program and the other the permanent one.
-                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.SuperMissileBlockParent);
-                slot.Become(new BlockReactionObject(reaction == ShotBlockReaction.RespawningSuperMissileBreak
-                    ? BlockReactionChangeDefinitions.RespawningSuperMissileBlock
-                    : BlockReactionChangeDefinitions.PermanentSuperMissileBlock));
-                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+                RestoreAsParent(level, slot, block, RoomObjectSetupBlock.SuperMissileBlockParent,
+                    new BlockReactionObject(reaction == ShotBlockReaction.RespawningSuperMissileBreak
+                        ? BlockReactionChangeDefinitions.RespawningSuperMissileBlock
+                        : BlockReactionChangeDefinitions.PermanentSuperMissileBlock));
                 return true;
 
             case ShotBlockReaction.Nothing:
@@ -403,8 +404,20 @@ internal sealed class BlockReactionObjects
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
         slot.Become(new BlockReactionObject(change));
         return true;
+    }
+
+    /// <summary>
+    /// Runs a breaking shot reaction's setup that keeps the struck block's collision kind under <paramref name="parent"/>'s
+    /// installed picture as the block to restore, and deactivates the live block until the reaction's first image.
+    /// </summary>
+    private void RestoreAsParent(RoomLevelData level, RoomObjectSlot slot, RoomCollisionBlock block, RoomObjectSetupBlock parent,
+        BlockReactionObject reaction)
+    {
+        RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(parent));
+        slot.RestoreTerrain = restore;
+        slot.Become(reaction);
+        level.SetTerrain(slot.BlockIndex, restore.Deactivated());
     }
 }

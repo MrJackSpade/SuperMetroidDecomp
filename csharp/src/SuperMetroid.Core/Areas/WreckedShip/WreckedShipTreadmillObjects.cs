@@ -11,11 +11,14 @@ internal sealed class WreckedShipTreadmillObjects
 {
     /// <summary>Room-object slot pool used for treadmill and elevatube allocation.</summary>
     private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>What the treadmill's row shows: its installed picture (#1580).</summary>
+    private readonly IRoomObjectDrawing _drawing;
 
-    /// <summary>Attaches treadmill and elevatube spawning to the room's room-object pool.</summary>
-    internal WreckedShipTreadmillObjects(RoomObjectSlotTable slotTable)
+    /// <summary>Attaches treadmill and elevatube spawning to the room's room-object pool and installed pictures.</summary>
+    internal WreckedShipTreadmillObjects(RoomObjectSlotTable slotTable, IRoomObjectDrawing drawing)
     {
         _slotTable = slotTable;
+        _drawing = Ensure.NotNull(drawing);
     }
     /// <summary>
     /// Spawns one of the two treadmills at room block (4,9), then runs its shared setup at once by replacing the following
@@ -51,11 +54,12 @@ internal sealed class WreckedShipTreadmillObjects
         slot.BlockIndex = origin;
         slot.Become(new WreckedShipTreadmillObject(direction, areaBossDefeated));
 
-        // The setup writes blank air and deliberately leaves the blocks' behaviour alone.
+        // The setup writes the idle row's installed picture as air and deliberately leaves the blocks' behaviour alone.
+        var idle = new RoomTerrainBlock(_drawing.SetupBlock(RoomObjectSetupBlock.TreadmillIdle), WreckedShipTreadmillBlockDefinitions.IdleCollision);
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
             int blockIndex = origin + offset;
-            level.SetTerrain(blockIndex, WreckedShipTreadmillBlockDefinitions.InactiveTreadmillBlock);
+            level.SetTerrain(blockIndex, idle);
         }
         return true;
     }
@@ -80,18 +84,24 @@ internal sealed class WreckedShipTreadmillObjects
     }
 
     /// <summary>Turns the treadmill's row, from <paramref name="origin"/>, into a running belt pushing in <paramref name="direction"/>.</summary>
-    internal static void RunBelt(RoomLevelData level, int origin, WreckedShipTreadmillDirection direction)
+    /// <param name="level">The treadmill's room.</param>
+    /// <param name="origin">The row's first block.</param>
+    /// <param name="direction">The belt's push direction.</param>
+    /// <param name="drawing">The installed pictures, which give what the running row shows.</param>
+    internal static void RunBelt(RoomLevelData level, int origin, WreckedShipTreadmillDirection direction, IRoomObjectDrawing drawing)
     {
         Ensure.NotNull(level);
+        Ensure.NotNull(drawing);
         EnsureHorizontalRangeFits(level, origin, WreckedShipTreadmillBlockDefinitions.BlockCount);
         bool rightwards = direction == WreckedShipTreadmillDirection.Rightwards;
 
-        // Both directions write the same row. The blank appearance is unchanged; only the special-air kind and the
-        // direction behaviour become active.
+        // Both directions write the same row: the running row's installed picture as special air, with the direction
+        // behaviour.
+        var running = new RoomTerrainBlock(drawing.SetupBlock(RoomObjectSetupBlock.TreadmillRunning), WreckedShipTreadmillBlockDefinitions.RunningCollision);
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
             int blockIndex = origin + offset;
-            level.SetTerrain(blockIndex, WreckedShipTreadmillBlockDefinitions.ActiveTreadmillBlock);
+            level.SetTerrain(blockIndex, running);
             level.SetBehavior(blockIndex, rightwards
                 ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
                 : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);

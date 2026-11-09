@@ -265,6 +265,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the bombed reveals', escape passage's, escape shaft wall's and rescue wall's pictures as installed; their terrain stays the game's.</summary>
     public InstalledRoomObjectRevealAndWallVisuals LoadRoomObjectRevealAndWallVisuals() =>
         RoomObjectRevealAndWallVisualFiles.Load(RoomObjectRevealAndWallVisualDirectory);
+    /// <summary>The installed pictures of the blocks room-object setups and block reactions write of their own accord.</summary>
+    public string RoomObjectSetupBlockDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectSetupBlockDirectoryName);
+    /// <summary>Loads the setup blocks' pictures as installed; how each collides stays the game's.</summary>
+    public InstalledRoomObjectSetupBlocks LoadRoomObjectSetupBlocks() =>
+        RoomObjectSetupBlockFiles.Load(RoomObjectSetupBlockDirectory);
     /// <summary>Stock definitions for X-ray reveal metatile selections under the replaceable content tree.</summary>
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
@@ -327,6 +332,7 @@ public sealed record GameInstallation(string Root)
             RoomObjectMotherBrainFakeDeathVisuals = LoadRoomObjectMotherBrainFakeDeathVisuals(),
             RoomObjectCollectibleVisuals = LoadRoomObjectCollectibleVisuals(),
             RoomObjectRevealAndWallVisuals = LoadRoomObjectRevealAndWallVisuals(),
+            RoomObjectSetupBlocks = LoadRoomObjectSetupBlocks(),
             XrayRevealVisuals = LoadXrayRevealVisuals(),
             ProjectileFrameBindings = projectiles.FrameBindings,
 

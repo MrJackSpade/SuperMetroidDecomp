@@ -305,7 +305,7 @@ internal sealed class CrocomireBridgeCollapse
         if (state.DeathPhase != CrocomireDeathPhase.WaitForSamusAtWall)
             return;
 
-        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
+        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
         state.DeathPhase = CrocomireDeathPhase.RiverSkeletonDetour;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFlowingDownRiver);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);

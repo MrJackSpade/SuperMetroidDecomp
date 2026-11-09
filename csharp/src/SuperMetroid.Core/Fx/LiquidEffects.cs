@@ -49,13 +49,13 @@ public static class LiquidEffects
     }
 
     /// <summary>
-    /// The lava sounds: library-two sounds chosen by the low three
+    /// The lava sounds: enemy-library sounds chosen by the low three
     /// RNG bits.
     /// </summary>
     public static SoundEffectId LavaAmbientSound(int randomIndex) => LavaAcidWaveDefinitions.AmbientSoundChoice.Of(randomIndex) switch
     {
-        0 or 3 or 6 => Library2Sound.LavaBubbling1,
-        1 or 4 or 7 => Library2Sound.LavaBubbling2,
-        _ => Library2Sound.LavaBubbling3,
+        0 or 3 or 6 => EnemySound.LavaBubbling1,
+        1 or 4 or 7 => EnemySound.LavaBubbling2,
+        _ => EnemySound.LavaBubbling3,
     };
 }

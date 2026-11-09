@@ -18,7 +18,7 @@ internal static class PhantoonSoundDefinitionsVerification
         AssertEqual(3, PhantoonSoundDefinitions.MaterializationSoundCount, "Phantoon materialization cycle length");
         for (int index = 0; index < 3; index++)
         {
-            SoundEffectId expected = SoundEffectCommands.Decode(SoundEffectLibrary.Library2,
+            SoundEffectId expected = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2));
             AssertEqual(expected, PhantoonSounds.MaterializationSound(index),
                 $"Phantoon materialization sound {index}");

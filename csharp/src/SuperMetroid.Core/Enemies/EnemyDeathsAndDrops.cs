@@ -61,8 +61,8 @@ internal sealed class EnemyDeathsAndDrops
     private void RequestDeathSound(SoundEffectId sound) =>
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyDeath, sound, priority: SoundRequestPriority.WhenIdle);
 
-    /// <summary>The library-two enemy-killed cry the death explosion queues.</summary>
-    internal static readonly SoundEffectId EnemyKilledSound = Library2Sound.EnemyKilled;
+    /// <summary>The enemy-library enemy-killed cry the death explosion queues.</summary>
+    internal static readonly SoundEffectId EnemyKilledSound = EnemySound.EnemyKilled;
 
     /// <summary>Tells a power bomb's sweep in progress of each kill, which resizes its horizontal reach.</summary>
     private readonly PowerBombRadiusAfterKill _powerBombRadius;
@@ -456,23 +456,23 @@ internal sealed class EnemyDeathsAndDrops
         {
             case EnemyPickupKind.SmallEnergy:
                 RestoreEnemyDropEnergy(samus, 5);
-                RequestPickupSound(Library2Sound.SmallEnergyPickup);
+                RequestPickupSound(EnemySound.SmallEnergyPickup);
                 break;
             case EnemyPickupKind.BigEnergy:
                 RestoreEnemyDropEnergy(samus, 20);
-                RequestPickupSound(Library2Sound.BigEnergyPickup);
+                RequestPickupSound(EnemySound.BigEnergyPickup);
                 break;
             case EnemyPickupKind.PowerBomb:
                 RestoreEnemyDropPowerBombs(samus, 1);
-                RequestPickupSound(Library2Sound.PowerBombPickup);
+                RequestPickupSound(EnemySound.PowerBombPickup);
                 break;
             case EnemyPickupKind.Missile:
                 RestoreEnemyDropMissiles(samus, 2);
-                RequestPickupSound(Library2Sound.MissilePickup);
+                RequestPickupSound(EnemySound.MissilePickup);
                 break;
             case EnemyPickupKind.SuperMissile:
                 RestoreEnemyDropSuperMissiles(samus, 1);
-                RequestPickupSound(Library2Sound.SuperMissilePickup);
+                RequestPickupSound(EnemySound.SuperMissilePickup);
                 break;
             case EnemyPickupKind.None:
             case EnemyPickupKind.NoDrop:
@@ -585,7 +585,7 @@ internal sealed class EnemyDeathsAndDrops
         }, EnemyProjectileFrameBehavior.PickupLifetime);
     }
 
-    /// <summary>Queues the library-two enemy-killed sound 9, as the death explosion's cue does.</summary>
+    /// <summary>Queues the enemy-killed sound, as the death explosion's cue does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>

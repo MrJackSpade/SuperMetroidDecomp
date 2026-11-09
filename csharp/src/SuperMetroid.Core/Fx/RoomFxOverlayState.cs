@@ -649,7 +649,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Runs the signed timer and eight-entry earthquake-sound loop.
-    /// All eight sound words are library-two Earthquake; the negative ninth
+    /// All eight sound words are enemy-library Earthquake; the negative ninth
     /// word resets selection to zero. Constant sound selection and the index bound
     /// replace those words; the independently retained rhythm supplies only delays.
     /// </summary>
@@ -676,7 +676,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             EarthquakeSoundSequenceIndex = 0;
 
         soundRequests.Add(new SoundRequest(
-            Library2Sound.Lavaquake,
+            EnemySound.Lavaquake,
             Priority: SoundRequestPriority.Normal,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
         EarthquakeSoundTimer = WrappingCountdown.FromRaw(baseTimers[EarthquakeSoundSequenceIndex])

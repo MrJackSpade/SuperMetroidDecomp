@@ -40,9 +40,9 @@ internal static class AudioClipExportVerification
         {
             SoundEffectId[] effects =
             [
-                Library1Sound.UnchargedPowerBeam,
-                Library2Sound.EtecoonTheme,
-                Library3Sound.SpeedBooster,
+                SamusSound.UnchargedPowerBeam,
+                EnemySound.EtecoonTheme,
+                RoomSound.SpeedBooster,
             ];
             AudioClipExporter.Export(
                 catalog,
@@ -50,14 +50,14 @@ internal static class AudioClipExportVerification
                 music ? [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack)] : [],
                 music ? [] : [
                     .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, SoundEffectCommands.Command(effect))),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, SoundEffectCommands.Command(Library2Sound.EtecoonTheme)),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Enemies, SoundEffectCommands.Command(EnemySound.EtecoonTheme)),
                 ]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");
             if (music)
             {
                 VerifyMusic(catalog, clips, GreenBrinstarPhaseExactTrack);
-                MusicClipEntry exported = clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(GreenBrinstarPhaseExactTrack));
+                MusicClipEntry exported = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(GreenBrinstarPhaseExactTrack));
                 AssertEqual(GreenBrinstarPhaseExactFrames, exported.Clip.Frames, "the loop check renders the exported clip's length");
                 AssertEqual(GreenBrinstarPhaseExactLoopStart, exported.LoopStart, "the loop check starts at the exported loop");
                 VerifyLoaderRejections(scratch.FullName, clips);
@@ -68,7 +68,7 @@ internal static class AudioClipExportVerification
             foreach (SoundEffectId effect in effects)
                 VerifySoundEffect(clips, effect);
             AssertThrows<InvalidDataException>(
-                () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, Library2Sound.EtecoonTheme),
+                () => clips.GetSoundEffect(MusicDataSet.EmptyCrateria, EnemySound.EtecoonTheme),
                 "an effect whose sample the bank context lacks fails loudly");
             Console.WriteLine(
                 "  Effect clip export: three effects equal an independent render; an effect its bank context cannot render fails loudly.");
@@ -85,7 +85,7 @@ internal static class AudioClipExportVerification
     /// </summary>
     private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track)
     {
-        MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(track));
+        MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, MusicTrackNumbers.Decode(track));
         _ = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
         short[] clip = clips.ReadClip(entry.Clip);
         long frames = entry.Clip.Frames;
@@ -124,7 +124,7 @@ internal static class AudioClipExportVerification
     {
         InstalledSoundEffectClip entry = clips.Manifest.SoundEffects.Single(candidate =>
             candidate.Context == MusicDataSet.GreenBrinstar && candidate.Sound == effect);
-        AssertEqual(effect == Library3Sound.SpeedBooster, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
+        AssertEqual(effect == RoomSound.SpeedBooster, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }
 
     /// <summary>An escaping clip path and a wrong manifest format version are each rejected.</summary>
@@ -161,7 +161,7 @@ internal static class AudioClipExportVerification
         byte voices,
         long frames)
     {
-        var events = new AudioEventSource(new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1));
+        var events = new AudioEventSource(new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus));
         var backend = new ManagedSpcAudioBackend(catalog);
         backend.Player.dsp.OutputVoices = voices;
         var observer = new StartObserver(backend.Player, started);

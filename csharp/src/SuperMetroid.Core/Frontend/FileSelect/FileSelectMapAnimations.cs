@@ -50,7 +50,7 @@ public sealed class FileSelectMapAnimations
     /// <summary>Replaces the installed highlight timing while retaining the menu-owned cycle state.</summary>
     internal void BindPalette(SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightCycle? cycle) => palette.Bind(cycle);
 
-    /// <summary>Advances the highlight cycle; returns the library-three sound request at the palette loop terminator.</summary>
+    /// <summary>Advances the highlight cycle; returns the room-library sound request at the palette loop terminator.</summary>
     /// <returns>True when the cycle wraps and the caller should queue MapPaletteLoop; this method does not enqueue audio itself.</returns>
     public bool StepPalette() => palette.Step();
 

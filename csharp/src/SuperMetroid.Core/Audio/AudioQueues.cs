@@ -126,7 +126,7 @@ public sealed class AudioQueues
         // two's request before the first ordinary dispatcher frame.
         _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
-        _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2));
+        _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies));
     }
 
     /// <summary>
@@ -153,14 +153,14 @@ public sealed class AudioQueues
         // LoadNewMusicTrackIfChanged then queues the room's selected track.
         bool changesMusicData = QueueRoomMusicData(music.DataSet);
         // A door into a room that inherits its track leaves the music alone. Most post-Ridley Ceres
-        // states deliberately inherit so track seven and its alarm bed continue through
+        // states deliberately inherit so the escape song and its alarm bed continue through
         // every door. Treating that as a request to stop replaced the live escape track at
         // the first transition.
         // The door compares the requested data set and track, not the track alone.
-        // A changed data set restarts the track even when both sets happen to use the same
-        // track number. The Ceres interstitial ends on the Zebes-explosion set's track 5;
-        // Landing Site requests the empty-Crateria set's track 5 and therefore must queue
-        // track 5 again after the load instead of leaving only the gunship-engine sound.
+        // A changed data set restarts the track even when both rooms ask for the same part of
+        // their sets. The Ceres interstitial ends on the Zebes-explosion set's first song;
+        // Landing Site requests the empty-Crateria set's first song and therefore must queue
+        // it again after the load instead of leaving only the gunship-engine sound.
         if (RoomTrackQueues(music.Track, changesMusicData))
             ScheduleMusic(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
@@ -236,9 +236,9 @@ public sealed class AudioQueues
     /// </summary>
     public void QueueCancelSoundEffects()
     {
-        QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Normal);
-        QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Normal);
-        QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Normal);
+        QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Normal);
+        QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Normal);
+        QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Queues <paramref name="request"/> and returns what the queue did with it (see the overload taking the request's parts).</summary>

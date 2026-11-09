@@ -21,13 +21,13 @@ public static class GrappleBeamDefinitions
     public static class Sounds
     {
         /// <summary>Stop the old beam before pose-change refiring.</summary>
-        public static readonly SoundRequest RestartStop = new(Library1Sound.GrappleEnd, SoundRequestPriority.Normal);
+        public static readonly SoundRequest RestartStop = new(SamusSound.GrappleEnd, SoundRequestPriority.Normal);
         /// <summary>Firing tail: start the extending beam, only into an idle queue.</summary>
-        public static readonly SoundRequest Fire = new(Library1Sound.GrappleStart, SoundRequestPriority.WhenIdle);
+        public static readonly SoundRequest Fire = new(SamusSound.GrappleStart, SoundRequestPriority.WhenIdle);
         /// <summary>Accepted-contact tail: attached beam sound.</summary>
-        public static readonly SoundRequest Attach = new(Library1Sound.Grappling, SoundRequestPriority.Normal);
+        public static readonly SoundRequest Attach = new(SamusSound.Grappling, SoundRequestPriority.Normal);
         /// <summary>Every grapple teardown: stop the active grapple sound, at essential priority.</summary>
-        public static readonly SoundRequest Stop = new(Library1Sound.GrappleEnd, SoundRequestPriority.Essential);
+        public static readonly SoundRequest Stop = new(SamusSound.GrappleEnd, SoundRequestPriority.Essential);
     }
     /// <summary>Angular-physics coefficients embedded in behavior.</summary>
     public static class Physics

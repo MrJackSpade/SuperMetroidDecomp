@@ -40,7 +40,7 @@ internal static class SoundAcceptanceClockVerification
     {
         var session = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var rendered = AudioQueues.Standalone();
-        SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> ports = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1);
+        SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> ports = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus);
         var modeled = AudioQueues.Standalone();
         var acknowledgementBytes = new List<byte>();
         using var pcm = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -59,9 +59,9 @@ internal static class SoundAcceptanceClockVerification
             {
                 if (command is AudioRequest.ChangeMusicDataSet && frame > 0)
                     uploadFrame = frame;
-                else if (command == AudioRequest.ForTrack(new MusicTrack(5)))
+                else if (command == AudioRequest.ForTrack(MusicTrack.FirstSetSong))
                     trackFrame = frame;
-                else if (command == new AudioRequest.RequestSound(Library3Sound.SpeedBooster))
+                else if (command == new AudioRequest.RequestSound(RoomSound.SpeedBooster))
                     downtimeRequestFrame = frame;
             }
 
@@ -92,10 +92,10 @@ internal static class SoundAcceptanceClockVerification
         // nothing until the dispatcher sends it once the eight downtime calls end.
         AssertSequenceEqual(new[]
             {
-                new SoundAcceptanceClockCase(3, Library1Sound.MenuCursor),
-                new SoundAcceptanceClockCase(5, Library2Sound.Silence),
-                new SoundAcceptanceClockCase(27, Library3Sound.SpeedBooster),
-                new SoundAcceptanceClockCase(39, Library3Sound.HardLanding),
+                new SoundAcceptanceClockCase(3, SamusSound.MenuCursor),
+                new SoundAcceptanceClockCase(5, EnemySound.Silence),
+                new SoundAcceptanceClockCase(27, RoomSound.SpeedBooster),
+                new SoundAcceptanceClockCase(39, RoomSound.HardLanding),
             }, starts.Select(start => new SoundAcceptanceClockCase(start.Frame, start.Start.SoundEffect)),
             "sound effects start only at the poll after the latch, and none during the music downtime");
         AssertTrue(!starts.Any(start => start.Frame > trackFrame && start.Frame <= trackFrame + AudioQueueDefinitions.MusicChangeSoundDowntimeCalls),
@@ -173,23 +173,23 @@ internal static class SoundAcceptanceClockVerification
         switch (frame)
         {
             case 2:
-                audio.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
                 break;
             case 4:
-                audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Normal);
                 break;
             case 10:
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));
-                audio.QueueMusic(MusicRequest.SelectTrack(5));
+                audio.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                 break;
             case 24:
                 // Sent on the first call after the upload's downtime, one call before the
                 // track select starts another downtime that zeroes the port again.
-                audio.QueueSound(Library3Sound.SpeedBooster, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(RoomSound.SpeedBooster, priority: SoundRequestPriority.Normal);
                 break;
             case 30:
                 // Queued during the track select's downtime; sent once it ends.
-                audio.QueueSound(Library3Sound.HardLanding, priority: SoundRequestPriority.Normal);
+                audio.QueueSound(RoomSound.HardLanding, priority: SoundRequestPriority.Normal);
                 break;
             default:
                 break;

@@ -40,7 +40,7 @@ internal static class RoomEnemyDefinitionImporterAccess
                 Damage: Word(6),
                 Radius: new Extent16<RoomPixels>(Word(8), Word(10)),
                 HurtFlashFrames: HurtFlashFrames(Byte(13)),
-                HurtSoundEffect: SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)),
+                HurtSoundEffect: SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, Word(14)),
                 Boss: AreaBossWords.Decode(Word(16)),
                 InitializationAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(18)),
                 MainAi: EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),

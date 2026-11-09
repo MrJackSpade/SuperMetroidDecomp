@@ -43,8 +43,8 @@ internal static class BabyMetroidDeathCryVerification
                 $"Fatal blow blacks out only native background colors: {index}");
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "Fatal transition emits exactly one death cry");
         var request = enemies.Audio.SoundRequests.Single();
-        AssertEqual(SoundEffectLibrary.Library3, request.SoundEffect.Library, "Death cry belongs to library three");
-        AssertEqual<SoundEffectId>(Library3Sound.BabyMetroidDeath, request.SoundEffect, "Death cry is the Baby Metroid's death (native sequence 19)");
+        AssertEqual(SoundEffectLibrary.Room, request.SoundEffect.Library, "Death cry belongs to library three");
+        AssertEqual<SoundEffectId>(RoomSound.BabyMetroidDeath, request.SoundEffect, "Death cry is the Baby Metroid's death (native sequence 19)");
         AssertEqual(SoundRequestPriority.Normal, request.Priority, "Death cry is requested at normal priority");
         for (int frame = 0; frame < 3; frame++)
         {
@@ -80,7 +80,7 @@ internal static class BabyMetroidDeathCryVerification
             starts.AddRange(renderer.Advance(audio.AdvanceFrame(renderer.Acknowledgements))
                 .OfType<AudioEvent.StartSoundEffect>().Select(audioEvent => audioEvent.SoundEffect));
         AssertEqual(1, starts.Count(sound => sound == request.SoundEffect), "SPC receives exactly one library-three death cry");
-        AssertEqual(0, starts.Count(sound => sound.Library != SoundEffectLibrary.Library3), "Death cry never reaches the wrong library");
+        AssertEqual(0, starts.Count(sound => sound.Library != SoundEffectLibrary.Room), "Death cry never reaches the wrong library");
         Console.WriteLine("Baby Metroid fatal blow: exact 28-color blackout, seven cartridge recovery rows, untouched sprite palettes, one-shot death cry and SPC publication passed.");
         return 0;
 

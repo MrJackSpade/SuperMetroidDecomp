@@ -115,10 +115,10 @@ public sealed class SamusXrayState
     /// <summary>The shared five-frame palette cadence timer.</summary>
     public int CommonPaletteTimer { get; private set; }
 
-    /// <summary>Set by command five when sound-library-one effect nine would be queued.</summary>
+    /// <summary>Set by command five when the scope's start sound would be queued.</summary>
     public bool ActivationSoundRequested { get; private set; }
 
-    /// <summary>Set by state five when sound-library-one effect ten would be queued.</summary>
+    /// <summary>Set by state five when the scope's end sound would be queued.</summary>
     public bool DeactivationSoundRequested { get; private set; }
 
     /// <summary>Consumes visor startup's normal-priority sound request.</summary>

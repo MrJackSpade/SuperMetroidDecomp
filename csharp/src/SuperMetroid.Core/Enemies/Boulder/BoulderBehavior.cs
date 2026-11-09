@@ -37,11 +37,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Room-graphics dust animation selected by terminal impacts.</summary>
     private const MiscDustAnimation BoulderDustAnimationIndex = MiscDustAnimation.RockParticles;
 
-    /// <summary>The library-two sound queued when a falling or rolling boulder hits terrain.</summary>
+    /// <summary>The enemy-library sound queued when a falling or rolling boulder hits terrain.</summary>
     private static readonly SoundEffectId BoulderImpactSound =
         EnemySoundEffectDefinitions.BoulderImpactSound;
 
-    /// <summary>The library-two sound that replaces the impact sound when the boulder breaks into dust.</summary>
+    /// <summary>The enemy-library sound that replaces the impact sound when the boulder breaks into dust.</summary>
     private static readonly SoundEffectId BoulderBreakSound =
         EnemySoundEffectDefinitions.BoulderBreakSound;
 

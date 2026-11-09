@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Audio;
 public static class SoundEffectLibraries
 {
     /// <summary>
-    /// The libraries in queue order: library one, two, three. Each sound clock request check serves them in this order,
-    /// and each library's sound queue and clip state is kept at its position in it.
+    /// The libraries in queue order: Samus's, the enemies', the room's. Each sound clock request check serves them in
+    /// this order, and each library's sound queue and clip state is kept at its position in it.
     /// </summary>
     public static ImmutableArray<SoundEffectLibrary> InQueueOrder { get; } =
-        [SoundEffectLibrary.Library1, SoundEffectLibrary.Library2, SoundEffectLibrary.Library3];
+        [SoundEffectLibrary.Samus, SoundEffectLibrary.Enemies, SoundEffectLibrary.Room];
 
     /// <summary>The number of sound-effect libraries, each with its own request queue.</summary>
     public static int Count => InQueueOrder.Length;

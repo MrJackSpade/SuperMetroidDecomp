@@ -49,14 +49,14 @@ internal static class SpcDriverMemoryVerification
         // Requests are sounds of their library: a library the clock was not given is rejected, a sound asks its own
         // library for it, none withdraws the library's request, and another library's sound is refused.
         var clock = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(
-            [SoundEffectLibrary.Library1, SoundEffectLibrary.Library2], SoundEffectLibrary.Library1);
-        clock.Request(SoundEffectLibrary.Library2, Library2Sound.SmallEnergyPickup);
-        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundEffectLibrary.Library3, null), "a library the clock was not given is rejected");
-        AssertEqual(new AudioRequest.RequestSound(Library2Sound.SmallEnergyPickup),
-            AudioRequest.ForSound(SoundEffectLibrary.Library2, Library2Sound.SmallEnergyPickup), "a sound requests that sound of its library");
-        AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2),
-            AudioRequest.ForSound(SoundEffectLibrary.Library2, null), "no sound withdraws the library's request");
-        AssertThrows<ArgumentException>(() => AudioRequest.ForSound(SoundEffectLibrary.Library2, Library1Sound.Silence),
+            [SoundEffectLibrary.Samus, SoundEffectLibrary.Enemies], SoundEffectLibrary.Samus);
+        clock.Request(SoundEffectLibrary.Enemies, EnemySound.SmallEnergyPickup);
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundEffectLibrary.Room, null), "a library the clock was not given is rejected");
+        AssertEqual(new AudioRequest.RequestSound(EnemySound.SmallEnergyPickup),
+            AudioRequest.ForSound(SoundEffectLibrary.Enemies, EnemySound.SmallEnergyPickup), "a sound requests that sound of its library");
+        AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies),
+            AudioRequest.ForSound(SoundEffectLibrary.Enemies, null), "no sound withdraws the library's request");
+        AssertThrows<ArgumentException>(() => AudioRequest.ForSound(SoundEffectLibrary.Enemies, SamusSound.Silence),
             "another library's sound is refused");
     }
 

@@ -192,7 +192,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // the gunship top's main behaviour; this periodic producer continues while the ship is idling/bobbing.
         if (--Part(bottom).EngineSoundTimer <= 0)
         {
-            _audio.QueueEnemySound(Library2Sound.GunshipHover, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySound.GunshipHover, priority: SoundRequestPriority.Normal);
             Part(bottom).EngineSoundTimer = 70;
         }
 
@@ -338,7 +338,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadOpened;
-        _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Raises Samus from the landed ship and closes its pad at the exit height.</summary>
@@ -433,7 +433,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
             Part(top).FunctionTimer = 144;
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
-            _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         }
     }
 
@@ -508,7 +508,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.ExitPadClosing;
-        _audio.QueueEnemySound(Library3Sound.GunshipPadClosing, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(RoomSound.GunshipPadClosing, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>

@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The definition data of Mother Brain's death and the escape it starts: the escape door and the subtitle.</summary>
 public static class MotherBrainDeathDefinitions
 {
-    /// <summary>The music track the escape starts.</summary>
-    public const int EscapeMusicTrack = 7;
+    /// <summary>The escape's song, the boss data set's third own song.</summary>
+    public const MusicTrack EscapeMusicTrack = MusicTrack.ThirdSetSong;
 
     /// <summary>The updates an escape-door fragment lives, counted through signed underflow.</summary>
     public const int DoorFragmentLifetime = 32;

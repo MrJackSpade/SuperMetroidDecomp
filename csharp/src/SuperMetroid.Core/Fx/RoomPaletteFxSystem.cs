@@ -329,7 +329,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                 samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
             {
                 soundRequests.Add(new SoundRequest(
-                    Library3Sound.IncrementalEnergy,
+                    RoomSound.IncrementalEnergy,
                     PaletteFxHeatData.DamageSoundPriority,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
             }
@@ -391,10 +391,10 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
             case PaletteFxCue.SetHeatPaletteIndex setHeatPaletteIndex:
                 _session.SamusInHeatPaletteIndex = setHeatPaletteIndex.HeatPhase;
                 return;
-            case PaletteFxCue.QueueSoundLibrary2 queueSoundLibrary2:
+            case PaletteFxCue.QueueSound queueSound:
                 soundRequests.Add(new SoundRequest(
-                    queueSoundLibrary2.Sound ?? throw new InvalidDataException(
-                        $"Palette-FX object {slot.Object} queued a library-2 sound cue without a sound."),
+                    queueSound.Sound ?? throw new InvalidDataException(
+                        $"Palette-FX object {slot.Object} queued a sound cue without a sound."),
                     PaletteFxSoundPriorities.InstructionSound,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
                 return;

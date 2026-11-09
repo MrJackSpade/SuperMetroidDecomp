@@ -10,7 +10,7 @@ internal sealed class PortDrivenSpcPlayer
 {
     /// <summary>The clock that schedules this player's ticks and request checks: the game's libraries in queue order, library one reporting a music load.</summary>
     private readonly SoundAcceptanceClock<SoundEffectLibrary, byte> clock =
-        new(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1);
+        new(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus);
 
     /// <summary>The byte the original library-one port held while new music loaded.</summary>
     private const byte MusicLoadByte = 187;

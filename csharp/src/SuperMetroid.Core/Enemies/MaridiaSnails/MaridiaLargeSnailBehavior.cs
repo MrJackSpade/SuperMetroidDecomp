@@ -57,10 +57,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Speed-table index removed at each floor impact.</summary>
     private const int MaridiaLargeSnailImpactIndexLoss = 4096;
 
-    /// <summary>Library-two sound queued by Oum's attack splash.</summary>
+    /// <summary>Enemy-library sound queued by Oum's attack splash.</summary>
     private static readonly SoundEffectId MaridiaLargeSnailSplashSound =
         EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound;
-    /// <summary>Library-two sound queued after a shot hits Oum.</summary>
+    /// <summary>Enemy-library sound queued after a shot hits Oum.</summary>
     private static readonly SoundEffectId MaridiaLargeSnailShotSound =
         EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
 

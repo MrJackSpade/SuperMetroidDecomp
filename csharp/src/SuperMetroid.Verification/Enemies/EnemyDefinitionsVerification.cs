@@ -191,7 +191,7 @@ internal static class EnemyDefinitionsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         return new RoomEnemyDefinition(
             Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
-            SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)), AreaBossWords.Decode(Word(16)),
+            SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, Word(14)), AreaBossWords.Decode(Word(16)),
             EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
             GrappleAiRoutineWords.Routines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),

@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Every sound of the first sound-effect library: Samus's beams, missiles, grapple and spins, the X-ray scope, and the
-/// menu and map sounds. The library is its own voice queue: its sounds interrupt one another and never those of the
-/// other two libraries.
+/// Every sound of Samus's library (<see cref="SoundEffectLibrary.Samus"/>): Samus's beams, missiles, grapple and spins,
+/// the X-ray scope, and the menu and map sounds. The library is its own voice queue: its sounds interrupt one another
+/// and never those of the enemies' or the room's library.
 /// </summary>
 /// <remarks>
 /// Members are identities. Their values are arbitrary and nothing reads them; the import pipeline alone knows which
 /// request each member is in the installed sound program.
 /// </remarks>
-public enum Library1Sound
+public enum SamusSound
 {
     /// <summary>A Power Bomb explosion; it interrupts any sound of the library.</summary>
     PowerBombExplosion,

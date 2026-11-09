@@ -57,7 +57,7 @@ internal static class GrappleDoorsVerification
             {
                 roomObjects.Step(level);
                 heardOpening |= roomObjects.Sounds.SoundRequests.Any(r => r == new SoundRequest(
-                    Library3Sound.DoorOpened, SoundRequestPriority.Normal));
+                    RoomSound.DoorOpened, SoundRequestPriority.Normal));
             }
             AssertTrue(heardOpening, "grapple-opened blue door emits its native opening sound");
             for (int offset = 0; offset < 4; offset++)

@@ -32,7 +32,7 @@ public abstract record AudioEvent
     public sealed record SelectMusicTrack(MusicTrack? Track) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => Track is MusicTrack track ? $"music:{track.Number}" : "music:stop";
+        public override string ToString() => Track is MusicTrack track ? $"music:{track}" : "music:stop";
     }
 
     /// <summary>One step of the sound acceptance clock at its sample offset within the update.</summary>

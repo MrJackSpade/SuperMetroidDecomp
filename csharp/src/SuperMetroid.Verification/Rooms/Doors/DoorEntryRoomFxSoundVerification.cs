@@ -81,9 +81,9 @@ internal static class DoorEntryRoomFxSoundVerification
 
         AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
             "the entry frame begins the door sound wait");
-        AssertEqual<SoundEffectId?>(Library2Sound.Lavaquake, audio.SoundQueueEntryForVerification(1, start),
+        AssertEqual<SoundEffectId?>(EnemySound.Lavaquake, audio.SoundQueueEntryForVerification(1, start),
             "the HDMA pass's rumble is queued first");
-        AssertEqual<SoundEffectId?>(Library2Sound.Silence, audio.SoundQueueEntryForVerification(1, (start + 1) & 0x0f),
+        AssertEqual<SoundEffectId?>(EnemySound.Silence, audio.SoundQueueEntryForVerification(1, (start + 1) & 0x0f),
             "the door's library-two cancel follows it");
         Console.WriteLine("Door entry room-FX sound: the entry frame's rumble precedes the door's cancel and DisableSounds.");
     }

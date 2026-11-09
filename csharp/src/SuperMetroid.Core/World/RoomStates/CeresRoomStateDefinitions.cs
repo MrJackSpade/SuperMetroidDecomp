@@ -9,7 +9,7 @@ public static class CeresRoomStateDefinitions
 
     /// <summary>The Ceres Elev room's state 0.</summary>
     public static RoomStateSettings CeresElevDefault { get; } =
-        new(nameof(CeresElevDefault), RoomLevelDefinitions.CeresElev, 17, new RoomMusic(MusicDataSet.Ceres, RoomMusicTrack.Plays(6)), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresElev, RoomEnemyPopulationDefinitions.CeresElevDefault, Enemies.RoomEnemyGraphicsSetDefinitions.CeresElevDefault, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.CeresElevatorShaft, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresElev, RoomSetupCallback.SpawnCeresHaze);
+        new(nameof(CeresElevDefault), RoomLevelDefinitions.CeresElev, 17, new RoomMusic(MusicDataSet.Ceres, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.CeresElev, RoomEnemyPopulationDefinitions.CeresElevDefault, Enemies.RoomEnemyGraphicsSetDefinitions.CeresElevDefault, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(0, 0), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.CeresElevatorShaft, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresElev, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresElev, RoomSetupCallback.SpawnCeresHaze);
 
 
     /// <summary>The Ceres Elev room's state 1.</summary>

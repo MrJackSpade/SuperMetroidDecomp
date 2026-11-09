@@ -207,7 +207,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // legacy one-value family field here collapsed a room full of attached actors
             // into one request and erased the game's sound-backlog processing delay.
             if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
-                _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
+                _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
             if (state.HasReachedDamagePeriod(MochtroidAttachmentDamagePeriod))
             {

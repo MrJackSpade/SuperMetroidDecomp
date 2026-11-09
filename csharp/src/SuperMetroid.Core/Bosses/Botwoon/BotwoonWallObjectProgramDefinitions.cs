@@ -14,8 +14,8 @@ internal static class BotwoonWallObjectProgramDefinitions
     internal const int CrumbleRows = 9;
     /// <summary>Updates each crumble frame lasts.</summary>
     internal const int CrumbleFrameDuration = 4;
-    /// <summary>The sound each crumbled row queues: library two sound ten.</summary>
-    internal static SoundEffectId CrumbleSound { get; } = Library2Sound.BlockCrumble;
+    /// <summary>The sound each crumbled row queues.</summary>
+    internal static SoundEffectId CrumbleSound { get; } = EnemySound.BlockCrumble;
     /// <summary>The crumble sound's request priority.</summary>
     internal static readonly SoundRequestPriority CrumbleSoundPriority = SoundRequestPriority.Normal;
 

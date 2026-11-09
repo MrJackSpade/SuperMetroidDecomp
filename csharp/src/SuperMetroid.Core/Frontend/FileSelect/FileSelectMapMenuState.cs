@@ -141,20 +141,20 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
-            if (animations.StepPalette()) Queue(Library3Sound.PauseBeep);
+            if (animations.StepPalette()) Queue(RoomSound.PauseBeep);
             marker.Step();
             markerDrawn = true;
         }
         if (before == FileSelectMapNavigationPhase.Room && Scroll.Step(input))
-            Queue(Library1Sound.MapScroll);
+            Queue(SamusSound.MapScroll);
         navigation.Step(input);
         if (Phase != before)
         {
             pendingFrames = 0;
             if (Phase is FileSelectMapNavigationPhase.PreparingWindow or FileSelectMapNavigationPhase.LoadRequested)
-                Queue(Library1Sound.MenuConfirm);
-            if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(Library1Sound.MapExpand);
-            if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested) Queue(Library1Sound.MapReturn);
+                Queue(SamusSound.MenuConfirm);
+            if (Phase == FileSelectMapNavigationPhase.ExpandingWindow) Queue(SamusSound.MapExpand);
+            if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested) Queue(SamusSound.MapReturn);
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 Scroll = CreateScrollForCurrentContent();
@@ -171,7 +171,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 if (returnWindow is null)
                 {
                     returnWindow = FileSelectMapWindow.CreateReturn(area, mapPresentation?.Labels);
-                    Queue(Library1Sound.MapReturn);
+                    Queue(SamusSound.MapReturn);
                 }
                 else if (returnWindow.Step())
                 {

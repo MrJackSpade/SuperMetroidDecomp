@@ -9,11 +9,11 @@ public sealed class SamusHealthWarningState
     /// <summary>The request priority of the warning's start and stop sounds.</summary>
     private static readonly SoundRequestPriority WarningSoundPriority = SoundRequestPriority.Normal;
 
-    /// <summary>The library-three sound that starts the critical-energy warning.</summary>
-    private static readonly SoundEffectId Start = Library3Sound.LowHealthBeep;
+    /// <summary>The room-library sound that starts the critical-energy warning.</summary>
+    private static readonly SoundEffectId Start = RoomSound.LowHealthBeep;
 
-    /// <summary>The library-three sound that stops the critical-energy warning.</summary>
-    private static readonly SoundEffectId Stop = Library3Sound.Silence;
+    /// <summary>The room-library sound that stops the critical-energy warning.</summary>
+    private static readonly SoundEffectId Stop = RoomSound.Silence;
 
     /// <summary>The latch, not confirmation that a sound voice actually started.</summary>
     public bool IsActive { get; private set; }

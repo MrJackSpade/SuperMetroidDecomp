@@ -321,9 +321,9 @@ internal sealed class MotherBrainRainbowAndDeath
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain);
         if (current.ChargeSoundQueued || current.FinalBeamSoundQueued)
-            _motherBrainEncounter.RequestBodySound(Library2Sound.Silence);
+            _motherBrainEncounter.RequestBodySound(EnemySound.Silence);
         if (current.Explosion is not null)
-            _motherBrainEncounter.RequestBodySound(Library2Sound.SmallExplosion);
+            _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
 
         // The rainbow start seeds the short quake, the drain start replaces it with the full drain duration,
         // and the finish clears it when the beam contracts below its minimum width.

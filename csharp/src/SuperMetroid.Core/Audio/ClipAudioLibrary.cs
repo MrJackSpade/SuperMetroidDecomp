@@ -62,7 +62,7 @@ public abstract class ClipAudioLibrary
     /// <summary>The song <paramref name="track"/> in <paramref name="clipSet"/>'s clip set.</summary>
     /// <exception cref="KeyNotFoundException">The clip set has no such song.</exception>
     public MusicClipEntry GetMusic(MusicDataSet clipSet, MusicTrack track) =>
-        music.TryGetValue(new MusicTrackKey(clipSet, track.Number), out MusicClipEntry? entry)
+        music.TryGetValue(new MusicTrackKey(clipSet, track), out MusicClipEntry? entry)
             ? entry
             : throw new KeyNotFoundException($"No song for {clipSet} {track}.");
 

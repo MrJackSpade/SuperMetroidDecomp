@@ -21,6 +21,6 @@ public enum BotwoonEnemyFunction
     HeadFalling,
     /// <summary>Waits for the final body point's landing flag before requesting drops and wall crumbling.</summary>
     WaitForBody,
-    /// <summary>Runs the 192-update wall-explosion phase, then deletes the head, sets the miniboss bit, and queues track three.</summary>
+    /// <summary>Runs the 192-update wall-explosion phase, then deletes the head, sets the miniboss bit, and queues the elevator song.</summary>
     WallExplosions,
 }

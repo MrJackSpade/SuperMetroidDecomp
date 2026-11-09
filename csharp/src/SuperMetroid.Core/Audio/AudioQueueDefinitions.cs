@@ -18,6 +18,6 @@ public static class AudioQueueDefinitions
     /// <summary>Music-handler calls a permanent item's fanfare plays before the queued stop; the room's track follows eight calls later.</summary>
     public const int PermanentItemFanfareFrames = 360;
 
-    /// <summary>The track of the loaded data set a permanent item's fanfare plays.</summary>
-    public const int PermanentItemTrack = 2;
+    /// <summary>The song a permanent item's fanfare plays.</summary>
+    public const MusicTrack PermanentItemTrack = MusicTrack.ItemFanfare;
 }

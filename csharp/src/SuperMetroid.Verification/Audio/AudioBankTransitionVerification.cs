@@ -54,10 +54,10 @@ internal static class AudioBankTransitionVerification
             var renderer = AudioSessionAccess.CreateSynthesizing(assets);
             renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(null)]);
             renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(bank.DataSet)]);
-            renderer.RenderFrame([AudioRequest.ForTrack(new MusicTrack(5))]);
+            renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
             for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
             renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.LastMetroidInCaptivity)]);
-            renderer.RenderFrame([AudioRequest.ForTrack(new MusicTrack(5))]);
+            renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
             bool audible = false;
             for (int frame = 0; frame < 600; frame++)
                 audible |= renderer.RenderFrame([]).Any(sample => sample != 0);

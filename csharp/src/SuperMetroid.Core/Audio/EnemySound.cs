@@ -1,15 +1,16 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Every sound of the second sound-effect library: pickups, impacts and explosions, blocks, water and lava, stations,
-/// and the enemies' and bosses' sounds. The library is its own voice queue: its sounds interrupt one another and never
-/// those of the other two libraries.
+/// Every sound of the enemies' library (<see cref="SoundEffectLibrary.Enemies"/>): the enemies' and bosses' cries,
+/// shots and attacks, the drops they leave and the impacts and explosions that kill them, and the blocks, water, lava
+/// and stations around them. The library is its own voice queue: its sounds interrupt one another and never those of
+/// Samus's or the room's library.
 /// </summary>
 /// <remarks>
 /// Members are identities. Their values are arbitrary and nothing reads them; the import pipeline alone knows which
 /// request each member is in the installed sound program.
 /// </remarks>
-public enum Library2Sound
+public enum EnemySound
 {
     /// <summary>A small energy drop collected; a high-priority sound.</summary>
     SmallEnergyPickup,

@@ -77,7 +77,7 @@ internal static class PauseReserveManualVerification
                 pause.Step(0, frame == 0 ? ControllerButton.A : 0);
                 // The shared pause palette loop also uses library three. Count
                 // refill identities, not unrelated requests in the same ring.
-                int refills = Enumerable.Range(0, positions[2]).Count(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Library3, 0x2d));
+                int refills = Enumerable.Range(0, positions[2]).Count(i => queues[2, i] == SoundEffectCommands.Decode(SoundEffectLibrary.Room, 0x2d));
                 AssertEqual(frame < 8 ? 1 : 2, refills, "refill sound published on transfer calls zero and eight");
                 AssertEqual(Math.Min(99, startingHealth + frame + 1), samus.Health, "manual energy progression");
                 if (frame == 0 && startingHealth == 20)

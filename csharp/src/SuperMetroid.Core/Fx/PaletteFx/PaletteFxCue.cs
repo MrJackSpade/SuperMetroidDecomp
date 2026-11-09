@@ -8,9 +8,9 @@ public abstract record PaletteFxCue
     {
     }
 
-    /// <summary>Queues a library-2 sound.</summary>
-    /// <param name="Sound">The library-2 sound a <see cref="QueueSoundLibrary2"/> cue queues.</param>
-    public sealed record QueueSoundLibrary2(SoundEffectId? Sound) : PaletteFxCue;
+    /// <summary>Queues a sound of the enemies' library.</summary>
+    /// <param name="Sound">The enemies'-library sound a <see cref="QueueSound"/> cue queues.</param>
+    public sealed record QueueSound(SoundEffectId? Sound) : PaletteFxCue;
 
     /// <summary>Later records write from these colours.</summary>
     /// <param name="Target">The colours a <see cref="SetColours"/> cue makes the object's later records colour.</param>

@@ -292,7 +292,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
                 if (Brightness == 0)
                 {
-                    // The cinematic transition queues track six before
+                    // The cinematic transition queues the immediate title song before
                     // rebuilding the immediate title objects.
                     audio?.QueueMusic(
                         MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));

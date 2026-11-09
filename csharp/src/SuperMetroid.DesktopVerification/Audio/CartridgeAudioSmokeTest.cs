@@ -12,7 +12,7 @@ public static class CartridgeAudioSmokeTest
 
         var queue = AudioQueues.Standalone();
         queue.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-        queue.QueueMusic(MusicRequest.SelectTrack(5));
+        queue.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
@@ -58,7 +58,7 @@ public static class CartridgeAudioSmokeTest
         // music out of this pass means any nonzero output belongs to the cartridge's actual
         // library-one power-beam program instead of merely proving that the mixer is alive.
         var soundQueue = AudioQueues.Standalone();
-        SoundEffectId powerBeam = SoundEffectCommands.Decode(SoundEffectLibrary.Library1, powerBeamSound);
+        SoundEffectId powerBeam = SoundEffectCommands.Decode(SoundEffectLibrary.Samus, powerBeamSound);
         soundQueue.QueueSound(powerBeam, priority: SoundRequestPriority.Essential);
         SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements = default;
         bool requestAcknowledged = false;
@@ -77,9 +77,9 @@ public static class CartridgeAudioSmokeTest
             }
 
             acknowledgements = soundEngine.Acknowledgements;
-            if (acknowledgements[SoundEffectLibrary.Library1].Acknowledges(powerBeam))
+            if (acknowledgements[SoundEffectLibrary.Samus].Acknowledges(powerBeam))
                 requestAcknowledged = true;
-            else if (requestAcknowledged && acknowledgements[SoundEffectLibrary.Library1].IsNone)
+            else if (requestAcknowledged && acknowledgements[SoundEffectLibrary.Samus].IsNone)
                 clearAcknowledgedAfterRequest = true;
         }
 

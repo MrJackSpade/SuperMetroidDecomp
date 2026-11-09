@@ -9,8 +9,8 @@ public static class EndingSequenceDefinitions
     /// <summary>The music the escape and ending sequences queue at their boundaries.</summary>
     public static class Music
     {
-        /// <summary>Track five, selected with both the escape and ending music sets.</summary>
-        public const int Track = 5;
+        /// <summary>The loaded set's first own song, selected with both the escape and ending music sets.</summary>
+        public const MusicTrack Track = MusicTrack.FirstSetSong;
 
         /// <summary>The delayed-music argument fourteen, which the music queue's delay conversion interprets rather than counting frames.</summary>
         public const int DelayArgument = 14;

@@ -633,7 +633,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         stationExplosion.Spawn(new(
             CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
             CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)));
-        audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
+        audio?.QueueSound(SuperMetroid.Core.Audio.SamusSound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
             new(CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),

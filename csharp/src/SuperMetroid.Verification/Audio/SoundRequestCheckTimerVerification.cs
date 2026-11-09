@@ -39,7 +39,7 @@ internal static class SoundRequestCheckTimerVerification
         AssertThrows<ArgumentOutOfRangeException>(() => SoundRequestCheckTimerConstants.FromPhase(SoundRequestCheckTimer.Period), "a phase must lie inside one period");
         AssertThrows<ArgumentOutOfRangeException>(() => SoundRequestCheckTimerConstants.FromPhase(0).Advance(-1), "a step cannot span negative periods");
 
-        SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> clock = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1);
+        SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> clock = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Samus);
         var schedule = new SoundClockStep<SoundEffectLibrary, SoundEffectId>[SoundClockTiming.MaximumStepsPerUpdate];
         int stepNumber = 0;
         int checks = 0;

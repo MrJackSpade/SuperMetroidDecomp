@@ -11,11 +11,11 @@ namespace SuperMetroid.AssetExtraction.Audio;
 internal static class SoundEffectCommands
 {
     /// <summary>Each library-one request's sound.</summary>
-    private static readonly FrozenDictionary<int, Library1Sound> Library1Sounds = Invert(SoundEffectCommandDefinitions.Library1);
+    private static readonly FrozenDictionary<int, SamusSound> Library1Sounds = Invert(SoundEffectCommandDefinitions.Library1);
     /// <summary>Each library-two request's sound.</summary>
-    private static readonly FrozenDictionary<int, Library2Sound> Library2Sounds = Invert(SoundEffectCommandDefinitions.Library2);
+    private static readonly FrozenDictionary<int, EnemySound> Library2Sounds = Invert(SoundEffectCommandDefinitions.Library2);
     /// <summary>Each library-three request's sound.</summary>
-    private static readonly FrozenDictionary<int, Library3Sound> Library3Sounds = Invert(SoundEffectCommandDefinitions.Library3);
+    private static readonly FrozenDictionary<int, RoomSound> Library3Sounds = Invert(SoundEffectCommandDefinitions.Library3);
 
     /// <summary>Each sound's request number in its own library.</summary>
     private static readonly FrozenDictionary<SoundEffectId, int> Commands =
@@ -35,9 +35,9 @@ internal static class SoundEffectCommands
     {
         SoundEffectId? sound = library switch
         {
-            SoundEffectLibrary.Library1 => Library1Sounds.TryGetValue(command, out Library1Sound one) ? (SoundEffectId)one : null,
-            SoundEffectLibrary.Library2 => Library2Sounds.TryGetValue(command, out Library2Sound two) ? (SoundEffectId)two : null,
-            SoundEffectLibrary.Library3 => Library3Sounds.TryGetValue(command, out Library3Sound three) ? (SoundEffectId)three : null,
+            SoundEffectLibrary.Samus => Library1Sounds.TryGetValue(command, out SamusSound one) ? (SoundEffectId)one : null,
+            SoundEffectLibrary.Enemies => Library2Sounds.TryGetValue(command, out EnemySound two) ? (SoundEffectId)two : null,
+            SoundEffectLibrary.Room => Library3Sounds.TryGetValue(command, out RoomSound three) ? (SoundEffectId)three : null,
             _ => throw new InvalidDataException($"Unknown sound-effect library {library}."),
         };
         return sound ?? throw new InvalidDataException($"{library} has no sound request ${command:X2}.");

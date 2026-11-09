@@ -310,7 +310,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
                 if (--timer <= 0)
                 {
-                    audio?.QueueMusic(MusicRequest.SelectTrack(5));
+                    audio?.QueueMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
                     timer = 200;
                 }
@@ -361,7 +361,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.WaitForPageOneMusicQueue:
-                // Track 5 scheduled fourteen updates ahead is the longest request issued by
+                // The scene song scheduled fourteen updates ahead is the longest request issued by
                 // page one's setup, so HasQueuedMusic becomes clear after fourteen update slots.
                 if (MusicQueueFinished())
                 {

@@ -194,7 +194,7 @@ public static class SamusAerialMovement
             samus.AnimationFrameTimer.IsAt(1) &&
             samus.AnimationFrame is 0 or 8)
         {
-            samus.LiquidPhysics.QueueMovementSound(Library1Sound.UnderwaterSpaceJump, priority: SoundRequestPriority.Normal);
+            samus.LiquidPhysics.QueueMovementSound(SamusSound.UnderwaterSpaceJump, priority: SoundRequestPriority.Normal);
         }
 
         // Screw Attack's damaging body is republished every eligible dry-air spin frame.

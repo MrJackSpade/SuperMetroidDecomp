@@ -39,12 +39,12 @@ internal static class GameplayAudioPublicationVerification
         SoundEffectId? acknowledgement = null;
         for (int frame = 0; frame < 128; frame++)
         {
-            foreach (var command in audio.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Library3], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement))))
+            foreach (var command in audio.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Room], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement))))
             {
                 bool recognized = false;
-                foreach (SoundEffectId? value in new SoundEffectId?[] { null, Library3Sound.SpeedBooster, Library3Sound.HardLanding, Library3Sound.Landing })
+                foreach (SoundEffectId? value in new SoundEffectId?[] { null, RoomSound.SpeedBooster, RoomSound.HardLanding, RoomSound.Landing })
                 {
-                    if (command != AudioRequest.ForSound(SoundEffectLibrary.Library3, value)) continue;
+                    if (command != AudioRequest.ForSound(SoundEffectLibrary.Room, value)) continue;
                     acknowledgement = value;
                     if (value is SoundEffectId sound) played.Add(sound);
                     recognized = true;
@@ -53,7 +53,7 @@ internal static class GameplayAudioPublicationVerification
                 AssertTrue(recognized, "publication emitted only expected library-three writes");
             }
         }
-        AssertTrue(played.SequenceEqual(new SoundEffectId[] { Library3Sound.HardLanding, Library3Sound.SpeedBooster, Library3Sound.Landing }),
+        AssertTrue(played.SequenceEqual(new SoundEffectId[] { RoomSound.HardLanding, RoomSound.SpeedBooster, RoomSound.Landing }),
             "earlier landing, echo, later landing play once in order across repeated flushes");
 
         samus.LiquidPhysics.BeginFrameSoundRequests();

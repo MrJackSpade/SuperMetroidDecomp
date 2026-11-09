@@ -23,11 +23,8 @@ internal sealed class ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram prog
     {
         switch (cue)
         {
-            case ScriptedRoomObjectCue.QueueSoundLibrary2Maximum3 queueSoundLibrary2Maximum3:
-                context.QueueSound(queueSoundLibrary2Maximum3.Sound, SoundRequestPriority.Low);
-                return null;
-            case ScriptedRoomObjectCue.QueueSoundLibrary2Maximum6 queueSoundLibrary2Maximum6:
-                context.QueueSound(queueSoundLibrary2Maximum6.Sound, SoundRequestPriority.Normal);
+            case ScriptedRoomObjectCue.QueueSound queueSound:
+                context.QueueSound(queueSound.Sound, queueSound.Priority);
                 return null;
             case ScriptedRoomObjectCue.InstallFrameBehavior installFrameBehavior:
                 slot.FrameBehavior = context.RoomObjects.ScriptedHooks.FrameBehavior(installFrameBehavior.FrameBehavior ?? throw new InvalidOperationException(

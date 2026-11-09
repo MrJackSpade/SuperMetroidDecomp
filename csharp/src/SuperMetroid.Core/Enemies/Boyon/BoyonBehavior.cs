@@ -43,7 +43,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>The library-two sound the start-bounce cue queues.</summary>
+    /// <summary>The enemy-library sound the start-bounce cue queues.</summary>
     private static readonly SoundEffectId BoyonBounceSound =
         EnemySoundEffectDefinitions.BoyonBounceSound;
 
@@ -208,7 +208,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>The bounce cue: permit the arc and request sound 14.</summary>
+    /// <summary>The bounce cue: permit the arc and request the bounce sound.</summary>
     private void StartBoyonBounce(BoyonEnemyState state)
     {
         state.BounceDisabled = false;

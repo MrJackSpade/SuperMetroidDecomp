@@ -4,7 +4,7 @@ namespace SuperMetroid.Verification.Enemies.Cacatac;
 internal static class CacatacNativeValues
 {
     /// <summary>Library-two sound $34, which <c>Instruction_Cacatac_PlaySpikesSFX</c> at $A2:9F2A queues.</summary>
-    internal static readonly SoundEffectId SpikeSound = Library2Sound.CacatacSpikes;
+    internal static readonly SoundEffectId SpikeSound = EnemySound.CacatacSpikes;
 
     /// <summary>A parameter one whose nonzero high byte makes <c>InitAI_Cacatac</c> start upright, with direction zero (left).</summary>
     internal const ushort UpsideUpParameter = 0x0100;

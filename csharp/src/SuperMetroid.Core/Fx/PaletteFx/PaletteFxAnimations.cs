@@ -1046,7 +1046,7 @@ public static class PaletteFxAnimations
             Show(427, 10),
             Show(428, 10),
             Show(429, 10),
-            Cue(new PaletteFxCue.QueueSoundLibrary2(Sound: Library2Sound.Beacon)),
+            Cue(new PaletteFxCue.QueueSound(Sound: EnemySound.Beacon)),
             Show(430, 10),
             Show(431, 10),
             Show(432, 10),

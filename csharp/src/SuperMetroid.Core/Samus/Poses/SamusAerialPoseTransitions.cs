@@ -322,7 +322,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
         // A triggered wall jump queues the landing sound with a
         // six-entry threshold after clearing the base-speed words and before pose setup.
-        samus.LiquidPhysics.QueueMovementSound(Library3Sound.Landing, priority: SoundRequestPriority.Normal);
+        samus.LiquidPhysics.QueueMovementSound(RoomSound.Landing, priority: SoundRequestPriority.Normal);
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);
@@ -361,7 +361,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.HorizontalSpeed.BaseSpeed = default;
 
-        // Uses generic QueueSound: library one, sound seven, maximum fifteen.
+        // Queues the grapple's end sound at essential priority.
         // It also tears down the active beam flare so the wall-jump's charged-contact path
         // cannot inherit charge accumulated before grapple became active.
         samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.Priority);
@@ -735,17 +735,17 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
         {
             if (start != SpinPoseStart.SkipFirstFrame)
-                samus.LiquidPhysics.QueueMovementSound(Library1Sound.ScrewAttack, priority: SoundRequestPriority.Normal);
+                samus.LiquidPhysics.QueueMovementSound(SamusSound.ScrewAttack, priority: SoundRequestPriority.Normal);
             return facingLeft ? SamusPoseId.ScrewAttackLeftPose : SamusPoseId.ScrewAttackRightPose;
         }
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump))
         {
             // Unlike ordinary/Screw Attack spins, the game also queues this on reversal.
-            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpaceJump, priority: SoundRequestPriority.Normal);
+            samus.LiquidPhysics.QueueMovementSound(SamusSound.SpaceJump, priority: SoundRequestPriority.Normal);
             return facingLeft ? SamusPoseId.SpaceJumpLeftPose : SamusPoseId.SpaceJumpRightPose;
         }
         if (start != SpinPoseStart.SkipFirstFrame && !samus.LiquidPhysics.CinematicFunctionActive)
-            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpinJump, priority: SoundRequestPriority.Normal);
+            samus.LiquidPhysics.QueueMovementSound(SamusSound.SpinJump, priority: SoundRequestPriority.Normal);
         return genericPose;
     }
 

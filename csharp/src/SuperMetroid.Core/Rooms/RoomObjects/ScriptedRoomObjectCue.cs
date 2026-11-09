@@ -12,13 +12,10 @@ internal abstract record ScriptedRoomObjectCue
     /// <param name="FrameBehavior">The pre-instruction an install cue installs.</param>
     internal sealed record InstallFrameBehavior(ScriptedRoomObjectFrameBehavior? FrameBehavior) : ScriptedRoomObjectCue;
 
-    /// <summary>Queues a library-2 sound, at most three pending.</summary>
-    /// <param name="Sound">The library-2 sound a queue cue plays.</param>
-    internal sealed record QueueSoundLibrary2Maximum3(SoundEffectId Sound) : ScriptedRoomObjectCue;
-
-    /// <summary>Queues a library-2 sound, at most six pending.</summary>
-    /// <param name="Sound">The library-2 sound a queue cue plays.</param>
-    internal sealed record QueueSoundLibrary2Maximum6(SoundEffectId Sound) : ScriptedRoomObjectCue;
+    /// <summary>Queues a sound at its priority.</summary>
+    /// <param name="Sound">The sound a queue cue plays.</param>
+    /// <param name="Priority">How crowded the sound's queue may be for the cue's request to join it.</param>
+    internal sealed record QueueSound(SoundEffectId Sound, SoundRequestPriority Priority) : ScriptedRoomObjectCue;
 
     /// <summary>A cue that carries no operand.</summary>
     /// <param name="Kind">What the cue does.</param>

@@ -39,8 +39,8 @@ internal static class SamusRunningCadenceDefinitions
     internal const int MaximumSoundQueueSelection = 5;
 
     /// <summary>
-    /// The selection a rejected echo leaves: the queue request reports the rejected sound itself where an admitted
-    /// request reports the occupancy, and the Speed Booster echo is library three's third sound.
+    /// The selection a rejected echo leaves: the queue request reports the rejected request itself where an admitted
+    /// request reports the occupancy, and the Speed Booster echo's request selects cadence three.
     /// </summary>
     internal const int RejectedEchoSelection = 3;
 }

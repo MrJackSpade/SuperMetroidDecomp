@@ -73,13 +73,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>X speed of leftward teaching runs.</summary>
     private static readonly SignedSixteenSixteen EtecoonLeftVelocity = SignedSixteenSixteen.FromParts(-2, 0);
 
-    /// <summary>Library-two sound queued when an Etecoon wakes near Samus.</summary>
+    /// <summary>Enemy-library sound queued when an Etecoon wakes near Samus.</summary>
     private static readonly SoundEffectId EtecoonWakeSound =
         EnemySoundEffectDefinitions.EtecoonWakeSound;
-    /// <summary>Library-two sound queued at an audible teaching hop.</summary>
+    /// <summary>Enemy-library sound queued at an audible teaching hop.</summary>
     private static readonly SoundEffectId EtecoonJumpSound =
         EnemySoundEffectDefinitions.EtecoonJumpSound;
-    /// <summary>Library-two sound queued when an airborne Etecoon meets a wall.</summary>
+    /// <summary>Enemy-library sound queued when an airborne Etecoon meets a wall.</summary>
     private static readonly SoundEffectId EtecoonWallSound =
         EnemySoundEffectDefinitions.EtecoonWallSound;
 

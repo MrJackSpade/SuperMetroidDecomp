@@ -15,7 +15,7 @@ internal static class DoorObjectNativeProgramOracle
 {
     /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
     internal static SoundEffectId QueuedLibrary3Sound(IImportCartridgeSource cartridge, int cursor) =>
-        SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2));
+        SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2));
 
     /// <summary>A door sound as its cue: the open or the close sound.</summary>
     internal static TCue DoorSoundCue<TCue>(SoundEffectId sound, TCue open, TCue close) =>

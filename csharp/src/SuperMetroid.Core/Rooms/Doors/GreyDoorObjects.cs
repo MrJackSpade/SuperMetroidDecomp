@@ -80,7 +80,7 @@ internal sealed class GreyDoorObjects : IRoomObjectFamilySource
     private void PlayDudSoundIfShot(RoomObjectSlot slot)
     {
         if (slot.ProjectileHit is not null)
-            _sounds.Queue(Library2Sound.DudShotOnDoor, Priority: DudSoundPriority);
+            _sounds.Queue(EnemySound.DudShotOnDoor, Priority: DudSoundPriority);
         slot.ProjectileHit = null;
     }
 

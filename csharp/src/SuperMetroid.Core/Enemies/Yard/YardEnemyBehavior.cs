@@ -670,7 +670,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             context => ResolveYardTouch(context.Slot, context.Slot.RequireSpeciesState<YardEnemyState>(), context.Samus, context.ControllerInput));
     }
 
-    /// <summary>The library-two sound queued by a Yard shell kick, launch or wall bounce.</summary>
+    /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =
         EnemySoundEffectDefinitions.YardBounceSound;
 }

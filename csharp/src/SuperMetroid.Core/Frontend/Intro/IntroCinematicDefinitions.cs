@@ -49,8 +49,8 @@ public static class IntroCinematicDefinitions
     /// <summary>The music the opening's scene changes start.</summary>
     public static class Music
     {
-        /// <summary>The track each loaded cinematic music set starts.</summary>
-        public const int SceneTrack = 5;
+        /// <summary>The song each loaded cinematic music set starts: its first own song.</summary>
+        public const MusicTrack SceneTrack = MusicTrack.FirstSetSong;
         /// <summary>The queue delay the scene track is requested with.</summary>
         public const int SceneTrackDelay = 14;
         /// <summary>The countdown before the discovery scene's music begins.</summary>
@@ -72,11 +72,11 @@ public static class IntroCinematicDefinitions
         /// <summary>The queue limit the opening's sounds are requested under.</summary>
         public static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
         /// <summary>The Baby Metroid's first cry.</summary>
-        public static readonly SoundEffectId BabyCry1 = Library3Sound.BabyMetroidCry1;
+        public static readonly SoundEffectId BabyCry1 = RoomSound.BabyMetroidCry1;
         /// <summary>The typewriter sound while narration characters appear.</summary>
-        public static readonly SoundEffectId Typewriter = Library3Sound.IntroTypewriter;
+        public static readonly SoundEffectId Typewriter = RoomSound.IntroTypewriter;
         /// <summary>The sound of the Baby Metroid hatching.</summary>
-        public static readonly SoundEffectId EggHatch = Library2Sound.ContactKill;
+        public static readonly SoundEffectId EggHatch = EnemySound.ContactKill;
     }
 
     /// <summary>The narration caret's positions and the text characters' size.</summary>

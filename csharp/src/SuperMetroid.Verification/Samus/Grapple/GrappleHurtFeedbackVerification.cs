@@ -70,11 +70,11 @@ internal static class GrappleHurtFeedbackVerification
         runtime.StepFrame(ControllerButton.X);
         AssertEqual(3, samus.HurtFlash.Count, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
-            request.SoundEffect == Library1Sound.SamusDamaged && request.Priority == SoundRequestPriority.Normal),
+            request.SoundEffect == SamusSound.SamusDamaged && request.Priority == SoundRequestPriority.Normal),
             "counter two requests exactly one gasp at normal priority");
         runtime.StepFrame(ControllerButton.X);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count(request =>
-            request.SoundEffect == Library1Sound.SamusDamaged),
+            request.SoundEffect == SamusSound.SamusDamaged),
             "unchanged health does not repeat the gasp");
         Suite(nameof(VerifyHurtHealthHistoryRestoration), () => VerifyHurtHealthHistoryRestoration());
         Console.WriteLine("Grapple hurt feedback: real enemy contact retains hanging/no knockback and starts one native counter-two gasp.");

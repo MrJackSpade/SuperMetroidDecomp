@@ -107,10 +107,10 @@ internal sealed class BeamCombos
                 : kind == SamusComboKind.Wave || SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? 4 : -4;
             sound = kind switch
             {
-                SamusComboKind.Wave => Library1Sound.WaveSpecialAttack,
-                SamusComboKind.Ice => Library1Sound.IceSpecialAttack,
-                SamusComboKind.Spazer => Library1Sound.SpazerSpecialAttack,
-                SamusComboKind.Plasma => Library1Sound.PlasmaSpecialAttack,
+                SamusComboKind.Wave => SamusSound.WaveSpecialAttack,
+                SamusComboKind.Ice => SamusSound.IceSpecialAttack,
+                SamusComboKind.Spazer => SamusSound.SpazerSpecialAttack,
+                SamusComboKind.Plasma => SamusSound.PlasmaSpecialAttack,
                 _ => throw new InvalidOperationException($"Undefined combo {kind}."),
             };
         }
@@ -139,7 +139,7 @@ internal sealed class BeamCombos
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
 
-    /// <summary>Runs one Ice combo slot and returns its optional library-one sound request.</summary>
+    /// <summary>Runs one Ice combo slot and returns its optional Samus-library sound request.</summary>
     internal SoundEffectId? StepIceCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
@@ -149,7 +149,7 @@ internal sealed class BeamCombos
         if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
-            return outward ? null : Library1Sound.IceSpecialAttackEnd;
+            return outward ? null : SamusSound.IceSpecialAttackEnd;
         }
         CountdownStep trailStep = slot.TrailTimer.Decrement();
         slot.TrailTimer = trailStep.Remaining;
@@ -187,7 +187,7 @@ internal sealed class BeamCombos
             {
                 slot.FrameBehavior = SamusProjectileFrameBehavior.IceComboOutward;
                 slot.ComboOrbitRadius = 40;
-                sound = Library1Sound.IceSpecialAttackEnd;
+                sound = SamusSound.IceSpecialAttackEnd;
             }
         }
         shared.SetSharedCooldown(2);
@@ -314,7 +314,7 @@ internal sealed class BeamCombos
                             slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
                             _charge.FlareCounter = 0;
-                            return slot.SlotIndex == 0 ? Library1Sound.SpazerSpecialAttackEnd : null;
+                            return slot.SlotIndex == 0 ? SamusSound.SpazerSpecialAttackEnd : null;
                         }
                     }
                     break;

@@ -27,7 +27,7 @@ internal static class ProjectileSoundRoutingVerification
             {
                 ushort expected = ReadProjectileWord(retail, table + selector * 2);
                 AssertEqual(
-                    SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library1, expected),
+                    SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Samus, expected),
                     SamusProjectileSoundRouting.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(selector)),
                     $"{(charged ? "charged" : "uncharged")} beam sound selector {selector:X}");
                 observations++;

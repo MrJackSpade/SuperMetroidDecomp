@@ -82,8 +82,8 @@ public static class AudioInputReplaySmokeTest
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
             powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
-                started == Library1Sound.UnchargedPowerBeam);
-            powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Library1].Acknowledges(Library1Sound.UnchargedPowerBeam);
+                started == SamusSound.UnchargedPowerBeam);
+            powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Samus].Acknowledges(SamusSound.UnchargedPowerBeam);
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
                 firstDoorBegan = true;

@@ -70,7 +70,7 @@ internal sealed class GreyDoorObjectAnimation(GreyDoorVariant variant, GreyDoorP
         }
     }
 
-    /// <summary>Queues a library-3 door sound under the door sounds' cap.</summary>
+    /// <summary>Queues a room-library door sound under the door sounds' cap.</summary>
     private static void QueueDoorSound(RoomObjectStepContext context, SoundEffectId sound) =>
         context.QueueSound(sound, BlueDoorObjectProgramDefinitions.SoundPriority);
 }

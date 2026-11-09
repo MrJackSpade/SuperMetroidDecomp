@@ -541,7 +541,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rest length, in AI updates, that selects a permanent stop at an endpoint instead of a timed rest.</summary>
     private const int PermanentStopRestTime = 4080;
 
-    /// <summary>The library-two sound queued when an on-screen shutter begins moving.</summary>
+    /// <summary>The enemy-library sound queued when an on-screen shutter begins moving.</summary>
     private static readonly SoundEffectId ShutterActivationSound =
         EnemySoundEffectDefinitions.ShutterActivationSound;
 

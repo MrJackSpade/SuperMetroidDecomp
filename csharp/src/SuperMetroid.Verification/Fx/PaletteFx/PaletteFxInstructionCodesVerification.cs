@@ -643,10 +643,10 @@ internal static class PaletteFxInstructionCodesVerification
                 continue;
             AssertEqual(1, paletteFx.SoundRequests.Count,
                 "beacon publishes one sound at its midpoint");
-            AssertEqual(SoundEffectLibrary.Library2,
+            AssertEqual(SoundEffectLibrary.Enemies,
                 paletteFx.SoundRequests[0].SoundEffect.Library,
                 "beacon selects sound library two");
-            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, BeaconPaletteFxColorDefinitionsConstants.SoundId),
+            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, BeaconPaletteFxColorDefinitionsConstants.SoundId),
                 paletteFx.SoundRequests[0].SoundEffect,
                 "beacon retains its compiled sound ID");
             soundCount++;
@@ -895,7 +895,7 @@ internal static class PaletteFxInstructionCodesVerification
             damageSoundCount += paletteFx.SoundRequests.Count;
             foreach (SoundRequest request in paletteFx.SoundRequests)
             {
-                AssertEqual(Library3Sound.IncrementalEnergy,
+                AssertEqual(RoomSound.IncrementalEnergy,
                     request.SoundEffect,
                     "retail Norfair heat owner requests the incremental-energy sound");
                 AssertEqual(PaletteFxHeatData.DamageSoundPriority,
@@ -1585,9 +1585,9 @@ internal static class PaletteFxInstructionCodesVerification
         }
 
         AssertTrue(soundFrame >= 0, "$F781 beacon reaches its sound opcode");
-        AssertEqual(SoundEffectLibrary.Library2, soundRequest.SoundEffect.Library,
+        AssertEqual(SoundEffectLibrary.Enemies, soundRequest.SoundEffect.Library,
             "$F781 beacon sound uses library two");
-        AssertEqual<SoundEffectId>(Library2Sound.Beacon, soundRequest.SoundEffect,
+        AssertEqual<SoundEffectId>(EnemySound.Beacon, soundRequest.SoundEffect,
             "$F781 beacon sound is the beacon (operand $18)");
         AssertEqual(PaletteFxSoundPriorities.InstructionSound, soundRequest.Priority,
             "$F781 beacon sound uses the palette-effect instruction priority");

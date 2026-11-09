@@ -361,7 +361,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
-            audio?.QueueSound(Library1Sound.FileSelected, priority: SoundRequestPriority.Normal);
+            audio?.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
             HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
@@ -577,7 +577,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
-        audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
+        audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
         if (confirmationSelection != YesNoChoice.Yes)
         {
             ReturnFromConfirmation(mode);
@@ -654,7 +654,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Queues the menu cursor sound with the six-request limit.</summary>
     private void QueueCursorSound() =>
-        audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
+        audio?.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
 
     /// <summary>Binds the installed file-select artwork when the game is bound to its installed content.</summary>
     public void BindMapPresentation([NotNull] AreaMapPresentation? catalog)

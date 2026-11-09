@@ -8,7 +8,7 @@ internal static class EndingPostShotDefinitions
     /// <summary>E48A starts the white wash at all its steps, full white; E504 takes one step off each frame.</summary>
     public const int WhiteComponent = WhiteWash.Steps;
     /// <summary>The shot queues the charged plasma-wave sound through the max-fifteen sound queue.</summary>
-    public static readonly SoundEffectId ShotSound = Library1Sound.ChargedPlasmaWave;
+    public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasmaWave;
     /// <summary>F604 queues the shot through the max-fifteen entry point.</summary>
     public static SoundRequestPriority ShotSoundLimit { get; } = SoundRequestPriority.Essential;
     /// <summary>Func126's post-credits turning-floor horizontal origin.</summary>

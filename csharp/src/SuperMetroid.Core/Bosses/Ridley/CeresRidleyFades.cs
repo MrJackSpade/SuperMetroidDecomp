@@ -64,9 +64,9 @@ internal sealed class CeresRidleyFades
         state.FadeStep = 0;
         state.Function = RidleyAiFunction.WaitBeforeRoar;
         state.FunctionTimer = 4;
-        // The fade queues track five immediately after the final body shade.
+        // The fade queues the set's first song immediately after the final body shade.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.
-        _audio.RequestRidleyMusic(MusicRequest.SelectTrack(5));
+        _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.FirstSetSong));
     }
 }

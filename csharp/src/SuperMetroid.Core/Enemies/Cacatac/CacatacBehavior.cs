@@ -152,7 +152,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             : CacatacEnemyFunction.MovingRight;
     }
 
-    /// <summary>Animation cue: publish library-two sound 52.</summary>
+    /// <summary>Animation cue: publish the spike sound.</summary>
     private void PlayCacatacSpikeSound() =>
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Cacatac, EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
 

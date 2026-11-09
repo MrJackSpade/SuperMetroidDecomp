@@ -179,7 +179,7 @@ public sealed class SamusBombProjectileSystem
             if (beamChargeConsumed)
             {
                 soundRequests.Add(new SoundRequest(
-                    Library1Sound.Silence,
+                    SamusSound.Silence,
                     Priority: SoundRequestPriority.High,
                     SoundSuppressed: PowerBombExplosion.IsActive));
             }
@@ -216,7 +216,7 @@ public sealed class SamusBombProjectileSystem
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
                 soundRequests.Add(new SoundRequest(
-                    Library2Sound.BombExplosion,
+                    EnemySound.BombExplosion,
                     Priority: SoundRequestPriority.Normal,
                     SoundSuppressed: PowerBombExplosion.IsActive));
             }
@@ -227,7 +227,7 @@ public sealed class SamusBombProjectileSystem
                 // starts its two per-line effects. Publish it from the same frame that
                 // Spawn installs the explosion's owner.
                 soundRequests.Add(new SoundRequest(
-                    Library1Sound.PowerBombExplosion,
+                    SamusSound.PowerBombExplosion,
                     Priority: SoundRequestPriority.Essential,
                     SoundSuppressed: soundSuppressedBeforeFrameBehavior));
             }
@@ -343,7 +343,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
         if (samus.BeamChargeCount.Count >= ChargeSoundFlareThreshold)
-            samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, priority: SoundRequestPriority.High);
+            samus.LiquidPhysics.QueueMovementSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
 
     /// <summary>The flare count from which a charging beam's loop is audible.</summary>

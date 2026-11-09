@@ -39,9 +39,9 @@ internal sealed class DeathGamePhases(FrontendSession session)
         {
             // Death setup cancels all three sound libraries, then installs the death
             // music data and track through the ordinary delayed music queue.
-            session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Essential);
-            session.audio.QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Essential);
+            session.audio.QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Essential);
+            session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
+            session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Death));
             session.audio.ScheduleMusic(MusicRequest.SelectTrack(SamusDeathDefinitions.FanfareTrack), MusicQueueDelay.AtLeastShortest(14));

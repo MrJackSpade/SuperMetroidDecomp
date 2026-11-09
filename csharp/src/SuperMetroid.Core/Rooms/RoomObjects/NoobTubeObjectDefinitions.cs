@@ -19,10 +19,10 @@ public static class NoobTubeObjectDefinitions
     public const EventNumber BrokenEvent = EventNumber.MaridiaNoobTubeBroken;
 
     /// <summary>The sound queued for an ineffective shot.</summary>
-    public static readonly SoundEffectId IneffectiveShotSound = Library2Sound.DudShotOnDoor;
+    public static readonly SoundEffectId IneffectiveShotSound = EnemySound.DudShotOnDoor;
 
     /// <summary>The sound queued when the glass breaks.</summary>
-    public static readonly SoundEffectId BreakSound = Library2Sound.GlassTubeShatter;
+    public static readonly SoundEffectId BreakSound = EnemySound.GlassTubeShatter;
 
     /// <summary>The kind of earthquake the break starts.</summary>
     public const int EarthquakeType = 11;

@@ -1,16 +1,16 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Every sound of the third sound-effect library: Samus's landings, footsteps, Speed Booster and shinespark, the
-/// low-health beep, doors, gates and elevators, and the bosses' larger cries. The library is its own voice queue: its
-/// sounds interrupt one another and never those of the other two libraries, and its low-health beep holds the library
-/// against every other sound but silence.
+/// Every sound of the room's library (<see cref="SoundEffectLibrary.Room"/>): the room's doors, gates, elevators and
+/// gunship, the bosses' larger cries and quakes, Samus's landings, footsteps, Speed Booster and shinespark, and the
+/// low-health beep. The library is its own voice queue: its sounds interrupt one another and never those of Samus's or
+/// the enemies' library, and its low-health beep holds the library against every other sound but silence.
 /// </summary>
 /// <remarks>
 /// Members are identities. Their values are arbitrary and nothing reads them; the import pipeline alone knows which
 /// request each member is in the installed sound program.
 /// </remarks>
-public enum Library3Sound
+public enum RoomSound
 {
     /// <summary>Silences the library; it interrupts any sound of the library.</summary>
     Silence,

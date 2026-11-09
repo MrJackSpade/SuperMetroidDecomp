@@ -53,7 +53,7 @@ internal sealed class DeadMonsterFrame
             new(CoordinateAxis.Wrap(slot.Position.X.Whole + CorpseDustSpread(random) - 14), CoordinateAxis.Wrap(slot.Position.Y.Whole + 16)),
             MiscDustAnimation.CorpseDustCloud);
         if ((randomEnemyCounter & 7) == 0)
-            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadMonsters, Library2Sound.LiquidDamage, priority: SoundRequestPriority.Low);
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadMonsters, EnemySound.LiquidDamage, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>How far right of its leftmost place <paramref name="random"/> spreads a corpse row's dust cloud.</summary>

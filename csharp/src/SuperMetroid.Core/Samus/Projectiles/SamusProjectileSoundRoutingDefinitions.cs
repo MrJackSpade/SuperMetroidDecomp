@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The library-one sound each beam combination fires with, uncharged and charged, and the missile sounds.
+/// The Samus-library sound each beam combination fires with, uncharged and charged, and the missile sounds.
 /// </summary>
 /// <remarks>
 /// The game indexes its uncharged and charged sound tables with the raw four-bit beam combination. Combinations
@@ -14,41 +14,41 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class SamusProjectileSoundRoutingDefinitions
 {
     /// <summary>The missile firing sound, also what charged combination thirteen reads.</summary>
-    internal static readonly SoundEffectId MissileRequest = Library1Sound.Missile;
+    internal static readonly SoundEffectId MissileRequest = SamusSound.Missile;
     /// <summary>The Super Missile firing sound, also what charged combination fourteen reads.</summary>
-    internal static readonly SoundEffectId SuperMissileRequest = Library1Sound.SuperMissile;
+    internal static readonly SoundEffectId SuperMissileRequest = SamusSound.SuperMissile;
 
     /// <summary>Each authored beam combination's uncharged firing sound.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SoundEffectId> Uncharged = new Dictionary<SamusBeamCombination, SoundEffectId>
     {
-        [SamusBeamCombination.Power] = Library1Sound.UnchargedPowerBeam,
-        [SamusBeamCombination.Ice] = Library1Sound.UnchargedIceBeam,
-        [SamusBeamCombination.Wave] = Library1Sound.UnchargedWaveBeam,
-        [SamusBeamCombination.IceWave] = Library1Sound.UnchargedIceWaveBeam,
-        [SamusBeamCombination.Spazer] = Library1Sound.UnchargedSpazer,
-        [SamusBeamCombination.SpazerIce] = Library1Sound.UnchargedSpazerIce,
-        [SamusBeamCombination.SpazerIceWave] = Library1Sound.UnchargedSpazerIceWave,
-        [SamusBeamCombination.SpazerWave] = Library1Sound.UnchargedSpazerWave,
-        [SamusBeamCombination.Plasma] = Library1Sound.UnchargedPlasma,
-        [SamusBeamCombination.PlasmaIce] = Library1Sound.UnchargedPlasmaIce,
-        [SamusBeamCombination.PlasmaIceWave] = Library1Sound.UnchargedPlasmaIceWave,
-        [SamusBeamCombination.PlasmaWave] = Library1Sound.UnchargedPlasmaWave,
+        [SamusBeamCombination.Power] = SamusSound.UnchargedPowerBeam,
+        [SamusBeamCombination.Ice] = SamusSound.UnchargedIceBeam,
+        [SamusBeamCombination.Wave] = SamusSound.UnchargedWaveBeam,
+        [SamusBeamCombination.IceWave] = SamusSound.UnchargedIceWaveBeam,
+        [SamusBeamCombination.Spazer] = SamusSound.UnchargedSpazer,
+        [SamusBeamCombination.SpazerIce] = SamusSound.UnchargedSpazerIce,
+        [SamusBeamCombination.SpazerIceWave] = SamusSound.UnchargedSpazerIceWave,
+        [SamusBeamCombination.SpazerWave] = SamusSound.UnchargedSpazerWave,
+        [SamusBeamCombination.Plasma] = SamusSound.UnchargedPlasma,
+        [SamusBeamCombination.PlasmaIce] = SamusSound.UnchargedPlasmaIce,
+        [SamusBeamCombination.PlasmaIceWave] = SamusSound.UnchargedPlasmaIceWave,
+        [SamusBeamCombination.PlasmaWave] = SamusSound.UnchargedPlasmaWave,
     };
 
     /// <summary>Each authored beam combination's charged firing sound.</summary>
     internal static readonly Dictionary<SamusBeamCombination, SoundEffectId> Charged = new Dictionary<SamusBeamCombination, SoundEffectId>
     {
-        [SamusBeamCombination.Power] = Library1Sound.ChargedPowerBeam,
-        [SamusBeamCombination.Ice] = Library1Sound.ChargedIceBeam,
-        [SamusBeamCombination.Wave] = Library1Sound.ChargedWaveBeam,
-        [SamusBeamCombination.IceWave] = Library1Sound.ChargedIceWaveBeam,
-        [SamusBeamCombination.Spazer] = Library1Sound.ChargedSpazer,
-        [SamusBeamCombination.SpazerIce] = Library1Sound.ChargedSpazerIce,
-        [SamusBeamCombination.SpazerIceWave] = Library1Sound.ChargedSpazerIceWave,
-        [SamusBeamCombination.SpazerWave] = Library1Sound.ChargedSpazerWave,
-        [SamusBeamCombination.Plasma] = Library1Sound.ChargedPlasma,
-        [SamusBeamCombination.PlasmaIce] = Library1Sound.ChargedPlasmaIce,
-        [SamusBeamCombination.PlasmaIceWave] = Library1Sound.ChargedPlasmaIceWave,
-        [SamusBeamCombination.PlasmaWave] = Library1Sound.ChargedPlasmaWave,
+        [SamusBeamCombination.Power] = SamusSound.ChargedPowerBeam,
+        [SamusBeamCombination.Ice] = SamusSound.ChargedIceBeam,
+        [SamusBeamCombination.Wave] = SamusSound.ChargedWaveBeam,
+        [SamusBeamCombination.IceWave] = SamusSound.ChargedIceWaveBeam,
+        [SamusBeamCombination.Spazer] = SamusSound.ChargedSpazer,
+        [SamusBeamCombination.SpazerIce] = SamusSound.ChargedSpazerIce,
+        [SamusBeamCombination.SpazerIceWave] = SamusSound.ChargedSpazerIceWave,
+        [SamusBeamCombination.SpazerWave] = SamusSound.ChargedSpazerWave,
+        [SamusBeamCombination.Plasma] = SamusSound.ChargedPlasma,
+        [SamusBeamCombination.PlasmaIce] = SamusSound.ChargedPlasmaIce,
+        [SamusBeamCombination.PlasmaIceWave] = SamusSound.ChargedPlasmaIceWave,
+        [SamusBeamCombination.PlasmaWave] = SamusSound.ChargedPlasmaWave,
     };
 }

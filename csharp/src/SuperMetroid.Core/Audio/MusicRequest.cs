@@ -25,10 +25,9 @@ public abstract record MusicRequest
     /// <summary>The request that stops the music.</summary>
     public static MusicRequest Stop { get; } = new StopMusic();
 
-    /// <summary>The request that plays track <paramref name="track"/> of the loaded data set.</summary>
-    /// <param name="track">The track's number, 1 through <see cref="MusicTrack.LastNumber"/>.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="track"/> is outside 1 through <see cref="MusicTrack.LastNumber"/>.</exception>
-    public static MusicRequest SelectTrack(int track) => new PlayTrack(new MusicTrack(track));
+    /// <summary>The request that plays <paramref name="track"/> of the loaded data set.</summary>
+    /// <param name="track">The song to play.</param>
+    public static MusicRequest SelectTrack(MusicTrack track) => new PlayTrack(track);
 
     /// <summary>The request that plays <paramref name="track"/>, or stops the music for none.</summary>
     /// <param name="track">The track to play, or null to stop.</param>

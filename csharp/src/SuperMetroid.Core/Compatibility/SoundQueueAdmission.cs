@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// rejection, of its echo request (see <see cref="UnauthoredBoostCadence"/>), and the door transition waits for the
 /// queues the admitted requests fill to empty. Evidence: the original's sound-queue routines (the occupancy test against
 /// the routine's limit before the disable-sounds test, with sixteen-position rings keeping one position empty), the
-/// Speed Booster's echo selection after its library-three request (<c>$90:85A6</c>), and the SMV replays whose
+/// Speed Booster's echo selection after its room-library request (<c>$90:85A6</c>), and the SMV replays whose
 /// running cadences depend on it (the Ridley full movie and the 13% movie).
 /// </remarks>
 [CompatibilityService("whether a sound request joins its library's queue, and how full the queue was")]

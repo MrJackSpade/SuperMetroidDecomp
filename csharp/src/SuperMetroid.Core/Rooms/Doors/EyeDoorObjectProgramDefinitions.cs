@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class EyeDoorObjectProgramDefinitions
 {
-    /// <summary>The library-2 sound each hit on the eye queues.</summary>
-    internal static readonly SoundEffectId HitSound = Library2Sound.EnemyKilled;
+    /// <summary>The enemy-library sound each hit on the eye queues.</summary>
+    internal static readonly SoundEffectId HitSound = EnemySound.EnemyKilled;
     /// <summary>The hit sound's request priority.</summary>
     internal static readonly SoundRequestPriority HitSoundPriority = SoundRequestPriority.Normal;
     /// <summary>The hits the eye takes before the door opens.</summary>

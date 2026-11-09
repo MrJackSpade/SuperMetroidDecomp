@@ -81,7 +81,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
 
         StepSpeedBoosterObject(roomObjects, level);
         AssertTrue(roomObjects.Sounds.SoundRequests.Any(request =>
-                request.SoundEffect == Library2Sound.ContactBlockBreak &&
+                request.SoundEffect == EnemySound.ContactBlockBreak &&
                 request.Priority.Requests == 1),
             "first handler pass queues crumble sound six with cartridge maximum one");
 

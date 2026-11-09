@@ -121,7 +121,7 @@ internal sealed class IntroCeresFlightState
                 // The flight's music data, then its track, on the shared queue.
                 audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
                 audio.ScheduleMusic(
-                    MusicRequest.SelectTrack(CeresFlightSceneDefinitions.MusicTrack),
+                    MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
                     MusicQueueDelay.AtLeastShortest(CeresFlightSceneDefinitions.MusicDelay));
                 Phase = IntroCeresFlightPhase.WaitForMusicQueue;
                 break;

@@ -4,23 +4,23 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidSoundDefinitions
 {
     /// <summary>Mini-Kraid's cry before it spits, requested only while its origin is on screen.</summary>
-    internal static SoundEffectId MiniKraidCry { get; } = Library2Sound.FakeKraidCry;
+    internal static SoundEffectId MiniKraidCry { get; } = EnemySound.FakeKraidCry;
 
     /// <summary>Mini-Kraid launches a body spike, requested only while its origin is on screen.</summary>
-    internal static SoundEffectId MiniKraidSpikeLaunch { get; } = Library2Sound.AlcoonSpit;
+    internal static SoundEffectId MiniKraidSpikeLaunch { get; } = EnemySound.AlcoonSpit;
 
     /// <summary>A spat rock leaves the mouth, or a rock rises from the floor.</summary>
-    internal static SoundEffectId RockSpit { get; } = Library3Sound.KraidEarthquake;
+    internal static SoundEffectId RockSpit { get; } = RoomSound.KraidEarthquake;
 
     /// <summary>A belly lint fires.</summary>
-    internal static SoundEffectId LintFire { get; } = Library3Sound.KraidLint;
+    internal static SoundEffectId LintFire { get; } = RoomSound.KraidLint;
 
     /// <summary>Kraid's roar, cried by the attack and dying roars of the head program.</summary>
-    internal static SoundEffectId HeadRoar { get; } = Library2Sound.KraidRoar;
+    internal static SoundEffectId HeadRoar { get; } = EnemySound.KraidRoar;
 
     /// <summary>Kraid's death cry, cried by the death head program.</summary>
-    internal static SoundEffectId HeadDyingCry { get; } = Library2Sound.KraidDyingCry;
+    internal static SoundEffectId HeadDyingCry { get; } = EnemySound.KraidDyingCry;
 
     /// <summary>A heavy footstep.</summary>
-    internal static SoundEffectId Footstep { get; } = Library2Sound.Quake;
+    internal static SoundEffectId Footstep { get; } = EnemySound.Quake;
 }

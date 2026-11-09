@@ -19,7 +19,7 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
     private readonly SharedGameState? _system;
     /// <summary>Allocates fallback closing and blue-door actors from the PLM pool.</summary>
     private readonly RoomObjectSlotTable _slotTable;
-    /// <summary>Queues the library-two response to rejected colored-door hits.</summary>
+    /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds door PLM logic to room persistence, drawing, allocation, and sound owners.</summary>
@@ -156,9 +156,9 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
         slot.ProjectileHit = null;
     }
 
-    /// <summary>Queues the library-two dud sound a rejected or premature shot makes.</summary>
+    /// <summary>Queues the enemy-library dud sound a rejected or premature shot makes.</summary>
     internal void QueueDudSound() =>
-        _sounds.Queue(Library2Sound.DudShotOnDoor, Priority: DudSoundPriority);
+        _sounds.Queue(EnemySound.DudShotOnDoor, Priority: DudSoundPriority);
 
     /// <summary>The dud sound's request priority.</summary>
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;

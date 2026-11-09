@@ -30,13 +30,13 @@ internal sealed class BlockReactionObjectAnimation(BlockReactionObjectProgram pr
     {
         switch (cue.Kind)
         {
-            case BlockReactionObjectCueKind.QueueSoundLibrary2Maximum1:
+            case BlockReactionObjectCueKind.QueueSoundWhenIdle:
                 context.QueueSound(cue.QueuedSound, SoundRequestPriority.WhenIdle);
                 break;
-            case BlockReactionObjectCueKind.QueueSoundLibrary2Maximum3:
+            case BlockReactionObjectCueKind.QueueSoundAtLowPriority:
                 context.QueueSound(cue.QueuedSound, SoundRequestPriority.Low);
                 break;
-            case BlockReactionObjectCueKind.QueueSoundLibrary2Maximum6:
+            case BlockReactionObjectCueKind.QueueSoundAtNormalPriority:
                 context.QueueSound(cue.QueuedSound, SoundRequestPriority.Normal);
                 break;
             case BlockReactionObjectCueKind.RestoreRespawningGrappleBehavior:

@@ -212,7 +212,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         return new DustExplosionRequest(
             Position: position,
             Animation: animation,
-            SoundEffect: Library2Sound.SmallExplosion);
+            SoundEffect: EnemySound.SmallExplosion);
     }
 
     /// <summary>
@@ -559,7 +559,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // The last readying update performs the full escape-door handoff on that call: start escape music, hold the quake
         // indefinitely, create four palette-FX objects, disable the old unpause hook, and initialize text. The door's
         // fragments are pre-coloured in the exploded door's colours, so its colour load is not kept (#1544).
-        requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape music track seven.
+        requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay escape song.
         _state.EarthquakeType = 5;
         _state.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianShutterRedFlashing);

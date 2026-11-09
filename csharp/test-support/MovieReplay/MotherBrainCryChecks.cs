@@ -10,8 +10,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </summary>
 internal sealed class MotherBrainCryChecks : IConvertedMovieChecks
 {
-    /// <summary>The library-two sound queue.</summary>
-    private const int Library2 = 1;
+    /// <summary>The enemies' library's sound queue, where her cries wait.</summary>
+    private static readonly int CryQueue = SoundEffectLibraries.ToQueueIndex(SoundEffectLibrary.Enemies);
 
     /// <summary>Cries the port has published so far.</summary>
     private int cries;
@@ -39,13 +39,13 @@ internal sealed class MotherBrainCryChecks : IConvertedMovieChecks
         if (!ReferenceEquals(audio, game.Session.audio))
         {
             audio = game.Session.audio;
-            lastWrite = audio.SoundWritePositions[Library2];
+            lastWrite = audio.SoundWritePositions[CryQueue];
         }
-        int write = audio.SoundWritePositions[Library2];
+        int write = audio.SoundWritePositions[CryQueue];
         for (int index = lastWrite; index != write; index = AudioQueues.NextSoundPosition(index))
         {
-            if (audio.SoundQueues[Library2, index] is SoundEffectId cry &&
-                (cry == Library2Sound.MotherBrainLowCry || cry == Library2Sound.MotherBrainHighCry))
+            if (audio.SoundQueues[CryQueue, index] is SoundEffectId cry &&
+                (cry == EnemySound.MotherBrainLowCry || cry == EnemySound.MotherBrainHighCry))
                 cries++;
         }
         lastWrite = write;

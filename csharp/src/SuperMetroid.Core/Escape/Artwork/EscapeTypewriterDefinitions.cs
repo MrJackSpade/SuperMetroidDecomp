@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Escape.Artwork;
 public static class EscapeTypewriterDefinitions
 {
     /// <summary>The key click the Zebes typewriter plays.</summary>
-    public static readonly SoundEffectId ZebesClick = Library3Sound.IntroTypewriter;
+    public static readonly SoundEffectId ZebesClick = RoomSound.IntroTypewriter;
 
     /// <summary>The key click the Ceres typewriter plays for every other glyph.</summary>
-    public static readonly SoundEffectId CeresClick = Library2Sound.CeresTypewriter;
+    public static readonly SoundEffectId CeresClick = EnemySound.CeresTypewriter;
 
     /// <summary>The delay between typed characters; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
     public const int CharacterDelayFrames = 2;

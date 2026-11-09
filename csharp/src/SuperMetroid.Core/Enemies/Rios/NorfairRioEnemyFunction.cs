@@ -10,7 +10,7 @@ public enum NorfairRioEnemyFunction
     FollowParent = 1,
     /// <summary>Admits an attack when RNG mask 0x0101 is nonzero and Samus is strictly within 192 horizontal room pixels, sampling a launch velocity from that RNG word.</summary>
     WaitForAttackOpportunity,
-    /// <summary>Waits for the animation handshake, then installs descending artwork, enters the dive, and requests the library-two dive sound.</summary>
+    /// <summary>Waits for the animation handshake, then installs descending artwork, enters the dive, and requests the enemy-library dive sound.</summary>
     WaitForTakeoffAnimation,
     /// <summary>Moves down and horizontally with wall reversal, transitioning to return on vertical collision or when vertical velocity becomes negative.</summary>
     Dive,

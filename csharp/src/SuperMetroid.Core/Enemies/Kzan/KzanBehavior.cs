@@ -39,7 +39,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The fastest the falling acceleration reaches: four pixels per update.</summary>
     private static readonly SignedSixteenSixteen KzanMaximumFallingSpeed = SignedSixteenSixteen.FromParts(4, 0);
 
-    /// <summary>The library-two landing sound published when the falling top reaches its target.</summary>
+    /// <summary>The enemy-library landing sound published when the falling top reaches its target.</summary>
     private static readonly SoundEffectId KzanLandingSound =
         EnemySoundEffectDefinitions.KzanLandingSoundEffect;
 

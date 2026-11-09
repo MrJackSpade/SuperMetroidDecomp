@@ -120,7 +120,7 @@ internal static class SporeSpawnAnimationsVerification
                             AssertEqual(operand != 0, setSporeGeneration.SporeGenerationSuppressed, $"{at}: spore generation stopped");
                             break;
                         case SporeSpawnCue.QueueSound queueSound:
-                            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, operand), queueSound.Sound, $"{at}: library-two sound");
+                            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operand), queueSound.Sound, $"{at}: library-two sound");
                             break;
                         case SporeSpawnCue.LoadDeathPalette loadDeathPalette:
                             AssertEqual(operand, checked((ushort)(loadDeathPalette.DeathPaletteStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");

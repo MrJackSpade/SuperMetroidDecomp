@@ -55,7 +55,7 @@ internal static class KiHunterSpitAudioVerification
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
             hostServices: SuperMetroidGameHostServices.Default with { SoundAcceptance = NextUpdateSoundAcceptance.Instance }, random: random);
         game.EnterMainGameplay(runtime);
-        var spit = Library2Sound.AcidSpit;
+        var spit = EnemySound.AcidSpit;
         int requests = 0, starts = 0;
         void Step()
         {

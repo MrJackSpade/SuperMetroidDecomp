@@ -3424,6 +3424,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Audio.MusicTrackNumbers",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Audio/MusicTrackNumbers.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Audio.MusicTrackRendering",
       "kind": "static class",
       "scope": "product",
@@ -3717,6 +3730,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Audio.SoundLibraryNumbers",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Audio/SoundLibraryNumbers.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Audio.SpcAudioAssetExtractor",
@@ -27714,6 +27740,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Progression.NumberedPlacement\u003CT\u003E",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Progression/NumberedPlacement.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec",
       "kind": "static class",
       "scope": "product",
@@ -27727,6 +27766,49 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Progression/RoomPlacementDecoding.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Progression/RoomPlacementNumbers.Generated.cs",
+        "csharp/src/SuperMetroid.AssetExtraction/Progression/RoomPlacementNumbers.cs"
+      ],
+      "partial": "generated-boundary",
+      "disposition": "generated-boundary"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Index",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Progression/RoomPlacementNumbers.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec",
       "kind": "static class",
       "scope": "product",
@@ -27735,6 +27817,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Progression/SaveLoadingGameStateCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Progression.StoryEventNumbers",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Progression/StoryEventNumbers.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -34514,6 +34609,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.SamusCountWords",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Samus/SamusCountWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.SamusDeathPaletteArtworkFiles",
       "kind": "static class",
       "scope": "product",
@@ -41088,6 +41196,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Audio.EnemySound",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/EnemySound.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.IAudioClipSource",
       "kind": "interface",
       "scope": "product",
@@ -41099,45 +41220,6 @@
       ],
       "partial": "none",
       "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.Library1Sound",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/Library1Sound.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.Library2Sound",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/Library2Sound.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.Library3Sound",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/Library3Sound.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Audio.LowHealthModeEffect",
@@ -41367,7 +41449,7 @@
     },
     {
       "type": "SuperMetroid.Core.Audio.MusicTrack",
-      "kind": "record struct",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -41496,6 +41578,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Audio.RoomSound",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/RoomSound.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Audio.SamusSound",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Audio/SamusSound.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.SongChange",
       "kind": "record",
       "scope": "product",
@@ -41598,38 +41706,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.SoundEffectLibrariesAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/SoundEffectLibrariesAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.SoundEffectLibrariesAccess.extension(SuperMetroid.Core.Audio.SoundEffectLibraries)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/SoundEffectLibrariesAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Audio.SoundEffectLibrary",
@@ -90210,6 +90286,19 @@
       "justified": true
     },
     {
+      "type": "SuperMetroid.Core.Frontend.GameDataLoadRoute",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/GameDataLoadRoute.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.GameLoadingCompletion",
       "kind": "enum",
       "scope": "product",
@@ -98664,7 +98753,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxCue.QueueSoundLibrary2",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxCue.QueueSound",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -104507,19 +104596,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Input.ButtonWordEncodingAttribute",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Input/ButtonWordEncodingAttribute.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Input.ControllerAction",
       "kind": "enum",
       "scope": "product",
@@ -105861,30 +105937,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Progression.EventNumber",
-      "kind": "enum",
+      "type": "SuperMetroid.Core.Progression.DecidedFlags\u003CT\u003E",
+      "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Progression/EventNumber.cs"
+        "csharp/src/SuperMetroid.Core/Progression/DecidedFlags.cs"
       ],
       "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.EventNumberCodec",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/EventNumberCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Progression.FlagOverwrite",
@@ -105965,6 +106028,58 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Progression.ItemLocation",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/ItemLocation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.ItemLocationDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/ItemLocationDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.LockedDoor",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/LockedDoor.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.LockedDoorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/LockedDoorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Progression.NumberedFlagSet",
       "kind": "class",
       "scope": "product",
@@ -106037,6 +106152,35 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.PersistentProgressAccess.extension\u003CTMember\u003E(SuperMetroid.Core.Progression.ProgressSet\u003CTMember\u003E)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Progression/PersistentProgressAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.ProgressSet\u003CT\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/ProgressSet.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Progression.ProgressionOverwrite",
@@ -106316,6 +106460,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.StoryEvent",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/StoryEvent.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Progression.SuperMetroidGameState",
@@ -116744,20 +116901,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectCue.QueueSoundLibrary2Maximum3",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/ScriptedRoomObjectCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectCue.QueueSoundLibrary2Maximum6",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectCue.QueueSound",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -128717,19 +128861,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.ReserveTankModes",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/ReserveTankModes.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.ResumeChargingBeamSoundLatch",
       "kind": "enum",
       "scope": "product",
@@ -129390,6 +129521,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Saves.SaveSlotNumbering",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Saves/SaveSlotNumbering.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Saves.SaveSlotRetention",
@@ -134434,6 +134578,19 @@
     },
     {
       "type": "SuperMetroid.Diagnostics.Saves.LegacyGameSaveJson.LegacySramPage",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/LegacyGameSaveJson.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.LegacyGameSaveJson.SlotProgression",
       "kind": "record",
       "scope": "product",
       "assemblies": [

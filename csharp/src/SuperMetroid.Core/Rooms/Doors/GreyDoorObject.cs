@@ -55,8 +55,16 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
         PlayFromNextUpdate(Variant.BombTorizo ? GreyDoorDefinitions.BombTorizoHeldOpen : DoorCapSequenceDefinitions.CapClosing);
     }
 
+    /// <summary>Reacts to what the object waits for, then, unless the reaction took this update, counts its steps down.</summary>
+    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    {
+        Ensure.NotNull(place);
+        if (!React(place, context))
+            base.Update(place, context);
+    }
+
     /// <inheritdoc/>
-    private protected override bool React(RoomObjectSlot place, RoomObjectStepContext context)
+    private bool React(RoomObjectSlot place, RoomObjectStepContext context)
     {
         GreyDoorObjects doors = context.RoomObjects.GreyDoors;
         switch (Waits)

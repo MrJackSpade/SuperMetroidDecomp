@@ -5,7 +5,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 

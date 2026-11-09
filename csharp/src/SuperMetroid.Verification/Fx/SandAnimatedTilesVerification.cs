@@ -5,7 +5,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Maridia sand animation selection, timing, NMI transfers, and room departure.</summary>

@@ -6,7 +6,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Checks compiled area animated-tile selections against retail lists and runtime owners.</summary>

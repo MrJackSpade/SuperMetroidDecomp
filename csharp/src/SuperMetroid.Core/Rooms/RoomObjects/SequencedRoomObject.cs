@@ -2,7 +2,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// A room object that plays authored sequences of timed steps from its catalog (#1554): the door caps and the eye
-/// doors. On each update the object first reacts to what it waits for (a shot, an opened door); then, unless it rests,
+/// doors. On each update an object that waits for something (a shot, an opened door) first reacts to it in its own
+/// update, then this one runs: unless the object rests,
 /// it counts down the updates its shown step stays and, when they run out, shows its sequence's next step, or, after
 /// the last step, ends the sequence and decides what comes next. A sequence the object starts while it updates shows
 /// its first step on that same update, as the original game's objects continued into their next list on the same
@@ -25,11 +26,9 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
     internal bool Resting { get; private set; }
 
     /// <inheritdoc/>
-    internal sealed override void Update(RoomObjectSlot place, RoomObjectStepContext context)
+    internal override void Update(RoomObjectSlot place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (React(place, context))
-            return;
         if (Resting)
             return;
         UpdatesBeforeNextStep--;
@@ -37,14 +36,6 @@ internal abstract class SequencedRoomObject<TStep> : RoomObjectBehaviour
             return;
         Step(place, context);
     }
-
-    /// <summary>
-    /// Reacts to what the object waits for, before its steps count down; true when the reaction started a new sequence,
-    /// which then showed this update's step, or ended the object. Nothing by default.
-    /// </summary>
-    /// <param name="place">The object's place, which holds its block and a pending shot.</param>
-    /// <param name="context">The update.</param>
-    private protected virtual bool React(RoomObjectSlot place, RoomObjectStepContext context) => false;
 
     /// <summary>Decides what follows the sequence that just ended, on the update its last step's updates ran out.</summary>
     /// <param name="place">The object's place.</param>

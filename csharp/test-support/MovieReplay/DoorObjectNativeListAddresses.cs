@@ -10,7 +10,7 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 internal static class DoorObjectNativeListAddresses
 {
     /// <summary>Each facing's blue cap lists (<c>InstList_PLM_BlueDoorFacing*</c>, $84:C489..C54C).</summary>
-    private static readonly IReadOnlyDictionary<ColoredDoorOrientation, NativeBlueDoorLists> BlueLists = new Dictionary<ColoredDoorOrientation, NativeBlueDoorLists>
+    private static readonly Dictionary<ColoredDoorOrientation, NativeBlueDoorLists> BlueLists = new Dictionary<ColoredDoorOrientation, NativeBlueDoorLists>
     {
         [ColoredDoorOrientation.Left] = new(Opening: 0xc489, Closing: 0xc49e, Closed: 0xc4b1),
         [ColoredDoorOrientation.Right] = new(Opening: 0xc4ba, Closing: 0xc4cf, Closed: 0xc4e2),
@@ -19,7 +19,7 @@ internal static class DoorObjectNativeListAddresses
     };
 
     /// <summary>Each colour and facing's coloured cap lists (<c>InstList_PLM_{Yellow,Green,Red}DoorFacing*</c>).</summary>
-    private static readonly IReadOnlyDictionary<ColoredDoorVariant, NativeColoredDoorLists> ColoredLists = new Dictionary<ColoredDoorVariant, NativeColoredDoorLists>
+    private static readonly Dictionary<ColoredDoorVariant, NativeColoredDoorLists> ColoredLists = new Dictionary<ColoredDoorVariant, NativeColoredDoorLists>
     {
         [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Left)] = new(0xbffd, 0xc014, 0xc024, 0xc02a, 0xc04b),
         [new(ColoredDoorColor.Yellow, ColoredDoorOrientation.Right)] = new(0xc060, 0xc077, 0xc087, 0xc08d, 0xc0ae),
@@ -52,14 +52,14 @@ internal static class DoorObjectNativeListAddresses
     internal const ushort EscapeGateClosing = 0xbb44;
 
     /// <summary>Each facing's eye-door eye lists (<c>InstList_PLM_EyeDoorEyeFacing*</c>).</summary>
-    private static readonly IReadOnlyDictionary<EyeDoorOrientation, NativeEyeDoorEyeLists> EyeLists = new Dictionary<EyeDoorOrientation, NativeEyeDoorEyeLists>
+    private static readonly Dictionary<EyeDoorOrientation, NativeEyeDoorEyeLists> EyeLists = new Dictionary<EyeDoorOrientation, NativeEyeDoorEyeLists>
     {
         [EyeDoorOrientation.Left] = new(0xd81e, 0xd822, 0xd830, 0xd83c, 0xd878, 0xd880, 0xd8c4, 0xd8d3, 0xd8e3),
         [EyeDoorOrientation.Right] = new(0xd955, 0xd959, 0xd967, 0xd973, 0xd9af, 0xd9b7, 0xd9fb, 0xda0a, 0xda1a),
     };
 
     /// <summary>Each facing's eye-door body and bottom lists (<c>InstList_PLM_EyeDoorFacing*</c>, <c>InstList_PLM_EyeDoorBottomFacing*</c>).</summary>
-    private static readonly IReadOnlyDictionary<EyeDoorPart, NativeEyeDoorPartLists> PartLists = new Dictionary<EyeDoorPart, NativeEyeDoorPartLists>
+    private static readonly Dictionary<EyeDoorPart, NativeEyeDoorPartLists> PartLists = new Dictionary<EyeDoorPart, NativeEyeDoorPartLists>
     {
         [new(EyeDoorComponent.Door, EyeDoorOrientation.Left)] = new(0xd8e9, 0xd8ed, 0xd8fb, 0xd903, 0xd91d),
         [new(EyeDoorComponent.Bottom, EyeDoorOrientation.Left)] = new(0xd91f, 0xd923, 0xd931, 0xd939, 0xd953),

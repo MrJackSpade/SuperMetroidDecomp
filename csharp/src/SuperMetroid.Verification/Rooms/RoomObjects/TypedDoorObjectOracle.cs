@@ -31,7 +31,8 @@ internal static class TypedDoorObjectOracle
         ColoredDoorObject { Phase: ColoredDoorPhase.Closing } colored => DoorObjectNativeListAddresses.Colored(colored.Color, colored.Orientation).Closing,
         GreyDoorObject { Phase: GreyDoorPhase.Locked } grey => DoorObjectNativeListAddresses.Grey(grey.Variant).Waiting,
         GreyDoorObject { Phase: GreyDoorPhase.Closing } grey => DoorObjectNativeListAddresses.Grey(grey.Variant).Closing,
-        _ => throw new InvalidOperationException($"{behaviour?.GetType().Name ?? "An empty place"} stands for no native door list."),
+        null => throw new InvalidOperationException("An empty place stands for no native door list."),
+        _ => throw new InvalidOperationException($"{behaviour.GetType().Name} stands for no native door list."),
     };
 
     /// <summary>Whether <paramref name="behaviour"/> is a door closing behind Samus.</summary>

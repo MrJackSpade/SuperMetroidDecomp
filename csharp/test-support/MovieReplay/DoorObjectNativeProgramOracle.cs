@@ -274,7 +274,7 @@ internal static class DoorObjectNativeProgramOracle
             }
             ushort duration = Word(cartridge, cursor);
             VerificationAssertions.AssertTrue((duration & InstructionBit) == 0, $"{where}: the native list draws");
-            VerificationAssertions.AssertEqual((int)duration, step.Updates, $"{where}: updates the image stays");
+            VerificationAssertions.AssertEqual(duration, step.Updates, $"{where}: updates the image stays");
             VerificationAssertions.AssertEqual(Word(cartridge, cursor + 2), RoomObjectDrawAddressCodec.Of(DoorCaps.Image(paint, facing, step.Image)), $"{where}: draw");
             VerificationAssertions.AssertEqual(sound, step.SoundBefore, $"{where}: sound with the image");
             cursor = unchecked((ushort)(cursor + 4));
@@ -318,7 +318,7 @@ internal static class DoorObjectNativeProgramOracle
             }
             ushort duration = Word(cartridge, cursor);
             VerificationAssertions.AssertTrue((duration & InstructionBit) == 0, $"{where}: the native list draws");
-            VerificationAssertions.AssertEqual((int)duration, step.Updates, $"{where}: updates the image stays");
+            VerificationAssertions.AssertEqual(duration, step.Updates, $"{where}: updates the image stays");
             VerificationAssertions.AssertEqual(Word(cartridge, cursor + 2),
                 RoomObjectDrawAddressCodec.Of(EyeDoorDraws.DrawList(orientation, component, step.Image)), $"{where}: draw");
             cursor = unchecked((ushort)(cursor + 4));

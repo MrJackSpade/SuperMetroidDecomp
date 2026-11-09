@@ -88,28 +88,36 @@ internal static class NativeSnapshotImport
             level.SetBehavior(index, RoomBlockBehaviorCodec.Decode(memory[NativeSnapshotMemory.Bts + index]));
         }
 
-        var initialPaletteSlots = runtime.RoomPaletteFx.slots;
-        for (int slot = 0; slot < initialPaletteSlots.Length; slot++)
+        // Each live native object becomes a running colour effect. The handler visits its objects from the last down, so
+        // the object in native position p takes turn (count - 1 - p) (RoomPaletteFxSystem's turn order); the effects the
+        // room load started are replaced by the recorded ones.
+        var importedEffects = runtime.RoomPaletteFx.effects;
+        importedEffects.Clear();
+        for (int turn = 0; turn < NativeSnapshotMemory.PaletteFxObjectCount; turn++)
         {
-            var paletteSlot = initialPaletteSlots[slot];
-            paletteSlot.Id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
-            // The native colour index names the colours the object animates: of the colour groups its programs name, the one
-            // starting there.
-            paletteSlot.Target = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(paletteSlot.Object,
-                RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), paletteSlot.Id));
-            // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native view,
-            // where the deleted adjacent-slot inspection (#1526) stands for the behaviour the port's glow keeps.
-            paletteSlot.FrameBehavior = paletteSlot.Id == 0
-                ? default
-                : SuperMetroid.Core.Fx.FxNativeWords.RecordedPaletteFxFrameBehavior(
-                    W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2));
+            int slot = NativeSnapshotMemory.PaletteFxObjectCount - 1 - turn;
+            ushort id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
+            if (id == 0)
+                continue;
+            PaletteFxObject effect = PaletteFxObjectAccess.FromNative(id);
             // A live object resumes its typed program where the recorded native pointer stands.
-            paletteSlot.Cursor = paletteSlot.Id == 0
-                ? default
-                : PaletteFxNativeProgramOracle.CursorAt(
-                    SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            paletteSlot.FrameHold = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2);
-            paletteSlot.Timer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2));
+            SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> step = PaletteFxNativeProgramOracle.CursorAt(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
+            var imported = new ColourEffect(effect, turn, step.Program)
+            {
+                Step = step,
+                // The native colour index names the colours the object animates: of the colour groups its programs name,
+                // the one starting there.
+                Colours = SuperMetroid.Core.Fx.PaletteFx.PaletteFxColoursPositions.FromCartridge(effect,
+                    RoomPaletteFxSystemConstants.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), id)),
+                // The pre-instruction values are arbitrary (#1415): a live object's routine word translates through the native
+                // view, where the deleted adjacent-slot inspection (#1526) stands for the none the port's glow keeps.
+                Condition = SuperMetroid.Core.Fx.FxNativeWords.RecordedColourEffectCondition(
+                    W(NativeSnapshotMemory.PaletteFxFrameBehavior + slot * 2)),
+                UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
+                Repeats = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)),
+            };
+            importedEffects.Add(imported);
         }
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
         runtime.PaletteFxSession.PreviousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
@@ -371,7 +379,7 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// Restores the colour record each live palette-FX object last showed, in slot order, as its handler pass showed it
+    /// Restores the colour record each live palette-FX object last showed, in native slot order, as its handler pass showed it
     /// (#1512): the record becomes its group's last, which the room's pictures shade with; a record of Samus's suit groups
     /// is laid over her suit and one of an enemy's groups is shown over its owner's colours, as the runtime does after the
     /// pass. Native colour memory already holds those records at the checkpoint, while the imported slots only resume
@@ -380,9 +388,10 @@ internal static class NativeSnapshotImport
     /// <exception cref="InvalidOperationException">A live object's record lies in colours no gameplay picture shows.</exception>
     private static void ImportShownPaletteFxRecords(SuperMetroidRuntime runtime)
     {
-        foreach (var slot in runtime.RoomPaletteFx.slots)
+        // Native slot order is the reverse of turn order.
+        foreach (ColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
         {
-            if (slot.Object is null || slot.Target is not { } colours || LastShownRecord(slot.Cursor) is not { } record)
+            if (effect.Colours is not { } colours || LastShownRecord(effect.Step) is not { } record)
                 continue;
             runtime.RoomPaletteFx.shown.Show(colours, record);
             if (PaletteFxRoomColourDefinitions.RoomColours.Contains(colours))
@@ -392,7 +401,7 @@ internal static class NativeSnapshotImport
             else if (PaletteFxEnemyColourDefinitions.EnemyColours.Contains(colours))
                 runtime.Enemies.PaletteFxShows.Show(colours, record);
             else
-                throw new InvalidOperationException($"Imported palette-FX object {slot.Object} showed {colours}, which no gameplay picture shows.");
+                throw new InvalidOperationException($"Imported colour effect {effect.Effect} showed {colours}, which no gameplay picture shows.");
         }
     }
 

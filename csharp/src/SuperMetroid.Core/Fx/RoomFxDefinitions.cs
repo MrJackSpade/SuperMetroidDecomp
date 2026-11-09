@@ -18,7 +18,7 @@ public static class RoomFxDefinitions
 
     /// <summary>The ParlorWhenZebesTimebombSet room FX.</summary>
     public static RoomFxHeader ParlorWhenZebesTimebombSet { get; } = new(nameof(ParlorWhenZebesTimebombSet), [],
-        new(1256, 16, SignedEightEight.FromSignedRaw(-104), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.CrateriaEscapeCreBlockPixel], [], RoomFxPaletteBlend.None));
+        new(1256, 16, SignedEightEight.FromSignedRaw(-104), 0, RoomFxType.None, RoomVisorAnimation.Steady, null, RoomLiquidOptions.None, [PaletteFxObject.UpperCrateriaRedFlashing, PaletteFxObject.ParlorEscapeSkyFlicker], [], RoomFxPaletteBlend.None));
 
     /// <summary>The ClimbWhenZebesTimebombSet room FX.</summary>
     public static RoomFxHeader ClimbWhenZebesTimebombSet { get; } = new(nameof(ClimbWhenZebesTimebombSet), [],
@@ -393,15 +393,15 @@ public static class RoomFxDefinitions
 
     /// <summary>The IceBeamAcid room FX.</summary>
     public static RoomFxHeader IceBeamAcid { get; } = new(nameof(IceBeamAcid), [],
-        new(184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The Cathedral room FX.</summary>
     public static RoomFxHeader Cathedral { get; } = new(nameof(Cathedral), [],
-        new(433, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(433, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The CathedralEntrance room FX.</summary>
     public static RoomFxHeader CathedralEntrance { get; } = new(nameof(CathedralEntrance), [],
-        new(464, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(464, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The BusinessCenter room FX.</summary>
     public static RoomFxHeader BusinessCenter { get; } = new(nameof(BusinessCenter), [],
@@ -413,7 +413,7 @@ public static class RoomFxDefinitions
 
     /// <summary>The IceBeamTutorial room FX.</summary>
     public static RoomFxHeader IceBeamTutorial { get; } = new(nameof(IceBeamTutorial), [],
-        new(178, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(178, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The IceBeam room FX.</summary>
     public static RoomFxHeader IceBeam { get; } = new(nameof(IceBeam), [],
@@ -421,15 +421,15 @@ public static class RoomFxDefinitions
 
     /// <summary>The IceBeamSnake room FX.</summary>
     public static RoomFxHeader IceBeamSnake { get; } = new(nameof(IceBeamSnake), [],
-        new(696, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(696, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The CrumbleShaft room FX.</summary>
     public static RoomFxHeader CrumbleShaft { get; } = new(nameof(CrumbleShaft), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The CrocomireSpeedway room FX.</summary>
     public static RoomFxHeader CrocomireSpeedway { get; } = new(nameof(CrocomireSpeedway), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The Crocomire room FX.</summary>
     public static RoomFxHeader Crocomire { get; } = new(nameof(Crocomire), [],
@@ -441,7 +441,7 @@ public static class RoomFxDefinitions
 
     /// <summary>The CrocomireEscape room FX.</summary>
     public static RoomFxHeader CrocomireEscape { get; } = new(nameof(CrocomireEscape), [],
-        new(440, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(440, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The HiJumpETank room FX.</summary>
     public static RoomFxHeader HiJumpETank { get; } = new(nameof(HiJumpETank), [],
@@ -457,7 +457,7 @@ public static class RoomFxDefinitions
 
     /// <summary>The PostCrocPowerBombs room FX.</summary>
     public static RoomFxHeader PostCrocPowerBombs { get; } = new(nameof(PostCrocPowerBombs), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The PostCrocShaft room FX.</summary>
     public static RoomFxHeader PostCrocShaft { get; } = new(nameof(PostCrocShaft), [],
@@ -489,11 +489,11 @@ public static class RoomFxDefinitions
 
     /// <summary>The NorfairReserveTank room FX.</summary>
     public static RoomFxHeader NorfairReserveTank { get; } = new(nameof(NorfairReserveTank), [],
-        new(199, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(199, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The GreenBubblesMissiles room FX.</summary>
     public static RoomFxHeader GreenBubblesMissiles { get; } = new(nameof(GreenBubblesMissiles), [],
-        new(198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The BubbleMountain room FX.</summary>
     public static RoomFxHeader BubbleMountain { get; } = new(nameof(BubbleMountain), [],
@@ -502,21 +502,21 @@ public static class RoomFxDefinitions
     /// <summary>The SpeedBoosterHall room FX.</summary>
     public static RoomFxHeader SpeedBoosterHall { get; } = new(nameof(SpeedBoosterHall),
     [
-        new(NorfairDoorDefinitions.SpeedBooster0, new(474, 176, SignedEightEight.FromSignedRaw(0), 240, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava)),
+        new(NorfairDoorDefinitions.SpeedBooster0, new(474, 176, SignedEightEight.FromSignedRaw(0), 240, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava)),
     ],
-        new(474, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(474, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The SpeedBooster room FX.</summary>
     public static RoomFxHeader SpeedBooster { get; } = new(nameof(SpeedBooster), [],
-        new(218, 0, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(218, 0, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The SingleChamber room FX.</summary>
     public static RoomFxHeader SingleChamber { get; } = new(nameof(SingleChamber), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The DoubleChamber room FX.</summary>
     public static RoomFxHeader DoubleChamber { get; } = new(nameof(DoubleChamber), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The WaveBeam room FX.</summary>
     public static RoomFxHeader WaveBeam { get; } = new(nameof(WaveBeam), [],
@@ -524,53 +524,53 @@ public static class RoomFxDefinitions
 
     /// <summary>The SpikyPlatformsTunnel room FX.</summary>
     public static RoomFxHeader SpikyPlatformsTunnel { get; } = new(nameof(SpikyPlatformsTunnel), [],
-        new(192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(192, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The Volcano room FX.</summary>
     public static RoomFxHeader Volcano { get; } = new(nameof(Volcano),
     [
-        new(NorfairDoorDefinitions.KronicBoost1, new(736, 608, SignedEightEight.FromSignedRaw(-10), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava)),
+        new(NorfairDoorDefinitions.KronicBoost1, new(736, 608, SignedEightEight.FromSignedRaw(-10), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava)),
     ],
         new(616, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift, [], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The KronicBoost room FX.</summary>
     public static RoomFxHeader KronicBoost { get; } = new(nameof(KronicBoost), [],
-        new(724, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(724, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The MagdolliteTunnel room FX.</summary>
     public static RoomFxHeader MagdolliteTunnel { get; } = new(nameof(MagdolliteTunnel), [],
-        new(190, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(190, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The PurpleShaft room FX.</summary>
     public static RoomFxHeader PurpleShaft { get; } = new(nameof(PurpleShaft), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The LavaDive room FX.</summary>
     public static RoomFxHeader LavaDive { get; } = new(nameof(LavaDive), [],
-        new(208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The LowerNorfairElev room FX.</summary>
     public static RoomFxHeader LowerNorfairElev { get; } = new(nameof(LowerNorfairElev), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The UpperNorfairFarming room FX.</summary>
     public static RoomFxHeader UpperNorfairFarming { get; } = new(nameof(UpperNorfairFarming), [],
-        new(448, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(448, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The RisingTide room FX.</summary>
     public static RoomFxHeader RisingTide { get; } = new(nameof(RisingTide),
     [
-        new(NorfairDoorDefinitions.Cathedral1, new(264, 192, SignedEightEight.FromSignedRaw(-32), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava)),
+        new(NorfairDoorDefinitions.Cathedral1, new(264, 192, SignedEightEight.FromSignedRaw(-32), 64, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava)),
     ],
-        new(200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(200, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The AcidSnakesTunnel room FX.</summary>
     public static RoomFxHeader AcidSnakesTunnel { get; } = new(nameof(AcidSnakesTunnel), [],
-        new(197, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(197, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.Untested, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The SpikyAcidSnakesTunnel room FX.</summary>
     public static RoomFxHeader SpikyAcidSnakesTunnel { get; } = new(nameof(SpikyAcidSnakesTunnel), [],
-        new(198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
+        new(198, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.Lava));
 
     /// <summary>The UpperNorfairRefill room FX.</summary>
     public static RoomFxHeader UpperNorfairRefill { get; } = new(nameof(UpperNorfairRefill), [],
@@ -578,11 +578,11 @@ public static class RoomFxDefinitions
 
     /// <summary>The PurpleFarming room FX.</summary>
     public static RoomFxHeader PurpleFarming { get; } = new(nameof(PurpleFarming), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The BatCave room FX.</summary>
     public static RoomFxHeader BatCave { get; } = new(nameof(BatCave), [],
-        new(436, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.Lava));
+        new(436, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Lava, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.SurfaceDrift | RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.Lava));
 
     /// <summary>The NorfairMap room FX.</summary>
     public static RoomFxHeader NorfairMap { get; } = new(nameof(NorfairMap), [],
@@ -615,21 +615,21 @@ public static class RoomFxDefinitions
     /// <summary>The AcidStatue room FX.</summary>
     public static RoomFxHeader AcidStatue { get; } = new(nameof(AcidStatue),
     [
-        new(NorfairDoorDefinitions.GoldenTorizo0, new(722, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None)),
+        new(NorfairDoorDefinitions.GoldenTorizo0, new(722, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None)),
     ],
-        new(200, 722, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(200, 722, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The MainHall room FX.</summary>
     public static RoomFxHeader MainHall { get; } = new(nameof(MainHall), [],
-        new(705, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(705, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The GoldenTorizo room FX.</summary>
     public static RoomFxHeader GoldenTorizo { get; } = new(nameof(GoldenTorizo), [],
-        new(710, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(710, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The FastRipper room FX.</summary>
     public static RoomFxHeader FastRipper { get; } = new(nameof(FastRipper), [],
-        new(184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(184, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The GTEnergyRefill room FX.</summary>
     public static RoomFxHeader GTEnergyRefill { get; } = new(nameof(GTEnergyRefill), [],
@@ -637,74 +637,74 @@ public static class RoomFxDefinitions
 
     /// <summary>The Ridley room FX.</summary>
     public static RoomFxHeader Ridley { get; } = new(nameof(Ridley), [],
-        new(528, 464, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(528, 464, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The LNFarming room FX.</summary>
     public static RoomFxHeader LNFarming { get; } = new(nameof(LNFarming), [],
-        new(208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The FastPillarsSetup room FX.</summary>
     public static RoomFxHeader FastPillarsSetup { get; } = new(nameof(FastPillarsSetup), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The UnusedRoom8387EC room FX.</summary>
     public static RoomFxHeader UnusedRoom8387EC { get; } = new(nameof(UnusedRoom8387EC), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The MickeyMouse room FX.</summary>
     public static RoomFxHeader MickeyMouse { get; } = new(nameof(MickeyMouse), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The Pillar room FX.</summary>
     public static RoomFxHeader Pillar { get; } = new(nameof(Pillar), [],
-        new(232, 16, SignedEightEight.FromSignedRaw(-32), 80, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(232, 16, SignedEightEight.FromSignedRaw(-32), 80, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The Plowerhouse room FX.</summary>
     public static RoomFxHeader Plowerhouse { get; } = new(nameof(Plowerhouse), [],
-        new(205, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(205, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The WorstRoomInTheGame room FX.</summary>
     public static RoomFxHeader WorstRoomInTheGame { get; } = new(nameof(WorstRoomInTheGame), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 32, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
 
     /// <summary>The Amphitheatre room FX.</summary>
     public static RoomFxHeader Amphitheatre { get; } = new(nameof(Amphitheatre),
     [
-        new(NorfairDoorDefinitions.RedKihunterShaft1, new(208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None)),
+        new(NorfairDoorDefinitions.RedKihunterShaft1, new(208, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None)),
     ],
-        new(1256, 208, SignedEightEight.FromSignedRaw(-128), 96, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
+        new(1256, 208, SignedEightEight.FromSignedRaw(-128), 96, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
 
     /// <summary>The LNSpringballMaze room FX.</summary>
     public static RoomFxHeader LNSpringballMaze { get; } = new(nameof(LNSpringballMaze), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
 
     /// <summary>The LNEscapePowerBombs room FX.</summary>
     public static RoomFxHeader LNEscapePowerBombs { get; } = new(nameof(LNEscapePowerBombs), [],
-        new(179, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(179, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The RedKihunterShaft room FX.</summary>
     public static RoomFxHeader RedKihunterShaft { get; } = new(nameof(RedKihunterShaft), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The Wasteland room FX.</summary>
     public static RoomFxHeader Wasteland { get; } = new(nameof(Wasteland), [],
-        new(704, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
+        new(704, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [AnimatedTileObject.HorizontalSpikes, AnimatedTileObject.VerticalSpikes], RoomFxPaletteBlend.None));
 
     /// <summary>The MetalPirates room FX.</summary>
     public static RoomFxHeader MetalPirates { get; } = new(nameof(MetalPirates), [],
-        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(null, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The ThreeMusketeers room FX.</summary>
     public static RoomFxHeader ThreeMusketeers { get; } = new(nameof(ThreeMusketeers), [],
-        new(720, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(720, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.LargeTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The RidleyETank room FX.</summary>
     public static RoomFxHeader RidleyETank { get; } = new(nameof(RidleyETank), [],
-        new(221, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(221, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The ScrewAttack room FX.</summary>
     public static RoomFxHeader ScrewAttack { get; } = new(nameof(ScrewAttack), [],
-        new(733, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairForegroundPalette4, PaletteFxObject.NorfairForegroundPalette5, PaletteFxObject.NorfairForegroundPalette6], [], RoomFxPaletteBlend.None));
+        new(733, null, SignedEightEight.FromSignedRaw(0), 0, RoomFxType.Acid, RoomVisorAnimation.Steady, RoomEffectBlendDefinitions.OverlayBrightens, RoomLiquidOptions.BackgroundWave | RoomLiquidOptions.SmallTide, [PaletteFxObject.SamusInHeat, PaletteFxObject.NorfairForegroundAndHeatPhase, PaletteFxObject.NorfairGreenForegroundHeatGlow, PaletteFxObject.NorfairPurpleForegroundHeatGlow, PaletteFxObject.NorfairDarkForegroundHeatGlow], [], RoomFxPaletteBlend.None));
 
     /// <summary>The LNFireflea room FX.</summary>
     public static RoomFxHeader LNFireflea { get; } = new(nameof(LNFireflea), [],

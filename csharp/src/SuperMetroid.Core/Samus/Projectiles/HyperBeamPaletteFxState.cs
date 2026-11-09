@@ -74,12 +74,12 @@ public sealed class HyperBeamPaletteFxState
         }
 
         RoomPaletteFxDefinition definition = HyperBeamDefinition();
-        if (definition.SetupCallback != SamusPaletteDefinitions.HyperBeamFx.SetupCallback ||
+        if (definition.Start != SamusPaletteDefinitions.HyperBeamFx.Start ||
             definition.InitialProgram != PaletteFxProgram.HyperBeam0)
         {
             throw new InvalidDataException(
-                $"Compiled Hyper Beam palette-FX definition is inconsistent: setup " +
-                $"{definition.SetupCallback}, program {definition.InitialProgram}.");
+                $"Compiled Hyper Beam palette-FX definition is inconsistent: start " +
+                $"{definition.Start}, program {definition.InitialProgram}.");
         }
 
         // The handler decrements before testing. A timer of two therefore displays a frame

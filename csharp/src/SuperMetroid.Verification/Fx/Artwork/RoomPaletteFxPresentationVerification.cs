@@ -71,8 +71,8 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
-            native.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
-            installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
+            native.Start(definition.DefinitionPointer, equippedItems: 0);
+            installed.Start(definition.DefinitionPointer, equippedItems: 0);
         }
 
         var nativeCgram = new SnesCgram();
@@ -80,9 +80,9 @@ internal static class RoomPaletteFxPresentationVerification
         int frames = NorfairEnvironmentalPaletteFxColorDefinitions.CycleFrames * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
@@ -118,7 +118,7 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (CrateriaLightningPaletteFxColorDefinition definition in
                  CrateriaLightningPaletteFxColorDefinitions.All)
         {
-            VerifyInstalledPaletteFxFamily(bus, presentation, $"Crateria {definition.Owner}", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, definition.CycleFrames * 2, CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY);
+            VerifyInstalledPaletteFxFamily(bus, presentation, $"Crateria {definition.Owner}", new PaletteFxFamilyShape { FrameCount = definition.Frames.Count, ColorsPerFrame = definition.ColorsPerFrame, ColorPointer = definition.ColorPointer, Definitions = [definition.DefinitionPointer] }, definition.CycleFrames * 2, CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight);
         }
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Ceres gunship-engine lights", new PaletteFxFamilyShape { FrameCount = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineFrameCount, ColorsPerFrame = CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineColorsPerFrame, ColorPointer = CeresCinematicLightPaletteFxColorDefinitions
@@ -497,17 +497,17 @@ internal static class RoomPaletteFxPresentationVerification
                 PaletteFxHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToEquipmentWord(),
                 _ => throw new InvalidOperationException(),
             };
-            native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
-            installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
+            native.Start(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
+            installed.Start(RoomPaletteFxDefinitions.SamusInHeat, SamusEquipmentWordCodec.FromEquipmentWord(equipment));
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             int steps = 1 + Enumerable.Range(0, definition.Frames.Count)
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment), TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
@@ -546,13 +546,13 @@ internal static class RoomPaletteFxPresentationVerification
             var native = new RoomPaletteFxSystem(nativeSession);
             var installedSession = new PaletteFxSessionState();
             var installed = new RoomPaletteFxSystem(installedSession);
-            native.SpawnDefinition(definition, equippedItems: 0);
-            installed.SpawnDefinition(definition, equippedItems: 0);
+            native.Start(definition, equippedItems: 0);
+            installed.Start(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             for (int frame = 0; frame < framesToRun; frame++)
             {
-                var conditions = new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false };
+                var conditions = new PaletteFxConditions { SamusY = samusY, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false };
                 StepFamily(native, shape, conditions);
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
                 StepFamily(installed, shape, conditions);
@@ -610,16 +610,16 @@ internal static class RoomPaletteFxPresentationVerification
             var native = new RoomPaletteFxSystem(nativeSession);
             var installedSession = new PaletteFxSessionState();
             var installed = new RoomPaletteFxSystem(installedSession);
-            native.SpawnDefinition(definition, equippedItems: 0);
-            installed.SpawnDefinition(definition, equippedItems: 0);
+            native.Start(definition, equippedItems: 0);
+            installed.Start(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             const int frames = 160;
             for (int frame = 0; frame < frames; frame++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
@@ -666,8 +666,8 @@ internal static class RoomPaletteFxPresentationVerification
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
-            native.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
-            installed.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
+            native.Start(definition.DefinitionPointer, equippedItems: 0);
+            installed.Start(definition.DefinitionPointer, equippedItems: 0);
         }
 
         var nativeCgram = new SnesCgram();
@@ -675,9 +675,9 @@ internal static class RoomPaletteFxPresentationVerification
         const int frames = 80;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(bus));
-            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(installed, installedCgram, presentation);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Maridia palette equals native output on frame {frame}");
@@ -727,15 +727,15 @@ internal static class RoomPaletteFxPresentationVerification
         Reject("room palette-FX rejects incomplete Norfair animation");
         document = document with { NorfairForegroundAndHeatPhase = heat };
 
-        PaletteRgb5[] frame = document.NorfairForegroundPalette4[0];
-        document.NorfairForegroundPalette4[0] = frame[..^1];
+        PaletteRgb5[] frame = document.NorfairGreenForeground[0];
+        document.NorfairGreenForeground[0] = frame[..^1];
         Reject("room palette-FX rejects incomplete Norfair frame");
-        document.NorfairForegroundPalette4[0] = frame;
+        document.NorfairGreenForeground[0] = frame;
 
-        PaletteRgb5 first = document.NorfairForegroundPalette5[0][0];
-        document.NorfairForegroundPalette5[0][0] = first with { Red = 32 };
+        PaletteRgb5 first = document.NorfairPurpleForeground[0][0];
+        document.NorfairPurpleForeground[0][0] = first with { Red = 32 };
         Reject("room palette-FX rejects non-RGB5 room color");
-        document.NorfairForegroundPalette5[0][0] = first;
+        document.NorfairPurpleForeground[0][0] = first;
 
         PaletteRgb5[][] waterfalls = document.MaridiaBackgroundWaterfalls;
         document = document with { MaridiaBackgroundWaterfalls = waterfalls[..^1] };
@@ -940,10 +940,10 @@ internal static class RoomPaletteFxPresentationVerification
         Reject("room palette-FX rejects incomplete Crateria escape lightning frame");
         document.CrateriaEscapeYellowLightning[0] = lightningFrame;
 
-        PaletteRgb5[][] pixel = document.CrateriaEscapeCreBlockPixel;
-        document = document with { CrateriaEscapeCreBlockPixel = pixel[..^1] };
+        PaletteRgb5[][] pixel = document.ParlorEscapeSky;
+        document = document with { ParlorEscapeSky = pixel[..^1] };
         Reject("room palette-FX rejects incomplete Crateria escape CRE pixel");
-        document = document with { CrateriaEscapeCreBlockPixel = pixel };
+        document = document with { ParlorEscapeSky = pixel };
 
         PaletteRgb5[] beaconFrame = document.BeaconFlashing[0];
         document.BeaconFlashing[0] = beaconFrame[..^1];

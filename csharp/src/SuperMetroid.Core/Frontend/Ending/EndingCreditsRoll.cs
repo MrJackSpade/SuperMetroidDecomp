@@ -141,7 +141,7 @@ internal sealed class EndingCreditsRoll
         CurrentRewardJump = null;
         sprites.Clear();
         _artwork.CurrentEndingLogo = new EndingLogo(_stage,
-            () => _stage.PaletteFxSystem.SpawnDefinition(EndingLogoDefinitions.LandingPaletteFx, 0));
+            () => _stage.PaletteFxSystem.Start(EndingLogoDefinitions.LandingPaletteFx, 0));
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 

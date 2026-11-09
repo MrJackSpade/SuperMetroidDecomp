@@ -83,12 +83,12 @@ public enum PaletteFxColours
     Beacon,
     /// <summary>Norfair's foreground that publishes the heat phase Samus's suit glows by.</summary>
     NorfairHeatForeground,
-    /// <summary>The Norfair foreground its <see cref="PaletteFxObject.NorfairForegroundPalette4"/> object animates.</summary>
-    NorfairForegroundPalette4,
-    /// <summary>The Norfair foreground its <see cref="PaletteFxObject.NorfairForegroundPalette5"/> object animates.</summary>
-    NorfairForegroundPalette5,
-    /// <summary>The Norfair foreground its <see cref="PaletteFxObject.NorfairForegroundPalette6"/> object animates.</summary>
-    NorfairForegroundPalette6,
+    /// <summary>The green and red parts of a heated Norfair room's foreground, glowing by <see cref="PaletteFxObject.NorfairGreenForegroundHeatGlow"/>.</summary>
+    NorfairGreenForeground,
+    /// <summary>The brown and purple parts of a heated Norfair room's foreground, glowing by <see cref="PaletteFxObject.NorfairPurpleForegroundHeatGlow"/>.</summary>
+    NorfairPurpleForeground,
+    /// <summary>The dark brown parts of a heated Norfair room's foreground, glowing by <see cref="PaletteFxObject.NorfairDarkForegroundHeatGlow"/>.</summary>
+    NorfairDarkForeground,
     /// <summary>Maridia's sand pits.</summary>
     MaridiaSandPits,
     /// <summary>Maridia's sand falls.</summary>
@@ -113,6 +113,6 @@ public enum PaletteFxColours
     UpperCrateriaLevel,
     /// <summary>Crateria's sky, flashed by the yellow lightning during the escape.</summary>
     CrateriaEscapeLightning,
-    /// <summary>The pixel of the CRE block the escape slightly changes.</summary>
-    CreBlockPixel,
+    /// <summary>The Parlor's dark sky, flickering with the escape's lightning.</summary>
+    ParlorEscapeSky,
 }

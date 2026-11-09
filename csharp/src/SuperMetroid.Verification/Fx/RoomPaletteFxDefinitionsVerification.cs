@@ -85,6 +85,7 @@ internal static class RoomPaletteFxDefinitionsVerification
 
         var guardedRom = NewRoomPaletteFxDefinitionGuard(rom, forbidden);
         Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(pointers));
+        Suite(nameof(VerifyColourEffectTurnOrder), () => VerifyColourEffectTurnOrder());
 
         for (int area = 0; area < AreaIds.RetailCount; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
@@ -98,7 +99,7 @@ internal static class RoomPaletteFxDefinitionsVerification
                 equippedItems: 0, areaMiniBossDefeated: false);
             AssertEqual(
                 PaletteFxObjectAccess.NativeAddress(effect),
-                ActivePaletteFxSlot(system).Id,
+                ActiveColourEffect(system).Id,
                 $"area {area} bit {bit} production room load");
         }
 
@@ -129,7 +130,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             "with fixed metadata reads forbidden.");
     }
 
-    /// <summary>Checks each definition's live slot ID, timer, pre-instruction, and initial list.</summary>
+    /// <summary>Checks each definition's started effect: its identity, first turn, countdown, condition and initial program.</summary>
     internal static void VerifyPaletteFxDispatchSpawns(IEnumerable<ushort> pointers)
     {
         foreach (ushort pointer in pointers)
@@ -137,25 +138,65 @@ internal static class RoomPaletteFxDefinitionsVerification
             RoomPaletteFxDefinition definition = RoomPaletteFxSelection.Get(pointer);
             var systemSession = new PaletteFxSessionState();
             var system = new RoomPaletteFxSystem(systemSession);
-            system.SpawnDefinition(pointer, equippedItems: 0);
-            var slot = ActivePaletteFxSlot(system);
-            AssertEqual(pointer, slot.Id, $"${pointer:X4} production ID");
-            AssertEqual(1, slot.FrameHold,
-                $"${pointer:X4} production timer");
+            system.Start(pointer, equippedItems: 0);
+            ColourEffect effect = ActiveColourEffect(system);
+            AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
+            // The first effect started takes the first turn, the native handler's highest object.
+            AssertEqual(0, effect.Turn, $"${pointer:X4} production turn");
+            AssertEqual(1, effect.UpdatesUntilNextStep,
+                $"${pointer:X4} production countdown");
+            // Every native start installs a pre-instruction that does nothing, the intro's included: no condition.
+            AssertEqual(null, effect.Condition, $"${pointer:X4} production condition");
             AssertEqual(
-                definition.SetupCallback == PaletteFxSetup.Intro
-                    ? PaletteFxFrameBehavior.Intro
-                    : PaletteFxFrameBehavior.Null,
-                slot.FrameBehavior,
-                $"${pointer:X4} production pre-instruction");
-            AssertEqual(
-                AnimationProgramCursor<PaletteFxProgram>.Start(definition.SetupCallback == PaletteFxSetup.Norfair
+                AnimationProgramCursor<PaletteFxProgram>.Start(definition.Start == ColourEffectStart.ChoosesHeatProgramForSuit
                     ? PaletteFxHeatPrograms.Start(PaletteFxHeatSuit.Power)
                     : definition.InitialProgram),
-                slot.Cursor,
+                effect.Step,
                 $"${pointer:X4} production initial program");
         }
 
+    }
+
+    /// <summary>
+    /// Checks the colour effects' turn order (#1554): effects take turns in the order they started, an effect started
+    /// after another ended takes the ended effect's turn and so shows before the effects started after it, and a start
+    /// while all eight turns are held is rejected.
+    /// </summary>
+    internal static void VerifyColourEffectTurnOrder()
+    {
+        var conditions = new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false };
+        var system = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        system.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
+        system.Start(PaletteFxObject.FadeInSuperMetroidTitleLogo, 0);
+        system.Start(PaletteFxObject.TitleScreenBabyMetroidTubeLight, 0);
+        AssertTrue(system.effects.Select(effect => effect.Turn).SequenceEqual([0, 1, 2]), "effects take turns in start order");
+
+        // The title logo's fade ends by itself; the loops keep running.
+        int updates = 0;
+        while (system.IsRunning(PaletteFxObject.FadeInSuperMetroidTitleLogo))
+        {
+            AssertTrue(++updates <= 64, "the title logo's fade ends");
+            system.StepScreen(conditions);
+        }
+        AssertTrue(system.effects.Select(effect => effect.Turn).SequenceEqual([0, 2]), "an ended effect leaves its turn free");
+
+        system.Start(PaletteFxObject.FadeInNintendoCopyright, 0);
+        AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
+            [PaletteFxObject.TitleScreenFlickeringDisplays, PaletteFxObject.FadeInNintendoCopyright, PaletteFxObject.TitleScreenBabyMetroidTubeLight]),
+            "a later start takes the lowest free turn");
+        var shown = new List<PaletteFxColours>();
+        system.StepScreen(conditions, (colours, _) => shown.Add(colours));
+        AssertTrue(shown.Count >= 2 && shown[0] == PaletteFxColours.TitleScreenDisplays && shown[1] == PaletteFxColours.NintendoCopyright,
+            "the copyright's first record shows after the displays' turn and before the tube light's");
+        AssertEqual<PaletteFxFrame?>(PaletteFxColorFrames.Of(PaletteFxProgram.CommonFadeInLogo, colorsPerFrame: 1).Frame(0),
+            system.RecordOf(PaletteFxColours.NintendoCopyright), "the copyright shows its first record on its first turn");
+
+        var full = new RoomPaletteFxSystem(new PaletteFxSessionState());
+        for (int turn = 0; turn < 8; turn++)
+            full.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0);
+        AssertThrows<InvalidOperationException>(() => full.Start(PaletteFxObject.TitleScreenFlickeringDisplays, 0),
+            "a start while all eight turns are held does not start");
+        AssertEqual(8, full.effects.Count, "eight effects run at most");
     }
 
     /// <summary>Enumerates native fixed-size definition records within one bank-$8D range.</summary>
@@ -168,18 +209,10 @@ internal static class RoomPaletteFxDefinitionsVerification
         }
     }
 
-    /// <summary>Finds the populated private slot after a production spawn or room load.</summary>
-    private static RoomPaletteFxSystem.PaletteFxSlot ActivePaletteFxSlot(RoomPaletteFxSystem system)
-    {
-        var slots = system.slots;
-        for (int index = slots.Length - 1; index >= 0; index--)
-        {
-            var slot = slots[index];
-            if (slot.Id != 0)
-                return slot;
-        }
-        throw new InvalidOperationException("Expected one active palette-FX slot.");
-    }
+    /// <summary>The one effect running after a production start or room load.</summary>
+    private static ColourEffect ActiveColourEffect(RoomPaletteFxSystem system) => system.effects is [ColourEffect effect]
+        ? effect
+        : throw new InvalidOperationException($"Expected one running colour effect, found {system.effects.Count}.");
 
     /// <summary>Rejects runtime reads of compiled definition and area-list metadata bytes.</summary>
     internal static CartridgeReadGuard NewRoomPaletteFxDefinitionGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>

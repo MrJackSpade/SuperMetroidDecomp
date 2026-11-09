@@ -46,7 +46,7 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomFxEarthquakeRequest(0, -1), "negative earthquake request timer bits");
 
         static PaletteFxConditions Conditions(int samusY) =>
-            new() { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false };
+            new() { SamusY = samusY, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, FirefleaDarknessStep = darkness };
         static RoomFxOverlayFrame FrameRandom(int randomNumber) =>

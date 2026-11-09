@@ -342,9 +342,9 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
 
         StepBabyMetroidAnimation();
-        // The title calls the same palette-FX interpreter as rooms. Its two console
+        // The title runs the same colour effects as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
-        consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         tubeLightRecord = consolePaletteFx.RecordOf(PaletteFxColours.BabyMetroidTubeLight) ?? tubeLightRecord;
         displaysRecord = consolePaletteFx.RecordOf(PaletteFxColours.TitleScreenDisplays) ?? displaysRecord;
         // The skip reconstruction follows PaletteFxHandler for this frame. Restart
@@ -357,8 +357,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-        consolePaletteFx.SpawnDefinition(TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, 0);
-        consolePaletteFx.SpawnDefinition(TitleSequenceDefinitions.ConsolePaletteFx.FastLights, 0);
+        consolePaletteFx.Start(TitleSequenceDefinitions.ConsolePaletteFx.SlowLights, 0);
+        consolePaletteFx.Start(TitleSequenceDefinitions.ConsolePaletteFx.FastLights, 0);
     }
 
     /// <summary>

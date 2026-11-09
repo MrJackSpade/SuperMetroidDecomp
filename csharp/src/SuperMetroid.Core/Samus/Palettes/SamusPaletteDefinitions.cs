@@ -54,8 +54,8 @@ public static class SamusPaletteDefinitions
     /// <summary>Palette object spawned with the Hyper Beam.</summary>
     public static class HyperBeamFx
     {
-        /// <summary>Expected no-op setup callback in the object definition.</summary>
-        public const PaletteFxSetup SetupCallback = PaletteFxSetup.Null;
+        /// <summary>How the Hyper Beam's colour effect starts: plainly.</summary>
+        public const ColourEffectStart Start = ColourEffectStart.Plain;
     }
 
     /// <summary>Palette tables consumed by the fatal-damage sequence.</summary>

@@ -399,11 +399,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             if (PaletteFx is null)
             {
                 PaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-                PaletteFx.SpawnDefinition(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
+                PaletteFx.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, 0);
             }
             // The flicker's records are shades the import pre-colours the scene's pictures in (#1512); the scene names the
             // record its engine last showed, which stays shown should the program be rebuilt.
-            PaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            PaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             engineRecord = PaletteFx.RecordOf(PaletteFxColours.CutsceneGunshipEngine) ?? engineRecord;
             if (PaletteFx.SoundRequests.Count != 0 || PaletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");

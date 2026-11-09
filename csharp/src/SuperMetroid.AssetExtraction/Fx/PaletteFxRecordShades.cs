@@ -93,9 +93,8 @@ internal static class PaletteFxRecordShades
                     case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep { Cue: PaletteFxCue.SetColours setColours }:
                         colours = setColours.Target;
                         break;
-                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep { Cue: PaletteFxCue.SetFrameBehavior behavior }:
-                        if (SwitchedTo(behavior.FrameBehavior) is { } switched)
-                            pending.Push(new PaletteFxReachedProgram(switched, colours));
+                    case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.CueStep { Cue: PaletteFxCue.Watch { Condition: ColourEffectCondition.RestartsWhileSamusIsHigh high } }:
+                        pending.Push(new PaletteFxReachedProgram(high.Restart, colours));
                         break;
                     case AnimationProgramStep<PaletteFxProgram, PaletteFxFrame, PaletteFxCue>.ShowStep show:
                         if (colours is { } group)
@@ -122,19 +121,4 @@ internal static class PaletteFxRecordShades
             }
         }
     }
-
-    /// <summary>The program a frame behaviour switches its object to, or null for one that switches to none.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="behavior"/> is not a defined frame behaviour.</exception>
-    private static PaletteFxProgram? SwitchedTo(PaletteFxFrameBehavior behavior) => behavior switch
-    {
-        PaletteFxFrameBehavior.SwitchAboveY380 => PaletteFxProgram.Crateria11,
-        PaletteFxFrameBehavior.SwitchAboveY380Second => PaletteFxProgram.CrateriaAboveY380Second,
-        PaletteFxFrameBehavior.Null => null,
-        PaletteFxFrameBehavior.Cleared => null,
-        PaletteFxFrameBehavior.Intro => null,
-        PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies => null,
-        PaletteFxFrameBehavior.Heat => null,
-        PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies => null,
-        _ => throw new ArgumentOutOfRangeException(nameof(behavior), behavior, "Undefined palette-FX frame behaviour."),
-    };
 }

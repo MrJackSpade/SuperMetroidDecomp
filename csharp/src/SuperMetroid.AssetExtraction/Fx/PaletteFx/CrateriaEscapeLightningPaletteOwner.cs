@@ -6,6 +6,6 @@ public enum CrateriaEscapeLightningPaletteOwner
 {
     /// <summary>Crateria palette effect 4, running the eleven-color yellow-lightning loop over the <see cref="PaletteFxColours.CrateriaEscapeLightning"/>.</summary>
     YellowLightning,
-    /// <summary>Crateria palette effect 40, running the five-color CRE-block pixel tail over the <see cref="PaletteFxColours.CreBlockPixel"/> with the lightning cadence.</summary>
-    CreBlockPixel,
+    /// <summary>Crateria palette effect 40, running the lightning's five-color dark tail over the <see cref="PaletteFxColours.ParlorEscapeSky"/> with the lightning cadence.</summary>
+    ParlorSky,
 }

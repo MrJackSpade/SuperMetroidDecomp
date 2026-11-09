@@ -2,13 +2,13 @@ using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.EnsureVerification.PaletteFx;
 
-/// <summary>Verification view of palette-FX slot occupancy.</summary>
+/// <summary>Verification view of the running colour effects.</summary>
 internal static class PaletteFxAccess
 {
-    /// <summary>Reads palette-FX slot occupancy from the production system during verification.</summary>
+    /// <summary>Reads the running colour effects from the production system during verification.</summary>
     extension(RoomPaletteFxSystem fx)
     {
-        /// <summary>Counts slots that run an object.</summary>
-        internal int ActiveCount => fx.slots.Count(slot => slot.Object is not null);
+        /// <summary>Counts the running effects.</summary>
+        internal int ActiveCount => fx.effects.Count;
     }
 }

@@ -124,12 +124,12 @@ internal static class LookupStream4Verification
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
         var cgram = new SnesCgram();
-        fx.SpawnDefinition(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
+        fx.Start(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
         {
-            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
@@ -137,7 +137,7 @@ internal static class LookupStream4Verification
                     ? row.Colors[color - destination] : (ushort)0;
                 AssertEqual(expected, cgram.Colors[color], "Actual foreground color exposure and untouched CGRAM");
             }
-            AssertTrue(fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
+            AssertTrue(fx.IsRunning(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
             ticks++;
         }
         AssertEqual(rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
@@ -148,9 +148,9 @@ internal static class LookupStream4Verification
             var other => throw new InvalidOperationException($"The stars' first step {other} lasts no updates."),
         }, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
-        AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
+        AssertTrue(!fx.IsRunning(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
         foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Duration(invalid), "Foreground duration domain");
@@ -217,12 +217,12 @@ internal static class LookupStream4Verification
             var fxSession = new PaletteFxSessionState();
             var fx = new RoomPaletteFxSystem(fxSession);
             var cgram = new SnesCgram();
-            fx.SpawnDefinition(definition.DefinitionPointer, 0);
+            fx.Start(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
             foreach (var row in nativeRows)
             for (int hold = 0; hold < row.Duration; hold++)
             {
-                fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(fx, cgram, new ReferencePaletteFxColorSource(guarded));
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                 {
@@ -233,7 +233,7 @@ internal static class LookupStream4Verification
                 ticks++;
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Ambient mechanics have no live cartridge dependency");
-            AssertTrue(fx.IsDefinitionActive(definition.DefinitionPointer), "Ambient loop stays active");
+            AssertTrue(fx.IsRunning(definition.DefinitionPointer), "Ambient loop stays active");
         }
         AssertEqual(164, ticks, "Both exact ambient loops confirmed twice");
         Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
@@ -252,12 +252,12 @@ internal static class LookupStream4Verification
         var fxSession = new PaletteFxSessionState();
         var fx = new RoomPaletteFxSystem(fxSession);
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
-            fx.SpawnDefinition(program.DefinitionPointer, 0);
+            fx.Start(program.DefinitionPointer, 0);
         for (int tick = 0; tick <= 80; tick++)
         {
             // A frontend screen's step shows each loop's record without writing colours (#1512); the import pre-colours
             // the record's shade from the selected colours, which must hold the frame's authored colours.
-            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false }, (_, _) => { });
+            fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false }, (_, _) => { });
             foreach (var program in TitleScreenAmbientPaletteOwners.All)
             {
                 var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
@@ -366,18 +366,18 @@ internal static class LookupStream4Verification
             var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
                                                                  var installed = new RoomPaletteFxSystem(installedSession);
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
-            native.SpawnDefinition(definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(definition.DefinitionPointer, 0);
+            native.Start(definition.DefinitionPointer, 0);
+            installed.Start(definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
             {
-                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(nativeBus));
-                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, stock);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
-            AssertTrue(installed.IsDefinitionActive(definition.DefinitionPointer), "environmental palette retains native loop behavior");
+            AssertTrue(installed.IsRunning(definition.DefinitionPointer), "environmental palette retains native loop behavior");
             foreach (ushort pointer in new[] { definition.ProgramStart, definition.FirstFramePointer, (ushort)(definition.FramePointer(0) + definition.FrameByteCount - 2), definition.LoopInstructionPointer })
                 AssertTrue(!MaridiaEnvironmentalColors.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
         }
@@ -424,18 +424,18 @@ internal static class LookupStream4Verification
             var native = new RoomPaletteFxSystem(nativeSession); var installedSession = new PaletteFxSessionState();
                                                                  var installed = new RoomPaletteFxSystem(installedSession);
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
-            native.SpawnDefinition(definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(definition.DefinitionPointer, 0);
+            native.Start(definition.DefinitionPointer, 0);
+            installed.Start(definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)
             {
-                native.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(native, nativeCgram, new ReferencePaletteFxColorSource(nativeBus));
-                installed.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
                 PaletteFxRoomLook.LayShownShades(installed, installedCgram, stock);
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");
-            AssertTrue(!installed.IsDefinitionActive(definition.DefinitionPointer), "installed text fade deletes at original time");
+            AssertTrue(!installed.IsRunning(definition.DefinitionPointer), "installed text fade deletes at original time");
         }
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = all[invalid], "text owner bounds");

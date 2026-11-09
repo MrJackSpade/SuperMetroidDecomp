@@ -16,12 +16,12 @@ public sealed record RoomPaletteFxPresentationDocument
     public PaletteRgb5[][]? SamusHeatGravitySuit { get; init; }
     /// <summary>Gets sixteen five-color phases for foreground palette three, synchronized with the compiled phase publication driving Samus's heat palette.</summary>
     public required PaletteRgb5[][] NorfairForegroundAndHeatPhase { get; init; }
-    /// <summary>Gets sixteen five-color phases for Norfair foreground palette four; native skip commands retain the intervening CGRAM entries.</summary>
-    public required PaletteRgb5[][] NorfairForegroundPalette4 { get; init; }
-    /// <summary>Gets sixteen five-color phases for Norfair foreground palette five, synchronized with the environmental heat cycle.</summary>
-    public required PaletteRgb5[][] NorfairForegroundPalette5 { get; init; }
-    /// <summary>Gets sixteen five-color phases for Norfair foreground palette six, synchronized with the environmental heat cycle.</summary>
-    public required PaletteRgb5[][] NorfairForegroundPalette6 { get; init; }
+    /// <summary>Gets sixteen five-color phases for the heat glow on Norfair's green and red foreground; native skip commands retain the intervening CGRAM entries.</summary>
+    public required PaletteRgb5[][] NorfairGreenForeground { get; init; }
+    /// <summary>Gets sixteen five-color phases for the heat glow on Norfair's brown and purple foreground, synchronized with the environmental heat cycle.</summary>
+    public required PaletteRgb5[][] NorfairPurpleForeground { get; init; }
+    /// <summary>Gets sixteen five-color phases for the heat glow on Norfair's dark brown foreground, synchronized with the environmental heat cycle.</summary>
+    public required PaletteRgb5[][] NorfairDarkForeground { get; init; }
     /// <summary>Gets four eight-color sand-pit rotation records, containing two four-color sand bands per phase.</summary>
     public required PaletteRgb5[][] MaridiaSandPits { get; init; }
     /// <summary>Gets four four-color rotation phases for Maridia's falling sand.</summary>
@@ -106,8 +106,8 @@ public sealed record RoomPaletteFxPresentationDocument
     public required PaletteRgb5[][] UpperCrateriaEscapeRedFlash { get; init; }
     /// <summary>Gets eleven eleven-color yellow-lightning records for Crateria's escape palette.</summary>
     public required PaletteRgb5[][] CrateriaEscapeYellowLightning { get; init; }
-    /// <summary>Gets eleven five-color records for the shared CRE-block pixel color tail during Crateria escape lightning.</summary>
-    public required PaletteRgb5[][] CrateriaEscapeCreBlockPixel { get; init; }
+    /// <summary>Gets eleven five-color records for the Parlor's dark sky, the yellow lightning's dark tail flickering in its cadence during the escape.</summary>
+    public required PaletteRgb5[][] ParlorEscapeSky { get; init; }
     /// <summary>Gets ten four-color beacon-flash records shared by Crateria and Brinstar, retaining the native sound instruction between record groups.</summary>
     public required PaletteRgb5[][] BeaconFlashing { get; init; }
 }

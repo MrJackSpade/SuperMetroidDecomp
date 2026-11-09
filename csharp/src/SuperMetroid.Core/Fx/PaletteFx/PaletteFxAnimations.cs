@@ -4,9 +4,9 @@ using P = SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgram;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The palette-FX objects' programs (#1298). Generated from the verified animation scripts:
-/// each timed colour record shows a <see cref="PaletteFxFrame"/> and each command becomes a <see cref="PaletteFxCue"/>,
-/// a counter step or a branch; the object's loop timer is the program counter.
+/// The colour effects' programs (#1298, #1554): each effect's named steps, read by the effect that runs them.
+/// A timed colour record shows a <see cref="PaletteFxFrame"/> for its duration, a <see cref="PaletteFxCue"/> names the
+/// colours, a condition, a heat phase or a sound, and a counted repeat counts down the running effect's own repeats.
 /// </summary>
 public static class PaletteFxAnimations
 {
@@ -400,7 +400,7 @@ public static class PaletteFxAnimations
             Show(226, 2),
             GoTo(P.HyperBeam1),
         ],
-        [P.ListD9D0] =
+        [P.UnusedCinematicFade] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.UnusedCinematicFade)),
             Show(227, 2),
@@ -588,7 +588,7 @@ public static class PaletteFxAnimations
         [P.BombTorizoBelly0] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.EndsWhenTorizoDies.Instance)),
             FallInto(P.BombTorizoBelly1),
         ],
         [P.BombTorizoBelly1] =
@@ -604,7 +604,7 @@ public static class PaletteFxAnimations
         [P.GoldenTorizoBelly0] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TorizoBelly)),
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenEnemyZeroDies)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.EndsWhenTorizoDies.Instance)),
             FallInto(P.GoldenTorizoBelly1),
         ],
         [P.GoldenTorizoBelly1] =
@@ -619,7 +619,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatPowerSuit0] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatPowerSuit1),
         ],
@@ -705,7 +705,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatVariaSuit0] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatVariaSuit2),
         ],
@@ -791,7 +791,7 @@ public static class PaletteFxAnimations
         ],
         [P.SamusInHeatGravitySuit0] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.Heat)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.BurnsSamusInHeat.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.HeatSuitGlow)),
             FallInto(P.SamusInHeatGravitySuit2),
         ],
@@ -875,12 +875,12 @@ public static class PaletteFxAnimations
             Show(346, 16),
             GoTo(P.SamusInHeatGravitySuit2),
         ],
-        [P.WreckedShip10] =
+        [P.WreckedShipGreenLights] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.WreckedShipGreenLights)),
-            FallInto(P.WreckedShip11),
+            FallInto(P.WreckedShipGreenLightsCycle),
         ],
-        [P.WreckedShip11] =
+        [P.WreckedShipGreenLightsCycle] =
         [
             Show(347, 10),
             Show(348, 10),
@@ -890,21 +890,21 @@ public static class PaletteFxAnimations
             Show(352, 10),
             Show(353, 10),
             Show(354, 10),
-            GoTo(P.WreckedShip11),
+            GoTo(P.WreckedShipGreenLightsCycle),
         ],
-        [P.Crateria10] =
+        [P.CrateriaLightning] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.SwitchAboveY380)),
+            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, P.CrateriaLightningCycle))),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.LandingSiteLightning)),
-            FallInto(P.Crateria11),
+            FallInto(P.CrateriaLightningCycle),
         ],
-        [P.Crateria11] =
+        [P.CrateriaLightningCycle] =
         [
             Show(355, 240),
             SetCounter(2),
-            FallInto(P.Crateria12),
+            FallInto(P.CrateriaLightningRepeatedFlash),
         ],
-        [P.Crateria12] =
+        [P.CrateriaLightningRepeatedFlash] =
         [
             Show(356, 2),
             Show(357, 1),
@@ -913,33 +913,33 @@ public static class PaletteFxAnimations
             Show(360, 1),
             Show(361, 1),
             Show(362, 2),
-            RepeatWhileCounting(P.Crateria12),
+            RepeatWhileCounting(P.CrateriaLightningRepeatedFlash),
             Show(363, 240),
             SetCounter(1),
-            FallInto(P.Crateria13),
+            FallInto(P.CrateriaLightningClosingFlash),
         ],
-        [P.Crateria13] =
+        [P.CrateriaLightningClosingFlash] =
         [
             Show(364, 1),
             Show(365, 1),
             Show(366, 1),
             Show(367, 2),
-            RepeatWhileCounting(P.Crateria13),
-            GoTo(P.Crateria11),
+            RepeatWhileCounting(P.CrateriaLightningClosingFlash),
+            GoTo(P.CrateriaLightningCycle),
         ],
-        [P.ListEC6E] =
+        [P.UnusedDarkLightning] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.SwitchAboveY380Second)),
+            Cue(new PaletteFxCue.Watch(new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningPaletteFxColorDefinitions.SamusHighOnSurfaceHeight, P.UnusedDarkLightningCycle))),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.UnusedDarkLightning)),
-            FallInto(P.CrateriaAboveY380Second),
+            FallInto(P.UnusedDarkLightningCycle),
         ],
-        [P.CrateriaAboveY380Second] =
+        [P.UnusedDarkLightningCycle] =
         [
             Show(368, 240),
             SetCounter(2),
-            FallInto(P.ListEC8B),
+            FallInto(P.UnusedDarkLightningRepeatedFlash),
         ],
-        [P.ListEC8B] =
+        [P.UnusedDarkLightningRepeatedFlash] =
         [
             Show(369, 2),
             Show(370, 1),
@@ -948,27 +948,27 @@ public static class PaletteFxAnimations
             Show(373, 1),
             Show(374, 1),
             Show(375, 2),
-            RepeatWhileCounting(P.ListEC8B),
+            RepeatWhileCounting(P.UnusedDarkLightningRepeatedFlash),
             Show(376, 240),
             Show(377, 240),
             SetCounter(1),
-            FallInto(P.ListED34),
+            FallInto(P.UnusedDarkLightningClosingFlash),
         ],
-        [P.ListED34] =
+        [P.UnusedDarkLightningClosingFlash] =
         [
             Show(378, 1),
             Show(379, 1),
             Show(380, 1),
             Show(381, 2),
-            RepeatWhileCounting(P.ListED34),
-            GoTo(P.CrateriaAboveY380Second),
+            RepeatWhileCounting(P.UnusedDarkLightningClosingFlash),
+            GoTo(P.UnusedDarkLightningCycle),
         ],
-        [P.Brinstar10] =
+        [P.BrinstarBlueBackgroundSpores] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarBlueSpores)),
-            FallInto(P.Brinstar11),
+            FallInto(P.BrinstarBlueBackgroundSporesCycle),
         ],
-        [P.Brinstar11] =
+        [P.BrinstarBlueBackgroundSporesCycle] =
         [
             Show(382, 10),
             Show(383, 10),
@@ -984,15 +984,15 @@ public static class PaletteFxAnimations
             Show(393, 10),
             Show(394, 10),
             Show(395, 10),
-            GoTo(P.Brinstar11),
+            GoTo(P.BrinstarBlueBackgroundSporesCycle),
         ],
-        [P.Brinstar80] =
+        [P.SporeSpawnBlueBackgroundSpores] =
         [
-            Cue(new PaletteFxCue.SetFrameBehavior(FrameBehavior: PaletteFxFrameBehavior.DeleteWhenAreaMiniBossDies)),
+            Cue(new PaletteFxCue.Watch(ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance)),
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarBlueSpores)),
-            FallInto(P.Brinstar81),
+            FallInto(P.SporeSpawnBlueBackgroundSporesCycle),
         ],
-        [P.Brinstar81] =
+        [P.SporeSpawnBlueBackgroundSporesCycle] =
         [
             Show(396, 10),
             Show(397, 10),
@@ -1008,14 +1008,14 @@ public static class PaletteFxAnimations
             Show(407, 10),
             Show(408, 10),
             Show(409, 10),
-            GoTo(P.Brinstar81),
+            GoTo(P.SporeSpawnBlueBackgroundSporesCycle),
         ],
-        [P.Brinstar20] =
+        [P.BrinstarRedBackgroundGlow] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.BrinstarRedGlow)),
-            FallInto(P.Brinstar21),
+            FallInto(P.BrinstarRedBackgroundGlowCycle),
         ],
-        [P.Brinstar21] =
+        [P.BrinstarRedBackgroundGlowCycle] =
         [
             Show(410, 10),
             Show(411, 10),
@@ -1031,14 +1031,14 @@ public static class PaletteFxAnimations
             Show(421, 10),
             Show(422, 10),
             Show(423, 10),
-            GoTo(P.Brinstar21),
+            GoTo(P.BrinstarRedBackgroundGlowCycle),
         ],
-        [P.Crateria80Brinstar40] =
+        [P.BeaconFlashing] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.Beacon)),
-            FallInto(P.Crateria80Brinstar41),
+            FallInto(P.BeaconFlashingCycle),
         ],
-        [P.Crateria80Brinstar41] =
+        [P.BeaconFlashingCycle] =
         [
             Show(424, 10),
             Show(425, 10),
@@ -1051,14 +1051,14 @@ public static class PaletteFxAnimations
             Show(431, 10),
             Show(432, 10),
             Show(433, 10),
-            GoTo(P.Crateria80Brinstar41),
+            GoTo(P.BeaconFlashingCycle),
         ],
-        [P.Norfair20] =
+        [P.NorfairForegroundAndHeatPhase] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairHeatForeground)),
-            FallInto(P.Norfair21),
+            FallInto(P.NorfairForegroundAndHeatPhaseCycle),
         ],
-        [P.Norfair21] =
+        [P.NorfairForegroundAndHeatPhaseCycle] =
         [
             Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 0)),
             Show(434, 16),
@@ -1092,14 +1092,14 @@ public static class PaletteFxAnimations
             Show(448, 4),
             Cue(new PaletteFxCue.SetHeatPaletteIndex(HeatPhase: 15)),
             Show(449, 16),
-            GoTo(P.Norfair21),
+            GoTo(P.NorfairForegroundAndHeatPhaseCycle),
         ],
-        [P.Norfair40] =
+        [P.NorfairGreenForegroundHeatGlow] =
         [
-            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairForegroundPalette4)),
-            FallInto(P.Norfair41),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairGreenForeground)),
+            FallInto(P.NorfairGreenForegroundHeatGlowCycle),
         ],
-        [P.Norfair41] =
+        [P.NorfairGreenForegroundHeatGlowCycle] =
         [
             Show(450, 16),
             Show(451, 4),
@@ -1117,14 +1117,14 @@ public static class PaletteFxAnimations
             Show(463, 4),
             Show(464, 4),
             Show(465, 16),
-            GoTo(P.Norfair41),
+            GoTo(P.NorfairGreenForegroundHeatGlowCycle),
         ],
-        [P.Norfair80] =
+        [P.NorfairPurpleForegroundHeatGlow] =
         [
-            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairForegroundPalette5)),
-            FallInto(P.Norfair81),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairPurpleForeground)),
+            FallInto(P.NorfairPurpleForegroundHeatGlowCycle),
         ],
-        [P.Norfair81] =
+        [P.NorfairPurpleForegroundHeatGlowCycle] =
         [
             Show(466, 16),
             Show(467, 4),
@@ -1142,14 +1142,14 @@ public static class PaletteFxAnimations
             Show(479, 4),
             Show(480, 4),
             Show(481, 16),
-            GoTo(P.Norfair81),
+            GoTo(P.NorfairPurpleForegroundHeatGlowCycle),
         ],
-        [P.Norfair100] =
+        [P.NorfairDarkForegroundHeatGlow] =
         [
-            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairForegroundPalette6)),
-            FallInto(P.Norfair101),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.NorfairDarkForeground)),
+            FallInto(P.NorfairDarkForegroundHeatGlowCycle),
         ],
-        [P.Norfair101] =
+        [P.NorfairDarkForegroundHeatGlowCycle] =
         [
             Show(482, 16),
             Show(483, 4),
@@ -1167,40 +1167,40 @@ public static class PaletteFxAnimations
             Show(495, 4),
             Show(496, 4),
             Show(497, 16),
-            GoTo(P.Norfair101),
+            GoTo(P.NorfairDarkForegroundHeatGlowCycle),
         ],
-        [P.Maridia10] =
+        [P.MaridiaSandPits] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.MaridiaSandPits)),
-            FallInto(P.Maridia11),
+            FallInto(P.MaridiaSandPitsCycle),
         ],
-        [P.Maridia11] =
+        [P.MaridiaSandPitsCycle] =
         [
             Show(498, 10),
             Show(499, 10),
             Show(500, 10),
             Show(501, 10),
-            GoTo(P.Maridia11),
+            GoTo(P.MaridiaSandPitsCycle),
         ],
-        [P.Maridia20] =
+        [P.MaridiaSandFalls] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.MaridiaSandFalls)),
-            FallInto(P.Maridia21),
+            FallInto(P.MaridiaSandFallsCycle),
         ],
-        [P.Maridia21] =
+        [P.MaridiaSandFallsCycle] =
         [
             Show(502, 10),
             Show(503, 10),
             Show(504, 10),
             Show(505, 10),
-            GoTo(P.Maridia21),
+            GoTo(P.MaridiaSandFallsCycle),
         ],
-        [P.Maridia40] =
+        [P.MaridiaBackgroundWaterfalls] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.MaridiaBackgroundWaterfalls)),
-            FallInto(P.Maridia41),
+            FallInto(P.MaridiaBackgroundWaterfallsCycle),
         ],
-        [P.Maridia41] =
+        [P.MaridiaBackgroundWaterfallsCycle] =
         [
             Show(506, 2),
             Show(507, 2),
@@ -1210,19 +1210,19 @@ public static class PaletteFxAnimations
             Show(511, 2),
             Show(512, 2),
             Show(513, 2),
-            GoTo(P.Maridia41),
+            GoTo(P.MaridiaBackgroundWaterfallsCycle),
         ],
-        [P.Tourian4] =
+        [P.UnusedTourianGlowClone] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
-            GoTo(P.CommonTourian2Tourian41),
+            GoTo(P.CommonTourianGlowCycle),
         ],
-        [P.Tourian2] =
+        [P.TourianGlowingArkanoidBlocksAndRedOrbs] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
-            FallInto(P.CommonTourian2Tourian41),
+            FallInto(P.CommonTourianGlowCycle),
         ],
-        [P.CommonTourian2Tourian41] =
+        [P.CommonTourianGlowCycle] =
         [
             Show(514, 10),
             Show(515, 10),
@@ -1235,14 +1235,14 @@ public static class PaletteFxAnimations
             Show(522, 10),
             Show(523, 10),
             Show(524, 10),
-            GoTo(P.CommonTourian2Tourian41),
+            GoTo(P.CommonTourianGlowCycle),
         ],
-        [P.Tourian80] =
+        [P.TourianShutterRedFlashing] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianShutters)),
-            FallInto(P.Tourian81),
+            FallInto(P.TourianShutterRedFlashingCycle),
         ],
-        [P.Tourian81] =
+        [P.TourianShutterRedFlashingCycle] =
         [
             Show(525, 2),
             Show(526, 2),
@@ -1258,14 +1258,14 @@ public static class PaletteFxAnimations
             Show(536, 2),
             Show(537, 2),
             Show(538, 2),
-            GoTo(P.Tourian81),
+            GoTo(P.TourianShutterRedFlashingCycle),
         ],
-        [P.Tourian100] =
+        [P.TourianBackgroundRedFlashing] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianBackground)),
-            FallInto(P.Tourian101),
+            FallInto(P.TourianBackgroundRedFlashingCycle),
         ],
-        [P.Tourian101] =
+        [P.TourianBackgroundRedFlashingCycle] =
         [
             Show(539, 4),
             Show(540, 4),
@@ -1281,19 +1281,19 @@ public static class PaletteFxAnimations
             Show(550, 4),
             Show(551, 4),
             Show(552, 4),
-            GoTo(P.Tourian101),
+            GoTo(P.TourianBackgroundRedFlashingCycle),
         ],
-        [P.Tourian20] =
+        [P.TourianGeneralLevelRedFlashing] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianLevel)),
-            GoTo(P.CommonTourian20Tourian40),
+            GoTo(P.CommonTourianEscapeRedFlashingCycle),
         ],
-        [P.Tourian40] =
+        [P.TourianRedFlashingArkanoidBlocksAndRedOrbs] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.TourianArkanoidBlocksAndOrbs)),
-            FallInto(P.CommonTourian20Tourian40),
+            FallInto(P.CommonTourianEscapeRedFlashingCycle),
         ],
-        [P.CommonTourian20Tourian40] =
+        [P.CommonTourianEscapeRedFlashingCycle] =
         [
             Show(553, 2),
             Show(554, 2),
@@ -1309,14 +1309,14 @@ public static class PaletteFxAnimations
             Show(564, 2),
             Show(565, 2),
             Show(566, 2),
-            GoTo(P.CommonTourian20Tourian40),
+            GoTo(P.CommonTourianEscapeRedFlashingCycle),
         ],
-        [P.Crateria80] =
+        [P.OldTourianRedFlashing] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.OldTourianLevel)),
-            FallInto(P.Crateria81),
+            FallInto(P.OldTourianRedFlashingCycle),
         ],
-        [P.Crateria81] =
+        [P.OldTourianRedFlashingCycle] =
         [
             Show(567, 3),
             Show(568, 3),
@@ -1332,14 +1332,14 @@ public static class PaletteFxAnimations
             Show(578, 3),
             Show(579, 3),
             Show(580, 3),
-            GoTo(P.Crateria81),
+            GoTo(P.OldTourianRedFlashingCycle),
         ],
-        [P.Crateria100] =
+        [P.OldTourianBackgroundRailingsFlashYellow] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.OldTourianRailings)),
-            FallInto(P.Crateria101),
+            FallInto(P.OldTourianBackgroundRailingsFlashYellowCycle),
         ],
-        [P.Crateria101] =
+        [P.OldTourianBackgroundRailingsFlashYellowCycle] =
         [
             Show(581, 16),
             Show(582, 1),
@@ -1356,14 +1356,14 @@ public static class PaletteFxAnimations
             Show(593, 1),
             Show(594, 1),
             Show(595, 1),
-            GoTo(P.Crateria101),
+            GoTo(P.OldTourianBackgroundRailingsFlashYellowCycle),
         ],
-        [P.Crateria200] =
+        [P.OldTourianBackgroundPanelsFlashYellow] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.OldTourianPanels)),
-            FallInto(P.Crateria201),
+            FallInto(P.OldTourianBackgroundPanelsFlashYellowCycle),
         ],
-        [P.Crateria201] =
+        [P.OldTourianBackgroundPanelsFlashYellowCycle] =
         [
             Show(596, 16),
             Show(597, 1),
@@ -1380,14 +1380,14 @@ public static class PaletteFxAnimations
             Show(608, 1),
             Show(609, 1),
             Show(610, 1),
-            GoTo(P.Crateria201),
+            GoTo(P.OldTourianBackgroundPanelsFlashYellowCycle),
         ],
-        [P.Crateria20] =
+        [P.UpperCrateriaRedFlashing] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.UpperCrateriaLevel)),
-            FallInto(P.Crateria21),
+            FallInto(P.UpperCrateriaRedFlashingCycle),
         ],
-        [P.Crateria21] =
+        [P.UpperCrateriaRedFlashingCycle] =
         [
             Show(611, 8),
             Show(612, 7),
@@ -1403,14 +1403,14 @@ public static class PaletteFxAnimations
             Show(622, 5),
             Show(623, 6),
             Show(624, 7),
-            GoTo(P.Crateria21),
+            GoTo(P.UpperCrateriaRedFlashingCycle),
         ],
-        [P.Crateria40] =
+        [P.CrateriaEscapeYellowLightning] =
         [
             Cue(new PaletteFxCue.SetColours(PaletteFxColours.CrateriaEscapeLightning)),
-            FallInto(P.Crateria41),
+            FallInto(P.CrateriaEscapeYellowLightningCycle),
         ],
-        [P.Crateria41] =
+        [P.CrateriaEscapeYellowLightningCycle] =
         [
             Show(625, 49),
             Show(626, 1),
@@ -1423,14 +1423,14 @@ public static class PaletteFxAnimations
             Show(633, 1),
             Show(634, 1),
             Show(635, 1),
-            GoTo(P.Crateria41),
+            GoTo(P.CrateriaEscapeYellowLightningCycle),
         ],
-        [P.Crateria400] =
+        [P.ParlorEscapeSkyFlicker] =
         [
-            Cue(new PaletteFxCue.SetColours(PaletteFxColours.CreBlockPixel)),
-            FallInto(P.Crateria401),
+            Cue(new PaletteFxCue.SetColours(PaletteFxColours.ParlorEscapeSky)),
+            FallInto(P.ParlorEscapeSkyFlickerCycle),
         ],
-        [P.Crateria401] =
+        [P.ParlorEscapeSkyFlickerCycle] =
         [
             Show(636, 49),
             Show(637, 1),
@@ -1443,7 +1443,7 @@ public static class PaletteFxAnimations
             Show(644, 1),
             Show(645, 1),
             Show(646, 1),
-            GoTo(P.Crateria401),
+            GoTo(P.ParlorEscapeSkyFlickerCycle),
         ],
     });
 

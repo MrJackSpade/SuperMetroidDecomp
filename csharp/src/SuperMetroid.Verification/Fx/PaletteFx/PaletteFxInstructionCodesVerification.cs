@@ -37,8 +37,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
         AssertPaletteFxCatalog(nameof(PaletteFxInstruction), CatalogWords(PaletteFxInstructionCodesType()), expectedCount: 19);
         // The setups' and pre-instructions' values are arbitrary (#1415): their routine words are the native view's.
-        AssertPaletteFxCatalog(nameof(PaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
-        AssertPaletteFxCatalog(nameof(PaletteFxFrameBehavior), NativeWords(FxNativeWords.PaletteFxFrameBehaviors), expectedCount: 8);
+        AssertPaletteFxCatalog(nameof(NativePaletteFxSetup), NativeWords(FxNativeWords.PaletteFxSetups), expectedCount: 4);
+        AssertPaletteFxCatalog(nameof(NativePaletteFxPreInstruction), NativeWords(FxNativeWords.PaletteFxPreInstructions), expectedCount: 8);
         AssertPaletteFxHeatDefinitions();
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -55,7 +55,7 @@ internal static class PaletteFxInstructionCodesVerification
         [
             CatalogWords(PaletteFxInstructionCodesType()),
             NativeWords(FxNativeWords.PaletteFxSetups),
-            NativeWords(FxNativeWords.PaletteFxFrameBehaviors),
+            NativeWords(FxNativeWords.PaletteFxPreInstructions),
         ];
         foreach (ushort[] catalog in catalogs)
             ReadPaletteFxCatalogPointerTargets(bus, catalog);
@@ -120,14 +120,14 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             PaletteFxObject.Nothing,
             equippedItems: 0);
-        AssertTrue(paletteFx.IsDefinitionActive(
+        AssertTrue(paletteFx.IsRunning(
                 PaletteFxObject.Nothing),
             "empty room palette-FX definition occupies a slot before its first handler pass");
         StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 PaletteFxObject.Nothing),
             "empty room palette-FX definition deletes itself on its first handler pass");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -156,17 +156,17 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-            paletteFx.SpawnDefinition(definitionPointer, 0);
+            paletteFx.Start(definitionPointer, 0);
             for (int step = 0;
                  step < NintendoLogoFadePaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
                 StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
-            AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
+            AssertTrue(paletteFx.IsRunning(definitionPointer),
                 $"{owner} fade remains active through its final hold");
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-            AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
+            AssertTrue(!paletteFx.IsRunning(definitionPointer),
                 $"{owner} fade deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{owner} fade avoids mechanics ROM reads");
@@ -187,7 +187,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
@@ -196,11 +196,11 @@ internal static class PaletteFxInstructionCodesVerification
         {
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
-        AssertTrue(paletteFx.IsDefinitionActive(
+        AssertTrue(paletteFx.IsRunning(
                 TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer),
             "title-logo fade remains active through its final hold");
         StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer),
             "title-logo fade deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -220,7 +220,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual((ushort)0xc655, Word(0xdf94), "native glare set-color opcode");
         AssertEqual((ushort)0x01e0, Word(0xdf96), "native glare destination operand");
         AssertEqual(PostCreditsIconGlarePaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe202), "native glare definition entry");
-        AssertEqual(FxNativeWords.PaletteFxSetups.Word(PaletteFxSetup.Null), Word(0xe200), "native glare setup callback");
+        AssertEqual(FxNativeWords.PaletteFxSetups.Word(NativePaletteFxSetup.Null), Word(0xe200), "native glare setup callback");
         foreach (int invalid in new[] { int.MinValue, -1, 14, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => PostCreditsIconGlarePaletteFxColorDefinitions.FramePointer(invalid), "glare frame bounds");
@@ -231,7 +231,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
@@ -240,11 +240,11 @@ internal static class PaletteFxInstructionCodesVerification
         {
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
-        AssertTrue(paletteFx.IsDefinitionActive(
+        AssertTrue(paletteFx.IsRunning(
                 PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer),
             "post-credits icon glare remains active through its final hold");
         StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer),
             "post-credits icon glare deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -282,7 +282,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
@@ -291,7 +291,7 @@ internal static class PaletteFxInstructionCodesVerification
         {
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer),
             "unused cinematic fade deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -312,7 +312,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual((ushort)0xc655, Word(0xd6ba), "native gunship reveal set-color opcode");
         AssertEqual((ushort)0x00a0, Word(0xd6bc), "native gunship reveal destination operand");
         AssertEqual(ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe1e6), "native gunship reveal definition entry");
-        AssertEqual(FxNativeWords.PaletteFxSetups.Word(PaletteFxSetup.Null), Word(0xe1e4), "native gunship reveal setup callback");
+        AssertEqual(FxNativeWords.PaletteFxSetups.Word(NativePaletteFxSetup.Null), Word(0xe1e4), "native gunship reveal setup callback");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionGunshipPaletteFxColorDefinitions.FramePointer(invalid), "gunship reveal frame bounds");
@@ -323,7 +323,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
@@ -332,11 +332,11 @@ internal static class PaletteFxInstructionCodesVerification
         {
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
-        AssertTrue(paletteFx.IsDefinitionActive(
+        AssertTrue(paletteFx.IsRunning(
                 ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer),
             "ending gunship reveal remains active through its final hold");
         StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer),
             "ending gunship reveal deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -370,14 +370,14 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-            paletteFx.SpawnDefinition(definitionPointer, 0);
+            paletteFx.Start(definitionPointer, 0);
             for (int step = 0;
                  step <= ZebesExplosionWhiteoutPaletteFxColorDefinitions.CycleFrames;
                  step++)
             {
                 StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
-            AssertTrue(!paletteFx.IsDefinitionActive(definitionPointer),
+            AssertTrue(!paletteFx.IsRunning(definitionPointer),
                 $"{owner} whiteout deletes after its final hold");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{owner} whiteout avoids mechanics ROM reads");
@@ -398,7 +398,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
@@ -407,7 +407,7 @@ internal static class PaletteFxInstructionCodesVerification
         {
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer),
             "Zebes explosion finale deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -428,7 +428,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
@@ -437,7 +437,7 @@ internal static class PaletteFxInstructionCodesVerification
         {
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer),
             "Zebes explosion foreground deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -458,7 +458,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
@@ -467,7 +467,7 @@ internal static class PaletteFxInstructionCodesVerification
         {
             StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
-        AssertTrue(!paletteFx.IsDefinitionActive(
+        AssertTrue(!paletteFx.IsRunning(
                 ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer),
             "exploding-Zebes fade deletes after its final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -521,10 +521,10 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-            paletteFx.SpawnDefinition(definitionPointer, 0);
+            paletteFx.Start(definitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
                 StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-            AssertTrue(paletteFx.IsDefinitionActive(definitionPointer),
+            AssertTrue(paletteFx.IsRunning(definitionPointer),
                 $"{owner} completes and repeats its cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{owner} avoids mechanics ROM reads");
@@ -543,10 +543,10 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, 0);
+        paletteFx.Start(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer, 0);
         for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.CycleFrames; step++)
             StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
-        AssertTrue(paletteFx.IsDefinitionActive(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer),
+        AssertTrue(paletteFx.IsRunning(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer),
             "upper-Crateria escape flash completes and repeats its cycle");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "upper-Crateria escape flash avoids mechanics ROM reads");
         AssertEqual((UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount + 1) *
@@ -563,7 +563,7 @@ internal static class PaletteFxInstructionCodesVerification
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
             equippedItems: 0);
         for (int step = 0;
@@ -573,7 +573,7 @@ internal static class PaletteFxInstructionCodesVerification
             StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
         }
 
-        AssertTrue(paletteFx.IsDefinitionActive(
+        AssertTrue(paletteFx.IsRunning(
                 OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer),
             "old-Tourian red flash completes and repeats its full cycle");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -597,7 +597,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-            paletteFx.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
+            paletteFx.Start(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step <= TourianEscapeSharedRedFlashPaletteFxColorDefinitions.CycleFrames;
                  step++)
@@ -605,7 +605,7 @@ internal static class PaletteFxInstructionCodesVerification
                 StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
 
-            AssertTrue(paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+            AssertTrue(paletteFx.IsRunning(definition.DefinitionPointer),
                 $"{definition.Owner} completes and repeats the shared cycle");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{definition.Owner} avoids mechanics ROM reads");
@@ -629,7 +629,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SnesCgram();
-        paletteFx.SpawnDefinition(
+        paletteFx.Start(
             BeaconPaletteFxColorDefinitions.DefinitionPointer,
             equippedItems: 0);
         int soundCount = 0;
@@ -653,7 +653,7 @@ internal static class PaletteFxInstructionCodesVerification
         }
 
         AssertEqual(1, soundCount, "beacon queues its sound once per complete cycle");
-        AssertTrue(paletteFx.IsDefinitionActive(
+        AssertTrue(paletteFx.IsRunning(
                 BeaconPaletteFxColorDefinitions.DefinitionPointer),
             "beacon remains active after its complete cycle");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -688,7 +688,7 @@ internal static class PaletteFxInstructionCodesVerification
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             var cgram = new SnesCgram();
-            paletteFx.SpawnDefinition(definition, equippedItems: 0);
+            paletteFx.Start(definition, equippedItems: 0);
             for (int step = 0;
                  step <= TourianGlowPaletteFxColorDefinitions.CycleFrames;
                  step++)
@@ -697,7 +697,7 @@ internal static class PaletteFxInstructionCodesVerification
                 StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded), cgram);
             }
 
-            AssertTrue(paletteFx.IsDefinitionActive(definition),
+            AssertTrue(paletteFx.IsRunning(definition),
                 $"Tourian glow definition $8D:{definition:X4} completes its loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"Tourian glow definition $8D:{definition:X4} avoids mechanics ROM reads");
@@ -731,7 +731,7 @@ internal static class PaletteFxInstructionCodesVerification
         var cgram = new SnesCgram();
         const ushort definition =
             RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
-        paletteFx.SpawnDefinition(definition, equippedItems: 0);
+        paletteFx.Start(definition, equippedItems: 0);
         int cycleFrames =
             RedBrinstarGlowPaletteFxColorDefinitionsConstants.FrameCount * 10;
         for (int step = 0; step <= cycleFrames; step++)
@@ -740,7 +740,7 @@ internal static class PaletteFxInstructionCodesVerification
             StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded), cgram);
         }
 
-        AssertTrue(paletteFx.IsDefinitionActive(definition),
+        AssertTrue(paletteFx.IsRunning(definition),
             "Red Brinstar glow program loops after fourteen frames");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Red Brinstar glow program avoids mechanics ROM reads");
@@ -764,7 +764,7 @@ internal static class PaletteFxInstructionCodesVerification
             var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
-            paletteFx.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
+            paletteFx.Start(definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
                  step < TourianStatueGreyPaletteFxColorDefinitions.FramesThroughDeletion;
                  step++)
@@ -772,7 +772,7 @@ internal static class PaletteFxInstructionCodesVerification
                 StepShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             }
 
-            AssertTrue(!paletteFx.IsDefinitionActive(definition.DefinitionPointer),
+            AssertTrue(!paletteFx.IsRunning(definition.DefinitionPointer),
                 $"palette-FX definition $8D:{definition.DefinitionPointer:X4} reaches " +
                 "compiled deletion");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -798,7 +798,7 @@ internal static class PaletteFxInstructionCodesVerification
             var paletteFxSession = new PaletteFxSessionState();
             var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
             var cgram = new SnesCgram();
-            paletteFx.SpawnDefinition(definition, equippedItems: 0);
+            paletteFx.Start(definition, equippedItems: 0);
             int steps = 1 +
                 WreckedShipGreenLightPaletteFxColorDefinitionsConstants.FrameCount * 10;
             for (int step = 0; step <= steps; step++)
@@ -883,13 +883,13 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SnesCgram();
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 99 };
-        paletteFx.SpawnDefinition(definition: 0xf761, equippedItems: 0);
-        paletteFx.SpawnDefinition(definition: 0xf785, equippedItems: 0);
+        paletteFx.Start(definition: 0xf761, equippedItems: 0);
+        paletteFx.Start(definition: 0xf785, equippedItems: 0);
 
         int damageSoundCount = 0;
         for (ushort frame = 0; frame <= 17; frame++)
         {
-            paletteFx.Step(new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, EnemyZeroIsDead = false, AreaMiniBossDefeated = false, Samus = samus.RoomView, FrameCounter = frame });
+            paletteFx.Step(new PaletteFxConditions { SamusY = samus.Position.Y.Whole, EquippedItems = samus.EquippedItems, TorizoIsDead = false, AreaMiniBossDefeated = false, Samus = samus.RoomView, FrameCounter = frame });
             // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
             PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
             damageSoundCount += paletteFx.SoundRequests.Count;
@@ -1566,13 +1566,13 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SnesCgram();
-        paletteFx.SpawnDefinition(definition: 0xf781, equippedItems: 0);
+        paletteFx.Start(definition: 0xf781, equippedItems: 0);
 
         int soundFrame = -1;
         SoundRequest soundRequest = default;
         for (int frame = 0; frame < 256; frame++)
         {
-            paletteFx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            paletteFx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
             // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
             PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
             if (paletteFx.SoundRequests.Count == 0)
@@ -1594,7 +1594,7 @@ internal static class PaletteFxInstructionCodesVerification
 
         // The next call must parse the timed palette record immediately after the byte
         // operand. This is the observable consequence of returning Y+1 at $8D:C67A.
-        paletteFx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        paletteFx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         // The room's groups show their records over the room's pictures as the import's shades of them (#1512).
         PaletteFxRoomLook.LayShownShades(paletteFx, cgram, new ReferencePaletteFxColorSource(bus));
         AssertEqual(0, paletteFx.SoundRequests.Count,
@@ -1646,7 +1646,7 @@ internal static class PaletteFxInstructionCodesVerification
     private static void StepScreenShowing(RoomPaletteFxSystem fx, SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource colours)
     {
         var cgram = new SnesCgram();
-        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false },
+        fx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false },
             (group, record) => PaletteFxRoomLook.LayShade(cgram, group, record, colours));
     }
 
@@ -1667,7 +1667,7 @@ internal static class PaletteFxInstructionCodesVerification
     {
         PaletteFxColours[] groups = Enum.GetValues<PaletteFxColours>();
         PaletteFxFrame?[] before = [.. groups.Select(fx.RecordOf)];
-        fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         for (int index = 0; index < groups.Length; index++)
         {
             if (fx.RecordOf(groups[index]) is { } record && record != before[index])

@@ -26,8 +26,10 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(AnimatedTileObject.WreckedShipTreadmillRightwards, FxNativeWords.AnimatedTileObjects.Decode(0x8275, "object"),
             "rightward treadmill header decodes");
         AssertEqual(0xb4b6, FxNativeWords.SpecialAirReactionSetups.Word(SpecialAirReactionSetup.SandFallsFast), "fast sandfall setup word");
-        AssertEqual(0xe440, FxNativeWords.PaletteFxSetups.Word(PaletteFxSetup.Norfair), "Norfair palette setup word");
-        AssertEqual(0xe379, FxNativeWords.PaletteFxFrameBehaviors.Word(PaletteFxFrameBehavior.Heat), "heat pre-instruction word");
+        AssertEqual(0xe440, FxNativeWords.PaletteFxSetups.Word(NativePaletteFxSetup.Norfair), "Norfair palette setup word");
+        AssertEqual(ColourEffectStart.ChoosesHeatProgramForSuit, FxNativeWords.StartOf(NativePaletteFxSetup.Norfair), "Norfair palette setup start");
+        AssertEqual(0xe379, FxNativeWords.PaletteFxPreInstructions.Word(NativePaletteFxPreInstruction.Heat), "heat pre-instruction word");
+        AssertEqual(ColourEffectCondition.BurnsSamusInHeat.Instance, FxNativeWords.ConditionOf(NativePaletteFxPreInstruction.Heat), "heat pre-instruction condition");
 
         // QuicksandRomData and ConveyorBlockRomData's displacements, now in sixteenths of a pixel.
         AssertEqual(0x12000, QuicksandDefinitions.SubmergingSinkDisplacement.RawValue, "submerging sand sink");

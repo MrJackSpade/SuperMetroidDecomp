@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The palette-FX objects, named by what each animates. Each selects a setup
-/// and an initial program (<see cref="RoomPaletteFxSelection"/>); a slot holds the object it runs.
+/// The colour effects, named by what each shows. Each names how it starts
+/// and an initial program (<see cref="RoomPaletteFxSelection"/>); a running <see cref="ColourEffect"/> shows one.
 /// </summary>
 public enum PaletteFxObject
 {
@@ -96,12 +96,21 @@ public enum PaletteFxObject
     BeaconFlashing,
     /// <summary>Norfair's glowing foreground, which also paces the heat shimmer.</summary>
     NorfairForegroundAndHeatPhase,
-    /// <summary>Norfair's glowing foreground in its fourth colour group.</summary>
-    NorfairForegroundPalette4,
-    /// <summary>Norfair's glowing foreground in its fifth colour group.</summary>
-    NorfairForegroundPalette5,
-    /// <summary>Norfair's glowing foreground in its sixth colour group.</summary>
-    NorfairForegroundPalette6,
+    /// <summary>
+    /// The heat glow on the green and red parts of a heated Norfair room's foreground, which pulse to orange in step with
+    /// <see cref="NorfairForegroundAndHeatPhase"/>.
+    /// </summary>
+    NorfairGreenForegroundHeatGlow,
+    /// <summary>
+    /// The heat glow on the brown and purple parts of a heated Norfair room's foreground, which pulse to red in step with
+    /// <see cref="NorfairForegroundAndHeatPhase"/>.
+    /// </summary>
+    NorfairPurpleForegroundHeatGlow,
+    /// <summary>
+    /// The heat glow on the dark brown parts of a heated Norfair room's foreground, which pulse to red in step with
+    /// <see cref="NorfairForegroundAndHeatPhase"/>.
+    /// </summary>
+    NorfairDarkForegroundHeatGlow,
     /// <summary>Maridia's shifting sand pits.</summary>
     MaridiaSandPits,
     /// <summary>Maridia's falling sand.</summary>
@@ -130,6 +139,6 @@ public enum PaletteFxObject
     UpperCrateriaRedFlashing,
     /// <summary>The yellow lightning over Crateria during the escape.</summary>
     CrateriaEscapeYellowLightning,
-    /// <summary>A single pixel of a shared block tile changing in Crateria during the escape.</summary>
-    CrateriaEscapeCreBlockPixel,
+    /// <summary>The Parlor's dark sky flickering in the cadence of the escape's yellow lightning.</summary>
+    ParlorEscapeSkyFlicker,
 }

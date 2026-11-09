@@ -1,80 +1,46 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable visual references for reachable Draygon cannons.</summary>
+/// <summary>The installed pictures of Draygon's wall cannons' twelve frames (#1557).</summary>
 public static class RoomObjectDraygonCannonVisualFiles
 {
-    /// <summary>JSON filename for reachable left- and right-facing Draygon cannon artwork.</summary>
+    /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>
     public const string VisualFileName = "draygon-cannons.json";
 
-    /// <summary>Verifies the twelve reachable native cannon layouts and creates flattened shield/damaged-frame visual JSON plus its provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of decoded cannon terrain blocks and two- or three-run geometry.</param>
-    /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled reachable cannon definitions.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Draygon cannon", All,
-            VisualId);
+    /// <summary>The cannons as the import pictures them: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<DraygonCannonDraw> Family { get; } =
+        new(VisualFileName, "Draygon cannon", Layouts(), RoomObjectVisualIdDefinitions.DraygonCannon);
 
-    /// <summary>Validates the installed Draygon cannon manifest's provenance and loads the installed Draygon cannon JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Draygon cannon JSON.</param>
-    /// <returns>The reachable cannon art, leaving hit thresholds, physical collision, and control writes compiled.</returns>
-    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate frame coverage.</exception>
-    public static RoomObjectDraygonCannonVisualCatalog Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
+    /// <summary>Pictures the twelve cannon frames from the cartridge's draw lists and writes the installed file.</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the cannons' geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the cannons draw by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
 
-    /// <summary>Validates complete reachable cannon-frame coverage and builds the visuals from the appearances that differ from the compiled frames, without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>
-    /// <param name="entries">One visual-only entry per compiled frame with the exact flattened count of all its run cells.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves reachable frame coverage incomplete.</exception>
-    internal static RoomObjectDraygonCannonVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Draygon cannon", TryGetByVisualId, All.Count()));
+    /// <summary>Loads the installed cannon pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
+    public static InstalledDraygonCannonFrames Load(string directory) =>
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Enumerates only the right and left cannon lists reached by the PLM programs.</summary>
-    private static IEnumerable<RoomObjectDraw> Draws()
+    /// <summary>Every cannon frame's geometry, from the shapes the cannons draw by.</summary>
+    private static Dictionary<DraygonCannonDraw, RoomObjectFrameLayout> Layouts()
     {
-        foreach (DraygonCannonDraw draw in Enum.GetValues<DraygonCannonDraw>()) yield return RoomObjectDraw.Of(draw);
-    }
-
-    /// <summary>Builds the draw lists of all reachable cannon frames.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
-    {
-        get
+        var layouts = new Dictionary<DraygonCannonDraw, RoomObjectFrameLayout>();
+        foreach (DraygonCannonDraw frame in Enum.GetValues<DraygonCannonDraw>())
         {
-            foreach (RoomObjectDraw draw in Draws())
-            {
-                TryGet(draw, out var list);
-                yield return list;
-            }
+            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
+            if (!DraygonCannonDraws.TryDescribe(draw, out DraygonCannonDraws.Draw shape))
+                throw new InvalidOperationException($"Draygon cannon frame {frame} has no shape.");
+            layouts.Add(frame, RoomObjectFrameLayout.Of(draw, shape.RunCount, shape.BlockCount, shape.CollisionAt,
+                RoomObjectDrawListExport.Horizontal, shape.Start));
         }
+        return layouts;
     }
-
-    /// <summary>Builds the draw list of a cannon frame from its cells.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
-    {
-        bool found = DraygonCannonDraws.TryDescribe(request, out DraygonCannonDraws.Draw draw);
-        list = found
-            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start)
-            : default;
-        return found;
-    }
-
-    /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
-
-    /// <summary>Maps a cannon draw to its facing, condition, and pose ID.</summary>
-    internal static string VisualId(RoomObjectDraw request) =>
-        RoomObjectVisualIdDefinitions.DraygonCannon.TryGetValue(
-            RoomObjectDraw.FrameOf<DraygonCannonDraw>(request, "Draygon cannon draw with a visual ID"), out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {request}.");
 }

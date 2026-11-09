@@ -4,8 +4,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's glass block draws: which PLM draws are the glass's, their run geometry and cells from
-/// <see cref="MotherBrainGlassObjectDrawDefinitions"/>.
+/// Mother Brain's glass block draws: which PLM draws are the glass's, their run geometry and how their cells collide,
+/// from <see cref="MotherBrainGlassObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class MotherBrainGlassDraws
 {
@@ -20,7 +20,7 @@ internal static class MotherBrainGlassDraws
         /// <summary>Whether the pane has shifted and uses separate inner-column runs.</summary>
         private bool Shifted => Frame is MotherBrainGlassDraw.ShiftedPane1 or MotherBrainGlassDraw.ShiftedPane2 or MotherBrainGlassDraw.ShiftedPane3;
         /// <summary>Draw-record count for the selected glass damage phase.</summary>
-        internal int RunCount => MotherBrainGlassObjectDrawDefinitions.Cells[Frame].Length;
+        internal int RunCount => MotherBrainGlassObjectDrawDefinitions.Collisions[Frame].Length;
         /// <summary>Rejects a run outside this frame's draw-record count.</summary>
         private void CheckRun(int run)
         {
@@ -30,7 +30,7 @@ internal static class MotherBrainGlassDraws
         internal int BlockCount(int run)
         {
             CheckRun(run);
-            return MotherBrainGlassObjectDrawDefinitions.Cells[Frame][run].Length;
+            return MotherBrainGlassObjectDrawDefinitions.Collisions[Frame][run].Length;
         }
         /// <summary>Selects vertical draw traversal except for the initial and shifted origin blocks.</summary>
         internal bool Vertical(int run)
@@ -52,11 +52,11 @@ internal static class MotherBrainGlassDraws
                 Frame == MotherBrainGlassDraw.Shatter1 && run >= 2;
             return new(Pane ? -1 : run - 4, lowered ? 1 : 0);
         }
-        /// <summary>The selected block's appearance and collision kind.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>How the glass cell collides.</summary>
+        internal RoomCollisionType CollisionAt(int run, int cell)
         {
             if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            return MotherBrainGlassObjectDrawDefinitions.Cells[Frame][run][cell];
+            return MotherBrainGlassObjectDrawDefinitions.Collisions[Frame][run][cell];
         }
     }
 

@@ -1,85 +1,46 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Cartridge-checked, strictly visual-only installed glass artwork.</summary>
+/// <summary>The installed pictures of the eleven frames of Mother Brain's glass (#1557).</summary>
 public static class RoomObjectMotherBrainGlassVisualFiles
 {
-    /// <summary>Family-relative installed JSON filename for Mother Brain's initial, damaged, shifted, shattering, and cleared glass PLM layouts.</summary>
+    /// <summary>The installed file holding the initial, damaged, shifted, shattering and cleared glass frames' pictures.</summary>
     public const string VisualFileName = "mother-brain-glass.json";
 
-    /// <summary>Checks native bank-$84 glass draw shapes, decoded terrain blocks, and offsets, then exports their block appearances in flattened run order.</summary>
-    /// <param name="bus">Cartridge source for the compiled glass layouts; this extraction does not export shard sprites, hit thresholds, or event timing.</param>
-    /// <param name="directory">Family directory, created if absent; receives new <see cref="VisualFileName"/> and <c>manifest.json</c> files.</param>
-    /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputing it; a stock load requires the supported cartridge identity.</param>
-    /// <remarks>Existing outputs are not overwritten. A failure writing the second file can leave the first file behind.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Native draw data does not match the compiled glass layouts.</exception>
-    /// <exception cref="IOException">An output already exists or filesystem access fails.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Mother Brain glass", All,
-            VisualId);
+    /// <summary>The glass as the import pictures it: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<MotherBrainGlassDraw> Family { get; } =
+        new(VisualFileName, "Mother Brain glass", Layouts(), RoomObjectVisualIdDefinitions.MotherBrainGlass);
 
-    /// <summary>Validates the installed Mother Brain glass manifest's provenance and loads the installed Mother Brain glass JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Mother Brain glass JSON.</param>
-    /// <returns>A ROM-independent glass metatile catalog; draw geometry, hit thresholds, shards, and event timing remain compiled.</returns>
-    /// <exception cref="InvalidDataException">Manifest provenance, JSON version, frame coverage/identity, shape, or presentation-only word bits are invalid.</exception>
-    /// <exception cref="IOException">The installed manifest or Mother Brain glass JSON cannot be read.</exception>
-    public static RoomObjectMotherBrainGlassVisualCatalog Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectMotherBrainGlassVisualCatalog>(VisualFileName, "Mother Brain glass", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
+    /// <summary>Pictures the eleven glass frames from the cartridge's draw lists and writes the installed file.</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the glass's geometry and collision.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the glass draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
 
-    /// <summary>Validates all eleven glass layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing damage thresholds, shards, event timing, terrain blocks, or signed draw offsets.</summary>
-    /// <param name="entries">Exactly one visual-only entry per compiled glass identity, with the full flattened count of its run cells.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    internal static RoomObjectMotherBrainGlassVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Mother Brain glass", TryGetByVisualId, All.Count()));
+    /// <summary>Loads the installed glass pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
+    public static InstalledMotherBrainGlassFrames Load(string directory) =>
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Builds the eleven glass layouts' draw lists in order.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    /// <summary>Every glass frame's geometry, from the shapes the glass draws by.</summary>
+    private static Dictionary<MotherBrainGlassDraw, RoomObjectFrameLayout> Layouts()
     {
-        get
-        {
-            foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
-            {
-                TryGet(RoomObjectDraw.Of(frame), out var list);
-                yield return list;
-            }
-        }
-    }
-
-    /// <summary>Builds the draw list of a glass layout from its cells.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
-    {
-        bool found = MotherBrainGlassDraws.TryDescribe(request, out MotherBrainGlassDraws.Draw draw);
-        list = found
-            ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
-                run => draw.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, draw.Start)
-            : default;
-        return found;
-    }
-
-    /// <summary>Finds a glass layout by its stable artwork identifier.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list)
-    {
+        var layouts = new Dictionary<MotherBrainGlassDraw, RoomObjectFrameLayout>();
         foreach (MotherBrainGlassDraw frame in Enum.GetValues<MotherBrainGlassDraw>())
-            if (string.Equals(id, VisualId(RoomObjectDraw.Of(frame)), StringComparison.Ordinal)) return TryGet(RoomObjectDraw.Of(frame), out list);
-        list = default;
-        return false;
+        {
+            RoomObjectDraw draw = RoomObjectDraw.Of(frame);
+            if (!MotherBrainGlassDraws.TryDescribe(draw, out MotherBrainGlassDraws.Draw shape))
+                throw new InvalidOperationException($"Mother Brain glass frame {frame} has no shape.");
+            layouts.Add(frame, RoomObjectFrameLayout.Of(draw, shape.RunCount, shape.BlockCount, shape.CollisionAt,
+                run => shape.Vertical(run) ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, shape.Start));
+        }
+        return layouts;
     }
-
-    /// <summary>Maps a glass draw to its editable presentation frame name.</summary>
-    internal static string VisualId(RoomObjectDraw request) =>
-        RoomObjectVisualIdDefinitions.MotherBrainGlass.TryGetValue(
-            RoomObjectDraw.FrameOf<MotherBrainGlassDraw>(request, "Mother Brain glass draw"), out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined Mother Brain glass draw {request}.");
 }

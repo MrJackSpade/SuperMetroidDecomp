@@ -4,8 +4,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's wall-cannon block draws: which PLM draws are the cannon's, their run geometry and cells from
-/// <see cref="DraygonCannonObjectDrawDefinitions"/>.
+/// Draygon's wall-cannon block draws: which PLM draws are the cannon's, their run geometry and how their cells collide,
+/// from <see cref="DraygonCannonObjectDrawDefinitions"/>. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class DraygonCannonDraws
 {
@@ -40,11 +40,11 @@ internal static class DraygonCannonDraws
             CheckRun(run);
             return new(!Right && run > 0 ? -1 : 0, run == (Right ? 1 : 2) ? 1 : 0);
         }
-        /// <summary>The cannon cell's collision, mirror and shield or damage tile.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>How the cannon cell collides: its shootable or spiked core, the core's extension, or air.</summary>
+        internal RoomCollisionType CollisionAt(int run, int cell)
         {
             if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            return DraygonCannonObjectDrawDefinitions.Cells[this][run][cell];
+            return DraygonCannonObjectDrawDefinitions.Collisions[this][run][cell];
         }
     }
 

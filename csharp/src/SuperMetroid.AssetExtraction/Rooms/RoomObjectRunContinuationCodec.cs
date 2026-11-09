@@ -35,4 +35,14 @@ internal static class RoomObjectRunContinuationCodec
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the list's runs, or an axis does not fit a signed byte.</exception>
     internal static ushort Encode(DrawList list, int run) =>
         LittleEndianBytes.Word(unchecked((byte)X(list, run)), unchecked((byte)Y(list, run)));
+
+    /// <summary>The offset word the cartridge stores after run <paramref name="run"/> of a pictured frame's <paramref name="layout"/> (#1557).</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the layout's runs, or an axis does not fit a signed byte.</exception>
+    internal static ushort Encode(RoomObjectFrameLayout layout, int run)
+    {
+        Offset16<RoomBlocks> next = layout.NextStart(run);
+        return LittleEndianBytes.Word(
+            unchecked((byte)checked((sbyte)Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, next.X))),
+            unchecked((byte)checked((sbyte)Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, next.Y))));
+    }
 }

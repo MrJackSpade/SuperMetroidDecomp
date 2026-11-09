@@ -86,7 +86,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledRoomObjectEyeDoorVisuals? RoomObjectEyeDoorVisuals { get; init; }
 
     /// <summary>Room PLM mother brain glass visuals.</summary>
-    public RoomObjectMotherBrainGlassVisualCatalog? RoomObjectMotherBrainGlassVisuals { get; init; }
+    public InstalledMotherBrainGlassFrames? RoomObjectMotherBrainGlassVisuals { get; init; }
 
     /// <summary>Room PLM noob tube visuals.</summary>
     public InstalledRoomObjectNoobTubeVisuals? RoomObjectNoobTubeVisuals { get; init; }
@@ -98,13 +98,13 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomObjectElevatorPlatformVisualCatalog? RoomObjectElevatorPlatformVisuals { get; init; }
 
     /// <summary>Room PLM escape gate visuals.</summary>
-    public RoomObjectEscapeGateVisualCatalog? RoomObjectEscapeGateVisuals { get; init; }
+    public InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; init; }
 
     /// <summary>Room PLM bomb torizo hand visuals.</summary>
     public RoomObjectBombTorizoHandVisualCatalog? RoomObjectBombTorizoHandVisuals { get; init; }
 
     /// <summary>Room PLM draygon cannon visuals.</summary>
-    public RoomObjectDraygonCannonVisualCatalog? RoomObjectDraygonCannonVisuals { get; init; }
+    public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; init; }
 
     /// <summary>Room PLM chozo statue visuals.</summary>
     public RoomObjectChozoStatueVisualCatalog? RoomObjectChozoStatueVisuals { get; init; }
@@ -137,7 +137,7 @@ public sealed record GameArtwork : IGameplayArtwork
     public RoomObjectCrocomireVisualCatalog? RoomObjectCrocomireVisuals { get; init; }
 
     /// <summary>Room PLM mother brain fake death visuals.</summary>
-    public RoomObjectMotherBrainFakeDeathVisualCatalog? RoomObjectMotherBrainFakeDeathVisuals { get; init; }
+    public InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; init; }
 
     /// <summary>Room PLM collectible visuals.</summary>
     public InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; init; }

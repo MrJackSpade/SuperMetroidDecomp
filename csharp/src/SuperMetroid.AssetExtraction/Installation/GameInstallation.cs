@@ -166,8 +166,8 @@ public sealed record GameInstallation(string Root)
         RoomObjectEyeDoorVisualFiles.Load(RoomObjectEyeDoorVisualDirectory);
     /// <summary>Stock definitions for Mother Brain glass appearances under the replaceable content tree.</summary>
     public string RoomObjectMotherBrainGlassVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectMotherBrainGlassVisualDirectoryName);
-    /// <summary>Editable glass appearance; shatter physics and room-object logic stay compiled.</summary>
-    public RoomObjectMotherBrainGlassVisualCatalog LoadRoomObjectMotherBrainGlassVisuals() =>
+    /// <summary>Loads the installed pictures of Mother Brain's glass frames as the player left them.</summary>
+    public InstalledMotherBrainGlassFrames LoadRoomObjectMotherBrainGlassVisuals() =>
         RoomObjectMotherBrainGlassVisualFiles.Load(RoomObjectMotherBrainGlassVisualDirectory);
     /// <summary>Stock definitions for intact and broken n00b-tube appearances under the replaceable content tree.</summary>
     public string RoomObjectNoobTubeVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectNoobTubeVisualDirectoryName);
@@ -186,8 +186,8 @@ public sealed record GameInstallation(string Root)
         RoomObjectElevatorPlatformVisualFiles.Load(RoomObjectElevatorPlatformVisualDirectory);
     /// <summary>Stock definitions for closing escape-gate appearances under the replaceable content tree.</summary>
     public string RoomObjectEscapeGateVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectEscapeGateVisualDirectoryName);
-    /// <summary>Editable escape-gate appearance; closing and collision stay compiled.</summary>
-    public RoomObjectEscapeGateVisualCatalog LoadRoomObjectEscapeGateVisuals() =>
+    /// <summary>Loads the installed pictures of Mother Brain's escape-gate frames as the player left them.</summary>
+    public InstalledEscapeGateFrames LoadRoomObjectEscapeGateVisuals() =>
         RoomObjectEscapeGateVisualFiles.Load(RoomObjectEscapeGateVisualDirectory);
     /// <summary>Stock definitions for Bomb Torizo hand appearances under the replaceable content tree.</summary>
     public string RoomObjectBombTorizoHandVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectBombTorizoHandVisualDirectoryName);
@@ -196,8 +196,8 @@ public sealed record GameInstallation(string Root)
         RoomObjectBombTorizoHandVisualFiles.Load(RoomObjectBombTorizoHandVisualDirectory);
     /// <summary>Stock definitions for reachable Draygon cannon appearances under the replaceable content tree.</summary>
     public string RoomObjectDraygonCannonVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectDraygonCannonVisualDirectoryName);
-    /// <summary>Editable reachable cannon art; physical blocks remain compiled.</summary>
-    public RoomObjectDraygonCannonVisualCatalog LoadRoomObjectDraygonCannonVisuals() =>
+    /// <summary>Loads the installed pictures of Draygon's cannon frames as the player left them.</summary>
+    public InstalledDraygonCannonFrames LoadRoomObjectDraygonCannonVisuals() =>
         RoomObjectDraygonCannonVisualFiles.Load(RoomObjectDraygonCannonVisualDirectory);
     /// <summary>Stock definitions for Chozo hand and slope-access appearances under the replaceable content tree.</summary>
     public string RoomObjectChozoStatueVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectChozoStatueVisualDirectoryName);
@@ -251,8 +251,8 @@ public sealed record GameInstallation(string Root)
         RoomObjectCrocomireVisualFiles.Load(RoomObjectCrocomireVisualDirectory);
     /// <summary>Stock definitions for Mother Brain fake-death terrain appearances under the replaceable content tree.</summary>
     public string RoomObjectMotherBrainFakeDeathVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectMotherBrainFakeDeathVisualDirectoryName);
-    /// <summary>Editable fake-death terrain art; physical room mutations remain compiled.</summary>
-    public RoomObjectMotherBrainFakeDeathVisualCatalog LoadRoomObjectMotherBrainFakeDeathVisuals() =>
+    /// <summary>Loads the installed pictures of Mother Brain's fake-death room frames as the player left them.</summary>
+    public InstalledMotherBrainFakeDeathFrames LoadRoomObjectMotherBrainFakeDeathVisuals() =>
         RoomObjectMotherBrainFakeDeathVisualFiles.Load(
             RoomObjectMotherBrainFakeDeathVisualDirectory);
     /// <summary>Stock definitions for item, orb, and reveal appearances under the replaceable content tree.</summary>

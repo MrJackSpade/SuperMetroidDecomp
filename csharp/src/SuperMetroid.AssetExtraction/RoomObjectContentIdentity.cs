@@ -17,6 +17,7 @@ using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -361,96 +362,57 @@ internal static class RoomObjectContentIdentity
             });
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectDraygonCannonVisualCatalog"/>.</summary>
-    extension(RoomObjectDraygonCannonVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledDraygonCannonFrames"/>.</summary>
+    extension(InstalledDraygonCannonFrames visuals)
     {
-        /// <summary>Hashes every cannon frame's selected appearances, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectDraygonCannonVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[4];
-                foreach (var frame in RoomObjectDraygonCannonVisualFiles.All.OrderBy(item => RoomObjectDraygonCannonVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    DraygonCannonDraws.TryDescribe(frame.Draw, out var shape);
-                    int count = 0;
-                    for (int run = 0; run < shape.RunCount; run++)
-                        for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell) ??
-                                throw new InvalidDataException($"{nameof(visuals)} lack frame {frame.Draw}.");
-                    content.AppendName("frame", RoomObjectDraygonCannonVisualFiles.VisualId(frame.Draw));
-                    // Preserve the flattened single-run framing of installed cannon artwork.
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances.AsSpan(0, count));
-                }
-            });
+        /// <summary>Hashes every cannon frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledDraygonCannonFrames), visuals.Images, RoomObjectDraygonCannonVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectEscapeGateVisualCatalog"/>.</summary>
-    extension(RoomObjectEscapeGateVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledEscapeGateFrames"/>.</summary>
+    extension(InstalledEscapeGateFrames visuals)
     {
-        /// <summary>Hashes every gate frame's selected appearances, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectEscapeGateVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[4];
-                foreach (var frame in RoomObjectEscapeGateVisualFiles.All.OrderBy(item => RoomObjectEscapeGateVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    for (int row = 0; row < appearances.Length; row++)
-                        appearances[row] = visuals.GetAppearance(frame.Draw, row) ??
-                            throw new InvalidDataException($"Escape-gate visuals lack frame {frame.Draw}.");
-                    content.AppendName("frame", RoomObjectEscapeGateVisualFiles.VisualId(frame.Draw));
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances);
-                }
-            });
+        /// <summary>Hashes every gate frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledEscapeGateFrames), visuals.Images, RoomObjectEscapeGateVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectMotherBrainFakeDeathVisualCatalog"/>.</summary>
-    extension(RoomObjectMotherBrainFakeDeathVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledMotherBrainFakeDeathFrames"/>.</summary>
+    extension(InstalledMotherBrainFakeDeathFrames visuals)
     {
-        /// <summary>Hashes every layout's selected appearances as one flattened frame, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectMotherBrainFakeDeathVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[14];
-                foreach (var draw in RoomObjectMotherBrainFakeDeathVisualFiles.All.OrderBy(item => RoomObjectMotherBrainFakeDeathVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    int index = 0;
-                    for (int run = 0; run < draw.Runs.Length; run++)
-                        for (int block = 0; block < draw.Runs.Span[run].Blocks.Length; block++)
-                            appearances[index++] = visuals.GetAppearance(draw.Draw, run, block) ??
-                                throw new InvalidDataException($"Mother Brain fake-death visuals lack draw {draw.Draw}.");
-                    content.AppendName("frame", RoomObjectMotherBrainFakeDeathVisualFiles.VisualId(draw.Draw));
-                    // Existing installations hash each draw as one flattened visual frame.
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances.AsSpan(0, index));
-                }
-            });
+        /// <summary>Hashes every fake-death room frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledMotherBrainFakeDeathFrames), visuals.Images, RoomObjectMotherBrainFakeDeathVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="RoomObjectMotherBrainGlassVisualCatalog"/>.</summary>
-    extension(RoomObjectMotherBrainGlassVisualCatalog visuals)
+    /// <summary>The installed content identity of a <see cref="InstalledMotherBrainGlassFrames"/>.</summary>
+    extension(InstalledMotherBrainGlassFrames visuals)
     {
-        /// <summary>Hashes every glass layout's selected appearances as one flattened frame, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectMotherBrainGlassVisualCatalog), content =>
-            {
-                var appearances = new RoomBlockAppearance[16];
-                foreach (var frame in RoomObjectMotherBrainGlassVisualFiles.All.OrderBy(item => RoomObjectMotherBrainGlassVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    MotherBrainGlassDraws.TryDescribe(frame.Draw, out var shape);
-                    int count = 0;
-                    for (int run = 0; run < shape.RunCount; run++)
-                        for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell) ??
-                                throw new InvalidDataException($"{nameof(visuals)} lack frame {frame.Draw}.");
-                    content.AppendName("frame", RoomObjectMotherBrainGlassVisualFiles.VisualId(frame.Draw));
-                    // Preserve the flattened single-run framing of installed glass artwork.
-                    content.Append("runs", 1);
-                    content.AppendAppearances("blocks", appearances.AsSpan(0, count));
-                }
-            });
+        /// <summary>Hashes every glass frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledMotherBrainGlassFrames), visuals.Images, RoomObjectMotherBrainGlassVisualFiles.Family);
     }
+
+    /// <summary>
+    /// Hashes a room object's installed frame pictures (#1557): each frame in published-name order, then each of its cells
+    /// top to bottom and left to right, with its place and what it shows.
+    /// </summary>
+    private static string FrameImagesIdentity<TFrame>(string domain, RoomObjectFrameImages<TFrame> images, RoomObjectFrameFamily<TFrame> family)
+        where TFrame : struct, Enum =>
+        SelectedPresentationHash.Create(domain, content =>
+        {
+            Span<RoomBlockAppearance> shown = stackalloc RoomBlockAppearance[1];
+            foreach (KeyValuePair<TFrame, string> frame in family.Ids.OrderBy(pair => pair.Value, StringComparer.Ordinal))
+            {
+                RoomObjectFrameImage image = images.Image(frame.Key);
+                content.AppendName("frame", frame.Value);
+                content.Append("cells", image.Cells.Count);
+                foreach (KeyValuePair<Offset16<RoomBlocks>, RoomBlockAppearance> cell in image.Cells.OrderBy(pair => pair.Key.Y).ThenBy(pair => pair.Key.X))
+                {
+                    content.Append("x", cell.Key.X);
+                    content.Append("y", cell.Key.Y);
+                    shown[0] = cell.Value;
+                    content.AppendAppearances("block", shown);
+                }
+            }
+        });
 
     /// <summary>The installed content identity of a <see cref="RoomObjectSporeSpawnCeilingVisualCatalog"/>.</summary>
     extension(RoomObjectSporeSpawnCeilingVisualCatalog visuals)

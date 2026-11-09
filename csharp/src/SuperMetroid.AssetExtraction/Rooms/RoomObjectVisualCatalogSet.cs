@@ -37,7 +37,7 @@ public sealed record RoomObjectVisualCatalogSet
     public required InstalledRoomObjectEyeDoorVisuals EyeDoor { get; init; }
 
     /// <summary>Mother brain glass.</summary>
-    public required RoomObjectMotherBrainGlassVisualCatalog MotherBrainGlass { get; init; }
+    public required InstalledMotherBrainGlassFrames MotherBrainGlass { get; init; }
 
     /// <summary>Noob tube.</summary>
     public required InstalledRoomObjectNoobTubeVisuals NoobTube { get; init; }
@@ -49,13 +49,13 @@ public sealed record RoomObjectVisualCatalogSet
     public required RoomObjectElevatorPlatformVisualCatalog ElevatorPlatform { get; init; }
 
     /// <summary>Escape gate.</summary>
-    public required RoomObjectEscapeGateVisualCatalog EscapeGate { get; init; }
+    public required InstalledEscapeGateFrames EscapeGate { get; init; }
 
     /// <summary>Bomb torizo hand.</summary>
     public required RoomObjectBombTorizoHandVisualCatalog BombTorizoHand { get; init; }
 
     /// <summary>Draygon cannon.</summary>
-    public required RoomObjectDraygonCannonVisualCatalog DraygonCannon { get; init; }
+    public required InstalledDraygonCannonFrames DraygonCannon { get; init; }
 
     /// <summary>Chozo statue.</summary>
     public required RoomObjectChozoStatueVisualCatalog ChozoStatue { get; init; }
@@ -88,7 +88,7 @@ public sealed record RoomObjectVisualCatalogSet
     public required RoomObjectCrocomireVisualCatalog Crocomire { get; init; }
 
     /// <summary>Mother brain fake death.</summary>
-    public required RoomObjectMotherBrainFakeDeathVisualCatalog MotherBrainFakeDeath { get; init; }
+    public required InstalledMotherBrainFakeDeathFrames MotherBrainFakeDeath { get; init; }
 
     /// <summary>Collectible.</summary>
     public required InstalledRoomObjectCollectibleVisuals Collectible { get; init; }

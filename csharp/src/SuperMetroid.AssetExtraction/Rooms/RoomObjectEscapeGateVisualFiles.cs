@@ -1,80 +1,44 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>Installed, replaceable visual references for Mother Brain's escape gate.</summary>
+/// <summary>The installed pictures of the open, half-closed and closed frames of Mother Brain's escape gate (#1557).</summary>
 public static class RoomObjectEscapeGateVisualFiles
 {
-    /// <summary>JSON filename for open, half-closed, and closed Mother Brain escape-gate appearances.</summary>
+    /// <summary>The installed file holding the gate frames' pictures.</summary>
     public const string VisualFileName = "escape-gate.json";
 
-    /// <summary>Verifies the three native four-block gate layouts and creates visual-only JSON plus its provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of decoded gate terrain blocks and four-cell vertical geometry.</param>
-    /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
-    /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled escape-gate definitions.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256) =>
-        RoomObjectDoorVisualFileCodec.Extract(bus, directory, sourceCartridgeSha256,
-            VisualFileName, "Escape-gate", All,
-            VisualId);
+    /// <summary>The gate as the import pictures it: every frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<MotherBrainEscapeGateDraw> Family { get; } =
+        new(VisualFileName, "Escape-gate", Layouts(), RoomObjectVisualIdDefinitions.MotherBrainEscapeGate);
 
-    /// <summary>Validates the installed Escape-gate manifest's provenance and loads the installed Escape-gate JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed directory containing the shared manifest and Escape-gate JSON.</param>
-    /// <returns>The three-frame gate art; even visually open cells retain their compiled solid collision.</returns>
-    /// <exception cref="InvalidDataException">The manifest provenance or format is incompatible, or the entries violate frame coverage.</exception>
-    public static RoomObjectEscapeGateVisualCatalog Load(string directory) =>
-        RoomObjectDoorVisualFileCodec.Load(directory,
-            new RoomObjectVisualFamily<RoomObjectEscapeGateVisualCatalog>(VisualFileName, "Escape-gate", entries => Create(entries.Select(entry =>
-                new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
+    /// <summary>Pictures the three gate frames from the cartridge's draw lists and writes the installed file.</summary>
+    /// <param name="bus">The cartridge, whose draw lists are checked against the gate's four solid cells.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A draw list differs from the geometry or collision the gate draws by.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256) =>
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
 
-    /// <summary>Validates all three escape-gate frames and builds the visuals from the appearances that differ from the compiled frames, without replacing terrain blocks, animation timing, or door handoff.</summary>
-    /// <remarks>Even the visually open frame retains compiled solid collision; an artwork edit cannot change that behavior.</remarks>
-    /// <param name="entries">Exactly one four-block, visual-only entry for each compiled gate frame.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
-    internal static RoomObjectEscapeGateVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Escape-gate", TryGetByVisualId, All.Count()));
+    /// <summary>Loads the installed gate pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
+    public static InstalledEscapeGateFrames Load(string directory) =>
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>Builds the open, half-closed, and closed gate images' draw lists in order.</summary>
-    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All
+    /// <summary>Every gate frame's geometry: four solid cells down its column.</summary>
+    private static Dictionary<MotherBrainEscapeGateDraw, RoomObjectFrameLayout> Layouts()
     {
-        get
-        {
-            foreach (MotherBrainEscapeGateDraw frame in Enum.GetValues<MotherBrainEscapeGateDraw>())
-            {
-                TryGet(RoomObjectDraw.Of(frame), out var draw);
-                yield return draw;
-            }
-        }
+        var layouts = new Dictionary<MotherBrainEscapeGateDraw, RoomObjectFrameLayout>();
+        foreach (MotherBrainEscapeGateDraw frame in Enum.GetValues<MotherBrainEscapeGateDraw>())
+            layouts.Add(frame, RoomObjectFrameLayout.Of(RoomObjectDraw.Of(frame), 1,
+                static _ => MotherBrainEscapeGateObjectDrawDefinitions.Height,
+                static (_, row) => MotherBrainEscapeGateDraws.Draw.CollisionAt(row),
+                static _ => RoomObjectRunDirection.Vertical, static _ => Offset16<RoomBlocks>.Zero));
+        return layouts;
     }
-
-    /// <summary>Builds the four-cell draw list of a known gate draw from its cells.</summary>
-    internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
-    {
-        if (!MotherBrainEscapeGateDraws.TryDescribe(request, out var draw))
-        {
-            list = default;
-            return false;
-        }
-        var blocks = new RoomTerrainBlock[4];
-        for (int row = 0; row < blocks.Length; row++) blocks[row] = draw.BlockAt(row);
-        list = RoomObjectDrawListExport.SingleRun(request, RoomObjectRunDirection.Vertical, blocks);
-        return true;
-    }
-
-    /// <summary>Maps a gate draw to its stable authored visual identifier.</summary>
-    internal static string VisualId(RoomObjectDraw request) =>
-        RoomObjectVisualIdDefinitions.MotherBrainEscapeGate.TryGetValue(
-            RoomObjectDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "Mother Brain escape-gate draw"), out string? id)
-            ? id
-            : throw new InvalidOperationException($"Undefined Mother Brain escape-gate draw {request}.");
-
-    /// <summary>Finds a gate artwork draw list by its exact, case-sensitive visual identifier.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomObjectShotBlockDrawDefinitions.DrawList list) =>
-        RoomObjectDrawListExport.FindByVisualId(All, VisualId, id, out list);
 }

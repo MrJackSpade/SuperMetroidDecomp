@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Literal hardcoded PLM arguments embedded in Kraid's growth and sinking callbacks.
+/// The fixed room-object spawns embedded in Kraid's growth and sinking callbacks.
 /// Their irregular order is visible: the ceiling breaks from scattered points as the
 /// body rises, rather than sweeping monotonically across the room.
 /// </summary>
@@ -15,10 +15,10 @@ public static class KraidObjectDefinitions
     /// </summary>
     public static readonly RoomObjectSpawnRequest<KraidRoomMutation> LiveDeathSpikes = new(new(5, 27), KraidRoomMutation.CrumbleSpikes);
 
-    /// <summary>SpawnPLMToClearTheCeiling: clear ceiling blocks from (2,18).</summary>
+    /// <summary>Clears the ceiling blocks from (2,18).</summary>
     private static RoomObjectSpawnRequest<KraidRoomMutation> ClearCeiling => new(new(2, 18), KraidRoomMutation.ClearCeiling);
 
-    /// <summary>SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
+    /// <summary>Clears the spike blocks from (5,27).</summary>
     private static RoomObjectSpawnRequest<KraidRoomMutation> ClearSpikes => new(new(5, 27), KraidRoomMutation.ClearSpikes);
 
     /// <summary>
@@ -40,7 +40,7 @@ public static class KraidObjectDefinitions
     }.AsReadOnly();
 
     /// <summary>
-    /// The hardcoded PLMs spawned by defeated-room initialization, in call order.
+    /// The fixed room objects spawned by defeated-room initialization, in call order.
     /// </summary>
     public static IReadOnlyList<RoomObjectSpawnRequest<KraidRoomMutation>> DefeatedRoom { get; } = [ClearCeiling, ClearSpikes];
 

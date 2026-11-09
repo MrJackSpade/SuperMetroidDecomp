@@ -132,8 +132,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // His spores' colours, which he loads as he initializes, are the import's shade of them (#1512).
         body.Shading = state.Colours.Sprites;
 
-        // SpawnEprojWithGfx searches the eighteen-slot pool downward. Four calls therefore
-        // occupy physical slots 17..14, which the stalk update later addresses directly.
+        // The projectile spawner searches the eighteen-slot pool downward. Four calls therefore
+        // occupy physical slots 17..14, which the stalk update later reaches directly.
         for (int argument = 0; argument < 4; argument++)
             SpawnSporeSpawnStalk(body, argument);
 
@@ -258,7 +258,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         UpdateSporeSpawnStalks(state);
-        // The cadence tests the 16-bit frame counter, not the separate byte-wide frame counter.
+        // The cadence tests the frame counter that wraps at 65536, not the separate one that wraps at 256.
         if (_frameContext.FrameCounter % 16 == 0)
         {
             int random = _room.Random.Generate();
@@ -320,7 +320,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Requests the arena ceiling PLM at its fixed room block position.</summary>
+    /// <summary>Requests the arena ceiling room object at its fixed room block position.</summary>
     private void PublishSporeSpawnObject(SporeSpawnCeilingMutation mutation) =>
         _frameResults.SporeSpawnCeiling = mutation;
 
@@ -335,7 +335,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Binds spore movement, emitter timing, impact properties, and drop opcodes.</summary>
+    /// <summary>Binds spore movement, emitter timing, impact properties, and drop steps.</summary>
     internal void AddSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

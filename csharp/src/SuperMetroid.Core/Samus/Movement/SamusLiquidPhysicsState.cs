@@ -147,7 +147,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// Starts one Samus-handler sound-publication window. Runtime calls this before
     /// movement because landing audio is emitted by collision, before
-    /// <c>AnimateSamus</c>. Standalone animation calls retain their convenient default of
+    /// Samus is animated. Standalone animation calls retain their convenient default of
     /// beginning a window themselves.
     /// </summary>
     public void BeginFrameSoundRequests(SamusPowerBombExplosionState? powerBomb = null)
@@ -401,7 +401,7 @@ public sealed class SamusLiquidPhysicsState
             {
                 // Lava's Gravity-Suit branch returns before damage and before surface spray.
                 // Acid intentionally has no equivalent early exit and still hurts at quarter
-                // strength when HandlePeriodicDamage runs later in the same Samus handler.
+                // strength when periodic damage runs later in the same Samus handler.
                 LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
                 samus.AnimationFrameBuffer = 0;
                 return;
@@ -599,7 +599,7 @@ public sealed class SamusLiquidPhysicsState
             SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
 
         // Both landing particle handlers suppress their particles when Samus's current
-        // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`
+        // bottom is genuinely below active water or lava/acid. The raw-medium determination
         // preserves the absent surfaces and water option-bit-two exemption used by
         // those routines. Importantly, suppression RETURNS and leaves the effect waits as they were.
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
@@ -631,7 +631,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Ports <c>HandlePeriodicDamageToSamus</c>. The producer above adds
+    /// Applies periodic damage to Samus. The producer above adds
     /// raw fixed-point damage; this consumer applies Varia's half or Gravity's quarter,
     /// subtracts with the original borrow chain, clamps fatal underflow, and clears the pair.
     /// </summary>
@@ -845,7 +845,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// Movement routines distinguish water from lava by whether the room has a water surface, then
-    /// perform signed 16-bit subtraction against the selected surface. Retain that exact
+    /// perform signed wrapped subtraction against the selected surface. Retain that exact
     /// ordering so absence and wraparound behavior stay exact.
     /// </summary>
     private SamusLiquidMedium DetermineRawMediumAtBoundary(int boundary)
@@ -860,7 +860,7 @@ public sealed class SamusLiquidPhysicsState
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) == RoomLiquidOptions.None &&
         IsBelowSurface(WaterSurfaceY, boundary);
 
-    /// <summary>Whether <paramref name="boundary"/> lies below a present surface, by signed 16-bit subtraction; no surface is never above it.</summary>
+    /// <summary>Whether <paramref name="boundary"/> lies below a present surface, by signed wrapped subtraction; no surface is never above it.</summary>
     internal static bool IsBelowSurface(int? surface, int boundary) =>
         surface is int y &&
         CoordinateAxis.Difference(y, boundary) < 0;

@@ -9,7 +9,7 @@ internal static class CrocomireBodyLayerAlignment
     internal static int Correction(EnemyFrameId? frame) =>
         frame is { } shown && CrocomireBodyLayerPlacementDefinitions.Corrections.TryGetValue(shown, out int correction) ? correction : 0;
 
-    /// <summary>Applies the signed correction with sixteen-bit wrapping.</summary>
+    /// <summary>Applies the signed correction wrapping at 65536.</summary>
     internal static int VerticalPlacement(int bodyY, EnemyFrameId? frame) =>
         CoordinateAxis.Wrap(CrocomireBodyLayerPlacementDefinitions.VerticalOrigin - bodyY + Correction(frame));
 }

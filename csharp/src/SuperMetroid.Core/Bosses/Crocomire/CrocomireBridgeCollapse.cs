@@ -20,7 +20,7 @@ internal sealed class CrocomireBridgeCollapse
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Crocomire's body layer: where it is placed, the canvas his death assembles it on, the tongue placed with it and the acid smoke drawn with it.</summary>
     private readonly CrocomireBodyLayer _bodyLayer;
-    /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -33,12 +33,12 @@ internal sealed class CrocomireBridgeCollapse
         _access = access;
     }
 
-    /// <summary>True after the $640 X threshold starts the bridge-collapse phase.</summary>
+    /// <summary>True after the X threshold of 1600 starts the bridge-collapse phase.</summary>
     public bool CrocomireBridgeCollapseStarted { get; private set; }
 
     /// <summary>
-    /// Ports the state transition. The individual bridge PLMs and subsequent
-    /// melting sequence remain a separate translation boundary, but the actor/tongue state
+    /// Carries out the state transition. The individual bridge room objects and the
+    /// subsequent melting sequence are a separate stage, but the actor/tongue state
     /// changes occur on the exact X threshold.
     /// </summary>
     internal void HandleCrocomireBridgeThreshold(CrocomireEnemyState state)
@@ -125,14 +125,14 @@ internal sealed class CrocomireBridgeCollapse
 
     /// <summary>
     /// Clears all ten bridge blocks and bursts dust as the bridge collapses.
-    /// The ten PLM operand records exactly use
-    /// block X=97+i, block Y=11, and the bridge-block clearing header for i=0..9. The
+    /// The ten room-object spawns exactly use
+    /// block X=97+i, block Y=11, and the bridge-block clearing for i=0..9. The
     /// inclusive production loop preserves their ascending publication
-    /// order; the dust setup follows, not an eleventh clear record.
+    /// order; the dust setup follows, not an eleventh clear.
     /// The seven dust positions follow the
     /// exact bounded rule X=1536+16*i for i=0..6; Y=176 at i=0 or 2
-    /// and 192 otherwise. The original encodes these as ordered
-    /// immediate operands, not a contiguous table. All seven pairs and their
+    /// and 192 otherwise. The original game writes these out one by one,
+    /// not as a table. All seven pairs and their
     /// order match the authored ones; there is no eighth dust spawn.
     /// </summary>
     private void PublishCrocomireBridgeCollapseObjects()
@@ -208,7 +208,7 @@ internal sealed class CrocomireBridgeCollapse
         state.VerticalSpeed = EightEight.FromWhole(CrocomireBehavior.MaximumSinkSpeedWhole);
     }
 
-    /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c>.</summary>
+    /// <summary>Crocomire's exact fixed-point sinking fall.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);

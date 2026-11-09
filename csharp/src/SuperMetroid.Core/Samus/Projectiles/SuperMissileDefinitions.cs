@@ -5,9 +5,9 @@ public static class SuperMissileDefinitions
 {
     /// <summary>Super Missile admission: reject at four live projectiles, reserving the fifth slot for the collision link.</summary>
     public const int AdmissionLimit = 4;
-    /// <summary>KillProjectileInner: one-pixel diagonal quake affecting both BGs and enemies.</summary>
+    /// <summary>The Super Missile impact's one-pixel diagonal quake affecting both background layers and enemies.</summary>
     public const int EarthquakeType = 20;
-    /// <summary>KillProjectileInner: thirty room-shaking calls after Super Missile impact.</summary>
+    /// <summary>Thirty room-shaking calls after Super Missile impact.</summary>
     public const int EarthquakeDuration = 30;
     /// <summary>
     /// Enemy/projectile collision: a Super Missile touching an enemy

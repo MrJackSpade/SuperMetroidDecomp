@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Bosses;
 /// <summary>
 /// The boss-room terrain spawners: Botwoon's wall, the Spore Spawn ceiling, and the Kraid, Crocomire, Shitroid wall and
 /// Mother Brain room mutations. Each spawner accepts only its own family's mutations, and all of them contend for the
-/// room's shared PLM slots with ordinary room PLMs.
+/// room's shared room-object slots with ordinary room objects.
 /// </summary>
 internal sealed class BossRoomMutationObjects
 {
-    /// <summary>Gives every family spawner the room's PLM slots.</summary>
+    /// <summary>Gives every family spawner the room's room-object slots.</summary>
     internal BossRoomMutationObjects(RoomObjectSlotTable slotTable)
     {
         BotwoonWall = new BotwoonWallObjects(slotTable);

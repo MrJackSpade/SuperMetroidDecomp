@@ -27,10 +27,10 @@ public static class SamusGroundedMovement
     /// <remarks>
     /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share movement type zero with ordinary standing, but the game
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It only clears <c>SamusSolidVerticalCollisionResult</c> while elevator status is zero.
+    /// It only clears <see cref="SamusState.SolidVerticalCollisionResult"/> while elevator status is zero.
     /// A nonzero status calls the downward block collision with exactly one pixel of downward displacement before
-    /// clearing that result. The elevator actor remains a separate producer of the status
-    /// word and platform art; this method translates the complete Samus-side consumer.
+    /// clearing that result. The elevator actor remains a separate producer of the status,
+    /// and of the platform art; this method translates the complete Samus-side consumer.
     /// </remarks>
     [IndependentFlag("Elevator motion and door side-effect publication are independent states of the frame.")]
     internal static BlockMoveResult? StepFacingForward(
@@ -62,7 +62,7 @@ public static class SamusGroundedMovement
         }
 
         // Is the only write in the ordinary no-elevator path. In particular,
-        // stale base/extra X speed is retained; MakeSamusFaceForward clears those words at
+        // stale base/extra X speed is retained; facing forward clears those speeds at
         // setup time, not every frame in this movement dispatcher.
         samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
         return vertical;

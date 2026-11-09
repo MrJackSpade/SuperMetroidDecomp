@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Named equivalents of the three timer/hack pointer values relevant to draining.</summary>
+/// <summary>The three timer/hack handlers relevant to draining.</summary>
 public enum DrainedGetUpHandler
 {
     /// <summary>The drained Up-input callback is no longer installed, either after a successful stand request or because another timer/hack owner replaced it.</summary>

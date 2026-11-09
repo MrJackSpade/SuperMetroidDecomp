@@ -286,8 +286,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Implements the shared <c>ConvertAngleToXy</c> plus
-    /// <c>MoveEnemyAccordingToAngleAndXYSpeeds</c> pair used by chase and carry.
+    /// Turns an angle into X and Y speeds and moves Draygon along them, as the chase
+    /// and carry both do.
     /// </summary>
     private static void MoveDraygonToward(
         RoomEnemySlot body,

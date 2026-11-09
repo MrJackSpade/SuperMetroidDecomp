@@ -115,7 +115,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case TorizoFunction.WaitForHandTrigger:
-                // The awakening check scans all forty PLM slots for the hand-trigger PLM. A supplied PLM owner is
+                // The awakening check scans all forty room-object slots for the hand trigger. A supplied room-object owner is
                 // authoritative; standalone enemy audits omit it and therefore model the
                 // already-collected item/removed hand trigger.
                 torizo.Contact = torizo.Contact.With(EnemyContact.SolidToSamus);

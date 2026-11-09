@@ -49,7 +49,7 @@ internal sealed class MotherBrainCombat
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                // Every body rectangle's shot callback is exactly CreateDudShot;
+                // Every body rectangle's shot callback is exactly the dud shot;
                 // only the dummy root's head-callback list could select anything else.
                 if (c.HitboxShotAi != EnemyReaction.MotherBrainBodyShot)
                 {
@@ -78,7 +78,7 @@ internal sealed class MotherBrainCombat
     /// <summary>
     /// Runs the first-form branch of the head's shot AI. The glass encounter
     /// accepts only missile families; beams pass through without being converted into an
-    /// impact, while every accepted missile increments the room PLM argument before common
+    /// impact, while every accepted missile increments the glass room object's hit count before common
     /// vulnerability damage is applied without the ordinary enemy-deletion tail.
     /// </summary>
     private void ResolveMotherBrainHeadShot(
@@ -289,8 +289,8 @@ internal sealed class MotherBrainCombat
             });
     }
 
-    /// <summary>Registers body bomb reactions in the AI dispatch table.</summary>
-    /// <remarks>The body callback is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and
+    /// <summary>Adds the body's bomb reactions to the AI dispatch table.</summary>
+    /// <remarks>The body callback is the dud shot. The multibox bomb walker has already marked the physical explosion, and
     /// the body callback performs no health, phase, or multipart-state work of its own.</remarks>
     internal static void AddMotherBrainBodyBombReactions(EnemySharedReactions table)
     {

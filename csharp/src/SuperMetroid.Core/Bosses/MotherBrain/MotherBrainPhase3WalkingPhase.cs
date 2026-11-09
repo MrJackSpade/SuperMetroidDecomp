@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Reachable third-phase walking function pointers.</summary>
+/// <summary>Reachable third-phase walking functions.</summary>
 public enum MotherBrainPhase3WalkingPhase
 {
     /// <summary>No phase-three horizontal walking function is active.</summary>

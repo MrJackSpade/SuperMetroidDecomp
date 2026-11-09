@@ -32,7 +32,7 @@ internal sealed class MotherBrainHead
     private readonly IMotherBrainRoomActors _roomActors;
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
 
 
@@ -223,10 +223,10 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Ports <c>GetMotherBrainHeadSpritemapPointerInY</c>: returns the brain frame
+    /// Returns the brain frame
     /// to draw, or null when the brain is not live. With time frozen it only reads the current
     /// frame. Otherwise a frame holds while its duration minus the timer is not negative
-    /// (CMP/BPL), the timer counting up; past it, cues run until the next frame, which
+    /// (a sign test), the timer counting up; past it, cues run until the next frame, which
     /// resets the timer to one.
     /// </summary>
     internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState? samus)
@@ -256,7 +256,7 @@ internal sealed class MotherBrainHead
             (cue, continuation) => ApplyMotherBrainHeadCue(state, samus, cue));
         if (advance is not AnimationProgramAdvance<MotherBrainHeadFrame>.Show shown)
             throw new InvalidOperationException($"Mother Brain's brain programs have no {advance} step.");
-        // The pointer rests on the frame it shows, so the cursor steps back onto it.
+        // The program position rests on the frame it shows, so the cursor steps back onto it.
         state.BrainCursor = cursor with { Position = cursor.Position - 1 };
         state.BrainFrameTimer = 1;
         return shown.Frame;
@@ -265,7 +265,7 @@ internal sealed class MotherBrainHead
     /// <summary>Carries out one cue of a brain program.</summary>
     /// <returns>The program a random hold or drool cue redirects to; otherwise null.</returns>
     /// <remarks>
-    /// The brain program advances in the brain draw hook, after EnemyMain has collected the frame's legacy
+    /// The brain program advances in the brain draw hook, after the enemy update has collected the frame's legacy
     /// sound slots, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
     private MotherBrainHeadProgram? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)
@@ -334,8 +334,8 @@ internal sealed class MotherBrainHead
             // The neutral hold holds the phase-two neutral pose again unless the random word reaches 61,440 (15 in 16).
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return _room.Random.Read() < 61440 ? MotherBrainHeadProgram.NeutralPhase2Hold : null;
-            // Retail contains an unconditional BRA where the adjacent commentary might suggest a
-            // carry branch: low-twelve random values below $EC0 hold the phase-three pose again.
+            // Retail contains an unconditional branch where the adjacent commentary might suggest a
+            // carry branch: low-twelve random values below 3776 hold the phase-three pose again.
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
                 return MotherBrainRandomDefinitions.NeutralPhase3HoldRoll.Of(_room.Random.Read()) < 3776 ? MotherBrainHeadProgram.NeutralPhase3Hold : null;
             // The drool hold returns its destination: only low-twelve random values
@@ -379,7 +379,7 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> mouth = head.Position.Whole + new Offset16<RoomPixels>(10, 16);
         int angle = EnemyMath.CalculateBearing(target - mouth).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn).RawValue;
 
-        // The clamp performs two signed-flag comparisons in 8-bit mode. The
+        // The clamp performs two signed comparisons within one turn of 256. The
         // wraparound half maps 192..255 and 0..15 to 16; the opposite half maps
         // 72..191 to 72. Only 16..71 survives unchanged.
         state.OnionRingsTargetAngle = angle switch

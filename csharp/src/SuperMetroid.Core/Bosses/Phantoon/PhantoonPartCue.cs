@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>The gameplay cues Phantoon's part programs publish: the behaviours their lists call.</summary>
 internal enum PhantoonPartCue
 {
-    /// <summary>Queues the next materialization sound (<c>PlayPhantoonMaterializationSFX</c>).</summary>
+    /// <summary>Queues the next materialization sound.</summary>
     PlayMaterializationSound,
-    /// <summary>Gives the body its eye hitbox and starts the eye tracking Samus (<c>SetupEyeOpenPhantoonState</c>).</summary>
+    /// <summary>Gives the body its eye hitbox and starts the eye tracking Samus.</summary>
     BeginEyeTracking,
-    /// <summary>Picks the next round's flame and swoop pattern (<c>PickNewPhantoonPattern</c>).</summary>
+    /// <summary>Picks the next round's flame and swoop pattern.</summary>
     PickNewPattern,
-    /// <summary>Spawns a casual flame from the mouth (<c>SpawnCasualFlame</c>).</summary>
+    /// <summary>Spawns a casual flame from the mouth.</summary>
     SpawnCasualFlame,
 }

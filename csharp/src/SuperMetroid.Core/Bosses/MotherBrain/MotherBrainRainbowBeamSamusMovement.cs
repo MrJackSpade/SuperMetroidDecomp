@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// these helpers separately after it has locked Samus. Keeping that ownership explicit
 /// prevents a future runtime from accidentally applying both ordinary and forced movement.
 ///
-/// The helpers use a peculiar 8.8 velocity against only byte <c>+1</c> of Samus's
-/// 16-bit subposition. The low subposition byte is untouched, the 8-bit addition's carry
+/// The helpers add a peculiar 8.8 velocity to only the coarse half of Samus's
+/// sub-pixel position, in 256ths of a pixel. The finer part is untouched, the addition's carry
 /// enters the whole-pixel addition, and both current and previous positions are overwritten
-/// with the result. This implementation spells out those byte operations instead of using
+/// with the result. This implementation spells out those steps instead of using
 /// floating point or the ordinary 16.16 movement helpers.
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
@@ -73,9 +73,9 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
-        // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
-        // coordinate range this is exactly currentY <= 124, but preserve the 16-bit branch
-        // semantics instead of introducing a host integer comparison with different wraps.
+        // The test takes the sign of the target Y minus the current Y. For the fight's normal
+        // coordinate range this is exactly Samus's Y <= 124, but preserve the wrapped sign test
+        // instead of introducing a host integer comparison with different wraps.
         int difference = CoordinateAxis.Difference(124, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
             samus, cameraCheckpoint, SignedEightEight.FromSignedRaw(difference >= 0 ? 64 : -64));
@@ -120,7 +120,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CustomVelocity.Y);
 
         // The wait step branches on the carry returned by the vertical helper. Horizontal wall
-        // carry is intentionally discarded by the following LDA/ADC sequence.
+        // carry is intentionally discarded by the following addition.
         return CreateResult(
             before,
             reachedBoundary: reachedVerticalBoundary);
@@ -134,7 +134,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         RotationAngle angle)
     {
         // The sine multiply multiplies unsigned speed by the magnitude, selects product bits 8..23,
-        // then reapplies the table entry's sign with 16-bit two's-complement negation.
+        // then reapplies the table entry's sign with two's-complement negation wrapping at 65536.
         return Trigonometry.MultiplySignedSine(
             speed, (angle + RotationAngle.QuarterTurn).ToByteAngle());
     }
@@ -153,7 +153,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
         cameraCheckpoint.HideCoarseVerticalMovement(moved.Fraction);
 
-        // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
+        // The bounds are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
         bool aboveCeiling = CoordinateAxis.Difference(moved.Whole, 48) < 0;
         if (aboveCeiling || CoordinateAxis.Difference(moved.Whole, 192) >= 0)

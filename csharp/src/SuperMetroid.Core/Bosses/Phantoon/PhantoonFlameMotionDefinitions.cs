@@ -17,11 +17,11 @@ internal static class PhantoonFlameMotionDefinitions
     internal const int IntroCircleDelay = 180;
     /// <summary>The radius, in pixels, an intro flame starts circling at; it closes by one every other update.</summary>
     internal const int IntroCircleRadius = 48;
-    /// <summary>Enraged pre-instruction: radius increase per frame.</summary>
+    /// <summary>Enraged frame behaviour: radius increase per frame.</summary>
     internal const int RageRadiusStep = 4;
-    /// <summary>Spiral pre-instruction: radius increase per frame.</summary>
+    /// <summary>Spiral frame behaviour: radius increase per frame.</summary>
     internal const int SpiralRadiusStep = 2;
-    /// <summary>Spiral pre-instruction: clockwise angle increase per frame.</summary>
+    /// <summary>Spiral frame behaviour: clockwise angle increase per frame.</summary>
     internal const int SpiralAngleStep = 2;
     /// <summary>Sound requested when rain starts falling and when it hits terrain.</summary>
     internal static SoundEffectId RainFallSound => RoomSound.PhantoonFlame;

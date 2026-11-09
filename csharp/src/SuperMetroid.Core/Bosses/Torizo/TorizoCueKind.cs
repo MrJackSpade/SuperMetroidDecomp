@@ -3,7 +3,7 @@
 /// <summary>What a cue of Torizo's body programs does: one per Torizo instruction its lists use.</summary>
 internal enum TorizoCueKind
 {
-    /// <summary>Clears the body's pre-instruction.</summary>
+    /// <summary>Clears the body's frame behaviour.</summary>
     ClearFrameBehavior,
     /// <summary>Marks Bomb Torizo's gut blown up and spawns six drool pieces.</summary>
     BlowUpGut,

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Thresholds for aborting and recovering from a Norfair Ridley lunge.</summary>
 public static class RidleyLungeDefinitions
 {
-    /// <summary>RidleyLungeMissedSamus: ten zero-health lunges end in the death roar.</summary>
+    /// <summary>After a missed lunge, ten zero-health lunges end in the death roar.</summary>
     public const int DeathLungeLimit = 10;
     /// <summary>Abandon after passing Samus by 32 pixels.</summary>
     public const int PassDistance = 32;

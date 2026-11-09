@@ -33,7 +33,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>Holds the body her body frames show on.</summary>
     private readonly EnemyPresentation _presentation;
@@ -118,7 +118,7 @@ internal sealed class MotherBrainBody
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
     internal void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState? samus)
     {
-        // Before the glass PLM finishes the nineteen missile increments and its 48-frame tail,
+        // Before the glass room object finishes the nineteen missile increments and its 48-frame tail,
         // event two is clear and the first-phase function performs no phase mutation. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
         // body-function dispatcher.
@@ -129,7 +129,7 @@ internal sealed class MotherBrainBody
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit. The following
-                // function remains represented by its pointer so the next frame
+                // function remains represented by its own phase so the next frame
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
                 // Mother Brain and the Rinkas share this request. Publish it before later
@@ -139,7 +139,7 @@ internal sealed class MotherBrainBody
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest);
 
                 // Sealing the wall creates both dust puffs before its
-                // two identical hardcoded PLMs. Requests remain ordered because the PLM
+                // two identical fixed room objects. Requests remain ordered because the room-object
                 // allocator searches the same descending pool for each call.
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
@@ -405,7 +405,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Posture-transition variant. Its X register is a scroll bias, not
+    /// Posture-transition variant. Its horizontal argument is a scroll bias, not
     /// actor displacement; only Y changes the physical body coordinate.
     /// </summary>
     private void MoveMotherBrainBodyWithScrollBias(
@@ -427,7 +427,7 @@ internal sealed class MotherBrainBody
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
 
         // Form three additionally makes the footstep sound. Phase two normally never
-        // reaches that branch, but retaining it here makes the shared gait opcode complete.
+        // reaches that branch, but retaining it here makes the shared gait cue complete.
         if (_motherBrainEncounter.MotherBrain?.Form == MotherBrainForm.DrainedByBabyMetroid)
             _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
     }

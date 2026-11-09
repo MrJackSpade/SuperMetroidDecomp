@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>
-/// The prospective pose published by <c>HandleConnectingGrapple</c>. The grapple installs
+/// The prospective pose a connecting grapple publishes. The grapple installs
 /// the function, angle, and rope geometry immediately, while Samus's pose handling applies this pose
 /// later only if a higher-priority super-special transition did not win the frame.
 /// </summary>

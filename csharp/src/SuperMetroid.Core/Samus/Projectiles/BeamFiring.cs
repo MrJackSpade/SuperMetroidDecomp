@@ -20,7 +20,7 @@ internal sealed class BeamFiring
     private readonly BeamCombos _combos;
     /// <summary>Owns the five counted projectile slots and their counter.</summary>
     private readonly ProjectileSlotTable _slotTable;
-    /// <summary>Runs initial muzzle collision against room terrain and PLMs.</summary>
+    /// <summary>Runs initial muzzle collision against room terrain and room objects.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
     /// <summary>The speeds a Spazer and Plasma beam launches at and the cooldowns it waits.</summary>
     private readonly UnauthoredBeamFiring<SamusBeamCombination> _unauthoredFiring;
@@ -164,7 +164,7 @@ internal sealed class BeamFiring
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
             {
-                // The game tries FireSBA only on the call after charge reaches 120.
+                // The game tries the special beam attack only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
                 // failed family dispatch leaves charge intact, including its ammo debit.
                 _charge.FlareCounter = 0;
@@ -192,7 +192,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>
-    /// Applies the shared tail of <c>FireUnchargedBeam</c>/<c>FireChargedBeam</c>. A
+    /// Applies the shared tail of uncharged and charged beam firing. A
     /// successful shot's own essential-priority sound replaces the charging sound. If allocation or
     /// muzzle initialization rejects a release after counter sixteen, the game queues
     /// the charge-silencing sound instead so the sustained charge cannot remain audible.
@@ -200,7 +200,7 @@ internal sealed class BeamFiring
     private BeamFiringResult CompleteBeamRelease(
         BeamShot firing)
     {
-        // FireChargedBeam's success path queues the indexed sound value even when an
+        // Charged firing's success path queues the indexed sound value even when an
         // out-of-domain beam combination reads zero from the adjacent table. Allocation,
         // not a nonzero sound command, distinguishes that success from the shared failure
         // tail which cancels an audible charge. Murder Beam is the observable index-15
@@ -310,8 +310,8 @@ internal sealed class BeamFiring
         if (charged)
             _charge.ChargedShotGlowTimer = WrappingCountdown.Start(4);
 
-        // FireUnchargedBeam and FireChargedBeam explicitly zero both speed words and call
-        // the directional or Wave beam collision check before installing the pre-instruction and
+        // Uncharged and charged firing explicitly zero both speeds and call
+        // the directional or Wave beam collision check before installing the frame behaviour and
         // initial speed. This is what lets a muzzle already overlapping a door cap trigger
         // its shot reaction instead of moving its leading edge beyond the cap.
         bool initialImpact = _terrainCollision.RunInitialBeamCollision(
@@ -326,8 +326,8 @@ internal sealed class BeamFiring
             // infer it from Wave bits: the table is the dispatcher, including overreads.
             SamusBeamCallbackDefinition callback =
                 SamusBeamCallbacks.Resolve(charged, beamType);
-            // The callbacks with no translation are Spazer and Plasma combinations whose table read lands on an
-            // address that holds no game code: work memory or an unconnected region. The game then executes
+            // The callbacks with no translation are Spazer and Plasma combinations whose table read lands outside
+            // the game's code: on work memory or an unconnected region. The game then executes
             // whatever those bytes hold, which only full memory and processor emulation could reproduce, so the
             // port rejects the shot under the emulation scope limit (#1500).
             slot.FrameBehavior = callback.Translated ?? throw new NotSupportedException(
@@ -591,7 +591,7 @@ internal sealed class BeamFiring
     /// </summary>
     public int ProjectileInvincibilityTimer { get; internal set; }
 
-    /// <summary>Decrements the projectile-owned word of DecrementSamusTimers.</summary>
+    /// <summary>Decrements the projectile-owned timer of Samus's timer countdown.</summary>
     public void DecrementInteractionTimer()
     {
         ProjectileInvincibilityTimer = Math.Max(0, ProjectileInvincibilityTimer - 1);

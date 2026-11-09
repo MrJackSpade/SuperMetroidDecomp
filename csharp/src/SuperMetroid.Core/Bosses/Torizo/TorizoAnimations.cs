@@ -18,7 +18,7 @@ internal static class TorizoAnimations
              .. GoldenTorizoPrograms.Programs]));
 
     /// <summary>
-    /// The program a sleeping list resumes into when the AI steps its pointer past the sleep, as Bomb Torizo's wake
+    /// The program a sleeping list resumes into when the AI steps its program past the sleep, as Bomb Torizo's wake
     /// and Golden Torizo's trigger do.
     /// </summary>
     internal static TorizoBodyProgram AfterSleep(TorizoBodyProgram program) => program switch

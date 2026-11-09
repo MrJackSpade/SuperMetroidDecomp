@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's main function, held in its variable D. Each member names the routine it ports;
-/// the slot stores the member, not the routine's address. Members start at one so a cleared slot is
-/// never mistaken for a function.
+/// Botwoon's main function, held in its variable D. Each member names what that phase of the fight does, and the
+/// slot stores the member. Members start at one so a cleared slot is never mistaken for a function.
 /// </summary>
 public enum BotwoonEnemyFunction
 {

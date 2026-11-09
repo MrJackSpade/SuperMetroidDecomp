@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's escape-gate block draws: which PLM draws are the gate's and how their cells collide, from
+/// Mother Brain's escape-gate block draws: which room-object draws are the gate's and how their cells collide, from
 /// <see cref="MotherBrainEscapeGateObjectDrawDefinitions"/>.
 /// </summary>
 internal static class MotherBrainEscapeGateDraws
@@ -19,10 +19,10 @@ internal static class MotherBrainEscapeGateDraws
                 : throw new ArgumentOutOfRangeException(nameof(row));
     }
 
-    /// <summary>Recognizes one of the three gate draw pointers; other PLM draw families are left unclaimed.</summary>
+    /// <summary>Recognizes one of the three gate draws; other room-object draw families are left unclaimed.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
-        // Pointers outside the three gate images belong to other draw families.
+        // Draws outside the three gate images belong to other draw families.
         bool owned = request is RoomObjectFrameDraw<MotherBrainEscapeGateDraw>;
         draw = owned ? new(RoomObjectDraw.FrameOf<MotherBrainEscapeGateDraw>(request, "MotherBrainEscapeGateDraw")) : default;
         return owned;

@@ -28,7 +28,7 @@ public sealed class DraygonEnemyState
 
     /// <summary>His body, which owns encounter movement, health, and the body-function dispatcher, and runs first.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Where each part's typed program resumes, keyed by the part's record; it replaces the instruction pointers.</summary>
+    /// <summary>Where each part's typed program resumes, keyed by the part's record.</summary>
     private readonly Dictionary<RoomEnemySlot, AnimationProgramCursor<DraygonProgram>> _cursors = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>Where <paramref name="part"/>'s program resumes.</summary>
@@ -193,7 +193,7 @@ public sealed class DraygonEnemyState
     public int TurretCadenceChecks { get; internal set; }
 
     /// <summary>
-    /// The wall cannons disabled by Draygon setup or a destroyed room PLM.
+    /// The wall cannons disabled by Draygon setup or a destroyed room object.
     /// This is the shared state Draygon's firing selector observes.
     /// </summary>
     internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];

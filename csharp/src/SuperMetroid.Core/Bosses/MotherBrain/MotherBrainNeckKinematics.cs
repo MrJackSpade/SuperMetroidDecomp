@@ -188,7 +188,7 @@ internal static class MotherBrainNeckKinematics
 
     /// <summary>
     /// One joint's displacement: the sine multiply for the angle (X) and the angle plus a
-    /// quarter turn (Y), each added to the anchor with 16-bit wrap.
+    /// quarter turn (Y), each added to the anchor wrapping at 65536.
     /// </summary>
     private static Offset16<RoomPixels> CalculatePolarOffset(ByteAngle angle, int distance) =>
         new(CalculateSignedComponent(angle, distance),

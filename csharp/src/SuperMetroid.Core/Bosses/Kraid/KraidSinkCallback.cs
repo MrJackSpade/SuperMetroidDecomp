@@ -7,7 +7,7 @@ public enum KraidSinkCallback
 {
     /// <summary>
     /// The empty callback. Rows that only clear another strip of his body
-    /// select this callback so it returns without spawning rocks or PLMs.
+    /// select this callback so it returns without spawning rocks or room objects.
     /// </summary>
     NoOperation,
 

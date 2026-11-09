@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Named substitutes for Crystal Flash's three handler addresses.</summary>
+/// <summary>The three phases of Crystal Flash's handler.</summary>
 public enum CrystalFlashPhase
 {
     /// <summary>No Crystal Flash movement handler is installed; its palette handler may still await the separate restoration pass.</summary>

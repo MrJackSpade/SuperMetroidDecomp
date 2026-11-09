@@ -33,7 +33,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Mother Brain's head and brain: their setup, neck, programs, cues and drawing.</summary>
     internal MotherBrainHead Head { get; }
 
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
     internal MotherBrainEncounterAccess Access { get; }
 
     /// <summary>Mother Brain's body and tank: their setup, programs, movement, footsteps and the first phase.</summary>
@@ -502,7 +502,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.RoomFlashTimer == MotherBrainRoomPaletteProgramDefinitions.FlashImageTicks)
         {
-            frame = (frame + 1) % MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount;
+            frame = (frame + 1) % MotherBrainRoomPaletteProgramDefinitions.FlashFrameCount;
             state.RoomFlashFrame = frame;
             state.RoomFlashTimer = 0;
         }

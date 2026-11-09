@@ -41,7 +41,7 @@ public enum KraidAiFunction
     LintCharge,
     /// <summary>Moves the fired lint away from Kraid.</summary>
     LintFire,
-    /// <summary>Waits until the top lint's X position reaches at least $100 before firing a nail.</summary>
+    /// <summary>Waits until the top lint's X position reaches at least 256 before firing a nail.</summary>
     FingernailWaitForLint,
     /// <summary>Horizontally aligns the current physical part to Kraid's body.</summary>
     AlignPartToKraid,

@@ -77,7 +77,7 @@ internal static class SamusAerialPoseTransitions
         if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
             // Installs ordinary crouch when the expanded body is blocked above and
-            // below. F433 still runs and sees the spin/wall-jump previous movement type.
+            // below. The pose change still runs and sees the spin/wall-jump previous movement type.
             samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
@@ -85,7 +85,7 @@ internal static class SamusAerialPoseTransitions
         }
 
         samus.Pose = targetPose;
-        // F404/F543 keep the source collision radius for the rest of this update.
+        // The changed-pose collision keeps the source collision radius for the rest of this update.
         // Alpha's SetRadius publishes the new pose radius on the next update.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
@@ -121,7 +121,7 @@ internal static class SamusAerialPoseTransitions
     /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
     /// <param name="genericTargetPose">Generic right-to-left or left-to-right turn pose for the current jumping/falling family; aim-specific art is selected from the source shot direction, not this argument.</param>
     /// <param name="frameCounter">The frame counter supplied to changed-pose block reactions.</param>
-    /// <param name="roomObjects">Optional live PLM owner for those collision reactions.</param>
+    /// <param name="roomObjects">Optional live room-object owner for those collision reactions.</param>
     /// <returns>True when the aerial turn is installed; false when expansion retains the source or substitutes stable crouch, so failure does not guarantee unchanged state.</returns>
     /// <remarks>An accepted turn folds extra run speed into base turn momentum, preserves vertical velocity, adjusts the whole-pixel Y center if required, and initializes animation while retaining the source collision radius until the next alpha pass.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
@@ -205,7 +205,7 @@ internal static class SamusAerialPoseTransitions
             return false;
         }
 
-        // F404 resolves expansion before F433 dispatches the final movement type.
+        // The changed-pose collision resolves expansion before the pose change dispatches the final movement type.
         // A crouch substitution never reaches the aerial-turn momentum initializer.
         SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         samus.Pose = selectedTurnPose;
@@ -253,7 +253,7 @@ internal static class SamusAerialPoseTransitions
         samus.Pose = SelectEquippedSpinPose(samus, genericTarget, start: SpinPoseStart.SkipFirstFrame);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // InitializeSpinJump writes frame one, skipping the static first spin frame. This
+        // The spin jump's initialization writes frame one, skipping the static first spin frame. This
         // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
         SamusPresentation.InitializeAnimation(samus, initialFrame: 1);
     }
@@ -269,7 +269,7 @@ internal static class SamusAerialPoseTransitions
     /// launch-value/particle diagnostics that explicitly model unobstructed space.
     /// </param>
     /// <param name="frameCounter">The frame counter passed to the changed-pose collision resolver when live room geometry is supplied.</param>
-    /// <param name="roomObjects">Optional PLM owner receiving changed-pose block reactions; unused by the unobstructed diagnostic path.</param>
+    /// <param name="roomObjects">Optional room-object owner receiving changed-pose block reactions; unused by the unobstructed diagnostic path.</param>
     public static void ApplyWallJumpTrigger(SamusState samus, 
 
         RoomLevelData? level = null,
@@ -309,7 +309,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
             samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
         samus.Pose = targetPose;
-        // Leaves the collision radius at the spin body's radius; alpha's SetSamusRadius takes
+        // Leaves the collision radius at the spin body's radius; alpha's radius update takes
         // the wall-jump body only next frame, so this frame's enemy and projectile
         // collision still use the compact spin radius.
 
@@ -411,7 +411,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
                 $"Grapple drop transition {samus.Pose} -> {targetPose} is not a retail dropped-table route.");
         }
 
-        // EnemyDeathAnimation requests this cleanup for a grapple-killed enemy even
+        // The enemy death animation requests this cleanup for a grapple-killed enemy even
         // when the beam never attached. Samus can therefore still be standing, aiming,
         // or jumping. The game's drop selects by radius/shot direction in those poses too;
         // only its output domain is restricted, not the source to connected-grapple art.
@@ -811,7 +811,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
 
     /// <summary>
     /// Applies the verified ordinary-input jump transitions selected from the game's
-    /// table, including <c>HandleJumpTransition</c>'s jump start. Only explicitly verified
+    /// table, including the jump transition's jump start. Only explicitly verified
     /// no-equipment/no-aim routes admitted by the current runtime are accepted, including
     /// interrupting any same-facing landing stream with a fresh Jump edge.
     /// </summary>

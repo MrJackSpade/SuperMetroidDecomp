@@ -30,7 +30,7 @@ public sealed class SamusCeresRidleyEjectionState
     public CeresRidleyShoveDirection PushDirection { get; private set; }
 
     /// <summary>
-    /// <c>SetSamusToBePushedOutOfCeresRidleysWay</c>: installs the handlers
+    /// Sets Samus to be pushed out of Ceres Ridley's way: installs the handlers
     /// that the following gameplay frame executes.
     /// </summary>
     public void Request(SamusState samus)
@@ -41,8 +41,8 @@ public sealed class SamusCeresRidleyEjectionState
 
         // Writes the shove into the one physical movement-handler word. An
         // uncrashed ordinary spark consequently retains its boost words as Blue Suit. If
-        // the overwritten pointer was Crystal Flash's raise/drain/finish routine, its
-        // independent palette handler and empty pose-input pointer survive instead. Neither
+        // the overwritten handler was Crystal Flash's raise/drain/finish routine, its
+        // independent palette handler and empty pose-input handler survive instead. Neither
         // displaced movement owner can resume after Ridley's shove ends.
         samus.Shinespark.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishMovementHandler();
@@ -118,8 +118,8 @@ public sealed class SamusCeresRidleyEjectionState
             // which cancels speed boosting and clears the extra-run words as well.
             samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
             // Restore the ordinary handlers, then
-            // HandleKnockbackVerticalCollision sees the still-set collision flag,
-            // clears the movement words and aligns the feet to the previous pose. The push
+            // The knockback's vertical collision sees the still-set collision flag,
+            // clears the movement and aligns the feet to the previous pose. The push
             // never sets knockback direction, so the knockback check does not convert the
             // hurt pose; the knockback pose remains for the ordinary movement handler.
             IsActive = false;

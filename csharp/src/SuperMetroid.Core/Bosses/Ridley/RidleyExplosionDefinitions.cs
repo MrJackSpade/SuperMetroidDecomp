@@ -70,9 +70,8 @@ internal static class RidleyExplosionDefinitions
     public static RidleyExplosionPartDefinition GetPart(RidleyExplosionPart part) => new(Lifetimes[part]);
 
     /// <summary>
-    /// Returns one of the ten body-relative positions consumed cyclically by
-    /// <c>SpawnSmallExplosionNearRidley</c>
-    /// (shared with the Baby Metroid death).
+    /// Returns one of the ten body-relative positions the small explosions near Ridley
+    /// consume cyclically (shared with the Baby Metroid death).
     /// </summary>
     public static Offset16<RoomPixels> DeathExplosionPlacement(int index) =>
         DeathExplosionScatter.Offset(index);

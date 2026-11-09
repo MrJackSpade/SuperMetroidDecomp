@@ -328,8 +328,8 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // The angular movement first converts angular velocity into an angle delta, then walks from the
-        // current high angle byte to the target one byte at a time. Fractional-only motion
-        // within the same byte has no sweep, exactly as the target-byte equality branch.
+        // current whole angle step to the target one step at a time. Fractional-only motion
+        // within the same step has no sweep, exactly as the target-step equality branch.
         int combined = grapple.AngularVelocity + grapple.JumpImpulse;
         int factor = grapple.Submerged ? 160 : 256;
         int magnitude = EightEight.Multiply(Math.Abs(combined), factor);
@@ -338,29 +338,29 @@ public static class SamusGrappleSwing
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
         RotationAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
-        ByteAngle targetAngleByte = targetAngle.ToByteAngle();
-        ByteAngle lastSafeAngleByte = grapple.Angle.ToByteAngle();
-        int byteDirection = combined < 0 ? -1 : 1;
+        ByteAngle targetStep = targetAngle.ToByteAngle();
+        ByteAngle lastSafeStep = grapple.Angle.ToByteAngle();
+        int stepDirection = combined < 0 ? -1 : 1;
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
-        // explicit 256-byte guard anyway: it documents the cyclic angle domain and turns a
+        // explicit 256-step guard anyway: it documents the cyclic angle domain and turns a
         // future corrupt state into a diagnostic rather than an infinite host loop.
         for (int angleSteps = 0;
-             lastSafeAngleByte != targetAngleByte && angleSteps < 256;
+             lastSafeStep != targetStep && angleSteps < 256;
              angleSteps++)
         {
-            ByteAngle candidateAngleByte = lastSafeAngleByte.TurnedBySteps(byteDirection);
+            ByteAngle candidateStep = lastSafeStep.TurnedBySteps(stepDirection);
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
                 level,
                 samus,
                 grapple,
-                candidateAngleByte);
+                candidateStep);
             if (collision.Collided)
             {
-                // A collision restores the last safe whole angle byte and forces the
+                // A collision restores the last safe whole angle step and forces the
                 // fractional half value 128. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
-                grapple.Angle = RotationAngle.FromSteps(lastSafeAngleByte.RawValue, fraction: 128);
+                grapple.Angle = RotationAngle.FromSteps(lastSafeStep.RawValue, fraction: 128);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&
@@ -383,13 +383,13 @@ public static class SamusGrappleSwing
                 return collision;
             }
 
-            lastSafeAngleByte = candidateAngleByte;
+            lastSafeStep = candidateStep;
         }
 
-        if (lastSafeAngleByte != targetAngleByte)
+        if (lastSafeStep != targetStep)
             throw new InvalidDataException("Grapple angle sweep exceeded one full revolution.");
 
-        // No sampled byte collided, so preserve the full 16-bit target, clear the special
+        // No sampled angle collided, so preserve the full fine target, clear the special
         // angle request, age the kick window, and damp extra velocity by six. Every one of
         // these operations is bypassed by the collision return above in the original code.
         grapple.Angle = targetAngle;
@@ -488,7 +488,7 @@ public static class SamusGrappleSwing
             switch (block.CollisionType)
             {
                 // The swing dispatcher intentionally treats shootable/bombable air as air;
-                // unlike a firing endpoint, body contact does not spawn their PLMs.
+                // unlike a firing endpoint, body contact does not spawn their room objects.
                 case RoomCollisionType.Air:
                 case RoomCollisionType.SpecialAir:
                 case RoomCollisionType.ShootableAir:
@@ -552,7 +552,7 @@ public static class SamusGrappleSwing
     {
         // The anchor validation calls the firing block dispatcher again at the stored endpoint and tests
         // carry only. A persistent grapple block of behaviour zero or three therefore stays connected; replacing
-        // it with air disconnects. PLM-producing dynamic blocks retain their explicit stop.
+        // it with air disconnects. Room-object-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
             level,
             samus,

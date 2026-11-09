@@ -182,7 +182,7 @@ internal sealed class DraygonParts
                 state.SetCursor(part, cursor);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Stop:
-                // The stop deletes the part and leaves its instruction pointer unwritten.
+                // The stop deletes the part and leaves its program position unwritten.
                 part.Presence = part.Presence.With(EnemyPresence.Deleted);
                 return;
             default:
@@ -192,8 +192,8 @@ internal sealed class DraygonParts
 
     /// <summary>
     /// Carries out one cue of a Draygon program run by <paramref name="part"/>. Program starts write the parts'
-    /// stored cursors, so the running part's own write is replaced when its update ends, as the interpreter's
-    /// final instruction-pointer store replaces it.
+    /// stored cursors, so the running part's own write is replaced when its update ends, as the program runner's
+    /// final store of the running part's position replaces it.
     /// </summary>
     /// <returns>Always null: Draygon's cues never redirect the running program.</returns>
     private DraygonProgram? ApplyDraygonCue(DraygonEnemyState state, RoomEnemySlot part, SamusState? samus, DraygonCue cue)

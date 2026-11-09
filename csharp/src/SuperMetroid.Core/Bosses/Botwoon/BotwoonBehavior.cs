@@ -130,7 +130,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.HeadHistory[history] = head.Position.Whole;
         }
-        // BotwoonPositionHistory is never seeded by Botwoon's initializer. It
+        // Botwoon's position history is never seeded by Botwoon's initializer. It
         // lies inside the enemy state the room's enemy setup clears on room
         // load, so body segments read (0,0) until the ring has been written that far; the
         // freshly constructed state's arrays are that cleared state.
@@ -695,7 +695,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
     }
 
-    /// <summary>Requests the crumble PLM and sixteen RNG-positioned drops before wall explosions.</summary>
+    /// <summary>Requests the crumble room object and sixteen RNG-positioned drops before wall explosions.</summary>
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
@@ -818,7 +818,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Registers body-segment and spit pre-instruction handlers.</summary>
+    /// <summary>Adds the body-segment and spit frame behaviours.</summary>
     internal void AddBotwoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

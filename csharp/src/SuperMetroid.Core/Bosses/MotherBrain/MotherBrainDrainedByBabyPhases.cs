@@ -28,9 +28,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// <summary>Alternates painful forward and backward walk requests, advancing the stage only after its pause expires.</summary>
     internal bool StepPainfulWalking()
     {
-        // The game stores four separate function pointers (request forward, wait forward,
+        // The game stores four separate functions (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
-        // hiding when a body instruction list is actually installed.
+        // hiding when a body program is actually installed.
         if (PainfulWalkingFunctionTimer != 0)
         {
             if (--PainfulWalkingFunctionTimer == 0)

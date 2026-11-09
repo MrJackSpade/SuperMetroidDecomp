@@ -24,7 +24,7 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>True while the escape handler is installed as Samus's timer/hack handler.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Another callback replaced the empty movement pointer without removing grab gamma.</summary>
+    /// <summary>Another callback replaced the empty movement handler without removing grab gamma.</summary>
     public bool MovementHandlerReplaced { get; private set; }
 
     /// <summary>True only while the grab's empty handler still owns beta movement.</summary>
@@ -56,7 +56,7 @@ public sealed class SamusDraygonGrabbedState
         CoordinateAxis.Difference(counter, EscapeButtonCounterTarget) >= 0;
 
     /// <summary>
-    /// <c>DraygonEscapePreviousDpadInput</c>. The game stores the entire masked D-pad
+    /// The D-pad input of Draygon's escape. The game stores the entire masked D-pad
     /// nibble, not merely one direction, so a different diagonal chord is also a new input.
     /// </summary>
     public ControllerButton PreviousDpadInput { get; private set; }
@@ -74,7 +74,7 @@ public sealed class SamusDraygonGrabbedState
     public bool OwnerFacingRight { get; private set; }
 
     /// <summary>
-    /// Ports <c>SetSamusIntoTheGrabbedByDraygonPose</c>.
+    /// Sets Samus into the grabbed-by-Draygon pose.
     /// </summary>
     public void Begin(SamusState samus, bool draygonFacingRight)
     {
@@ -98,7 +98,7 @@ public sealed class SamusDraygonGrabbedState
         // Forced grab owns its history shift; no ordinary input slot is consumed.
         samus.CommitPoseHistory();
         // Empties every prospective-pose slot. The super-special one is Samus's;
-        // the runtime clears the others after EnemyMain (EnemyRoomStatus publishes the grab).
+        // the runtime clears the others after the enemy update (EnemyRoomStatus publishes the grab).
         samus.PendingTransitionalPose = null;
     }
 

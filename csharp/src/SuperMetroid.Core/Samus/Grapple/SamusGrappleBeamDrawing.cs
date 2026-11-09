@@ -10,12 +10,12 @@ public static class SamusGrappleBeamDrawing
 {
 
     /// <summary>
-    /// Reports whether grapple's replacement Samus draw-handler pointer is still installed.
+    /// Reports whether grapple's replacement Samus draw handler is still installed.
     /// </summary>
     /// <remarks>
     /// Cancellation, release, drop, and grapple wall-jump are one-call teardown functions.
     /// On the frame that installs one of them, the grapple draw handler is still the selected handler even
-    /// though its signed function-pointer test falls back to the ordinary body/echo path.
+    /// though its signed function-range test falls back to the ordinary body/echo path.
     /// Keeping that distinction explicit prevents the normal charge flare from leaking into
     /// the teardown frame; the ordinary draw handler, which owns that flare, has not been restored yet.
     /// </remarks>
@@ -24,7 +24,7 @@ public static class SamusGrappleBeamDrawing
 
 
     /// <summary>
-    /// Mirrors the grapple draw handler's signed function-pointer range test for the beam-specific path.
+    /// Mirrors the grapple draw handler's signed function-range test for the beam-specific path.
     /// </summary>
     public static bool UsesBeamSpecificDrawingPath(GrapplePhase phase) => phase is
         GrapplePhase.Firing or
@@ -35,7 +35,7 @@ public static class SamusGrappleBeamDrawing
 
 
     /// <summary>
-    /// Ports <c>HandleGrappleBeamFlare</c>. Call before atmosphere and Samus,
+    /// Draws the grapple beam's flare. Call before atmosphere and Samus,
     /// exactly where the active half of the grapple draw handler calls it.
     /// </summary>
     /// <returns>True when the flare is drawn: the grapple is firing or connected with a flare to show.</returns>
@@ -173,7 +173,7 @@ public static class SamusGrappleBeamDrawing
             return;
 
         // The pair is a begin/end range, not two animation frames. Each
-        // six-call interval advances the source by $200 through four endpoint tiles.
+        // six-call interval advances the source by 512 through four endpoint tiles.
         GrapplePointAnimation.Advance(grapple);
         // The game loads the endpoint frame and the four rope characters for the angle's sector into
         // fixed sprite characters; the draws below bind that selection over the standard sprite page.

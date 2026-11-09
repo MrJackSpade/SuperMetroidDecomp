@@ -290,7 +290,7 @@ internal sealed class NorfairRidleyDeath
         if (--fragmentState.Lifetime >= 0)
             return;
 
-        // The breakup actor calls EnemyDeathAnimation(0): clear the slot immediately and
+        // The breakup actor runs the small enemy death: clear the slot immediately and
         // retain the fragment header/position in the shared explosion-to-pickup actor.
         _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: EnemyDeathExplosion.Small);
     }

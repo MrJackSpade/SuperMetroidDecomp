@@ -14,14 +14,14 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// </summary>
 /// <remarks>
 /// The retail game does not run grapple physics through the grappling movement type's tiny handler.
-/// <c>GrappleBeamHandler</c> updates the pendulum before normal beta
+/// The grapple beam's handler updates the pendulum before normal beta
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
 /// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
 /// the enemy slot to shake. The firing-only Draygon-turret damage and both behaviour-indexed swing
-/// spike-damage tables are translated through the shared periodic-damage words. Breakable
-/// block acquisition now installs the independent PLM lifecycle; enemy acquisition
+/// spike-damage tables are translated through the shared periodic damage. Breakable
+/// block acquisition now installs the independent room-object lifecycle; enemy acquisition
 /// and the live enemy/shake loop remain explicit later routes rather than being approximated.
 /// Grapple's narrower water flag and persistent environment-selected
 /// release handler are translated rather than collapsed into ordinary aerial movement.
@@ -30,7 +30,7 @@ public static class SamusGrappleMovement
 {
     /// <summary>
     /// Fires the grapple beam (cancelling it when it cannot fire), stopping immediately
-    /// before its function-pointer return. The current pose supplies all direction/origin
+    /// before its function's return. The current pose supplies all direction/origin
     /// policy; no host aiming vector is accepted.
     /// </summary>
     public static void BeginFiring(SamusState samus, ControllerButton controllerInput = ControllerButton.None)
@@ -156,7 +156,7 @@ public static class SamusGrappleMovement
 
     /// <summary>
     /// Advances the extending grapple beam, including the enemy
-    /// enemy pass which precedes <c>BlockCollGrappleBeam</c>.
+    /// enemy pass which precedes the grapple beam's block collision.
     /// </summary>
     internal static GrappleMovementResult StepFiring(
 
@@ -285,7 +285,7 @@ public static class SamusGrappleMovement
     /// <remarks>
     /// Grapple physics reads this bit during a function and the handler rewrites it only
     /// afterward, so callers invoke this exactly once at the end of the pass. The
-    /// explicit phase set mirrors the pointer-range test: release, cancel, dropped,
+    /// explicit phase set mirrors the function-range test: release, cancel, dropped,
     /// wall-jump, and inactive functions all clear liquid physics immediately.
     /// </remarks>
     public static void RefreshLiquidPhysicsFlag(SamusState samus)
@@ -318,7 +318,7 @@ public static class SamusGrappleMovement
             return new GrappleMovementResult(GrapplePhase.Inactive, PendingReleasePose: pendingReleasePose);
         }
 
-        // These are literal function-pointer phases. Each handler owns the whole
+        // These are literal function phases. Each handler owns the whole
         // grapple beta pass, so dispatch it before entering ordinary pendulum integration.
         if (grapple.Phase == GrapplePhase.ConnectedLocked)
             return StepLocked(terrain.Level, samus, controllerInput, enemyCollision);
@@ -371,7 +371,7 @@ public static class SamusGrappleMovement
 
         // The special-angle snap scans all eight records only when the collision raised the close-body
         // flag. A match replaces pendulum positioning for this frame with the table's exact
-        // pose, anchor-relative body offset, and locked/wallgrab function pointer.
+        // pose, anchor-relative body offset, and locked/wallgrab function.
         if (grapple.SpecialAngleHandling &&
             TryHandleSpecialAngle(samus,
                 grapple,
@@ -394,7 +394,7 @@ public static class SamusGrappleMovement
         if (anchorDisconnected)
         {
             // The persistent block path normally remains connected forever. Retain the
-            // validation seam so a future dynamic/breakable PLM cannot leave a rope
+            // validation seam so a future dynamic/breakable room object cannot leave a rope
             // attached to air. A motionless straight-down body queues the drop; a moving
             // pendulum uses the already translated velocity-preserving release handoff.
             if (grapple.AngularVelocity == 0 && grapple.Angle == RotationAngle.HalfTurn)
@@ -597,7 +597,7 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple)
     {
         // The wall-jump function runs one frame after the grace check selected it, matching every other grapple
-        // function-pointer handoff. The Samus helper keeps the peculiar reversal of the left
+        // function handoff. The Samus helper keeps the peculiar reversal of the left
         // wall-contact pose into the left wall jump, and the right into the right, separate from
         // ordinary spin-contact wall jumps.
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
@@ -621,7 +621,7 @@ public static class SamusGrappleMovement
         SamusPoseId targetPose = SelectDroppedPose(samus);
         QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
-        // C8C5 clears these words now, but publishes its pose to the transitional
+        // The drop clears these speeds now, but publishes its pose to the transitional
         // slot. Normal beta movement still runs before that pose is committed.
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
@@ -707,7 +707,7 @@ public static class SamusGrappleMovement
         Position16<RoomPixels> current, Position16<RoomPixels> previous) =>
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
-    /// <summary>Limits one axis of the previous position to twelve pixels using wrapped 16-bit displacement.</summary>
+    /// <summary>Limits one axis of the previous position to twelve pixels using displacement wrapped at 65536.</summary>
     private static int ClampPreviousAxis(int current, int previous)
     {
         int displacement = CoordinateAxis.Difference(current, previous);
@@ -742,7 +742,7 @@ public static class SamusGrappleMovement
         grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;
     }
 
-    /// <summary>Dispatches the endpoint block and extensions, including PLM effects, into the carry and overflow reaction.</summary>
+    /// <summary>Dispatches the endpoint block and extensions, including room-object effects, into the carry and overflow reaction.</summary>
     internal static GrappleBlockReaction ReactAtEndpoint(
         RoomLevelData level,
         SamusState samus,
@@ -785,7 +785,7 @@ public static class SamusGrappleMovement
                     return GrappleBlockReaction.Solid;
 
                 case RoomCollisionType.SpikeBlock:
-                    // The grapple block reaction selects a grapple-reaction PLM by the low seven
+                    // The grapple block reaction selects a grapple-reaction room object by the low seven
                     // behaviour bits. A negative behaviour rejects the beam. Every ordinary entry uses
                     // the empty reaction (carry set, overflow clear) and immediately deletes; behaviour
                     // three alone uses Draygon's broken-turret setup, which adds
@@ -819,15 +819,15 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.GrappleBlock:
                     // The reaction rejects bit-seven behaviour. Values zero and three spawn the persistent
-                    // grapple PLM, whose setup returns carry and overflow set.
-                    // The persistent PLM has no level mutation, so this result is complete.
+                    // grapple room object, whose setup returns carry and overflow set.
+                    // The persistent room object has no level mutation, so this result is complete.
                     if (block.Behavior.Reaction.IsAreaSpecific)
                         return GrappleBlockReaction.Passes;
                     if (GrappleBlockReactionDefinitions.PersistentAnchors.Contains(block.Behavior.Reaction))
                         return GrappleBlockReaction.Connects;
 
-                    // behaviour one/two spawn the breakable grapple PLMs. Their setup synchronously saves the
-                    // complete terrain block and clears the behaviour before returning C+V; the new PLM
+                    // behaviour one/two spawn the breakable grapple room objects. Their setup synchronously saves the
+                    // complete terrain block and clears the behaviour before returning C+V; the new room object
                     // executes its first timer/draw record later in this same gameplay frame.
                     // A caller which omitted the independent room owner cannot honestly
                     // preserve that lifecycle, so keep the missing integration seam explicit.
@@ -842,14 +842,14 @@ public static class SamusGrappleMovement
                         if (!roomObjects.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.Index, block.Behavior))
                         {
                             throw new InvalidOperationException(
-                                "All 40 PLM slots are occupied during grapple acquisition.");
+                                "All 40 room-object slots are occupied during grapple acquisition.");
                         }
 
                         return GrappleBlockReaction.Connects;
                     }
 
                     // Nonnegative behaviour values beyond the four authored grapple reactions
-                    // would index outside the four grapple PLMs in the selection table.
+                    // would index outside the four grapple room objects in the selection table.
                     throw new InvalidDataException(
                         $"Invalid grapple block behaviour ({block.Behavior}) at ({resolvedX},{resolvedY}).");
 
@@ -858,7 +858,7 @@ public static class SamusGrappleMovement
                     // The shootable block reactions use the same table as ordinary
                     // projectiles. Grapple owns no projectile family, so weapon-gated
                     // entries reject it while behaviour 0..7 retain their unconditional block
-                    // animation. The collision nibble—not PLM setup—owns carry: type 4 is
+                    // animation. The collision nibble—not room-object setup—owns carry: type 4 is
                     // air and type C is solid.
                     if (roomObjects is null)
                     {
@@ -866,7 +866,7 @@ public static class SamusGrappleMovement
                             "Shootable grapple reaction requires a ISamusRoomObjects.");
                     }
                     // Blue caps occupy the same table as breakable blocks but
-                    // select door PLMs. Grapple's negative projectile index bypasses the
+                    // select door room objects. Grapple's negative projectile index bypasses the
                     // blue door setup's power-bomb rejection; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
                     if (block.Behavior.TryGetDownwardGateTrigger(out _))
@@ -880,7 +880,7 @@ public static class SamusGrappleMovement
                         // frame behaviour decides whether to reject the hit or wake up.
                         if (!roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType: SamusProjectileType.None))
                             throw new InvalidOperationException(
-                                $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident PLM owner.");
+                                $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident room-object owner.");
                     }
                     else if (block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
                         roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
@@ -910,7 +910,7 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.BombableAir:
                     // The bombable-air setup immediately deletes its provisional
-                    // PLM for grapple's zero projectile family. Carry remains clear.
+                    // room object for grapple's zero projectile family. Carry remains clear.
                     return GrappleBlockReaction.Passes;
 
                 case RoomCollisionType.BombableBlock:
@@ -999,9 +999,9 @@ public static class SamusGrappleMovement
                 $"but the record names {nextFunction}.");
         }
 
-        // BA61 and BA9B both derive the angle from the body position that fired the beam,
+        // Both the connection and the fired beam derive the angle from the body position that fired the beam,
         // before command 9/10 changes pose and snaps Samus to the rope. The angle is stored
-        // as an integer byte in the high half of the word; its fraction becomes zero.
+        // as a whole step of the 256-step turn; its fraction becomes zero.
         RotationAngle angle = CalculateAngleFromXY(samus.Position.Whole - grapple.Anchor);
         grapple.Angle = angle;
         grapple.MirroredAngle = grapple.Angle;
@@ -1239,7 +1239,7 @@ public static class SamusGrappleMovement
             if (direction == grapple.FireDirection) return null;
             if (grapple.PoseChangeAutoFireTimer != 0)
             {
-                // The game changes the function pointer before dispatch: restart from
+                // The game changes the function before dispatch: restart from
                 // the current pose and hand position this frame, without extending.
                 // Do not steer an old endpoint or override the pose from held aim keys.
                 QueueGrappleSound(samus, GrappleBeamDefinitions.Sounds.RestartStop);

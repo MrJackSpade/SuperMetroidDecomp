@@ -25,7 +25,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
-    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
+    /// <summary>Mother Brain's state lookups, body and brain program setters, timers and room-object requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
 
 

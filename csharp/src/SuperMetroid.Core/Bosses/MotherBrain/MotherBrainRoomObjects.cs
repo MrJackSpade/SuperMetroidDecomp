@@ -4,8 +4,8 @@ using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainRoomMutationDefinit
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Spawns Mother Brain's room-mutation PLMs in the room's shared PLM slots.</summary>
-/// <param name="slotTable">The room's PLM slots, which her mutations contend for with every other room PLM.</param>
+/// <summary>Spawns Mother Brain's room-mutation objects in the room's shared room-object slots.</summary>
+/// <param name="slotTable">The room's room-object slots, which her mutations contend for with every other room object.</param>
 internal sealed class MotherBrainRoomObjects(RoomObjectSlotTable slotTable)
 {
     /// <summary>Blocks the escape door's upward-linked extensions occupy above the door block.</summary>
@@ -15,14 +15,14 @@ internal sealed class MotherBrainRoomObjects(RoomObjectSlotTable slotTable)
     /// Spawns one of Mother Brain's room mutations at its block: a terrain change that draws its layout on its first
     /// update and is gone on the next.
     /// </summary>
-    /// <returns>False only when every PLM slot is occupied; nothing is spawned or changed then.</returns>
+    /// <returns>False only when every room-object slot is occupied; nothing is spawned or changed then.</returns>
     public bool TrySpawn(RoomLevelData level, RoomObjectSpawnRequest<MotherBrainRoomMutation> request)
     {
         Ensure.NotNull(level);
         RoomObjectHeaderId roomObject = Ensure.Listed(RoomObjects, request.RoomObject);
         TerrainChange change = Ensure.Listed(Changes, request.RoomObject);
 
-        // Spawning searches the PLM slots in processing order. Do not reserve a boss slot or coalesce adjacent row
+        // Spawning searches the room-object slots in processing order. Do not reserve a boss slot or coalesce adjacent row
         // requests: their allocation order is observable.
         if (slotTable.SpawnHardcoded() is not { } slot)
             return false;

@@ -36,7 +36,7 @@ internal sealed class TorizoEncounterAccess
         SamusState samus)
     {
         // The awakening facing check's operand is the facing bit XOR the sign of
-        // enemyX-SamusX, rather than the SamusX-enemyX test used by the walkers.
+        // the enemy's X minus Samus's, rather than the reverse difference the walkers test.
         return FacesRight(torizo) == CoordinateAxis.Difference(torizo.Position.X.Whole, samus.Position.X.Whole) < 0;
     }
 }

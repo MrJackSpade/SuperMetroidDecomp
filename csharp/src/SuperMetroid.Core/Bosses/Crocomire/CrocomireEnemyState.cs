@@ -27,7 +27,7 @@ public sealed class CrocomireEnemyState
 
     /// <summary>Physical body record owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Where the body's typed program resumes; it replaces the instruction pointer.</summary>
+    /// <summary>Where the body's typed program resumes.</summary>
     internal AnimationProgramCursor<CrocomireBodyProgram> BodyCursor { get; set; }
 
     /// <summary>The body frame shown last, or null before the first frame.</summary>
@@ -35,7 +35,7 @@ public sealed class CrocomireEnemyState
 
     /// <summary>
     /// The program the body's cursor belongs to. A cursor resting on a fall-through already belongs to the next
-    /// program, as the instruction pointer then points into it.
+    /// program, as the body's program position then lies inside it.
     /// </summary>
     internal CrocomireBodyProgram BodyResidentProgram => CrocomireBodyAnimations.Programs.ResidentProgram(BodyCursor);
 

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public abstract class KraidPartState
 {
-    /// <summary>Where the part's typed program resumes; it replaces the instruction pointer.</summary>
+    /// <summary>Where the part's typed program resumes.</summary>
     internal AnimationProgramCursor<KraidPartProgram> Cursor { get; set; }
 
     /// <summary>

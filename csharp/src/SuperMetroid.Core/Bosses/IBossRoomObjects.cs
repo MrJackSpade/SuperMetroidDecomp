@@ -3,8 +3,8 @@ using SuperMetroid.Core.Bosses.Draygon;
 namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
-/// The boss PLM families a room's PLM owner runs (#1395), which boss PLM programs and pre-instructions reach from their
-/// step context. The room composition implements it.
+/// The boss room-object families a room's room-object owner runs (#1395), which boss room-object programs and frame
+/// behaviours reach from their step context. The room composition implements it.
 /// </summary>
 internal interface IBossRoomObjects
 {

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public static class RidleyPogoDefinitions
 {
     /// <summary>
-    /// SetRidleyPogoSpeeds, by pattern then stage: pattern selects four increasing launch magnitudes;
-    /// stage selects acceleration and bounce height. The first two stages remain addressable although ordinary health
+    /// Ridley's pogo speeds, by pattern then stage: pattern selects four increasing launch magnitudes;
+    /// stage selects acceleration and bounce height. The first two stages remain reachable by index although ordinary health
     /// selects stages two to five. Each faster pattern adds 1/8 pixel per frame horizontally; the ordinary four health
     /// stages add 1/32 per stage, and the two unused lead-in stages begin below that progression. Later bounce stages
     /// use a one-pixel rise per stage and uniform pattern increments; earlier stages add a larger initial jump between

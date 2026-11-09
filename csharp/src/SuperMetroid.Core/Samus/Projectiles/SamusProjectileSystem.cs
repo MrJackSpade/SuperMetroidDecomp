@@ -159,7 +159,7 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// Shows a beam combination's shade as the beams' colours: a retail combination's, the glitched Chainsaw beam's or
-    /// the SpaceTime beam's (#1512).
+    /// the Spacetime beam's (#1512).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
     public static void LoadBeamPalette(SamusColours colours, SamusBeamCombination selection)
@@ -183,7 +183,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Runs <c>HandleBeamChargePalettes</c> against the
+    /// Runs the beam charge colours against the
     /// modeled Samus palette.
     /// </summary>
     /// <remarks>
@@ -235,8 +235,8 @@ public sealed class SamusProjectileSystem
             }
 
             // The charge palette resets the sequence whenever charge is below threshold or grapple
-            // owns its function pointer. This guarantees the next eligible call starts at
-            // palette zero rather than resuming a partially completed cycle.
+            // owns its function. This guarantees the next eligible call starts at
+            // the first charge colour step rather than resuming a partially completed cycle.
             Charge.ChargePaletteStep = 0;
             LastVisorPaletteStep = samus.VisorPalette.Update(
                 colours,
@@ -366,7 +366,7 @@ public sealed class SamusProjectileSystem
                     terrain.Level,
                     samus,
                     buttons.ControllerInput,
-                    // FireUnchargedBeam tests both current and prior new-input latches.
+                    // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
                     sharedProjectiles,
                     terrain.RoomObjects);
@@ -383,7 +383,7 @@ public sealed class SamusProjectileSystem
             }
         }
 
-        // FireUnchargedBeam/FireChargedBeam perform one zero-speed block dispatch before
+        // Uncharged and charged firing perform one zero-speed block dispatch before
         // installing ordinary movement. A muzzle born against a solid door can therefore
         // already be an explosion before the descending alpha-pass loop begins below.
         bool collisionStartedExplosion = firedSlot is { } initialCollisionSlot &&
@@ -498,8 +498,8 @@ public sealed class SamusProjectileSystem
             else if (slot.FrameBehavior ==
                 SamusProjectileFrameBehavior.MurderBeamMisalignedExecution)
             {
-                // Safe left-facing Murder Beam has instruction pointer zero and never
-                // enters HandleProjectile. Other directions retain an instruction list;
+                // Safe left-facing Murder Beam has no animation and never
+                // enters the projectile update. Other directions retain an animation;
                 // the overread callback then jumps into unrelated code and the
                 // game stops making forward progress. Keep that unsafe execution
                 // explicit instead of silently substituting ordinary beam motion.
@@ -634,7 +634,7 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// Advances the eighteen projectile-trail slots as a simulation phase, after the ordinary
-    /// projectile pass. Each side owns its own timer, instruction pointer and position.
+    /// projectile pass. Each side owns its own timer, program position and position.
     /// </summary>
     /// <param name="timeIsFrozen">
     /// Whether time is frozen. Frozen trails retain their current record and are still drawn;
@@ -709,8 +709,8 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// ResetProjectileData: clears projectile storage without the flare
-    /// counter, flare animation words or charge palette state, which <see cref="Reset"/> clears after it.
+    /// Clears projectile storage without the flare
+    /// counter, flare animation state or charge palette state, which <see cref="Reset"/> clears after it.
     /// </summary>
     private void ClearProjectileData(SamusState? samus)
     {

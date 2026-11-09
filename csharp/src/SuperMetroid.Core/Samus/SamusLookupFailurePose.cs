@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus;
 
-/// <summary>The prospective pose chosen by <c>HandleTransitionTableLookupFailure</c>; its command is applied by the pose-transition phase.</summary>
+/// <summary>The prospective pose chosen when the input-transition lookup fails; its command is applied by the pose-transition phase.</summary>
 public readonly record struct SamusLookupFailurePose(SamusPoseId ProspectivePose)
 {
     /// <summary>

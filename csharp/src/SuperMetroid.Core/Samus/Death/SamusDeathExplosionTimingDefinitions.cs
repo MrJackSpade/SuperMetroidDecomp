@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
 /// Compiled timing metadata for Samus's nine suit-explosion frames. Palette selectors
-/// remain presentation data; this catalog owns only the fixed timer bytes interleaved
-/// with those selectors by <c>HandleSamusDeathSequence</c>.
+/// remain presentation data; this catalog owns only the fixed timer values interleaved
+/// with those selectors by Samus's death sequence.
 /// </summary>
 /// <remarks>Issue #1165 retains the nine countdown choices under the authored
 /// animation/nonsense exception. The death sequence loads the entry countdown and
@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// uniform or physically generated timing changes the cinematic. This is not
 /// a size, complexity, performance or missing-provenance justification. The odd
 /// palette selectors are separately calculated; this exception covers only
-/// these nine even-byte durations and does not exempt adjacent control data.</remarks>
+/// these nine durations and does not exempt adjacent control data.</remarks>
 internal static class SamusDeathExplosionTimingDefinitions
 {
     /// <summary>Number of authored suit-explosion timing records.</summary>

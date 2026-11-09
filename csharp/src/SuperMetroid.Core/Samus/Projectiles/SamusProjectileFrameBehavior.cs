@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Semantic identities for the function pointers stored per slot.</summary>
+/// <summary>Semantic identities for the frame behaviour each slot runs.</summary>
 public enum SamusProjectileFrameBehavior
 {
-    /// <summary>No pre-instruction is assigned.</summary>
+    /// <summary>No frame behaviour is assigned.</summary>
     None,
     /// <summary>Moves an ordinary beam that does not have the Wave Beam trail.</summary>
     NoWaveBeam,

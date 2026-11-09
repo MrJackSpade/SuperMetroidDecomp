@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainRoomPaletteProgramDefinitions
 {
     /// <summary>The flash's fourteen two-tick frames, each showing one set of room colors.</summary>
-    internal const int PresentationWordCount = 14;
+    internal const int FlashFrameCount = 14;
 
     /// <summary>Reviewed two-tick visual cadence for the fourteen-image flash performance; only the private palette timer consumes it.</summary>
     internal const int FlashImageTicks = 2;

@@ -263,7 +263,7 @@ internal sealed class KraidProjectiles
         }
     }
 
-    /// <summary>Seeds a released nail's velocity, instruction list, and collision state.</summary>
+    /// <summary>Seeds a released nail's velocity, animation, and collision state.</summary>
     internal void InitializeKraidNailFlight(RoomEnemySlot nail, KraidNailState part)
     {
         // The pair coordinates its next launch through the other actor's previous
@@ -541,7 +541,7 @@ internal sealed class KraidProjectiles
             });
     }
 
-    /// <summary>Registers the shared pre-instruction used by spit rocks.</summary>
+    /// <summary>Adds the shared frame behaviour used by spit rocks.</summary>
     internal static void AddKraidRockSpitFrameBehavior(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

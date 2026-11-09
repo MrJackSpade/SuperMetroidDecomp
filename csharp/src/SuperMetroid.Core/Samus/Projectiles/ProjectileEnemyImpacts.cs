@@ -62,10 +62,10 @@ internal sealed class ProjectileEnemyImpacts
         ApplyEnemyCollisionPrelude(slotIndex, markCollisionState);
 
     /// <summary>
-    /// Ports <c>ProjectileReflection</c> after an enemy callback has replaced
+    /// Reflects the projectile after an enemy callback has replaced
     /// the projectile direction. Reflection preserves the projectile family/type and world
     /// position, but reconstructs its damage, direction-specific animation, radii,
-    /// and family pre-instruction exactly as the routine does.
+    /// and family frame behaviour exactly as the game does.
     /// </summary>
     public void ReflectFromEnemy(SamusState samus, int slotIndex)
     {
@@ -192,8 +192,8 @@ internal sealed class ProjectileEnemyImpacts
             SamusProjectileFrameBehavior.SpazerCombo or SamusProjectileFrameBehavior.SpazerComboFalling or
             SamusProjectileFrameBehavior.PlasmaCombo)
         {
-            // Enemy collision only marks the direction word. These particles own
-            // hit deletion (and Spazer's paired deletion) in their next pre-instruction;
+            // Enemy collision only marks the direction. These particles own
+            // hit deletion (and Spazer's paired deletion) in their next frame behaviour;
             // replacing that handler with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
             ApplyEnemyCollisionPrelude(slotIndex,

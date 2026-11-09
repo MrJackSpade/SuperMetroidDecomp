@@ -56,9 +56,9 @@ public static class SamusBombJumpMovement
         BlockMoveResult? horizontal;
         if (direction != SamusBombJumpDirection.Straight)
         {
-            // The bomb jump bypasses the normal movement-type pointer and feeds its own speed table
+            // The bomb jump bypasses the normal movement-type selection and feeds its own speed table
             // directly to the deceleration-allowed calculator. Direction one is left;
-            // direction three is right. Existing base words intentionally participate.
+            // direction three is right. Existing base speeds intentionally participate.
             UnsignedSixteenSixteen baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
                 SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == SamusBombJumpDirection.Left, samus, baseSpeed);

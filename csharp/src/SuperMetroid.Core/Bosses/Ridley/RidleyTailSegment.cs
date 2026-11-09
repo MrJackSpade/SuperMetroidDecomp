@@ -39,6 +39,6 @@ public sealed class RidleyTailSegment
     public int Angle { get; internal set; }
     /// <summary>Gets the signed whole-pixel displacement from the preceding anchor.</summary>
     public Offset16<RoomPixels> Offset { get; internal set; }
-    /// <summary>Gets the composed sixteen-bit room position used for drawing and tail contact.</summary>
+    /// <summary>Gets the composed room position used for drawing and tail contact.</summary>
     public Position16<RoomPixels> Position { get; internal set; }
 }

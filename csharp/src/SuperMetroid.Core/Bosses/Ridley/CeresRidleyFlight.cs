@@ -53,7 +53,7 @@ internal sealed class CeresRidleyFlight
 
         // Two property bits are proven by the initializer, but the first has not yet
         // been given a cross-enemy semantic name. Preserve it raw; the intangible bit already has the
-        // verified IgnoreSamusCollision identity used by the scheduler.
+        // verified ignores-Samus identity used by the scheduler.
         slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Position = slot.Position.WithWhole(new(186, 169));
@@ -94,12 +94,12 @@ internal sealed class CeresRidleyFlight
         // Ceres Ridley's initialization ends by queuing music zero (stop).
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
-        // WriteColorsToTargetPalette installs the Ceres door and Baby
+        // The target colours install the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in
         // the live colours, matching the established Ceres-door palette seam.
         _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresStart);
 
-        // The loop clears sprite palette seven's colours one through fifteen, which the eye and body fades then reveal.
+        // The loop clears Ridley's sprite colours one through fifteen, which the eye and body fades then reveal.
         _ridleyEncounter.Ridley.Colours.Sprites.Lay(RidleyShades.CeresHidden);
     }
 
@@ -108,7 +108,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        // The fallthrough from A6AF deliberately applies both -16 and +20 on the crossing
+        // The fallthrough from the rise deliberately applies both -16 and +20 on the crossing
         // frame. Do not combine these into a single acceleration outside this state.
         // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + SignedEightEight.FromSignedRaw(20));
@@ -125,8 +125,8 @@ internal sealed class CeresRidleyFlight
         RidleyEnemyState state,
         SamusState? samus)
     {
-        // Ceres Ridley never loses the ordinary enemy-health word. His shot AI increments
-        // this separate counter and A6E8 treats 100 contacts as the scripted win condition.
+        // Ceres Ridley never loses the ordinary enemy health. His shot AI increments
+        // this separate counter and the fight treats 100 contacts as the scripted win condition.
         if (state.HitCounter >= 100)
         {
             state.FightMode = RidleyFightMode.NotFighting;
@@ -199,7 +199,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>
     /// The fireball target a jitter selects around the base position. Both coordinates move by the jitter, and the
-    /// game adds the jitter as a sixteen-bit quantity, so its sum with X carries one pixel into Y whenever it passes the
+    /// game adds the jitter to X and Y as one value, so its sum with X carries one pixel into Y whenever it passes the
     /// end of the coordinate space: a negative jitter carries unless it takes X below zero, a positive one only when it
     /// takes X past the far end.
     /// </summary>
@@ -297,7 +297,7 @@ internal sealed class CeresRidleyFlight
         state.SwoopSpeedMagnitude = magnitude;
 
         RotationAngle angle = state.SwoopAngleAccumulator.AddRaw(angleDelta);
-        // CMP branches on N, not signed less-than (N xor V). The heading wraps around the
+        // The comparison tests the sign of the difference, not signed less-than. The heading wraps around the
         // turn, particularly onto the half-turn recovery target after a rightward swoop.
         RotationAngle target = RotationAngle.NormalizeRaw(targetAngle);
         bool negativeDifference = angle.TurnFrom(target) < 0;
@@ -492,15 +492,15 @@ internal sealed class CeresRidleyFlight
         slot.Position = slot.Position.WithY(y);
     }
 
-    /// <summary>Integrates one 8.8 velocity into the high byte of a 16-bit subposition and clips to an arena bound.</summary>
+    /// <summary>Integrates one 8.8 velocity into a position's fraction, in 256ths of a pixel, and clips to an arena bound.</summary>
     private static CeresRidleyAxisMotion IntegrateAxis(
         FixedCoordinate position,
         SignedEightEight velocity,
         int minimum,
         int maximum)
     {
-        // Ridley's velocities are signed 8.8 values that the original routine accumulates into the
-        // *high* byte of the ordinary 16-bit subposition.
+        // Ridley's velocities are signed 8.8 values that the original game adds, in 256ths of a pixel, to the
+        // ordinary 16.16 position's fraction.
         FixedCoordinate moved = position.MovedBy(velocity);
 
         if (CoordinateAxis.Difference(moved.Whole, minimum) < 0)
@@ -576,7 +576,7 @@ internal sealed class CeresRidleyFlight
     /// walls (<see cref="CeresRidleyGetaway.ChamberWalls"/>). They are kept because gameplay can observe them: each takes
     /// the first free enemy place and extends the room's filled places, and on the update after this one they are
     /// touchable, before their first animation step makes them ignore Samus and her weapons. Evidence: the original's
-    /// retreat spawns the two door-family enemies, whose instruction lists start with the intangibility instruction.
+    /// retreat spawns the two door-family enemies, whose animations start with the intangibility step.
     /// </summary>
     private void SpawnCeresRidleyGetawayWalls()
     {

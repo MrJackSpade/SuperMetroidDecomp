@@ -42,7 +42,7 @@ internal static class XrayRevealDefinitions
     /// with tile 255. The lookup checks the wildcard before the
     /// unsigned behaviour byte, so the exact bounded rule for behaviour 0..255 is this
     /// constant definition. The original data and the independent 256-case
-    /// air slice of the X-ray reveal oracle agree; no pointer table is needed.
+    /// air slice of the X-ray reveal oracle agree; no lookup table is needed.
     /// </remarks>
     internal static readonly XrayRevealDefinition Air = One(255);
     /// <summary>Horizontal extension command for every behaviour byte.</summary>

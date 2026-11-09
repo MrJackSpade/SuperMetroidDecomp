@@ -15,7 +15,7 @@ internal static class GrapplePointAnimation
         state.PointAnimationTimer = state.PointAnimationTimer.Decrement().Remaining;
         if (!state.PointAnimationTimer.IsNegative) return;
         state.PointAnimationTimer = WrappingCountdown.Start(Delay);
-        int next = (state.PointAnimationFrame + 1) % SourceWordFrames;
-        state.PointAnimationFrame = next >= FrameCount && next - FrameCount < SourceWordFrames / 2 ? 0 : next;
+        int next = (state.PointAnimationFrame + 1) % SourceCycleFrames;
+        state.PointAnimationFrame = next >= FrameCount && next - FrameCount < SourceCycleFrames / 2 ? 0 : next;
     }
 }

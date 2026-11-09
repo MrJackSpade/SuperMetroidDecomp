@@ -12,7 +12,7 @@ internal sealed class MotherBrainRevivalPhases
         _state = state;
     }
 
-    /// <summary>Records a body-AI write to the breath flag so a later brain-list opcode can remain a separate writer.</summary>
+    /// <summary>Records a body-AI write to the breath flag so a later brain-program cue can remain a separate writer.</summary>
     private void EnableSmallPurpleBreathGeneration()
     {
         _state.SmallPurpleBreathGenerationEnabled = true;
@@ -44,7 +44,7 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveShowSignsOfLife()
     {
-        // BPL accepts zero: 768 reaches zero without advancing and only the 769th
+        // The sign test accepts zero: 768 reaches zero without advancing and only the 769th
         // call underflows to -1. Revival then re-enables both breath producers,
         // seeds 224, and falls through two function installations to the transition from grey.
         if (--_state.FunctionTimer < 0)

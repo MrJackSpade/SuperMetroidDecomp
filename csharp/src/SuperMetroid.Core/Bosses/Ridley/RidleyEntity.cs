@@ -72,7 +72,7 @@ internal sealed class RidleyEntity(
     /// <summary>Ridley's AI publishes the common writer's shading: its body, wings and tail share one latched phase (#1512).</summary>
     public PictureShading? CommonDrawShading() => IsBody ? encounter.Ridley?.CommonDrawShading : null;
 
-    /// <summary>Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the common writer emits the body.</summary>
+    /// <summary>Both Ridley mains draw the tail and wings before the common writer emits the body.</summary>
     public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         if (IsBody)

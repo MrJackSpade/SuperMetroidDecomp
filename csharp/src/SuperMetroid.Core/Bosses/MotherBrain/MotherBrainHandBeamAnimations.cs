@@ -3,7 +3,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The red hand beam's typed program (#641), in place of its instruction list.</summary>
+/// <summary>The red hand beam's typed program (#641).</summary>
 internal static class MotherBrainHandBeamAnimations
 {
     /// <summary>Stages the beam runs before deleting itself.</summary>

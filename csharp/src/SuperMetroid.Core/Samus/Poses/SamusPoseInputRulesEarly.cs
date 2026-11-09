@@ -93,7 +93,7 @@ internal static class SamusPoseInputRulesEarly
         _ => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
     };
 
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: priority order.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.TurningRightToLeftJumpPose"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchEmptyTransitionList()
     {
         return new(null, HasConditions: false);
@@ -467,7 +467,7 @@ internal static class SamusPoseInputRulesEarly
 
 
 
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.GlitchBallRightPose"/>: priority order.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.GlitchBallRightPose"/>: priority order.</summary>
     private static SamusPoseInputMatch MatchGlitchBallRightPoseList()
     {
         return new(null, HasConditions: false);
@@ -583,7 +583,7 @@ internal static class SamusPoseInputRulesEarly
     }
 
 
-    /// <summary>TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: priority order; TransitionTable list for <see cref="SamusPoseId.UnusedKnockbackLeftPose"/> is the same list mirrored.</summary>
+    /// <summary>The input-transition list of <see cref="SamusPoseId.UnusedKnockbackRightPose"/>: priority order; the input-transition list of <see cref="SamusPoseId.UnusedKnockbackLeftPose"/> is the same list mirrored.</summary>
     private static SamusPoseInputMatch MatchUnusedKnockbackRightPoseList()
     {
         return new(null, HasConditions: false);

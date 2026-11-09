@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The fixed speeds, offsets and turns Torizo's movement routines and projectile pre-instructions use.</summary>
+/// <summary>The fixed speeds, offsets and turns Torizo's movement routines and projectile frame behaviours use.</summary>
 internal static class TorizoMotionDefinitions
 {
     /// <summary>

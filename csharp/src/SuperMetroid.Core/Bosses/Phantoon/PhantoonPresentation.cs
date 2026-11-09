@@ -71,7 +71,7 @@ internal sealed class PhantoonPresentation
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemySlot body) => Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
 
-    /// <summary>Restarts a part's program with a one-tick timer, as a list-pointer store does.</summary>
+    /// <summary>Restarts a part's program from its start with a one-tick timer.</summary>
     internal static void InstallPhantoonProgram(
         PhantoonEnemyState state,
         RoomEnemySlot slot,

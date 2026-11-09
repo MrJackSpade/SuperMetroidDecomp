@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's bridge and invisible-wall block draws: which PLM draws are the arena's, their run geometry and how their
+/// Crocomire's bridge and invisible-wall block draws: which room-object draws are the arena's, their run geometry and how their
 /// cells collide, from <see cref="CrocomireArenaObjectDrawDefinitions"/>.
 /// </summary>
 internal static class CrocomireArenaDraws
@@ -29,7 +29,7 @@ internal static class CrocomireArenaDraws
     }
 
     /// <summary>
-    /// Describes a draw handed over by the shared PLM drawing; draws of other families are not the arena's.
+    /// Describes a draw handed over by the shared room-object drawing; draws of other families are not the arena's.
     /// </summary>
     internal static bool TryDescribe(RoomObjectDraw draw, out Draw shape)
     {

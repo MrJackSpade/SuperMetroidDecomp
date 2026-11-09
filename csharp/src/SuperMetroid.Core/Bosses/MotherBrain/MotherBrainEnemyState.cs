@@ -27,9 +27,9 @@ public sealed class MotherBrainEnemyState
     /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
     public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
-    /// <summary>The body record's function pointer, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
+    /// <summary>The body record's function, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
     public MotherBrainBodyFunction Function { get; internal set; }
-    /// <summary>The brain record's independent function pointer selecting its custom head-only or head-and-neck draw setup.</summary>
+    /// <summary>The brain record's independent function, selecting its custom head-only or head-and-neck draw setup.</summary>
     public MotherBrainBrainFunction BrainFunction { get; internal set; }
 
     /// <summary>
@@ -39,8 +39,8 @@ public sealed class MotherBrainEnemyState
     public int FunctionTimer { get; internal set; }
 
     /// <summary>
-    /// Body-animation state written by private instruction opcodes. The body AI reads this
-    /// word independently of the current spritemap, notably while waiting for the slow
+    /// Body-animation state written by private program cues. The body AI reads this
+    /// pose independently of the current spritemap, notably while waiting for the slow
     /// post-ascent uncrouch to publish <see cref="MotherBrainBodyPose.Standing"/>.
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
@@ -78,13 +78,13 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame
-    /// being shown, as <c>MotherBrainBody.brainInstListPointer</c> does. Null means the brain is not live
+    /// being shown. Null means the brain is not live
     /// and not drawn. Only the program setter and the draw-time runner write it.
     /// </summary>
     internal AnimationProgramCursor<MotherBrainHeadProgram>? BrainCursor { get; set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.brainFrameHold</c>. It counts draws up from one
+    /// How long the brain's frame has shown. It counts draws up from one
     /// and the program advances once it exceeds the frame's duration, so each frame shows for
     /// its duration plus one draw.
     /// </summary>
@@ -181,7 +181,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
     public int BodySubFunctionTimer { get; internal set; }
 
-    /// <summary>Zero-based palette pointer-table index used while leaving fake-death grey.</summary>
+    /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
 
     /// <summary>Enables the head's ordinary palette processing; resurrection and draining transitions suspend it while their own palettes own the colors.</summary>
@@ -192,8 +192,8 @@ public sealed class MotherBrainEnemyState
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c>: set by the small breath's
-    /// initializer and cleared by its last instruction, so at most one
+    /// Set by the small breath's
+    /// initializer and cleared by its last program step, so at most one
     /// small breath is alive.
     /// </summary>
     public bool SmallPurpleBreathActive { get; internal set; }
@@ -242,7 +242,7 @@ public sealed class MotherBrainEnemyState
         : throw new InvalidOperationException("A Mother Brain bomb was deleted while none was counted.");
 
     /// <summary>
-    /// <c>bodyTargetXPosition</c> used while the bomb decision walks the body toward
+    /// The body's target X, used while the bomb decision walks the body toward
     /// X=64 or 96 before entering its posture sequence.
     /// </summary>
     public int BodyTargetXPosition { get; internal set; }

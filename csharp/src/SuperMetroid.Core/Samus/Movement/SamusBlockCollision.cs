@@ -11,15 +11,15 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <remarks>
 /// Supported dispatcher categories are deliberately explicit: type 0 air, type 1
-/// non-square slopes, and ordinary solid-family types $8/$C/$E. Other types have PLM,
+/// non-square slopes, and ordinary solid-family types $8/$C/$E. Other types have room-object,
 /// damage, door, extension, or square-slope behavior and throw instead of being flattened
 /// to “air” or “solid.”
 /// </remarks>
 public static class SamusBlockCollision
 {
     /// <summary>
-    /// Ports the block-only observation made by <c>WallJumpBlockCollisionDetection</c>.
-    /// The routine publishes available distance in a scratch word but does
+    /// Runs the block-only observation of the wall-jump block collision check.
+    /// The check publishes available distance in a scratch value but does
     /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
     /// </summary>
     internal static BlockMoveResult ProbeWallHorizontal(
@@ -220,7 +220,7 @@ public static class SamusBlockCollision
                             (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
                         {
                             throw new InvalidOperationException(
-                                $"Scroll trigger block {block.Index} has no active scroll PLM owner; " +
+                                $"Scroll trigger block {block.Index} has no active scroll room-object owner; " +
                                 $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.BlockIndex) ?? [])}].");
                         }
                         break;
@@ -249,7 +249,7 @@ public static class SamusBlockCollision
                         if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.Index))
                         {
                             throw new InvalidOperationException(
-                                $"Collectible block {block.Index} has no active item PLM owner.");
+                                $"Collectible block {block.Index} has no active item room-object owner.");
                         }
                         break;
 
@@ -289,7 +289,7 @@ public static class SamusBlockCollision
                         {
                             throw new InvalidOperationException(
                                 $"Station access block {block.Index} behaviour ({block.Behavior}) " +
-                                "has no active map/resource/save-station PLM owner.");
+                                "has no active map/resource/save-station room-object owner.");
                         }
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
@@ -300,7 +300,7 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.BombableBlock:
-                        // Indexes the collision-bomb-block PLM table with behaviour
+                        // Indexes the collision-bomb-block room-object table with behaviour
                         // 0..7. Its setup returns carry (solid) unless Samus
                         // is speed boosting, screw attacking, or in ShinesparkHorizontalRightPose through ShinesparkDiagonalLeftPose. On an
                         // accepted break it installs the air-type bomb-parent visual and
@@ -322,7 +322,7 @@ public static class SamusBlockCollision
                             throw new InvalidDataException(
                                 $"Collision bomb block {block.Index} has invalid behaviour ({block.Behavior}).");
                         }
-                        // Production movement supplies the active room PLM owner, matching
+                        // Production movement supplies the active room-object owner, matching
                         // the collision's immediate room-object spawn. Keeping the null
                         // fallback preserves this low-level collision routine as a usable
                         // setup-only unit seam: it performs the bomb block's synchronous clear, while
@@ -396,7 +396,7 @@ public static class SamusBlockCollision
 
         // Most callers enter through the upward or downward move and therefore probe the
         // solid-enemy list before dispatching terrain. A few callers use
-        // the explicitly named *NoSolidEnemyCollision* entry instead. Keep that
+        // the explicitly named entry without solid-enemy collision instead. Keep that
         // distinction as an argument at the shared collision seam; clearing the caller's
         // enemy snapshot would mutate unrelated gameplay state and would make the omission
         // impossible to verify.
@@ -551,7 +551,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.DoorBlock:
                     // Is the vertical twin of the handler above. Preserve
                     // its carry result here; the room-level owner publishes the same
-                    // door pointer for the frontend dispatcher to consume.
+                    // door entry for the frontend dispatcher to consume.
                     DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
                         block.Behavior,
                         state.CollisionPose.ForRoomCollision(),
@@ -579,7 +579,7 @@ public static class SamusBlockCollision
                         (terrain.RoomObjects is null || !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
                     {
                         throw new InvalidOperationException(
-                            $"Scroll trigger block {block.Index} has no active scroll PLM owner; " +
+                            $"Scroll trigger block {block.Index} has no active scroll room-object owner; " +
                             $"live=[{string.Join(',', terrain.RoomObjects?.Scrolls.Snapshots.Select(scroll => scroll.BlockIndex) ?? [])}].");
                     }
                     // Scroll wake-up itself remains carry-clear; sand has a separate
@@ -587,7 +587,7 @@ public static class SamusBlockCollision
                     break;
                 case RoomCollisionType.ShootableAir:
                 case RoomCollisionType.UnusedAir:
-                    // These air entries return clear carry without PLM setup.
+                    // These air entries return clear carry without room-object setup.
                     break;
                 case RoomCollisionType.BombableAir:
                     ActivateCollisionBombableAir(terrain.Level, block, owner, move.CanBreakBombBlocks, terrain.RoomObjects);
@@ -612,7 +612,7 @@ public static class SamusBlockCollision
                     if (terrain.RoomObjects is null || !terrain.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(block.Index))
                     {
                         throw new InvalidOperationException(
-                            $"Collectible block {block.Index} has no active item PLM owner.");
+                            $"Collectible block {block.Index} has no active item room-object owner.");
                     }
                     break;
 
@@ -644,18 +644,18 @@ public static class SamusBlockCollision
                     if (!block.Behavior.Reaction.IsAreaSpecific &&
                         block.Behavior.Reaction.IsCommonEntryBelow(8) &&
                         acceptedDisplacement.IsPositive &&
-                        // CE37 checks the direction nibble, not the sign of
-                        // the tested clearance. Pose probes use F and delete the PLM.
+                        // The contact crumble checks the direction nibble, not the sign of
+                        // the tested clearance. Pose probes use F and delete the room object.
                         (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down)
                     {
                         if (terrain.RoomObjects is null)
                         {
                             throw new InvalidOperationException(
                                 $"Contact crumble block {block.Index} behaviour " +
-                                $"({block.Behavior}) requires an active room PLM owner.");
+                                $"({block.Behavior}) requires an active room-object owner.");
                         }
 
-                        // Always returns carry set for CE37. Setup removes
+                        // Always returns carry set for the contact crumble. Setup removes
                         // the special collision nibble immediately (leaving the block
                         // type-eight solid), and this downward scan remains clipped.
                         if (!terrain.RoomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(
@@ -679,7 +679,7 @@ public static class SamusBlockCollision
                     {
                         throw new InvalidOperationException(
                             $"Station access block {block.Index} behaviour ({block.Behavior}) " +
-                            "has no active map/resource/save-station PLM owner.");
+                            "has no active map/resource/save-station room-object owner.");
                     }
                     acceptedDisplacement = ClipVerticalToSolid(
                         state,
@@ -689,11 +689,11 @@ public static class SamusBlockCollision
                     break;
 
                 case RoomCollisionType.BombableBlock:
-                    // Vertical dispatch shares the exact PLM
+                    // Vertical dispatch shares the exact room-object
                     // setup/carry contract documented in the horizontal branch above.
                     if (terrain.RoomObjects?.Quicksand.IsAllocationFull == true)
                     {
-                        // The full PLM pool prevents rejection setup from setting
+                        // The full room-object pool prevents rejection setup from setting
                         // carry. Block collision therefore keeps its pre-call clear carry and
                         // treats an untouched bomb block as air.
                         break;
@@ -743,7 +743,7 @@ public static class SamusBlockCollision
     /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
     /// <param name="displacement">Signed 16.16 distance to test; zero tests the current bottom boundary.</param>
     /// <param name="scanLeftToRight">Scan order chosen by the frame counter's parity.</param>
-    /// <param name="roomObjects">The room's PLM owner for special and bombable blocks.</param>
+    /// <param name="roomObjects">The room's room-object owner for special and bombable blocks.</param>
     internal static BlockMoveResult ProbeChangedPoseVertical(
 
         RoomLevelData level,
@@ -762,7 +762,7 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// Executes collision-bomb setup without installing its independent PLM handler.
+    /// Executes collision-bomb setup without installing its independent room-object handler.
     /// </summary>
     /// <remarks>
     /// This narrowly retained fallback is for direct collision tests and embedders that do
@@ -1144,13 +1144,13 @@ public static class SamusBlockCollision
     }
 
     /// <summary>
-    /// PostGrappleCollisionDetection, using the vertical dispatcher.
+    /// The collision check after a grapple, using the vertical dispatcher.
     /// Call before replacing the connected pose and its collision radius.
     /// </summary>
     public static void EjectAfterGrapple(RoomLevelData level, SamusKinematicsState state)
     {
         // The game's horizontal scans only populate scratch distances: this routine never
-        // applies them. These probes do not trigger PLMs, doors, damage, or enemies.
+        // applies them. These probes do not trigger room objects, doors, damage, or enemies.
         int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
         if (up == 0 || down != 0) return;

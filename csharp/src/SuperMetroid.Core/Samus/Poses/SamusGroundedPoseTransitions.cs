@@ -113,7 +113,7 @@ internal static class SamusGroundedPoseTransitions
 
         // Sees previous movement type one and publishes 32768. The sign test
         // in the animation setup exits before touching frame, timer, or delay-buffer state. Every live
-        // running arm pose points to the same delay list, so the cached list address is
+        // running arm pose points to the same delay list, so the cached list is
         // already exact and must not be rebound or reset here.
         int oldRadius = samus.Kinematics.Radius.Y;
         samus.Pose = targetPose;
@@ -150,7 +150,7 @@ internal static class SamusGroundedPoseTransitions
 
 
     /// <summary>
-    /// Ports <c>CheckIfProspectivePoseRunsIntoAWall</c>.
+    /// Checks whether the prospective pose runs into a wall.
     /// </summary>
     /// <remarks>
     /// A current type-one collision maps the current pose immediately. Otherwise, only a
@@ -508,7 +508,7 @@ internal static class SamusGroundedPoseTransitions
                 $"Grounded turn {samus.Pose} -> {targetPose} is not a verified transition.");
         }
 
-        // F8F9 checks held Jump, not a fresh press. Releasing Shoot from a buffered
+        // The turn's jump check reads held Jump, not a fresh press. Releasing Shoot from a buffered
         // Moonwalk selects a generic turn in the input table, then reaches this same
         // turn/jump initializer without a new Jump edge.
         if (wasMoonwalking && (controllerInput & ControllerButton.A) != ControllerButton.None)
@@ -579,8 +579,8 @@ internal static class SamusGroundedPoseTransitions
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Folds the run-button/speed-booster component into base speed
-        // with two independent 16-bit ADCs and their carry. Use one wrapping 16.16 add to
-        // preserve exactly that pair of operations, including overflow at the high word.
+        // with two independent additions and their carry. Use one wrapping 16.16 add to
+        // preserve exactly that pair of operations, including overflow past the whole pixels.
         speed.BaseSpeed += speed.ExtraRunSpeed;
 
         // The handler consumes the extra component and selects acceleration mode
@@ -601,7 +601,7 @@ internal static class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Runs UpdateSamusPose's shared expansion check before the interrupted hurt
+    /// Runs the pose update's shared expansion check before the interrupted hurt
     /// pose is installed. Crouch-to-hurt must keep the larger body above its floor.
     /// </summary>
     internal static bool TryResolveKnockbackPoseCollision(SamusState samus, 
@@ -639,7 +639,7 @@ level, targetPose, frameCounter, roomObjects, out int adjustment);
         }
 
         samus.Pose = targetPose;
-        // Aerial turn completion runs F433 without SetRadius; its source body
+        // Aerial turn completion runs the pose change without the radius update; its source body
         // remains active until next alpha, including compact down-aim targets.
         if (refreshRadius)
             SamusPoseMetadata.RefreshCollisionRadii(samus);

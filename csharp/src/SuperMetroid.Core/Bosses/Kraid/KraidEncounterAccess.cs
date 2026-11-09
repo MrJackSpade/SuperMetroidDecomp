@@ -45,7 +45,7 @@ internal sealed class KraidEncounterAccess
         slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
-    /// <summary>Installs <paramref name="program"/> as the part's program, as a list-pointer store does; the caller sets the timer.</summary>
+    /// <summary>Installs <paramref name="program"/> as the part's program, from its start; the caller sets the timer.</summary>
     internal void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
         _parts.StateOf(RequireKraidState(part), part).Cursor = AnimationProgramCursor<KraidPartProgram>.Start(program);
 

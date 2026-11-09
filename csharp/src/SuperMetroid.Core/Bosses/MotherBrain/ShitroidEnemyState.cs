@@ -17,7 +17,7 @@ public sealed class ShitroidEnemyState
     /// <summary>Where the Shitroid's program resumes (#641).</summary>
     internal AnimationProgramCursor<ShitroidProgram> Cursor { get; set; }
 
-    /// <summary>Gets the current Shitroid AI function pointer.</summary>
+    /// <summary>Gets the current Shitroid AI function.</summary>
     public ShitroidAiFunction? Function { get; internal set; }
 
     /// <summary>Signed 8.8 velocity: X, Y.</summary>

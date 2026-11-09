@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <remarks>
 /// This is a transcription of the state machine, not a desktop “dash”
-/// controller. Timers wrap as 16-bit words, movement retains split 16.16 values, and every
+/// controller. Timers wrap at 65536, movement retains split 16.16 values, and every
 /// palette is selected through the user's installed artwork. Solid-enemy collision remains an explicit
 /// boundary; block collision uses the translated dispatcher.
 /// </remarks>
@@ -79,7 +79,7 @@ public sealed class SamusShinesparkState
     public ShinesparkPhase Phase { get; internal set; }
 
     /// <summary>
-    /// Relinquishes the movement-handler pointer when normal movement is installed.
+    /// Relinquishes the movement handler when normal movement is installed.
     /// It does not clear the independently owned palette timer, boost counter, or echoes;
     /// Draygon's unconditional release relies on that distinction.
     /// </summary>
@@ -95,8 +95,8 @@ public sealed class SamusShinesparkState
         ShinesparkPhase.CrashFinish;
 
     /// <summary>
-    /// CrystalFlash replaces both the movement pointer and shared special
-    /// palette words. The new owner holds those words; do not resume this old owner
+    /// Crystal Flash replaces both the movement handler and shared special
+    /// palette timer. The new owner holds them; do not resume this old owner
     /// after Flash finishes. Extra run speed and the boost counter are not cleared.
     /// </summary>
     internal void RelinquishToCrystalFlash()
@@ -236,7 +236,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// ResetProjectileData clears the complete speed-echo arrays and index.
+    /// Resetting the projectile data clears the complete speed-echo arrays and index.
     /// Keep the movement-handler phase and its unrelated timers unchanged.
     /// </summary>
     internal void ResetProjectileEchoStorage()
@@ -304,7 +304,7 @@ public sealed class SamusShinesparkState
             }
         }
 
-        // The windup replaces the movement and palette pointers. Flash's live
+        // The windup replaces the movement and palette handlers. Flash's live
         // palette timer can admit this launch even after its movement was interrupted.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
@@ -610,7 +610,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Runs one installed special-handler frame.</summary>
-    /// <param name="terrain">The room terrain Samus's block collision probes: the address space, the level data, and the PLMs that react to touched blocks (#633).</param>
+    /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
     public ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
@@ -692,7 +692,7 @@ false);
             BeginCrash(samus);
 
         // At exactly 30 energy, this frame still moves and drains to 29. The following
-        // frame moves once more before EndSuperJump observes that 29 is below the threshold.
+        // frame moves once more before the shinespark's end check observes that 29 is below the threshold.
         // With the cannot-die assist, energy loss continues without requiring refills: below
         // the cutoff, continue draining to one, never decrementing zero or one.
         bool drained = frame.SamusCannotDie
@@ -761,7 +761,7 @@ false);
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.SpeedBoostCounter = default;
-        // EndSuperJump retains this frame's contact damage. The shared frame
+        // Ending the shinespark retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlash.Clear();
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
@@ -839,8 +839,8 @@ false);
                     $"Shinespark crash orbit stage {CrashOrbitStage} is undefined.");
         }
 
-        // The projectile sine lookup consumes a byte angle/radius and returns wrapped 16-bit
-        // offsets. Both additions below deliberately retain that unsigned sixteen-bit wrapping.
+        // The projectile sine lookup consumes an angle and radius below 256 and returns offsets wrapping
+        // at 65536. Both additions below deliberately retain that unsigned wrapping.
         int orbitRadius = Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius);
         Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
         Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
@@ -1006,7 +1006,7 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private static void CapPreviousX(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
-        int delta = CoordinateAxis.Difference(samus.Position.X.Whole, samus.PeekPreviousPositionWords(checkpoint).X);
+        int delta = CoordinateAxis.Difference(samus.Position.X.Whole, samus.PeekPreviousPosition(checkpoint).X);
         if (delta >= 0)
         {
             if (delta >= 16)
@@ -1025,7 +1025,7 @@ false,             CrashSequenceFinished: true);
     private static void CapPreviousY(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
         // Both positions lie in one room, far closer than half the coordinate range.
-        if (CoordinateAxis.Difference(samus.Position.Y.Whole, samus.PeekPreviousPositionWords(checkpoint).Y) < -14)
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, samus.PeekPreviousPosition(checkpoint).Y) < -14)
             samus.WritePreviousYPosition(CoordinateAxis.Wrap(samus.Position.Y.Whole + 14));
     }
 

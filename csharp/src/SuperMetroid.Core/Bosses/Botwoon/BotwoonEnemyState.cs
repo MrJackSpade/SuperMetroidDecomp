@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 public sealed class BotwoonEnemyState
 {
     /// <summary>
-    /// The main-function pointer, owning initial waiting, traversal/spitting, and synchronized death progression.
+    /// The main function, owning initial waiting, traversal/spitting, and synchronized death progression.
     /// </summary>
     public BotwoonEnemyFunction? Function { get; internal set; }
 
@@ -101,7 +101,7 @@ public sealed class BotwoonEnemyState
     public bool InitialAction { get; internal set; }
     /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action dispatcher.</summary>
     public bool PathComplete { get; internal set; }
-    /// <summary>Flag set by the head animation's private spit opcode; the five-projectile callback consumes and clears it on emission.</summary>
+    /// <summary>Flag set by the head animation's private spit cue; the five-projectile callback consumes and clears it on emission.</summary>
     public bool SpitFrameReached { get; internal set; }
     /// <summary>Fatal-hit request that preserves ongoing traversal until the final body point completes the next outward hole transition.</summary>
     public bool PendingDeath { get; internal set; }
@@ -113,7 +113,7 @@ public sealed class BotwoonEnemyState
     public bool LastBodySegmentLanded { get; internal set; }
     /// <summary>Witness that the specialized sixteen-pickup request sequence has been emitted after the final body landing.</summary>
     public bool DropRequested { get; internal set; }
-    /// <summary>Witness that initialization or death requested the appropriate Botwoon wall-clear/crumble PLM.</summary>
+    /// <summary>Witness that initialization or death requested the appropriate Botwoon wall-clear/crumble room object.</summary>
     public bool WallCrumbleRequested { get; internal set; }
     /// <summary>Whether defeat persistence has been recognized or written; live death sets the area miniboss bit only after the complete wall-explosion phase.</summary>
     public bool BossBitSet { get; internal set; }

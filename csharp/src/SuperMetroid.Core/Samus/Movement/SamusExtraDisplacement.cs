@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Shared arithmetic for the four external-displacement words consumed by Samus's movement.
+/// Shared arithmetic for the four external displacements consumed by Samus's movement.
 /// </summary>
 /// <remarks>
-/// These values are not velocity and are not one-frame impulses. Enemy, PLM, and room
+/// These values are not velocity and are not one-frame impulses. Enemy, room-object, and room
 /// producers own their lifetime; Samus movement merely reads them. Keeping the arithmetic
 /// here prevents a convenient but incorrect host interpretation such as clearing them after
 /// movement or applying the grounded one-pixel bias to airborne gravity.

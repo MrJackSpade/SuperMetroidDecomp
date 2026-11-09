@@ -17,7 +17,7 @@ internal static class ChargeFlareDefinitionsVerification
     {
         for (int address = SamusSourceDefinitions.ChargeFlarePrograms.Value; address < 0x90c4b5; address++)
         {
-            AssertEqual(CpuBusRegionRead.Read(bus, address), ChargeFlareAnimations.ReadByte(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
+            AssertEqual(CpuBusRegionRead.Read(bus, address), ChargeFlareAnimations.ReadCadence(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "Compiled flare cadence byte matches cartridge");
             if (address < 0x90c4b4)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
@@ -25,7 +25,7 @@ internal static class ChargeFlareDefinitionsVerification
         }
         foreach (int address in new[] { 0x908000, 0x90c486, 0x90c4b5, 0x90ffff })
             AssertThrows<InvalidDataException>(
-                () => ChargeFlareAnimations.ReadByte(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
+                () => ChargeFlareAnimations.ReadCadence(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "Unknown flare cadence address fails instead of reading arbitrary movement-bank data");
         var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var advance = new Action<int>(system.Animation.AdvanceFlareComponent);

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Four mutually exclusive cannon roles selected by HandleFiringWallTurret's low random bits.</summary>
+/// <summary>Four mutually exclusive cannon roles selected by the wall-turret firing's low random bits.</summary>
 internal enum DraygonFiringCannon
 {
     /// <summary>The lower-left wall turret's origin.</summary>

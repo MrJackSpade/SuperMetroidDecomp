@@ -11,10 +11,10 @@ internal sealed class BombTorizoHandObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>Physical PLM slots searched for active header pointers.</summary>
+    /// <summary>The room-object slots searched for active headers.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Connects the statue-hand interpreter to the current room and PLM slot table.</summary>
+    /// <summary>Connects the statue-hand interpreter to the current room and room-object slot table.</summary>
     internal BombTorizoHandObjects(IRoomSamusAccess? samus, RoomObjectSlotTable slotTable)
     {
         _samus = samus;
@@ -26,22 +26,22 @@ internal sealed class BombTorizoHandObjects
     /// <summary>Delayed track-selection commands queued by the hand program for this frame.</summary>
     private readonly List<DelayedMusicRequest> _musicRequests = [];
 
-    /// <summary>Statue fragment projectiles emitted during the latest PLM pass.</summary>
+    /// <summary>Statue fragment projectiles emitted during the latest room-object pass.</summary>
     public IReadOnlyList<BombTorizoStatueProjectileRequest>
         BombTorizoStatueProjectileRequests => _bombTorizoStatueProjectileRequests;
 
-    /// <summary>Delayed music commands emitted during the latest PLM pass.</summary>
+    /// <summary>Delayed music commands emitted during the latest room-object pass.</summary>
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>
-    /// Tests the physical PLM header array exactly as enemy code such as
+    /// Tests the room-object headers exactly as enemy code such as
     /// Bomb Torizo's awakening check does. This is intentionally generic: the enemy does not know which
-    /// translated family owns a slot, only whether one of forty header words matches.
+    /// family owns a slot, only whether one of forty headers matches.
     /// </summary>
     public bool HasActiveHeader(RoomObjectHeaderId header) =>
         _slotTable.Slots.Any(slot => slot.Active && slot.Header == header);
 
-    /// <summary>Runs the hand PLM's setup after the generic room allocator has installed the header.</summary>
+    /// <summary>Runs the hand room object's setup after the generic room allocator has installed the header.</summary>
     internal void SetupBombTorizoHandSlot(
         RoomLevelData level,
         RoomObjectSlot slot,
@@ -58,7 +58,7 @@ internal sealed class BombTorizoHandObjects
         _bombTorizoHandRoomWidth = level.Size.X;
     }
 
-    /// <summary>Discards the previous PLM pass's fragment and music requests before the next pass.</summary>
+    /// <summary>Discards the previous room-object pass's fragment and music requests before the next pass.</summary>
     internal void BeginBombTorizoHandFrame()
     {
         _bombTorizoStatueProjectileRequests.Clear();
@@ -83,6 +83,6 @@ internal sealed class BombTorizoHandObjects
     internal void QueueMusic() =>
         _musicRequests.Add(new DelayedMusicRequest(MusicRequest.SelectTrack(MusicTrack.SecondSetSong), MusicQueueDelay.Shortest));
 
-    /// <summary>Room width in blocks used to turn the hand's linear PLM block index into fragment spawn coordinates.</summary>
+    /// <summary>Room width in blocks used to turn the hand's linear block index into fragment spawn coordinates.</summary>
     private int _bombTorizoHandRoomWidth;
 }

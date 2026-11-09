@@ -25,8 +25,8 @@ internal static class DraygonCannonDefinitions
     internal const int HitsToDestroy = 3;
 
     /// <summary>
-    /// The cannon each of the room's cannon PLMs sets up: the live right-facing cannon, the right-facing cannon that starts
-    /// destroyed, and the live left-facing cannon. No other PLM is a cannon.
+    /// The cannon each of the room's cannon room objects sets up: the live right-facing cannon, the right-facing cannon
+    /// that starts destroyed, and the live left-facing cannon. No other room object is a cannon.
     /// </summary>
     internal static readonly IReadOnlyDictionary<RoomObjectHeaderId, DraygonCannonSetup> Setups =
         new Dictionary<RoomObjectHeaderId, DraygonCannonSetup>

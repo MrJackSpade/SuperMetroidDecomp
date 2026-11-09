@@ -73,7 +73,7 @@ internal sealed class CeresRidleyBehavior
         switch (state.Function)
         {
             case RidleyAiFunction.WaitForDoorTransition:
-                // A35B waits even though enemy visual instructions run during fade.
+                // The wait holds even though enemy animations run during the fade.
                 if (_roomStatus.EnemyDoorTransitionActive)
                     break;
                 state.Function = RidleyAiFunction.InitialDelay;
@@ -314,7 +314,7 @@ internal sealed class CeresRidleyBehavior
 
         // Once the eye fade enables composite animation, Ceres Ridley's main behaviour performs the
         // common Ridley 8.8 movement pass after every dispatcher call. Keeping that order
-        // matters at A6AF/A6C8: velocity changes affect position in the very same frame.
+        // matters in the rise and swoop: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
             Flight.IntegrateRidleyMovement(slot, state, wallImpact: RidleyWallImpact.CeresWall);

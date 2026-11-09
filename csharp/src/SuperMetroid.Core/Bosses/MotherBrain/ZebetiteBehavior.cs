@@ -210,7 +210,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         PulseShown = paletteCycle;
     }
 
-    /// <summary>Restarts the instruction list chosen from the half's pairing and current health.</summary>
+    /// <summary>Restarts the animation chosen from the half's pairing and current health.</summary>
     internal static void SelectZebetiteHealthAnimation(
         RoomEnemySlot slot,
         ZebetiteEnemyState state)

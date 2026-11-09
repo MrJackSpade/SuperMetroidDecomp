@@ -187,7 +187,7 @@ internal sealed class KraidRise
                 state.BodyState.Function = KraidAiFunction.GrowFadeInRoomBackground;
                 // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
                 state.BodyState.FunctionTimer = 0;
-                // DrawKraidsRoomBackground restarts the shared fade step count.
+                // Redrawing Kraid's room background restarts the shared fade step count.
                 _presentation.FadeStepCount.Reset();
                 // The background redraw queues this character upload on the same frame that it
                 // initializes palette-six fading. Without it, the foreground's authored repeating
@@ -447,8 +447,8 @@ internal sealed class KraidRise
     }
 
     /// <summary>
-    /// Ports <c>RestrictSamusXPositionToFirstScreen</c>. It writes the integer X
-    /// and previous X words only, so the camera's horizontal follow sees Samus's subsequent
+    /// Holds Samus on the room's first screen. It writes only her whole-pixel X
+    /// and previous X, so the camera's horizontal follow sees Samus's subsequent
     /// movement away from 256 as a scroll.
     /// </summary>
     private static void RestrictSamusToKraidFirstScreen(SamusState? samus)

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Chainsaw callback, reached by uncharged beam combination thirteen: it runs the Power Bomb pre-instruction over the
+/// The Chainsaw callback, reached by uncharged beam combination thirteen: it runs the Power Bomb frame behaviour over the
 /// shot. Its misaligned store into the cached window edges is a presentation quirk the port drops (#1407).
 /// </summary>
 internal sealed class ChainsawPowerBombCallback
@@ -46,7 +46,7 @@ internal sealed class ChainsawPowerBombCallback
         // The callback always falls through from the fuse to the Power Bomb boundary reactions, even when the
         // zero-timer/no-flag branch just cleared the projectile. The latter case consequently dispatches as no
         // projectile, while both paths use the global Power Bomb centre/radius rather than the Chainsaw's position.
-        // Preserve the inclusive edge traversal and its synchronous PLM mutations.
+        // Preserve the inclusive edge traversal and its synchronous room-object mutations.
         var reactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             level,

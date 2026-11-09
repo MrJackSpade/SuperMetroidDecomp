@@ -44,7 +44,7 @@ public sealed class SamusCrystalFlashState
     /// <param name="ammoCountdown">Samus's shared escape and drain count.</param>
     internal SamusCrystalFlashState(SharedEscapeAndDrainCount ammoCountdown) => _ammoCountdown = Ensure.NotNull(ammoCountdown);
 
-    /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
+    /// <summary>Replaces the movement handler without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
 
     /// <summary>Another special palette handler replaces the special-palette handler and its live timer.</summary>

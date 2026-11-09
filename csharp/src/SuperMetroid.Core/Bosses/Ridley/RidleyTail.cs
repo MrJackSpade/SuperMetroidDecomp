@@ -93,7 +93,7 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Replays <c>HandleRidleyTailWhip</c> and <c>HandleRidleyTailFlingTrigger</c>. Ceres
+    /// Runs Ridley's tail whip and its fling trigger. Ceres
     /// disables random/proximity flings only during the swoop, then sets a one-shot request
     /// at its lowest point so the tail snaps toward Samus as Ridley charges back upward.
     /// </summary>
@@ -161,16 +161,16 @@ internal sealed class RidleyTail
                 break;
             }
         }
-        int targetByte = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn).RawValue;
+        int targetAngle = EnemyMath.CalculateBearing(aim - root.Position).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn).RawValue;
         int additional = additionalAngle.ToAngle().RawValue;
 
         if (state.FacingDirection == RidleyFacing.Left)
         {
             // Facing-left Ridley cannot aim through his own body. Angles inside the
             // forbidden forward interval clamp to angle 232 before expansion.
-            if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
-                targetByte = RidleyTailDefinitions.ForbiddenForwardEnd;
-            int target = RidleyTailDefinitions.LeftWhipTargetBase.AddRaw(targetByte - additional).RawValue;
+            if (targetAngle is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
+                targetAngle = RidleyTailDefinitions.ForbiddenForwardEnd;
+            int target = RidleyTailDefinitions.LeftWhipTargetBase.AddRaw(targetAngle - additional).RawValue;
             if (target < root.Angle)
             {
                 state.ClockwiseWhipTarget = target;
@@ -179,9 +179,9 @@ internal sealed class RidleyTail
         }
         else
         {
-            if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
-                targetByte = RidleyTailDefinitions.ForbiddenForwardStart;
-            int target = RidleyTailDefinitions.RightWhipTargetBase.AddRaw(targetByte + additional).RawValue;
+            if (targetAngle is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
+                targetAngle = RidleyTailDefinitions.ForbiddenForwardStart;
+            int target = RidleyTailDefinitions.RightWhipTargetBase.AddRaw(targetAngle + additional).RawValue;
             if (target >= root.Angle)
             {
                 state.CounterClockwiseWhipTarget = target;
@@ -357,9 +357,9 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// <c>RandomlyUpdateRidleyTailCurliness</c>: when the live RNG word is at
+    /// Randomly updates the tail's curliness: when the live random number is at
     /// least 65,280 (sampled, not advanced), the ideal inter-segment tail angle becomes its
-    /// low nibble plus seven plus the compare's set carry, so 8..23.
+    /// low four bits plus seven plus the comparison's carry, so 8..23.
     /// </summary>
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyEnemyState state)
     {
@@ -464,7 +464,7 @@ internal sealed class RidleyTail
         int radius,
         SamusProjectileSystem projectiles)
     {
-        // CheckForProjectileCollisionWithRectangle scans the five ordinary slots in ascending
+        // The projectile rectangle check scans the five ordinary slots in ascending
         // order. It admits beams, missiles and Super Missiles and rejects bombs, Power Bombs
         // and shots already converted to explosions.
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
@@ -554,8 +554,8 @@ internal sealed class RidleyTail
         }
         state.ClockwiseWhipTarget = null;
         state.CounterClockwiseWhipTarget = null;
-        // PogoTailActivationTimer is initialized to zero and never assigned
-        // a nonzero value by any live routine; CD90/CE61 therefore write zero here.
+        // The pogo tail's activation timer is initialized to zero and never assigned
+        // a nonzero value; both pogo tail setups therefore write zero here.
         state.TailAngleDelta = 0;
     }
 }

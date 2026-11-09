@@ -14,7 +14,7 @@ internal sealed class CrocomireBodyLayer
     private readonly RoomSpriteObjectPool _spriteObjects;
     /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
+    /// <summary>Crocomire's state lookups, body program start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>

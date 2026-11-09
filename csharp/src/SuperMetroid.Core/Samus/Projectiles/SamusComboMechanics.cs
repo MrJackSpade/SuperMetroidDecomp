@@ -31,18 +31,18 @@ internal static class SamusComboMechanics
     /// </summary>
     /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0:
     /// the four single-beam rows cost one and the other eight cost zero.
-    /// FireSBA masks equipped beams to a low nibble, then doubles it for a word
-    /// lookup. Rows 12..15 are outside the table.</remarks>
+    /// The game keeps the equipped beams' lowest four bits as the row.
+    /// Rows 12..15 are outside the table.</remarks>
     internal static int GetPowerBombCost(SamusBeamCombination beam) =>
         ComboKind(beam) is null ? 0 : 1;
 
     /// <summary>
     /// The Ice and Plasma special beam attacks' origin angles: four evenly spaced
-    /// eight-bit angles assigned in projectile-slot order.
+    /// angles of a 256-step turn assigned in projectile-slot order.
     /// </summary>
     /// <remarks>Independently reviewed for #1165 against NTSC J/U v1.0:
     /// a quarter turn per projectile slot, for slots 0 through 3.
-    /// The adjacent unused diagonal-angle words are not further projectile slots;
+    /// The adjacent unused diagonal-angle entries are not further projectile slots;
     /// the bounded progression does not extrapolate into them.</remarks>
     internal static ByteAngle GetOriginAngle(int projectileSlot)
     {

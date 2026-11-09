@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonMotionDefinitions
 {
     /// <summary>
-    /// MovePhantoonInSwoopingPattern: the horizontal swoop velocity below which the leftward pull stops (the NTSC
+    /// The horizontal swoop velocity below which the leftward pull stops (the NTSC
     /// value, about -8 pixels per update; PAL differs).
     /// </summary>
     public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromSignedRaw(-2047);
@@ -27,7 +27,7 @@ public static class PhantoonMotionDefinitions
     /// <summary>The rightmost swoop X position.</summary>
     public const int SwoopMaximumX = 448;
     /// <summary>
-    /// MovePhantoonInSwoopingPattern: the vertical swoop velocity below which the upward pull stops (the NTSC value,
+    /// The vertical swoop velocity below which the upward pull stops (the NTSC value,
     /// about -6 pixels per update; PAL differs).
     /// </summary>
     public static SignedEightEight SwoopNegativeYThreshold { get; } = SignedEightEight.FromSignedRaw(-1535);

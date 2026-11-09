@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Initial articulated-tail angular geometry from InitializeTailParts.</summary>
+/// <summary>Initial articulated-tail angular geometry from the tail's initialization.</summary>
 internal static class RidleyTailDefinitions
 {
-    /// <summary>InitializeTailParts writes this bound independently of facing.</summary>
+    /// <summary>Tail initialization writes this bound independently of facing.</summary>
     internal static RotationAngle InitialMinimumClockwise { get; } = RotationAngle.FromSteps(63, 240);
-    /// <summary>InitializeTailParts writes this bound before the live tail controller adjusts it.</summary>
+    /// <summary>Tail initialization writes this bound before the live tail controller adjusts it.</summary>
     internal static RotationAngle InitialMaximumCounterClockwise { get; } = RotationAngle.FromSteps(64, 64);
 
     /// <summary>The carry's release sets the ideal tail spacing while releasing Samus.</summary>
@@ -18,7 +18,7 @@ internal static class RidleyTailDefinitions
     internal static RotationAngle PogoWhipAngle { get; } = RotationAngle.FromSteps(63);
     /// <summary>The whip's extension request while a segment chases a whip target, twelve pixels in 256ths.</summary>
     internal static readonly int WhipDistance = EightEight.FromWhole(12);
-    /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn.</summary>
+    /// <summary>The axis a facing change reflects tail angles around: half a turn.</summary>
     internal static RotationAngle MirrorAxisAngle { get; } = RotationAngle.HalfTurn;
     /// <summary>The first byte angle of the forward interval a whip may not aim through Ridley's body.</summary>
     internal const int ForbiddenForwardStart = 24;
@@ -54,11 +54,11 @@ internal static class RidleyTailDefinitions
         [RidleyFacing.Right] = RotationAngle.FromSteps(64, 16),
     };
 
-    /// <summary>InitializeTailParts begins its angles at a quarter turn, in the angle's 65536ths of a turn.</summary>
+    /// <summary>Tail initialization begins its angles at a quarter turn, in the angle's 65536ths of a turn.</summary>
     private static readonly int InitialBaseAngle = RotationAngle.QuarterTurn.RawValue;
-    /// <summary>Tail initialization loads 16 into Ridley.idealInterSegmentTailAngle; the initial angles advance by that separation.</summary>
+    /// <summary>Tail initialization sets Ridley's ideal inter-segment tail angle to 16; the initial angles advance by that separation.</summary>
     internal const int IdealInterSegmentSpacing = 16;
-    /// <summary>The initial base separation, two pixels in 256ths. The length is an authored scalar (see residualScalarInputsReview).</summary>
+    /// <summary>The initial base separation, two pixels in 256ths. The length is an authored scalar (see the residual scalar inputs review).</summary>
     private static readonly int BaseRestDistance = EightEight.FromWhole(2);
     /// <summary>The initial shaft separation and its shrink thresholds, eight pixels in 256ths. The length is an authored scalar.</summary>
     private static readonly int ShaftRestDistance = EightEight.FromWhole(8);

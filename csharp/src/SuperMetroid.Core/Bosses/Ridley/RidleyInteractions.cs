@@ -33,9 +33,9 @@ internal sealed class RidleyInteractions
     }
 
     /// <summary>
-    /// Runs the collision-relevant portion of <c>HandleRidleySamusInteractionBit</c>.
+    /// Runs the collision-relevant portion of Ridley's Samus-interaction gate.
     /// Off-screen bodies disable collision and suspend the release timer.
-    /// On-screen fight AI clears the gate before ticking that timer. EnemyMain has
+    /// On-screen fight AI clears the gate before ticking that timer. The enemy update has
     /// already consumed the previous gate value for this update's body collision.
     /// </summary>
     internal static void UpdateNorfairRidleyIntangibility(

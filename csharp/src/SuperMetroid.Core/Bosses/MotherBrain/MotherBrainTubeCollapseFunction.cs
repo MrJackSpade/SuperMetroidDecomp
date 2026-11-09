@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Function pointers stored in the head record's secondary Mother Brain dispatcher.
+/// The functions the head record's secondary Mother Brain dispatcher runs.
 /// During fake death this independent state machine serializes the physical tube actors,
 /// ceiling projectiles, and one-frame room mutations.
 /// </summary>

@@ -259,8 +259,8 @@ internal static class SamusPoseDispatch
     };
 
     /// <summary>
-    /// The pose's movement type, from the PoseDefinitions movement byte, which selects the movement handler.
-    /// The first and last pose numbers past the authored poses read movement bytes beyond every movement type, which is
+    /// The pose's movement type, from the pose definition's movement entry, which selects the movement handler.
+    /// The first and last pose numbers past the authored poses read movement entries beyond every movement type, which is
     /// corrupt metadata and fails here; the second reads the special movement type.
     /// </summary>
     /// <exception cref="InvalidDataException">The pose is <see cref="SamusPoseId.FirstUnauthoredPose"/> or

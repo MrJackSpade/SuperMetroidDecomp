@@ -18,7 +18,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Binds glass instruction handling to the room's PLM slots, event services, and sound queue.</summary>
+    /// <summary>Binds the glass program's handling to the room's room-object slots, event services, and sound queue.</summary>
     internal MotherBrainGlassObjects(IAreaBossFlagReader? bosses, IGlobalEventFlags? events, RoomObjectSoundQueue sounds)
     {
         _bosses = bosses;
@@ -28,9 +28,9 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Four shard spawns emitted by the most recent shatter.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
-    /// <summary>The slot of the live glass PLM, or null after deletion.</summary>
+    /// <summary>The slot of the live glass room object, or null after deletion.</summary>
     private RoomObjectSlot? _motherBrainGlassSlot;
-    /// <summary>Whether the current room loaded the glass PLM before head damage can update it.</summary>
+    /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     internal bool MotherBrainGlassWasLoaded { get; private set; }
     /// <summary>
     /// Glass hit count retained after the glass has left the room. Only glass-phase head hits add to it, so it stays far
@@ -38,7 +38,7 @@ internal sealed class MotherBrainGlassObjects
     /// </summary>
     internal int MotherBrainGlassLastRoomArgument { get; private set; }
 
-    /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
+    /// <summary>Shard actors requested by the most recent room-object pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
         _motherBrainGlassProjectileRequests;
 
@@ -77,7 +77,7 @@ internal sealed class MotherBrainGlassObjects
         if (!MotherBrainGlassWasLoaded)
         {
             throw new InvalidOperationException(
-                "Mother Brain head damage requires Mother Brain's glass PLM to be loaded.");
+                "Mother Brain head damage requires Mother Brain's glass room object to be loaded.");
         }
 
         if (TryGetMotherBrainGlass(out MotherBrainGlassObject? glass))

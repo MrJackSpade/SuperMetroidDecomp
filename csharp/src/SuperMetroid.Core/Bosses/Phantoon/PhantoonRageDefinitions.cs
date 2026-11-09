@@ -7,7 +7,7 @@ internal static class PhantoonRageDefinitions
     internal const int EvenWaveFirstDirection = 6;
     /// <summary>First direction of the eight-flame odd wave.</summary>
     internal const int OddWaveFirstDirection = 15;
-    /// <summary>Inclusive final odd-wave direction after DEY/CPY/BPL.</summary>
+    /// <summary>Inclusive final odd-wave direction of the countdown.</summary>
     internal const int OddWaveLastDirection = 8;
     /// <summary>Round count before closing the eye and fading out.</summary>
     internal const int WaveCount = 8;

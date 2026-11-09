@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public static class SamusSpritemapDraws
 {
     /// <summary>
-    /// Ports <c>AddSamusSpritemap</c> for Samus's whole body as one pre-coloured draw (#1392, #1463, #1513): the
+    /// Draws Samus's whole body as one pre-coloured draw (#1392, #1463, #1513): the
     /// full-body picture <paramref name="frame"/> shows, with the half pictures it shows.
     /// </summary>
     /// <param name="sprites">The frame receiving the draw after everything already emitted.</param>

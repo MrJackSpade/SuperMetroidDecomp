@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// This is intentionally a probe, not an enemy simulation. The caller supplies the current
 /// interactive-enemy list in slot order. That order matters:
 /// the original routine returns the first colliding entry, not the geometrically nearest one.
-/// All positions and arithmetic remain 16-bit so wraparound, signed branch tests, and pixel
+/// All positions and arithmetic wrap at 65536 so wraparound, signed branch tests, and pixel
 /// rounding agree with the original rather than with conventional geometry.
 /// </remarks>
 public static class SamusSolidEnemyCollision
@@ -189,18 +189,18 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
-    /// <summary>Compares wrapped 16-bit center distance against both radii using the unsigned borrow and strict comparison rules.</summary>
+    /// <summary>Compares wrapped center distance against both radii using the unsigned borrow and strict comparison rules.</summary>
     private static bool StrictlyOverlaps(
         int firstPosition,
         int firstRadius,
         int secondPosition,
         int secondRadius)
     {
-        // Obtains a 16-bit absolute center delta by negating it. This
+        // Obtains a wrapped absolute center delta by negating it. This
         // intentionally leaves 32768 unchanged, matching the two's-complement edge.
         int absoluteDelta = CoordinateAxis.Distance(secondPosition, firstPosition);
 
-        // The assembly subtracts the enemy radius first. Borrow means overlap immediately;
+        // The original subtracts the enemy radius first. Borrow means overlap immediately;
         // otherwise an unsigned comparison accepts only a remainder smaller than Samus's radius.
         if (absoluteDelta < secondRadius)
             return true;

@@ -200,7 +200,7 @@ internal sealed class KraidDeath
 
     /// <summary>
     /// Runs the shared body of both death-drop checks: a living Kraid, or a dead
-    /// one whose camera has left the room's left edge, gets <c>SetEnemyPropertiesToDead</c>.
+    /// one whose camera has left the room's left edge, is given a dead enemy's properties.
     /// </summary>
     private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemySlot body, int cameraX)
     {
@@ -279,7 +279,7 @@ internal sealed class KraidDeath
             yBase: 352,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         state.DeathDropRequestCount = 16;
-        // The death continues into DrawKraidsRoomBackground, which restarts the shared fade step count.
+        // The death continues into redrawing Kraid's room background, which restarts the shared fade step count.
         _presentation.FadeStepCount.Reset();
     }
 

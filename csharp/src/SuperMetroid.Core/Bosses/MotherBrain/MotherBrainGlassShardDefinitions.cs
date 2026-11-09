@@ -28,7 +28,7 @@ internal static class MotherBrainGlassShardDefinitions
     internal static SpriteGraphics Graphics(PictureShading shading) => new(SpawnedObjectOwner.MotherBrainTankGlass, shading);
 
     /// <summary>
-    /// The three horizontal emitter positions on the glass: right, half a block right of the PLM origin;
+    /// The three horizontal emitter positions on the glass: right, half a block right of the glass's origin block;
     /// left, two and a half blocks left; centre, one block left.
     /// </summary>
     internal static readonly Dictionary<MotherBrainGlassShard, int> EmitterXs = new()
@@ -38,6 +38,6 @@ internal static class MotherBrainGlassShardDefinitions
         [MotherBrainGlassShard.Centre] = -16,
     };
 
-    /// <summary>Every emitter sits two blocks below the PLM origin.</summary>
+    /// <summary>Every emitter sits two blocks below the glass's origin block.</summary>
     internal const int EmitterY = 2 * 16;
 }

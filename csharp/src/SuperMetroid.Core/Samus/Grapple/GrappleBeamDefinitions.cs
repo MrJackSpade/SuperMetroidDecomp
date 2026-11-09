@@ -13,7 +13,7 @@ public static class GrappleBeamDefinitions
     /// <summary>Palette operands shared by grapple initialization and cleanup tails.</summary>
     public static class Palettes
     {
-        /// <summary>Firing selects beam palette two before entering the firing function.</summary>
+        /// <summary>Firing selects the Ice beam's colours before entering the firing function.</summary>
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;
     }
 
@@ -69,17 +69,17 @@ public static class GrappleBeamDefinitions
     /// <summary>Swing-frame, body-offset, rope-character, and fixed upload definitions.</summary>
     public static class Rendering
     {
-        /// <summary>DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
+        /// <summary>The rope's distance between consecutive rope objects in pixels.</summary>
         public const int SegmentSpacing = 8;
         /// <summary>Convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
         public const int SegmentSampleToFixedPoint = SegmentSpacing * 256;
-        /// <summary>DrawGrappleBeam: the segment counts the length quotient wraps through, one per animation slot.</summary>
+        /// <summary>The rope's segment counts the length quotient wraps through, one per animation slot.</summary>
         public const int SegmentCountCycle = 16;
-        /// <summary>DrawGrappleBeam: first animation slot, traversed downward.</summary>
+        /// <summary>The rope's first animation slot, traversed downward.</summary>
         public const int FirstSegmentSlot = 15;
-        /// <summary>DrawGrappleBeam: center an eight-pixel character on its beam coordinate.</summary>
+        /// <summary>The rope centers an eight-pixel character on its beam coordinate.</summary>
         public const int CharacterCenterOffset = 4;
-        /// <summary>DrawGrappleBeam: a segment is off screen when either whole coordinate reaches this extent.</summary>
+        /// <summary>A rope segment is off screen when either whole coordinate reaches this extent.</summary>
         public const int ViewportExtent = 256;
         /// <summary>Each rope animation record lasts five visits to its slot.</summary>
         public const int SegmentAnimationDelay = 5;

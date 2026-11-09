@@ -46,7 +46,7 @@ public static class SamusSlopePhysics
     {
 
         // the behaviour's horizontal-flip bit mirrors the profile horizontally. XORing the complete coordinate by
-        // 15 is equivalent to flipping its low nibble while retaining sixteen-bit word math.
+        // 15 is equivalent to flipping its low nibble while retaining arithmetic wrapping at 65536.
         int sampledX = behavior.Slope.FlipsHorizontally
             ? CoordinateAxis.Wrap(xPosition ^ 15)
             : xPosition;

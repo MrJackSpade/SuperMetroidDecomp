@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Samus's vertical direction (<c>SamusYDirection</c>). The game
+/// Samus's vertical direction. The game
 /// stores vertical speed as a magnitude and keeps its sign here. Every writer
 /// stores only these three values: zero, one
 /// and two.

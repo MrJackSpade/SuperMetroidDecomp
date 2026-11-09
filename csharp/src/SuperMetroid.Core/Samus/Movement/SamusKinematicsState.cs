@@ -70,8 +70,8 @@ public sealed class SamusKinematicsState
     public SamusPoseId CollisionPose { get; internal set; } = SamusPoseId.LastUnauthoredPose;
 
     /// <summary>
-    /// Current snapshot, in the game's order, of <c>InteractiveEnemyIndices</c> and the collision
-    /// words of the referenced enemy slots.
+    /// Current snapshot, in the game's order, of the interactive enemies and the collision
+    /// values of the referenced enemy slots.
     /// </summary>
     /// <remarks>
     /// Movement owns this snapshot because every ordinary movement wrapper probes
@@ -97,7 +97,7 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// External signed 16.16 displacement.
-    /// Enemy/PLM producers write it independently of Samus's own speeds;
+    /// Enemy/room-object producers write it independently of Samus's own speeds;
     /// it persists until its producer clears it, and Samus's movement neither consumes nor zeroes it.
     /// </summary>
     public FixedVector<RoomPixels> ExtraDisplacement { get; set; }

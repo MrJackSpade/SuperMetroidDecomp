@@ -25,7 +25,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
         return SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Slot, probe, out reaction);
     }
 
-    /// <summary>Spore Spawn's dud shot (CreateDudShot) after the no-op check, ahead of the shared ones.</summary>
+    /// <summary>Spore Spawn's dud shot after the no-op check, ahead of the shared ones.</summary>
     public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
         context.SelectedShotAi == EnemyReaction.DudShot ? EnemyDudShot.Bomb : base.FindBombSpecialAfterNoOp(context);
 

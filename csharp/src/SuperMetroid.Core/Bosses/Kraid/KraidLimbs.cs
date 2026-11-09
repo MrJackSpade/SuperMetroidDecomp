@@ -65,7 +65,7 @@ internal sealed class KraidLimbs
 
     /// <summary>
     /// The program a part's stored cursor belongs to. A cursor resting on a fall-through already belongs to the next
-    /// program, as the instruction pointer then points into it.
+    /// program, as the part's program position then lies inside it.
     /// </summary>
     private KraidPartProgram KraidPartResidentProgram(RoomEnemySlot part) =>
         KraidAnimations.Programs.ResidentProgram(_access.Part(part).Cursor);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// <c>ResumeChargingBeamSFXFlag</c>: the post-draw handler's three-state latch that resumes the
+/// The post-draw handler's three-state latch that resumes the
 /// charging-beam sound one pass after a spin exit or hurt-flash recovery (#1323).
 /// </summary>
 public enum ResumeChargingBeamSoundLatch

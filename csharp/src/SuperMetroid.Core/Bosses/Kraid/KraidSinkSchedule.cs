@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidSinkSchedule
 {
     /// <summary>
-    /// ShrinkingKraidTable: twenty-eight rows spaced eight pixels
+    /// Kraid's sinking schedule: twenty-eight rows spaced eight pixels
     /// apart, terminated by an end marker. Six rows crumble platforms; the remaining rows
     /// invoke the distinct empty callback. Tilemap offsets are presentation data.
     /// </summary>

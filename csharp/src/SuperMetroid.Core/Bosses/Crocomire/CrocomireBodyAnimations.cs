@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyProgram;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's typed body programs (#641), in place of its instruction lists.</summary>
+/// <summary>Crocomire's typed body programs (#641).</summary>
 internal static class CrocomireBodyAnimations
 {
     /// <summary>Every body, melting and skeleton program.</summary>

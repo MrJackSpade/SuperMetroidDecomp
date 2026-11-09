@@ -106,8 +106,8 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c>, called by the
-    /// arm hitbox callback. Super Missiles select the big dust animation;
+    /// Spawns the explosion of a shot that hits Kraid's arm, from the arm's hitbox
+    /// callback. Super Missiles select the big dust animation;
     /// beams, missiles, and normal bombs select the dud animation. The effect uses the
     /// shared room-graphics projectile allocator and queues the Samus-library explosion effect.
     /// </summary>
@@ -133,7 +133,7 @@ internal sealed class KraidCombat
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
-    /// removal is deferred to the projectile pre-instruction.
+    /// removal is deferred to the projectile's frame behaviour.
     /// </summary>
     internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)
     {

@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Samus.Palettes;
 
-/// <summary>Immutable game data and fixed hardware layout shared by Samus palettes.</summary>
+/// <summary>Immutable game data shared by Samus palettes.</summary>
 /// <remarks>
 /// Palette state machines retain their mutable timers and phase transitions. This catalog
-/// names the colour tables, object-program words, colour ranges, and fixed-color endpoints those
-/// machines consume, so a hexadecimal address never masquerades as gameplay behavior.
+/// names the colour tables, colour-program steps, colour ranges, and fixed-color endpoints those
+/// machines consume, so no raw number masquerades as gameplay behavior.
 /// </remarks>
 public static class SamusPaletteDefinitions
 {
@@ -69,12 +69,12 @@ public static class SamusPaletteDefinitions
 
     /// <summary>Two independently timed palette streams used by Crystal Flash.</summary>
     /// <remarks>
-    /// The stock body colors are six ten-word cycle steps,
+    /// The stock body colors are six ten-colour cycle steps,
     /// <c>r = 0..5</c>. Color zero is always
-    /// 14336; colors 1..9 in each step are the same grayscale word
+    /// 14336; colors 1..9 in each step are the same grayscale colour
     /// with every channel at <c>16 + floor(11*min(r,6-r)/3)</c>. This yields channel
-    /// levels 16, 19, 23, 27, 23, 19 and matches all 60 words in the
-    /// original data. The body pointer program selects steps
+    /// levels 16, 19, 23, 27, 23, 19 and matches all 60 colours in the
+    /// original data. The body colour program selects steps
     /// 0,1,2,3,4,5,4,3,2,1 and copies only ten colors per transition;
     /// the following six bubble colors have a separate cursor and timer.
     /// Keep both streams live for the stock presentation. Body-color
@@ -84,7 +84,7 @@ public static class SamusPaletteDefinitions
     /// <c>k = (c-r+6)%6</c> and <c>q = k + (k &gt;= 3 ? 1 : 0)</c>.
     /// The stock colour is 32767 less 1056 times <c>q</c>, except
     /// <c>r = 5, c = 0</c> is 32767 rather than 31711.
-    /// All 36 words, including that authored exception, match the
+    /// All 36 colours, including that authored exception, match the
     /// original data. The bubble cursor visits steps 0..5 and wraps
     /// independently of the body records. Bubble-color investigation:
     /// #625 / #903.
@@ -93,7 +93,7 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Number of Crystal Flash body records.</summary>
         public const int BodyRecordCount = 10;
-        /// <summary>Number of bubble palette pointers.</summary>
+        /// <summary>Number of bubble palettes.</summary>
         public const int BubblePaletteCount = 6;
     }
 
@@ -133,7 +133,7 @@ public static class SamusPaletteDefinitions
     {
         /// <summary>Number of pre-explosion fixed-color triplets.</summary>
         public const int PreExplosionColorCount = 16;
-        /// <summary>Number of explosion fixed-color triplets addressed by radius.</summary>
+        /// <summary>Number of explosion fixed-color triplets selected by radius.</summary>
         public const int ExplosionColorCount = 32;
     }
 }

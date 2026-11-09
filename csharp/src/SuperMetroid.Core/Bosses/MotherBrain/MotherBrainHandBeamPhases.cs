@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Bounded transitions of the hand-beam attack dispatcher.</summary>
 public static class MotherBrainHandBeamPhases
 {
-    /// <summary>The phase the body's increment-death-beam-attack-phase opcode advances to.</summary>
+    /// <summary>The phase the body's increment-death-beam-attack-phase cue advances to.</summary>
     /// <exception cref="InvalidOperationException">The finishing phase has no successor.</exception>
     public static MotherBrainHandBeamPhase Next(MotherBrainHandBeamPhase phase) => phase switch
     {

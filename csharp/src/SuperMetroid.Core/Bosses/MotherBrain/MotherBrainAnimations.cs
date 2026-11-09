@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's typed body and brain programs (#641), in place of their instruction lists.</summary>
+/// <summary>Mother Brain's typed body and brain programs (#641).</summary>
 internal static class MotherBrainAnimations
 {
     /// <summary>Every body program.</summary>

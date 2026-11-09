@@ -93,7 +93,7 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>The Ceres Baby's anchor in Ridley's feet once retrieved, also the grasp point the retrieval compares.</summary>
     internal static Offset16<RoomPixels> CeresBabyFeetAnchor => new(14, 66);
 
-    /// <summary>Runs DrawRidleyTail and DrawRidleyWings.</summary>
+    /// <summary>Draws Ridley's tail and wings.</summary>
     internal void DrawRidleySupplementalSprites(
         SpriteFrameBuffer sprites,
         RoomEnemySlot slot,
@@ -254,7 +254,7 @@ internal sealed class CeresRidleyBabyScene
             case CeresBabyCue.CryOrGoTo cryOrGoTo:
                 // While the baby is falling (its falling flag set) it always cries and
                 // continues. Otherwise it samples the live RNG word's low bit without
-                // calling GenerateRandomNumber; a set bit jumps silently.
+                // advancing the random generator; a set bit jumps silently.
                 if (state.BabyVerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsSetIn(_room.Random.Read()))
                     return cryOrGoTo.Target;
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);

@@ -115,7 +115,7 @@ public sealed class SamusDrainedState
         {
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: 1);
 
-            // The able branch replaces the hack pointer with a no-op after the first accepted Up
+            // The able branch replaces the hack handler with a no-op after the first accepted Up
             // edge. Further presses cannot restart the stand-up stream.
             GetUpHandler = DrainedGetUpHandler.Inactive;
             return true;
@@ -125,7 +125,7 @@ public sealed class SamusDrainedState
             samus.AnimationFrame >= SamusDrainedAnimationDefinitions.UnableToStandFirstFrame &&
             samus.AnimationFrame <= SamusDrainedAnimationDefinitions.UnableToStandLastFrame)
         {
-            // Unlike the able branch, the failed-stand branch retains its own function pointer. A later
+            // Unlike the able branch, the failed-stand branch retains its own function. A later
             // visit to frames 8..11 can therefore react to another fresh Up edge.
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
             return true;
@@ -247,9 +247,9 @@ public sealed class SamusDrainedState
             samus.Kinematics.Radius.Y != 21)
             throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
 
-        // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
+        // The new pose's animation frame is literally two. The animation is initialized here,
         // but movement remains the normal empty special-movement handler until the drained-fall
-        // animation instruction appears.
+        // animation step appears.
         SamusPresentation.InitializeAnimation(samus, initialFrame: SamusDrainedAnimationDefinitions.FallInitialFrame);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -303,7 +303,7 @@ public sealed class SamusDrainedState
 
         if (vertical.Collided)
         {
-            // The landing restores the normal movement pointer, jumps directly to art
+            // The landing restores the normal movement handler, jumps directly to art
             // frame seven for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
             SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: SamusDrainedAnimationDefinitions.LandingFrame,

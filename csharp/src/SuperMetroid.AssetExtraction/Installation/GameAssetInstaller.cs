@@ -360,6 +360,8 @@ public static class GameAssetInstaller
             Step("Extracting Mother Brain fake-death room visuals...", (bus, d) => RoomObjectMotherBrainFakeDeathVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomObjectCollectibleVisualDirectoryName,
             Step("Extracting collectible PLM visuals...", (bus, d) => RoomObjectCollectibleVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+        new(GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName,
+            Step("Extracting reveal and wall PLM visuals...", (bus, d) => RoomObjectRevealAndWallVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
             Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.SpriteSheetDirectoryName, InstallerComponentKind.Composition,

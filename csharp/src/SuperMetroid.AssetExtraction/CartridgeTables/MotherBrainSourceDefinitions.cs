@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
@@ -117,6 +118,9 @@ internal static class MotherBrainSourceDefinitions
 
         /// <summary>The bytes between consecutive cycle colours: the cartridge's cursor steps four bytes, skipping every other colour word.</summary>
         internal const int ColorEntryBytes = 2 * ColorWordBytes;
+
+        /// <summary>The fixed colour the beam's code loads on the first update the beam shows: red 0, green 7, blue 15.</summary>
+        internal static RgbColor InitialColor => new(0, 57, 123);
     }
 
     /// <summary>Mother Brain's corpse characters.</summary>

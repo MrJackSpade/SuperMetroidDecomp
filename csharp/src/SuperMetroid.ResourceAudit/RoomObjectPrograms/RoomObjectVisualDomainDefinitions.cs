@@ -37,9 +37,9 @@ internal static class RoomObjectVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectGreyDoorVisuals" => RoomObjectGreyDoorVisualFiles.All.ToArray(),
         "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectEyeDoorVisuals" => RoomObjectEyeDoorVisualFiles.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectEscapeGateVisualCatalog" => RoomObjectEscapeGateVisualFiles.All.ToArray(),
-        // Drawing asks for the appearance of every collectible frame, the block-pair frames the installed file does not
-        // hold included, which keep their compiled block (#1538).
-        "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectCollectibleVisuals" => RoomObjectCollectibleVisualFiles.All
+        // Drawing asks for the installed picture of every collectible frame but a block pair's, which lies under the item's
+        // own picture and writes only its terrain (#1538, #1557).
+        "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectCollectibleVisuals" => RoomObjectCollectibleVisualFiles.Editable
             .Select(frame => SingleBlock(RoomObjectDraw.Of(frame.Draw), frame.Terrain)).ToArray(),
         "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectGrappleBlockVisuals" => RoomObjectGrappleBlockVisualFiles.All
             .Select(frame => SingleBlock(RoomObjectDraw.Of(frame.Frame), frame.Terrain)).ToArray(),

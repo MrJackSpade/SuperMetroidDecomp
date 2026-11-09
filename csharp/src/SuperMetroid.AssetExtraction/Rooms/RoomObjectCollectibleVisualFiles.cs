@@ -83,26 +83,23 @@ public static class RoomObjectCollectibleVisualFiles
         return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
-    /// <summary>Validates all sixteen editable one-cell frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
+    /// <summary>Validates all sixteen editable one-cell frames and builds the visuals from every frame's picture as installed.</summary>
     /// <param name="entries">Exactly one appearance for each editable collectible frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, names a block-pair frame, repeats an identity, or leaves editable frame coverage incomplete.</exception>
+    /// <exception cref="InvalidDataException">An entry is invalid, names a block-pair frame, repeats an identity, or leaves an editable frame uninstalled.</exception>
     internal static InstalledRoomObjectCollectibleVisuals Create(IEnumerable<RoomObjectVisualBlockEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<Draw, RoomBlockAppearance>();
-        var seen = new HashSet<Draw>();
         foreach (RoomObjectVisualBlockEntry entry in entries)
         {
             if (entry is null || !TryGetById(entry.Id, out var frame))
                 throw new InvalidDataException(
                     "Collectible visuals changed a compiled frame identity.");
-            if (!seen.Add(frame.Draw))
+            if (!selected.TryAdd(frame.Draw, entry.Appearance))
                 throw new InvalidDataException($"Collectible visuals repeat frame {entry.Id}.");
-            if (entry.Appearance != frame.Terrain.Appearance)
-                selected.Add(frame.Draw, entry.Appearance);
         }
-        if (seen.Count != Editable.Count())
+        if (selected.Count != Editable.Count())
             throw new InvalidDataException("Collectible visuals do not cover all editable frames.");
         return new(selected);
     }

@@ -4,33 +4,31 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Presentation-only selection for forty-eight yellow, green and red door-cap frames. The compiled
-/// level appearances continue to own collision, animation timing, and door handoff.
+/// The installed pictures of the coloured door caps' frames (#1557). The caps' terrain, hits and timing stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectColoredDoorVisuals
 {
-    /// <summary>Copied artwork overrides keyed by draw; omitted frames use stock visual appearances.</summary>
-    private readonly RoomObjectVisualOverrides customBlocks;
+    /// <summary>The installed pictures of every coloured-cap frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled caps.</summary>
-    /// <param name="customBlocks">The changed frames' four appearances, keyed by frame.</param>
-    internal InstalledRoomObjectColoredDoorVisuals(RoomObjectVisualOverrides customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every coloured-cap frame.</summary>
+    /// <param name="pictures">Each coloured-cap frame's four cell pictures, keyed by frame.</param>
+    internal InstalledRoomObjectColoredDoorVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves one selected cap block without changing the collision or door-opening rules.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="blockIndex">Zero-based block ordinal, zero through three, along the frame's horizontal or vertical run.</param>
-    /// <returns>The authored appearance, or the compiled stock appearance when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported colored-door frame.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the four-block run.</exception>
+    /// <summary>The installed picture of one cell of a coloured-cap frame.</summary>
+    /// <param name="draw">The coloured-cap frame.</param>
+    /// <param name="blockIndex">Zero-based block index 0..3 within the cap run, not a room-block coordinate.</param>
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException">The draw is not a coloured-cap frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The block index is outside 0..3.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int blockIndex)
     {
-        if (!ColoredDoorCaps.TryDescribe(draw, out var shape))
+        if (!ColoredDoorCaps.TryDescribe(draw, out _))
             throw new InvalidDataException(
                 $"Colored-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(draw, out var appearances)
-            ? appearances[blockIndex] : shape.BlockAt(blockIndex).Appearance;
+        return pictures.At(draw, blockIndex);
     }
 }

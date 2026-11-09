@@ -1,4 +1,12 @@
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -13,11 +21,14 @@ internal static class RoomObjectFixtures
     /// <summary>The installed artwork each fixture was built with, so a rebound fixture draws the same way.</summary>
     private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals> visualsByFixture = [];
 
-    /// <summary>A PLM system bound to no room: families that need room services fail at that dependency.</summary>
-    /// <param name="visuals">The installed artwork, or none.</param>
+    /// <summary>
+    /// A PLM system bound to no room: families that need room services fail at that dependency. A room object shows only
+    /// its installed pictures (#1557), so a fixture that names no artwork draws with the repository installation's.
+    /// </summary>
+    /// <param name="visuals">The installed artwork, or null for the repository installation's.</param>
     internal static RoomObjectSystem Unbound(RoomObjectVisuals? visuals = null)
     {
-        visuals ??= new RoomObjectVisuals();
+        visuals ??= Installed();
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals);
@@ -46,6 +57,38 @@ internal static class RoomObjectFixtures
     /// <returns>The number of records spawned.</returns>
     internal static int LoadPopulation(RoomObjectSystem fixture, RoomObjectRoom room, RoomObjectPopulation population, RoomObjectServices services) =>
         LoadPopulation(ref fixture, room, population, services);
+
+    /// <summary>Every room-object family's pictures as the repository installation holds them.</summary>
+    private static RoomObjectVisuals Installed() => new()
+    {
+        RoomObjectShotBlockVisuals = InstalledRoomObjectShotBlockVisuals.Stock(),
+        RoomObjectGrappleBlockVisuals = InstalledRoomObjectGrappleBlockVisuals.Stock(),
+        RoomObjectStationVisuals = InstalledRoomObjectStationVisuals.Stock(),
+        RoomObjectBlueDoorVisuals = InstalledRoomObjectBlueDoorVisuals.Stock(),
+        RoomObjectColoredDoorVisuals = InstalledRoomObjectColoredDoorVisuals.Stock(),
+        RoomObjectGreyDoorVisuals = InstalledRoomObjectGreyDoorVisuals.Stock(),
+        RoomObjectEyeDoorVisuals = InstalledRoomObjectEyeDoorVisuals.Stock(),
+        RoomObjectMotherBrainGlassVisuals = RoomObjectMotherBrainGlassVisualCatalog.Stock(),
+        RoomObjectNoobTubeVisuals = InstalledRoomObjectNoobTubeVisuals.Stock(),
+        RoomObjectDownwardGateVisuals = InstalledRoomObjectDownwardGateVisuals.Stock(),
+        RoomObjectElevatorPlatformVisuals = RoomObjectElevatorPlatformVisualCatalog.Stock(),
+        RoomObjectEscapeGateVisuals = RoomObjectEscapeGateVisualCatalog.Stock(),
+        RoomObjectBombTorizoHandVisuals = RoomObjectBombTorizoHandVisualCatalog.Stock(),
+        RoomObjectDraygonCannonVisuals = RoomObjectDraygonCannonVisualCatalog.Stock(),
+        RoomObjectChozoStatueVisuals = RoomObjectChozoStatueVisualCatalog.Stock(),
+        RoomObjectLinkedRestoreVisuals = InstalledRoomObjectLinkedRestoreVisuals.Stock(),
+        RoomObjectTourianAccessVisuals = RoomObjectTourianAccessVisuals.Stock(),
+        RoomObjectSpeedBoosterVisuals = InstalledRoomObjectSpeedBoosterVisuals.Stock(),
+        RoomObjectMaridiaElevatubeVisuals = InstalledRoomObjectMaridiaElevatubeVisuals.Stock(),
+        RoomObjectSporeSpawnCeilingVisuals = RoomObjectSporeSpawnCeilingVisualCatalog.Stock(),
+        RoomObjectSamusEaterVisuals = InstalledRoomObjectSamusEaterVisuals.Stock(),
+        RoomObjectBotwoonWallVisuals = InstalledRoomObjectBotwoonWallVisuals.Stock(),
+        RoomObjectKraidVisuals = InstalledRoomObjectKraidVisuals.Stock(),
+        RoomObjectCrocomireVisuals = RoomObjectCrocomireVisualCatalog.Stock(),
+        RoomObjectMotherBrainFakeDeathVisuals = RoomObjectMotherBrainFakeDeathVisualCatalog.Stock(),
+        RoomObjectCollectibleVisuals = InstalledRoomObjectCollectibleVisuals.Stock(),
+        RoomObjectRevealAndWallVisuals = InstalledRoomObjectRevealAndWallVisuals.Stock(),
+    };
 
     /// <summary>The installed artwork a fixture draws with; editing it changes what the fixture draws.</summary>
     internal static RoomObjectVisuals VisualsOf(RoomObjectSystem fixture) =>

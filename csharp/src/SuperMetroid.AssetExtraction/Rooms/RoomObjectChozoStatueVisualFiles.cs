@@ -31,12 +31,12 @@ public static class RoomObjectChozoStatueVisualFiles
             new RoomObjectVisualFamily<RoomObjectChozoStatueVisualCatalog>(VisualFileName, "Chozo statue", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates complete Chozo-layout coverage and builds the visuals from the authored appearances that differ from the compiled layouts, without replacing terrain blocks or calculated run geometry.</summary>
+    /// <summary>Validates complete Chozo-layout coverage and builds the visuals from every frame's picture as installed, without replacing terrain blocks or calculated run geometry.</summary>
     /// <param name="entries">One entry per compiled layout with its exact flattened block count and appearance payload.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, duplicates an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     internal static RoomObjectChozoStatueVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Chozo statue", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Chozo statue", TryGetByVisualId, All.Count()));
 
     /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()

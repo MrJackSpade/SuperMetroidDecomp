@@ -2,27 +2,24 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>
-/// Editable appearance for the tube PLM. The compiled draw geometry, full
-/// level appearances, power-bomb gate, debris, event timing, and water physics remain fixed.
-/// </summary>
+/// <summary>The installed pictures of the n00b tube's frames (#1557); their terrain and crack sequence stay the game's.</summary>
 public sealed class InstalledRoomObjectNoobTubeVisuals
 {
-    /// <summary>Copied appearance edits for N00b-tube draw layouts that differ from stock appearance.</summary>
-    private readonly RoomObjectVisualOverrides customBlocks;
+    /// <summary>The installed pictures of every tube frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
-    /// <param name="customBlocks">The changed layouts' flattened appearances, keyed by draw.</param>
-    internal InstalledRoomObjectNoobTubeVisuals(RoomObjectVisualOverrides customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every tube frame.</summary>
+    /// <param name="pictures">Each tube frame's cell pictures in run then cell order, keyed by frame.</param>
+    internal InstalledRoomObjectNoobTubeVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves one N00b-tube visual block by projecting run-local indices into the flattened authored layout.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based run ordinal; layouts contain one, three, or four horizontal runs.</param>
-    /// <param name="blockIndex">Zero-based block ordinal within that run, not a flattened entry index or room coordinate.</param>
-    /// <returns>The authored appearance, or appearance from the compiled terrain when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported N00b-tube layout.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run or block ordinal is outside the compiled draw shape.</exception>
+    /// <summary>The installed picture of one cell of a tube frame.</summary>
+    /// <param name="draw">The tube frame.</param>
+    /// <param name="runIndex">Zero-based draw-run ordinal.</param>
+    /// <param name="blockIndex">Zero-based cell ordinal within that run.</param>
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException">The draw is not a tube frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the frame's shape.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (!NoobTubeObjectDraws.TryDescribe(draw, out var shape))
@@ -34,7 +31,6 @@ public sealed class InstalledRoomObjectNoobTubeVisuals
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += shape.BlockCount(run);
-        return customBlocks.TryGet(draw, out var appearances)
-            ? appearances[flatIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
+        return pictures.At(draw, flatIndex);
     }
 }

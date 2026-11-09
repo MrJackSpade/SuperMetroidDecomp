@@ -35,6 +35,7 @@ public static class RoomObjectPresentationIdentity
             [GameInstallationLayout.RoomObjectCrocomireVisualDirectoryName] = catalogs.Crocomire.ContentIdentity,
             [GameInstallationLayout.RoomObjectMotherBrainFakeDeathVisualDirectoryName] = catalogs.MotherBrainFakeDeath.ContentIdentity,
             [GameInstallationLayout.RoomObjectCollectibleVisualDirectoryName] = catalogs.Collectible.ContentIdentity,
+            [GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName] = catalogs.RevealAndWall.ContentIdentity,
         };
 }
 

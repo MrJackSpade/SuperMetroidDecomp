@@ -27,12 +27,12 @@ public static class RoomObjectNoobTubeVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectNoobTubeVisuals>(VisualFileName, "n00b-tube", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates all seven n00b-tube layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
+    /// <summary>Validates all seven n00b-tube layouts and builds the visuals from every frame's picture as installed, without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
     /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block runs.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     internal static InstalledRoomObjectNoobTubeVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "N00b tube", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "N00b tube", TryGetByVisualId, All.Count()));
 
     /// <summary>Enumerates tube states in intact-to-cleared and broken presentation order.</summary>
     private static IEnumerable<NoobTubeDraw> Draws()

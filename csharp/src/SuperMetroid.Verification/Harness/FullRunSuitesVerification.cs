@@ -351,6 +351,7 @@ using static SuperMetroid.Verification.Audio.SpcDriverMemoryVerification;
 using static SuperMetroid.Verification.Audio.SpcSoundLibrary2PointersVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterVisualsVerification;
+using static SuperMetroid.Verification.Rooms.RoomObjects.RevealAndWallVisualsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedPaletteOverrunVerification;
 using static SuperMetroid.Verification.Enemies.Spike.SpikeDamageBoostVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusLandingDrawVerification;
@@ -720,6 +721,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCompiledTourianAccessObjectPrograms), () => VerifyCompiledTourianAccessObjectPrograms()),
         new(nameof(VerifyTourianAccessVisuals), () => VerifyTourianAccessVisuals()),
         new(nameof(VerifySpeedBoosterVisuals), () => VerifySpeedBoosterVisuals()),
+        new(nameof(VerifyRevealAndWallVisuals), () => VerifyRevealAndWallVisuals()),
         new(nameof(VerifyMaridiaElevatubeVisuals), () => VerifyMaridiaElevatubeVisuals()),
         new(nameof(VerifyCompiledSporeSpawnCeilingObjects), () => VerifyCompiledSporeSpawnCeilingObjects()),
         new(nameof(VerifyCompiledBotwoonWallObjects), () => VerifyCompiledBotwoonWallObjects()),

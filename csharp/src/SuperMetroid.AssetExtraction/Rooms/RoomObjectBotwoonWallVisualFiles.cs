@@ -28,7 +28,7 @@ public static class RoomObjectBotwoonWallVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectBotwoonWallVisuals>(VisualFileName, "Botwoon wall", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates the single nine-block wall-clear appearance and builds the visuals, keeping an owned copy only when it differs from the compiled blocks.</summary>
+    /// <summary>Validates the single nine-block wall-clear picture and builds the visuals from an owned copy of it as installed.</summary>
     /// <param name="entries">Exactly one known clear-frame entry containing nine visual-only appearances; crumble frames belong to the separate shot-block catalog.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">The entry count, identity, or block count is invalid.</exception>
@@ -41,10 +41,7 @@ public static class RoomObjectBotwoonWallVisualFiles
             selected[0].Blocks is null || selected[0].Blocks.Length != BotwoonWallObjectDrawDefinitions.BlockCount)
             throw new InvalidDataException(
                 "Botwoon wall visuals must contain exactly one nine-block clear frame.");
-        bool stock = true;
-        for (int index = 0; index < BotwoonWallObjectDrawDefinitions.BlockCount; index++)
-            stock &= selected[0].Blocks[index] == BotwoonWallObjectDraws.BlockAt(index).Appearance;
-        return new(stock ? null : selected[0].Blocks.ToArray());
+        return new([.. selected[0].Blocks]);
     }
 
     /// <summary>Assigns the lone wall-clear draw its stable artwork key and rejects other draw identities.</summary>

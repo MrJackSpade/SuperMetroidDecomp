@@ -30,13 +30,13 @@ public static class RoomObjectEyeDoorVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectEyeDoorVisuals>(VisualFileName, "eye-door", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates all twenty-three editable eye-door frames and builds the visuals from the appearances that differ from the compiled components.</summary>
+    /// <summary>Validates all twenty-three editable eye-door frames and builds the visuals from every frame's picture as installed.</summary>
     /// <remarks>The mirrored opening clear shares the clearing frame's artwork rather than requiring a separate authored entry.</remarks>
     /// <param name="entries">One visual-only entry per compiled editable identity, retaining each eye or component frame's draw shape.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves editable frame coverage incomplete.</exception>
     internal static InstalledRoomObjectEyeDoorVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Eye-door", TryGetByVisualId, Editable.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Eye-door", TryGetByVisualId, Editable.Count()));
 
     /// <summary>Enumerates both sides' clear, eye, middle, and bottom draws, left side first.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All

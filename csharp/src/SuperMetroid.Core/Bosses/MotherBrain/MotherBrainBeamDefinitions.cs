@@ -1,15 +1,11 @@
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The definition data of Mother Brain's rainbow beam: where it leaves her mouth, the lines it may cross and its colour.</summary>
+/// <summary>
+/// The definition data of Mother Brain's rainbow beam: where it leaves her mouth and the lines it may cross. Its colours
+/// are installed (#1557).
+/// </summary>
 public static class MotherBrainBeamDefinitions
 {
-    /// <summary>The colour the beam adds on the first update it shows: red 0, green 7, blue 15.</summary>
-    public static RgbColor InitialColor => new(0, 57, 123);
-
-    /// <summary>The hue steps of the beam's colour wheel between consecutive cycle colours: the beam shows every other hue.</summary>
-    public const int HueStepsPerColor = 2;
-
     /// <summary>How far right of the head's X the beam's apex is, before wrapping to the 256-pixel line.</summary>
     public const int MouthXOffset = 14;
 

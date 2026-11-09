@@ -2,19 +2,20 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Complete, immutable presentation selection for the 19 ordinary shot-block lists.</summary>
+/// <summary>The installed pictures of the 19 ordinary shot-block frames (#1557); their terrain stays the game's.</summary>
 public sealed class InstalledRoomObjectShotBlockVisuals
 {
-    /// <summary>Deep-copied edited run appearances keyed by draw; stock-identical draw lists stay calculated.</summary>
-    private readonly IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customBlocks;
+    /// <summary>The installed pictures of every shot-block frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated run appearances of the draw lists that differ from the calculated draws.</summary>
-    /// <param name="customBlocks">The changed draw lists' appearances run by run, keyed by draw.</param>
-    internal InstalledRoomObjectShotBlockVisuals(IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every shot-block frame.</summary>
+    /// <param name="pictures">Each shot-block frame's cell pictures in run then cell order, keyed by frame.</param>
+    internal InstalledRoomObjectShotBlockVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Returns one visual reference without exposing the catalog's mutable backing arrays.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block draw.</exception>
+    /// <summary>The installed picture of one cell of a shot-block frame.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the frame's shape.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (draw is not RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var shape })
@@ -22,7 +23,6 @@ public sealed class InstalledRoomObjectShotBlockVisuals
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)blockIndex >= (uint)shape.BlocksPerRun)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGetValue(draw, out var runs)
-            ? runs[runIndex][blockIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
+        return pictures.At(draw, runIndex * shape.BlocksPerRun + blockIndex);
     }
 }

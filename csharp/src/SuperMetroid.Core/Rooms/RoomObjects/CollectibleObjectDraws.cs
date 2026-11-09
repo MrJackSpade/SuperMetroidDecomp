@@ -14,6 +14,13 @@ internal static class CollectibleObjectDraws
         return found;
     }
 
+    /// <summary>
+    /// Whether <paramref name="request"/> is a block pair's frame, which lies under the item's own picture (#1538): it
+    /// writes only its terrain and has no installed picture of its own.
+    /// </summary>
+    internal static bool LiesUnderOwnPicture(RoomObjectDraw request) =>
+        TryLocate(request, out Draw draw) && draw.Group == DrawGroup.OwnPicture;
+
     /// <summary>The number of frames in a group.</summary>
     internal static int CountOf(DrawGroup group) => group switch
     {

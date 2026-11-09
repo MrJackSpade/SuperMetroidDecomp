@@ -3,25 +3,25 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Complete station presentation selection. Station
-/// animation, activation, rewards, save behavior and collision stay compiled.
+/// The installed pictures of the station frames (#1557). Station animation, activation, rewards, save behaviour and
+/// terrain stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectStationVisuals
 {
-    /// <summary>Deep-copied visual overrides keyed by draw; absent frames use stock artwork.</summary>
-    private readonly IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customBlocks;
+    /// <summary>The installed pictures of every station frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated run appearances of the frames that differ from the compiled frames.</summary>
-    /// <param name="customBlocks">The changed frames' appearances run by run, keyed by draw.</param>
-    internal InstalledRoomObjectStationVisuals(IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every station frame.</summary>
+    /// <param name="pictures">Each station frame's cell pictures in run then cell order, keyed by frame.</param>
+    internal InstalledRoomObjectStationVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves a station cell's selected appearance, using compiled appearance for an unchanged frame.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
+    /// <summary>The installed picture of one cell of a station frame.</summary>
+    /// <param name="draw">The station frame.</param>
     /// <param name="runIndex">Zero-based horizontal draw-run ordinal; geometry is frame-specific, with save-pod runs ordered from floor to cap rather than screen-top downward.</param>
-    /// <param name="blockIndex">Zero-based left-to-right cell within the selected run's compiled length.</param>
-    /// <returns>The twelve-bit metatile/parent-flip reference, without the separately applied physical collision nibble.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="draw"/> does not identify a compiled station frame.</exception>
+    /// <param name="blockIndex">Zero-based left-to-right cell within the selected run.</param>
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a station frame, or the installation lacks it.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside that frame's shape; the reported parameter is <paramref name="blockIndex"/>.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex)
     {
@@ -31,7 +31,9 @@ public sealed class InstalledRoomObjectStationVisuals
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)blockIndex >= (uint)shape.BlockCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGetValue(draw, out var runs)
-            ? runs[runIndex][blockIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
+        int flatIndex = blockIndex;
+        for (int run = 0; run < runIndex; run++)
+            flatIndex += shape.BlockCount(run);
+        return pictures.At(draw, flatIndex);
     }
 }

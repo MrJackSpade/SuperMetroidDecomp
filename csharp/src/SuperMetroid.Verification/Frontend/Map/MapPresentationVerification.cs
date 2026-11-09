@@ -508,7 +508,7 @@ internal static class MapPresentationVerification
         SnesCgram installedNormal = MotherBrainLook.OfRainbow(original.MotherBrainRainbowPalette, MotherBrainShades.Restored);
         AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
             "Mother Brain normal restoration matches both fixed native sources");
-        AssertEqual(MotherBrainBeamDefinitions.InitialColor,
+        AssertEqual(MotherBrainSourceDefinitions.Beam.InitialColor,
             original.MotherBrainRainbowPalette.BeamInitialColor,
             "installed beam initial fixed color matches the cartridge");
         for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount; frame++)

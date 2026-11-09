@@ -78,12 +78,12 @@ public static class RoomObjectDownwardGateVisualFiles
         return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
-    /// <summary>Validates complete downward-gate and shot-trigger coverage and builds the visuals from the run appearances that differ from the compiled layouts.</summary>
+    /// <summary>Validates complete downward-gate and shot-trigger coverage and builds the visuals from every frame's picture as installed.</summary>
     /// <param name="entries">One entry per compiled layout, retaining its exact run count and block counts with visual-only payloads.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     internal static InstalledRoomObjectDownwardGateVisuals Create(IEnumerable<RoomObjectVisualRunEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.RunByRun(entries, "Downward gate", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.RunByRun(entries, "Downward gate", TryGetByVisualId, All.Count()));
 
     /// <summary>Enumerates six column stages followed by four left/right trigger color pairs.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()

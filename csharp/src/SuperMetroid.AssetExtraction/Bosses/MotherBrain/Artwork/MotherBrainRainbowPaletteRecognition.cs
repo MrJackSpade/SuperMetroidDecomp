@@ -28,7 +28,7 @@ internal static class MotherBrainRainbowPaletteRecognition
         fromGrey[^1] = ShareNormalRearEndpoint(fromGrey[^1]);
         Presentation.PaletteFade fakeDeathToGrey = Fade(colours.FakeDeathToGrey.Select(brain => Frame(brain, [], null)).ToArray());
         return new(rainbow, Fade(toGrey), Revival(fromGrey), fakeDeathToGrey, Frame(colours.Normal),
-            colours.BeamInitial, Beam(colours.BeamCycle));
+            colours.BeamInitial, colours.BeamCycle);
     }
 
     /// <summary>
@@ -309,12 +309,4 @@ internal static class MotherBrainRainbowPaletteRecognition
         return fade;
     }
 
-    /// <summary>Uses the calculated wheel only when every supplied RGB5 sample agrees.</summary>
-    private static Presentation.BeamColors Beam(RgbColor[] colors)
-    {
-        for (int index = 0; index < colors.Length; index++)
-            if (colors[index] != Presentation.BeamColors.Calculate(index))
-                return new(colors.Length, colors);
-        return new(colors.Length, supplied: null);
-    }
 }

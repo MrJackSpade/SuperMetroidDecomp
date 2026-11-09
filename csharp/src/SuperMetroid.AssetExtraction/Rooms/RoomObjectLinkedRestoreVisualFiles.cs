@@ -34,12 +34,12 @@ public static class RoomObjectLinkedRestoreVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectLinkedRestoreVisuals>(VisualFileName, "Linked restore", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates all six linked restoration layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing linked parent/child collision or restoration programs.</summary>
+    /// <summary>Validates all six linked restoration layouts and builds the visuals from every frame's picture as installed, without changing linked parent/child collision or restoration programs.</summary>
     /// <param name="entries">One visual-only entry per compiled layout with two appearances per run and complete identity coverage.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     internal static InstalledRoomObjectLinkedRestoreVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Linked restoration", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Linked restoration", TryGetByVisualId, All.Count()));
 
     /// <summary>The three bomb-block and three contact-crumble restoration layouts, bomb blocks first.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All =>

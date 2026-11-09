@@ -80,12 +80,12 @@ public static class RoomObjectShotBlockVisualFiles
         return CreateCatalog(document, path);
     }
 
-    /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists and builds the visuals from the run appearances that differ from the calculated draws; compiled collision and run placement are never replaced.</summary>
+    /// <summary>Validates visual references for all nineteen compiled breakup/restoration draw lists and builds the visuals from every frame's picture as installed; compiled collision and run placement are never replaced.</summary>
     /// <param name="entries">Complete, duplicate-free draw identity set with unchanged run counts and lengths.</param>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">An entry/run is null, a draw identity is unknown/duplicated/missing, the run shape differs, or a block count differs.</exception>
     internal static InstalledRoomObjectShotBlockVisuals Create(IEnumerable<RoomObjectVisualRunEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.RunByRun(entries, "Shot-block", TryGetDrawListByVisualId, Calculated.Count()));
+        new(RoomObjectFramePictureReader.RunByRun(entries, "Shot-block", TryGetDrawListByVisualId, Calculated.Count()));
 
     /// <summary>The published artwork identity of a shot-block draw: its shape and breakup frame, or its restoration.</summary>
     internal static string VisualId(ShotBlockObjectDraws.Draw draw)

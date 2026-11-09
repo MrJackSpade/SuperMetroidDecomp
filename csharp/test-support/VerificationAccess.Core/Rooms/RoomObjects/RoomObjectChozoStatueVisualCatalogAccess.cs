@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>Verification access to <see cref="RoomObjectChozoStatueVisualCatalog"/> members production does not use.</summary>
 internal static class RoomObjectChozoStatueVisualCatalogAccess
 {
-    /// <summary>Creates an uninitialized Chozo statue-art fixture for PLM binding checks.</summary>
+    /// <summary>The catalog the repository installation holds.</summary>
     extension(RoomObjectChozoStatueVisualCatalog)
     {
-        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        /// <summary>Every frame's picture as the repository installation holds it.</summary>
         internal static RoomObjectChozoStatueVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomObjectChozoStatueVisuals();
     }
 }

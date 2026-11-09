@@ -1507,9 +1507,6 @@ internal static class LookupStream3Verification
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         CheckBeam(stock);
-        var beamColors = stock.beamCycle;
-        AssertTrue(beamColors.supplied is null,
-            "stream 3 beam wheel retains no stock lookup row");
         foreach (int invalid in new[] { -1, 38, int.MaxValue })
             AssertThrows<InvalidDataException>(() => stock.BeamColor(invalid), "stream 3 beam colour index bounds");
         Check(stock);

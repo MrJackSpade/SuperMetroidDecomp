@@ -80,13 +80,13 @@ public static class RoomObjectElevatorPlatformVisualFiles
         return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
-    /// <summary>Validates all three elevator-platform draw layouts and builds the visuals from the run appearances that differ from the compiled frames, retaining run geometry, terrain blocks, and animation cadence.</summary>
+    /// <summary>Validates all three elevator-platform draw layouts and builds the visuals from every frame's picture as installed, retaining run geometry, terrain blocks, and animation cadence.</summary>
     /// <remarks>The four-step instruction loop selects first, second, third, then second layout; the repeated second layout has only one entry.</remarks>
     /// <param name="entries">One visual-only entry per compiled frame, with its exact run and cell counts.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     internal static RoomObjectElevatorPlatformVisualCatalog Create(IEnumerable<RoomObjectVisualRunEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.RunByRun(entries, "Elevator-platform", TryGetByVisualId, DrawLists.Count()));
+        new(RoomObjectFramePictureReader.RunByRun(entries, "Elevator-platform", TryGetByVisualId, DrawLists.Count()));
 
     /// <summary>The draw lists of the three platform frames in order.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> DrawLists

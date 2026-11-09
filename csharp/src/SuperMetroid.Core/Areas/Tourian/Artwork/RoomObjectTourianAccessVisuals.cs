@@ -4,33 +4,32 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>
-/// Visual-only block selections for the four crumble frames and six-row clear.
-/// The compiled draws retain every block's collision and run offset.
+/// The installed pictures of the Tourian access floor's frames: the empty row, the crumble rows and the six-row clear
+/// (#1557). The frames' terrain and run offsets stay the game's.
 /// </summary>
 public sealed class RoomObjectTourianAccessVisuals
 {
-    /// <summary>Copied visual-only appearances for Tourian access layouts that differ from compiled stock.</summary>
-    private readonly RoomObjectVisualOverrides customBlocks;
+    /// <summary>The installed pictures of every access-floor frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
-    /// <param name="customBlocks">The changed layouts' flattened appearances, keyed by draw.</param>
-    internal RoomObjectTourianAccessVisuals(RoomObjectVisualOverrides customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every access-floor frame.</summary>
+    /// <param name="pictures">Each access-floor frame's cell pictures, row by row, keyed by frame.</param>
+    internal RoomObjectTourianAccessVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves one Tourian access-floor visual cell from edited artwork or its compiled stock layout.</summary>
+    /// <summary>The installed picture of one cell of a Tourian access-floor frame.</summary>
     /// <param name="draw">The empty row, a visible crumble row, or the six-row clear.</param>
     /// <param name="runIndex">Top-to-bottom row index, zero for single-row frames or zero through five for the six-row clear.</param>
     /// <param name="blockIndex">Zero-based left-to-right column within the four-cell row.</param>
-    /// <returns>The block's appearance, with no collision or terrain change.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The row or column is outside that layout's dimensions; the reported parameter is <paramref name="blockIndex"/>.</exception>
-    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Tourian access draw.</exception>
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The row or column is outside that frame's dimensions; the reported parameter is <paramref name="blockIndex"/>.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Tourian access frame, or the installation lacks it.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex)
     {
-        TourianAccessDraws.Describe(RoomObjectDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out RoomTerrainBlock stock);
+        TourianAccessDraws.Describe(RoomObjectDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out _);
         if ((uint)runIndex >= (uint)rows ||
             (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(draw, out var appearances)
-            ? appearances[runIndex * 4 + blockIndex] : stock.Appearance;
+        return pictures.At(draw, runIndex * 4 + blockIndex);
     }
 }

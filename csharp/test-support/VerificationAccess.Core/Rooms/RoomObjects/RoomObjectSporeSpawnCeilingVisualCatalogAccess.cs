@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>Verification access to <see cref="RoomObjectSporeSpawnCeilingVisualCatalog"/> members production does not use.</summary>
 internal static class RoomObjectSporeSpawnCeilingVisualCatalogAccess
 {
-    /// <summary>Calculates stock ceiling-crumble squares from their physical draw words.</summary>
+    /// <summary>The catalog the repository installation holds.</summary>
     extension(RoomObjectSporeSpawnCeilingVisualCatalog)
     {
-        /// <summary>The stock catalog the repository installation loads, with no override selected.</summary>
+        /// <summary>Every frame's picture as the repository installation holds it.</summary>
         internal static RoomObjectSporeSpawnCeilingVisualCatalog Stock() => RepositoryInstallation.Installation.LoadRoomObjectSporeSpawnCeilingVisuals();
     }
 }

@@ -100,4 +100,7 @@ internal sealed class RoomObjectVisuals
 
     /// <summary>Collectible art; compiled level words retain collision.</summary>
     public InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; set; }
+
+    /// <summary>The installed pictures of the bombed reveals, the escape passage, the escape shaft wall and the animals' rescue wall.</summary>
+    public InstalledRoomObjectRevealAndWallVisuals? RoomObjectRevealAndWallVisuals { get; set; }
 }

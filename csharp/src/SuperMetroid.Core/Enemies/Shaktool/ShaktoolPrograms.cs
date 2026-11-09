@@ -9,7 +9,7 @@ internal static class ShaktoolPrograms
         ShaktoolInstructionDefinitions.OrientationPrograms.TryGetValue(directionBucket, out ShaktoolProgram program)
             ? program
             : throw new InvalidDataException(
-                $"Shaktool orientation bucket ${directionBucket:X4} is invalid.");
+                $"Shaktool orientation bucket {directionBucket} is invalid.");
 
     /// <summary>Returns the collision-recovery animation for one physical segment.</summary>
     /// <exception cref="InvalidDataException"><paramref name="segmentIndex"/> is outside the seven segments.</exception>

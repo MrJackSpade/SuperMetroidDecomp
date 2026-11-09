@@ -19,7 +19,7 @@ internal static class RoomShakes
     {
         if (earthquakeType is < 0 or >= 36)
             throw new InvalidDataException(
-                $"Earthquake type ${earthquakeType:X4} exceeds the 36 rendered definitions.");
+                $"Earthquake type {earthquakeType} exceeds the 36 rendered definitions.");
         int group = earthquakeType / 9;
         int magnitude = earthquakeType / 3 % 3 + 1;
         int direction = earthquakeType % 3;

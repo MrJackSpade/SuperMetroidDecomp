@@ -165,5 +165,5 @@ public readonly record struct WrappingCountdown
         new(unchecked((ushort)(count + Ensure.BetweenInclusive(-ushort.MaxValue, ushort.MaxValue, frames))));
 
     /// <inheritdoc />
-    public override string ToString() => $"${count:X4}";
+    public override string ToString() => $"{count} frames";
 }

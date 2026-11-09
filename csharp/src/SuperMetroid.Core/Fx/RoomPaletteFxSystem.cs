@@ -260,7 +260,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         {
             throw new NotSupportedException(
                 $"Room palette-FX pre-instruction {slot.FrameBehavior} is not translated " +
-                $"for object {slot.Object} (Samus Y=${conditions.SamusY:X4}, items={conditions.EquippedItems}).");
+                $"for object {slot.Object} (Samus Y={conditions.SamusY}, items={conditions.EquippedItems}).");
         }
         switch (frameBehavior)
         {

@@ -22,7 +22,7 @@ public sealed class AlcoonEnemyState
         {
             if (value.X.Fraction != 0)
                 throw new InvalidOperationException(
-                    $"Alcoon has no horizontal subvelocity; X fraction ${value.X.Fraction:X4} cannot be stored.");
+                    $"Alcoon has no horizontal subvelocity; X fraction {value.X.Fraction} cannot be stored.");
             field = value;
         }
     }

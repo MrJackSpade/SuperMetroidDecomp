@@ -140,7 +140,7 @@ internal sealed class MotherBrainLateFightState
             8 => MotherBrainBodyProgram.WalkForwardSlow,
             10 => MotherBrainBodyProgram.WalkForwardReallySlow,
             _ => throw new InvalidOperationException(
-                $"Unsupported painful forward animation delay ${animationDelay:X4}."),
+                $"Unsupported painful forward animation delay {animationDelay}."),
         };
         return MakeBodyWalkForwards(targetX, program);
     }
@@ -156,7 +156,7 @@ internal sealed class MotherBrainLateFightState
             8 => MotherBrainBodyProgram.WalkBackwardSlow,
             10 => MotherBrainBodyProgram.WalkBackwardReallySlow,
             _ => throw new InvalidOperationException(
-                $"Unsupported painful backward animation delay ${animationDelay:X4}."),
+                $"Unsupported painful backward animation delay {animationDelay}."),
         };
         return MakeBodyWalkBackwards(targetX, program);
     }

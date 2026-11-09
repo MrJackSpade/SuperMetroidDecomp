@@ -108,5 +108,5 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public int CompareTo(RotationAngle other) => RawValue.CompareTo(other.RawValue);
 
     /// <inheritdoc />
-    public override string ToString() => $"${RawValue:X4} (table ${TableIndex:X2})";
+    public override string ToString() => $"{RawValue}/65536 turn";
 }

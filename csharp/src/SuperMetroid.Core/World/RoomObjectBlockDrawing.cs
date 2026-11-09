@@ -338,7 +338,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             // All five draws are a single block at the PLM origin. The terrain retains Grapple/air collision
             // independently of art.
-            DrawImageCell(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), Offset16<RoomBlocks>.Zero, grapple.Terrain.Collision);
+            DrawImageCell(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), Offset16<RoomBlocks>.Zero, grapple.Collision);
             return;
         }
 

@@ -50,7 +50,7 @@ public static class RoomObjectGrappleBlockVisualFiles
         }
     }
 
-    /// <summary>Every Grapple-block frame's one-block draw list, built from the terrain the game writes.</summary>
+    /// <summary>Every Grapple-block frame's one-block draw list, built from the collision the game writes.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Frames =>
-        All.Select(draw => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(draw.Frame), RoomObjectRunDirection.Horizontal, [draw.Terrain]));
+        All.Select(draw => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(draw.Frame), RoomObjectRunDirection.Horizontal, [draw.Collision]));
 }

@@ -90,7 +90,8 @@ internal static class EnemyTileArtworkPresentationContractChecks
         Require(VramBytes.At(vram, 0) == 0xa5 && VramBytes.At(vram, first.ByteCount + 1) == 0xa5 &&
             Enumerable.Range(1, first.ByteCount).All(offset => VramBytes.At(vram, offset) == 0), "exact tile upload and unchanged neighbors");
         ReadOnlySpan<RgbColor> installed = catalog.PaletteOf(first.DefinitionId).Colours;
-        Require(installed.Length == 16 && installed[0] == new RgbColor(66, 0, 0) && installed[15] == new RgbColor(66, 0, 0),
+        RgbColor documented = new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }.ToRgbColor();
+        Require(installed.Length == 16 && installed[0] == documented && installed[15] == documented,
             "exact installed palette, which the import colours the enemy's sheets in (#1512)");
     }
 

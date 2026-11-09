@@ -11,7 +11,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Botwoon/Artwork/BotwoonHealthPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Botwoon/Artwork/BotwoonHealthPaint.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/Botwoon/Artwork/BotwoonHealthColors.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonHealthPaletteDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonHealthBandDefinitions.cs")]),
         new("SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.BabyMetroidCutsceneColorCatalog", "cutscene-baby-complete-color-images", ["InitialColor", "FadeColor"],
             [new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/BabyMetroidCutsceneColorCatalog.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Bosses/MotherBrain/Artwork/BabyMetroidCutsceneColorSelection.cs"),

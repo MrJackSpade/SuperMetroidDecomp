@@ -42,26 +42,7 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
         var routines = new Dictionary<IRoomObjectFrameBehavior, ushort>
         {
             [RoomObjectFrameBehaviors.Inert] = RoomObjectFrameBehaviorDefinitions.SpawnDefault,
-            [TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus] = OldTourianEscapeShaftWallObjectDefinitionsConstants.WaitForSamusFrameBehavior,
-            [DraygonCannonFrameBehaviors.MissileHit] = DraygonNativeWords.MissileHitFrameBehavior,
-            [MotherBrainGlassFrameBehaviors.Hit] = MotherBrainGlassObjectProgramDefinitionsConstants.HitFrameBehavior,
-            [BombTorizoHandFrameBehaviors.WakeIfSamusHasBombs] = BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior,
-            [ChozoStatueFrameBehaviors.WaitForLowerNorfairHand] = ChozoStatueObjectNativeRoutines.WaitForLowerNorfairHand,
-            [ShaktoolRoomFrameBehaviors.Controller] = ShaktoolRoomObjectNativeProgram.FrameBehavior,
-            [WreckedShipAtticFrameBehaviors.NoOpCallback] = WreckedShipAtticObjectRomData.NoOpCallback,
-            [SamusEaterFrameBehaviors.Hold] = SamusEaterObjectDefinitionsConstants.HoldFrameBehavior,
-            [DownwardGateFrameBehaviors.WakeIfTriggered] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggered),
-            [DownwardGateFrameBehaviors.WakeIfTriggeredOrSamusBelow] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow),
-            [DownwardGateFrameBehaviors.Inert] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.Inert),
-            [NoobTubeFrameBehaviors.WakeOnPowerBomb] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnPowerBomb),
-            [NoobTubeFrameBehaviors.WakeOnAcceptedInput] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput),
-            [NoobTubeFrameBehaviors.Inactive] = RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.Inactive),
         };
-        foreach (SpeedBoosterEscapeFrameBehavior routine in Enum.GetValues<SpeedBoosterEscapeFrameBehavior>()
-                     .Where(routine => routine != SpeedBoosterEscapeFrameBehavior.None))
-            routines.Add(SpeedBoosterEscapeFrameBehaviors.Of(routine), RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Word(routine));
-        for (ushort roomArgument = 0; roomArgument < 26; roomArgument += 2)
-            routines.Add(TourianFrameBehaviors.MetroidsClearedFor(roomArgument / 2), MetroidsCleared(roomArgument));
         return routines;
     }
 }

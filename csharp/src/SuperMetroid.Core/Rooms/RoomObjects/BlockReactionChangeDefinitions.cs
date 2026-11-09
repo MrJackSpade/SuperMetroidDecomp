@@ -1,0 +1,637 @@
+using D = SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectDrawDefinitions;
+using F = SuperMetroid.Core.Rooms.RoomObjects.BlockReactionObjectFrame;
+
+namespace SuperMetroid.Core.Rooms.RoomObjects;
+
+/// <summary>
+/// The authored timing of the block reactions (#1554), change for change their lists: the reaction sound, the breakup
+/// images with their durations, the respawn and the restored block. A change ends on the update after its last image.
+/// </summary>
+internal static class BlockReactionChangeDefinitions
+{
+    /// <summary>The updates a contact crumble waits, once Samus stands on it, before its first image.</summary>
+    internal const int ContactCrumbleDelay = 4;
+
+    /// <summary>A bombed crumble block's reveal: its image for one update, 1x1.</summary>
+    internal static BlockReactionChange CrumbleReveal1x1 { get; } = new(1,
+    [
+        new(D.DrawLists[F.CrumbleRevealSingle], 1),
+    ]);
+
+    /// <summary>A bombed crumble block's reveal: its image for one update, 2x1.</summary>
+    internal static BlockReactionChange CrumbleReveal2x1 { get; } = new(1,
+    [
+        new(D.DrawLists[F.CrumbleRevealHorizontal], 1),
+    ]);
+
+    /// <summary>A bombed crumble block's reveal: its image for one update, 1x2.</summary>
+    internal static BlockReactionChange CrumbleReveal1x2 { get; } = new(1,
+    [
+        new(D.DrawLists[F.CrumbleRevealVertical], 1),
+    ]);
+
+    /// <summary>A bombed crumble block's reveal: its image for one update, 2x2.</summary>
+    internal static BlockReactionChange CrumbleReveal2x2 { get; } = new(1,
+    [
+        new(D.DrawLists[F.CrumbleRevealSquare], 1),
+    ]);
+
+    /// <summary>A normal bomb's one-update reveal of a Power Bomb block, which it does not break.</summary>
+    internal static BlockReactionChange BombedPowerBombBlockUnused { get; } = new(1,
+    [
+        new(D.DrawLists[F.PowerBombReveal], 1),
+    ]);
+
+    /// <summary>A normal bomb's one-update reveal of a Super Missile block, which it does not break.</summary>
+    internal static BlockReactionChange BombedSuperMissileBlockUnused { get; } = new(1,
+    [
+        new(D.DrawLists[F.SuperMissileReveal], 1),
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x1 block, growing back.</summary>
+    internal static BlockReactionChange ContactCrumble1x1Respawning { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 8, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup1], 6),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 16),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x1 block, growing back.</summary>
+    internal static BlockReactionChange ContactCrumble2x1Respawning { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 16),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup0], 4),
+        new(D.DrawLists[F.CrumbleRevealHorizontal], 1),
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x2 block, growing back.</summary>
+    internal static BlockReactionChange ContactCrumble1x2Respawning { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 32),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup0], 4),
+        new(D.DrawLists[F.CrumbleRevealVertical], 1),
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x2 block, growing back.</summary>
+    internal static BlockReactionChange ContactCrumble2x2Respawning { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 32),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup0], 4),
+        new(D.DrawLists[F.CrumbleRevealSquare], 1),
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x1 block, gone for good.</summary>
+    internal static BlockReactionChange ContactCrumble1x1Permanent { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 1),
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x1 block, gone for good.</summary>
+    internal static BlockReactionChange ContactCrumble2x1Permanent { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 1),
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x2 block, gone for good.</summary>
+    internal static BlockReactionChange ContactCrumble1x2Permanent { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 1),
+    ]);
+
+    /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x2 block, gone for good.</summary>
+    internal static BlockReactionChange ContactCrumble2x2Permanent { get; } = new(ContactCrumbleDelay,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 1),
+    ]);
+
+    /// <summary>A respawning shot block breaking up and growing back, 1x1.</summary>
+    internal static BlockReactionChange RespawningShotBlock1x1 { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 384),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A respawning shot block breaking up and growing back, 2x1.</summary>
+    internal static BlockReactionChange RespawningShotBlock2x1 { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 384),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup0], 4),
+        new(D.DrawLists[F.ShotRestoreHorizontal], 1),
+    ]);
+
+    /// <summary>A respawning shot block breaking up and growing back, 1x2.</summary>
+    internal static BlockReactionChange RespawningShotBlock1x2 { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 384),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup0], 4),
+        new(D.DrawLists[F.ShotRestoreVertical], 1),
+    ]);
+
+    /// <summary>A respawning shot block breaking up and growing back, 2x2.</summary>
+    internal static BlockReactionChange RespawningShotBlock2x2 { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 384),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup0], 4),
+        new(D.DrawLists[F.ShotRestoreSquare], 1),
+    ]);
+
+    /// <summary>A respawning Super Missile block breaking up and growing back.</summary>
+    internal static BlockReactionChange RespawningSuperMissileBlock { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 384),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A respawning Power Bomb block breaking up and growing back.</summary>
+    internal static BlockReactionChange RespawningPowerBombBlock { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 384),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A shot block breaking up for good, 1x1.</summary>
+    internal static BlockReactionChange PermanentShotBlock1x1 { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 1),
+    ]);
+
+    /// <summary>A shot block breaking up for good, 2x1.</summary>
+    internal static BlockReactionChange PermanentShotBlock2x1 { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 1),
+    ]);
+
+    /// <summary>A shot block breaking up for good, 1x2.</summary>
+    internal static BlockReactionChange PermanentShotBlock1x2 { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 1),
+    ]);
+
+    /// <summary>A shot block breaking up for good, 2x2.</summary>
+    internal static BlockReactionChange PermanentShotBlock2x2 { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 1),
+    ]);
+
+    /// <summary>A Super Missile block breaking up for good.</summary>
+    internal static BlockReactionChange PermanentSuperMissileBlock { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 1),
+    ]);
+
+    /// <summary>A Power Bomb block breaking up for good.</summary>
+    internal static BlockReactionChange PermanentPowerBombBlock { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 3, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup1], 2),
+        new(D.DrawLists[F.SingleBreakup2], 1),
+        new(D.DrawLists[F.SingleBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, growing back.</summary>
+    internal static BlockReactionChange CollisionBombBlock1x1Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 384),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, growing back.</summary>
+    internal static BlockReactionChange ReactionBombBlock1x1Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 384),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x1 block, growing back.</summary>
+    internal static BlockReactionChange BombBlock1x1RespawningBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 384),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, growing back.</summary>
+    internal static BlockReactionChange CollisionBombBlock2x1Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 384),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreHorizontal], 1),
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, growing back.</summary>
+    internal static BlockReactionChange ReactionBombBlock2x1Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 384),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreHorizontal], 1),
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x1 block, growing back.</summary>
+    internal static BlockReactionChange BombBlock2x1RespawningBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 384),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreHorizontal], 1),
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, growing back.</summary>
+    internal static BlockReactionChange CollisionBombBlock1x2Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 384),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreVertical], 1),
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, growing back.</summary>
+    internal static BlockReactionChange ReactionBombBlock1x2Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 384),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreVertical], 1),
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x2 block, growing back.</summary>
+    internal static BlockReactionChange BombBlock1x2RespawningBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 384),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreVertical], 1),
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, growing back.</summary>
+    internal static BlockReactionChange CollisionBombBlock2x2Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 384),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreSquare], 1),
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, growing back.</summary>
+    internal static BlockReactionChange ReactionBombBlock2x2Respawning { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 384),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreSquare], 1),
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x2 block, growing back.</summary>
+    internal static BlockReactionChange BombBlock2x2RespawningBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 384),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup0], 4),
+        new(D.DrawLists[F.BombRestoreSquare], 1),
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, gone for good.</summary>
+    internal static BlockReactionChange CollisionBombBlock1x1Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, gone for good.</summary>
+    internal static BlockReactionChange ReactionBombBlock1x1Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x1 block, gone for good.</summary>
+    internal static BlockReactionChange BombBlock1x1PermanentBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.SingleBreakup0], 4),
+        new(D.DrawLists[F.SingleBreakup1], 4),
+        new(D.DrawLists[F.SingleBreakup2], 4),
+        new(D.DrawLists[F.SingleBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, gone for good.</summary>
+    internal static BlockReactionChange CollisionBombBlock2x1Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, gone for good.</summary>
+    internal static BlockReactionChange ReactionBombBlock2x1Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x1 block, gone for good.</summary>
+    internal static BlockReactionChange BombBlock2x1PermanentBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.HorizontalBreakup0], 4),
+        new(D.DrawLists[F.HorizontalBreakup1], 4),
+        new(D.DrawLists[F.HorizontalBreakup2], 4),
+        new(D.DrawLists[F.HorizontalBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, gone for good.</summary>
+    internal static BlockReactionChange CollisionBombBlock1x2Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, gone for good.</summary>
+    internal static BlockReactionChange ReactionBombBlock1x2Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 1x2 block, gone for good.</summary>
+    internal static BlockReactionChange BombBlock1x2PermanentBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.VerticalBreakup0], 4),
+        new(D.DrawLists[F.VerticalBreakup1], 4),
+        new(D.DrawLists[F.VerticalBreakup2], 4),
+        new(D.DrawLists[F.VerticalBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, gone for good.</summary>
+    internal static BlockReactionChange CollisionBombBlock2x2Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, gone for good.</summary>
+    internal static BlockReactionChange ReactionBombBlock2x2Permanent { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 1),
+    ]);
+
+    /// <summary>A bomb block a normal bomb sets off, without a sound: a 2x2 block, gone for good.</summary>
+    internal static BlockReactionChange BombBlock2x2PermanentBreak { get; } = new(1,
+    [
+        new(D.DrawLists[F.SquareBreakup0], 4),
+        new(D.DrawLists[F.SquareBreakup1], 4),
+        new(D.DrawLists[F.SquareBreakup2], 4),
+        new(D.DrawLists[F.SquareBreakup3], 1),
+    ]);
+
+    /// <summary>A respawning breakable Grapple block: it holds, breaks up, grows back and breaks again.</summary>
+    internal static BlockReactionChange RespawningBreakableGrappleBlock { get; } = new(1,
+    [
+        new(D.DrawLists[F.GrappleBlock], 240),
+        new(D.DrawLists[F.GrappleBreak0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.GrappleBreak1], 4),
+        new(D.DrawLists[F.GrappleBreak2], 4),
+        new(D.DrawLists[F.GrappleBlank], 6),
+        new(D.DrawLists[F.GrappleBreak2], 4),
+        new(D.DrawLists[F.GrappleBreak1], 4),
+        new(D.DrawLists[F.GrappleBreak0], 4),
+        BlockReactionFrame.RestoredBlock,
+    ]);
+
+    /// <summary>A breakable Grapple block: it holds, then breaks up for good.</summary>
+    internal static BlockReactionChange PermanentBreakableGrappleBlock { get; } = new(1,
+    [
+        new(D.DrawLists[F.GrappleBlock], 120),
+        new(D.DrawLists[F.GrappleBreak0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.GrappleBreak1], 4),
+        new(D.DrawLists[F.GrappleBreak2], 4),
+        new(D.DrawLists[F.GrappleBlank], 1),
+    ]);
+
+    /// <summary>The collision bomb blocks by reaction index: 1x1, 2x1, 1x2, 2x2 respawning, then permanent.</summary>
+    internal static IReadOnlyList<BlockReactionChange> CollisionBomb { get; } =
+    [
+        CollisionBombBlock1x1Respawning,
+        CollisionBombBlock2x1Respawning,
+        CollisionBombBlock1x2Respawning,
+        CollisionBombBlock2x2Respawning,
+        CollisionBombBlock1x1Permanent,
+        CollisionBombBlock2x1Permanent,
+        CollisionBombBlock1x2Permanent,
+        CollisionBombBlock2x2Permanent,
+    ];
+
+    /// <summary>The bomb reaction blocks a Power Bomb sets off, by reaction index.</summary>
+    internal static IReadOnlyList<BlockReactionChange> ReactionBomb { get; } =
+    [
+        ReactionBombBlock1x1Respawning,
+        ReactionBombBlock2x1Respawning,
+        ReactionBombBlock1x2Respawning,
+        ReactionBombBlock2x2Respawning,
+        ReactionBombBlock1x1Permanent,
+        ReactionBombBlock2x1Permanent,
+        ReactionBombBlock1x2Permanent,
+        ReactionBombBlock2x2Permanent,
+    ];
+
+    /// <summary>The bomb blocks a normal bomb sets off, by reaction index.</summary>
+    internal static IReadOnlyList<BlockReactionChange> BombBreak { get; } =
+    [
+        BombBlock1x1RespawningBreak,
+        BombBlock2x1RespawningBreak,
+        BombBlock1x2RespawningBreak,
+        BombBlock2x2RespawningBreak,
+        BombBlock1x1PermanentBreak,
+        BombBlock2x1PermanentBreak,
+        BombBlock1x2PermanentBreak,
+        BombBlock2x2PermanentBreak,
+    ];
+
+    /// <summary>The crumble reveals by size: 1x1, 2x1, 1x2, 2x2.</summary>
+    internal static IReadOnlyList<BlockReactionChange> CrumbleReveal { get; } =
+    [
+        CrumbleReveal1x1,
+        CrumbleReveal2x1,
+        CrumbleReveal1x2,
+        CrumbleReveal2x2,
+    ];
+
+    /// <summary>The contact crumbles by reaction index: 1x1, 2x1, 1x2, 2x2 respawning, then permanent.</summary>
+    internal static IReadOnlyList<BlockReactionChange> ContactCrumble { get; } =
+    [
+        ContactCrumble1x1Respawning,
+        ContactCrumble2x1Respawning,
+        ContactCrumble1x2Respawning,
+        ContactCrumble2x2Respawning,
+        ContactCrumble1x1Permanent,
+        ContactCrumble2x1Permanent,
+        ContactCrumble1x2Permanent,
+        ContactCrumble2x2Permanent,
+    ];
+
+    /// <summary>The respawning shot blocks by size.</summary>
+    internal static IReadOnlyList<BlockReactionChange> RespawningShot { get; } =
+    [
+        RespawningShotBlock1x1,
+        RespawningShotBlock2x1,
+        RespawningShotBlock1x2,
+        RespawningShotBlock2x2,
+    ];
+
+    /// <summary>The permanent shot blocks by size.</summary>
+    internal static IReadOnlyList<BlockReactionChange> PermanentShot { get; } =
+    [
+        PermanentShotBlock1x1,
+        PermanentShotBlock2x1,
+        PermanentShotBlock1x2,
+        PermanentShotBlock2x2,
+    ];
+}

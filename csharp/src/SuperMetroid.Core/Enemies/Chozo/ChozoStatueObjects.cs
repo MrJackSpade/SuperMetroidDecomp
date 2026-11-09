@@ -74,20 +74,22 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         reaction.Clear();
     }
 
-    /// <summary>Allocates the descending PLM slot, runs setup, then leaves its authored list live.</summary>
+    /// <summary>Spawns one of the statues' room objects at the first free place in the update order and runs its setup.</summary>
     public bool TrySpawnChozoStatueObject(RoomLevelData level, ChozoStatueObjectRequest request)
     {
-        ChozoStatueObjectDefinition definition =
-            ChozoStatueObjectHeaders.Resolve(request.Header);
+        RoomObjectHeaderId header = ChozoStatueObjectHeaders.Require(request.Header);
         int index = level.GetBlockIndex(request.Block);
         if ((request.IsHardcoded ? _slotTable.SpawnHardcoded() : _slotTable.SpawnAtCurrentBlock()) is not { } slot)
             return false;
 
-        slot.Header = definition.Header;
+        slot.Header = header;
         slot.BlockIndex = index;
-        definition.Program.StartOn(slot);
-        slot.FrameHold = 1;
-        if (request.Header == RoomObjectHeaderId.WreckedShipChozoHand)
+        slot.Become(header == RoomObjectHeaderId.LowerNorfairChozoHand ? new LowerNorfairChozoHandObject(this)
+            : header == RoomObjectHeaderId.ClearSlopeAccessForWreckedShipChozo ? ChozoSlopeAccessObject.Clearing()
+            : header == RoomObjectHeaderId.BlockSlopeAccessForWreckedShipChozo ? ChozoSlopeAccessObject.Blocking()
+            : header == RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug ? new TerrainChangeObject(ChozoStatueObjectDefinitions.CrumblePlug)
+            : new TerrainChangeObject(ChozoStatueObjectDefinitions.WreckedShipHand));
+        if (header == RoomObjectHeaderId.WreckedShipChozoHand)
             WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
                 ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
         else if (request.Header == RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug)
@@ -103,7 +105,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     }
 
     /// <summary>Changes a hand or plug block's collision kind and behaviour while preserving its appearance.</summary>
-    private static void WriteChozoBlock(RoomLevelData level, int index,
+    internal static void WriteChozoBlock(RoomLevelData level, int index,
         RoomCollisionType type, RoomBlockBehavior behavior)
     {
         RoomTerrainBlock terrain = level.GetCollisionBlockByIndex(index).Terrain;
@@ -111,7 +113,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         level.SetBehavior(index, behavior);
     }
 
-    /// <summary>Whether the Lower Norfair acid has been lowered, the event the hand's program branches on.</summary>
+    /// <summary>Whether the Lower Norfair acid has been lowered, which the Lower Norfair hand checks as it starts.</summary>
     internal bool HasLoweredLowerNorfairAcid =>
         (_system ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
             .HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid);
@@ -136,16 +138,6 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
 
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>
     internal void SetLoweredAcidHeight() =>
-        (_chozoRoomFx ?? throw new InvalidOperationException("Chozo PLM has no FX owner."))
+        (_chozoRoomFx ?? throw new InvalidOperationException("The Chozo statue's room objects have no FX owner."))
             .SetLiquidMotion(baseYPosition: ChozoStatueRoomDefinitions.LoweredAcidY);
-
-    /// <summary>Restores the Lower Norfair hand collision block once its trigger location becomes air.</summary>
-    internal static void RunChozoStatueFrameBehavior(RoomLevelData level, RoomObjectSlot slot)
-    {
-        int index = level.GetBlockIndex(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
-        if (level.GetCollisionBlockByIndex(index).Terrain != RoomTerrainBlocks.BlankAir) return;
-        WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
-            ChozoStatueRoomDefinitions.LowerNorfairHandBehavior);
-        slot.Delete();
-    }
 }

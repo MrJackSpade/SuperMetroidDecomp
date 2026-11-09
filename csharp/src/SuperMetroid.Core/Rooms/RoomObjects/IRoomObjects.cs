@@ -54,9 +54,6 @@ internal interface IRoomObjects
     /// <summary>Handles speed-booster escape tunnel block reactions.</summary>
     SpeedBoosterEscapeObjects SpeedBoosterEscape { get; }
 
-    /// <summary>What scripted room programs call on the families that own them.</summary>
-    IScriptedRoomObjectHooks ScriptedHooks { get; }
-
     /// <summary>Releases the slot.</summary>
     void DeleteObject(RoomObjectSlot slot);
 }

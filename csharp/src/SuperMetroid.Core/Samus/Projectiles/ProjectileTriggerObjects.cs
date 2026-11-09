@@ -30,6 +30,13 @@ internal sealed class ProjectileTriggerObjects
             if (!slot.Active || slot.BlockIndex != blockIndex)
                 continue;
 
+            // A typed object that a shot can strike keeps the strike itself; any other typed object ignores it.
+            if (slot.Behaviour is not null)
+            {
+                (slot.Behaviour as IShootableRoomObject)?.Strike(new ResidentObjectProjectileHit(projectileType.Family));
+                return true;
+            }
+
             slot.ProjectileHit = new ResidentObjectProjectileHit(projectileType.Family);
 
             // These actors also keep their own pending flag, which their pre-instructions

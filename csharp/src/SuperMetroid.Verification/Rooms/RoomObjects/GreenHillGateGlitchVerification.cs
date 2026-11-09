@@ -120,7 +120,7 @@ internal static class GreenHillGateGlitchVerification
             runtime.StepFrame(input);
             gate = runtime.RoomObjects.PopulationSlots.Single(slot =>
                 slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-            if (gate.LoopTimer == 0)
+            if (gate.Behaviour is not DownwardGateObject { Triggered: true })
                 continue;
             openFrame = frame;
             break;

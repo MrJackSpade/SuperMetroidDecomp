@@ -3,17 +3,10 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Gate PLMs: the shot-switched vertical gates and the downward gate with its sounds and projectile requests.</summary>
+/// <summary>The downward gates and their shot-block triggers: their setup, the shots that set them off, and their sounds and projectile requests.</summary>
 [RoomLifetime]
-internal sealed class GateObjects : IRoomObjectFamilySource
+internal sealed class GateObjects
 {
-    /// <summary>Registers the DownwardGate family, which has no step of its own: its slots take the shared path.</summary>
-    public void AddObjectFamilies(RoomObjectFamilyTable table)
-    {
-        Ensure.NotNull(table);
-        table.Add(RoomObjectFamily.DownwardGate, static (_, _) => RoomObjectStepOutcome.Shared);
-    }
-
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The room's level, whose width locates a gate's column.</summary>
@@ -51,8 +44,7 @@ internal sealed class GateObjects : IRoomObjectFamilySource
     /// <summary>Marks the gate's five vertical cells' behaviour and requests its initial closed projectile.</summary>
     internal void SetupDownwardGateSlot(RoomLevelData level, RoomObjectSlot slot)
     {
-        slot.Family = new DownwardGateObjectState();
-        slot.StartAnimation(new DownwardGateObjectAnimation(DownwardGateProgram.Closed));
+        slot.Become(new DownwardGateObject(this));
 
         // The setup writes the closed-gate behaviour to the five vertically adjacent gate cells without replacing their
         // authored terrain.
@@ -74,7 +66,7 @@ internal sealed class GateObjects : IRoomObjectFamilySource
     {
         DownwardGateShotBlockDefinition definition = DownwardGateShotBlock((slot.Argument as GateTriggerArgument
             ?? throw new InvalidDataException($"Downward gate shot block at block {slot.BlockIndex} was placed without its trigger.")).Trigger);
-        slot.StartAnimation(new DownwardGateObjectAnimation(definition.Program));
+        slot.Become(new TerrainChangeObject(definition.Change));
 
         // The setup performs independent left and right writes even though every authored row installs exactly one
         // side. Preserve that ordering instead of deriving the side from the trigger.
@@ -137,13 +129,13 @@ internal sealed class GateObjects : IRoomObjectFamilySource
         }
 
         int gateBlockIndex = IsLeftTrigger(trigger) ? blockIndex + 1 : blockIndex - 1;
-        RoomObjectSlot? gate = null;
+        DownwardGateObject? gate = null;
         foreach (RoomObjectSlot candidate in _slotTable.InProcessingOrder)
         {
-            if (candidate.Active && candidate.Family is DownwardGateObjectState &&
+            if (candidate.Active && candidate.Behaviour is DownwardGateObject resident &&
                 candidate.BlockIndex == gateBlockIndex)
             {
-                gate = candidate;
+                gate = resident;
                 break;
             }
         }
@@ -154,10 +146,8 @@ internal sealed class GateObjects : IRoomObjectFamilySource
                 $"Downward gate trigger block {blockIndex} has no adjacent resident gate at {gateBlockIndex}.");
         }
 
-        // Trigger setup increments only a zero timer. Repeated accepted hits before the
-        // resident pre-instruction runs do not accumulate extra close cycles.
-        if (gate.LoopTimer.IsZero)
-            gate.LoopTimer = WrappingCountdown.Start(1);
+        // Repeated accepted hits before the gate wakes do not accumulate extra close cycles.
+        gate.Trigger();
         temporary.Clear();
         return true;
     }
@@ -181,29 +171,8 @@ internal sealed class GateObjects : IRoomObjectFamilySource
         _pendingDownwardGateSounds.Clear();
     }
 
-    /// <summary>Wakes a resident gate when shot or when Samus occupies the column for the appropriate pre-instruction.</summary>
-    internal void RunDownwardGateFrameBehavior(RoomObjectSlot slot, DownwardGateFrameBehavior frameBehavior)
-    {
-        bool wake = frameBehavior switch
-        {
-            DownwardGateFrameBehavior.WakeIfTriggered => !slot.LoopTimer.IsZero,
-            DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow =>
-                !slot.LoopTimer.IsZero || IsSamusInsideDownwardGateColumn(slot),
-            DownwardGateFrameBehavior.None or
-                DownwardGateFrameBehavior.Inert => throw new InvalidOperationException(
-                $"Undefined downward gate pre-instruction {frameBehavior}."),
-            _ => throw new InvalidOperationException(
-                $"Undefined downward gate pre-instruction {frameBehavior}."),
-        };
-        if (!wake)
-            return;
-
-        slot.WakePastSleep();
-        slot.FrameBehavior = DownwardGateFrameBehaviors.Inert;
-    }
-
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
-    private bool IsSamusInsideDownwardGateColumn(RoomObjectSlot slot)
+    internal bool IsSamusInsideDownwardGateColumn(RoomObjectSlot slot)
     {
         IRoomSamus? samus = _samus?.Current;
         if (samus is null)
@@ -256,12 +225,5 @@ internal sealed class GateObjects : IRoomObjectFamilySource
             DownwardGateTriggerBehavior.YellowRight => !plainPowerBomb,
             _ => throw new InvalidOperationException($"Undefined gate trigger {trigger}."),
         };
-    }
-
-    /// <summary>Marker attached to the resident PLM slot so adjacent shot triggers can find its gate.</summary>
-    internal sealed class DownwardGateObjectState : RoomObjectFamilyState
-    {
-        /// <inheritdoc/>
-        internal override RoomObjectFamily Family => RoomObjectFamily.DownwardGate;
     }
 }

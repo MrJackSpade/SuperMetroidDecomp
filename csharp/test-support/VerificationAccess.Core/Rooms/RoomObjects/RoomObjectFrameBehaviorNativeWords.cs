@@ -8,29 +8,25 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectFrameBehaviorNativeWords
 {
-    /// <summary>The bank-$84 routine word naming each <see cref="DownwardGateFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<DownwardGateFrameBehavior> DownwardGate = new(new Dictionary<DownwardGateFrameBehavior, ushort>
+    /// <summary>The bank-$84 routine word of each resting wait of the downward gate (<see cref="DownwardGatePhase"/>).</summary>
+    internal static readonly NativeWordIdentities<DownwardGatePhase> DownwardGate = new(new Dictionary<DownwardGatePhase, ushort>
     {
-        [DownwardGateFrameBehavior.None] = 0x0000,
-        [DownwardGateFrameBehavior.WakeIfTriggered] = 0xbb52,
-        [DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow] = 0xbb6b,
-        [DownwardGateFrameBehavior.Inert] = 0xbb6a,
+        [DownwardGatePhase.RestingOpen] = 0xbb52,
+        [DownwardGatePhase.RestingClosed] = 0xbb6b,
     });
 
-    /// <summary>The bank-$84 routine word naming each <see cref="NoobTubeObjectFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<NoobTubeObjectFrameBehavior> NoobTube = new(new Dictionary<NoobTubeObjectFrameBehavior, ushort>
+    /// <summary>The bank-$84 routine word of each wait of the glass tube (<see cref="NoobTubePhase"/>).</summary>
+    internal static readonly NativeWordIdentities<NoobTubePhase> NoobTube = new(new Dictionary<NoobTubePhase, ushort>
     {
-        [NoobTubeObjectFrameBehavior.WakeOnAcceptedInput] = 0xd4bf,
-        [NoobTubeObjectFrameBehavior.WakeOnPowerBomb] = 0xbd26,
-        [NoobTubeObjectFrameBehavior.Inactive] = 0x86d0,
+        [NoobTubePhase.WaitingForInput] = 0xd4bf,
+        [NoobTubePhase.WaitingForPowerBomb] = 0xbd26,
     });
 
-    /// <summary>The bank-$84 routine word naming each <see cref="SpeedBoosterEscapeFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<SpeedBoosterEscapeFrameBehavior> SpeedBoosterEscape = new(new Dictionary<SpeedBoosterEscapeFrameBehavior, ushort>
+    /// <summary>The bank-$84 routine word of each wait of the lavaquake (<see cref="SpeedBoosterEscapePhase"/>).</summary>
+    internal static readonly NativeWordIdentities<SpeedBoosterEscapePhase> SpeedBoosterEscape = new(new Dictionary<SpeedBoosterEscapePhase, ushort>
     {
-        [SpeedBoosterEscapeFrameBehavior.None] = 0x0000,
-        [SpeedBoosterEscapeFrameBehavior.WaitForSpeedBooster] = 0xb7ef,
-        [SpeedBoosterEscapeFrameBehavior.WaitForSamusLeft] = 0xb82a,
-        [SpeedBoosterEscapeFrameBehavior.AdvanceLava] = 0xb846,
+        [SpeedBoosterEscapePhase.WaitingForSpeedBooster] = 0xb7ef,
+        [SpeedBoosterEscapePhase.WaitingForSamusLeft] = 0xb82a,
+        [SpeedBoosterEscapePhase.AdvancingLava] = 0xb846,
     });
 }

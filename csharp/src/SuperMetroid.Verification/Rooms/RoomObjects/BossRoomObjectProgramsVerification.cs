@@ -92,302 +92,183 @@ internal static class BossRoomObjectProgramsVerification
         return true;
     }
 
-    /// <summary>Draygon's cannon programs equal their native lists, each facing's links and branches staying on its side.</summary>
+    /// <summary>
+    /// Draygon's cannons play as their native lists do (#1554), each facing's links and branches staying on its side: a
+    /// whole cannon links its hit, arms the missile wake and rests on its shield; a hit counts to the destroying third,
+    /// flashes the shield and returns to it; the destroying hit or a destroyed setup destroys its own side and smokes for
+    /// good. Every image and how long it stays is compared with <see cref="DraygonCannonAnimationDefinitions"/>.
+    /// </summary>
     internal static void VerifyDraygonCannonPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DraygonCannonObjectProgramDefinitions.Programs, DraygonCannonEntries,
-            draw => RoomObjectDraw.Of(draw), DraygonCannonCueAt, "Draygon cannon");
-        Console.WriteLine($"  Draygon cannon programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The cannon's link, missile-wake, hit-count and damage instructions with their operands.</summary>
-    private static bool DraygonCannonCueAt(IImportCartridgeSource cartridge, ushort cursor, out DraygonCannonCue cue, out int length)
-    {
-        ushort leftStart = DraygonCannonEntries.Single(entry => entry.Program == DraygonCannonProgram.LeftStart).Entry;
-        bool right = cursor < leftStart;
-        DraygonCannonProgram Entry(ushort address) => DraygonCannonEntries.Single(entry => entry.Entry == address).Program;
-        RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
-        (bool known, cue, length) = instruction switch
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        int frames = 0;
+        foreach ((RoomObjectHeaderId header, DraygonCannonSetup setup) in DraygonCannonDefinitions.Setups)
         {
-            RoomObjectInstruction.LinkInstruction => new DraygonCannonCueAtCase(true, DraygonCannonCue.LinkHit, 4),
-            RoomObjectInstruction.InstallFrameBehavior => new DraygonCannonCueAtCase(true, DraygonCannonCue.ArmMissileWake, 4),
-            RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => new DraygonCannonCueAtCase(true, DraygonCannonCue.CountHit, 5),
-            RoomObjectInstruction.DamageDraygonCannonFacingRight or RoomObjectInstruction.DamageDraygonCannonFacingLeft => new DraygonCannonCueAtCase(true, DraygonCannonCue.Damage, 2),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.ClearFrameBehavior or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.GotoIfEventSet or
-                RoomObjectInstruction.SetEvent or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum6 or
-                RoomObjectInstruction.QueueSoundLibrary3Maximum6 or
-                RoomObjectInstruction.ClearDownwardGateTrigger or
-                RoomObjectInstruction.SpawnDownwardGateProjectile or
-                RoomObjectInstruction.WakeDownwardGateProjectile or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.EnableNoobTubeWaterPhysics or
-                RoomObjectInstruction.SpawnNoobTubeCrack or
-                RoomObjectInstruction.TriggerNoobTubeEarthquake or
-                RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles or
-                RoomObjectInstruction.LockSamus or
-                RoomObjectInstruction.UnlockSamus or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.SamusEaterDamage or
-                RoomObjectInstruction.SamusEaterReleaseImmunity or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new DraygonCannonCueAtCase(false, default, 0),
-            _ => new DraygonCannonCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        switch (cue)
-        {
-            case DraygonCannonCue.LinkHit:
-                AssertEqual(right ? DraygonCannonProgram.RightHit : DraygonCannonProgram.LeftHit,
-                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2))), "cannon links its own hit program");
-                break;
-            case DraygonCannonCue.ArmMissileWake:
-                AssertEqual(DraygonNativeWords.MissileHitFrameBehavior, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
-                break;
-            case DraygonCannonCue.CountHit:
-                AssertEqual(DraygonCannonDefinitions.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
-                AssertEqual(right ? DraygonCannonProgram.RightDestroy : DraygonCannonProgram.LeftDestroy,
-                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 3))), "cannon destroys its own side");
-                break;
-            case DraygonCannonCue.Damage:
-                AssertEqual(right ? RoomObjectInstruction.DamageDraygonCannonFacingRight : RoomObjectInstruction.DamageDraygonCannonFacingLeft,
-                    instruction, "cannon damage faces its own side");
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DraygonCannonCue)} {cue}.");
+            DraygonCannonLook look = DraygonCannonAnimationDefinitions.Looks[setup.Orientation];
+            string at = $"Draygon cannon {header}";
+            int entry = Word(RoomObjectNativeWords.Word(header) + 2);
+            int destroy = entry;
+            if (setup.Start == DraygonCannonStart.Whole)
+            {
+                AssertEqual(RoomObjectInstruction.LinkInstruction, At(entry), $"{at} first links its hit");
+                int hit = Word(entry + 2);
+                AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(entry + 4), $"{at} then arms its missile wake");
+                AssertEqual(DraygonNativeWords.MissileHitFrameBehavior, Word(entry + 6), $"{at} missile wake");
+                int idle = entry + 8;
+                frames += CompareCannonFrames(cartridge, idle, [look.Shield], out int afterShield, $"{at} shield");
+                AssertEqual(RoomObjectInstruction.Sleep, At(afterShield), $"{at} rests on its shield");
+                AssertEqual(RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual, At(hit), $"{at} hit is counted first");
+                AssertEqual(DraygonCannonDefinitions.HitsToDestroy, ReadOperandByte(cartridge, hit + 2), $"{at} hits to destroy");
+                destroy = Word(hit + 3);
+                frames += CompareCannonFrames(cartridge, hit + 5, look.HitFlash, out int afterFlash, $"{at} hit flash");
+                AssertEqual(RoomObjectInstruction.Goto, At(afterFlash), $"{at} returns after its flash");
+                AssertEqual(idle, (int)Word(afterFlash + 2), $"{at} returns to its shield");
+            }
+            AssertEqual(setup.Orientation == DraygonCannonOrientation.Right
+                    ? RoomObjectInstruction.DamageDraygonCannonFacingRight
+                    : RoomObjectInstruction.DamageDraygonCannonFacingLeft,
+                At(destroy), $"{at} destroys its own side");
+            int smoke = destroy + 2;
+            frames += CompareCannonFrames(cartridge, smoke, look.Smoke, out int afterSmoke, $"{at} smoke");
+            AssertEqual(RoomObjectInstruction.Goto, At(afterSmoke), $"{at} smoke repeats");
+            AssertEqual(smoke, (int)Word(afterSmoke + 2), $"{at} smoke loops to its first image");
         }
-        return true;
+        Console.WriteLine($"  Draygon cannons: {frames} typed images match bank $84.");
     }
 
-    /// <summary>Mother Brain's glass programs equal their native lists, every stage repeating itself until its hits.</summary>
+    /// <summary>Compares the native draws from <paramref name="cursor"/> with <paramref name="expected"/>, image for image.</summary>
+    private static int CompareCannonFrames(IImportCartridgeSource cartridge, int cursor, IReadOnlyList<TerrainChangeFrame> expected,
+        out int after, string at)
+    {
+        for (int index = 0; index < expected.Count; index++, cursor += 4)
+        {
+            int updates = cartridge.ReadCartridgeWord(ProgramBank | cursor);
+            AssertTrue(updates < 0x8000, $"{at} image {index} is a draw");
+            AssertEqual(expected[index].Updates, updates, $"{at} image {index} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(expected[index].Draw),
+                (int)cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), $"{at} image {index} draw");
+        }
+        after = cursor;
+        return expected.Count;
+    }
+
+    /// <summary>
+    /// Mother Brain's glass plays as its native lists do (#1554): its entry shows the cleared glass once the boss is dead
+    /// and the shattered glass once it was destroyed, each for one update before it ends, and otherwise arms its hit
+    /// count and runs on into its stages. Each stage shows its image for one update and repeats itself until its hits;
+    /// a stage with a burst throws its first shards, shows the next image for its burst updates and throws its second;
+    /// the last shows the shattered glass, sets the destroyed event and ends. Every image, hold, threshold and shard is
+    /// compared with <see cref="MotherBrainGlassStageDefinitions"/>.
+    /// </summary>
     internal static void VerifyMotherBrainGlassPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainGlassObjectProgramDefinitions.Programs, MotherBrainGlassEntries,
-            draw => RoomObjectDraw.Of(draw), MotherBrainGlassCueAt, "Mother Brain glass");
-        Console.WriteLine($"  Mother Brain glass programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The glass's branch, wake, hit-threshold, shard-burst and event instructions with their operands.</summary>
-    private static bool MotherBrainGlassCueAt(IImportCartridgeSource cartridge, ushort cursor, [MaybeNullWhen(false)] out MotherBrainGlassObjectCue cue, out int length)
-    {
-        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
-        MotherBrainGlassObjectProgram Entry(ushort address) => MotherBrainGlassEntries.Single(entry => entry.Entry == address).Program;
-        MotherBrainGlassShard GlassShard(ushort word) => MotherBrainNativeWords.GlassShards.Decode(word, "glass shard spawn parameter");
-        RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
-        switch (instruction)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, MotherBrainGlassDraw image, int updates, string at)
         {
-            case RoomObjectInstruction.GotoIfAreaBossBitSet:
-                AssertEqual(ProgressionTableCodec.EncodeBossMask(BossBits.AreaBoss), ReadOperandByte(cartridge, cursor + 2), "glass area-boss bit");
-                AssertEqual(MotherBrainGlassObjectProgram.BossDead, Entry(Word(3)), "glass boss-dead target");
-                cue = MotherBrainGlassObjectCue.Of(MotherBrainGlassObjectCueKind.SkipIfBossDead);
-                length = 5;
-                return true;
-            case RoomObjectInstruction.GotoIfEventSet:
-                AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(2), "glass destroyed event");
-                AssertEqual(MotherBrainGlassObjectProgram.NoGlass, Entry(Word(4)), "glass no-glass target");
-                cue = MotherBrainGlassObjectCue.Of(MotherBrainGlassObjectCueKind.SkipIfGlassDestroyed);
-                length = 6;
-                return true;
-            case RoomObjectInstruction.InstallFrameBehavior:
-                AssertEqual(MotherBrainGlassObjectProgramDefinitionsConstants.HitFrameBehavior, Word(2), "glass hit wake");
-                cue = MotherBrainGlassObjectCue.Of(MotherBrainGlassObjectCueKind.ArmHitWake);
-                length = 4;
-                return true;
-            case RoomObjectInstruction.GotoIfRoomArgumentLess:
-                ushort stage = MotherBrainGlassEntries.Where(entry => entry.Entry <= cursor).Max(entry => entry.Entry);
-                AssertEqual(stage, Word(4), $"glass stage at $84:{cursor:X4} repeats itself");
-                cue = MotherBrainGlassObjectCue.RepeatUntil(Word(2));
-                length = 6;
-                return true;
-            case RoomObjectInstruction.SpawnFourMotherBrainGlassShards:
-                cue = MotherBrainGlassObjectCue.Burst(GlassShard(Word(2)), GlassShard(Word(4)), GlassShard(Word(6)), GlassShard(Word(8)));
-                length = 10;
-                return true;
-            case RoomObjectInstruction.SetEvent:
-                AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(2), "glass sets its destroyed event");
-                cue = MotherBrainGlassObjectCue.Of(MotherBrainGlassObjectCueKind.SetGlassDestroyed);
-                length = 4;
-                return true;
-            case RoomObjectInstruction.SetGreyDoorFrameBehavior:
-            case RoomObjectInstruction.Sleep:
-            case RoomObjectInstruction.Delete:
-            case RoomObjectInstruction.ClearFrameBehavior:
-            case RoomObjectInstruction.LinkInstruction:
-            case RoomObjectInstruction.GotoIfDoorBitSet:
-            case RoomObjectInstruction.IncrementDoorHitCounterAndGoto:
-            case RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomObjectInstruction.GotoIfSamusNear:
-            case RoomObjectInstruction.Goto:
-            case RoomObjectInstruction.DecrementTimerAndGoto:
-            case RoomObjectInstruction.SetEightBitTimer:
-            case RoomObjectInstruction.CopyFromRamToVram:
-            case RoomObjectInstruction.SetObjectBtsFromByte:
-            case RoomObjectInstruction.DrawObjectBlock:
-            case RoomObjectInstruction.DrawObjectBlockClone:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-            case RoomObjectInstruction.QueueSoundLibrary3Maximum6:
-            case RoomObjectInstruction.ClearDownwardGateTrigger:
-            case RoomObjectInstruction.SpawnDownwardGateProjectile:
-            case RoomObjectInstruction.WakeDownwardGateProjectile:
-            case RoomObjectInstruction.ShootEyeDoorProjectile:
-            case RoomObjectInstruction.SpawnEyeDoorSweat:
-            case RoomObjectInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomObjectInstruction.SpawnEyeDoorSmoke:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomObjectInstruction.DamageDraygonCannonFacingRight:
-            case RoomObjectInstruction.DamageDraygonCannonFacingLeft:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-            case RoomObjectInstruction.GotoIfSamusHasNoBombs:
-            case RoomObjectInstruction.SetObjectBtsToOne:
-            case RoomObjectInstruction.SpawnTorizoStatueBreaking:
-            case RoomObjectInstruction.QueueSongOneMusicTrack:
-            case RoomObjectInstruction.EnableNoobTubeWaterPhysics:
-            case RoomObjectInstruction.SpawnNoobTubeCrack:
-            case RoomObjectInstruction.TriggerNoobTubeEarthquake:
-            case RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomObjectInstruction.LockSamus:
-            case RoomObjectInstruction.UnlockSamus:
-            case RoomObjectInstruction.MoveRightFourBlocks:
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-            case RoomObjectInstruction.SamusEaterDamage:
-            case RoomObjectInstruction.SamusEaterReleaseImmunity:
-            case RoomObjectInstruction.MoveTourianAccessDown:
-            case RoomObjectInstruction.TransformSpikesToSlopes:
-            case RoomObjectInstruction.RevertSlopesToSpikes:
-            case RoomObjectInstruction.SetLoweredAcidHeight:
-            default:
-                cue = default;
-                length = 0;
-                return false;
+            AssertEqual(updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
+        void AssertBurst(int cursor, IReadOnlyList<MotherBrainGlassShard> shards, string at)
+        {
+            AssertEqual(RoomObjectInstruction.SpawnFourMotherBrainGlassShards, At(cursor), $"{at} throws shards");
+            for (int shard = 0; shard < 4; shard++)
+                AssertEqual(shards[shard], MotherBrainNativeWords.GlassShards.Decode(Word(cursor + 2 + shard * 2), "glass shard spawn parameter"),
+                    $"{at} shard {shard}");
+        }
+
+        int entry = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.MotherBrainGlass) + 2);
+        AssertEqual(RoomObjectInstruction.GotoIfAreaBossBitSet, At(entry), "glass first checks Mother Brain");
+        AssertEqual(ProgressionTableCodec.EncodeBossMask(BossBits.AreaBoss), ReadOperandByte(cartridge, entry + 2), "glass area-boss bit");
+        int bossDead = Word(entry + 3);
+        AssertEqual(RoomObjectInstruction.GotoIfEventSet, At(entry + 5), "glass then checks its destroyed event");
+        AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(entry + 7), "glass destroyed event");
+        int noGlass = Word(entry + 9);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(entry + 11), "glass then arms its hit count");
+        AssertEqual(MotherBrainGlassObjectProgramDefinitionsConstants.HitFrameBehavior, Word(entry + 13), "glass hit count");
+        AssertShown(bossDead, MotherBrainGlassStageDefinitions.ClearedImage, 1, "cleared glass");
+        AssertEqual(RoomObjectInstruction.Delete, At(bossDead + 4), "cleared glass ends");
+        AssertShown(noGlass, MotherBrainGlassStageDefinitions.ShatteredImage, 1, "already shattered glass");
+        AssertEqual(RoomObjectInstruction.Delete, At(noGlass + 4), "already shattered glass ends");
+
+        int cursor = entry + 15;
+        IReadOnlyList<MotherBrainGlassStage> stages = MotherBrainGlassStageDefinitions.Stages;
+        for (int index = 0; index < stages.Count; index++)
+        {
+            MotherBrainGlassStage stage = stages[index];
+            string at = $"glass stage {index}";
+            int start = cursor;
+            AssertShown(cursor, stage.Image, 1, at);
+            AssertEqual(RoomObjectInstruction.GotoIfRoomArgumentLess, At(cursor + 4), $"{at} holds until its hits");
+            AssertEqual(stage.BreaksAtHits, (int)Word(cursor + 6), $"{at} hits");
+            AssertEqual(start, (int)Word(cursor + 8), $"{at} repeats itself");
+            cursor += 10;
+            bool last = index + 1 == stages.Count;
+            MotherBrainGlassDraw next = last ? MotherBrainGlassStageDefinitions.ShatteredImage : stages[index + 1].Image;
+            if (stage.Burst is { } burst)
+            {
+                AssertBurst(cursor, burst.First, $"{at} first burst");
+                AssertShown(cursor + 10, next, MotherBrainGlassStageDefinitions.BurstFrameDuration, $"{at} burst image");
+                AssertBurst(cursor + 14, burst.Second, $"{at} second burst");
+                cursor += 24;
+            }
+            else
+            {
+                AssertTrue(!last, "the last glass stage bursts");
+            }
+        }
+        AssertShown(cursor, MotherBrainGlassStageDefinitions.ShatteredImage, MotherBrainGlassStageDefinitions.FinalShatterDuration, "shattered glass");
+        AssertEqual(RoomObjectInstruction.SetEvent, At(cursor + 4), "shattered glass sets its event");
+        AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(cursor + 6), "glass sets its destroyed event");
+        AssertEqual(RoomObjectInstruction.Delete, At(cursor + 8), "shattered glass ends");
+        Console.WriteLine($"  Mother Brain glass: {stages.Count} typed stages match bank $84.");
     }
 
-    /// <summary>The Bomb Torizo hand's programs equal its native list.</summary>
+    /// <summary>
+    /// The Bomb Torizo hand plays as its native list does (#1554): it shows the intact hand for one update, arms its wake
+    /// for Samus's Bombs and sleeps; past the sleep each crumble step drops its fragment and shows its image for its
+    /// updates, then the boss music is queued and the hand ends. Every step is compared with
+    /// <see cref="BombTorizoHandCrumbleDefinitions"/>; the debris character load between the first two steps takes no time.
+    /// </summary>
     internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandObjectProgramDefinitions.Programs, BombTorizoHandEntries,
-            draw => RoomObjectDraw.Of(draw), BombTorizoHandCueAt, "Bomb Torizo hand");
-        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandObjectProgramDefinitions.ProgramsAfterSleep[BombTorizoHandProgram.Sleeping],
-            "the woken hand continues after its sleep");
-        AssertEqual(unchecked((ushort)(BombTorizoHandEntries[0].Entry + 10)), BombTorizoHandEntries[1].Entry,
-            "the crumble list follows the sleeping list's sleep");
-        Console.WriteLine($"  Bomb Torizo hand programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The hand's wake, fragment and music instructions with their operands.</summary>
-    private static bool BombTorizoHandCueAt(IImportCartridgeSource cartridge, ushort cursor, out BombTorizoHandCue cue, out int length)
-    {
-        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
-        switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, BombTorizoHandDraw image, int updates, string at)
         {
-            case RoomObjectInstruction.InstallFrameBehavior:
-                AssertEqual(BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior, Word(2), "hand bomb wake");
-                cue = new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake);
-                length = 4;
-                return true;
-            case RoomObjectInstruction.SpawnTorizoStatueBreaking:
-                AssertEqual(0, Word(2) % sizeof(ushort), "hand fragment operand is a two-byte table offset");
-                cue = new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort));
-                length = 4;
-                return true;
-            case RoomObjectInstruction.QueueSongOneMusicTrack:
-                cue = new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic);
-                length = 2;
-                return true;
-            case RoomObjectInstruction.SetGreyDoorFrameBehavior:
-            case RoomObjectInstruction.CopyFromRamToVram:
-            case RoomObjectInstruction.Sleep:
-            case RoomObjectInstruction.Delete:
-            case RoomObjectInstruction.ClearFrameBehavior:
-            case RoomObjectInstruction.LinkInstruction:
-            case RoomObjectInstruction.GotoIfDoorBitSet:
-            case RoomObjectInstruction.IncrementDoorHitCounterAndGoto:
-            case RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomObjectInstruction.GotoIfSamusNear:
-            case RoomObjectInstruction.Goto:
-            case RoomObjectInstruction.DecrementTimerAndGoto:
-            case RoomObjectInstruction.SetEightBitTimer:
-            case RoomObjectInstruction.GotoIfAreaBossBitSet:
-            case RoomObjectInstruction.GotoIfEventSet:
-            case RoomObjectInstruction.SetEvent:
-            case RoomObjectInstruction.SetObjectBtsFromByte:
-            case RoomObjectInstruction.DrawObjectBlock:
-            case RoomObjectInstruction.DrawObjectBlockClone:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-            case RoomObjectInstruction.QueueSoundLibrary3Maximum6:
-            case RoomObjectInstruction.ClearDownwardGateTrigger:
-            case RoomObjectInstruction.SpawnDownwardGateProjectile:
-            case RoomObjectInstruction.WakeDownwardGateProjectile:
-            case RoomObjectInstruction.ShootEyeDoorProjectile:
-            case RoomObjectInstruction.SpawnEyeDoorSweat:
-            case RoomObjectInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomObjectInstruction.SpawnEyeDoorSmoke:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomObjectInstruction.DamageDraygonCannonFacingRight:
-            case RoomObjectInstruction.DamageDraygonCannonFacingLeft:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-            case RoomObjectInstruction.GotoIfSamusHasNoBombs:
-            case RoomObjectInstruction.SetObjectBtsToOne:
-            case RoomObjectInstruction.GotoIfRoomArgumentLess:
-            case RoomObjectInstruction.SpawnFourMotherBrainGlassShards:
-            case RoomObjectInstruction.EnableNoobTubeWaterPhysics:
-            case RoomObjectInstruction.SpawnNoobTubeCrack:
-            case RoomObjectInstruction.TriggerNoobTubeEarthquake:
-            case RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomObjectInstruction.LockSamus:
-            case RoomObjectInstruction.UnlockSamus:
-            case RoomObjectInstruction.MoveRightFourBlocks:
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-            case RoomObjectInstruction.SamusEaterDamage:
-            case RoomObjectInstruction.SamusEaterReleaseImmunity:
-            case RoomObjectInstruction.MoveTourianAccessDown:
-            case RoomObjectInstruction.TransformSpikesToSlopes:
-            case RoomObjectInstruction.RevertSlopesToSpikes:
-            case RoomObjectInstruction.SetLoweredAcidHeight:
-            default:
-                cue = default;
-                length = 0;
-                return false;
+            AssertEqual(updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
+
+        int cursor = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.BombTorizoHand) + 2);
+        AssertShown(cursor, BombTorizoHandCrumbleDefinitions.RestingImage, 1, "resting hand");
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(cursor + 4), "hand arms its wake");
+        AssertEqual(BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior, Word(cursor + 6), "hand bomb wake");
+        AssertEqual(RoomObjectInstruction.Sleep, At(cursor + 8), "hand rests until Samus has Bombs");
+        cursor += 10;
+        IReadOnlyList<BombTorizoHandCrumbleStep> crumble = BombTorizoHandCrumbleDefinitions.Crumble;
+        for (int index = 0; index < crumble.Count; index++)
+        {
+            BombTorizoHandCrumbleStep step = crumble[index];
+            string at = $"hand crumble step {index}";
+            if (At(cursor) == RoomObjectInstruction.CopyFromRamToVram)
+                cursor += 9;
+            if (step.FragmentBefore is { } fragment)
+            {
+                AssertEqual(RoomObjectInstruction.SpawnTorizoStatueBreaking, At(cursor), $"{at} drops a fragment");
+                AssertEqual(fragment * sizeof(ushort), (int)Word(cursor + 2), $"{at} fragment");
+                cursor += 4;
+            }
+            AssertShown(cursor, step.Image, step.Updates, at);
+            cursor += 4;
+        }
+        AssertEqual(RoomObjectInstruction.QueueSongOneMusicTrack, At(cursor), "the crumbled hand queues the boss music");
+        AssertEqual(RoomObjectInstruction.Delete, At(cursor + 2), "the crumbled hand ends");
+        Console.WriteLine($"  Bomb Torizo hand: {crumble.Count} typed crumble steps match bank $84.");
     }
 
     /// <summary>Botwoon's crumble sound, its opening of the scrolls and its move down a block.</summary>

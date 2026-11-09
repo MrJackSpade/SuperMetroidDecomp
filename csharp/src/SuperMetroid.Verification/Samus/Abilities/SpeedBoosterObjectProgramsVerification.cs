@@ -98,7 +98,7 @@ internal static class SpeedBoosterObjectProgramsVerification
             {
                 ushort list = ReadRomWord(rom,0x840000 | (header + 2));
                 AssertEqual(RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Entry == list).Program,
-                    definition.Program, "speed native selected list starts its typed program");
+                    definition.Change, "speed native selected list plays its typed crumble");
             }
             else
                 AssertEqual(header,RoomObjectNativeWords.Word(definition.Header),"speed native selected header");

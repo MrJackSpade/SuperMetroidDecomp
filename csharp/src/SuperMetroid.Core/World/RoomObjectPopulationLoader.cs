@@ -28,6 +28,8 @@ internal sealed class RoomObjectPopulationLoader
     private readonly MotherBrainGlassObjects _motherBrainGlass;
     /// <summary>Descending slot array shared by population and runtime spawns.</summary>
     private readonly RoomObjectSlotTable _slotTable;
+    /// <summary>Sets up Maridia's glass tube.</summary>
+    private readonly NoobTubeObjects _noobTube;
     /// <summary>Initializes the Speed Booster escape object when its header appears.</summary>
     private readonly SpeedBoosterEscapeObjects _speedBoosterEscape;
 
@@ -41,6 +43,7 @@ internal sealed class RoomObjectPopulationLoader
         _motherBrainGlass = dependencies.MotherBrainGlass;
         _slotTable = dependencies.SlotTable;
         _speedBoosterEscape = dependencies.SpeedBoosterEscape;
+        _noobTube = dependencies.NoobTube;
     }
     /// <summary>
     /// Allocates one decoded room population exactly once, in increasing source-record
@@ -197,16 +200,15 @@ internal sealed class RoomObjectPopulationLoader
 
         if (header == RoomObjectHeaderId.WreckedShipAttic)
         {
-            // The no-op setup deliberately performs no state mutation. Keeping an explicit
-            // branch matters: the actor must still consume its slot and run its
-            // program instead of being mistaken for an unknown header.
-            slot.StartAnimation(new WreckedShipAtticObjectAnimation());
+            // The no-op setup changes nothing. Keeping an explicit branch matters: the object must still hold its
+            // place instead of being mistaken for an unknown header.
+            slot.Become(new WreckedShipAtticObject());
             return true;
         }
 
         if (header == RoomObjectHeaderId.NoobTube)
         {
-            NoobTubeObjects.SetupNoobTubeSlot(level, slot);
+            _noobTube.SetupNoobTubeSlot(level, slot);
             return true;
         }
 

@@ -39,7 +39,7 @@ namespace SuperMetroid.Core.World;
 /// family.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAreaRoomObjects, IEnemyRoomObjects, IScriptedRoomObjectHooks
+public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAreaRoomObjects, IEnemyRoomObjects
 {
     /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }
@@ -86,7 +86,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     /// <summary>Connects Chozo statue activity with its room FX and PLM state.</summary>
     internal ChozoStatueObjects ChozoStatue { get; }
 
-    /// <summary>Applies PLM-driven room scroll grid changes.</summary>
+    /// <summary>The room's scroll triggers and extensions.</summary>
     internal ScrollObjects Scrolls { get; }
 
     /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
@@ -146,7 +146,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         ChozoStatue = new ChozoStatueObjects(room.System, room.AreaIndex, SlotTable);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
         BombTorizoHand = new BombTorizoHandObjects(services.Samus, SlotTable);
-        NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies, Sounds);
+        NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, room.Level, SlotTable, Sounds);
         MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds);
         Stations = new StationObjects(room.System, services.Samus, Drawing, SlotTable, Sounds);
@@ -154,11 +154,11 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
         GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds);
-        Tourian = new TourianObjects(services.Samus, services.Events, services.Enemies, SlotTable);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
+        Tourian = new TourianObjects(services.Samus, services.Enemies, SlotTable);
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape, NoobTube = NoobTube });
         BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
-        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[Scrolls, WreckedShipTreadmill, Gates, DraygonCannons, SpeedBoosterEscape])
+        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[])
             source.AddObjectFamilies(_families);
         _families.RequireEveryFamily();
     }
@@ -221,7 +221,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     internal void DeleteObject(RoomObjectSlot slot)
     {
         slot.Delete();
-        BombTorizoHandObjects.MarkBombTorizoHandDeleted(slot);
         MotherBrainGlass.OnObjectDeleted(slot);
         // Semantic family references are discriminators, not retained debug
         // history. A later spawn can reuse this slot and must never inherit
@@ -272,9 +271,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     SpeedBoosterEscapeObjects IRoomObjects.SpeedBoosterEscape => SpeedBoosterEscape;
 
     /// <inheritdoc/>
-    IScriptedRoomObjectHooks IRoomObjects.ScriptedHooks => this;
-
-    /// <inheritdoc/>
     void IRoomObjects.DeleteObject(RoomObjectSlot slot) => DeleteObject(slot);
 
     /// <inheritdoc/>
@@ -300,25 +296,4 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
 
     /// <inheritdoc/>
     ShaktoolObjects IEnemyRoomObjects.Shaktool => Shaktool;
-
-    /// <inheritdoc/>
-    IRoomObjectFrameBehavior IScriptedRoomObjectHooks.FrameBehavior(ScriptedRoomObjectFrameBehavior frameBehavior) => frameBehavior switch
-    {
-        ScriptedRoomObjectFrameBehavior.ShaktoolRoomController => ShaktoolRoomFrameBehaviors.Controller,
-        ScriptedRoomObjectFrameBehavior.OldTourianWallWaitForSamus => TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus,
-        ScriptedRoomObjectFrameBehavior.LowerNorfairChozoHandWait => ChozoStatueFrameBehaviors.WaitForLowerNorfairHand,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomObjectFrameBehavior)} {frameBehavior}."),
-    };
-
-    /// <inheritdoc/>
-    bool IScriptedRoomObjectHooks.HasLoweredLowerNorfairAcid => ChozoStatue.HasLoweredLowerNorfairAcid;
-
-    /// <inheritdoc/>
-    void IScriptedRoomObjectHooks.SetLoweredAcidHeight() => ChozoStatue.SetLoweredAcidHeight();
-
-    /// <inheritdoc/>
-    void IScriptedRoomObjectHooks.TransformSpikesToSlopes(RoomLevelData level) => ChozoStatueObjects.TransformSpikesToSlopes(level);
-
-    /// <inheritdoc/>
-    void IScriptedRoomObjectHooks.RevertSlopesToSpikes(RoomLevelData level) => ChozoStatueObjects.RevertSlopesToSpikes(level);
 }

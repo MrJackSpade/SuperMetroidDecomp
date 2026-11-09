@@ -3,20 +3,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>The scripted room PLMs' programs (#1296), in place of their lists.</summary>
 internal enum ScriptedRoomObjectProgram
 {
-    /// <summary>Shaktool's room controller: installs its pre-instruction and sleeps.</summary>
-    ShaktoolRoomController,
-    /// <summary>The old Tourian escape wall waits for Samus.</summary>
-    OldTourianWallWait,
-    /// <summary>The old Tourian escape wall opens once Samus passes.</summary>
-    OldTourianWallOpen,
-    /// <summary>The Lower Norfair Chozo room plug crumbling.</summary>
-    ChozoCrumblePlug,
-    /// <summary>The Lower Norfair Chozo hand: waits for Samus, or continues to the lowered-acid program.</summary>
-    LowerNorfairChozoHand,
-    /// <summary>The Lower Norfair Chozo hand once its acid is lowered.</summary>
-    LowerNorfairChozoHandLowered,
-    /// <summary>The Wrecked Ship Chozo slope access cleared.</summary>
-    ChozoClearSlope,
-    /// <summary>The Wrecked Ship Chozo slope access blocked.</summary>
-    ChozoBlockSlope,
 }

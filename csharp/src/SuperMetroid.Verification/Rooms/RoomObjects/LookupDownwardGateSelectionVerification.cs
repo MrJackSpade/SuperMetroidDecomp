@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -40,8 +41,10 @@ internal static class LookupDownwardGateSelectionVerification
             ushort native = ReadSamusEaterObjectWord(rom, source + raw);
             if (field == 0)
             {
-                AssertEqual(RoomObjectNativeListAddresses.DownwardGateEntries.Single(entry => entry.Entry == native).Program, action.Program,
-                    $"Downward gate argument {raw} starts its trigger program");
+                // The trigger's native list draws its shot block once and ends, as its typed change does (#1554).
+                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), action.Change, native, NativeTerrainChanges.NoSteps,
+                    $"Downward gate argument {raw}", out bool began);
+                AssertTrue(!began, $"Downward gate argument {raw} trigger opens nothing");
                 continue;
             }
             // The cartridge stores zero for a side that receives no block.

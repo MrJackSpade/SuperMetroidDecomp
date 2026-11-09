@@ -34,6 +34,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -558,14 +559,14 @@ internal static class RoomObjectPopulationVerification
         const int blockY = 4;
 
         SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeWords.Word(RoomObjectHeaderId.WreckedShipAttic) + 2)),
-            RoomObjectNativeListAddresses.WreckedShipAtticEntries[0].Entry);
+            RoomObjectNativeListAddresses.WreckedShipAtticList);
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
         if (rom is not null)
             RoomObjectProgramsVerification.VerifyWreckedShipAtticPrograms(rom);
         for (int index = 0; index < 3; index++)
-            SeedObjectProgramWords(bus, checked((ushort)(RoomObjectNativeListAddresses.WreckedShipAtticEntries[0].Entry + index * 2)), 0xdead);
+            SeedObjectProgramWords(bus, checked((ushort)(RoomObjectNativeListAddresses.WreckedShipAtticList + index * 2)), 0xdead);
         SeedRoomObjectPopulation(bus, population,
         [
             0x05, 0xbb, blockX, blockY, 0x34, 0x12,
@@ -583,16 +584,11 @@ internal static class RoomObjectPopulationVerification
         RoomObjectSlotSnapshot loaded = roomObjects.PopulationSlots.Single();
         AssertEqual(0, loaded.ProcessingPosition,
             "Wrecked Ship attic actor takes the first free slot in processing order");
-        AssertTrue(loaded.Animation is WreckedShipAtticObjectAnimation, "Wrecked Ship attic actor starts its typed program");
-        AssertEqual(RoomObjectFrameBehaviorDefinitions.SpawnDefault, loaded.FrameBehavior,
-            "Wrecked Ship attic callback is not installed before its first handler pass");
+        AssertTrue(loaded.Behaviour is WreckedShipAtticObject, "Wrecked Ship attic actor is its typed object");
 
         roomObjects.Step(level);
-        RoomObjectSlotSnapshot sleeping = roomObjects.PopulationSlots.Single();
-        AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, sleeping.FrameBehavior,
-            "Wrecked Ship attic list installs exact BAFA pre-instruction");
-        AssertTrue(sleeping.Animation is WreckedShipAtticObjectAnimation { Cursor.Position: 1 },
-            "Wrecked Ship attic actor sleeps permanently on its program's sleep");
+        AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is WreckedShipAtticObject,
+            "Wrecked Ship attic actor holds its place after its first update");
         roomObjects.Step(level);
         AssertEqual(1, roomObjects.SlotTable.ActiveCount,
             "inert attic callback leaves its resident actor alive");
@@ -611,12 +607,12 @@ internal static class RoomObjectPopulationVerification
         const int width = 16;
         const int height = 16;
 
-        SeedObjectProgramWords(bus, 0xb8ae, RoomObjectNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry);
+        SeedObjectProgramWords(bus, 0xb8ae, RoomObjectNativeListAddresses.SpeedBoosterEscapeList);
         // Poison the old cartridge path: all three real handoffs must now use
         // the compiled list even when a synthetic address space disagrees.
         for (int index = 0; index < RoomObjectNativeListAddresses.SpeedBoosterEscapeWordCount; index++)
         {
-            SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry + index * 2)),
+            SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeListAddresses.SpeedBoosterEscapeList + index * 2)),
                 0xdead);
         }
         SeedRoomObjectPopulation(bus, population,
@@ -1037,10 +1033,10 @@ internal static class RoomObjectPopulationVerification
                 $"Metroids-cleared {eventNumber} is marked at quota");
         }
         AssertEqual(5, roomObjects.SlotTable.ActiveCount,
-            "Metroids-cleared observers remain resident on their sleep instruction");
-        AssertTrue(roomObjects.PopulationSlots.All(slot =>
-                slot.Animation is RoomObjectSharedAnimation { Program: RoomObjectSharedProgram.Sleep }),
-            "Metroids-cleared observers sleep in the shared typed program");
+            "Metroids-cleared observers stay in the room after their quota is met");
+        AssertTrue(roomObjects.PopulationSlots.OrderBy(slot => slot.ProcessingPosition).Select(slot => slot.Behaviour is MetroidRoomClearanceObject watch ? watch.Cleared : null).SequenceEqual(
+                [null, StoryEvent.FirstMetroidHallCleared, StoryEvent.FirstMetroidShaftCleared, StoryEvent.SecondMetroidHallCleared, StoryEvent.SecondMetroidShaftCleared]),
+            "Metroids-cleared observers are typed watches, each marking its entry's event");
 
         const ushort invalidPopulation = 0x9580;
         SeedRoomObjectPopulation(bus, invalidPopulation,
@@ -1101,10 +1097,8 @@ internal static class RoomObjectPopulationVerification
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         RoomObjectSlotSnapshot sleeping = roomObjects.PopulationSlots.Single();
-        AssertEqual(ShaktoolRoomObjectNativeProgram.FrameBehavior, sleeping.FrameBehavior,
-            "compiled list installs Shaktool room pre-instruction");
-        AssertTrue(RoomObjectProgramStartOracle.IsRunning(RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.ShaktoolRoomController), sleeping),
-            "the controller runs its typed program, resting on its closing sleep");
+        AssertTrue(sleeping.Behaviour is ShaktoolRoomControllerObject { Watching: true },
+            "after its first update the controller watches the room, as the native list's installed wait does");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionActive = true });
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)

@@ -18,11 +18,6 @@ public readonly record struct RoomObjectProgramStart
     /// <summary>One of the shared typed programs.</summary>
     internal static RoomObjectProgramStart Typed(RoomObjectSharedProgram program) => new(program);
 
-    /// <summary>A Speed Booster block program.</summary>
-    internal static RoomObjectProgramStart Typed(SpeedBoosterBlockProgram program) => new(program);
-
-    /// <summary>A block-reaction program.</summary>
-    internal static RoomObjectProgramStart Typed(BlockReactionObjectProgram program) => new(program);
 
     /// <summary>A scripted room program.</summary>
     internal static RoomObjectProgramStart Typed(ScriptedRoomObjectProgram program) => new(program);
@@ -35,11 +30,6 @@ public readonly record struct RoomObjectProgramStart
             case RoomObjectSharedProgram shared:
                 slot.StartAnimation(new RoomObjectSharedAnimation(shared));
                 break;
-            case SpeedBoosterBlockProgram speedBlock:
-                slot.StartAnimation(new SpeedBoosterBlockObjectAnimation(speedBlock));
-                break;
-            case BlockReactionObjectProgram blockReaction:
-                slot.StartAnimation(new BlockReactionObjectAnimation(blockReaction));
                 break;
             case ScriptedRoomObjectProgram scripted:
                 slot.StartAnimation(new ScriptedRoomObjectAnimation(scripted));

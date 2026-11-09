@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Programs;
 using F = SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectFrame;
-using K = SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectCueKind;
 using P = SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectProgram;
-using R = SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectFrameBehavior;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectProgram, SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectFrame, SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectCue>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectProgram, SuperMetroid.Core.Rooms.RoomObjects.ScriptedRoomObjectFrame, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectNoCue>;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -11,16 +9,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class ScriptedRoomObjectProgramDefinitions
 {
     /// <summary>Every scripted room program.</summary>
-    internal static AnimationProgramSet<P, F, ScriptedRoomObjectCue> Programs { get; } = new(
+    internal static AnimationProgramSet<P, F, RoomObjectNoCue> Programs { get; } = new(
         new Dictionary<P, Step[]>
         {
-            [P.ShaktoolRoomController] = [Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.ShaktoolRoomController)), Step.Hold],
-            [P.OldTourianWallWait] = [Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.OldTourianWallWaitForSamus)), Step.Hold],
-            [P.OldTourianWallOpen] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.ClearFrameBehavior)), Step.Show(F.OldTourianWallOpen, 1), Step.Stop],
-            [P.ChozoCrumblePlug] = [Step.Show(F.SingleBreakup0, 4), Step.Show(F.SingleBreakup1, 4), Step.Show(F.SingleBreakup2, 4), Step.Show(F.SingleBreakup3, 1), Step.Stop],
-            [P.LowerNorfairChozoHand] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.ContinueIfLowerNorfairAcidLowered)), Step.Publish(new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: R.LowerNorfairChozoHandWait)), Step.Hold],
-            [P.LowerNorfairChozoHandLowered] = [Step.Publish(new ScriptedRoomObjectCue.Command(K.SetLoweredAcidHeight)), Step.Show(F.LowerNorfairChozoHand, 1), Step.Stop],
-            [P.ChozoClearSlope] = [Step.Show(F.ChozoSlopeCleared, 1), Step.Publish(new ScriptedRoomObjectCue.Command(K.TransformSpikesToSlopes)), Step.Stop],
-            [P.ChozoBlockSlope] = [Step.Show(F.ChozoSlopeBlocked, 1), Step.Publish(new ScriptedRoomObjectCue.Command(K.RevertSlopesToSpikes)), Step.Stop],
         });
 }

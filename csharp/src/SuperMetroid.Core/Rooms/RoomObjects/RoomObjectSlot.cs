@@ -14,8 +14,6 @@ internal sealed class RoomObjectSlot
     /// below; null for a free place or one running a not-yet-converted family.
     /// </summary>
     internal RoomObjectBehaviour? Behaviour { get; private set; }
-    /// <summary>Samus position saved by the Brinstar plant setup.</summary>
-    public Position16<RoomPixels> PlantHeldPosition { get; set; }
     /// <summary>
     /// Whether this slot holds a PLM and participates in the room update. Only <see cref="RoomObjectSlotTable"/>'s
     /// spawn operations claim a slot; <see cref="Delete"/> and <see cref="Clear"/> free it.
@@ -38,8 +36,6 @@ internal sealed class RoomObjectSlot
     internal IRoomObjectFrameBehavior FrameBehavior { get; set; } = RoomObjectFrameBehaviors.Inert;
     /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
     public RoomObjectRoomArgument? Argument { get; set; }
-    /// <summary>The hits a Draygon cannon or Mother Brain's glass has taken.</summary>
-    public int HitCounter { get; set; }
     /// <summary>
     /// The slot's loop countdown, distinct from the instruction countdown: a counted program loop repeats until it
     /// reaches zero. A downward gate keeps its trigger in it (nonzero once shot), stepped by the gate's owner.
@@ -66,7 +62,6 @@ internal sealed class RoomObjectSlot
     internal void Clear()
     {
         Active = false;
-        PlantHeldPosition = Position16<RoomPixels>.Zero;
         Header = 0;
         BlockIndex = 0;
         RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
@@ -74,7 +69,6 @@ internal sealed class RoomObjectSlot
         FrameHold = 0;
         FrameBehavior = RoomObjectFrameBehaviors.Inert;
         Argument = null;
-        HitCounter = 0;
         LoopTimer = WrappingCountdown.Start(0);
         ProjectileHit = null;
         Family = null;

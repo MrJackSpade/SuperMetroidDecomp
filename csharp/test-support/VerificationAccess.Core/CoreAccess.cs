@@ -345,17 +345,15 @@ internal static class CoreAccess
     extension(RoomObjectSystem roomObjects)
     {
         /// <summary>
-        /// Native PLM_Vars bit fifteen of the live resident scroll trigger at
-        /// <paramref name="blockIndex"/>: set by `$84:B393` contact, cleared when the
-        /// bank-$8F program returns the object to sleep. Throws unless exactly one live
-        /// scroll PLM owns that block.
+        /// Whether the live scroll trigger at <paramref name="blockIndex"/> has been touched and has its writes still to
+        /// run. Throws unless exactly one live scroll trigger owns that block.
         /// </summary>
         internal bool ScrollObjectTriggered(int blockIndex)
         {
-            ScrollObjects.ScrollObjectState[] owners = [.. roomObjects.SlotTable.Slots
+            ScrollTriggerObject[] owners = [.. roomObjects.SlotTable.Slots
                 .Where(slot => slot.Active && slot.BlockIndex == blockIndex)
-                .Select(slot => slot.Family as ScrollObjects.ScrollObjectState)
-                .OfType<ScrollObjects.ScrollObjectState>()];
+                .Select(slot => slot.Behaviour)
+                .OfType<ScrollTriggerObject>()];
             if (owners.Length != 1)
                 throw new InvalidOperationException(
                     $"Expected one live scroll PLM at block {blockIndex}; found {owners.Length}.");

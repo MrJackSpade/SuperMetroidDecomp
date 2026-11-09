@@ -21,8 +21,8 @@ public static class QuicksandReactions
         gravitySuit ? QuicksandDefinitions.WithGravitySuit : QuicksandDefinitions.WithoutGravitySuit;
 
     /// <summary>
-    /// The definition of one of the eight supported sand headers, which select the shared delete list; any other header,
-    /// including the unused surface clones between the named headers, returns false.
+    /// The definition of one of the eight supported sand headers, whose objects leave the room on their first update; any
+    /// other header, including the unused surface clones between the named headers, returns false.
     /// </summary>
     internal static bool TryGetReaction(RoomObjectHeaderId header, out QuicksandReactionDefinition definition)
     {
@@ -31,7 +31,7 @@ public static class QuicksandReactions
             definition = default;
             return false;
         }
-        definition = new(setup, RoomObjectProgramStart.Delete);
+        definition = new(setup, TerrainChange.MadeAtSpawn);
         return true;
     }
 

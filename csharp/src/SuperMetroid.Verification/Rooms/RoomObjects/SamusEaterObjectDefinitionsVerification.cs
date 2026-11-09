@@ -18,9 +18,8 @@ internal static class SamusEaterObjectDefinitionsVerification
         SamusEaterObjectDefinition[] definitions =
             [SamusEaterObjects.Plant(RoomObjectHeaderId.InsideReactionBrinstarFloorPlant), SamusEaterObjects.Plant(RoomObjectHeaderId.InsideReactionBrinstarCeilingPlant)];
         AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
-        AssertEqual(SamusEaterProgram.FloorBite, definitions[0].Program, "floor plant header starts the floor bite");
-        AssertEqual(SamusEaterProgram.CeilingBite, definitions[1].Program, "ceiling plant header starts the ceiling bite");
-        Suite(nameof(RoomObjectProgramsVerification.VerifySamusEaterPrograms), () => RoomObjectProgramsVerification.VerifySamusEaterPrograms(rom));
+        AssertEqual(SamusEaterObjectDefinitions.Floor, definitions[0], "floor plant header places the floor plant");
+        AssertEqual(SamusEaterObjectDefinitions.Ceiling, definitions[1], "ceiling plant header places the ceiling plant");
 
         foreach (RoomObjectHeaderId headerPointer in new[] { RoomObjectNativeWords.Header(0xb6cb), RoomObjectNativeWords.Header(0xb6cf) })
         {
@@ -43,9 +42,8 @@ internal static class SamusEaterObjectDefinitionsVerification
             AssertEqual(0, slot.ProcessingPosition, "Samus Eater takes the first free slot in processing order");
             AssertEqual(headerPointer, slot.HeaderPointer, "Samus Eater header identity");
             AssertEqual(5, slot.BlockIndex, "Samus Eater trigger block");
-            AssertTrue(slot.Animation is SamusEaterObjectAnimation animation && animation.Program == definition.Program,
+            AssertTrue(slot.Behaviour is SamusEaterObject { Phase: SamusEaterPhase.Biting, Holding: false } eater && eater.Plant == definition,
                 "Samus Eater starts its typed bite");
-            AssertEqual(1, slot.FrameHold, "Samus Eater starts on timer one");
             AssertEqual(
                 RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock),
                 level.GetCollisionBlock(new(1, 1)).Terrain,
@@ -97,9 +95,7 @@ internal static class SamusEaterObjectDefinitionsVerification
             }
             else
             {
-                ushort list = ReadSamusEaterObjectWord(rom, 0x840000 | (header + 2));
-                AssertEqual(RoomObjectNativeListAddresses.SamusEaterEntries.Single(entry => entry.Entry == list).Program,
-                    actual.Program, "plant native initial list selects its typed program");
+                RoomObjectProgramsVerification.VerifySamusEaterList(rom, ReadSamusEaterObjectWord(rom, 0x840000 | (header + 2)), actual);
             }
         }
     }

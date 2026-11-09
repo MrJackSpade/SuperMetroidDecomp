@@ -20,12 +20,63 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectProgramsVerification
 {
-    /// <summary>The n00b tube's programs equal their native lists.</summary>
+    /// <summary>
+    /// The glass tube's native lists do what <see cref="NoobTubeObject"/> does (#1554): a tube broken earlier restores the
+    /// water and ends; otherwise it links its input wait, arms its Power Bomb wait, shows the intact tube and sleeps; the
+    /// input wait links the break, arms its input wait and sleeps; the break stops waiting, locks Samus, cracks, shows each
+    /// cracking image, shatters with its sound, debris and earthquake, shows the open tube, sets the broken event,
+    /// restores the water, releases Samus and ends. Every image and operand is compared with
+    /// <see cref="NoobTubeObjectDefinitions"/>.
+    /// </summary>
     internal static void VerifyNoobTubePrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), NoobTubeObjectProgramDefinitions.Programs, NoobTubeEntries,
-            draw => RoomObjectDraw.Of(draw), NoobTubeCueAt, "n00b tube");
-        Console.WriteLine($"  N00b tube programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, TerrainChangeFrame frame, string at)
+        {
+            AssertEqual(frame.Updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
+        }
+
+        int main = NoobTubeList;
+        AssertEqual(RoomObjectInstruction.GotoIfEventSet, At(main), "tube first checks whether it is broken");
+        AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), (int)Word(main + 2), "tube broken event");
+        int alreadyBroken = Word(main + 4);
+        AssertEqual(RoomObjectInstruction.LinkInstruction, At(main + 6), "tube links its input wait");
+        int waitForInput = Word(main + 8);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(main + 10), "tube arms its Power Bomb wait");
+        AssertEqual(NoobTubePhase.WaitingForPowerBomb, RoomObjectFrameBehaviorNativeWords.NoobTube.Decode(Word(main + 12), "tube wait"), "tube Power Bomb wait");
+        AssertShown(main + 14, new TerrainChangeFrame(RoomObjectDraw.Of(NoobTubeObjectDefinitions.IntactImage), 1), "intact tube");
+        AssertEqual(RoomObjectInstruction.Sleep, At(main + 18), "intact tube waits");
+
+        AssertEqual(RoomObjectInstruction.EnableNoobTubeWaterPhysics, At(alreadyBroken), "broken tube restores the water");
+        AssertEqual(RoomObjectInstruction.Delete, At(alreadyBroken + 2), "broken tube ends");
+
+        AssertEqual(RoomObjectInstruction.LinkInstruction, At(waitForInput), "input wait links the break");
+        int cursor = Word(waitForInput + 2);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(waitForInput + 4), "tube arms its input wait");
+        AssertEqual(NoobTubePhase.WaitingForInput, RoomObjectFrameBehaviorNativeWords.NoobTube.Decode(Word(waitForInput + 6), "tube wait"), "tube input wait");
+        AssertEqual(RoomObjectInstruction.Sleep, At(waitForInput + 8), "tube waits for input");
+
+        AssertEqual(RoomObjectInstruction.ClearFrameBehavior, At(cursor), "break stops waiting");
+        AssertEqual(RoomObjectInstruction.LockSamus, At(cursor + 2), "break locks Samus");
+        AssertEqual(RoomObjectInstruction.SpawnNoobTubeCrack, At(cursor + 4), "break cracks the glass");
+        cursor += 6;
+        for (int index = 0; index < NoobTubeObjectDefinitions.Cracking.Count; index++, cursor += 4)
+            AssertShown(cursor, NoobTubeObjectDefinitions.Cracking[index], $"cracking image {index}");
+        AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), "the tube shatters with its sound");
+        AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "tube break sound");
+        AssertEqual(SoundRequestPriority.Normal, NoobTubeObjectDefinitions.BreakSoundPriority, "tube break sound priority");
+        AssertEqual(RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles, At(cursor + 3), "the tube throws its shards and bubbles");
+        AssertEqual(RoomObjectInstruction.TriggerNoobTubeEarthquake, At(cursor + 5), "the tube shakes the room");
+        AssertShown(cursor + 7, NoobTubeObjectDefinitions.Shattered, "open tube");
+        AssertEqual(RoomObjectInstruction.SetEvent, At(cursor + 11), "the open tube sets its event");
+        AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), (int)Word(cursor + 13), "tube broken event set");
+        AssertEqual(RoomObjectInstruction.EnableNoobTubeWaterPhysics, At(cursor + 15), "the open tube restores the water");
+        AssertEqual(RoomObjectInstruction.UnlockSamus, At(cursor + 17), "the open tube releases Samus");
+        AssertEqual(RoomObjectInstruction.Delete, At(cursor + 19), "the open tube ends");
+        Console.WriteLine("  N00b tube lists match its typed course in bank $84.");
     }
 
     /// <summary>The shared delete and sleep programs equal their one-instruction native lists.</summary>
@@ -36,45 +87,134 @@ internal static class RoomObjectProgramsVerification
         Console.WriteLine($"  Shared PLM programs: {steps} typed steps match bank $84.");
     }
 
-    /// <summary>The lavaquake program equals its native list; each install names its phase's pre-instruction.</summary>
+    /// <summary>
+    /// The lavaquake's native list does what <see cref="SpeedBoosterEscapeObject"/> does (#1554): three waits in order,
+    /// each installed and slept on until it wakes the next, the last never waking.
+    /// </summary>
     internal static void VerifySpeedBoosterEscapePrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SpeedBoosterEscapeObjectProgramDefinitions.Programs,
-            SpeedBoosterEscapeEntries, draw => throw new InvalidOperationException($"The lavaquake program never draws; got {draw}."),
-            (IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterEscapeFrameBehavior cue, out int length) =>
-            {
-                bool installs = InstructionAt<RoomObjectInstruction>(cartridge, cursor) == RoomObjectInstruction.InstallFrameBehavior;
-                cue = installs
-                    ? RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Decode(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "lavaquake pre-instruction")
-                    : default;
-                length = 4;
-                return installs;
-            }, "Speed Booster lavaquake");
-        // A wake steps over the sleep that closes each phase, onto the next phase's list.
-        for (int phase = 0; phase < SpeedBoosterEscapeEntries.Count; phase++)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        SpeedBoosterEscapePhase[] waits =
+            [SpeedBoosterEscapePhase.WaitingForSpeedBooster, SpeedBoosterEscapePhase.WaitingForSamusLeft, SpeedBoosterEscapePhase.AdvancingLava];
+        for (int index = 0; index < waits.Length; index++)
         {
-            (SpeedBoosterEscapeProgram program, ushort entry) = SpeedBoosterEscapeEntries[phase];
-            SpeedBoosterEscapeProgram? expected = phase + 1 < SpeedBoosterEscapeEntries.Count ? SpeedBoosterEscapeEntries[phase + 1].Program : null;
-            if (expected is { } next)
-                AssertEqual(unchecked((ushort)(entry + 6)), SpeedBoosterEscapeEntries[phase + 1].Entry, $"lavaquake {next} follows {program}'s sleep");
-            AssertEqual(expected, SpeedBoosterEscapePhases.PhaseAfter(program), $"lavaquake phase after {program}");
+            int cursor = SpeedBoosterEscapeList + index * 6;
+            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionAt<RoomObjectInstruction>(cartridge, cursor), $"lavaquake wait {index} is installed");
+            AssertEqual(waits[index], RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Decode(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)),
+                "lavaquake wait"), $"lavaquake wait {index} is the typed object's");
+            AssertEqual(RoomObjectInstruction.Sleep, InstructionAt<RoomObjectInstruction>(cartridge, cursor + 4), $"lavaquake wait {index} sleeps until it wakes the next");
         }
-        Console.WriteLine($"  Speed Booster lavaquake program: {steps} typed steps match bank $84.");
+        Console.WriteLine($"  Speed Booster lavaquake list: {waits.Length} waits match bank $84.");
     }
 
-    /// <summary>The block-reaction programs equal their native lists; the restore instruction draws the saved block.</summary>
+    /// <summary>
+    /// The block reactions play as their native lists do (#1554): every image and how long it stays, the sound before it
+    /// with its priority, each restore of the saved block, the respawning Grapple block's behaviour restore before its
+    /// restored block, and the end after the last image. A bomb block's sound and its shared tail are followed through the
+    /// native goto.
+    /// </summary>
     internal static void VerifyBlockReactionPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BlockReactionObjectProgramDefinitions.Programs, BlockReactionEntries,
-            frame => BlockReactionObjectDrawDefinitions.DrawLists[frame], BlockReactionCueAt, "block reaction", BlockReactionRestoreAt);
-        Console.WriteLine($"  Block-reaction programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        int frames = 0;
+        foreach ((BlockReactionChange change, ushort entry) in BlockReactionEntries)
+            frames += CompareBlockReaction(cartridge, change, entry, change == BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock);
+        Console.WriteLine($"  Block reactions: {frames} typed images match bank $84.");
+    }
+
+    /// <summary>The Speed Booster blocks' crumbles play as their native lists do; both restore instructions restore the saved block.</summary>
+    internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        int frames = 0;
+        foreach ((BlockReactionChange change, ushort entry) in SpeedBoosterBlockEntries)
+            frames += CompareBlockReaction(cartridge, change, entry, restoresGrappleBehaviour: false);
+        AssertEqual(SoundRequestPriority.WhenIdle, SpeedBoosterBlockObjectDefinitions.BreakSoundPriority, "speed block break sound priority");
+        Console.WriteLine($"  Speed Booster blocks: {frames} typed images match bank $84.");
+    }
+
+    /// <summary>
+    /// Plays the native list at <paramref name="entry"/> beside <paramref name="change"/>, image by image, and returns the
+    /// images compared.
+    /// </summary>
+    private static int CompareBlockReaction(IImportCartridgeSource cartridge, BlockReactionChange change, ushort entry, bool restoresGrappleBehaviour)
+    {
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        int cursor = entry;
+        int frame = 0;
+        SoundEffectId? sound = null;
+        SoundRequestPriority priority = SoundRequestPriority.Normal;
+        bool grappleRestored = false;
+        for (int command = 0; command < 256; command++)
+        {
+            string at = $"block reaction list $84:{entry:X4} image {frame} at $84:{cursor:X4}";
+            int word = Word(cursor);
+            if (word < 0x8000)
+            {
+                AssertTrue(frame < change.Frames.Count, $"{at}: the typed reaction ends before the native list draws");
+                BlockReactionFrame expected = change.Frames[frame];
+                RoomObjectDraw draw = expected.Draw ?? throw new InvalidDataException($"{at}: the native image draws where the typed one restores the block.");
+                AssertEqual(expected.Updates, word, $"{at}: updates");
+                AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(draw), (int)Word(cursor + 2), $"{at}: draw");
+                AssertEqual(sound, expected.SoundBefore, $"{at}: sound with the image");
+                if (sound is not null)
+                    AssertEqual(priority, expected.SoundPriority, $"{at}: sound priority");
+                sound = null;
+                frame++;
+                cursor += 4;
+                continue;
+            }
+            RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
+            if (instruction == RoomObjectInstruction.Delete)
+            {
+                AssertEqual(change.Frames.Count, frame, $"{at}: the native list ends after the typed images");
+                AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound is left for the end");
+                AssertEqual(restoresGrappleBehaviour, grappleRestored, $"{at}: the Grapple behaviour restore");
+                return frame;
+            }
+            if (instruction == RoomObjectInstruction.Goto)
+            {
+                cursor = Word(cursor + 2);
+                continue;
+            }
+            if (instruction is RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or RoomObjectInstruction.QueueSoundLibrary2Maximum3
+                or RoomObjectInstruction.QueueSoundLibrary2Maximum6)
+            {
+                AssertEqual<SoundEffectId?>(null, sound, $"{at}: one sound per image");
+                sound = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
+                priority = instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct ? SoundRequestPriority.WhenIdle
+                    : instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low
+                    : SoundRequestPriority.Normal;
+                cursor += 3;
+                continue;
+            }
+            if (instruction == RoomObjectInstruction.SetObjectBtsToOne)
+            {
+                AssertTrue(restoresGrappleBehaviour && frame < change.Frames.Count && change.Frames[frame].RestoresSavedBlock,
+                    $"{at}: only the respawning Grapple block restores its behaviour, just before its restored block");
+                grappleRestored = true;
+                cursor += 2;
+                continue;
+            }
+            if (instruction is RoomObjectInstruction.DrawObjectBlock or RoomObjectInstruction.DrawObjectBlockClone)
+            {
+                AssertTrue(frame < change.Frames.Count && change.Frames[frame].RestoresSavedBlock, $"{at}: the typed image restores the saved block");
+                AssertEqual(1, change.Frames[frame].Updates, $"{at}: the restored block stays one update");
+                AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound with the restored block");
+                frame++;
+                cursor += 2;
+                continue;
+            }
+            throw new InvalidDataException($"{at}: native instruction ${word:X4} is no block-reaction step.");
+        }
+        throw new InvalidDataException($"Block reaction list $84:{entry:X4} ran past its instruction limit without its end.");
     }
 
     /// <summary>The scripted room programs equal their native lists.</summary>
     internal static void VerifyScriptedRoomPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), ScriptedRoomObjectProgramDefinitions.Programs, ScriptedRoomEntries,
-            frame => ScriptedRoomObjectDrawDefinitions.DrawLists[frame], ScriptedRoomCueAt, "scripted room");
+            frame => ScriptedRoomObjectDrawDefinitions.DrawLists[frame], NoCues<RoomObjectNoCue>(), "scripted room");
         Console.WriteLine($"  Scripted room programs: {steps} typed steps match bank $84.");
         VerifyScriptedTerrainChanges(rom);
     }
@@ -133,339 +273,109 @@ internal static class RoomObjectProgramsVerification
         return false;
     }
 
-    /// <summary>The scripted rooms' instructions, with their operands.</summary>
-    private static bool ScriptedRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, [MaybeNullWhen(false)] out ScriptedRoomObjectCue cue, out int length)
-    {
-        cue = default;
-        length = 2;
-        switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
-        {
-            case RoomObjectInstruction.InstallFrameBehavior:
-                ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
-                ScriptedRoomObjectFrameBehavior installed =
-                    routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomFrameBehaviors.Controller) ? ScriptedRoomObjectFrameBehavior.ShaktoolRoomController
-                    : routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Areas.Tourian.TourianFrameBehaviors.OldTourianEscapeShaftWallWaitForSamus) ? ScriptedRoomObjectFrameBehavior.OldTourianWallWaitForSamus
-                    : routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Chozo.ChozoStatueFrameBehaviors.WaitForLowerNorfairHand) ? ScriptedRoomObjectFrameBehavior.LowerNorfairChozoHandWait
-                    : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
-                cue = new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: installed);
-                length = 4;
-                return true;
-            case RoomObjectInstruction.ClearFrameBehavior:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.ClearFrameBehavior);
-                return true;
-            case RoomObjectInstruction.GotoIfEventSet:
-                AssertEqual(StoryEvent.LowerNorfairChozoLoweredAcid.Number(), cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
-                AssertEqual(ScriptedRoomEntries.Single(entry => entry.Program == ScriptedRoomObjectProgram.LowerNorfairChozoHandLowered).Entry,
-                    cartridge.ReadCartridgeWord(ProgramBank | (cursor + 4)), "Chozo hand lowered-acid target");
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.ContinueIfLowerNorfairAcidLowered);
-                length = 6;
-                return true;
-            case RoomObjectInstruction.SetLoweredAcidHeight:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.SetLoweredAcidHeight);
-                return true;
-            case RoomObjectInstruction.TransformSpikesToSlopes:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.TransformSpikesToSlopes);
-                return true;
-            case RoomObjectInstruction.RevertSlopesToSpikes:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.RevertSlopesToSpikes);
-                return true;
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-            case RoomObjectInstruction.MoveRightFourBlocks:
-            case RoomObjectInstruction.SetGreyDoorFrameBehavior:
-            case RoomObjectInstruction.Sleep:
-            case RoomObjectInstruction.Delete:
-            case RoomObjectInstruction.LinkInstruction:
-            case RoomObjectInstruction.GotoIfDoorBitSet:
-            case RoomObjectInstruction.IncrementDoorHitCounterAndGoto:
-            case RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomObjectInstruction.GotoIfSamusNear:
-            case RoomObjectInstruction.Goto:
-            case RoomObjectInstruction.DecrementTimerAndGoto:
-            case RoomObjectInstruction.SetEightBitTimer:
-            case RoomObjectInstruction.CopyFromRamToVram:
-            case RoomObjectInstruction.GotoIfAreaBossBitSet:
-            case RoomObjectInstruction.SetEvent:
-            case RoomObjectInstruction.SetObjectBtsFromByte:
-            case RoomObjectInstruction.DrawObjectBlock:
-            case RoomObjectInstruction.DrawObjectBlockClone:
-            case RoomObjectInstruction.QueueSoundLibrary3Maximum6:
-            case RoomObjectInstruction.ClearDownwardGateTrigger:
-            case RoomObjectInstruction.SpawnDownwardGateProjectile:
-            case RoomObjectInstruction.WakeDownwardGateProjectile:
-            case RoomObjectInstruction.ShootEyeDoorProjectile:
-            case RoomObjectInstruction.SpawnEyeDoorSweat:
-            case RoomObjectInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomObjectInstruction.SpawnEyeDoorSmoke:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomObjectInstruction.DamageDraygonCannonFacingRight:
-            case RoomObjectInstruction.DamageDraygonCannonFacingLeft:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-            case RoomObjectInstruction.GotoIfSamusHasNoBombs:
-            case RoomObjectInstruction.SetObjectBtsToOne:
-            case RoomObjectInstruction.GotoIfRoomArgumentLess:
-            case RoomObjectInstruction.SpawnFourMotherBrainGlassShards:
-            case RoomObjectInstruction.SpawnTorizoStatueBreaking:
-            case RoomObjectInstruction.QueueSongOneMusicTrack:
-            case RoomObjectInstruction.EnableNoobTubeWaterPhysics:
-            case RoomObjectInstruction.SpawnNoobTubeCrack:
-            case RoomObjectInstruction.TriggerNoobTubeEarthquake:
-            case RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomObjectInstruction.LockSamus:
-            case RoomObjectInstruction.UnlockSamus:
-            case RoomObjectInstruction.SamusEaterDamage:
-            case RoomObjectInstruction.SamusEaterReleaseImmunity:
-            case RoomObjectInstruction.MoveTourianAccessDown:
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>The block reactions' sound queues and grapple BTS write.</summary>
-    private static bool BlockReactionCueAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionObjectCue cue, out int length)
-    {
-        cue = default;
-        length = 0;
-        switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
-        {
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-                cue = new(BlockReactionObjectCueKind.QueueSoundWhenIdle, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)));
-                length = 3;
-                return true;
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-                cue = new(BlockReactionObjectCueKind.QueueSoundAtLowPriority, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)));
-                length = 3;
-                return true;
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-                cue = new(BlockReactionObjectCueKind.QueueSoundAtNormalPriority, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)));
-                length = 3;
-                return true;
-            case RoomObjectInstruction.SetObjectBtsToOne:
-                cue = new(BlockReactionObjectCueKind.RestoreRespawningGrappleBehavior, null);
-                length = 2;
-                return true;
-            case RoomObjectInstruction.SetGreyDoorFrameBehavior:
-            case RoomObjectInstruction.Sleep:
-            case RoomObjectInstruction.Delete:
-            case RoomObjectInstruction.InstallFrameBehavior:
-            case RoomObjectInstruction.ClearFrameBehavior:
-            case RoomObjectInstruction.LinkInstruction:
-            case RoomObjectInstruction.GotoIfDoorBitSet:
-            case RoomObjectInstruction.IncrementDoorHitCounterAndGoto:
-            case RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomObjectInstruction.GotoIfSamusNear:
-            case RoomObjectInstruction.Goto:
-            case RoomObjectInstruction.DecrementTimerAndGoto:
-            case RoomObjectInstruction.SetEightBitTimer:
-            case RoomObjectInstruction.CopyFromRamToVram:
-            case RoomObjectInstruction.GotoIfAreaBossBitSet:
-            case RoomObjectInstruction.GotoIfEventSet:
-            case RoomObjectInstruction.SetEvent:
-            case RoomObjectInstruction.SetObjectBtsFromByte:
-            case RoomObjectInstruction.DrawObjectBlock:
-            case RoomObjectInstruction.DrawObjectBlockClone:
-            case RoomObjectInstruction.QueueSoundLibrary3Maximum6:
-            case RoomObjectInstruction.ClearDownwardGateTrigger:
-            case RoomObjectInstruction.SpawnDownwardGateProjectile:
-            case RoomObjectInstruction.WakeDownwardGateProjectile:
-            case RoomObjectInstruction.ShootEyeDoorProjectile:
-            case RoomObjectInstruction.SpawnEyeDoorSweat:
-            case RoomObjectInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomObjectInstruction.SpawnEyeDoorSmoke:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomObjectInstruction.DamageDraygonCannonFacingRight:
-            case RoomObjectInstruction.DamageDraygonCannonFacingLeft:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1:
-            case RoomObjectInstruction.GotoIfSamusHasNoBombs:
-            case RoomObjectInstruction.GotoIfRoomArgumentLess:
-            case RoomObjectInstruction.SpawnFourMotherBrainGlassShards:
-            case RoomObjectInstruction.SpawnTorizoStatueBreaking:
-            case RoomObjectInstruction.QueueSongOneMusicTrack:
-            case RoomObjectInstruction.EnableNoobTubeWaterPhysics:
-            case RoomObjectInstruction.SpawnNoobTubeCrack:
-            case RoomObjectInstruction.TriggerNoobTubeEarthquake:
-            case RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomObjectInstruction.LockSamus:
-            case RoomObjectInstruction.UnlockSamus:
-            case RoomObjectInstruction.MoveRightFourBlocks:
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-            case RoomObjectInstruction.SamusEaterDamage:
-            case RoomObjectInstruction.SamusEaterReleaseImmunity:
-            case RoomObjectInstruction.MoveTourianAccessDown:
-            case RoomObjectInstruction.TransformSpikesToSlopes:
-            case RoomObjectInstruction.RevertSlopesToSpikes:
-            case RoomObjectInstruction.SetLoweredAcidHeight:
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>The restore instruction, which draws the saved block for one update.</summary>
-    private static bool BlockReactionRestoreAt(IImportCartridgeSource cartridge, ushort cursor, out BlockReactionObjectFrame frame, out int duration, out int length)
-    {
-        frame = BlockReactionObjectFrame.RestoredBlock;
-        duration = 1;
-        length = 2;
-        return InstructionAt<RoomObjectInstruction>(cartridge, cursor) == RoomObjectInstruction.DrawObjectBlock;
-    }
-
-    /// <summary>The Speed Booster blocks' programs equal their native lists; both restore instructions draw the saved block.</summary>
-    internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
-    {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SpeedBoosterBlockPrograms.Programs,
-            SpeedBoosterBlockEntries, SpeedBoosterBlockDrawList, SpeedBoosterBlockCueAt, "Speed Booster block", SpeedBoosterBlockRestoreAt);
-        Console.WriteLine($"  Speed Booster block programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The blocks' break-sound instruction.</summary>
-    private static bool SpeedBoosterBlockCueAt(IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterBlockCue cue, out int length)
-    {
-        cue = SpeedBoosterBlockCue.QueueBreakSound;
-        length = 3;
-        if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct)
-            return false;
-        AssertEqual(SpeedBoosterBlockObjectProgramDefinitions.BreakSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "speed block break sound");
-        AssertEqual(SoundRequestPriority.WhenIdle, SpeedBoosterBlockObjectProgramDefinitions.BreakSoundPriority, "speed block break sound priority");
-        return true;
-    }
-
-    /// <summary>The two restore instructions, which draw the saved block for one update.</summary>
-    private static bool SpeedBoosterBlockRestoreAt(IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterBlockFrame frame, out int duration, out int length)
-    {
-        frame = SpeedBoosterBlockFrame.RestoredBlock;
-        duration = 1;
-        length = 2;
-        return InstructionAt<RoomObjectInstruction>(cartridge, cursor) is RoomObjectInstruction.DrawObjectBlock or RoomObjectInstruction.DrawObjectBlockClone;
-    }
-
-    /// <summary>The bank-$84 draw list a Speed Booster block frame draws.</summary>
-    private static RoomObjectDraw SpeedBoosterBlockDrawList(SpeedBoosterBlockFrame frame) => frame switch
-    {
-        SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockObjectDraws.CrumbleDrawList(0),
-        SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockObjectDraws.CrumbleDrawList(1),
-        SpeedBoosterBlockFrame.Crumble2 => SpeedBoosterBlockObjectDraws.CrumbleDrawList(2),
-        SpeedBoosterBlockFrame.Crumble3 => SpeedBoosterBlockObjectDraws.CrumbleDrawList(3),
-        SpeedBoosterBlockFrame.BombReveal => SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw,
-        SpeedBoosterBlockFrame.RestoredBlock => throw new InvalidOperationException("The restored block is drawn by its native restore instruction."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterBlockFrame)} {frame}."),
-    };
-
-    /// <summary>The downward gate's programs equal their native lists, and each wake continues after the sleep it ends.</summary>
+    /// <summary>
+    /// The downward gate's native lists do what <see cref="DownwardGateObject"/> does (#1554): the closed gate shows for
+    /// one update, clears its trigger, arms its closed wake and sleeps; past the sleep it wakes its projectile, plays the
+    /// movement sound and rises image by image into the open gate, which shows for one update, clears its trigger, arms
+    /// its open wake and sleeps; past that sleep it shows the open gate, spawns its moving projectile with the movement
+    /// sound and lowers image by image into the closed gate. Every image, hold and operand is compared with
+    /// <see cref="DownwardGateMovementDefinitions"/>.
+    /// </summary>
     internal static void VerifyDownwardGatePrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DownwardGatePrograms.Programs, DownwardGateEntries,
-            draw => RoomObjectDraw.Of(draw), DownwardGateCueAt, "downward gate");
-        foreach ((DownwardGateProgram program, ushort entry) in DownwardGateEntries)
-        {
-            if (DownwardGatePrograms.ProgramAfterSleep(program) is not { } next)
-                continue;
-            AssertEqual(unchecked((ushort)(entry + DownwardGateSleepContinuationOffset)), DownwardGateEntries.Single(e => e.Program == next).Entry,
-                $"downward gate {next} continues {program} past its sleep");
-        }
-        ushort firstTrigger = DownwardGateEntries.Single(e => e.Program == DownwardGateProgram.TriggerBlueLeft).Entry;
-        AssertTrue(DownwardGateShotBlockDefinitions.Triggers.Select(trigger => trigger.Program).SequenceEqual(
-                DownwardGateEntries.Where(e => e.Entry >= firstTrigger).OrderBy(e => e.Entry).Select(e => e.Program)),
-            "downward gate triggers are selected in native list order");
-        Console.WriteLine($"  Downward gate programs: {steps} typed steps match bank $84.");
+        IReadOnlyDictionary<GateState, ushort> addresses = DownwardGateAddresses(rom);
+        Console.WriteLine($"  Downward gate lists: {addresses.Count} typed gate states match bank $84.");
     }
 
     /// <summary>
-    /// The native instruction pointer a downward gate's typed program stands for: the address of the native instruction
-    /// its cursor rests on, for comparisons with native gate traces.
+    /// The native instruction a downward gate in the typed state of <paramref name="gate"/> rests on at the end of an
+    /// update, for comparisons with native gate traces: the instruction after the image it shows, or the sleep it rests
+    /// on.
     /// </summary>
-    internal static ushort DownwardGateNativeInstruction(ISnesAddressSpace rom, DownwardGateObjectAnimation gate)
+    internal static ushort DownwardGateNativeInstruction(ISnesAddressSpace rom, DownwardGateObject gate)
     {
-        downwardGateAddresses ??= StepAddresses(CartridgeImportSource.Require(rom), DownwardGatePrograms.Programs,
-            DownwardGateEntries, draw => RoomObjectDraw.Of(draw), DownwardGateCueAt, "downward gate");
-        return downwardGateAddresses[new ProgramStep<DownwardGateProgram>(gate.Cursor.Program, gate.Cursor.Position)];
+        ArgumentNullException.ThrowIfNull(gate);
+        downwardGateAddresses ??= DownwardGateAddresses(rom);
+        int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening ? gate.Frame : 0;
+        return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)
+            ? address
+            : throw new InvalidDataException($"A downward gate in {gate.Phase} at image {frame} has no native instruction.");
     }
 
-    /// <summary>The downward gate's step addresses, walked once.</summary>
-    private static IReadOnlyDictionary<ProgramStep<DownwardGateProgram>, ushort>? downwardGateAddresses;
+    /// <summary>The native instruction of every typed gate state, walked once.</summary>
+    private static IReadOnlyDictionary<GateState, ushort>? downwardGateAddresses;
 
-    /// <summary>The gate's trigger, pre-instruction, projectile and sound instructions with their operands.</summary>
-    private static bool DownwardGateCueAt(IImportCartridgeSource cartridge, ushort cursor, out DownwardGateCue cue, out int length)
+    /// <summary>
+    /// Walks the gate's native lists from its header, checking each against the typed course, and returns the instruction
+    /// each typed state rests on.
+    /// </summary>
+    private static Dictionary<GateState, ushort> DownwardGateAddresses(ISnesAddressSpace rom)
     {
-        ushort operand = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
-        (bool known, cue, length) = InstructionAt<RoomObjectInstruction>(cartridge, cursor) switch
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, TerrainChangeFrame frame, string at)
         {
-            RoomObjectInstruction.ClearDownwardGateTrigger => new DownwardGateCueAtCase(true, DownwardGateCue.ClearTrigger, 2),
-            RoomObjectInstruction.InstallFrameBehavior => new DownwardGateCueAtCase(true,
-                RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(operand, "downward gate pre-instruction") == DownwardGateFrameBehavior.WakeIfTriggered
-                ? DownwardGateCue.ArmWakeIfTriggered : DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow, 4),
-            RoomObjectInstruction.SpawnDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.SpawnMovingGate, 4),
-            RoomObjectInstruction.WakeDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.WakeGateProjectile, 4),
-            RoomObjectInstruction.QueueSoundLibrary3Maximum6 => new DownwardGateCueAtCase(true, DownwardGateCue.QueueMovementSound, 3),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.ClearFrameBehavior or
-                RoomObjectInstruction.LinkInstruction or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.GotoIfEventSet or
-                RoomObjectInstruction.SetEvent or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum6 or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.DamageDraygonCannonFacingRight or
-                RoomObjectInstruction.DamageDraygonCannonFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.EnableNoobTubeWaterPhysics or
-                RoomObjectInstruction.SpawnNoobTubeCrack or
-                RoomObjectInstruction.TriggerNoobTubeEarthquake or
-                RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles or
-                RoomObjectInstruction.LockSamus or
-                RoomObjectInstruction.UnlockSamus or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.SamusEaterDamage or
-                RoomObjectInstruction.SamusEaterReleaseImmunity or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new DownwardGateCueAtCase(false, default, 0),
-            _ => new DownwardGateCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        if (cue == DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow)
-            AssertEqual(RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow), operand, "downward gate closed wake");
-        if (cue == DownwardGateCue.SpawnMovingGate)
-            AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), operand, "downward gate moving projectile");
-        if (cue == DownwardGateCue.QueueMovementSound)
-        {
-            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
-            AssertEqual(SoundRequestPriority.Normal, DownwardGateObjectProgramDefinitions.MovementSoundPriority, "downward gate movement sound priority");
+            AssertEqual(frame.Updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
         }
-        return true;
+        void AssertMovementSound(int cursor, string at)
+        {
+            AssertEqual(RoomObjectInstruction.QueueSoundLibrary3Maximum6, At(cursor), $"{at} movement sound");
+            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)),
+                $"{at} movement sound identity");
+            AssertEqual(SoundRequestPriority.Normal, DownwardGateMovementDefinitions.MovementSoundPriority, $"{at} movement sound priority");
+        }
+        // Each resting list: its image for one update, the trigger cleared, its wake armed, the sleep; the continuation
+        // after the sleep follows it.
+        int Resting(int list, RoomObjectDraw image, DownwardGatePhase showing, DownwardGatePhase resting, Dictionary<GateState, ushort> into)
+        {
+            AssertShown(list, new TerrainChangeFrame(image, 1), $"{showing}");
+            AssertEqual(RoomObjectInstruction.ClearDownwardGateTrigger, At(list + 4), $"{resting} clears the trigger");
+            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list + 6), $"{resting} arms its wake");
+            AssertEqual(resting, RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(Word(list + 8), "downward gate wake"), $"{resting} wake");
+            AssertEqual(RoomObjectInstruction.Sleep, At(list + 10), $"{resting} sleeps");
+            into[new GateState(showing, 0)] = checked((ushort)(list + 4));
+            into[new GateState(resting, 0)] = checked((ushort)(list + 10));
+            return list + 12;
+        }
+
+        var addresses = new Dictionary<GateState, ushort>();
+        int closed = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.DownwardGate) + 2);
+        addresses[new GateState(DownwardGatePhase.Starting, 0)] = checked((ushort)closed);
+        int reopen = Resting(closed, DownwardGateMovementDefinitions.ClosedImage, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
+        AssertEqual(RoomObjectInstruction.WakeDownwardGateProjectile, At(reopen), "reopening wakes the gate projectile");
+        AssertMovementSound(reopen + 4, "reopening");
+        int cursor = reopen + 7;
+        for (int index = 0; index < DownwardGateMovementDefinitions.Reopening.Count; index++, cursor += 4)
+        {
+            AssertShown(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
+            addresses[new GateState(DownwardGatePhase.Reopening, index)] = checked((ushort)(cursor + 4));
+        }
+        AssertEqual(RoomObjectInstruction.Goto, At(cursor), "reopening goes on to the open gate");
+        int open = Word(cursor + 2);
+        int close = Resting(open, DownwardGateMovementDefinitions.OpenImage, DownwardGatePhase.ShowingOpen, DownwardGatePhase.RestingOpen, addresses);
+        cursor = close;
+        for (int index = 0; index < DownwardGateMovementDefinitions.Closing.Count; index++, cursor += 4)
+        {
+            if (index == DownwardGateMovementDefinitions.ClosingMovementStart)
+            {
+                AssertEqual(RoomObjectInstruction.SpawnDownwardGateProjectile, At(cursor), "closing spawns the moving gate");
+                AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), Word(cursor + 2), "downward gate moving projectile");
+                AssertMovementSound(cursor + 4, "closing");
+                cursor += 7;
+            }
+            AssertShown(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
+            addresses[new GateState(DownwardGatePhase.Closing, index)] = checked((ushort)(cursor + 4));
+        }
+        AssertEqual(closed, cursor, "closing runs on into the closed gate");
+        return addresses;
     }
+
+    /// <summary>A typed gate state: its phase and, while it moves, the image it shows.</summary>
+    /// <param name="Phase">The gate's phase.</param>
+    /// <param name="Frame">The image of its movement, or zero at rest.</param>
+    private readonly record struct GateState(DownwardGatePhase Phase, int Frame);
 
     /// <summary>The Tourian elevator access changes play as their native lists do.</summary>
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)
@@ -486,21 +396,17 @@ internal static class RoomObjectProgramsVerification
         Console.WriteLine($"  Tourian access changes: {frames} typed frames match bank $84.");
     }
 
-    /// <summary>The Wrecked Ship attic's program equals its native list.</summary>
+    /// <summary>
+    /// The Wrecked Ship attic's native list does what <see cref="WreckedShipAtticObject"/> does (#1554): it installs a
+    /// routine that changes nothing and sleeps for good, so the object only holds its place.
+    /// </summary>
     internal static void VerifyWreckedShipAtticPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), WreckedShipAtticObjectProgramDefinitions.Programs, WreckedShipAtticEntries,
-            draw => throw new InvalidOperationException($"The attic program never draws; got {draw}."),
-            (IImportCartridgeSource cartridge, ushort cursor, out WreckedShipAtticCue cue, out int length) =>
-            {
-                cue = WreckedShipAtticCue.InstallInertFrameBehavior;
-                length = 4;
-                if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.InstallFrameBehavior)
-                    return false;
-                AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "attic pre-instruction");
-                return true;
-            }, "Wrecked Ship attic");
-        Console.WriteLine($"  Wrecked Ship attic program: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList), "attic installs its routine");
+        AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (WreckedShipAtticList + 2)), "attic pre-instruction");
+        AssertEqual(RoomObjectInstruction.Sleep, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList + 4), "attic sleeps for good");
+        Console.WriteLine("  Wrecked Ship attic list: installs its inert routine and sleeps, as its typed object holds its place.");
     }
 
     /// <summary>The blue caps play as their native lists do (#1554).</summary>
@@ -531,191 +437,57 @@ internal static class RoomObjectProgramsVerification
         Console.WriteLine($"  Eye doors: {images} typed images match bank $84.");
     }
 
-    /// <summary>The Brinstar plants' programs equal their native lists.</summary>
-    internal static void VerifySamusEaterPrograms(ISnesAddressSpace rom)
+    /// <summary>
+    /// A Brinstar plant's native list plays as its typed plant does (#1554): it installs the hold and counts its chews;
+    /// each chew's images, and the sound and damage before them, repeat while the count runs; then the release immunity,
+    /// the end of the hold, the closed mouth and the idle plant, and the end. Every image, count and bite is compared
+    /// with <paramref name="plant"/>.
+    /// </summary>
+    internal static void VerifySamusEaterList(ISnesAddressSpace rom, int list, SamusEaterObjectDefinition plant)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SamusEaterObjectProgramDefinitions.Programs, SamusEaterEntries,
-            draw => RoomObjectDraw.Of(draw), SamusEaterCueAt, "Brinstar plant");
-        Console.WriteLine($"  Brinstar plant programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The plants' hold, chew-sound, damage, release and clear instructions.</summary>
-    private static bool SamusEaterCueAt(IImportCartridgeSource cartridge, ushort cursor, out SamusEaterCue cue, out int length)
-    {
-        (bool known, cue, length) = InstructionAt<RoomObjectInstruction>(cartridge, cursor) switch
+        ArgumentNullException.ThrowIfNull(plant);
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, SamusEaterDraw image, int updates, string at)
         {
-            RoomObjectInstruction.InstallFrameBehavior => new SamusEaterCueAtCase(true, SamusEaterCue.HoldSamus, 4),
-            RoomObjectInstruction.QueueSoundLibrary2Maximum6 => new SamusEaterCueAtCase(true, SamusEaterCue.QueueChewSound, 3),
-            RoomObjectInstruction.SamusEaterDamage => new SamusEaterCueAtCase(true, SamusEaterCue.DamageSamus, 2),
-            RoomObjectInstruction.SamusEaterReleaseImmunity => new SamusEaterCueAtCase(true, SamusEaterCue.ReleaseSamus, 2),
-            RoomObjectInstruction.ClearFrameBehavior => new SamusEaterCueAtCase(true, SamusEaterCue.ClearFrameBehavior, 2),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.LinkInstruction or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.GotoIfEventSet or
-                RoomObjectInstruction.SetEvent or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary3Maximum6 or
-                RoomObjectInstruction.ClearDownwardGateTrigger or
-                RoomObjectInstruction.SpawnDownwardGateProjectile or
-                RoomObjectInstruction.WakeDownwardGateProjectile or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.DamageDraygonCannonFacingRight or
-                RoomObjectInstruction.DamageDraygonCannonFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.EnableNoobTubeWaterPhysics or
-                RoomObjectInstruction.SpawnNoobTubeCrack or
-                RoomObjectInstruction.TriggerNoobTubeEarthquake or
-                RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles or
-                RoomObjectInstruction.LockSamus or
-                RoomObjectInstruction.UnlockSamus or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new SamusEaterCueAtCase(false, default, 0),
-            _ => new SamusEaterCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        if (cue == SamusEaterCue.HoldSamus)
-            AssertEqual(SamusEaterObjectDefinitionsConstants.HoldFrameBehavior, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "plant hold pre-instruction");
-        if (cue == SamusEaterCue.QueueChewSound)
-        {
-            AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
-            AssertEqual(SoundRequestPriority.Normal, SamusEaterObjectProgramDefinitions.ChewSoundPriority, "plant chew sound priority");
+            AssertEqual(updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
-        return true;
-    }
 
-    /// <summary>The n00b tube's native instructions, with their event, link, pre-instruction and sound operands.</summary>
-    private static bool NoobTubeCueAt(IImportCartridgeSource cartridge, ushort cursor, out NoobTubeCue cue, out int length)
-    {
-        ushort Operand(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
-        NoobTubeProgram Entry(ushort address) => NoobTubeEntries.Single(entry => entry.Entry == address).Program;
-        RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
-        (bool known, cue, length) = instruction switch
+        string plantName = plant.Ceiling ? "ceiling plant" : "floor plant";
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list), $"{plantName} first holds Samus");
+        AssertEqual(SamusEaterObjectDefinitionsConstants.HoldFrameBehavior, Word(list + 2), $"{plantName} hold");
+        AssertEqual(RoomObjectInstruction.SetEightBitTimer, At(list + 4), $"{plantName} counts its chews");
+        AssertEqual(plant.Chews, (int)ReadOperandByte(cartridge, list + 6), $"{plantName} chews");
+        int chew = list + 7;
+        int cursor = chew;
+        for (int index = 0; index < plant.Chew.Count; index++)
         {
-            RoomObjectInstruction.GotoIfEventSet => new NoobTubeCueAtCase(true, NoobTubeCue.SkipIfBroken, 6),
-            RoomObjectInstruction.LinkInstruction => new NoobTubeCueAtCase(true, Entry(Operand(2)) == NoobTubeProgram.WaitForInput ? NoobTubeCue.LinkInputWait : NoobTubeCue.LinkBreak, 4),
-            RoomObjectInstruction.InstallFrameBehavior =>
-                new NoobTubeCueAtCase(true, RoomObjectFrameBehaviorNativeWords.NoobTube.Decode(Operand(2), "n00b tube pre-instruction") == NoobTubeObjectFrameBehavior.WakeOnPowerBomb
-                    ? NoobTubeCue.ArmPowerBombWake : NoobTubeCue.ArmInputWake, 4),
-            RoomObjectInstruction.ClearFrameBehavior => new NoobTubeCueAtCase(true, NoobTubeCue.ClearFrameBehavior, 2),
-            RoomObjectInstruction.LockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.LockSamus, 2),
-            RoomObjectInstruction.SpawnNoobTubeCrack => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnCrack, 2),
-            RoomObjectInstruction.QueueSoundLibrary2Maximum6 => new NoobTubeCueAtCase(true, NoobTubeCue.QueueBreakSound, 3),
-            RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles => new NoobTubeCueAtCase(true, NoobTubeCue.SpawnShardsAndBubbles, 2),
-            RoomObjectInstruction.TriggerNoobTubeEarthquake => new NoobTubeCueAtCase(true, NoobTubeCue.TriggerEarthquake, 2),
-            RoomObjectInstruction.SetEvent => new NoobTubeCueAtCase(true, NoobTubeCue.SetBrokenEvent, 4),
-            RoomObjectInstruction.EnableNoobTubeWaterPhysics => new NoobTubeCueAtCase(true, NoobTubeCue.EnableWaterPhysics, 2),
-            RoomObjectInstruction.UnlockSamus => new NoobTubeCueAtCase(true, NoobTubeCue.UnlockSamus, 2),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary3Maximum6 or
-                RoomObjectInstruction.ClearDownwardGateTrigger or
-                RoomObjectInstruction.SpawnDownwardGateProjectile or
-                RoomObjectInstruction.WakeDownwardGateProjectile or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.DamageDraygonCannonFacingRight or
-                RoomObjectInstruction.DamageDraygonCannonFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.SamusEaterDamage or
-                RoomObjectInstruction.SamusEaterReleaseImmunity or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new NoobTubeCueAtCase(false, default, 0),
-            _ => new NoobTubeCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        switch (cue)
-        {
-            case NoobTubeCue.SkipIfBroken:
-                AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), Operand(2), "n00b tube skip event");
-                AssertEqual(NoobTubeProgram.AlreadyBroken, Entry(Operand(4)), "n00b tube skip target");
-                break;
-            case NoobTubeCue.LinkBreak:
-                AssertEqual(NoobTubeProgram.Break, Entry(Operand(2)), "n00b tube break link");
-                break;
-            case NoobTubeCue.ArmInputWake:
-                AssertEqual(RoomObjectFrameBehaviorNativeWords.NoobTube.Word(NoobTubeObjectFrameBehavior.WakeOnAcceptedInput), Operand(2), "n00b tube input wake");
-                break;
-            case NoobTubeCue.QueueBreakSound:
-                AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
-                AssertEqual(SoundRequestPriority.Normal, NoobTubeObjectProgramDefinitions.BreakSoundPriority, "n00b tube break sound priority");
-                break;
-            case NoobTubeCue.SetBrokenEvent:
-                AssertEqual(NoobTubeObjectDefinitions.BrokenEvent.Number(), Operand(2), "n00b tube broken event");
-                break;
-            case NoobTubeCue.LinkInputWait:
-            case NoobTubeCue.ArmPowerBombWake:
-            case NoobTubeCue.ClearFrameBehavior:
-            case NoobTubeCue.LockSamus:
-            case NoobTubeCue.SpawnCrack:
-            case NoobTubeCue.SpawnShardsAndBubbles:
-            case NoobTubeCue.TriggerEarthquake:
-            case NoobTubeCue.EnableWaterPhysics:
-            case NoobTubeCue.UnlockSamus:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(NoobTubeCue)} {cue}.");
+            SamusEaterChewFrame frame = plant.Chew[index];
+            string at = $"{plantName} chew image {index}";
+            if (frame.BiteBefore == SamusEaterBite.SoundAndDamage)
+            {
+                AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), $"{at} chew sound");
+                AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
+                    $"{at} chew sound identity");
+                AssertEqual(SoundRequestPriority.Normal, SamusEaterObjectDefinitions.ChewSoundPriority, $"{at} chew sound priority");
+                cursor += 3;
+            }
+            if (frame.BiteBefore != SamusEaterBite.None)
+            {
+                AssertEqual(RoomObjectInstruction.SamusEaterDamage, At(cursor), $"{at} damage");
+                cursor += 2;
+            }
+            AssertShown(cursor, frame.Image, frame.Updates, at);
+            cursor += 4;
         }
-        return true;
+        AssertEqual(RoomObjectInstruction.DecrementTimerAndGoto, At(cursor), $"{plantName} repeats its chew");
+        AssertEqual(chew, (int)Word(cursor + 2), $"{plantName} repeats from its first chew image");
+        AssertEqual(RoomObjectInstruction.SamusEaterReleaseImmunity, At(cursor + 4), $"{plantName} releases Samus");
+        AssertEqual(RoomObjectInstruction.ClearFrameBehavior, At(cursor + 6), $"{plantName} stops holding");
+        AssertShown(cursor + 8, plant.Released, SamusEaterObjectDefinitions.ReleaseDuration, $"{plantName} closed mouth");
+        AssertShown(cursor + 12, plant.Idle, 1, $"{plantName} idle");
+        AssertEqual(RoomObjectInstruction.Delete, At(cursor + 16), $"{plantName} ends");
     }
 }

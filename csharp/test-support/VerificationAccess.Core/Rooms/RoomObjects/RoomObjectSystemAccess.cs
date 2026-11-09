@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -136,13 +137,13 @@ internal static class RoomObjectSystemAccess
         /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
         internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass.MotherBrainGlassWasLoaded;
 
-        /// <summary>Current native room argument, retained after the header deletes itself.</summary>
-        internal int MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
-            ? slot.HitCounter
+        /// <summary>The glass's hit count, kept after the glass leaves the room.</summary>
+        internal int MotherBrainGlassRoomArgument => LiveGlass(self) is { } glass
+            ? glass.Hits
             : self.MotherBrainGlass.MotherBrainGlassLastRoomArgument;
 
-        /// <summary>The glass's typed program, or null after deletion.</summary>
-        internal RoomObjectAnimation? MotherBrainGlassAnimation => MotherBrainGlassSlot(self)?.Animation;
+        /// <summary>The live glass, or null once it has left the room.</summary>
+        internal MotherBrainGlassObject? LiveMotherBrainGlass => LiveGlass(self);
 
         /// <summary>
         /// Runs the production timed-frame draw for the sole live PLM, exactly as the `$84`
@@ -172,11 +173,6 @@ internal static class RoomObjectSystemAccess
             start.StartOn(active[0]);
             active[0].FrameHold = 1;
         }
-
-        /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
-        internal ushort MotherBrainGlassFrameHold => MotherBrainGlassSlot(self) is { } slot
-            ? checked((ushort)slot.FrameHold)
-            : (ushort)0;
 
         /// <summary>
         /// Publishes the projectile word to the resident eye controller at a type-$C/BTS-$44
@@ -359,14 +355,13 @@ internal static class RoomObjectSystemAccess
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.BlockIndex = blockIndex;
-            slot.FrameHold = 1;
             slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
 
             if (areaDependent)
             {
                 // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
                 // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                RoomObjectProgramStart.Delete.StartOn(slot);
+                slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
                 return true;
             }
 
@@ -376,7 +371,7 @@ internal static class RoomObjectSystemAccess
                 // The setup throws away the original appearance. The shot-block parent with the block's collision kind
                 // is both the restore block and the source of the deactivated live block.
                 slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.ShotBlockParent);
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.RespawningShot(ShotBlockReactions.BreakShape(bts.Reaction))));
+                slot.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(ShotBlockReactions.BreakShape(bts.Reaction))));
                 level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
                 return true;
             }
@@ -386,7 +381,7 @@ internal static class RoomObjectSystemAccess
                 // The deactivating setup does not synthesize a restore block. Deactivation turns shootable air into
                 // ordinary air and a shootable block into a solid block until the same-frame program draws its first
                 // breaking frame.
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.PermanentShot(ShotBlockReactions.BreakShape(bts.Reaction))));
+                slot.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(ShotBlockReactions.BreakShape(bts.Reaction))));
                 level.SetTerrain(blockIndex, block.Terrain.Deactivated());
                 return true;
             }
@@ -395,7 +390,7 @@ internal static class RoomObjectSystemAccess
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectProgram.BombedPowerBombBlockUnused));
+                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockUnused));
                 return true;
             }
 
@@ -403,11 +398,11 @@ internal static class RoomObjectSystemAccess
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectProgram.BombedSuperMissileBlockUnused));
+                slot.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockUnused));
                 return true;
             }
 
-            RoomObjectProgramStart.Delete.StartOn(slot);
+            slot.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
             return true;
         }
 
@@ -485,7 +480,7 @@ internal static class RoomObjectSystemAccess
     private static IEnumerable<RoomObjectSlot> ActiveSlots(RoomObjectSystem roomObjects) =>
         roomObjects.SlotTable.Slots.Where(slot => slot.Active);
 
-    /// <summary>The live Mother Brain glass PLM slot, as the system's own slot search finds it.</summary>
-    private static RoomObjectSlot? MotherBrainGlassSlot(RoomObjectSystem roomObjects) =>
-        roomObjects.MotherBrainGlass.TryGetMotherBrainGlassSlot(out RoomObjectSlot? slot) ? slot : null;
+    /// <summary>The live Mother Brain glass, as the system's own search finds it.</summary>
+    private static MotherBrainGlassObject? LiveGlass(RoomObjectSystem roomObjects) =>
+        roomObjects.MotherBrainGlass.TryGetMotherBrainGlass(out MotherBrainGlassObject? glass) ? glass : null;
 }

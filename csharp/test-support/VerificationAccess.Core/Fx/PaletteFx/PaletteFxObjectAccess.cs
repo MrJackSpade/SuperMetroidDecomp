@@ -104,7 +104,7 @@ internal static class PaletteFxObjectAccess
     }
 
     /// <summary>A running effect's native definition word.</summary>
-    extension(ColourEffect effect)
+    extension(RoomColourEffect effect)
     {
         /// <summary>The definition address of the effect.</summary>
         internal ushort Id => NativeAddress(effect.Effect);

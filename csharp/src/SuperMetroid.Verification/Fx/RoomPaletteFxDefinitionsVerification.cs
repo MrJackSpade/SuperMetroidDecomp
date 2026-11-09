@@ -139,7 +139,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             var systemSession = new PaletteFxSessionState();
             var system = new RoomPaletteFxSystem(systemSession);
             system.Start(pointer, equippedItems: 0);
-            ColourEffect effect = ActiveColourEffect(system);
+            RoomColourEffect effect = ActiveColourEffect(system);
             AssertEqual(pointer, effect.Id, $"${pointer:X4} production ID");
             // The first effect started takes the first turn, the native handler's highest object.
             AssertEqual(0, effect.Turn, $"${pointer:X4} production turn");
@@ -210,7 +210,7 @@ internal static class RoomPaletteFxDefinitionsVerification
     }
 
     /// <summary>The one effect running after a production start or room load.</summary>
-    private static ColourEffect ActiveColourEffect(RoomPaletteFxSystem system) => system.effects is [ColourEffect effect]
+    private static RoomColourEffect ActiveColourEffect(RoomPaletteFxSystem system) => system.effects is [RoomColourEffect effect]
         ? effect
         : throw new InvalidOperationException($"Expected one running colour effect, found {system.effects.Count}.");
 

@@ -103,7 +103,7 @@ internal static class NativeSnapshotImport
             // A live object resumes its typed program where the recorded native pointer stands.
             SuperMetroid.Core.Programs.AnimationProgramCursor<PaletteFxProgram> step = PaletteFxNativeProgramOracle.CursorAt(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W(NativeSnapshotMemory.PaletteFxInstruction + slot * 2));
-            var imported = new ColourEffect(effect, turn, step.Program)
+            var imported = new RoomColourEffect(effect, turn, step.Program)
             {
                 Step = step,
                 // The native colour index names the colours the object animates: of the colour groups its programs name,
@@ -389,7 +389,7 @@ internal static class NativeSnapshotImport
     private static void ImportShownPaletteFxRecords(SuperMetroidRuntime runtime)
     {
         // Native slot order is the reverse of turn order.
-        foreach (ColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
+        foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
         {
             if (effect.Colours is not { } colours || LastShownRecord(effect.Step) is not { } record)
                 continue;

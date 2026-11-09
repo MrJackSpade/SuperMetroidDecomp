@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Updates">The updates the frame stays before the next frame draws, or before the change ends.</param>
 /// <param name="MoveBefore">The blocks the change's origin moves before the frame draws; zero for none.</param>
 /// <param name="SoundBefore">The sound requested as the frame draws; null for none.</param>
-/// <param name="SoundPriority">How crowded the sound's queue may be for the frame's request to join it.</param>
+/// <param name="soundPriority">How crowded the sound's queue may be for the frame's request to join it; a normal request when not given.</param>
 internal readonly record struct TerrainChangeFrame(
     RoomObjectDraw Draw,
     int Updates,
     Offset16<RoomBlocks> MoveBefore = default,
     SoundEffectId? SoundBefore = null,
-    SoundRequestPriority SoundPriority = SoundRequestPriority.Normal);
+    SoundRequestPriority? soundPriority = null)
+{
+    /// <summary>How crowded the sound's queue may be for the frame's request to join it.</summary>
+    public SoundRequestPriority SoundPriority { get; } = soundPriority ?? SoundRequestPriority.Normal;
+}

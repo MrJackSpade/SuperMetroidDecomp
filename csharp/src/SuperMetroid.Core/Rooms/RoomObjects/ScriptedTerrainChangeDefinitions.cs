@@ -22,7 +22,7 @@ internal static class ScriptedTerrainChangeDefinitions
     internal static TerrainChange EnemyBreakableBlockBreak { get; } = new(1,
     [
         new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup0], BreakupFrameDuration,
-            SoundBefore: EnemySound.BlockCrumble, SoundPriority: SoundRequestPriority.Low),
+            SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
         new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup1], BreakupFrameDuration),
         new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup2], BreakupFrameDuration),
         new(ScriptedRoomObjectDrawDefinitions.DrawLists[ScriptedRoomObjectFrame.SingleBreakup3], 1),

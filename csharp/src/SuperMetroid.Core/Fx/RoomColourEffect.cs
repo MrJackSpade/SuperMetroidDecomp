@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Fx;
 /// updates left until that step, and the repeats its counted steps have left. Its authored steps are
 /// <see cref="PaletteFxAnimations"/>; the <see cref="RoomPaletteFxSystem"/> that started it gives it its turn.
 /// </summary>
-internal sealed class ColourEffect
+internal sealed class RoomColourEffect
 {
     /// <summary>Starts <paramref name="effect"/> at the start of <paramref name="program"/>, due to step on its first turn.</summary>
     /// <param name="effect">What the effect shows.</param>
     /// <param name="turn">Its turn in each update (<see cref="RoomPaletteFxSystem"/>).</param>
     /// <param name="program">The program it starts.</param>
-    internal ColourEffect(PaletteFxObject effect, int turn, PaletteFxProgram program)
+    internal RoomColourEffect(PaletteFxObject effect, int turn, PaletteFxProgram program)
     {
         Effect = effect;
         Turn = turn;

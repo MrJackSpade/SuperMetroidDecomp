@@ -34,10 +34,14 @@ internal static class NativeTerrainChanges
     /// <param name="Sound">The sound requested, or null.</param>
     /// <param name="Begins">Whether this is the change's opening, which must come before its first frame.</param>
     /// <param name="Length">The instruction's native length in bytes.</param>
-    /// <param name="Priority">The sound's request priority.</param>
+    /// <param name="priority">The sound's request priority; a normal request when not given.</param>
     /// <param name="Effect">A family effect the step makes beyond a move or sound, named for the comparison; null for none.</param>
     internal readonly record struct NativeStep(Offset16<RoomBlocks> Move, SoundEffectId? Sound, bool Begins, int Length,
-        SoundRequestPriority Priority = SoundRequestPriority.Normal, string? Effect = null);
+        SoundRequestPriority? priority = null, string? Effect = null)
+    {
+        /// <summary>The sound's request priority.</summary>
+        public SoundRequestPriority Priority { get; } = priority ?? SoundRequestPriority.Normal;
+    }
 
     /// <summary>Decodes the family instruction at <paramref name="cursor"/>, or returns false when the family has none there.</summary>
     internal delegate bool StepReader(IImportCartridgeSource cartridge, ushort cursor, out NativeStep step);
@@ -87,8 +91,8 @@ internal static class NativeTerrainChanges
             {
                 VerificationAssertions.AssertTrue(frame < change.Frames.Count, $"{at}: the typed change ends before the native list draws");
                 TerrainChangeFrame expected = change.Frames[frame];
-                VerificationAssertions.AssertEqual((int)word, expected.Updates, $"{at}: updates the frame stays");
-                VerificationAssertions.AssertEqual((int)Word(cartridge, cursor + 2), (int)RoomObjectDrawAddressCodec.Of(expected.Draw), $"{at}: draw");
+                VerificationAssertions.AssertEqual(word, expected.Updates, $"{at}: updates the frame stays");
+                VerificationAssertions.AssertEqual(Word(cartridge, cursor + 2), (int)RoomObjectDrawAddressCodec.Of(expected.Draw), $"{at}: draw");
                 VerificationAssertions.AssertEqual(move, expected.MoveBefore, $"{at}: origin move before the frame");
                 VerificationAssertions.AssertEqual(sound, expected.SoundBefore, $"{at}: sound with the frame");
                 foreach (NativeStep before in sinceFrame)

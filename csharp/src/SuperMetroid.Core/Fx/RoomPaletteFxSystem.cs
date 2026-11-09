@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The colour effects a room, or a frontend screen, runs (#1554): its glows, flashes, fades and Samus's heat shimmer,
-/// each a <see cref="ColourEffect"/> that keeps its own step, countdown, colours and condition.
+/// each a <see cref="RoomColourEffect"/> that keeps its own step, countdown, colours and condition.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -32,7 +32,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     private const int TurnCount = 8;
 
     /// <summary>The running effects, in turn order.</summary>
-    internal readonly List<ColourEffect> effects = [];
+    internal readonly List<RoomColourEffect> effects = [];
     /// <summary>The record each colour group last showed, in the order they were shown (#1512).</summary>
     internal readonly PaletteFxShown shown = new();
     /// <summary>The records Samus's suit groups showed during the current update, in order (#1512).</summary>
@@ -163,7 +163,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// next step is due runs its steps to the next record, which goes to <paramref name="show"/>. Effects that end are
     /// dropped once every turn has run.
     /// </summary>
-    private void RunTurns(PaletteFxConditions conditions, Action<ColourEffect, PaletteFxFrame> show)
+    private void RunTurns(PaletteFxConditions conditions, Action<RoomColourEffect, PaletteFxFrame> show)
     {
         // Each update owns a new publication window: requests are momentary calls into the shared queues.
         soundRequests.Clear();
@@ -171,7 +171,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         suitShown.Clear();
         enemyShown.Clear();
 
-        foreach (ColourEffect effect in effects)
+        foreach (RoomColourEffect effect in effects)
         {
             CheckCondition(effect, conditions);
             if (effect.Ended || !effect.CountDown())
@@ -214,7 +214,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
         }
 
         int place = effects.FindIndex(running => running.Turn > turn);
-        effects.Insert(place < 0 ? effects.Count : place, new ColourEffect(effect, turn, program));
+        effects.Insert(place < 0 ? effects.Count : place, new RoomColourEffect(effect, turn, program));
         return true;
     }
 
@@ -231,7 +231,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
 
     /// <summary>Checks the condition <paramref name="effect"/> watches, before its countdown runs.</summary>
     /// <exception cref="InvalidOperationException">The effect watches a condition of no defined kind.</exception>
-    private void CheckCondition(ColourEffect effect, PaletteFxConditions conditions)
+    private void CheckCondition(RoomColourEffect effect, PaletteFxConditions conditions)
     {
         switch (effect.Condition)
         {
@@ -263,7 +263,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// published, which that glow, taking its turn after the shimmer, publishes for the following update.
     /// </summary>
     private void BurnSamusInHeat(
-        ColourEffect effect,
+        RoomColourEffect effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         IRoomSamus? samus,
         int frameCounter)
@@ -297,7 +297,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <summary>Carries out a step of <paramref name="effect"/>'s program that reaches beyond it: a heat phase or a sound.</summary>
     /// <exception cref="InvalidDataException">A sound step names no sound.</exception>
     /// <exception cref="InvalidOperationException">The step is of a kind the effect keeps itself, or of no defined kind.</exception>
-    private void CarryOut(ColourEffect effect, PaletteFxCue cue)
+    private void CarryOut(RoomColourEffect effect, PaletteFxCue cue)
     {
         switch (cue)
         {
@@ -321,7 +321,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// its colours before its first record, so a record shown before that is a defect in the program.
     /// </summary>
     /// <exception cref="InvalidOperationException">The record is shown before its colours are named, or in colours no screen shows.</exception>
-    private void ShowScreenRecord(ColourEffect effect, PaletteFxFrame frame)
+    private void ShowScreenRecord(RoomColourEffect effect, PaletteFxFrame frame)
     {
         PaletteFxColours animated = effect.Colours ?? throw new InvalidOperationException(
             $"Colour effect {effect.Effect} showed record {frame.Record} before its program named the colours it animates.");
@@ -368,7 +368,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">
     /// The record is shown before its colours are named, or in colours no room picture, Samus nor enemy shows.
     /// </exception>
-    private void ShowPaletteRecord(ColourEffect effect, PaletteFxFrame frame)
+    private void ShowPaletteRecord(RoomColourEffect effect, PaletteFxFrame frame)
     {
         PaletteFxColours animated = effect.Colours ?? throw new InvalidOperationException(
             $"Colour effect {effect.Effect} showed record {frame.Record} before its program named the colours it animates.");

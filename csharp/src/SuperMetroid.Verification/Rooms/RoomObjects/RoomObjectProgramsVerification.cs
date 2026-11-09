@@ -113,11 +113,11 @@ internal static class RoomObjectProgramsVerification
     private static bool ScriptedTerrainStepAt(IImportCartridgeSource cartridge, ushort cursor, out NativeTerrainChanges.NativeStep step)
     {
         RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
-        if (instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 || instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum6)
+        if (instruction is RoomObjectInstruction.QueueSoundLibrary2Maximum3 or RoomObjectInstruction.QueueSoundLibrary2Maximum6)
         {
             step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero,
                 SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Begins: false, Length: 3,
-                Priority: instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
+                priority: instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
             return true;
         }
         if (instruction == RoomObjectInstruction.SetAnimalsEscapedEvent)

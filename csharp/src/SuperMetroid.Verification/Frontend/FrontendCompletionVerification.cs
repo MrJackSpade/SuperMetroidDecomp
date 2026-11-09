@@ -349,7 +349,7 @@ internal static void VerifyCreditsObjectInterpreter()
     }
     credits.Step();
     AssertEqual(1, credits.NextSourceRow, "credits takes its first row at the eight-pixel boundary");
-    AssertEqual(8, (int)credits.ScrollPosition.Y, "the first row is taken as the roll reaches eight pixels");
+    AssertEqual(8, credits.ScrolledPixels, "the first row is reached as the roll scrolls eight pixels");
 
     for (int row = 1; row < rows; row++)
         for (int frame = 0; frame < 16; frame++)

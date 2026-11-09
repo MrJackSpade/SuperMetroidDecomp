@@ -43,7 +43,7 @@ internal static class EndingCreditsPresentation
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
             // Credits intentionally do not run the sprite draw routine.
-            layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), ending.Credits.ScrollPosition));
+            layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), new Position16<PlanePixels>(0, ending.Credits.ScrolledPixels)));
             return new(paint, layers.ToArray(), ending.Stage.Brightness);
         }
         bool waiting = ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop;

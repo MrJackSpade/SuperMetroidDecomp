@@ -32,9 +32,9 @@ internal static class PaletteFxRoomShades
         [PaletteFxColours.BrinstarRedGlow] = 100,
         [PaletteFxColours.Beacon] = 113,
         [PaletteFxColours.NorfairHeatForeground] = 53,
-        [PaletteFxColours.NorfairForegroundPalette4] = 65,
-        [PaletteFxColours.NorfairForegroundPalette5] = 81,
-        [PaletteFxColours.NorfairForegroundPalette6] = 97,
+        [PaletteFxColours.NorfairGreenForeground] = 65,
+        [PaletteFxColours.NorfairPurpleForeground] = 81,
+        [PaletteFxColours.NorfairDarkForeground] = 97,
         [PaletteFxColours.MaridiaSandPits] = 36,
         [PaletteFxColours.MaridiaSandFalls] = 40,
         [PaletteFxColours.MaridiaBackgroundWaterfalls] = 52,
@@ -46,7 +46,7 @@ internal static class PaletteFxRoomShades
         [PaletteFxColours.OldTourianPanels] = 85,
         [PaletteFxColours.UpperCrateriaLevel] = 65,
         [PaletteFxColours.CrateriaEscapeLightning] = 81,
-        [PaletteFxColours.CreBlockPixel] = 87,
+        [PaletteFxColours.ParlorEscapeSky] = 87,
     }.ToImmutableDictionary();
 
     /// <summary>The objects Tourian's statue room spawns as each boss's statue greys out, which no FX record names.</summary>

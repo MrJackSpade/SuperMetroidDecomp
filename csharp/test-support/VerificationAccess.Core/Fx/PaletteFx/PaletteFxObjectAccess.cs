@@ -58,9 +58,9 @@ internal static class PaletteFxObjectAccess
         [PaletteFxObject.BrinstarRedBackgroundGlow] = 0xf77d,
         [PaletteFxObject.BeaconFlashing] = 0xf781,
         [PaletteFxObject.NorfairForegroundAndHeatPhase] = 0xf785,
-        [PaletteFxObject.NorfairForegroundPalette4] = 0xf789,
-        [PaletteFxObject.NorfairForegroundPalette5] = 0xf78d,
-        [PaletteFxObject.NorfairForegroundPalette6] = 0xf791,
+        [PaletteFxObject.NorfairGreenForegroundHeatGlow] = 0xf789,
+        [PaletteFxObject.NorfairPurpleForegroundHeatGlow] = 0xf78d,
+        [PaletteFxObject.NorfairDarkForegroundHeatGlow] = 0xf791,
         [PaletteFxObject.MaridiaSandPits] = 0xf795,
         [PaletteFxObject.MaridiaSandFalls] = 0xf799,
         [PaletteFxObject.MaridiaBackgroundWaterfalls] = 0xf79d,
@@ -75,7 +75,7 @@ internal static class PaletteFxObjectAccess
         [PaletteFxObject.OldTourianBackgroundPanelsFlashYellow] = 0xffe1,
         [PaletteFxObject.UpperCrateriaRedFlashing] = 0xffe5,
         [PaletteFxObject.CrateriaEscapeYellowLightning] = 0xffe9,
-        [PaletteFxObject.CrateriaEscapeCreBlockPixel] = 0xffed,
+        [PaletteFxObject.ParlorEscapeSkyFlicker] = 0xffed,
     };
 
     /// <summary>Each address's object.</summary>

@@ -23,9 +23,9 @@ internal static class RoomPaletteFxPresentationExtractor
             SamusHeatVariaSuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Varia)),
             SamusHeatGravitySuit = ExtractFrames(HeatPaletteColors.ColorFrames(PaletteFxHeatSuit.Gravity)),
             NorfairForegroundAndHeatPhase = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase)),
-            NorfairForegroundPalette4 = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundPalette4)),
-            NorfairForegroundPalette5 = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundPalette5)),
-            NorfairForegroundPalette6 = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.ForegroundPalette6)),
+            NorfairGreenForeground = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.GreenForeground)),
+            NorfairPurpleForeground = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.PurpleForeground)),
+            NorfairDarkForeground = ExtractFrames(Norfair(NorfairEnvironmentalPaletteOwner.DarkForeground)),
             MaridiaSandPits = ExtractFrames(Maridia(MaridiaEnvironmentalPaletteOwner.SandPits)),
             MaridiaSandFalls = ExtractFrames(Maridia(MaridiaEnvironmentalPaletteOwner.SandFalls)),
             MaridiaBackgroundWaterfalls = ExtractFrames(Maridia(MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls)),
@@ -83,8 +83,8 @@ internal static class RoomPaletteFxPresentationExtractor
             UpperCrateriaEscapeRedFlash = ExtractFrames(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorFrames),
             CrateriaEscapeYellowLightning = ExtractFrames(CrateriaEscapeLightningPaletteFxColorDefinitions.All.Single(
                 item => item.Owner == CrateriaEscapeLightningPaletteOwner.YellowLightning).ColorFrames),
-            CrateriaEscapeCreBlockPixel = ExtractFrames(CrateriaEscapeLightningPaletteFxColorDefinitions.All.Single(
-                item => item.Owner == CrateriaEscapeLightningPaletteOwner.CreBlockPixel).ColorFrames),
+            ParlorEscapeSky = ExtractFrames(CrateriaEscapeLightningPaletteFxColorDefinitions.All.Single(
+                item => item.Owner == CrateriaEscapeLightningPaletteOwner.ParlorSky).ColorFrames),
             BeaconFlashing = ExtractFrames(BeaconPaletteFxColorDefinitions.ColorFrames),
         });
         return json.ToArray();

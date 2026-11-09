@@ -727,15 +727,15 @@ internal static class RoomPaletteFxPresentationVerification
         Reject("room palette-FX rejects incomplete Norfair animation");
         document = document with { NorfairForegroundAndHeatPhase = heat };
 
-        PaletteRgb5[] frame = document.NorfairForegroundPalette4[0];
-        document.NorfairForegroundPalette4[0] = frame[..^1];
+        PaletteRgb5[] frame = document.NorfairGreenForeground[0];
+        document.NorfairGreenForeground[0] = frame[..^1];
         Reject("room palette-FX rejects incomplete Norfair frame");
-        document.NorfairForegroundPalette4[0] = frame;
+        document.NorfairGreenForeground[0] = frame;
 
-        PaletteRgb5 first = document.NorfairForegroundPalette5[0][0];
-        document.NorfairForegroundPalette5[0][0] = first with { Red = 32 };
+        PaletteRgb5 first = document.NorfairPurpleForeground[0][0];
+        document.NorfairPurpleForeground[0][0] = first with { Red = 32 };
         Reject("room palette-FX rejects non-RGB5 room color");
-        document.NorfairForegroundPalette5[0][0] = first;
+        document.NorfairPurpleForeground[0][0] = first;
 
         PaletteRgb5[][] waterfalls = document.MaridiaBackgroundWaterfalls;
         document = document with { MaridiaBackgroundWaterfalls = waterfalls[..^1] };
@@ -940,10 +940,10 @@ internal static class RoomPaletteFxPresentationVerification
         Reject("room palette-FX rejects incomplete Crateria escape lightning frame");
         document.CrateriaEscapeYellowLightning[0] = lightningFrame;
 
-        PaletteRgb5[][] pixel = document.CrateriaEscapeCreBlockPixel;
-        document = document with { CrateriaEscapeCreBlockPixel = pixel[..^1] };
+        PaletteRgb5[][] pixel = document.ParlorEscapeSky;
+        document = document with { ParlorEscapeSky = pixel[..^1] };
         Reject("room palette-FX rejects incomplete Crateria escape CRE pixel");
-        document = document with { CrateriaEscapeCreBlockPixel = pixel };
+        document = document with { ParlorEscapeSky = pixel };
 
         PaletteRgb5[] beaconFrame = document.BeaconFlashing[0];
         document.BeaconFlashing[0] = beaconFrame[..^1];

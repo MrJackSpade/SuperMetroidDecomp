@@ -21,14 +21,14 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
         new()
         {
             Owner = BrinstarBlueSporePaletteOwner.StandardRooms,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.Brinstar11, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.BrinstarBlueBackgroundSporesCycle, ColorsPerFrame),
         };
     /// <summary>The Spore Spawn entry that deletes itself after the area's mini-boss dies.</summary>
     private static readonly BrinstarBlueSporePaletteFxColorDefinition SporeSpawn =
         new()
         {
             Owner = BrinstarBlueSporePaletteOwner.SporeSpawnRoom,
-            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.Brinstar81, ColorsPerFrame),
+            ColorFrames = PaletteFxColorFrames.Of(PaletteFxProgram.SporeSpawnBlueBackgroundSporesCycle, ColorsPerFrame),
         };
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>

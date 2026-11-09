@@ -47,12 +47,12 @@ public static class RoomPaletteFxPresentationFile
             {
                 NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase =>
                     document.NorfairForegroundAndHeatPhase,
-                NorfairEnvironmentalPaletteOwner.ForegroundPalette4 =>
-                    document.NorfairForegroundPalette4,
-                NorfairEnvironmentalPaletteOwner.ForegroundPalette5 =>
-                    document.NorfairForegroundPalette5,
-                NorfairEnvironmentalPaletteOwner.ForegroundPalette6 =>
-                    document.NorfairForegroundPalette6,
+                NorfairEnvironmentalPaletteOwner.GreenForeground =>
+                    document.NorfairGreenForeground,
+                NorfairEnvironmentalPaletteOwner.PurpleForeground =>
+                    document.NorfairPurpleForeground,
+                NorfairEnvironmentalPaletteOwner.DarkForeground =>
+                    document.NorfairDarkForeground,
                 _ => throw new InvalidDataException(
                     $"Unsupported Norfair palette owner {definition.Owner}."),
             };
@@ -227,8 +227,8 @@ public static class RoomPaletteFxPresentationFile
             {
                 CrateriaEscapeLightningPaletteOwner.YellowLightning =>
                     document.CrateriaEscapeYellowLightning,
-                CrateriaEscapeLightningPaletteOwner.CreBlockPixel =>
-                    document.CrateriaEscapeCreBlockPixel,
+                CrateriaEscapeLightningPaletteOwner.ParlorSky =>
+                    document.ParlorEscapeSky,
                 _ => throw new InvalidDataException(
                     $"Unsupported Crateria escape lightning owner {definition.Owner}."),
             };

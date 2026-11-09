@@ -74,7 +74,7 @@ internal static class PaletteFxProgramLayoutAccess
         /// <summary>The list entry: <c>$8D:F08E</c> for the heat phase, then 264-byte palette programs from <c>$8D:F1D1</c>.</summary>
         internal ushort ProgramStart => self.Owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase
             ? (ushort)0xf08e
-            : checked((ushort)(0xf1d1 + ((int)self.Owner - (int)NorfairEnvironmentalPaletteOwner.ForegroundPalette4) * 264));
+            : checked((ushort)(0xf1d1 + ((int)self.Owner - (int)NorfairEnvironmentalPaletteOwner.GreenForeground) * 264));
 
         /// <summary>The first record's first command, which the loop returns to: the heat publication in the heat-phase program.</summary>
         internal ushort FirstRecordPointer => checked((ushort)(self.FirstFramePointer - self.HeatPublicationByteCount));

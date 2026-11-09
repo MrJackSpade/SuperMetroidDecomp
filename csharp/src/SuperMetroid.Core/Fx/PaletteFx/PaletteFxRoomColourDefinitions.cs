@@ -21,9 +21,9 @@ internal static class PaletteFxRoomColourDefinitions
         PaletteFxColours.BrinstarRedGlow,
         PaletteFxColours.Beacon,
         PaletteFxColours.NorfairHeatForeground,
-        PaletteFxColours.NorfairForegroundPalette4,
-        PaletteFxColours.NorfairForegroundPalette5,
-        PaletteFxColours.NorfairForegroundPalette6,
+        PaletteFxColours.NorfairGreenForeground,
+        PaletteFxColours.NorfairPurpleForeground,
+        PaletteFxColours.NorfairDarkForeground,
         PaletteFxColours.MaridiaSandPits,
         PaletteFxColours.MaridiaSandFalls,
         PaletteFxColours.MaridiaBackgroundWaterfalls,
@@ -35,6 +35,6 @@ internal static class PaletteFxRoomColourDefinitions
         PaletteFxColours.OldTourianPanels,
         PaletteFxColours.UpperCrateriaLevel,
         PaletteFxColours.CrateriaEscapeLightning,
-        PaletteFxColours.CreBlockPixel,
+        PaletteFxColours.ParlorEscapeSky,
     ];
 }

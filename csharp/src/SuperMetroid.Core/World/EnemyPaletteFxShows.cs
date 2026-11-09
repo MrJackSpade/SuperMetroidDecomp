@@ -71,9 +71,9 @@ internal sealed class EnemyPaletteFxShows(
             case PaletteFxColours.BrinstarRedGlow:
             case PaletteFxColours.Beacon:
             case PaletteFxColours.NorfairHeatForeground:
-            case PaletteFxColours.NorfairForegroundPalette4:
-            case PaletteFxColours.NorfairForegroundPalette5:
-            case PaletteFxColours.NorfairForegroundPalette6:
+            case PaletteFxColours.NorfairGreenForeground:
+            case PaletteFxColours.NorfairPurpleForeground:
+            case PaletteFxColours.NorfairDarkForeground:
             case PaletteFxColours.MaridiaSandPits:
             case PaletteFxColours.MaridiaSandFalls:
             case PaletteFxColours.MaridiaBackgroundWaterfalls:
@@ -85,7 +85,7 @@ internal sealed class EnemyPaletteFxShows(
             case PaletteFxColours.OldTourianPanels:
             case PaletteFxColours.UpperCrateriaLevel:
             case PaletteFxColours.CrateriaEscapeLightning:
-            case PaletteFxColours.CreBlockPixel:
+            case PaletteFxColours.ParlorEscapeSky:
                 throw new InvalidOperationException($"Palette-FX colours {colours} name no enemy that shows them.");
             default:
                 throw new ArgumentOutOfRangeException(nameof(colours), colours, "Palette-FX colours are a defined group.");

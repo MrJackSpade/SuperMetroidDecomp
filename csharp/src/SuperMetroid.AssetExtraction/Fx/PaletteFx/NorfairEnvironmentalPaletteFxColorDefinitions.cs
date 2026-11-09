@@ -22,29 +22,29 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     public const int ColorsPerFrame = 5;
 
-    /// <summary>Each program's owner, in definition order: the heat-phase program, then palettes four, five and six.</summary>
+    /// <summary>Each program's owner, in definition order: the heat-phase program, then the green, purple and dark foreground glows.</summary>
     internal static readonly NorfairEnvironmentalPaletteOwner[] Owners =
     [
         NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase,
-        NorfairEnvironmentalPaletteOwner.ForegroundPalette4,
-        NorfairEnvironmentalPaletteOwner.ForegroundPalette5,
-        NorfairEnvironmentalPaletteOwner.ForegroundPalette6,
+        NorfairEnvironmentalPaletteOwner.GreenForeground,
+        NorfairEnvironmentalPaletteOwner.PurpleForeground,
+        NorfairEnvironmentalPaletteOwner.DarkForeground,
     ];
     /// <summary>The palette-FX object of each program, by owner.</summary>
     internal static readonly PaletteFxObject[] Objects =
     [
         PaletteFxObject.NorfairForegroundAndHeatPhase,
-        PaletteFxObject.NorfairForegroundPalette4,
-        PaletteFxObject.NorfairForegroundPalette5,
-        PaletteFxObject.NorfairForegroundPalette6,
+        PaletteFxObject.NorfairGreenForegroundHeatGlow,
+        PaletteFxObject.NorfairPurpleForegroundHeatGlow,
+        PaletteFxObject.NorfairDarkForegroundHeatGlow,
     ];
-    /// <summary>The program each object runs, by owner: the heat-phase program, then palettes four, five and six.</summary>
+    /// <summary>The program each object runs, by owner: the heat-phase program, then the green, purple and dark foreground glows.</summary>
     internal static readonly PaletteFxProgram[] Programs =
     [
-        PaletteFxProgram.Norfair21,
-        PaletteFxProgram.Norfair41,
-        PaletteFxProgram.Norfair81,
-        PaletteFxProgram.Norfair101,
+        PaletteFxProgram.NorfairForegroundAndHeatPhaseCycle,
+        PaletteFxProgram.NorfairGreenForegroundHeatGlowCycle,
+        PaletteFxProgram.NorfairPurpleForegroundHeatGlowCycle,
+        PaletteFxProgram.NorfairDarkForegroundHeatGlowCycle,
     ];
 
     /// <summary>The four real environmental programs in definition order.</summary>

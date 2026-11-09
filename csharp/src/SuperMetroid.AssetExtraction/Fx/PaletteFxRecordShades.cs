@@ -127,8 +127,8 @@ internal static class PaletteFxRecordShades
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="behavior"/> is not a defined frame behaviour.</exception>
     private static PaletteFxProgram? SwitchedTo(PaletteFxFrameBehavior behavior) => behavior switch
     {
-        PaletteFxFrameBehavior.SwitchAboveY380 => PaletteFxProgram.Crateria11,
-        PaletteFxFrameBehavior.SwitchAboveY380Second => PaletteFxProgram.CrateriaAboveY380Second,
+        PaletteFxFrameBehavior.SwitchAboveY380 => PaletteFxProgram.CrateriaLightningCycle,
+        PaletteFxFrameBehavior.SwitchAboveY380Second => PaletteFxProgram.UnusedDarkLightningCycle,
         PaletteFxFrameBehavior.Null => null,
         PaletteFxFrameBehavior.Cleared => null,
         PaletteFxFrameBehavior.Intro => null,

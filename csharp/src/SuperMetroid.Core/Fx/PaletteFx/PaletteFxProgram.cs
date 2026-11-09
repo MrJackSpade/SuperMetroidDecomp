@@ -74,8 +74,8 @@ public enum PaletteFxProgram
     HyperBeam0,
     /// <summary>The Hyper Beam program, step 1.</summary>
     HyperBeam1,
-    /// <summary>An unused program.</summary>
-    ListD9D0,
+    /// <summary>The unused cinematic fade, which no scene starts.</summary>
+    UnusedCinematicFade,
     /// <summary>The Samus loading Power suit program, step 0.</summary>
     SamusLoadingPowerSuit0,
     /// <summary>The Samus loading Power suit program, step 1.</summary>
@@ -230,112 +230,112 @@ public enum PaletteFxProgram
     SamusInHeatGravitySuit10,
     /// <summary>The Samus in heat Gravity suit program, step 11.</summary>
     SamusInHeatGravitySuit11,
-    /// <summary>The Wrecked Ship palette effect 1 program, step 0.</summary>
-    WreckedShip10,
-    /// <summary>The Wrecked Ship palette effect 1 program, step 1.</summary>
-    WreckedShip11,
-    /// <summary>The Crateria palette effect 1 program, step 0.</summary>
-    Crateria10,
-    /// <summary>The Crateria palette effect 1 program, step 1.</summary>
-    Crateria11,
-    /// <summary>The Crateria palette effect 1 program, step 2.</summary>
-    Crateria12,
-    /// <summary>The Crateria palette effect 1 program, step 3.</summary>
-    Crateria13,
-    /// <summary>An unused dark lightning program, step 0.</summary>
-    ListEC6E,
-    /// <summary>An unused dark lightning program, step 1.</summary>
-    CrateriaAboveY380Second,
-    /// <summary>An unused dark lightning program, step 2.</summary>
-    ListEC8B,
-    /// <summary>An unused dark lightning program, step 3.</summary>
-    ListED34,
-    /// <summary>The Brinstar palette effect 1 program, step 0.</summary>
-    Brinstar10,
-    /// <summary>The Brinstar palette effect 1 program, step 1.</summary>
-    Brinstar11,
-    /// <summary>The Brinstar palette effect 8 program, step 0.</summary>
-    Brinstar80,
-    /// <summary>The Brinstar palette effect 8 program, step 1.</summary>
-    Brinstar81,
-    /// <summary>The Brinstar palette effect 2 program, step 0.</summary>
-    Brinstar20,
-    /// <summary>The Brinstar palette effect 2 program, step 1.</summary>
-    Brinstar21,
-    /// <summary>The Crateria palette effect 80 and Brinstar palette effect 4 program, step 0.</summary>
-    Crateria80Brinstar40,
-    /// <summary>The Crateria palette effect 80 and Brinstar palette effect 4 program, step 1.</summary>
-    Crateria80Brinstar41,
-    /// <summary>The Norfair palette effect 2 program, step 0.</summary>
-    Norfair20,
-    /// <summary>The Norfair palette effect 2 program, step 1.</summary>
-    Norfair21,
-    /// <summary>The Norfair palette effect 4 program, step 0.</summary>
-    Norfair40,
-    /// <summary>The Norfair palette effect 4 program, step 1.</summary>
-    Norfair41,
-    /// <summary>The Norfair palette effect 8 program, step 0.</summary>
-    Norfair80,
-    /// <summary>The Norfair palette effect 8 program, step 1.</summary>
-    Norfair81,
-    /// <summary>The Norfair palette effect 10 program, step 0.</summary>
-    Norfair100,
-    /// <summary>The Norfair palette effect 10 program, step 1.</summary>
-    Norfair101,
-    /// <summary>The Maridia palette effect 1 program, step 0.</summary>
-    Maridia10,
-    /// <summary>The Maridia palette effect 1 program, step 1.</summary>
-    Maridia11,
-    /// <summary>The Maridia palette effect 2 program, step 0.</summary>
-    Maridia20,
-    /// <summary>The Maridia palette effect 2 program, step 1.</summary>
-    Maridia21,
-    /// <summary>The Maridia palette effect 4 program, step 0.</summary>
-    Maridia40,
-    /// <summary>The Maridia palette effect 4 program, step 1.</summary>
-    Maridia41,
-    /// <summary>The Tourian palette effect 4 program.</summary>
-    Tourian4,
-    /// <summary>The Tourian palette effect 2 program.</summary>
-    Tourian2,
-    /// <summary>The shared Tourian palette effect 2 and Tourian palette effect 4 program its variants continue into.</summary>
-    CommonTourian2Tourian41,
-    /// <summary>The Tourian palette effect 8 program, step 0.</summary>
-    Tourian80,
-    /// <summary>The Tourian palette effect 8 program, step 1.</summary>
-    Tourian81,
-    /// <summary>The Tourian palette effect 10 program, step 0.</summary>
-    Tourian100,
-    /// <summary>The Tourian palette effect 10 program, step 1.</summary>
-    Tourian101,
-    /// <summary>The Tourian palette effect 20 program.</summary>
-    Tourian20,
-    /// <summary>The Tourian palette effect 40 program.</summary>
-    Tourian40,
-    /// <summary>The shared Tourian palette effect 20 and Tourian palette effect 40 program its variants continue into.</summary>
-    CommonTourian20Tourian40,
-    /// <summary>The Crateria palette effect 8 program, step 0.</summary>
-    Crateria80,
-    /// <summary>The Crateria palette effect 8 program, step 1.</summary>
-    Crateria81,
-    /// <summary>The Crateria palette effect 10 program, step 0.</summary>
-    Crateria100,
-    /// <summary>The Crateria palette effect 10 program, step 1.</summary>
-    Crateria101,
-    /// <summary>The Crateria palette effect 20 program, step 0.</summary>
-    Crateria200,
-    /// <summary>The Crateria palette effect 20 program, step 1.</summary>
-    Crateria201,
-    /// <summary>The Crateria palette effect 2 program, step 0.</summary>
-    Crateria20,
-    /// <summary>The Crateria palette effect 2 program, step 1.</summary>
-    Crateria21,
-    /// <summary>The Crateria palette effect 4 program, step 0.</summary>
-    Crateria40,
-    /// <summary>The Crateria palette effect 4 program, step 1.</summary>
-    Crateria41,
-    /// <summary>The Crateria palette effect 40 program, step 0.</summary>
-    Crateria400,
-    /// <summary>The Crateria palette effect 40 program, step 1.</summary>
-    Crateria401,
+    /// <summary>The Wrecked Ship's green lights: names their colours, then runs their cycle.</summary>
+    WreckedShipGreenLights,
+    /// <summary>The Wrecked Ship's green lights' repeating pulse.</summary>
+    WreckedShipGreenLightsCycle,
+    /// <summary>The Crateria surface lightning: watches Samus's height, names the sky's colours, then runs its cycle.</summary>
+    CrateriaLightning,
+    /// <summary>One cycle of the Crateria surface lightning, restarted calm while Samus is high on the surface.</summary>
+    CrateriaLightningCycle,
+    /// <summary>The Crateria surface lightning's flash shown twice each cycle.</summary>
+    CrateriaLightningRepeatedFlash,
+    /// <summary>The Crateria surface lightning's flash shown once before the cycle repeats.</summary>
+    CrateriaLightningClosingFlash,
+    /// <summary>The unused dark lightning: watches Samus's height, names its colours, then runs its cycle.</summary>
+    UnusedDarkLightning,
+    /// <summary>One cycle of the unused dark lightning, restarted calm while Samus is high.</summary>
+    UnusedDarkLightningCycle,
+    /// <summary>The unused dark lightning's flash shown twice each cycle.</summary>
+    UnusedDarkLightningRepeatedFlash,
+    /// <summary>The unused dark lightning's flash shown once before the cycle repeats.</summary>
+    UnusedDarkLightningClosingFlash,
+    /// <summary>Brinstar's blue background spores: names their colours, then runs their cycle.</summary>
+    BrinstarBlueBackgroundSpores,
+    /// <summary>Brinstar's blue background spores' repeating drift.</summary>
+    BrinstarBlueBackgroundSporesCycle,
+    /// <summary>Spore Spawn's blue background spores: end with Spore Spawn, name their colours, then run their cycle.</summary>
+    SporeSpawnBlueBackgroundSpores,
+    /// <summary>Spore Spawn's blue background spores' repeating drift.</summary>
+    SporeSpawnBlueBackgroundSporesCycle,
+    /// <summary>Red Brinstar's background glow: names its colours, then runs its cycle.</summary>
+    BrinstarRedBackgroundGlow,
+    /// <summary>Red Brinstar's background glow's repeating pulse.</summary>
+    BrinstarRedBackgroundGlowCycle,
+    /// <summary>The flashing beacons: names their colours, then runs their cycle.</summary>
+    BeaconFlashing,
+    /// <summary>The beacons' repeating flash, which sounds the beacon each time it starts.</summary>
+    BeaconFlashingCycle,
+    /// <summary>Norfair's heated foreground glow that paces Samus's heat shimmer: names its colours, then runs its cycle.</summary>
+    NorfairForegroundAndHeatPhase,
+    /// <summary>Norfair's heated foreground glow's sixteen phases, each published as the heat phase Samus's suit glows by.</summary>
+    NorfairForegroundAndHeatPhaseCycle,
+    /// <summary>The heat glow on Norfair's green and red foreground: names its colours, then runs its cycle.</summary>
+    NorfairGreenForegroundHeatGlow,
+    /// <summary>The heat glow on Norfair's green and red foreground, in step with the heat phase.</summary>
+    NorfairGreenForegroundHeatGlowCycle,
+    /// <summary>The heat glow on Norfair's brown and purple foreground: names its colours, then runs its cycle.</summary>
+    NorfairPurpleForegroundHeatGlow,
+    /// <summary>The heat glow on Norfair's brown and purple foreground, in step with the heat phase.</summary>
+    NorfairPurpleForegroundHeatGlowCycle,
+    /// <summary>The heat glow on Norfair's dark brown foreground: names its colours, then runs its cycle.</summary>
+    NorfairDarkForegroundHeatGlow,
+    /// <summary>The heat glow on Norfair's dark brown foreground, in step with the heat phase.</summary>
+    NorfairDarkForegroundHeatGlowCycle,
+    /// <summary>Maridia's sand pits: names their colours, then runs their cycle.</summary>
+    MaridiaSandPits,
+    /// <summary>Maridia's sand pits' repeating shift.</summary>
+    MaridiaSandPitsCycle,
+    /// <summary>Maridia's falling sand: names its colours, then runs its cycle.</summary>
+    MaridiaSandFalls,
+    /// <summary>Maridia's falling sand's repeating flow.</summary>
+    MaridiaSandFallsCycle,
+    /// <summary>Maridia's background waterfalls: names their colours, then runs their cycle.</summary>
+    MaridiaBackgroundWaterfalls,
+    /// <summary>Maridia's background waterfalls' repeating flow.</summary>
+    MaridiaBackgroundWaterfallsCycle,
+    /// <summary>The unused copy of Tourian's glow: names its colours, then jumps into the shared glow cycle.</summary>
+    UnusedTourianGlowClone,
+    /// <summary>Tourian's glowing Arkanoid blocks and red orbs: names their colours, then runs the shared glow cycle.</summary>
+    TourianGlowingArkanoidBlocksAndRedOrbs,
+    /// <summary>Tourian's glow cycle, shared by the glow and its unused copy.</summary>
+    CommonTourianGlowCycle,
+    /// <summary>Tourian's shutters flashing red during the escape: names their colours, then runs their cycle.</summary>
+    TourianShutterRedFlashing,
+    /// <summary>Tourian's shutters' repeating red flash.</summary>
+    TourianShutterRedFlashingCycle,
+    /// <summary>Tourian's background flashing red during the escape: names its colours, then runs its cycle.</summary>
+    TourianBackgroundRedFlashing,
+    /// <summary>Tourian's background's repeating red flash.</summary>
+    TourianBackgroundRedFlashingCycle,
+    /// <summary>Tourian's rooms flashing red during the escape: names their colours, then jumps into the shared flash cycle.</summary>
+    TourianGeneralLevelRedFlashing,
+    /// <summary>Tourian's Arkanoid blocks and red orbs flashing red during the escape: names their colours, then runs the shared flash cycle.</summary>
+    TourianRedFlashingArkanoidBlocksAndRedOrbs,
+    /// <summary>Tourian's escape red flash cycle, shared by the rooms and the Arkanoid blocks and orbs.</summary>
+    CommonTourianEscapeRedFlashingCycle,
+    /// <summary>Old Tourian's rooms flashing red during the escape: names their colours, then runs their cycle.</summary>
+    OldTourianRedFlashing,
+    /// <summary>Old Tourian's rooms' repeating red flash.</summary>
+    OldTourianRedFlashingCycle,
+    /// <summary>Old Tourian's background railings flashing yellow during the escape: names their colours, then runs their cycle.</summary>
+    OldTourianBackgroundRailingsFlashYellow,
+    /// <summary>Old Tourian's background railings' repeating yellow flash.</summary>
+    OldTourianBackgroundRailingsFlashYellowCycle,
+    /// <summary>Old Tourian's background panels flashing yellow during the escape: names their colours, then runs their cycle.</summary>
+    OldTourianBackgroundPanelsFlashYellow,
+    /// <summary>Old Tourian's background panels' repeating yellow flash.</summary>
+    OldTourianBackgroundPanelsFlashYellowCycle,
+    /// <summary>Upper Crateria flashing red during the escape: names its colours, then runs its cycle.</summary>
+    UpperCrateriaRedFlashing,
+    /// <summary>Upper Crateria's repeating red flash.</summary>
+    UpperCrateriaRedFlashingCycle,
+    /// <summary>The yellow lightning over Crateria's sky during the escape: names its colours, then runs its cycle.</summary>
+    CrateriaEscapeYellowLightning,
+    /// <summary>The escape's yellow lightning's repeating flashes.</summary>
+    CrateriaEscapeYellowLightningCycle,
+    /// <summary>The Parlor's dark sky flickering with the escape's lightning: names its colours, then runs its cycle.</summary>
+    ParlorEscapeSkyFlicker,
+    /// <summary>The Parlor's dark sky's repeating flicker, in the escape lightning's cadence.</summary>
+    ParlorEscapeSkyFlickerCycle,
 }

@@ -279,7 +279,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
                     slot.FrameHold = 1;
-                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.Crateria11);
+                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaLightningCycle);
                 }
                 return;
 
@@ -288,7 +288,7 @@ public sealed class RoomPaletteFxSystem : IGameplayShadingSource
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
                     slot.FrameHold = 1;
-                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaAboveY380Second);
+                    slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.UnusedDarkLightningCycle);
                 }
                 return;
 

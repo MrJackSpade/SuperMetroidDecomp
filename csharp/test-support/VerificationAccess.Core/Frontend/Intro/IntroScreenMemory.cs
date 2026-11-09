@@ -50,8 +50,8 @@ internal static class IntroScreenMemory
             "Opening cinematic rendering requires installed artwork.");
         IntroFontAtlas font = intro.IntroFont ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires the installed font atlas.");
-        return Compose(Characters(artwork, font, !intro.narrationText.FirstCardShown), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame),
-            NarrationTiles(intro.narrationText, artwork));
+        return Compose(Characters(artwork, font, intro.CurrentObjects is not null), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame),
+            NarrationTiles(intro.narrationText, intro.CurrentObjects is null, artwork));
     }
 
     /// <summary>
@@ -59,21 +59,21 @@ internal static class IntroScreenMemory
     /// shown; otherwise the cleared staging map's border and blank text rows, the installed final line and its blanked
     /// neighbours, with each shown text cell's letter, or the blank cell, in its colour variant.
     /// </summary>
-    internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, IntroCinematicArtwork artwork)
+    internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, bool firstCardShown, IntroCinematicArtwork artwork)
     {
         var tiles = new BackgroundTile[IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount];
-        if (text.FirstCardShown)
+        if (firstCardShown)
         {
             IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span[..IntroArtworkExtentDefinitions.NarrationTilemapCells].CopyTo(tiles);
             return tiles;
         }
         Array.Fill(tiles, IntroNarrationTilemapConstants.Blank);
-        for (int index = 0; index < IntroCinematicDefinitions.Text.GameplayBlankStartIndex; index++)
+        for (int index = 0; index < IntroNarrationTilemapConstants.GameplayBlankStartIndex; index++)
         {
             tiles[index] = IntroFinalLineTilemapFormat.MarginTile;
             tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroFinalLineTilemapFormat.MarginTile;
         }
-        IntroCinematicSourceArtwork.Of(artwork).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroCinematicDefinitions.Text.FinalLineFirstCell));
+        IntroCinematicSourceArtwork.Of(artwork).FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
         tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;
         tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)

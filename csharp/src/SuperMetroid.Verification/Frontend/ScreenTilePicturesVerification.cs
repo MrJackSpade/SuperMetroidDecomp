@@ -10,7 +10,6 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Map;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Input;

@@ -109,7 +109,7 @@ internal static class CoreAccess
         /// <summary>Cinematic calls the ending has made so far.</summary>
         internal int CinematicFrame => ending.Flyaway.CinematicFrame;
         /// <summary>Whole-pixel vertical credits scroll position, or zero before credits exist.</summary>
-        internal int CreditsVerticalScroll => ending.InstalledArtwork.CurrentCredits?.ScrollPosition.Y ?? 0;
+        internal int CreditsVerticalScroll => ending.InstalledArtwork.CurrentCredits?.ScrolledPixels ?? 0;
     }
 
     /// <summary>Exposes pause indicator placement, page transition, and displayed map cell state.</summary>

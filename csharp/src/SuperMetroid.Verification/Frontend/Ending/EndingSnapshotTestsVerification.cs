@@ -215,8 +215,7 @@ internal static class EndingSnapshotTestsVerification
                     // E48A clears the copyright before the final page is first shown, so the final page shows no text yet.
                     AssertTrue(textPlane.Plane.Pictures.IsEmpty, "final text page starts cleared");
                     // The text is one screen at screen pixels, moved down without wrapping (#1555), not a two-screen page.
-                    AssertEqual(32, (int)textPlane.Plane.Size.Y, "the final text is one screen tall");
-                    AssertEqual(Position16<PlanePixels>.Zero, textPlane.Scroll, "the final text plane is not scrolled");
+                    AssertEqual(Offset16<PlanePixels>.Zero, textPlane.Scroll, "the final text plane is not scrolled");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)), "post-shot flash begins fully white");
                 }

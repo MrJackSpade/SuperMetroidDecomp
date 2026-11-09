@@ -5,7 +5,6 @@ using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
@@ -22,8 +21,6 @@ internal sealed class DoorTransitionRunner
 {
     /// <summary>Draws Samus and room actors during door waits and fades.</summary>
     private readonly GameplayActorDrawing _actorDrawing;
-    /// <summary>Provides scroll state to the enemy projectile pass.</summary>
-    private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Holds the active and the shown display transforms across transitions.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Runs the enemy main phase while Samus gameplay is suspended.</summary>
@@ -47,7 +44,6 @@ internal sealed class DoorTransitionRunner
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
     {
         _actorDrawing = dependencies.ActorDrawing;
-        _backgroundScroll = dependencies.BackgroundScroll;
         _display = dependencies.Display;
         _enemyPhase = dependencies.EnemyPhase;
         _liquidWaveAndStatueDescent = dependencies.LiquidWaveAndStatueDescent;

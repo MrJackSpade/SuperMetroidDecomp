@@ -17,7 +17,6 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;

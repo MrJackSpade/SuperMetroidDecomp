@@ -2,7 +2,6 @@ using System.Collections.Frozen;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Artwork;
 

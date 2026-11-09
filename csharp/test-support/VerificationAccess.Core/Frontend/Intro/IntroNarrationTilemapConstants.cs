@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal static class IntroNarrationTilemapConstants
 {
+    /// <summary>The first narration tilemap cell the cartridge clears for the gameplay text, the cells before it holding the border.</summary>
+    internal const int GameplayBlankStartIndex = 128;
+
+    /// <summary>The first narration tilemap cell the installed final text line replaces.</summary>
+    internal const int FinalLineFirstCell = 768;
+
     /// <summary>The blank cell written over the gameplay text region, the tile a typed space shows.</summary>
     internal static BackgroundTile Blank { get; } = new(0x02f, 0, highPriority: false);
 

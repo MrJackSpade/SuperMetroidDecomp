@@ -7,7 +7,6 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.VerificationImporters;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;

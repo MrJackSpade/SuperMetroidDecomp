@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 
@@ -12,8 +11,6 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Actor drawing.</summary>
     public required GameplayActorDrawing ActorDrawing { get; init; }
 
-    /// <summary>Background scroll.</summary>
-    public required BackgroundScrollState BackgroundScroll { get; init; }
 
 
 

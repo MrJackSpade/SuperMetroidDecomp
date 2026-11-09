@@ -27,9 +27,6 @@ public readonly record struct RoomBlockAppearance(int Block, BlockMirroring Mirr
     /// <param name="mirroring">How the block is mirrored.</param>
     public static RoomBlockAppearance Of(int block, BlockMirroring mirroring = BlockMirroring.None) => new(block, mirroring);
 
-    /// <summary>This appearance showing <paramref name="block"/> with the same mirroring.</summary>
-    public RoomBlockAppearance WithBlock(int block) => this with { Block = block };
-
     /// <summary>This block mirrored by <paramref name="mirroring"/> instead.</summary>
     public RoomBlockAppearance WithMirroring(BlockMirroring mirroring) => this with { Mirroring = mirroring };
 

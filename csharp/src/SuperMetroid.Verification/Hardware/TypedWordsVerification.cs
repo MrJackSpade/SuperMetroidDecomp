@@ -379,8 +379,6 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(RoomTerrainBlock.Of(42, BlockMirroring.Vertical, RoomCollisionType.GrappleBlock),
         grapple.WithAppearance(grapple.Appearance.WithMirroring(BlockMirroring.Vertical)),
         "mirroring replacement keeps the kind and block");
-    AssertEqual(RoomTerrainBlock.Of(85, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.GrappleBlock),
-        grapple.WithBlock(85), "block replacement keeps the kind and mirroring");
     AssertThrows<ArgumentOutOfRangeException>(
         () => grapple.Appearance.WithMirroring((BlockMirroring)4),
         "an appearance mirrors only horizontally and vertically");

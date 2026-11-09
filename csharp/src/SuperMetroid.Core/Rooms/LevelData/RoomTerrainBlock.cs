@@ -27,9 +27,6 @@ public readonly record struct RoomTerrainBlock(RoomBlockAppearance Appearance, R
     /// <summary>This block showing <paramref name="appearance"/>, colliding the same way.</summary>
     public RoomTerrainBlock WithAppearance(RoomBlockAppearance appearance) => this with { Appearance = appearance };
 
-    /// <summary>This block showing <paramref name="block"/> with the same mirroring, colliding the same way.</summary>
-    public RoomTerrainBlock WithBlock(int block) => this with { Appearance = Appearance.WithBlock(block) };
-
     /// <summary>
     /// The block a deactivated room object leaves behind: a block of a solid kind becomes a plain solid block, any other
     /// becomes air, and the picture stays.

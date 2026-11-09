@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// is its last strip (#1546).
 /// </summary>
 /// <param name="Start">Where the strip's first cell lies, in blocks from the draw's origin; the first strip starts at the origin.</param>
-/// <param name="Cells">The terrain the strip writes, left to right.</param>
-internal readonly record struct RoomObjectBlockStrip(Offset16<RoomBlocks> Start, RoomTerrainBlock[] Cells);
+/// <param name="Cells">How each cell the strip writes collides, left to right; what it shows is the frame's installed picture.</param>
+internal readonly record struct RoomObjectBlockStrip(Offset16<RoomBlocks> Start, RoomCollisionType[] Cells);

@@ -110,6 +110,7 @@ internal static class KraidDrawMappingsVerification
         IEnumerable<Definition> definitions)
     {
         var exported = RoomObjectKraidVisualFiles.All.ToDictionary(draw => RoomObjectDrawAddressCodec.Of(draw.Draw));
+        InstalledRoomObjectKraidVisuals pictures = InstalledRoomObjectKraidVisuals.Stock();
         foreach (var expected in definitions)
         {
             AssertTrue(KraidRoomObjectDraws.TryGet(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer), out var draw), "Kraid word owner exists");
@@ -117,12 +118,14 @@ internal static class KraidDrawMappingsVerification
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(
                     CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2)));
-                AssertEqual(native, draw.BlockAt(block), "Kraid calculated block matches the native level word");
-                AssertEqual(native, exported[expected.Pointer].Runs.Span[0].Blocks.Span[block],
-                    "Kraid materialized export block");
+                AssertEqual(native.Collision, draw.CollisionAt(block), "Kraid calculated collision matches the native level word");
+                AssertEqual(native.Collision, exported[expected.Pointer].Runs.Span[0].Collisions.Span[block],
+                    "Kraid materialized export collision");
+                AssertEqual(native.Appearance, pictures.Image(NativeObjectDraws.At<KraidRoomDraw>(expected.Pointer)).At(new Offset16<RoomBlocks>(block, 0)),
+                    "Kraid installed picture shows the native level word's block");
             }
             foreach (int block in new[] { int.MinValue, -1, expected.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(block), "Kraid computed block bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(block), "Kraid computed block bounds");
         }
     }
 

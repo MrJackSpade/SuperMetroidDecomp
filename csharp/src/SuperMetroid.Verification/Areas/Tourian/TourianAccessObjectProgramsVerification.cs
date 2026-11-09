@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianAccessObjectDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -55,16 +56,16 @@ internal static class TourianAccessObjectProgramsVerification
             RoomObjectTourianAccessVisualFiles.All.ToArray();
         AssertEqual(5, draws.Length, "Tourian access owns four frames and a six-row clear");
         ushort[] pointers = [0x9297,0x92a3,0x92af,0x92bb,0x92c7];
+        RoomObjectTourianAccessVisuals pictures = RoomObjectTourianAccessVisuals.Stock();
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, TourianAccessObjectDrawDefinitionsConstants.TryDescribe(NativeObjectDraws.At<TourianAccessDraw>(pointer), out int rows, out RoomTerrainBlock word), "Tourian draw descriptor ownership");
+            AssertEqual(index >= 0, TourianAccessObjectDrawDefinitionsConstants.TryDescribe(NativeObjectDraws.At<TourianAccessDraw>(pointer), out int rows), "Tourian draw descriptor ownership");
             AssertEqual(index >= 0, TourianAccessObjectDrawDefinitionsConstants.TryGet(NativeObjectDraws.At<TourianAccessDraw>(pointer), out var dto), "Tourian draw DTO ownership");
             if (index < 0)
             {
                 AssertEqual(0, rows, "missing Tourian rows zero");
-                AssertEqual(default(RoomTerrainBlock), word, "missing Tourian block default");
                 AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "missing Tourian DTO default");
                 continue;
             }
@@ -75,8 +76,9 @@ internal static class TourianAccessObjectProgramsVerification
             for (int column = 0; column < 4; column++)
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + row * 12 + column * 2 + 2)));
-                AssertEqual(native, word, "Tourian scalar covers every cartridge cell");
-                AssertEqual(native, dto.Runs.Span[row].Blocks.Span[column], "Tourian direct DTO block");
+                AssertEqual(native.Collision, TourianAccessObjectDrawDefinitions.Collision, "Tourian collision covers every cartridge cell");
+                AssertEqual(native.Collision, dto.Runs.Span[row].Collisions.Span[column], "Tourian direct DTO collision");
+                AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(new Offset16<RoomBlocks>(column, row)), "Tourian installed picture");
             }
         }
         foreach (RoomObjectShotBlockDrawDefinitions.DrawList draw in draws)
@@ -88,8 +90,8 @@ internal static class TourianAccessObjectProgramsVerification
                 AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
-                foreach (RoomTerrainBlock block in run.Blocks.Span)
-                    AssertTourianDrawBlock(block);
+                foreach (RoomCollisionType collision in run.Collisions.Span)
+                    AssertTourianDrawCollision(collision);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)RoomObjectRunContinuationCodecConstants.X(draw, runIndex)),
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run X offset matches ROM");
@@ -102,10 +104,11 @@ internal static class TourianAccessObjectProgramsVerification
                     RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(TourianAccessDraw.Clear)) ? 72 : 12)),
                 $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} has the complete native span");
 
-            void AssertTourianDrawBlock(RoomTerrainBlock expected)
+            void AssertTourianDrawCollision(RoomCollisionType expected)
             {
-                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
-                    expected, $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} block at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)} decodes from the ROM word");
+                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                    expected, $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} collision at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)} decodes from the ROM word");
+
                 cursor += 2;
             }
         }

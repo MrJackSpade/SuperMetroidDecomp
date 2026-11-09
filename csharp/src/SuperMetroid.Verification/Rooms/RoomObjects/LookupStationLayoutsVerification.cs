@@ -32,6 +32,7 @@ internal static class LookupStationLayoutsVerification
         string[] ids = ["map-frame-0","energy-frame-0","missile-frame-0","map-frame-1","energy-frame-1","missile-frame-1","map-frame-2","energy-frame-2","missile-frame-2","save-idle","save-active-a","save-active-b","map-right-retracted","map-right-extended","map-left-retracted","map-left-extended","resource-right-retracted","resource-right-extended","resource-left-retracted","resource-left-extended"];
         var exported = RoomObjectStationVisualFiles.All.ToArray();
         AssertEqual(20, exported.Length, "Station layout export count");
+        InstalledRoomObjectStationVisuals? pictures = field == 2 ? InstalledRoomObjectStationVisuals.Stock() : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -67,7 +68,7 @@ internal static class LookupStationLayoutsVerification
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Station layout run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Station layout start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Station layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Station layout word run bounds");
                 }
             }
             var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
@@ -109,15 +110,21 @@ internal static class LookupStationLayoutsVerification
                     drawY = 8 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Station layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Station layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
-                    AssertEqual(expected, shape.BlockAt(run, cell), "Station layout original calculated field");
-                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
-                        AssertEqual(expected, frame.Runs.Span[run].Blocks.Span[cell], "Station layout original DTO field");
+                    if (field == 1)
+                    {
+                        AssertEqual(expected.Collision, shape.CollisionAt(run, cell), "Station layout original calculated collision");
+                        foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
+                            AssertEqual(expected.Collision, frame.Runs.Span[run].Collisions.Span[cell], "Station layout original DTO collision");
+                    }
+                    else
+                        // Core holds no appearance: what the cell shows is the station's installed picture.
+                        AssertEqual(expected.Appearance, pictures!.Image(NativeObjectDraws.At<StationDraw>(pointer)).At(dto.Runs.Span[run].CellAt(cell)),
+                            "Station layout installed picture shows the cartridge's block");
                 }
                 cells += count;
                 run++;

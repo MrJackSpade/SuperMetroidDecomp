@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using static SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjectDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -15,10 +14,9 @@ internal static class NoobTubeObjectDraws
     }
 
     /// <summary>
-    /// Seven named layouts. Wide runs are twelve cells:
-    /// symmetric pipe edges surround air; the floor adds a second solid edge cell.
-    /// Panel rows use adjacent tiles, vertically reflected below the centre.
-    /// Each run starts at its own offset from the PLM origin; the list ends at its last run.
+    /// Seven named layouts. Wide runs are twelve cells: the rim and floor rows' pipe edges are solid around air, the
+    /// floor with a second solid edge cell; the panel rows between are air. Each run starts at its own offset from the
+    /// PLM origin; the list ends at its last run. What each frame shows is its installed picture (#1557).
     /// </summary>
     internal readonly record struct Draw(NoobTubeDraw Frame)
     {
@@ -62,33 +60,24 @@ internal static class NoobTubeObjectDraws
             return new(0, run == 0 ? 0 : Row(run));
         }
 
-        /// <summary>The glass, rim, pipe-edge, or air block, with its collision and mirroring, of one tube cell.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>How one tube cell collides: the glass, the rim, a pipe edge, or air.</summary>
+        internal RoomCollisionType CollisionAt(int run, int cell)
         {
             if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             if (BlockCount(run) == 1)
                 return Frame switch
                 {
-                    NoobTubeDraw.Intact => RoomTerrainBlock.Of(GlassBlock, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), // Projectile trigger, mirrored intact glass tile.
-                    NoobTubeDraw.Damaged => RoomTerrainBlock.Of(GlassBlock, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock), // Same glass tile, solid collision after activation.
-                    NoobTubeDraw.Opened => RoomTerrainBlock.Of(RimBlock, BlockMirroring.None, RoomCollisionType.SolidBlock), // Solid upper rim at the origin.
-                    NoobTubeDraw.BrokenLate or NoobTubeDraw.BrokenFull => RoomTerrainBlock.Of(RimBlock, BlockMirroring.None, RoomCollisionType.Air), // Broken frames clear collision at the origin.
+                    NoobTubeDraw.Intact => RoomCollisionType.ShootableBlock, // The projectile trigger.
+                    NoobTubeDraw.Damaged => RoomCollisionType.SolidBlock, // Solid collision after activation.
+                    NoobTubeDraw.Opened => RoomCollisionType.SolidBlock, // The solid upper rim at the origin.
+                    NoobTubeDraw.BrokenLate or NoobTubeDraw.BrokenFull => RoomCollisionType.Air, // Broken frames clear collision at the origin.
                     NoobTubeDraw.Cleared or NoobTubeDraw.OpenedRows =>
                         throw new InvalidOperationException($"NoobTubeDraw {Frame} has no single-block run."),
                     _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Frame}."),
                 };
             int row = Row(run);
             int edgeDistance = Math.Min(cell, 11 - cell);
-            if (edgeDistance > (row == 5 ? 1 : 0)) return RoomTerrainBlocks.BlankAir;
-            int tile = row switch
-            {
-                0 => RimBlock,
-                5 => FloorEdgeFirstBlock + edgeDistance,
-                _ => PanelFirstBlock + Math.Min(row - 1, 4 - row),
-            };
-            BlockMirroring flips = (cell >= 6 ? BlockMirroring.Horizontal : BlockMirroring.None) |
-                (row is 3 or 4 ? BlockMirroring.Vertical : BlockMirroring.None);
-            return RoomTerrainBlock.Of(tile, flips, row is 0 or 5 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
+            return row is 0 or 5 && edgeDistance <= (row == 5 ? 1 : 0) ? RoomCollisionType.SolidBlock : RoomCollisionType.Air;
         }
     }
 }

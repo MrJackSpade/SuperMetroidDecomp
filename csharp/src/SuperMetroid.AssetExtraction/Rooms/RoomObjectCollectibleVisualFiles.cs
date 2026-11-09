@@ -83,16 +83,16 @@ public static class RoomObjectCollectibleVisualFiles
                 for (int index = 0; index < CollectibleObjectDraws.CountOf(group); index++)
                 {
                     var draw = new Draw(group, index);
-                    CollectibleObjectDraws.TryGetBlock(RoomObjectDraw.Of(draw), out RoomTerrainBlock block);
-                    yield return new(draw, block, VisualId(draw));
+                    CollectibleObjectDraws.TryGetCollision(RoomObjectDraw.Of(draw), out RoomCollisionType collision);
+                    yield return new(draw, collision, VisualId(draw));
                 }
             }
         }
     }
 
-    /// <summary>Every installed frame's one-cell draw list, built from the terrain the game writes.</summary>
+    /// <summary>Every installed frame's one-cell draw list, built from the collision the game writes.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Frames =>
-        Editable.Select(frame => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame.Draw), RoomObjectRunDirection.Horizontal, [frame.Terrain]));
+        Editable.Select(frame => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame.Draw), RoomObjectRunDirection.Horizontal, [frame.Collision]));
 
     /// <summary>
     /// Checks the eight selectors of the frames each block pair's collectible writes (<see cref="CollectibleBlockPairs"/>),
@@ -118,8 +118,10 @@ public static class RoomObjectCollectibleVisualFiles
         foreach (RoomObjectCollectibleDrawFrame frame in All.Where(frame => !IsEditable(frame.Draw)))
         {
             int address = RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(frame.Draw));
+            if (!CollectibleObjectDraws.TryGetBlockPairTerrain(RoomObjectDraw.Of(frame.Draw), out RoomTerrainBlock terrain))
+                throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
-                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != frame.Terrain ||
+                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != terrain ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");

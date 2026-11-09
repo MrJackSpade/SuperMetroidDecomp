@@ -49,10 +49,7 @@ public static class RoomObjectTourianAccessVisualFiles
             ? id : throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
 
     /// <summary>Builds the four-air-cell runs of a Tourian access draw.</summary>
-    internal static RoomObjectShotBlockDrawDefinitions.DrawList Compile(TourianAccessDraw draw)
-    {
-        TourianAccessDraws.Describe(draw, out int rows, out RoomTerrainBlock block);
-        return RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), rows, static _ => 4, (_, _) => block,
-            RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
-    }
+    internal static RoomObjectShotBlockDrawDefinitions.DrawList Compile(TourianAccessDraw draw) =>
+        RoomObjectDrawListExport.Runs(RoomObjectDraw.Of(draw), TourianAccessDraws.Rows(draw), static _ => TourianAccessObjectDrawDefinitions.RowWidth,
+            static (_, _) => TourianAccessObjectDrawDefinitions.Collision, RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
 }

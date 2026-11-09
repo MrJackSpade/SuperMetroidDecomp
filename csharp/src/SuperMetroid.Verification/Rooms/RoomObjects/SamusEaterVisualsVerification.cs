@@ -76,6 +76,7 @@ internal static class SamusEaterVisualsVerification
         ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
         var exported = RoomObjectSamusEaterVisualFiles.All.ToArray();
         AssertEqual(pointers.Length, exported.Length, "plant draw export coverage");
+        InstalledRoomObjectSamusEaterVisuals pictures = InstalledRoomObjectSamusEaterVisuals.Stock();
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
@@ -103,12 +104,13 @@ internal static class SamusEaterVisualsVerification
                     for (int block = 0; block < count; block++)
                     {
                         RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + block * 2));
-                        AssertEqual(native, draw.BlockAt(run, block), "calculated plant physical word");
-                        AssertEqual(native, dtoRun.Blocks.Span[block], "direct plant DTO word");
-                        AssertEqual(native, exportedRun.Blocks.Span[block], "exported plant word");
+                        AssertEqual(native.Collision, draw.CollisionAt(run, block), "calculated plant collision");
+                        AssertEqual(native.Collision, dtoRun.Collisions.Span[block], "direct plant DTO collision");
+                        AssertEqual(native.Collision, exportedRun.Collisions.Span[block], "exported plant collision");
+                        AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(dtoRun.CellAt(block)), "installed plant picture");
                     }
                     foreach (int invalid in new[] { int.MinValue, -1, count, 256, int.MaxValue })
-                        AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(run, invalid), "plant block bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(run, invalid), "plant block bounds");
                 }
                 else
                 {
@@ -133,7 +135,8 @@ internal static class SamusEaterVisualsVerification
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => SamusEaterObjectDraws.Draw.Count(invalid), "plant run count bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => draw.Start(invalid), "plant start bounds");
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(invalid, 0), "plant word run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(invalid, 0), "plant word run bounds");
+
             }
         }
     }

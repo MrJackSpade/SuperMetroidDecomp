@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The yellow, green and red door caps: each colour's four frames per facing and their physical cells from
+/// The yellow, green and red door caps: each colour's four frames per facing and how their cells collide from
 /// <see cref="ColoredDoorObjectDrawDefinitions"/>.
 /// </summary>
 internal static class ColoredDoorCaps
@@ -15,11 +15,11 @@ internal static class ColoredDoorCaps
         /// <summary>Left and right caps draw a vertical four-cell run in authored list orientation.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
 
-        /// <summary>The terrain of <paramref name="cell"/>, one of the cap's four cells in run order.</summary>
-        internal RoomTerrainBlock BlockAt(int cell)
+        /// <summary>How <paramref name="cell"/>, one of the cap's four cells in run order, collides.</summary>
+        internal RoomCollisionType CollisionAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return ColoredDoorObjectDrawDefinitions.Cells[this][cell];
+            return ColoredDoorObjectDrawDefinitions.Collisions[this][cell];
         }
     }
 

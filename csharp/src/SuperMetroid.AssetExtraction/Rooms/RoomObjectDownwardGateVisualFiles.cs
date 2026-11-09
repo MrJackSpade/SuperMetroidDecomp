@@ -39,7 +39,8 @@ public static class RoomObjectDownwardGateVisualFiles
     {
         bool found = DownwardGateObjectDraws.TryDescribe(request, out DownwardGateObjectDraws.Draw draw);
         list = found
-            ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.BlockAt,
+            ? RoomObjectDrawListExport.Runs(request, draw.RunCount, draw.BlockCount, draw.CollisionAt,
+
                 _ => draw.Column ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, draw.Start)
             : default;
         return found;

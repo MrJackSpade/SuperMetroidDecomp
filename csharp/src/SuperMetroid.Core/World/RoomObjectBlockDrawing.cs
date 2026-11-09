@@ -127,24 +127,24 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage shotBlock = Installed(ShotBlockVisuals, "shot-block").Image(draw);
             for (int run = 0; run < compiled.RunCount; run++)
                 for (int block = 0; block < compiled.BlocksPerRun; block++)
-                    DrawImageCell(level, draw, origin, shotBlock, new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, shotBlock, new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.CollisionAt(run, block));
             return;
         }
         if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
         {
-            DrawImageCell(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), Offset16<RoomBlocks>.Zero, SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain.Collision);
+            DrawImageCell(level, draw, origin, Installed(SpeedBoosterVisuals, "Speed Booster").Image(draw), Offset16<RoomBlocks>.Zero, SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision);
             return;
         }
         if (KraidRoomObjectDraws.TryGet(draw, out var kraidDraw))
         {
             RoomObjectFrameImage kraidRoom = Installed(KraidVisuals, "Kraid room").Image(draw);
             for (int block = 0; block < kraidDraw.BlockCount; block++)
-                DrawImageCell(level, draw, origin, kraidRoom, new Offset16<RoomBlocks>(block, 0), kraidDraw.BlockAt(block).Collision);
+                DrawImageCell(level, draw, origin, kraidRoom, new Offset16<RoomBlocks>(block, 0), kraidDraw.CollisionAt(block));
             return;
         }
         if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)
         {
-            DrawImageCell(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), Offset16<RoomBlocks>.Zero, MaridiaElevatubeObjectDefinitions.Terrain.Collision);
+            DrawImageCell(level, draw, origin, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").Image(draw), Offset16<RoomBlocks>.Zero, MaridiaElevatubeObjectDefinitions.Collision);
             return;
         }
         if (CrocomireArenaDraws.TryDescribe(draw,
@@ -153,7 +153,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage arena = Installed(CrocomireVisuals, "Crocomire arena").Image(draw);
             for (int run = 0; run < crocomireDraw.RunCount; run++)
                 for (int block = 0; block < crocomireDraw.BlocksPerRun; block++)
-                    DrawImageCell(level, draw, origin, arena, new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, arena, new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.CollisionAt(run, block));
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
@@ -184,19 +184,19 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (draw is RoomObjectFrameDraw<TourianAccessDraw> { Frame: var tourian })
         {
-            TourianAccessDraws.Describe(tourian, out int tourianRows, out RoomTerrainBlock tourianBlock);
+            int tourianRows = TourianAccessDraws.Rows(tourian);
             RoomObjectFrameImage floor = Installed(TourianAccessVisuals, "Tourian access").Image(draw);
             for (int row = 0; row < tourianRows; row++)
-                for (int column = 0; column < 4; column++)
-                    DrawImageCell(level, draw, origin, floor, new Offset16<RoomBlocks>(column, row), tourianBlock.Collision);
+                for (int column = 0; column < TourianAccessObjectDrawDefinitions.RowWidth; column++)
+                    DrawImageCell(level, draw, origin, floor, new Offset16<RoomBlocks>(column, row), TourianAccessObjectDrawDefinitions.Collision);
             return;
         }
-        if (SporeSpawnCeilingDraws.TryGetBlock(draw, out RoomTerrainBlock sporeCeilingBlock))
+        if (SporeSpawnCeilingDraws.TryGetCollision(draw, out RoomCollisionType sporeCeilingCollision))
         {
             RoomObjectFrameImage ceiling = Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").Image(draw);
             for (int row = 0; row < 2; row++)
                 for (int column = 0; column < 2; column++)
-                    DrawImageCell(level, draw, origin, ceiling, new Offset16<RoomBlocks>(column, row), sporeCeilingBlock.Collision);
+                    DrawImageCell(level, draw, origin, ceiling, new Offset16<RoomBlocks>(column, row), sporeCeilingCollision);
             return;
         }
         if (SamusEaterObjectDraws.TryDescribe(draw, out var samusEater))
@@ -204,14 +204,14 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage plant = Installed(SamusEaterVisuals, "Samus Eater").Image(draw);
             for (int run = 0; run < SamusEaterObjectDraws.Draw.RunCount; run++)
                 for (int block = 0; block < SamusEaterObjectDraws.Draw.Count(run); block++)
-                    DrawImageCell(level, draw, origin, plant, samusEater.Start(run) + new Offset16<RoomBlocks>(block, 0), samusEater.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, plant, samusEater.Start(run) + new Offset16<RoomBlocks>(block, 0), samusEater.CollisionAt(run, block));
             return;
         }
         if (draw == BotwoonWallObjectDrawDefinitions.Clear)
         {
             RoomObjectFrameImage wall = Installed(BotwoonWallVisuals, "Botwoon wall").Image(draw);
             for (int row = 0; row < BotwoonWallObjectDrawDefinitions.BlockCount; row++)
-                DrawImageCell(level, draw, origin, wall, new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.BlockAt(row).Collision);
+                DrawImageCell(level, draw, origin, wall, new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.CollisionAt(row));
             return;
         }
         if (LinkedRestoreObjectFamily.TryDescribeAny(draw, out var linkedRestore))
@@ -219,35 +219,35 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage restored = Installed(LinkedRestoreVisuals, "linked restoration").Image(draw);
             for (int run = 0; run < linkedRestore.RunCount; run++)
                 for (int block = 0; block < 2; block++)
-                    DrawImageCell(level, draw, origin, restored, new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, restored, new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.CollisionAt(run, block));
             return;
         }
         if (BlueDoorCaps.TryDescribe(draw, out var blueDoor))
         {
             RoomObjectFrameImage cap = Installed(BlueDoorVisuals, "blue-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), blueDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), blueDoor.CollisionAt(cell));
             return;
         }
         if (ColoredDoorCaps.TryDescribe(draw, out var coloredDoor))
         {
             RoomObjectFrameImage cap = Installed(ColoredDoorVisuals, "colored-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), coloredDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), coloredDoor.CollisionAt(cell));
             return;
         }
         if (GreyDoorCaps.TryDescribe(draw, out var greyDoor))
         {
             RoomObjectFrameImage cap = Installed(GreyDoorVisuals, "grey-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.CollisionAt(cell));
             return;
         }
         if (EyeDoorDraws.TryDescribe(draw, out var eyeDoor))
         {
             RoomObjectFrameImage part = Installed(EyeDoorVisuals, "eye-door").Image(draw);
             for (int cell = 0; cell < eyeDoor.BlockCount; cell++)
-                DrawImageCell(level, draw, origin, part, new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, part, new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.CollisionAt(cell));
             return;
         }
         if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
@@ -266,7 +266,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage tube = Installed(NoobTubeVisuals, "n00b tube").Image(draw);
             for (int run = 0; run < noobTube.RunCount; run++)
                 for (int cell = 0; cell < noobTube.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, tube, noobTube.Start(run) + new Offset16<RoomBlocks>(cell, 0), noobTube.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, tube, noobTube.Start(run) + new Offset16<RoomBlocks>(cell, 0), noobTube.CollisionAt(run, cell));
             return;
         }
         if (StationObjectDraws.TryDescribe(draw, out var station))
@@ -274,7 +274,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage stationImage = Installed(StationVisuals, "station").Image(draw);
             for (int run = 0; run < station.RunCount; run++)
                 for (int cell = 0; cell < station.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, stationImage, station.Start(run) + new Offset16<RoomBlocks>(cell, 0), station.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, stationImage, station.Start(run) + new Offset16<RoomBlocks>(cell, 0), station.CollisionAt(run, cell));
             return;
         }
         if (ElevatorPlatformDraws.TryDescribe(draw, out var elevator))
@@ -282,7 +282,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage platform = Installed(ElevatorPlatformVisuals, "elevator-platform").Image(draw);
             for (int run = 0; run < elevator.RunCount; run++)
                 for (int cell = 0; cell < elevator.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, platform, elevator.Start(run) + new Offset16<RoomBlocks>(cell, 0), elevator.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, platform, elevator.Start(run) + new Offset16<RoomBlocks>(cell, 0), elevator.CollisionAt(run, cell));
             return;
         }
         if (DownwardGateObjectDraws.TryDescribe(draw, out var gate))
@@ -290,7 +290,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage gatePicture = Installed(DownwardGateVisuals, "downward gate").Image(draw);
             for (int run = 0; run < gate.RunCount; run++)
                 for (int word = 0; word < gate.BlockCount(run); word++)
-                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), gate.BlockAt(run, word).Collision);
+                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), gate.CollisionAt(run, word));
             return;
         }
         if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))
@@ -305,7 +305,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage hand = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw);
             for (int run = 0; run < bombTorizoHand.RunCount; run++)
                 for (int word = 0; word < bombTorizoHand.BlockCount(run); word++)
-                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), bombTorizoHand.BlockAt(run, word).Collision);
+                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), bombTorizoHand.CollisionAt(run, word));
             return;
         }
         if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
@@ -322,23 +322,25 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage statue = Installed(ChozoStatueVisuals, "Chozo statue").Image(draw);
             for (int run = 0; run < chozoStatue.RunCount; run++)
                 for (int cell = 0; cell < chozoStatue.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, statue, chozoStatue.Start(run) + new Offset16<RoomBlocks>(cell, 0), chozoStatue.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, statue, chozoStatue.Start(run) + new Offset16<RoomBlocks>(cell, 0), chozoStatue.CollisionAt(run, cell));
             return;
         }
-        if (CollectibleObjectDraws.TryGetBlock(draw, out RoomTerrainBlock collectible))
+        // A block pair's frame lies under the item's own picture (#1538): it writes only its terrain, block number included.
+        if (CollectibleObjectDraws.TryGetBlockPairTerrain(draw, out RoomTerrainBlock blockPair))
         {
-            // A block pair's frame lies under the item's own picture (#1538): it writes only its terrain.
-            if (CollectibleObjectDraws.LiesUnderOwnPicture(draw))
-                DrawTerrainAt(level, draw, origin, collectible);
-            else
-                DrawImageCell(level, draw, origin, Installed(CollectibleVisuals, "collectible").Image(draw), Offset16<RoomBlocks>.Zero, collectible.Collision);
+            DrawTerrainAt(level, draw, origin, blockPair);
+            return;
+        }
+        if (CollectibleObjectDraws.TryGetCollision(draw, out RoomCollisionType collectible))
+        {
+            DrawImageCell(level, draw, origin, Installed(CollectibleVisuals, "collectible").Image(draw), Offset16<RoomBlocks>.Zero, collectible);
             return;
         }
         if (GrappleBlockObjectDraws.TryGet(draw, out var grapple))
         {
             // All five draws are a single block at the PLM origin. The terrain retains Grapple/air collision
             // independently of art.
-            DrawImageCell(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), Offset16<RoomBlocks>.Zero, grapple.Terrain.Collision);
+            DrawImageCell(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), Offset16<RoomBlocks>.Zero, grapple.Collision);
             return;
         }
 
@@ -346,19 +348,15 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     }
 
     /// <summary>
-    /// Writes each run of a reveal or wall frame from where the run starts: each cell collides as the frame's terrain does
+    /// Writes each run of a reveal or wall frame from where the run starts: each cell collides as the frame's geometry says
     /// and shows what the frame's installed <paramref name="image"/> shows there (#1557).
     /// </summary>
     private static void DrawRevealOrWall(RoomLevelData level, RoomObjectShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin,
         RoomObjectFrameImage image)
     {
         foreach (RoomObjectShotBlockDrawDefinitions.Run run in definition.Runs.Span)
-        {
-            bool vertical = run.Direction == RoomObjectRunDirection.Vertical;
             for (int offset = 0; offset < run.Count; offset++)
-                DrawImageCell(level, definition.Draw, origin, image, run.Start + new Offset16<RoomBlocks>(vertical ? 0 : offset, vertical ? offset : 0),
-                    run.Blocks.Span[offset].Collision);
-        }
+                DrawImageCell(level, definition.Draw, origin, image, run.CellAt(offset), run.Collisions.Span[offset]);
     }
 
     /// <summary>Converts a draw's block coordinate to a PLM block index before writing its terrain.</summary>

@@ -4,8 +4,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's bridge and invisible-wall block draws: which PLM draws are the arena's, their run geometry and cells
-/// from <see cref="CrocomireArenaObjectDrawDefinitions"/>.
+/// Crocomire's bridge and invisible-wall block draws: which PLM draws are the arena's, their run geometry and how their
+/// cells collide, from <see cref="CrocomireArenaObjectDrawDefinitions"/>.
 /// </summary>
 internal static class CrocomireArenaDraws
 {
@@ -17,8 +17,8 @@ internal static class CrocomireArenaDraws
 
         /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
         internal int RunCount => CrocomireArenaObjectDrawDefinitions.Cells[Frame].Length;
-        /// <summary>The bridge tile or the wall's alternating rows and final base row, solid only in the create-wall state.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int block)
+        /// <summary>How a bridge cell or wall cell collides; the wall is solid only in the create-wall state.</summary>
+        internal RoomCollisionType CollisionAt(int run, int block)
         {
             if ((uint)run >= RunCount)
                 throw new ArgumentOutOfRangeException(nameof(run));

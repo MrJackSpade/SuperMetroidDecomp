@@ -2,14 +2,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Non-breaking reveals of gated shootable parents.</summary>
+/// <summary>Non-breaking reveals of gated shootable parents; what each shows is its installed picture (#1557).</summary>
 internal static class RoomObjectBombedRevealDrawDefinitions
 {
-    /// <summary>The single block each bombed reveal draws.</summary>
-    internal static readonly IReadOnlyDictionary<RoomObjectBombedRevealDraw, RoomTerrainBlock> Blocks = new Dictionary<RoomObjectBombedRevealDraw, RoomTerrainBlock>
+    /// <summary>How the single block each bombed reveal draws collides.</summary>
+    internal static readonly IReadOnlyDictionary<RoomObjectBombedRevealDraw, RoomCollisionType> Collisions = new Dictionary<RoomObjectBombedRevealDraw, RoomCollisionType>
     {
-        [RoomObjectBombedRevealDraw.PowerBomb] = RoomTerrainBlock.Of(87, BlockMirroring.None, RoomCollisionType.ShootableBlock),
-        [RoomObjectBombedRevealDraw.SuperMissile] = RoomTerrainBlock.Of(159, BlockMirroring.None, RoomCollisionType.ShootableBlock),
-        [RoomObjectBombedRevealDraw.CrumbleSingle] = RoomTerrainBlock.Of(188, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+        [RoomObjectBombedRevealDraw.PowerBomb] = RoomCollisionType.ShootableBlock,
+        [RoomObjectBombedRevealDraw.SuperMissile] = RoomCollisionType.ShootableBlock,
+        [RoomObjectBombedRevealDraw.CrumbleSingle] = RoomCollisionType.SpecialBlock,
     };
 }

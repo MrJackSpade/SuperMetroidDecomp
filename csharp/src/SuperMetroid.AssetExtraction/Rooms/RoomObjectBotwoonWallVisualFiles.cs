@@ -38,9 +38,10 @@ public static class RoomObjectBotwoonWallVisualFiles
     {
         get
         {
-            var blocks = new RoomTerrainBlock[BotwoonWallObjectDrawDefinitions.BlockCount];
-            for (int index = 0; index < blocks.Length; index++) blocks[index] = BotwoonWallObjectDraws.BlockAt(index);
-            yield return RoomObjectDrawListExport.SingleRun(BotwoonWallObjectDrawDefinitions.Clear, RoomObjectRunDirection.Vertical, blocks);
+            var collisions = new RoomCollisionType[BotwoonWallObjectDrawDefinitions.BlockCount];
+            for (int index = 0; index < collisions.Length; index++) collisions[index] = BotwoonWallObjectDraws.CollisionAt(index);
+            yield return RoomObjectDrawListExport.SingleRun(BotwoonWallObjectDrawDefinitions.Clear, RoomObjectRunDirection.Vertical, collisions);
+
         }
     }
 }

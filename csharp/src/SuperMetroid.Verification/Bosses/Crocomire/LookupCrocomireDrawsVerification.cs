@@ -1,6 +1,7 @@
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -32,6 +33,7 @@ internal static class LookupCrocomireDrawsVerification
             }
         }
         int cells = 0;
+        InstalledRoomObjectCrocomireVisuals pictures = InstalledRoomObjectCrocomireVisuals.Stock();
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
@@ -48,15 +50,16 @@ internal static class LookupCrocomireDrawsVerification
                 AssertRunHeader(count, exported[index].Runs.Span[run], "Crocomire export direction/count");
                 int length = count & 0x7fff;
                 AssertEqual(length, shape.BlocksPerRun, "Crocomire native width");
-                AssertEqual(length, dto.Runs.Span[run].Blocks.Length, "Crocomire DTO width");
-                AssertEqual(length, exported[index].Runs.Span[run].Blocks.Length, "Crocomire export width");
+                AssertEqual(length, dto.Runs.Span[run].Count, "Crocomire DTO width");
+                AssertEqual(length, exported[index].Runs.Span[run].Count, "Crocomire export width");
                 AssertEqual((count & 0x8000) != 0, shape.Wall, "Crocomire runtime direction");
                 for (int block = 0; block < length; block++, cursor += 2)
                 {
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadWord(cursor));
-                    AssertEqual(expected, shape.BlockAt(run, block), "Crocomire native calculated cell");
-                    AssertEqual(expected, dto.Runs.Span[run].Blocks.Span[block], "Crocomire native DTO cell");
-                    AssertEqual(expected, exported[index].Runs.Span[run].Blocks.Span[block], "Crocomire native export cell");
+                    AssertEqual(expected.Collision, shape.CollisionAt(run, block), "Crocomire native calculated collision");
+                    AssertEqual(expected.Collision, dto.Runs.Span[run].Collisions.Span[block], "Crocomire native DTO collision");
+                    AssertEqual(expected.Collision, exported[index].Runs.Span[run].Collisions.Span[block], "Crocomire native export collision");
+                    AssertEqual(expected.Appearance, pictures.Image(dto.Draw).At(dto.Runs.Span[run].CellAt(block)), "Crocomire installed picture");
                     cells++;
                 }
                 sbyte nextX = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
@@ -67,7 +70,7 @@ internal static class LookupCrocomireDrawsVerification
                 AssertEqual(nextY, RoomObjectRunContinuationCodecConstants.Y(exported[index], run), "Crocomire export Y");
                 AssertEqual((sbyte)0, nextY, "Crocomire runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Crocomire cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(run, invalid), "Crocomire cell bounds");
                 run++;
                 if (nextX == 0 && nextY == 0) break;
             }
@@ -78,7 +81,8 @@ internal static class LookupCrocomireDrawsVerification
                 cursor, "Crocomire original draw end");
             foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Crocomire run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Crocomire run bounds");
+
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Crocomire start bounds");
             }
         }

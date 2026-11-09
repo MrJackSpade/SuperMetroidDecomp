@@ -20,6 +20,7 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
+        InstalledRoomObjectLinkedRestoreVisuals pictures = InstalledRoomObjectLinkedRestoreVisuals.Stock();
         AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.AllOf(LinkedRestoreObjectFamily.BombBlock).Select(draw => RoomObjectDrawAddressCodec.Of(draw.Draw))),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -49,8 +50,9 @@ internal static class BombBlockProgramsVerification
                 for (int block = 0; block < count; block++)
                 {
                     RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block)));
-                    AssertEqual(native, draw.BlockAt(run, block), "bomb restoration calculated parent/child word");
-                    AssertEqual(native, exportedRun.Blocks.Span[block], "bomb restoration exported word");
+                    AssertEqual(native.Collision, draw.CollisionAt(run, block), "bomb restoration calculated parent/child collision");
+                    AssertEqual(native.Collision, exportedRun.Collisions.Span[block], "bomb restoration exported collision");
+                    AssertEqual(native.Appearance, pictures.Image(list.Draw).At(exportedRun.CellAt(block)), "bomb restoration installed picture");
                 }
                 cursor += 2 + 2 * count;
                 byte x = rom.ReadCartridgeByte(0x840000 | cursor);
@@ -66,9 +68,9 @@ internal static class BombBlockProgramsVerification
             AssertEqual(run, draw.RunCount, "bomb restoration complete calculated runs");
             AssertEqual(run, list.Runs.Length, "bomb restoration complete exported runs");
             foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(invalid, 0), "bomb restoration run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(invalid, 0), "bomb restoration run bounds");
             foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(0, invalid), "bomb restoration block bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(0, invalid), "bomb restoration block bounds");
         }
     }
 

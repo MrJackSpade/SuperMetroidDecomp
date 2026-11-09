@@ -33,6 +33,7 @@ internal static class LookupDownwardGateDrawsVerification
             "yellow-left-trigger","yellow-right-trigger"];
         var exported = RoomObjectDownwardGateVisualFiles.All.ToArray();
         AssertEqual(14, exported.Length, "Gate draw export count");
+        InstalledRoomObjectDownwardGateVisuals? pictures = field == 2 ? InstalledRoomObjectDownwardGateVisuals.Stock() : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -77,16 +78,23 @@ internal static class LookupDownwardGateDrawsVerification
                     AssertEqual(length, dto.Runs.Span[run].Count, "Gate DTO width");
                     AssertEqual(length, exported[index].Runs.Span[run].Count, "Gate export width");
                     foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Gate cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(run, invalid), "Gate cell bounds");
                 }
                 for (int word = 0; word < length; word++, cursor += 2)
                 {
                     if (field != 0)
                     {
                         RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor));
-                        AssertEqual(expected, shape.BlockAt(run, word), "Gate original calculated field");
-                        AssertEqual(expected, dto.Runs.Span[run].Blocks.Span[word], "Gate original DTO field");
-                        AssertEqual(expected, exported[index].Runs.Span[run].Blocks.Span[word], "Gate original export field");
+                        if (field == 1)
+                        {
+                            AssertEqual(expected.Collision, shape.CollisionAt(run, word), "Gate original calculated collision");
+                            AssertEqual(expected.Collision, dto.Runs.Span[run].Collisions.Span[word], "Gate original DTO collision");
+                            AssertEqual(expected.Collision, exported[index].Runs.Span[run].Collisions.Span[word], "Gate original export collision");
+                        }
+                        else
+                            // Core holds no appearance: what the cell shows is the gate's installed picture.
+                            AssertEqual(expected.Appearance, pictures!.Image(NativeObjectDraws.At<DownwardGateDraw>(pointer)).At(dto.Runs.Span[run].CellAt(word)),
+                                "Gate installed picture shows the cartridge's block");
                     }
                     cells++;
                 }
@@ -114,7 +122,8 @@ internal static class LookupDownwardGateDrawsVerification
                 AssertEqual(end, cursor, "Gate original record end");
                 foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Gate run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Gate run bounds");
+
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Gate start bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Gate run-width bounds");
                 }

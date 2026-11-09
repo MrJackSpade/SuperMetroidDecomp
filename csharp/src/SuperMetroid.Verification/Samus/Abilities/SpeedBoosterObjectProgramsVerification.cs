@@ -45,7 +45,8 @@ internal static class SpeedBoosterObjectProgramsVerification
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
             AssertTrue(!RoomObjectSpeedBoosterVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal),"speed reveal ordinal ID rejection");
         RoomTerrainBlock nativeTerrain = RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2)));
-        AssertEqual(nativeTerrain,SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain,"speed reveal calculated physical terrain");
+        // What the reveal shows is its installed picture, which the Speed Booster picture check compares with the cartridge.
+        AssertEqual(nativeTerrain.Collision,SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision,"speed reveal calculated physical collision");
         foreach (var draw in new[] {exported[0],byId,RoomObjectSpeedBoosterVisualFiles.BombReveal})
         {
             AssertEqual(pointer,RoomObjectDrawAddressCodec.Of(draw.Draw),"speed reveal DTO identity");
@@ -53,7 +54,7 @@ internal static class SpeedBoosterObjectProgramsVerification
             var run = draw.Runs.Span[0];
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),run,"speed reveal native direction/count");
             AssertEqual(1,run.Count,"speed reveal single word");
-            AssertEqual(nativeTerrain,run.Blocks.Span[0],"speed reveal exported native terrain");
+            AssertEqual(nativeTerrain.Collision,run.Collisions.Span[0],"speed reveal exported native collision");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),RoomObjectRunContinuationCodecConstants.X(draw, 0),"speed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),RoomObjectRunContinuationCodecConstants.Y(draw, 0),"speed reveal native terminal Y");
         }

@@ -44,7 +44,8 @@ public static class RoomObjectLinkedRestoreVisualFiles
 
     /// <summary>Builds the draw list of the restoration <paramref name="request"/>, whose shape is <paramref name="draw"/>.</summary>
     internal static RoomObjectShotBlockDrawDefinitions.DrawList Export(RoomObjectDraw request, LinkedRestoreObjectFamily.Draw draw) =>
-        RoomObjectDrawListExport.Runs(request, draw.RunCount, static _ => 2, draw.BlockAt,
+        RoomObjectDrawListExport.Runs(request, draw.RunCount, static _ => 2, draw.CollisionAt,
+
             _ => draw.Vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal,
             RoomObjectDrawListExport.Stacked);
 

@@ -29,11 +29,12 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
 
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             BlueDoorObjectDrawDefinitionsTooling.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomBlockAppearance leftFirstCompiled = RoomObjectBlueDoorVisualFiles.Editable
-            .Single(draw => RoomObjectBlueDoorVisualFiles.VisualId(draw.Draw) == "left-frame-1").Runs.Span[0].Blocks.Span[0].Appearance;
         InstalledRoomObjectBlueDoorVisuals stock = InstalledRoomObjectBlueDoorVisuals.Stock();
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
-        AssertEqual(leftFirstCompiled, stock.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)).At(Offset16<RoomBlocks>.Zero),
+        AssertEqual("left-frame-1", RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)),
+            "the left blue door opens on its first opening frame");
+        AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (leftFirstDraw + 2))).Appearance,
+            stock.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)).At(Offset16<RoomBlocks>.Zero),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
         Suite(nameof(VerifyBlueCapCollision), () => VerifyBlueCapCollision(rom));
@@ -59,9 +60,13 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
                 ? width : 1;
             for (int block = 0; block < 4; block++)
-                AssertEqual(selected.Runs.Span[0].Blocks.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).Terrain,
+            {
+                RoomTerrainBlock written = level.GetCollisionBlockByIndex(origin + block * stride).Terrain;
+                AssertEqual(selected.Runs.Span[0].Collisions.Span[block], written.Collision,
                     $"{orientation} native draw writes physical block {block} without ROM payload reads");
+                AssertEqual(stock.Image(selected.Draw).At(selected.Runs.Span[0].CellAt(block)), written.Appearance,
+                    $"{orientation} draw shows its installed picture at block {block}");
+            }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{orientation} opening avoids compiled program and draw ROM bytes");
 

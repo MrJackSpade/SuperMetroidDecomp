@@ -3,21 +3,17 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Four two-by-two physical ceiling draws. Each list has two
-/// horizontal runs, calculated without a stored layout cache. Editable visible
-/// block selections remain a separate asset.
+/// Four two-by-two ceiling draws, each two horizontal runs of two cells. What each frame shows is its installed picture
+/// (#1557).
 /// </summary>
 internal static class SporeSpawnCeilingObjectDrawDefinitions
 {
-    /// <summary>
-    /// The one air cell each draw fills its square with: clear fills with the blank tile; crumble advances through
-    /// the three successive crumble tiles in its three successive records.
-    /// </summary>
-    internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomTerrainBlock> Cells = new()
+    /// <summary>How every cell of each draw's square collides: the clear and the three crumble frames all leave air.</summary>
+    internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomCollisionType> Collisions = new()
     {
-        [SporeSpawnCeilingDraw.Clear] = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air),
-        [SporeSpawnCeilingDraw.CrumbleFirst] = RoomTerrainBlock.Of(83, BlockMirroring.None, RoomCollisionType.Air),
-        [SporeSpawnCeilingDraw.CrumbleSecond] = RoomTerrainBlock.Of(84, BlockMirroring.None, RoomCollisionType.Air),
-        [SporeSpawnCeilingDraw.CrumbleThird] = RoomTerrainBlock.Of(85, BlockMirroring.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.Clear] = RoomCollisionType.Air,
+        [SporeSpawnCeilingDraw.CrumbleFirst] = RoomCollisionType.Air,
+        [SporeSpawnCeilingDraw.CrumbleSecond] = RoomCollisionType.Air,
+        [SporeSpawnCeilingDraw.CrumbleThird] = RoomCollisionType.Air,
     };
 }

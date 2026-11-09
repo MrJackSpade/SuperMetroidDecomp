@@ -3,14 +3,16 @@ using static SuperMetroid.Core.Rooms.RoomObjects.BotwoonWallObjectDrawDefinition
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The blocks of Botwoon's wall.</summary>
+/// <summary>How the cells of Botwoon's wall clear collide.</summary>
 internal static class BotwoonWallObjectDraws
 {
-    /// <summary>Nine identical air blocks; indexed only within the single vertical run. Editable appearance is applied
-    /// separately.</summary>
-    internal static RoomTerrainBlock BlockAt(int index)
+    /// <summary>
+    /// How one of the nine cells of the single vertical run collides: air. What it shows is the clear's installed picture
+    /// (#1557).
+    /// </summary>
+    internal static RoomCollisionType CollisionAt(int index)
     {
         if ((uint)index >= BlockCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return RoomTerrainBlocks.BlankAir;
+        return RoomCollisionType.Air;
     }
 }

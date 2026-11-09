@@ -16,7 +16,7 @@ public sealed class InstalledRoomObjectCollectibleVisuals
     /// <summary>The picture <paramref name="draw"/> shows.</summary>
     /// <exception cref="InvalidDataException">The draw is not one of the family's frames, or the installation lacks it.</exception>
     internal RoomObjectFrameImage Image(RoomObjectDraw draw) =>
-        CollectibleObjectDraws.TryGetBlock(draw, out _)
+        CollectibleObjectDraws.TryGetCollision(draw, out _)
             ? Images.Image(draw)
             : throw new InvalidDataException($"Collectible visuals lack frame {draw}.");
 }

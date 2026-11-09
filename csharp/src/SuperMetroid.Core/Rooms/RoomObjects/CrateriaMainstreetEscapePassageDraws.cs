@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>The open-passage draw of Crateria's main street escape.</summary>
 internal static class CrateriaMainstreetEscapePassageDraws
 {
-    /// <summary>Recognizes the escape passage draw pointer and supplies its two adjacent air blocks.</summary>
+    /// <summary>Recognizes the escape passage draw and supplies its two adjacent air cells.</summary>
     internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)
     {
         if (request != ClearPairDraw)
@@ -16,7 +16,7 @@ internal static class CrateriaMainstreetEscapePassageDraws
         }
         draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[]
         {
-            new(RoomObjectRunDirection.Horizontal, new[] { RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir }, new(0, 0)),
+            new(RoomObjectRunDirection.Horizontal, new[] { RoomCollisionType.Air, RoomCollisionType.Air }, new(0, 0)),
         });
         return true;
     }

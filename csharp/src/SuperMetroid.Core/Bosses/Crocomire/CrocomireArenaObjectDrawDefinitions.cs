@@ -3,11 +3,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Five bounded physical block-draw layouts for Crocomire's bridge and
-/// three-column arena wall. Bridge runs repeat one block;
-/// wall columns use consecutive tiles, two alternating rows and a final base row.
-/// Clear/create share artwork and differ only in whether the blocks are solid. The
-/// continuation offsets are relative to the origin, not the preceding column.
+/// Five bounded block-draw layouts for Crocomire's bridge and three-column arena wall: a bridge is one run, a wall
+/// three eight-cell columns. Clear and create differ only in whether the wall's cells are solid. The continuation
+/// offsets are relative to the origin, not the preceding column. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class CrocomireArenaObjectDrawDefinitions
 {
@@ -22,62 +20,42 @@ internal static class CrocomireArenaObjectDrawDefinitions
     };
 
     /// <summary>
-    /// Each arena draw's cells, one row per run. A bridge is one run of repeated cells; a wall is three columns of
-    /// consecutive tiles with two alternating rows and a final base row between empty cells, solid only when the
-    /// create-wall state writes it.
+    /// How each arena draw's cells collide, one row per run. The cleared bridge is a run of ten air cells, the crumbling
+    /// bridge block one solid cell and the cleared bridge block one air cell; a wall is three columns of eight cells, solid
+    /// only when the create-wall state writes it.
     /// </summary>
-    internal static readonly Dictionary<CrocomireArenaDraw, RoomTerrainBlock[][]> Cells = new()
+    internal static readonly Dictionary<CrocomireArenaDraw, RoomCollisionType[][]> Cells = new()
     {
         [CrocomireArenaDraw.ClearBridge] =
         [
             [
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air,
+                RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air,
             ],
         ],
         [CrocomireArenaDraw.CrumbleBridgeBlock] =
         [
-            [RoomTerrainBlock.Of(267, BlockMirroring.None, RoomCollisionType.SolidBlock)],
+            [RoomCollisionType.SolidBlock],
         ],
         [CrocomireArenaDraw.ClearBridgeBlock] =
         [
-            [RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air)],
+            [RoomCollisionType.Air],
         ],
         [CrocomireArenaDraw.ClearInvisibleWall] =
         [
-            WallColumn(263, 295, 327, RoomCollisionType.Air),
-            WallColumn(264, 296, 328, RoomCollisionType.Air),
-            WallColumn(265, 297, 329, RoomCollisionType.Air),
+            WallColumn(RoomCollisionType.Air),
+            WallColumn(RoomCollisionType.Air),
+            WallColumn(RoomCollisionType.Air),
         ],
         [CrocomireArenaDraw.CreateInvisibleWall] =
         [
-            WallColumn(263, 295, 327, RoomCollisionType.SolidBlock),
-            WallColumn(264, 296, 328, RoomCollisionType.SolidBlock),
-            WallColumn(265, 297, 329, RoomCollisionType.SolidBlock),
+            WallColumn(RoomCollisionType.SolidBlock),
+            WallColumn(RoomCollisionType.SolidBlock),
+            WallColumn(RoomCollisionType.SolidBlock),
         ],
     };
 
-    /// <summary>
-    /// One wall column: an empty cell, the top block, the middle block (the block one tileset row below the top), the
-    /// two again, the base block (two tileset rows below the top), then two empty cells.
-    /// </summary>
-    private static RoomTerrainBlock[] WallColumn(int top, int middle, int bottom, RoomCollisionType collision) =>
-    [
-        RoomTerrainBlock.Of(128, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(top, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(middle, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(top, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(middle, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(bottom, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(128, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(128, BlockMirroring.None, collision),
-    ];
+    /// <summary>One wall column's eight cells, every one colliding as <paramref name="collision"/>.</summary>
+    private static RoomCollisionType[] WallColumn(RoomCollisionType collision) =>
+        [collision, collision, collision, collision, collision, collision, collision, collision];
 }

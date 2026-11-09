@@ -4,24 +4,25 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// One family of linked block restorations: bomb blocks or Samus-contact crumble blocks. Each family has three
-/// restoration draws, horizontal, vertical and square, that rebuild a parent block and its linked children with one
-/// appearance. The families differ only in the parent's collision kind and that appearance; the horizontal- and
-/// vertical-extension children and their links are the same. The shape shares the compiled PLM row/column representation with shot blocks.
+/// restoration draws, horizontal, vertical and square, that rebuild a parent block and its linked children. The families
+/// differ only in the parent's collision kind; the horizontal- and vertical-extension children and their links are the
+/// same. What each restoration shows is its installed picture (#1557). The shape shares the PLM row/column
+/// representation with shot blocks.
 /// </summary>
 internal sealed class LinkedRestoreObjectFamily
 {
     /// <summary>Linked bomb blocks: a bombable parent.</summary>
     internal static LinkedRestoreObjectFamily BombBlock { get; } = new(
-        RoomCollisionType.BombableBlock, RoomObjectVisualBlockDefinitions.CollisionBombParent, new Dictionary<RoomObjectRestoreShape, RoomObjectDraw>
+        RoomCollisionType.BombableBlock, new Dictionary<RoomObjectRestoreShape, RoomObjectDraw>
         {
             [RoomObjectRestoreShape.Horizontal] = RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal),
             [RoomObjectRestoreShape.Vertical] = RoomObjectDraw.Of(BombBlockRestoreDraw.Vertical),
             [RoomObjectRestoreShape.Square] = RoomObjectDraw.Of(BombBlockRestoreDraw.Square),
         });
 
-    /// <summary>Linked Samus-contact crumble blocks: a special-block parent. Artwork replacement may only alter their visual composition.</summary>
+    /// <summary>Linked Samus-contact crumble blocks: a special-block parent.</summary>
     internal static LinkedRestoreObjectFamily ContactCrumble { get; } = new(
-        RoomCollisionType.SpecialBlock, RoomObjectVisualBlockDefinitions.ContactCrumbleParent, new Dictionary<RoomObjectRestoreShape, RoomObjectDraw>
+        RoomCollisionType.SpecialBlock, new Dictionary<RoomObjectRestoreShape, RoomObjectDraw>
         {
             [RoomObjectRestoreShape.Horizontal] = RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Horizontal),
             [RoomObjectRestoreShape.Vertical] = RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Vertical),
@@ -34,23 +35,20 @@ internal sealed class LinkedRestoreObjectFamily
     /// <summary>The parent block's collision type.</summary>
     private readonly RoomCollisionType _parentCollision;
 
-    /// <summary>The appearance every restored cell shows.</summary>
-    private readonly RoomBlockAppearance _appearance;
 
     /// <summary>The restoration draw of each shape.</summary>
     private readonly IReadOnlyDictionary<RoomObjectRestoreShape, RoomObjectDraw> _draws;
 
-    /// <summary>Defines a family by its parent collision kind, appearance and the restoration draw of each shape.</summary>
-    private LinkedRestoreObjectFamily(RoomCollisionType parentCollision, RoomBlockAppearance appearance, IReadOnlyDictionary<RoomObjectRestoreShape, RoomObjectDraw> draws)
+    /// <summary>Defines a family by its parent collision kind and the restoration draw of each shape.</summary>
+    private LinkedRestoreObjectFamily(RoomCollisionType parentCollision, IReadOnlyDictionary<RoomObjectRestoreShape, RoomObjectDraw> draws)
     {
         _parentCollision = parentCollision;
-        _appearance = appearance;
         _draws = draws;
     }
 
     /// <summary>One restoration draw's geometry, from which its parent and linked children are reconstructed.</summary>
     /// <param name="Shape">Whether the blocks lie in a row, a column or a two-by-two square.</param>
-    /// <param name="Family">The family whose parent collision kind and appearance the blocks carry.</param>
+    /// <param name="Family">The family whose parent collision kind the parent block carries.</param>
     internal readonly record struct Draw(RoomObjectRestoreShape Shape, LinkedRestoreObjectFamily Family)
     {
         /// <summary>Whether the restored blocks stack in one column.</summary>
@@ -62,8 +60,8 @@ internal sealed class LinkedRestoreObjectFamily
         /// <summary>Square restoration has two rows; horizontal and vertical shapes use one run.</summary>
         internal int RunCount => Square ? 2 : 1;
 
-        /// <summary>Builds the parent or linked-child block at a position within the draw shape.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int block)
+        /// <summary>How the parent or linked-child cell at a position within the draw shape collides.</summary>
+        internal RoomCollisionType CollisionAt(int run, int block)
         {
             if ((uint)run >= RunCount)
                 throw new ArgumentOutOfRangeException(nameof(run));
@@ -71,11 +69,10 @@ internal sealed class LinkedRestoreObjectFamily
                 throw new ArgumentOutOfRangeException(nameof(block));
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
-            // Every cell shows the family's appearance. Children link left on the parent's row and up on later rows;
-            // only the top-left cell carries the parent's collision kind.
-            RoomCollisionType collision = row == 0 && column == 0 ? Family._parentCollision
+            // Children link left on the parent's row and up on later rows; only the top-left cell carries the parent's
+            // collision kind.
+            return row == 0 && column == 0 ? Family._parentCollision
                 : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-            return new RoomTerrainBlock(Family._appearance, collision);
         }
     }
 

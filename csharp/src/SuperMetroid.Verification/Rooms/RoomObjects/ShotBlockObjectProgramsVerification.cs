@@ -132,12 +132,13 @@ internal static class ShotBlockObjectProgramsVerification
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} direction/count");
                 forbidden.Add(0x840000 | cursor++);
                 forbidden.Add(0x840000 | cursor++);
-                foreach (RoomTerrainBlock terrain in run.Blocks.Span)
+                // What each cell shows is the installed picture, which the shot-block picture check compares with the cartridge.
+                foreach (RoomCollisionType collision in run.Collisions.Span)
                 {
-                    AssertEqual(terrain, calculated.BlockAt(runIndex, blockIndex++), "shot-block direct and exported block agree");
-                    AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
-                        terrain,
-                        $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} block decoded from the level word at ${cursor:X4}");
+                    AssertEqual(collision, calculated.CollisionAt(runIndex, blockIndex++), "shot-block direct and exported collision agree");
+                    AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                        collision,
+                        $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} collision decoded from the level word at ${cursor:X4}");
                     forbidden.Add(0x840000 | cursor++);
                     forbidden.Add(0x840000 | cursor++);
                 }
@@ -153,11 +154,11 @@ internal static class ShotBlockObjectProgramsVerification
 
             foreach (int invalid in new[] {int.MinValue,-1,int.MaxValue})
             {
-                AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(invalid, 0), "shot-block invalid run");
-                AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(0, invalid), "shot-block invalid block");
+                AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(invalid, 0), "shot-block invalid run");
+                AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(0, invalid), "shot-block invalid block");
             }
-            AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(calculated.RunCount, 0), "shot-block run upper bound");
-            AssertThrows<ArgumentOutOfRangeException>(() => calculated.BlockAt(0, calculated.BlocksPerRun), "shot-block word upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(calculated.RunCount, 0), "shot-block run upper bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => calculated.CollisionAt(0, calculated.BlocksPerRun), "shot-block word upper bound");
 
             drawListCount++;
         }

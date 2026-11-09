@@ -33,7 +33,7 @@ public static class RoomObjectSpeedBoosterVisualFiles
     /// <summary>The one-block reveal's draw list, built from the block the game writes.</summary>
     internal static RoomObjectShotBlockDrawDefinitions.DrawList BombReveal =>
         RoomObjectDrawListExport.SingleRun(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, RoomObjectRunDirection.Horizontal,
-            [SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain]);
+            [SpeedBoosterBlockObjectDrawDefinitions.BombRevealCollision]);
 
     /// <summary>The sole bomb-reveal draw list.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All => [BombReveal];

@@ -41,11 +41,11 @@ public static class RoomObjectColoredDoorVisualFiles
         }
     }
 
-    /// <summary>Builds the draw list of a recognized colored cap from its cells.</summary>
+    /// <summary>Builds the draw list of a recognized colored cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
         bool found = ColoredDoorCaps.TryDescribe(request, out ColoredDoorCaps.Draw cap);
-        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.BlockAt) : default;
+        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.CollisionAt) : default;
         return found;
     }
 

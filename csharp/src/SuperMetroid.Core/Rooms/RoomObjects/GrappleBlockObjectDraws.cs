@@ -3,14 +3,14 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectGrappleBlockDrawDefin
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The terrain of each Grapple-block draw.</summary>
+/// <summary>How the block of each Grapple-block draw collides.</summary>
 internal static class GrappleBlockObjectDraws
 {
     /// <summary>
-    /// The terrain a draw installs: the Grapple block, the three consecutive breakup blocks as air, and blank air.
+    /// How the block a draw installs collides: the Grapple block, then the three breakup frames and blank as air.
     /// </summary>
-    private static RoomTerrainBlock Terrain(GrappleBlockDraw frame) =>
-        Blocks.TryGetValue(frame, out RoomTerrainBlock value) ? value : throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}.");
+    private static RoomCollisionType Collision(GrappleBlockDraw frame) =>
+        Collisions.TryGetValue(frame, out RoomCollisionType value) ? value : throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}.");
 
     /// <summary>Resolves one of the five Grapple-block draws; draws of other families produce a default record.</summary>
     internal static bool TryGet(RoomObjectDraw request, out DrawList definition)
@@ -20,7 +20,7 @@ internal static class GrappleBlockObjectDraws
             definition = default;
             return false;
         }
-        definition = new(frame, Terrain(frame));
+        definition = new(frame, Collision(frame));
         return true;
     }
 }

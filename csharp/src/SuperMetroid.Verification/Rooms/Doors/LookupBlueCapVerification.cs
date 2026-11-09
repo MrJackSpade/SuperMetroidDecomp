@@ -26,6 +26,7 @@ internal static class LookupBlueCapVerification
         string[] ids = ["left-frame-0","left-frame-1","left-frame-2","left-frame-3","right-frame-0","right-frame-1","right-frame-2","right-frame-3","up-frame-0","up-frame-1","up-frame-2","up-frame-3","down-frame-0","down-frame-1","down-frame-2","down-frame-3","left-frame-0","right-frame-0","up-frame-0","down-frame-0"];
         var exported = BlueDoorObjectDrawDefinitionsTooling.All.ToArray();
         AssertEqual(20, exported.Length, "Blue cap export count");
+        InstalledRoomObjectBlueDoorVisuals? pictures = field == 2 ? InstalledRoomObjectBlueDoorVisuals.Stock() : null;
         AssertTrue(RoomObjectBlueDoorVisualFiles.Editable.Select(frame => RoomObjectDrawAddressCodec.Of(frame.Draw)).SequenceEqual(pointers.Take(16)), "Blue cap editable identity domain and order");
         if (field == 0)
         {
@@ -69,14 +70,21 @@ internal static class LookupBlueCapVerification
                     AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.Y(frame, 0), "Blue cap DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Blue cap calculated row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid), "Blue cap calculated row bounds");
             }
             else for (int row = 0; row < 4; row++)
             {
                 RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + row * 2)));
-                AssertEqual(expected, shape.BlockAt(row), "Blue cap original calculated field");
-                AssertEqual(expected, dto.Runs.Span[0].Blocks.Span[row], "Blue cap original DTO field");
-                AssertEqual(expected, exported[index].Runs.Span[0].Blocks.Span[row], "Blue cap original export field");
+                if (field == 1)
+                {
+                    AssertEqual(expected.Collision, shape.CollisionAt(row), "Blue cap original calculated collision");
+                    AssertEqual(expected.Collision, dto.Runs.Span[0].Collisions.Span[row], "Blue cap original DTO collision");
+                    AssertEqual(expected.Collision, exported[index].Runs.Span[0].Collisions.Span[row], "Blue cap original export collision");
+                }
+                else
+                    // Core holds no appearance: what the cell shows is the cap's installed picture, an alias showing frame zero's.
+                    AssertEqual(expected.Appearance, pictures!.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(pointer)).At(dto.Runs.Span[0].CellAt(row)),
+                        "Blue cap installed picture shows the cartridge's block");
             }
         }
     }

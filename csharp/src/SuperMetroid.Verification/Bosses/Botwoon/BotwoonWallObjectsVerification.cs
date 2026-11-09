@@ -36,13 +36,17 @@ internal static class BotwoonWallObjectsVerification
         AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), draw.Runs.Span[0],
             "Botwoon clear run header");
         cursor += 2;
-        foreach (RoomTerrainBlock block in draw.Runs.Span[0].Blocks.Span)
-            AssertBlock(block);
+        foreach (RoomCollisionType collision in draw.Runs.Span[0].Collisions.Span)
+            AssertCollision(collision);
+        RoomObjectFrameImage picture = InstalledRoomObjectBotwoonWallVisuals.Stock().Image(draw.Draw);
         for (int index = 0; index < 9; index++)
-            AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2)),
-                BotwoonWallObjectDraws.BlockAt(index), "Botwoon calculated clear block matches the native word");
+        {
+            RoomTerrainBlock native = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2));
+            AssertEqual(native.Collision, BotwoonWallObjectDraws.CollisionAt(index), "Botwoon calculated clear collision matches the native word");
+            AssertEqual(native.Appearance, picture.At(new Offset16<RoomBlocks>(0, index)), "Botwoon installed clear picture shows the native word's block");
+        }
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallObjectDraws.BlockAt(index), "Botwoon fill rejects invalid block index");
+            AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallObjectDraws.CollisionAt(index), "Botwoon fill rejects invalid block index");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
             unchecked((byte)RoomObjectRunContinuationCodecConstants.X(draw, 0)),
             "Botwoon clear final X offset");
@@ -57,10 +61,11 @@ internal static class BotwoonWallObjectsVerification
         Console.WriteLine(
             "Botwoon wall: typed programs match ROM, and they and the nine-block clear draw run their timed crumble/clear paths without source reads.");
 
-        void AssertBlock(RoomTerrainBlock expected)
+        void AssertCollision(RoomCollisionType expected)
         {
-            AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
-                expected, $"Botwoon draw block +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
+            AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                expected, $"Botwoon draw collision +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
+
             cursor += 2;
         }
     }

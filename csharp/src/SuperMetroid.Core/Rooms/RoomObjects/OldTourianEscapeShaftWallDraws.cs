@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class OldTourianEscapeShaftWallDraws
 {
     /// <summary>
-    /// A vertical run of three air blocks at the PLM, then another one block to
+    /// A vertical run of three air cells at the PLM, then another one block to
     /// its right.
     /// </summary>
     internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)
@@ -17,7 +17,7 @@ internal static class OldTourianEscapeShaftWallDraws
             draw = default;
             return false;
         }
-        RoomTerrainBlock[] column = [RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir];
+        RoomCollisionType[] column = [RoomCollisionType.Air, RoomCollisionType.Air, RoomCollisionType.Air];
         draw = new(request, new RoomObjectShotBlockDrawDefinitions.Run[]
         {
             new(RoomObjectRunDirection.Vertical, column, new(0, 0)),

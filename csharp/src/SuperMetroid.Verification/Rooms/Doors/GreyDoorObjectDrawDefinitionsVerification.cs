@@ -1,6 +1,8 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.LookupGreyCapVerification;
+
 using static SuperMetroid.Verification.Rooms.Doors.LookupGreyDoorStockVerification;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -34,10 +36,11 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
 
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             RoomObjectGreyDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomBlockAppearance greyRightCompiled = lists.Single(draw => RoomObjectGreyDoorVisualFiles.VisualId(draw.Draw) == "grey-right-frame-0")
-            .Runs.Span[0].Blocks.Span[0].Appearance;
         InstalledRoomObjectGreyDoorVisuals stock = InstalledRoomObjectGreyDoorVisuals.Stock();
-        AssertEqual(greyRightCompiled, stock.Image(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7)).At(Offset16<RoomBlocks>.Zero),
+        AssertEqual("grey-right-frame-0", RoomObjectGreyDoorVisualFiles.VisualId(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7)),
+            "the grey right cap's first frame is the draw the cartridge stores at $A6D7");
+        AssertEqual(RoomLevelWordCodec.Decode(ReadWord(rom, 0x840000 | (0xa6d7 + 2))).Appearance,
+            stock.Image(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7)).At(Offset16<RoomBlocks>.Zero),
             "stock grey-door visual retains native tile choice");
         Suite(nameof(VerifyGreyCapGeometry), () => VerifyGreyCapGeometry(rom));
         Suite(nameof(VerifyGreyCapCollision), () => VerifyGreyCapCollision(rom));
@@ -82,9 +85,14 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             bool vertical = selected.Runs.Span[0].Direction == RoomObjectRunDirection.Vertical;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
-                AssertEqual(selected.Runs.Span[0].Blocks.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).Terrain,
+            {
+                RoomTerrainBlock written = level.GetCollisionBlockByIndex(origin + block * stride).Terrain;
+                AssertEqual(selected.Runs.Span[0].Collisions.Span[block], written.Collision,
                     $"resident grey-door {header} draws physical block {block}");
+                AssertEqual(stock.Image(selected.Draw).At(selected.Runs.Span[0].CellAt(block)), written.Appearance,
+                    $"resident grey-door {header} shows its installed picture at block {block}");
+            }
+
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident grey-door {header} avoids draw payload ROM reads");
             if (header == RoomObjectHeaderId.BombTorizoGreyDoor)

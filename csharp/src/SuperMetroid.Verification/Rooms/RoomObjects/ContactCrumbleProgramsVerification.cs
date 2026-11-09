@@ -84,6 +84,7 @@ internal static class ContactCrumbleProgramsVerification
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
         AssertTrue(pointers.SequenceEqual(RoomObjectLinkedRestoreVisualFiles.AllOf(LinkedRestoreObjectFamily.ContactCrumble).Select(draw => RoomObjectDrawAddressCodec.Of(draw.Draw))),
             "contact restoration export order matches native layouts");
+        InstalledRoomObjectLinkedRestoreVisuals pictures = InstalledRoomObjectLinkedRestoreVisuals.Stock();
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
@@ -111,8 +112,9 @@ internal static class ContactCrumbleProgramsVerification
                 for (int block = 0; block < count; block++)
                 {
                     RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block)));
-                    AssertEqual(native, draw.BlockAt(run, block), "contact restoration calculated parent/child word");
-                    AssertEqual(native, exportedRun.Blocks.Span[block], "contact restoration exported word");
+                    AssertEqual(native.Collision, draw.CollisionAt(run, block), "contact restoration calculated parent/child collision");
+                    AssertEqual(native.Collision, exportedRun.Collisions.Span[block], "contact restoration exported collision");
+                    AssertEqual(native.Appearance, pictures.Image(list.Draw).At(exportedRun.CellAt(block)), "contact restoration installed picture");
                 }
                 cursor += 2 + 2 * count;
                 byte x = rom.ReadCartridgeByte(0x840000 | cursor);
@@ -128,9 +130,9 @@ internal static class ContactCrumbleProgramsVerification
             AssertEqual(run, draw.RunCount, "contact restoration complete calculated runs");
             AssertEqual(run, list.Runs.Length, "contact restoration complete exported runs");
             foreach (int invalid in new[] {int.MinValue, -1, run, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(invalid, 0), "contact restoration run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(invalid, 0), "contact restoration run bounds");
             foreach (int invalid in new[] {int.MinValue, -1, 2, int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => draw.BlockAt(0, invalid), "contact restoration block bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => draw.CollisionAt(0, invalid), "contact restoration block bounds");
         }
     }
 

@@ -56,9 +56,9 @@ public static class RoomObjectKraidVisualFiles
             foreach (KraidRoomDraw frame in Enum.GetValues<KraidRoomDraw>())
             {
                 var draw = new KraidRoomObjectDraws.Draw(frame);
-                var blocks = new RoomTerrainBlock[draw.BlockCount];
-                for (int block = 0; block < blocks.Length; block++) blocks[block] = draw.BlockAt(block);
-                yield return RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame), RoomObjectRunDirection.Horizontal, blocks);
+                var collisions = new RoomCollisionType[draw.BlockCount];
+                for (int block = 0; block < collisions.Length; block++) collisions[block] = draw.CollisionAt(block);
+                yield return RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame), RoomObjectRunDirection.Horizontal, collisions);
             }
         }
     }

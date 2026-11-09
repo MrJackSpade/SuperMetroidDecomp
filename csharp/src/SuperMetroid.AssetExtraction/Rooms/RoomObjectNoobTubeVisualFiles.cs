@@ -44,7 +44,8 @@ public static class RoomObjectNoobTubeVisualFiles
     {
         bool found = NoobTubeObjectDraws.TryDescribe(request, out NoobTubeObjectDraws.Draw draw);
         list = found
-            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start)
+            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.CollisionAt, draw.Start)
+
             : default;
         return found;
     }

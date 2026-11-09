@@ -16,9 +16,10 @@ internal static class ShotBlockObjectDraws
     internal static RoomObjectFrameDraw<Draw> Restoration(Shape shape) =>
         RoomObjectDraw.Of(new Draw(shape != Shape.Single ? shape : throw new ArgumentOutOfRangeException(nameof(shape)), 0, Restore: true));
 
-    /// <summary>A shot-block draw: four breakup stages per shape, or parent/child restoration. Breakup uses consecutive
-    /// visual blocks 83 to 85 then air; restoration uses the shape's base tile,
-    /// consecutive columns and a 32-index row stride, with collision links.</summary>
+    /// <summary>
+    /// A shot-block draw: four breakup stages per shape, or parent/child restoration. Breakup frames are air;
+    /// restoration links its children to a shootable parent. What each frame shows is its installed picture (#1557).
+    /// </summary>
     [IndependentFlag("whether a shot-block draw is the restoring variant, a fact of the decoded draw list")]
     internal readonly record struct Draw(Shape Layout, int Frame, bool Restore)
     {
@@ -29,25 +30,20 @@ internal static class ShotBlockObjectDraws
         /// <summary>Whether the draw writes its blocks down a column.</summary>
         internal bool Vertical => Layout == Shape.Vertical;
 
-        /// <summary>Calculates breakup air or a restored parent/child block at a block position.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int block)
+        /// <summary>How the cell at a block position collides: breakup air, or a restored parent or linked child.</summary>
+        internal RoomCollisionType CollisionAt(int run, int block)
         {
             if ((uint)run >= RunCount)
                 throw new ArgumentOutOfRangeException(nameof(run));
             if ((uint)block >= BlocksPerRun)
                 throw new ArgumentOutOfRangeException(nameof(block));
             if (!Restore)
-                return Frame == 3 ? RoomTerrainBlocks.BlankAir
-                    : RoomTerrainBlock.Of(BreakupFirstBlock + Frame, BlockMirroring.None, RoomCollisionType.Air);
+                return RoomCollisionType.Air;
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
-            int tile = RestoreBlocks.TryGetValue(Layout, out int restored)
-                ? restored
-                : throw new InvalidOperationException($"Undefined shot-block shape {Layout}.");
             // Parent is shootable; children link left on the first row and up below.
-            RoomCollisionType collision = row == 0 && column == 0 ? RoomCollisionType.ShootableBlock
+            return row == 0 && column == 0 ? RoomCollisionType.ShootableBlock
                 : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-            return RoomTerrainBlock.Of(tile + RestoreRowStride * row + column, BlockMirroring.None, collision);
         }
     }
 }

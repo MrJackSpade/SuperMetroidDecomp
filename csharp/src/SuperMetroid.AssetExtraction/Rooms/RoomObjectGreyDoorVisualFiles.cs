@@ -41,11 +41,12 @@ public static class RoomObjectGreyDoorVisualFiles
         }
     }
 
-    /// <summary>Builds the draw list of a recognized grey or cleared cap from its cells.</summary>
+    /// <summary>Builds the draw list of a recognized grey or cleared cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
         bool found = GreyDoorCaps.TryDescribe(request, out GreyDoorCaps.Draw cap);
-        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.BlockAt) : default;
+        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.CollisionAt)
+ : default;
         return found;
     }
 

@@ -42,11 +42,11 @@ public static class RoomObjectBlueDoorVisualFiles
         }
     }
 
-    /// <summary>Builds the draw list of a recognized blue cap from its cells.</summary>
+    /// <summary>Builds the draw list of a recognized blue cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList list)
     {
         bool found = BlueDoorCaps.TryDescribe(request, out BlueDoorCaps.Draw cap);
-        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.BlockAt) : default;
+        list = found ? RoomObjectDrawListExport.Cap(request, cap.Vertical, cap.CollisionAt) : default;
         return found;
     }
 

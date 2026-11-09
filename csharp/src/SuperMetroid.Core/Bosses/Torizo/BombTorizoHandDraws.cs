@@ -23,8 +23,8 @@ internal static class BombTorizoHandDraws
         internal int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>Where a strip starts, in blocks from the hand PLM block.</summary>
         internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
-        /// <summary>Gets one strip cell's terrain block.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>How one strip cell collides.</summary>
+        internal RoomCollisionType CollisionAt(int run, int cell)
         {
             RoomObjectBlockStrip strip = Strip(run);
             if ((uint)cell >= strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));

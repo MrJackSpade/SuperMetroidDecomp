@@ -1,11 +1,16 @@
+using SuperMetroid.Core.Samus.Poses;
+
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
-/// The whole body one update draws as one picture (#1513): a pose's top half at an animation frame, its bottom half
-/// unless the frame's top half is the complete body, and the chest cover the forward-facing Power Suit body shows between
-/// them, in that drawing order.
+/// The whole picture of Samus's body one update draws (#1513, #1585): her pose at one of the pose's picture frames. The
+/// body sheet holds each as one complete figure, which the import composed at installation; nothing the body showed
+/// before chooses what it shows now.
 /// </summary>
-/// <param name="Top">The top half the body shows.</param>
-/// <param name="Bottom">The bottom half the body shows, or null when the frame shows none.</param>
-/// <param name="ChestCover">Where the chest cover sits relative to the body's origin, or null for a body without one.</param>
-public readonly record struct SamusBodyFrame(SamusBodyHalfFrame Top, SamusBodyHalfFrame? Bottom, Offset16<ScreenPixels>? ChestCover);
+/// <param name="Pose">The pose the body shows.</param>
+/// <param name="PictureFrame">The pose's picture frame the body shows.</param>
+public readonly record struct SamusBodyFrame(SamusPoseId Pose, int PictureFrame)
+{
+    /// <summary>The picture's name on the body sheet: its pose and picture frame.</summary>
+    public string Name => $"{Pose}.{PictureFrame.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+}

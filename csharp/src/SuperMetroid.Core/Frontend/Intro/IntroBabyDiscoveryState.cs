@@ -61,7 +61,6 @@ internal sealed class IntroBabyDiscoveryState
         // keeps running rather than restarting.
         SamusPresentation.SetAnimationFrameIfPoseChanged(Samus);
         Samus.CommitPoseHistory();
-        Samus.Presentation.PrimeGraphics(Samus);
 
         // The discovery room is 32x16 blocks, of which the authored terrain fills twelve rows.
         // The final four rows are empty, and no block has a behaviour.

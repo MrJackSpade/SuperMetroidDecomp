@@ -8,46 +8,32 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Drawing;
 
-/// <summary>Samus's presentation: spritemap selection, tile transfers, suit, cycle and charge palettes, and the animation-frame sequencing that drives them.</summary>
+/// <summary>Samus's presentation: her whole body picture, its placement, her particles, and the animation-frame sequencing that drives them.</summary>
 internal sealed class SamusPresentation
 {
     /// <summary>
-    /// The full body the body last drew, which the speed-booster echoes repeat; none before the body is drawn. A frame
-    /// whose top half is the complete body has no bottom half, so an echo never repeats a bottom half left from an
-    /// earlier frame.
+    /// The whole body picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.
+    /// While invincibility flicker hides the body the echoes keep repeating the picture last drawn (#1392).
     /// </summary>
     public SamusBodyFrame? DrawnFrame { get; internal set; }
-
-    /// <summary>
-    /// The half pictures the body showed when its pictures were last chosen, which the speed-booster echoes show
-    /// with those pictures. The game's echoes read whatever characters are loaded, so while invincibility
-    /// flicker hides the body they can show an earlier spritemap over later characters; a pre-coloured frame keeps the
-    /// characters it was shown with (#1392).
-    /// </summary>
-    public SamusBodyPictures ShownPictures { get; internal set; }
 
     /// <summary>Last screen-space origin calculated from world position and the foreground scroll.</summary>
     public Position16<ScreenPixels> SpritemapPosition { get; internal set; }
 
-    /// <summary>Which body definitions the body shows, and the installed artwork they are drawn from.</summary>
-    public SamusBodyFrameState BodyFrames { get; } = new();
+    /// <summary>Currently bound body placements and presentation catalogs; never part of save state.</summary>
+    public InstalledSamusBodyArtwork? Artwork { get; private set; }
+
+    /// <summary>Rebinds the installed body artwork.</summary>
+    public void BindArtwork(InstalledSamusBodyArtwork? value) => Artwork = value;
+
+    /// <summary>The installed pre-coloured sheets Samus draws from; never part of save state.</summary>
+    public InstalledSpriteSheets? Sheets { get; private set; }
+
+    /// <summary>Rebinds the installed sheets.</summary>
+    public void BindSheets(InstalledSpriteSheets? value) => Sheets = value;
 
     /// <summary>Her splashes, bubbles, lava spray and dust.</summary>
     public SamusParticles Particles { get; } = new();
-
-    /// <summary>
-    /// Seeds pose/frame-zero graphics before the first displayed frame, as room/game setup must do
-    /// before a visible normal-gameplay Samus can be constructed.
-    /// </summary>
-    public void PrimeGraphics(SamusState samus) => SelectPictures(samus);
-
-    /// <summary>
-    /// Selects the pictures of the picture frame Samus's pose and animation frame draw (#1513): a frame outside the pose's
-    /// own pictures shows the pose's nearest picture before it.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">No path of the game shows the pose at that frame.</exception>
-    private void SelectPictures(SamusState samus) =>
-        BodyFrames.Select(samus.Pose, SamusShownFrames.Of(samus.AnimationContinuation).PictureFrame(samus.Pose, samus.AnimationFrame));
 
     /// <summary>
     /// Seeds the animation frame timer as a pose change does, including its
@@ -354,11 +340,9 @@ internal sealed class SamusPresentation
     /// Draws Samus in her standing and ordinary-running poses.
     /// </summary>
     /// <remarks>
-    /// The body's origin and the halves it shows come from <see cref="SamusBodyDrawing"/>: the origin is the placement the
-    /// import baked into the installed frame (#1517), and the halves follow the draw's lower-half dispatcher for every pose
-    /// the game gives Samus; the body sheet is composed from the same decisions. The halves an update shows are drawn as one full-body picture (#1513), by the
-    /// pose's own movement type at the picture frame <see cref="SamusShownFrames"/> gives the animation frame: the body is
-    /// always a whole Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
+    /// The body is one whole picture (#1513, #1585): her pose at the picture frame <see cref="SamusShownFrames"/> gives the
+    /// animation frame, placed at the origin the import baked into that installed frame (#1517). The body is always a whole
+    /// Samus of her pose, while her animation frame and carried movement stay as gameplay left them.
     /// </remarks>
     public bool Draw(SamusState samus,
         SpriteFrameBuffer sprites,
@@ -380,14 +364,9 @@ internal sealed class SamusPresentation
             samus.InvincibilityTimer.IsZero ||
             SamusInputSnapshot.HoldsShine(samus) ||
             (frameCounter & 1) == 0;
+        // A hidden body keeps the picture and origin it last drew, which the echoes repeat.
         if (!bodyVisible)
-        {
-            // The game branches around every position/index/sprite write, then still falls
-            // through to the graphics selection. Preserve the previous visible spritemap indices for
-            // echo drawing while selecting this frame's tile definitions for the next displayed frame.
-            BodyFrames.Select(samus.Pose, pictureFrame);
             return false;
-        }
 
         // Ceres's rotation temporarily overwrites Samus's integer world point only while Ceres's
         // high status bit is set. Every position selector below therefore consumes the
@@ -399,22 +378,17 @@ internal sealed class SamusPresentation
         int renderX = renderPoint.X;
         int renderY = renderPoint.Y;
 
-        InstalledSamusBodyArtwork artwork = BodyFrames.Artwork ?? throw new InvalidOperationException(
+        InstalledSamusBodyArtwork artwork = Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork.");
         int spritemapX = CoordinateAxis.Wrap(renderX - cameraPosition.X);
         int spritemapY = CoordinateAxis.Wrap(
-            renderY - SamusBodyDrawing.OriginRise(samus.Pose, pictureFrame, artwork) - cameraPosition.Y);
+            renderY - artwork.OriginRise(samus.Pose, pictureFrame) - cameraPosition.Y);
         SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
 
-        // The body's top half, the chest cover the unsuited forward-facing body shows, and the bottom half unless the top
-        // half is the complete body, are one full-body picture drawn at the spritemap origin (#1513).
-        SamusBodyFrame body = SamusBodyDrawing.Frame(samus.Pose, pictureFrame, artwork);
+        // The body is one whole picture of her pose at its picture frame, drawn at the origin (#1513, #1585).
+        var body = new SamusBodyFrame(samus.Pose, pictureFrame);
         DrawnFrame = body;
-        // The graphics selection follows these spritemaps, but it only chooses the artwork the next displayed frame shows with
-        // them. Selecting first lets the draw bind the characters it is displayed with; nothing between reads it.
-        BodyFrames.Select(samus.Pose, pictureFrame);
-        ShownPictures = BodyFrames.Shown;
-        sprites.AddSamusBody(body, SpritemapPosition, artwork.Spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.Samus));
+        sprites.AddSamusBody(body, SpritemapPosition, BodySheets, new SpriteSource(SpriteSourceKind.Samus));
         return true;
     }
 
@@ -536,7 +510,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>The installed sheets the body draws from.</summary>
-    private InstalledSpriteSheets BodySheets => BodyFrames.Sheets ?? throw new InvalidOperationException(
+    private InstalledSpriteSheets BodySheets => Sheets ?? throw new InvalidOperationException(
         "Samus rendering requires the installed sprite sheets.");
 
     /// <summary>Draws an echo, when its slot holds one, with current Samus spritemaps after Y clipping.</summary>
@@ -557,12 +531,10 @@ internal sealed class SamusPresentation
         if (screenY is < 0 or >= 248)
             return;
 
-        var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
-            "Samus speed-booster echo requires installed spritemap artwork.");
         int screenX = CoordinateAxis.Wrap(echo.X - cameraPosition.X);
         var origin = Position16<ScreenPixels>.Of(screenX, CoordinateAxis.Wrap(screenY));
-        // An echo repeats the full-body picture the body last drew; before the body has been drawn there is nothing to repeat.
+        // An echo repeats the whole picture the body last drew; before the body has been drawn there is nothing to repeat.
         if (DrawnFrame is { } body)
-            sprites.AddSamusBody(body, origin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.SamusEcho, slot));
+            sprites.AddSamusBody(body, origin, BodySheets, new SpriteSource(SpriteSourceKind.SamusEcho, slot));
     }
 }

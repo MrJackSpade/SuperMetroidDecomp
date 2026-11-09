@@ -51,7 +51,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         spriteSheets = sheets;
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
-        CurrentFlashbackSamus?.Presentation.BodyFrames.BindSheets(spriteSheets);
+        CurrentFlashbackSamus?.Presentation.BindSheets(spriteSheets);
         CurrentCeresFlight?.BindSheets(sheets);
     }
 
@@ -92,8 +92,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     public void BindSamusBodyArtwork(InstalledSamusBodyArtwork? value)
     {
         samusBodyArtwork = value;
-        CurrentFlashbackSamus?.Presentation.BodyFrames.BindArtwork(value);
-        CurrentBabyDiscovery?.Samus.Presentation.BodyFrames.BindArtwork(value);
+        CurrentFlashbackSamus?.Presentation.BindArtwork(value);
+        CurrentBabyDiscovery?.Samus.Presentation.BindArtwork(value);
     }
     /// <summary>The installed narration content.</summary>
     public IntroNarrationPresentation? NarrationPresentation
@@ -599,15 +599,11 @@ public sealed class IntroCinematicState : IFrontendScreen
         // Shared Samus handlers read the nonzero cinematic-function word to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
-        CurrentFlashbackSamus.Presentation.BodyFrames.BindArtwork(samusBodyArtwork);
-        CurrentFlashbackSamus.Presentation.BodyFrames.BindSheets(spriteSheets);
+        CurrentFlashbackSamus.Presentation.BindArtwork(samusBodyArtwork);
+        CurrentFlashbackSamus.Presentation.BindSheets(spriteSheets);
         SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
         SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();
-        CurrentFlashbackSamus.Presentation.PrimeGraphics(CurrentFlashbackSamus);
-        // The next displayed frame shows the freshly selected top and bottom definitions;
-        // apply them now so the first rendered
-        // flashback frame names initialized sprite characters rather than stale intro art.
         CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
         FlashbackMotherBrainExplosions = null;
         FlashbackRinkas = new IntroRinkaSystem();

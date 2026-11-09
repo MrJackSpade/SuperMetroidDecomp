@@ -184,7 +184,7 @@ internal static class GrappleConnectionDefinitionsVerification
         var guard = NewGrappleConnectionReadGuard(rom);
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
-        samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
+        samus.Presentation.BindBodyFixture(InstalledFixtures.SamusBody);
         samus.Grapple.FlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         foreach (int movement in SamusMovementTypeNumbers.Named)

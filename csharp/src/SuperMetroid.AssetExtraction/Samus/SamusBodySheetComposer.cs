@@ -11,14 +11,14 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Composes Samus's body sheet (#1392, #1513): one full-body frame for every body the game can draw, and nothing else.
-/// The bodies are the ones <see cref="SamusShownFrames"/> gives: each picture frame of each pose, the frames its own
-/// animation shows a picture on, which every frame the body shows draws, with the bottom pictures it can show. Each
-/// picture is the frame's top half, the chest cover the forward-facing Power Suit body shows, and its bottom half unless
-/// the pose's own movement type makes the top half the complete body, in that drawing order; which halves and cover a
-/// frame shows is decided by the draw's own <see cref="SamusBodyDrawing"/>, so every frame is a whole Samus. A body whose
-/// selected characters are blank wherever its compositions read them shows nothing: the sheet holds it as a frame without
-/// a picture. Bodies that show the same picture share it on the sheet. Frames are coloured in the Power Suit with the
+/// Composes Samus's body sheet (#1392, #1513, #1585): one whole picture for every pose and picture frame the game can
+/// draw, named by that pose and frame, and nothing else. The bodies are the ones <see cref="SamusShownFrames"/> gives:
+/// each picture frame of each pose, the frames its own animation shows a picture on, which every frame the body shows
+/// draws. Each picture is composed of the cartridge's halves its own frame selects: the frame's top half, the chest cover
+/// the forward-facing Power Suit body shows, and its bottom half unless the pose's own movement type makes the top half
+/// the complete body, in that drawing order (<see cref="SamusBodyCompositions"/>), so every frame is a whole Samus and
+/// nothing an earlier frame showed carries into it. A picture that inks nothing is installed as an empty frame, which
+/// draws nothing. Bodies that show the same picture share it on the sheet. Frames are coloured in the Power Suit with the
 /// power beam, and a frame a pose always drawn in another colouring shows in that colouring's first shades over the rows
 /// it inks (<see cref="SamusBodyColouringDefinitions"/>); the other suits, like palette effects, draw through the sheet's
 /// shades.
@@ -33,7 +33,7 @@ internal static class SamusBodySheetComposer
 
     /// <summary>
     /// What the body sheet composes: the picture of every body the game can show that shows anything, and as frames that
-    /// show nothing the bodies whose selected characters are blank wherever their compositions read them (#1513).
+    /// show nothing the bodies whose compositions ink no pixel (#1513, #1585).
     /// </summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs)
     {
@@ -45,9 +45,13 @@ internal static class SamusBodySheetComposer
         var colourings = new Dictionary<string, PictureShade[]>(StringComparer.Ordinal);
         foreach (SheetBody body in Bodies(characters.Body, inputs.AnimationContinuation))
         {
-            SamusBodyFrameKey key = body.Key;
-            SpriteFrame frame = body.Frame;
-            SpriteArtwork read = characters.BodyArtwork(key.TopPicture, key.BottomPicture);
+            if (body.Picture is not { } picture)
+            {
+                blank.Add(body.Name);
+                continue;
+            }
+            SpriteFrame frame = picture.Frame;
+            SpriteArtwork read = characters.BodyArtwork(picture.Key.TopPicture, picture.Key.BottomPicture);
             // A part naming characters past the body's, the chest cover among them, reads the standard OBJ sheet there.
             if (frame.LastCharacter >= read.CharacterCount)
             {
@@ -59,16 +63,16 @@ internal static class SamusBodySheetComposer
                 }
                 read = onStandardObjects;
             }
-            var source = new SheetFrameSource(key.Name, frame, read);
+            var source = new SheetFrameSource(body.Name, new SpriteFrame(body.Name, frame.Parts), read);
             if (source.ShowsAnything())
             {
                 frames.Add(source);
-                if (body.Colouring is { } colouring)
-                    colourings.Add(key.Name, colouring);
+                if (picture.Colouring is { } colouring)
+                    colourings.Add(body.Name, colouring);
             }
             else
             {
-                blank.Add(key.Name);
+                blank.Add(body.Name);
             }
         }
         return new SpriteSheetSources(frames, WithPoseColourings(inputs.SuitedColours(), frames, colourings, inputs.Shades),
@@ -129,7 +133,7 @@ internal static class SamusBodySheetComposer
 
     /// <summary>
     /// The names of the frames the body sheet installed under <paramref name="content"/> holds, pictured or showing nothing:
-    /// every body the game can show with the installed body.
+    /// every pose and picture frame the game can show with the installed body.
     /// </summary>
     /// <param name="content">The installation's content directory.</param>
     internal static IReadOnlyList<string> FrameNames(string content)
@@ -138,40 +142,45 @@ internal static class SamusBodySheetComposer
         return [.. Bodies(
             SamusBodyArtworkFiles.Load(Path.Combine(content, GameInstallationLayout.SamusBodyDirectoryName)),
             SamusOverreadFiles.LoadAnimationContinuation(Path.Combine(content, GameInstallationLayout.SamusOverreadDirectoryName)))
-            .Select(body => body.Key.Name)];
+            .Select(body => body.Name)];
     }
 
     /// <summary>
-    /// Every distinct full body the game can show, in pose and frame order, as its frame, with the colouring
-    /// <see cref="SamusBodyColouringDefinitions"/> names for a pose that shows it. A body whose halves reach past the table
-    /// draws nothing the sheet could hold: the draw rejects it.
+    /// Every pose and picture frame the game can show, in pose and frame order, with the picture it shows, which bodies
+    /// composed alike share with the colouring <see cref="SamusBodyColouringDefinitions"/> names for any pose that shows
+    /// it. A body whose halves reach past the table draws nothing the sheet could hold: the draw rejects it.
     /// </summary>
-    /// <exception cref="InvalidDataException">Poses with two different colourings show one body.</exception>
+    /// <exception cref="InvalidDataException">Poses with two different colourings show one picture.</exception>
     private static List<SheetBody> Bodies(InstalledSamusBodyArtwork body, LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> continuation)
     {
-        SamusSpritemapSources spritemaps = body.Spritemaps.Source;
+        SamusSpritemapSources spritemaps = body.Source.Spritemaps;
         var bodies = new List<SheetBody>();
-        var named = new Dictionary<string, SheetBody>(StringComparer.Ordinal);
+        var pictures = new Dictionary<SamusBodyPictureKey, SheetPicture>();
         foreach (SamusShownBody shown in SamusShownFrames.Of(continuation).Bodies(body))
         {
-            SamusBodyFrame drawn = shown.Frame;
+            SamusBodyComposition drawn = shown.Composition;
             if (!Covers(spritemaps, drawn.Top) || (drawn.Bottom is { } lower && !Covers(spritemaps, lower)))
                 continue;
-            if (!spritemaps.TryGetFrameKey(drawn.Top, drawn.Bottom, drawn.ChestCover, shown.Pictures, out SamusBodyFrameKey key))
-                continue;
-            PictureShade[]? colouring = SamusBodyColouringDefinitions.Poses.GetValueOrDefault(drawn.Top.Pose);
-            if (named.TryGetValue(key.Name, out SheetBody? known))
+            string name = shown.Frame.Name;
+            // A body with no composition and no chest cover shows nothing (owner decision on #1318).
+            if (spritemaps.PictureKey(drawn, shown.Pictures) is not { } key)
             {
-                if (colouring is null)
-                    continue;
-                if (known.Colouring is { } other && !other.SequenceEqual(colouring))
-                    throw new InvalidDataException($"Samus's body frame {key.Name} is shown by poses drawn in two colourings.");
-                known.Colouring = colouring;
+                bodies.Add(new SheetBody(name, null));
                 continue;
             }
-            var added = new SheetBody(key, Compose(key.Name, spritemaps, drawn)) { Colouring = colouring };
-            named.Add(key.Name, added);
-            bodies.Add(added);
+            PictureShade[]? colouring = SamusBodyColouringDefinitions.Poses.GetValueOrDefault(shown.Frame.Pose);
+            if (!pictures.TryGetValue(key, out SheetPicture? picture))
+            {
+                picture = new SheetPicture(key, Compose(name, spritemaps, drawn));
+                pictures.Add(key, picture);
+            }
+            if (colouring is not null)
+            {
+                if (picture.Colouring is { } other && !other.SequenceEqual(colouring))
+                    throw new InvalidDataException($"Samus's body picture {name} is shown by poses drawn in two colourings.");
+                picture.Colouring = colouring;
+            }
+            bodies.Add(new SheetBody(name, picture));
         }
         return bodies;
     }
@@ -184,7 +193,7 @@ internal static class SamusBodySheetComposer
     /// <paramref name="drawn"/> as one whole frame: the top half's parts, the chest cover at its place, then the bottom
     /// half's parts, frontmost first as the draw emits them.
     /// </summary>
-    private static SpriteFrame Compose(string name, SamusSpritemapSources spritemaps, SamusBodyFrame drawn)
+    private static SpriteFrame Compose(string name, SamusSpritemapSources spritemaps, SamusBodyComposition drawn)
     {
         ImmutableArray<SpriteFramePart>.Builder parts = ImmutableArray.CreateBuilder<SpriteFramePart>();
         if (spritemaps.TryGetFrame(drawn.Top, out SpriteFrame? top))
@@ -196,18 +205,23 @@ internal static class SamusBodySheetComposer
         return new SpriteFrame(name, parts.ToImmutable());
     }
 
-    /// <summary>One distinct full body the sheet holds, and the colouring the poses showing it are always drawn in.</summary>
-    /// <param name="key">The body's frame.</param>
-    /// <param name="frame">The body as one whole frame.</param>
-    private sealed class SheetBody(SamusBodyFrameKey key, SpriteFrame frame)
-    {
-        /// <summary>The body's frame.</summary>
-        internal SamusBodyFrameKey Key { get; } = key;
+    /// <summary>One pose and picture frame the sheet names, and the picture it shows, or none for one that shows nothing.</summary>
+    /// <param name="Name">The body's name on the sheet.</param>
+    /// <param name="Picture">The picture the body shows, or null when it has no composition and no chest cover.</param>
+    private sealed record SheetBody(string Name, SheetPicture? Picture);
 
-        /// <summary>The body as one whole frame.</summary>
+    /// <summary>One distinct whole picture the sheet holds, and the colouring the poses showing it are always drawn in.</summary>
+    /// <param name="key">What the picture is composed of.</param>
+    /// <param name="frame">The picture as one whole frame.</param>
+    private sealed class SheetPicture(SamusBodyPictureKey key, SpriteFrame frame)
+    {
+        /// <summary>What the picture is composed of.</summary>
+        internal SamusBodyPictureKey Key { get; } = key;
+
+        /// <summary>The picture as one whole frame.</summary>
         internal SpriteFrame Frame { get; } = frame;
 
-        /// <summary>The shades a pose showing the body is always drawn in, or null when none of them is.</summary>
+        /// <summary>The shades a pose showing the picture is always drawn in, or null when none of them is.</summary>
         internal PictureShade[]? Colouring { get; set; }
     }
 }

@@ -17,12 +17,12 @@ public readonly record struct SamusBodyFrameSelection(
     [property: JsonRequired] int BottomPosition)
 {
     /// <summary>
-    /// The lower group index with which a frame names no lower half: the body keeps showing the lower half an earlier
-    /// frame selected. It is the largest index a selector component can hold, which no lower group uses.
+    /// The lower group index with which a frame names no lower half: the import composes the frame's whole picture with
+    /// no lower half's characters (#1585). It is the largest index a selector component can hold, which no lower group uses.
     /// </summary>
     public const int NoBottomSet = byte.MaxValue;
 
-    /// <summary>Whether this frame names a lower half rather than keeping the one already shown.</summary>
+    /// <summary>Whether this frame names a lower half.</summary>
     [JsonIgnore]
     public bool NamesBottom => BottomSet != NoBottomSet;
 }

@@ -38,8 +38,8 @@ internal static class SamusRenderingFixtureVerification
     /// <summary>Seeds one pose's <c>$92:9263/$92:945D</c> top and bottom spritemap base indices.</summary>
     internal static void WriteSamusSpritemapBases(TestAddressSpace bus, SamusPoseId pose, ushort top, ushort bottom)
     {
-        WriteTestWord(bus, InstalledSamusSpritemaps.TopBaseAddress + SamusPoseNumbers.Number(pose) * 2, top);
-        WriteTestWord(bus, InstalledSamusSpritemaps.BottomBaseAddress + SamusPoseNumbers.Number(pose) * 2, bottom);
+        WriteTestWord(bus, SamusSpritemapSources.TopBaseAddress + SamusPoseNumbers.Number(pose) * 2, top);
+        WriteTestWord(bus, SamusSpritemapSources.BottomBaseAddress + SamusPoseNumbers.Number(pose) * 2, bottom);
     }
     /// <summary>
     /// Adapts sparse seeded rendering tables to the installed catalog boundary. Unspecified
@@ -56,7 +56,7 @@ internal static class SamusRenderingFixtureVerification
             built = new SyntheticBody(bus.Version, BuildSyntheticBody(bus));
             syntheticBodies.AddOrUpdate(bus, built);
         }
-        samus.Presentation.BodyFrames.BindBodyFixture(built.Artwork);
+        samus.Presentation.BindBodyFixture(built.Artwork);
     }
 
     /// <summary>The body last built from each bus, with the bus's version it was built at.</summary>
@@ -122,7 +122,7 @@ internal static class SamusRenderingFixtureVerification
             }
             return groups;
         }
-        ushort[] spritePointers = Words(InstalledSamusSpritemaps.PointerTableAddress, SamusSpritemapSources.EntryCount);
+        ushort[] spritePointers = Words(SamusSpritemapSources.PointerTableAddress, SamusSpritemapSources.EntryCount);
         SamusSpritemapDefinition[] maps = SamusSpritemapNative.Compositions(spritePointers).Select(pointer =>
         {
             int address = 0x920000 | pointer;
@@ -137,8 +137,8 @@ internal static class SamusRenderingFixtureVerification
             return new SamusSpritemapDefinition(parts);
         }).ToArray();
         var sprites = new SamusSpritemapSources(
-            Words(InstalledSamusSpritemaps.TopBaseAddress, SamusBodySources.PoseCount),
-            Words(InstalledSamusSpritemaps.BottomBaseAddress, SamusBodySources.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
+            Words(SamusSpritemapSources.TopBaseAddress, SamusBodySources.PoseCount),
+            Words(SamusSpritemapSources.BottomBaseAddress, SamusBodySources.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
         int[] landing = tables.Landing;
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))

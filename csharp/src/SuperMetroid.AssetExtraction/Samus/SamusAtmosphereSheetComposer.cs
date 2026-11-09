@@ -33,7 +33,7 @@ internal static class SamusAtmosphereSheetComposer
 
     /// <summary>What the atmosphere sheet composes with the body's spritemaps and atmospheric attributes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs) =>
-        Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.Spritemaps.Source, inputs.SamusBody.Body.Atmosphere.Source);
+        Sources(inputs, Ensure.NotNull(inputs).SamusBody.Body.Source.Spritemaps, inputs.SamusBody.Body.Atmosphere.Source);
 
     /// <summary>What the atmosphere sheet composes with <paramref name="spritemaps"/> and <paramref name="atmosphere"/>.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs, SamusSpritemapSources spritemaps,

@@ -52,11 +52,6 @@ internal sealed class DeathSequenceRunner
         SamusDeathSequenceStartResult result = _player.Samus.DeathSequence.Begin(
             _player.Samus,
             _room.Camera.PixelPosition);
-
-        // The next frame boundary must see the death poses' definitions. The death game state
-        // draws once before setup and the pre-flashing state draws the new pose on its following call;
-        // priming here preserves that same first-visible-frame contract in this thin host.
-        _player.Samus.Presentation.PrimeGraphics(_player.Samus);
         return result;
     }
 
@@ -104,7 +99,7 @@ internal sealed class DeathSequenceRunner
         }
         else if (_player.LastDeathSequenceStep.Value.DrawExplosion)
         {
-            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.BodyFrames.Sheets);
+            _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.Sheets);
         }
         _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;

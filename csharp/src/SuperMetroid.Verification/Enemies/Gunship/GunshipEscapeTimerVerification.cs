@@ -42,7 +42,6 @@ internal static class GunshipEscapeTimerVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         SamusPresentation.InitializeAnimation(samus);
-        samus.Presentation.PrimeGraphics(samus);
         runtime.EscapeTimer.SelectRunningPhase(EscapeTimerPhase.InPlace);
         runtime.EscapeTimer.SetRemaining(EscapeTimerClock.Time(2, 59, 50));
         runtime.StepFrame(0);

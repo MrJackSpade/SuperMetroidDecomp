@@ -71,9 +71,9 @@ internal sealed class RuntimeArtwork
     {
         if (_player.Samus is null)
             return;
-        // All Samus constructors call this rebind before priming the first visual transfer.
-        _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
-        _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
+        // All Samus constructors call this rebind before her first draw.
+        _player.Samus.Presentation.BindArtwork(SamusBodyArt);
+        _player.Samus.Presentation.BindSheets(SpriteSheets);
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
@@ -118,7 +118,7 @@ internal sealed class RuntimeArtwork
         {
             field = value;
             ProjectileSheets = value is null ? null : SuperMetroid.Core.Samus.Artwork.ProjectileSheets.Gameplay(value);
-            _player.Samus?.Presentation.BodyFrames.BindSheets(value);
+            _player.Samus?.Presentation.BindSheets(value);
         }
     }
 
@@ -158,7 +158,7 @@ internal sealed class RuntimeArtwork
         set
         {
             field = value;
-            _player.Samus?.Presentation.BodyFrames.BindArtwork(value);
+            _player.Samus?.Presentation.BindArtwork(value);
             if (_player.Samus is not null) _player.Samus.ArmCannon.Artwork = value?.ArmCannon;
         }
     }

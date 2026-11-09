@@ -69,15 +69,6 @@ internal sealed class SamusShownFrames
     private readonly Dictionary<SamusPoseId, SortedSet<int>> shown = [];
 
     /// <summary>
-    /// The frames each pose can be started or published on, which follow a frame of whatever pose Samus showed before
-    /// rather than one of the pose's own.
-    /// </summary>
-    internal readonly Dictionary<SamusPoseId, HashSet<int>> entries = [];
-
-    /// <summary>The frames of its own pose each shown frame can follow as the animation advances.</summary>
-    internal readonly Dictionary<SamusPoseFrame, HashSet<int>> predecessors = [];
-
-    /// <summary>
     /// The poses other than the drained crouches whose animation reaches the drained fall's handover, by reading into a
     /// drained crouch's program, and so lands on the drained landing's frame when the fall ends (#1535).
     /// </summary>
@@ -99,17 +90,11 @@ internal sealed class SamusShownFrames
         this.continuation = continuation;
         var pending = new Queue<SamusPoseFrame>();
         foreach (SamusPoseId pose in Poses)
-        {
             shown.Add(pose, []);
-            entries.Add(pose, []);
-        }
         foreach (SamusPoseId pose in Poses)
         {
             foreach (int frame in Starts(pose))
-            {
-                entries[pose].Add(frame);
                 Show(pose, frame, pending);
-            }
         }
         var published = new HashSet<PosePublication>();
         Follow(pending, published, AuthoredPublications);
@@ -158,10 +143,7 @@ internal sealed class SamusShownFrames
             while (pending.TryDequeue(out SamusPoseFrame from))
             {
                 foreach (int next in Next(from.Pose, from.Frame))
-                {
-                    PredecessorsOf(from.Pose, next).Add(from.Frame);
                     Show(from.Pose, next, pending);
-                }
             }
             foreach (SamusPoseId pose in Poses)
             {
@@ -182,17 +164,6 @@ internal sealed class SamusShownFrames
             pending.Enqueue(new SamusPoseFrame(pose, frame));
     }
 
-    /// <summary>The frames of its own pose <paramref name="frame"/> can follow.</summary>
-    private HashSet<int> PredecessorsOf(SamusPoseId pose, int frame)
-    {
-        if (!predecessors.TryGetValue(new SamusPoseFrame(pose, frame), out HashSet<int>? before))
-        {
-            before = [];
-            predecessors.Add(new SamusPoseFrame(pose, frame), before);
-        }
-        return before;
-    }
-
     /// <summary>
     /// Shows a frame an outside path publishes: the frame itself when it is drawn as written, or the frames the animation
     /// advances it to first. Either starts the pose from whatever Samus showed before.
@@ -201,10 +172,7 @@ internal sealed class SamusShownFrames
     {
         int[] started = publication.Drawing == PublishedFrameDrawing.AfterAdvancing ? Next(pose, publication.Frame) : [publication.Frame];
         foreach (int frame in started)
-        {
-            entries[pose].Add(frame);
             Show(pose, frame, pending);
-        }
     }
 
     /// <summary>

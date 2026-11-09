@@ -103,7 +103,7 @@ internal static class GrappleFlarePresentationVerification
         {
             foreach (SamusState samus in new[] { native, actual })
             {
-                samus.Presentation.BodyFrames.BindBodyFixture(body);
+                samus.Presentation.BindBodyFixture(body);
                 samus.Grapple.FlarePlacement = flarePlacement;
             }
             int expectedFrame = native.Grapple.FlareAnimationFrame;
@@ -167,7 +167,7 @@ internal static class GrappleFlarePresentationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        SamusPresentation.InitializeAnimation(samus); samus.Presentation.PrimeGraphics(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareStage = GrappleFlareStage.Shown; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = WrappingCountdown.Start(100);

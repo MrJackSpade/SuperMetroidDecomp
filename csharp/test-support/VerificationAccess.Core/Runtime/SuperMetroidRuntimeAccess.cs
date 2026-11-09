@@ -219,10 +219,6 @@ internal static class SuperMetroidRuntimeAccess
                 self.Player.Samus.LiquidPhysics.RoomIdentity = self.Room.LandingSiteEntry.RoomIdentity;
             }
             self.Player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(self.Player.Samus);
-
-            // StepFrame begins with NMI, so prime the definitions now. Otherwise frame one's
-            // OAM would name Samus tiles before any corresponding graphics reached VRAM.
-            self.Player.Samus.Presentation.PrimeGraphics(self.Player.Samus);
         }
     }
 }

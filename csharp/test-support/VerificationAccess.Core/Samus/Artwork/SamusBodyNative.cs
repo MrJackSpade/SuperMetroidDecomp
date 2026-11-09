@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
@@ -60,16 +59,5 @@ internal static class SamusBodyNative
 
         /// <summary>The bank-$92 address of the first frame selector.</summary>
         internal static int FirstFrameOffset => SamusSourceDefinitions.FirstBodyFrame;
-    }
-
-    /// <summary>Native views of the shown body definitions.</summary>
-    extension(SamusBodyFrameState frames)
-    {
-        /// <summary>The SNES address of the definition record the shown top-half picture is.</summary>
-        internal int TopDefinitionAddress => 0x920000 | RecordPointer(SamusBodySources.Record(frames.Shown.Top ??
-            throw new InvalidOperationException("No top-half picture is shown.")));
-
-        /// <summary>The SNES address of the definition record the shown bottom-half picture is, or null before any frame named one.</summary>
-        internal int? BottomDefinitionAddress => frames.Shown.Bottom is { } bottom ? 0x920000 | RecordPointer(SamusBodySources.Record(bottom)) : null;
     }
 }

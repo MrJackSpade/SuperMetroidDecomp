@@ -264,8 +264,8 @@ internal static class InstalledFixtures
     /// <summary>Binds the installation's body and grapple presentation to a standalone Samus.</summary>
     internal static SamusState BindSamus(SamusState samus)
     {
-        samus.Presentation.BodyFrames.BindArtwork(SamusBody);
-        samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
+        samus.Presentation.BindArtwork(SamusBody);
+        samus.Presentation.BindSheets(SpriteSheets);
         samus.ArmCannon.Artwork = SamusBody.ArmCannon;
         samus.Grapple.FlarePlacement = Projectiles.GrappleTiles.FlarePlacement;
         samus.Grapple.SwingFrames = Projectiles.GrappleTiles.SwingFrames;

@@ -140,15 +140,13 @@ internal static class NativeSnapshotImport
         SamusState samus = runtime.Player.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.Control.Unlock();
-        // The recorded indices name the pictures the body last drew; they are imported as the pose-half frames that show them,
-        // with the chest cover the drawn top half's pose and frame show between them (#1513).
-        InstalledSamusBodyArtwork bodyArtwork = samus.Presentation.BodyFrames.Artwork ?? throw new InvalidDataException(
+        // The recorded top index names the picture the body last drew; it is imported as the whole picture of the pose and
+        // frame whose top half shows it (#1513, #1585), which is composed of the bottom half that frame draws.
+        InstalledSamusBodyArtwork bodyArtwork = samus.Presentation.Artwork ?? throw new InvalidDataException(
             "The native Ridley checkpoint requires installed Samus body artwork.");
-        SamusBodyHalfFrame drawnTop = SamusSpritemapNative.Frame(bodyArtwork.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap))
+        SamusBodyHalfFrame drawnTop = SamusSpritemapNative.Frame(bodyArtwork.Source.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap))
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
-        SamusBodyHalfFrame? drawnBottom = SamusSpritemapNative.Frame(bodyArtwork.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Bottom, W(NativeSnapshotMemory.SamusBottomSpritemap));
-        samus.Presentation.DrawnFrame = new SamusBodyFrame(drawnTop, drawnBottom, SamusBodyDrawing.Frame(drawnTop.Pose,
-            drawnTop.AnimationFrame, bodyArtwork).ChestCover);
+        samus.Presentation.DrawnFrame = new SamusBodyFrame(drawnTop.Pose, drawnTop.AnimationFrame);
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
         samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);

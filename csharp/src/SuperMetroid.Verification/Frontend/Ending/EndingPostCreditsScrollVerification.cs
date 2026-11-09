@@ -3,38 +3,39 @@ using SuperMetroid.Core.Frontend.Ending;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks the post-credits text map's scroll through the production white-flash reset and item-percentage scroll-down.</summary>
+/// <summary>Checks how far the post-credits text is moved down through the production white-flash reset and item-percentage move down.</summary>
 internal static class EndingPostCreditsScrollVerification
 {
-    /// <summary>Function 148's call count: forty two-pixel steps move the map from zero to -80.</summary>
+    /// <summary>Function 148's call count: forty two-pixel steps move the text eighty pixels down.</summary>
     private const int ScrollDownCalls = 40;
-    /// <summary>Pixels the map moves down on each scroll-down call.</summary>
+    /// <summary>Pixels the text moves down on each move-down call.</summary>
     private const int PixelsPerCall = 2;
-    /// <summary>One full turn of the sixteen-bit scroll word, the value a negative scroll wraps by.</summary>
-    private const int ScrollWordRange = 65536;
     /// <summary>Bounds the post-shot hold so a broken handoff fails instead of looping.</summary>
     private const int MaximumShotCalls = 1000;
 
     /// <summary>
-    /// Drives <see cref="EndingCreditsState.Step"/> through the post-shot handoff, whose white flash resets the
-    /// scroll to zero, then through every <see cref="EndingCreditsPhase.ItemPercentageScrollDown"/> call. The scroll
-    /// must wrap below zero exactly as the native sixteen-bit word did: 65534, 65532, ... 65456, with X unchanged.
+    /// Drives <see cref="EndingCreditsState.Step"/> through the post-shot handoff, whose white flash puts the text back at
+    /// the top, then through every <see cref="EndingCreditsPhase.ItemPercentageScrollDown"/> call. The text moves down two
+    /// pixels a call, 2, 4, ... 80, an offset with no wrap (#1555).
     /// </summary>
     internal static void VerifyEndingPostCreditsScroll()
     {
         EndingCreditsState ending = CreateRetailEndingFixture(AudioQueues.Standalone(), gameTimeHours: 2, gameTimeMinutes: 0);
+        EndingPostCreditsText text = ending.InstalledArtwork.PostCreditsText;
 
         // The post-shot is reached only after the reward has shown the producer panel and replaced it with the
-        // copyright, which the white flash then clears; the production steps write that page before the shot begins.
+        // copyright, which the white flash then clears; the production steps show that text before the shot begins.
         ending.Stage.Phase = EndingCreditsPhase.PostCreditsWaitingBackdrop;
         ending.Stage.PhaseTimer = 1;
         ending.Step();
         AssertEqual(EndingCreditsPhase.PostCreditsWaitingSamus, ending.Stage.Phase, "the waiting backdrop shows the producer panel");
+        AssertEqual(EndingPostCreditsPanel.Result, text.Panel, "the waiting backdrop's end shows the result panel");
         ending.CreditsRoll.ShowRewardCopyright();
+        AssertEqual(EndingPostCreditsPanel.Copyright, text.Panel, "the reward replaces the result panel with the copyright");
 
-        // A leftover scroll from an earlier scroll-down must not survive the white flash.
-        var leftover = new Position16<PlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
-        ending.Stage.PostCreditsScroll = leftover;
+        // A leftover drop from an earlier move down must not survive the white flash.
+        int leftover = ScrollDownCalls * PixelsPerCall;
+        text.Drop = leftover;
         ending.CreditsRoll.CurrentPostShot = new EndingPostShot();
         ending.CreditsRoll.CurrentRewardJump = new EndingRewardJump(ending.Stage.EndingReward);
         ending.Stage.Phase = EndingCreditsPhase.PostCreditsShot;
@@ -42,26 +43,26 @@ internal static class EndingPostCreditsScrollVerification
         {
             if (call == MaximumShotCalls)
                 throw new InvalidOperationException("The post-shot owner never handed off to the white flash.");
-            AssertEqual(leftover, ending.Stage.PostCreditsScroll, "the scroll is untouched until the white flash begins");
+            AssertEqual(leftover, text.Drop, "the drop is untouched until the white flash begins");
             ending.Step();
         }
         AssertEqual(EndingCreditsPhase.PostCreditsWhiteFlash, ending.Stage.Phase, "the post-shot owner hands off to the white flash");
-        AssertEqual(Position16<PlanePixels>.Zero, ending.Stage.PostCreditsScroll, "the white flash resets the text map scroll to zero");
+        AssertEqual(0, text.Drop, "the white flash puts the text back at the top");
+        AssertEqual(EndingPostCreditsPanel.None, text.Panel, "the white flash clears the copyright");
 
         ending.Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
         ending.Stage.PhaseTimer = ScrollDownCalls;
         for (int call = 1; call <= ScrollDownCalls; call++)
         {
             ending.Step();
-            var expected = new Position16<PlanePixels>(0, checked((ushort)(ScrollWordRange - call * PixelsPerCall)));
-            AssertEqual(expected, ending.Stage.PostCreditsScroll,
-                $"scroll-down call {call} wraps the vertical scroll below zero to {expected.Y}, as the native word did");
+            AssertEqual(call * PixelsPerCall, text.Drop, $"move-down call {call} moves the text {call * PixelsPerCall} pixels down");
         }
-        AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Stage.Phase, "the last scroll-down call starts the closing message");
-        Console.WriteLine($"Ending post-credits scroll: the white flash resets it to zero and {ScrollDownCalls} scroll-down calls wrap it to 65534 through 65456.");
+        AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Stage.Phase, "the last move-down call starts the closing message");
+        AssertTrue(text.FinalMessage is not null, "the last move-down call starts the final message");
+        Console.WriteLine($"Ending post-credits text: the white flash puts it at the top and {ScrollDownCalls} move-down calls move it 2 through 80 pixels down.");
     }
 
-    /// <summary>Runs the focused post-credits scroll wrap regression.</summary>
+    /// <summary>Runs the focused post-credits text move-down regression.</summary>
     [VerificationCommand("--ending-post-credits-scroll")]
     internal static int EndingPostCreditsScrollCommand()
     {

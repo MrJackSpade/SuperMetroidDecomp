@@ -15,21 +15,18 @@ internal sealed class EndingCreditsRoll
     private readonly EndingScreen screen ;
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
-    /// <summary>The post-credits staging page.</summary>
-    private readonly EndingTextPage postCreditsPage;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
     /// <summary>The ending's installed artwork: its text, font, staff credits, turning floor, object and palette assets.</summary>
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingCreditsRoll(EndingInventorySnapshot inventory, bool japaneseText, EndingScreen screen, List<EndingSprite> sprites, EndingTextPage postCreditsPage, EndingStage stage, EndingArtwork artwork)
+    internal EndingCreditsRoll(EndingInventorySnapshot inventory, bool japaneseText, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
     {
         this.inventory = inventory;
         this.japaneseText = japaneseText;
         this.screen = screen;
         this.sprites = sprites;
-        this.postCreditsPage = postCreditsPage;
         _stage = stage;
         _artwork = artwork;
     }
@@ -43,7 +40,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>Final shot-into-camera actor and its drawing state.</summary>
     internal EndingPostShot? CurrentPostShot { get; set; }
 
-    /// <summary>Replaces planet actors with the staff scroll, shooting stars and blank reward staging page.</summary>
+    /// <summary>Replaces planet actors with the staff scroll, shooting stars and no post-credits text.</summary>
     internal void SetupCredits()
     {
         ShootingStars = new EndingShootingStars();
@@ -51,7 +48,7 @@ internal sealed class EndingCreditsRoll
         _stage.ResetPaletteFx();
         _artwork.LoadCreditsAndPostCreditsAssets();
         _artwork.CurrentCredits = new CreditsObjectState(CreditsRollDefinitions.ExpectedCompiledRows);
-        postCreditsPage.Clear();
+        _artwork.PostCreditsText.Clear();
         sprites.Clear();
         _stage.Brightness = 15;
         _stage.Phase = EndingCreditsPhase.Credits;
@@ -70,11 +67,9 @@ internal sealed class EndingCreditsRoll
     /// <summary>Replaces the producer result rows with the copyright panel and starts its authored hold.</summary>
     internal void ShowRewardCopyright()
     {
-        // Func135 removes the producer panel and shows the copyright panel in rows twelve and thirteen. The text page alone is
-        // shown until Func137 ends.
+        // Func135 replaces the producer panel with the copyright panel. The text alone is shown until Func137 ends.
         _ = _artwork.EndingText ?? throw new InvalidOperationException("Ending copyright requires installed text assets.");
-        postCreditsPage.Erase(EndingPictureNames.ResultPanel);
-        postCreditsPage.Write(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell);
+        _artwork.PostCreditsText.ReplaceResultWithCopyright();
         RewardCopyrightShown = true;
         _stage.PhaseTimer = EndingSequenceDefinitions.Timing.CopyrightHoldFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsCopyright;
@@ -99,14 +94,6 @@ internal sealed class EndingCreditsRoll
         // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
     }
 
-    /// <summary>
-    /// The text page the post-credits scenes show the staging page on (#1515): the result page, then the final page from
-    /// the white flash on.
-    /// </summary>
-    internal EndingTextScreen PostCreditsTextPage { get; private set; } = EndingTextScreen.ResultPanel;
-
-    /// <summary>The shown text page's height in cells, enlarged to two screens for the final page.</summary>
-    internal int PostCreditsPageHeight { get; private set; } = 32;
 
     /// <summary>The steps left of the white wash of the brief transition into the final logo (<see cref="WhiteWash"/>), fading to none, where it stays.</summary>
     internal int WhiteFlashColor { get; set; }
@@ -115,29 +102,21 @@ internal sealed class EndingCreditsRoll
     internal EndingLogo EndingLogo => _artwork.CurrentEndingLogo ??
         throw new InvalidOperationException("The ending logo is not running.");
 
-    /// <summary>Restores the shooting palette, switches to the tall text map and begins the white transition.</summary>
+    /// <summary>Restores the shooting palette, clears the copyright, puts the text back at the top and begins the white transition.</summary>
     internal void BeginPostCreditsWhiteFlash()
     {
         CurrentPostShot = null;
-        // E48A restores the shooting palette and shows the final text page: the final
-        // text page is two screens tall, not the credits' single-screen page.
         _stage.LoadColours(EndingColourLoad.RestoredShot);
-        PostCreditsTextPage = EndingTextScreen.FinalText;
-        PostCreditsPageHeight = EndingPostShotDefinitions.FinalTextMapHeight;
-        _stage.PostCreditsScroll = Position16<PlanePixels>.Zero;
-        // E48A clears the copyright's two rows.
-        postCreditsPage.Erase(EndingPictureNames.CopyrightPanel);
+        _artwork.PostCreditsText.Drop = 0;
+        _artwork.PostCreditsText.ClearCopyright();
         WhiteFlashColor = EndingPostShotDefinitions.WhiteComponent;
         _stage.PhaseTimer = EndingPostShotDefinitions.FadeFrames;
         _stage.Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
     }
 
-    /// <summary>Shows the staging page on the final page's lower screen and installs the final logo actor.</summary>
+    /// <summary>Installs the final logo actor.</summary>
     internal void FinishPostCreditsWhiteFlash()
     {
-        // E504 copies the same staging page into the lower screen before the logo
-        // actors enter. Subsequent percentage writes target the upper screen again.
-        screen.ShowFinalLowerText(postCreditsPage.Written);
         CurrentRewardJump = null;
         sprites.Clear();
         _artwork.CurrentEndingLogo = new EndingLogo(_stage,
@@ -150,9 +129,18 @@ internal sealed class EndingCreditsRoll
     {
         EndingLogo.Step(screen.Colours);
         if (!EndingLogo.Completed) return;
-        _artwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, Presentation = _artwork.EndingText, InstalledSequence = _artwork.EndingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage }));
+        _artwork.PostCreditsText.StartItemPercentage(TypewriterSetup());
         _stage.Phase = EndingCreditsPhase.ItemPercentage;
     }
+
+    /// <summary>What the post-credits typed texts type from and count.</summary>
+    /// <exception cref="InvalidOperationException">No ending text is installed.</exception>
+    internal EndingTypewriterSetup TypewriterSetup() => new()
+    {
+        Inventory = inventory,
+        JapaneseText = japaneseText,
+        Text = _artwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text."),
+    };
 
     /// <summary>Whether the reward copyright is showing.</summary>
     internal bool RewardCopyrightShown { get; private set; }

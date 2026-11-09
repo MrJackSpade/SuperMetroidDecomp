@@ -424,26 +424,26 @@ internal static void VerifyEndingCreditsState()
     AssertEqual(EndingReward.Helmetless, middle.Stage.EndingReward, "three-to-ten-hour ending branch");
     AssertEqual(EndingReward.Armored, slow.Stage.EndingReward, "ten-hour ending branch");
 
-    var percentagePage = new EndingTextPage();
-    var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = percentagePage, Inventory = new EndingInventorySnapshot(
+    var percentage = new EndingTypewriter(new EndingTypewriterSetup { Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
             MaxMissiles: 230,
             MaxSuperMissiles: 50,
             MaxPowerBombs: 50,
             CollectedItems: (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope),
-            CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
+            CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), JapaneseText = false, Text = RetailPresentationFixture().EndingText }, EndingTextSequence.ItemPercentage);
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step();
     AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
         "item-percentage object reaches its native scroll handoff");
-    // The digits and the percent sign are pictures written left to right from the hundreds digit's cell (#1467).
-    WrittenPicture[] digits = [.. percentagePage.Written.Where(text => text.Cell.Y == EndingResultTextLayout.PercentageHundredsCell.Y)];
+    // The digits and the percent sign are pictures shown left to right from the hundreds digit's corner (#1467, #1555).
+    EndingShownText[] digits = [.. percentage.Shown().Where(text => text.Corner.Y == EndingResultTextLayout.PercentageHundredsCorner.Y)];
     string[] hundredPercent = [EndingPictureNames.PercentDigit(1), EndingPictureNames.PercentDigit(0), EndingPictureNames.PercentDigit(0),
         EndingPictureNames.PercentSign];
     AssertTrue(digits.Select(text => text.Picture).SequenceEqual(hundredPercent), "100% shows one, zero, zero and the percent sign");
-    AssertTrue(digits.Select(text => (int)text.Cell.X).SequenceEqual(Enumerable.Range(EndingResultTextLayout.PercentageHundredsCell.X, hundredPercent.Length)),
-        "100% places its glyphs in consecutive cells from the hundreds digit");
+    AssertTrue(digits.Select(text => (int)text.Corner.X).SequenceEqual(Enumerable.Range(0, hundredPercent.Length)
+            .Select(place => EndingResultTextLayout.PercentageHundredsCorner.X + place * EndingResultTextLayout.GlyphPixels)),
+        "100% places its glyphs one glyph apart from the hundreds digit");
 
     Console.WriteLine(
         "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");

@@ -56,13 +56,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal readonly EndingScreen screen = new();
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     internal readonly List<EndingSprite> sprites = [];
-    /// <summary>The post-credits staging page.</summary>
-    private readonly EndingTextPage postCreditsPage = new();
+
     /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
     internal CreditsObjectState Credits => InstalledArtwork.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
-    /// <summary>The state of the post-credits text, which exists while that phase runs.</summary>
-    private EndingBackgroundTextState PostCreditsText => InstalledArtwork.ActivePostCreditsText ??
+    /// <summary>The post-credits typed text the ending advances, which exists while its phases run.</summary>
+    private EndingTypewriter PostCreditsTyping => InstalledArtwork.PostCreditsText.Typing ??
         throw new InvalidOperationException("The post-credits text is not running.");
     /// <summary>Waiting updates the ending setup has made so far.</summary>
     private int setupFrameWaits;
@@ -107,7 +106,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage, Flyaway, InstalledArtwork);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
-        CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, postCreditsPage, Stage, InstalledArtwork);
+        CreditsRoll = new EndingCreditsRoll(inventory, japaneseText, screen, sprites, Stage, InstalledArtwork);
         InstalledArtwork.BindEndingText(setup.EndingText);
         Stage.Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
@@ -299,10 +298,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // Function 132 shows the complete result panel in rows nine through seventeen before the
-                    // following 180-frame hold.
+                    // Function 132 shows the complete result panel before the following 180-frame hold.
                     _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
-                    postCreditsPage.Write(EndingPictureNames.ResultPanel, EndingResultTextLayout.ResultPanelCell);
+                    InstalledArtwork.PostCreditsText.ShowResultPanel();
                     Stage.PhaseTimer = 180;
                     Stage.Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
                 }
@@ -394,8 +392,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentage:
-                PostCreditsText.Step();
-                if (PostCreditsText.RequestedItemPercentageScroll && PostCreditsText.Completed)
+                PostCreditsTyping.Step();
+                if (PostCreditsTyping.RequestedItemPercentageScroll && PostCreditsTyping.Completed)
                 {
                     Stage.PhaseTimer = 40;
                     Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
@@ -403,12 +401,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentageScrollDown:
-                // Function 148 moves the text page down two pixels per call from zero through -80,
-                // preserving the already-built page until the final object is spawned.
-                Stage.PostCreditsScroll -= new Offset16<PlanePixels>(0, 2);
+                // Function 148 moves the shown text down two pixels per call, eighty in all, before the final
+                // message starts above it.
+                InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerCall;
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    InstalledArtwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, Presentation = InstalledArtwork.EndingText, InstalledSequence = InstalledArtwork.EndingText is null ? null : EndingTextSequence.FinalMessage }));
+                    InstalledArtwork.PostCreditsText.StartFinalMessage(CreditsRoll.TypewriterSetup());
                     Stage.Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;
@@ -417,7 +415,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 // The game parks on this final screen. There is no hidden
                 // automatic reset: the console remains on this frame until reset/power-off.
                 EscapeScenes.StepSprites();
-                InstalledArtwork.ActivePostCreditsText?.Step();
+                PostCreditsTyping.Step();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
@@ -538,45 +536,22 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal PicturedPlane CreditsPlane() => Credits.Plane(InstalledArtwork.SpriteSheet(SpriteSheetId.EndingCreditsRows),
         screen.Colours.SceneryShading(EndingScenery.CreditsRows));
 
-    /// <summary>The waiting scene's backdrop, a <paramref name="size"/> plane (#1467, #1515), in the ending's colours (#1512).</summary>
-    internal PicturedPlane WaitingPlane(Extent16<TilemapCells> size) => new(size,
+    /// <summary>The waiting scene's backdrop, a one-screen plane (#1467, #1515), in the ending's colours (#1512).</summary>
+    internal PicturedPlane WaitingPlane() => new(ScreenCells,
         [new PlacedPlanePicture(Picture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.WaitingBackdrop), Position16<PlanePixels>.Zero,
             screen.Colours.SceneryShading(EndingScenery.WaitingBackdrop))]);
 
     /// <summary>
-    /// The <paramref name="size"/> plane of the text page <paramref name="page"/> (#1467, #1515): the staging page's text as
-    /// it is now, each piece's picture at its cell, in the ending's colours (#1512). A two-screen final page shows its lower
-    /// screen's text below it.
+    /// The screen of post-credits text (#1467, #1515, #1555): each piece the text scene shows now at its screen pixel,
+    /// moved down by the scene's drop, in the ending's colours (#1512).
     /// </summary>
-    /// <exception cref="ArgumentException">The result page is asked for two screens.</exception>
-    internal PicturedPlane TextPagePlane(EndingTextScreen page, Extent16<TilemapCells> size)
+    internal PicturedPlane PostCreditsTextPlane()
     {
         SpriteSheet sheet = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingPostCreditsPictures);
-        var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         PictureShading shading = screen.Colours.SceneryShading(EndingScenery.PostCreditsText);
-        bool twoScreens = size.Y > EndingScreenDefinitions.TilemapHeight;
-        if (page == EndingTextScreen.ResultPanel)
-        {
-            if (twoScreens)
-                throw new ArgumentException("The result page has one screen.", nameof(size));
-            Place(postCreditsPage.Written, 0);
-        }
-        else
-        {
-            Place(postCreditsPage.Written, 0);
-            if (twoScreens)
-                Place(screen.FinalPageLowerText, EndingScreenDefinitions.TilemapHeight);
-        }
-        return new PicturedPlane(size, placed.ToImmutable());
-
-        // Places each piece of text `firstRow` rows down the plane.
-        void Place(ImmutableArray<WrittenPicture> text, int firstRow)
-        {
-            foreach (WrittenPicture shown in text)
-                placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<PlanePixels>(
-                    shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
-                    (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels), shading));
-        }
+        EndingPostCreditsText text = InstalledArtwork.PostCreditsText;
+        return new PicturedPlane(ScreenCells, [.. text.Shown().Select(shown => new PlacedPlanePicture(sheet.Frame(shown.Picture),
+            new Position16<PlanePixels>(shown.Corner.X, shown.Corner.Y + text.Drop), shading))]);
     }
 
     /// <summary>

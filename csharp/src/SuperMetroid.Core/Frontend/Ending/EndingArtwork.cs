@@ -43,7 +43,7 @@ internal sealed class EndingArtwork
     public void BindEndingText(EndingTypewriterText? value)
     {
         EndingText = value;
-        ActivePostCreditsText?.BindPresentation(value);
+        PostCreditsText.BindText(value);
     }
 
 
@@ -108,9 +108,6 @@ internal sealed class EndingArtwork
     /// <summary>The ending text's installed content.</summary>
     internal EndingTypewriterText? EndingText { get; private set; }
 
-    /// <summary>The post-credits text, once it starts.</summary>
-    internal EndingBackgroundTextState? ActivePostCreditsText { get; private set; }
-
-    /// <summary>Starts the post-credits text the credits roll hands over to.</summary>
-    internal void StartPostCreditsText(EndingBackgroundTextState text) => ActivePostCreditsText = text;
+    /// <summary>The post-credits text scene (#1555).</summary>
+    internal EndingPostCreditsText PostCreditsText { get; } = new();
 }

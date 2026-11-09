@@ -948,17 +948,16 @@ internal static class LookupStream4Verification
             presentation.JapaneseSubtitle.CopyTo(copied);
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(copied.AsSpan(0, expected.Length))), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
-            // The game shows the subtitle as its installed picture at its cell (#1467); the import pictures these words.
-            var page = new EndingTextPage();
-            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = page, Inventory = default, JapaneseText = true, Presentation = presentation.Typewriter(), InstalledSequence = EndingTextSequence.ItemPercentage });
-            state.InstalledInitialMarkerPending = false;
-            state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
+            // The game shows the subtitle as its installed picture at its corner (#1467, #1555); the import pictures these words.
+            var state = new EndingTypewriter(new EndingTypewriterSetup { Inventory = default, JapaneseText = true, Text = presentation.Typewriter() }, EndingTextSequence.ItemPercentage);
+            state.InitialPausePending = false;
+            state.TypedCount = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             state.Step();
-            var subtitle = new WrittenPicture(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
-            AssertTrue(page.Written.Contains(subtitle), "Actual ending state writes the subtitle picture at its cell");
+            var subtitle = new EndingShownText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
+            AssertTrue(state.Shown().Contains(subtitle), "Actual ending state shows the subtitle picture at its corner");
             state.FrameHold = 1;
             state.Step();
-            AssertTrue(!page.Written.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
+            AssertTrue(!state.Shown().Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
         }
     }

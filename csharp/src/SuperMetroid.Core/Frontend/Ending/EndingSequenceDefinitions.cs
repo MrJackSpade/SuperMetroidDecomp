@@ -40,5 +40,8 @@ public static class EndingSequenceDefinitions
 
         /// <summary>The waiting backdrop's hold.</summary>
         public const int WaitingBackdropFrames = 180;
+
+        /// <summary>Pixels the item-percentage text moves down the screen on each call of its forty-call move down.</summary>
+        public const int TextDropPixelsPerCall = 2;
     }
 }

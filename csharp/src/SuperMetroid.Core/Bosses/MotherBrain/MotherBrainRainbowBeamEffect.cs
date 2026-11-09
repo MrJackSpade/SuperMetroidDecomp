@@ -44,7 +44,7 @@ public sealed class MotherBrainRainbowBeamEffect
         {
             Active = true;
             ColorIndex = 0;
-            Color = PresentationColors?.BeamInitialColor ?? MotherBrainBeamDefinitions.InitialColor;
+            Color = Colours.BeamInitialColor;
         }
         else if (ColorIndex == Colours.BeamCycleLength)
         {

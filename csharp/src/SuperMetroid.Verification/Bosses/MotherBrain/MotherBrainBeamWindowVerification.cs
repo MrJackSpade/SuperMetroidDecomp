@@ -30,11 +30,9 @@ internal static class MotherBrainBeamWindowVerification
             cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,
                 ["green"] = frame % 2 == 0 ? 0 : 31, ["blue"] = 0 });
         paletteDocument["beamCycle"] = cycle;
-        var beam = new MotherBrainRainbowBeamEffect
-        {
-            PresentationColors = MotherBrainRainbowPaletteFile.Read(new MemoryStream(
-                System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString()))),
-        };
+        MotherBrainRainbowPalettePresentation installedColours = MotherBrainRainbowPaletteFile.Read(new MemoryStream(
+            System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString())));
+        var beam = new MotherBrainRainbowBeamEffect { PresentationColors = installedColours };
         AssertTrue(beam.Geometry is null, "no geometry is published before the first build");
         AssertEqual(ScreenWindow.Closed, (GameplayEffectCapture.CaptureMotherBrainRainbowBeam(
                 new MotherBrainRainbowBeamRenderSnapshot(true, RgbColor.Black, null))
@@ -42,7 +40,7 @@ internal static class MotherBrainBeamWindowVerification
             "a missing geometry lights nothing");
         void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64), default);
         Step();
-        AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
+        AssertEqual(installedColours.BeamInitialColor, beam.Color, "beam first frame uses E767 fixed color");
         AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96),
             beam.Geometry, "right beam publishes the low-byte mouth X, mouth Y and both wrapped edges");
         // The beam's edges are measured from straight down: 32 and 96 reflect to the screen's 96 and 32, a cone from
@@ -87,7 +85,7 @@ internal static class MotherBrainBeamWindowVerification
             "deleted HDMA object emits no render layer");
         AssertEqual(snapshot.Geometry, beam.Geometry, "deactivation keeps the last geometry");
         Step();
-        AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "new attack resets HDMA color");
+        AssertEqual(installedColours.BeamInitialColor, beam.Color, "new attack resets HDMA color");
         foreach (byte angle in new byte[] { 32, 96, 128, 160, 0, 224 })
         {
             beam.Step(true, new(100, 95), RotationAngle.FromSteps(angle), 512, default);

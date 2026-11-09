@@ -30,10 +30,10 @@ public sealed class InstalledMotherBrainRainbowPalette : MotherBrainRainbowPalet
     /// <param name="fakeDeathToGrey">The fake-death brain fade.</param>
     /// <param name="normal">The restored normal phase.</param>
     /// <param name="beamInitial">The beam backdrop's first colour.</param>
-    /// <param name="beamCycle">The beam backdrop's hue cycle.</param>
+    /// <param name="beamCycle">Every colour of the beam backdrop's hue cycle, as installed.</param>
     internal InstalledMotherBrainRainbowPalette(PaletteFrame[] rainbow, PaletteFade toGrey,
         RevivalPaletteFade fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
-        RgbColor beamInitial, BeamColors beamCycle) : base(beamInitial, beamCycle)
+        RgbColor beamInitial, RgbColor[] beamCycle) : base(beamInitial, beamCycle)
     {
         this.rainbow = rainbow;
         this.toGrey = toGrey;

@@ -41,6 +41,9 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>What a demo Samus's animation frame past her pose's program reads.</summary>
     private readonly LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> _animationContinuation;
 
+    /// <summary>The session's beam charge, which a demo Samus reads and clears like any other.</summary>
+    private readonly SuperMetroid.Core.Samus.Projectiles.BeamChargeState _beamCharge;
+
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
     {
@@ -55,6 +58,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _roomLoader = dependencies.RoomLoader;
         _system = dependencies.System;
         _animationContinuation = Ensure.NotNull(dependencies.AnimationContinuation);
+        _beamCharge = Ensure.NotNull(dependencies.BeamCharge);
     }
     /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
     public bool IsAttractDemo => _attractSession.IsAttractDemo;
@@ -106,7 +110,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         // The demo load clears the Zebes areas' stored explored maps and leaves the live map as the session left it.
         StoredExploredMapLoads.ClearForDemo(_system.StoredExploredMaps);
 
-        _player.Samus = new SamusState(_animationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus())
+        _player.Samus = new SamusState(_animationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,

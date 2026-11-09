@@ -119,7 +119,7 @@ internal static class YardDirectionDefinitionsVerification
 
             state.Behavior = YardBehavior.NormalCrawling;
             state.MovementFunction = YardMovementFunction.CrawlingUpsideUpMovingLeft;
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Pose = facing == 0
                     ? SamusPoseId.FacingLeftNormalPose

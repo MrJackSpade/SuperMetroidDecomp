@@ -23,7 +23,7 @@ internal static class GroundedBombSpreadVerification
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = SamusPoseId.MorphBallGroundRightPose,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -34,13 +34,13 @@ internal static class GroundedBombSpreadVerification
             {
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, shootDown, 0);
                 AssertTrue(bombs.Slots.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
-                AssertEqual(MorphBallBombDefinitions.RequiredChargeFrames, samus.BeamChargeCount.Count, "retained spread charge is not consumed while holding Down");
+                AssertEqual(MorphBallBombDefinitions.RequiredChargeFrames, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
             }
             var released = bombs.StepFrame(new SamusTerrain { Level = level }, samus, keepDown ? shootDown : ControllerButton.X, 0);
             AssertTrue(bombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread) && released.BeamChargeConsumed, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
-            AssertEqual(0, samus.BeamChargeCount.Count, "spawn clears actual flare counter");
+            AssertEqual(0, samus.BeamCharge.FlareCounter, "spawn clears actual flare counter");
             AssertEqual(0, samus.BombSpreadChargeTimeoutCounter, "spawn clears hold counter");
             // Independent closed-form free-flight expectations from native D849/D8F7:
             // acceleration precedes integration, including the spawning alpha call.

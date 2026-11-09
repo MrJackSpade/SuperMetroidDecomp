@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Beam charge state: the flare counter, the previous charge, the charged-shot glow timer, the charge palette index and the three flare components' frames and timers.</summary>
 internal sealed class BeamChargeState
 {
+    /// <summary>Clears the charge count alone, as a Varia or Gravity Suit's pickup does (#1577).</summary>
+    internal void ClearCount() => FlareCounter = 0;
+
     /// <summary>
     /// The flare counter a Hyper Beam shot stores: past every charge threshold, so the Hyper Beam always reads as fully
     /// charged and never advances it; the largest value the counter holds.
@@ -102,8 +105,11 @@ internal sealed class BeamChargeState
         Array.Clear(FlareTimers);
     }
 
-    /// <summary>The shinespark windup's charge teardown: the flare counter and every flare component clear.</summary>
-    internal void CancelForShinespark()
+    /// <summary>
+    /// Clears the charge and its whole flare, as the shinespark windup and the grapple wall jump's launch do: the count
+    /// and every flare component (#1577).
+    /// </summary>
+    internal void ClearChargeAndFlare()
     {
         FlareCounter = 0;
         ClearFlare();

@@ -362,10 +362,10 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         samus.HorizontalSpeed.BaseSpeed = default;
 
         // Queues the grapple's end sound at essential priority.
-        // It also tears down the active beam flare so the wall-jump's charged-contact path
-        // cannot inherit charge accumulated before grapple became active.
+        // It also clears the beam's charge and its flare, so neither the wall jump's charged contact nor the next
+        // projectile pass inherits a charge built before the grapple (#1577).
         samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.Priority);
-        samus.BeamChargeCount.Clear();
+        samus.BeamCharge.ClearChargeAndFlare();
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);

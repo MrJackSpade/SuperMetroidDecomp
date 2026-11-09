@@ -235,7 +235,7 @@ internal static class NoobTubeProjectileBehaviorVerification
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()), Position16<RoomPixels>.Zero);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
             if (!projectile.IsActive)
                 return;
             ushort expectedOperand = projectile.PresentationOperandAddress;

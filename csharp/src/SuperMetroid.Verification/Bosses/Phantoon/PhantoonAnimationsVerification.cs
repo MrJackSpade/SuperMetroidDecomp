@@ -204,7 +204,7 @@ internal static class PhantoonAnimationsVerification
             int drops = 0;
             for (int update = 0; update < 64 && !native.Deleted; update++)
             {
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(flame, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()), Position16<RoomPixels>.Zero);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(flame, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()), Position16<RoomPixels>.Zero);
                 native.Step(cartridge);
                 drops += native.Callbacks.Count;
                 string at = $"Phantoon flame {program} update {update}";
@@ -231,7 +231,7 @@ internal static class PhantoonAnimationsVerification
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
         enemies.VerificationServices().NextRandom = () => 128;
-        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 99, MaxHealth = 99 });
+        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99 });
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(128, 96));
         return enemies;

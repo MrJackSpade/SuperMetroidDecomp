@@ -70,12 +70,11 @@ internal static class GroundedSpreadTransitionVerification
             }
             runtime.StepFrame(input);
             if (trace is not null)
-                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(samus.Pose):X4},{samus.Position.Y.Whole:X4},{samus.BeamChargeCount.Count:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
+                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(samus.Pose):X4},{samus.Position.Y.Whole:X4},{samus.BeamCharge.FlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
                     $"native/runtime charge-preserving unmorph frame {frame}");
-            AssertEqual(samus.BeamChargeCount.Count, runtime.Projectiles.Charge.FlareCounter, "runtime charge mirror stays synchronized");
             if (frame == 99)
             {
-                AssertEqual(77, samus.BeamChargeCount.Count, "beam charge earned before morph stays intact while holding Down");
+                AssertEqual(77, samus.BeamCharge.FlareCounter, "beam charge earned before morph stays intact while holding Down");
                 AssertEqual(17, samus.BombSpreadChargeTimeoutCounter, "hold counter advances only after morph animation");
             }
             if (frame is >= 100 and <= 105 && scenario != 3)
@@ -83,7 +82,7 @@ internal static class GroundedSpreadTransitionVerification
                     samus.Pose, "native posture input dispatcher cannot interrupt the six-frame unmorph");
             if (frame == 100)
             {
-                AssertEqual((ushort)(scenario is 1 or 2 ? 0 : 77), samus.BeamChargeCount.Count, "same-frame release decides charge consumption before unmorph");
+                AssertEqual((ushort)(scenario is 1 or 2 ? 0 : 77), samus.BeamCharge.FlareCounter, "same-frame release decides charge consumption before unmorph");
                 AssertEqual((ushort)(scenario == 1 ? 5 : 0), runtime.BombProjectiles.BombCounter, "releasing Down creates spread even on the unmorph input frame");
             }
             if (frame == 106 && scenario != 3)

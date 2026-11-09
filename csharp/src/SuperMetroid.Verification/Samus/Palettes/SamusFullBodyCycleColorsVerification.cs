@@ -323,7 +323,7 @@ internal static class SamusFullBodyCycleColorsVerification
                     Math.Min(phase, 6 - phase));
             }
 
-            var stored = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { EquippedItems = items };
+            var stored = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = items };
             AssertTrue(stored.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed stored shine");
             for (int phase = 0; phase < 6; phase++)
             {
@@ -334,7 +334,7 @@ internal static class SamusFullBodyCycleColorsVerification
                     Math.Min(phase, 6 - phase));
             }
 
-            var active = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { EquippedItems = items };
+            var active = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { EquippedItems = items };
             AssertTrue(active.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed active shinespark");
             active.Shinespark.BeginWindup(active);
             for (int phase = 0; phase < 4; phase++)
@@ -345,7 +345,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 AssertColors(cgram, SamusFullBodyCycleFamily.ActiveShinespark, suit, phase);
             }
 
-            var attached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+            var attached = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 EquippedItems = items,
                 MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,

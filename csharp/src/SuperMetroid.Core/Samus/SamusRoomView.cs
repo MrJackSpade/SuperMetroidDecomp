@@ -57,7 +57,7 @@ internal sealed class SamusRoomView(SamusState samus) : IRoomSamus
     public SamusEquipmentFlags CollectedItems { get => samus.CollectedItems; set => samus.CollectedItems = value; }
 
     /// <inheritdoc/>
-    public SharedBeamChargeCount BeamChargeCount => samus.BeamChargeCount;
+    public void ClearBeamCharge() => samus.BeamCharge.ClearCount();
 
     /// <inheritdoc/>
     public WrappingCountdown InvincibilityTimer { get => samus.InvincibilityTimer; set => samus.InvincibilityTimer = value; }

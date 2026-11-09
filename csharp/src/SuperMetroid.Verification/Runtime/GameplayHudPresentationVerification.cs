@@ -65,7 +65,7 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed HUD template, icons, tanks, counters, AUTO and highlight match native");
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Health = 287,
             MaxHealth = 499,

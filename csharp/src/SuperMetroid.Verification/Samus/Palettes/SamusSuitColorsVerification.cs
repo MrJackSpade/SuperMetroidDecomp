@@ -120,7 +120,7 @@ internal static class SamusSuitColorsVerification
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         var guard = NewSuitColorReadGuard(bus);
         var samusColours = new SamusColours();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         // The installed catalog reaches Samus through the shades the import makes from it (#1512).
         var installedSources = InstalledFixtures.SamusShadeSources with { Suits = ImportAreaMapPresentation.SamusColoursOf(original).Suits };
         ushort[] equipment =

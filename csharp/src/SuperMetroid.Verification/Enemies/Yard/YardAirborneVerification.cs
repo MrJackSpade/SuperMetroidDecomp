@@ -62,7 +62,7 @@ internal static class YardAirborneVerification
             state.AirborneVelocity = new FixedVector<RoomPixels>(
                 SignedSixteenSixteen.FromRaw(unchecked((int)initialX)),
                 SignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             uint x = 0x0200F000, y = 0x0200F000, vx = initialX, vy = initialY;

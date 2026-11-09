@@ -161,7 +161,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 { FrameCounter = 0,
                     Camera = Position16<RoomPixels>.Zero,
                     TimeIsFrozen = false,
-                    Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },
+                    Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },
                     Level = level,
                 },
                 new FrameCounters(0));

@@ -379,7 +379,7 @@ internal static class LookupStream5Verification
             AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Eye opening enables collision");
             state.TentaclesState.SwoopRequested = shot;
             state.TentaclesState.RoundDamage = 37;
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state, samus); ticks++;
@@ -1372,7 +1372,7 @@ internal static class LookupStream5Verification
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, ushort direction) in eyeTargets)
         {
-            pointEye(eyeBody, eyeState, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+            pointEye(eyeBody, eyeState, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });

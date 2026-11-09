@@ -22,7 +22,6 @@ public sealed class SamusShinesparkState
     /// <summary>Live Power Bomb state consulted when a spark sound request is produced.</summary>
     private SamusPowerBombExplosionState? _audioPowerBomb;
     /// <summary>The session's held beam charge and flare, canceled when spark windup begins.</summary>
-    private BeamChargeState? _charge;
     /// <summary>One-frame Samus-library sound request from canceling a sufficiently charged flare.</summary>
     private bool _chargeCancellationSoundRequested;
 
@@ -40,13 +39,7 @@ public sealed class SamusShinesparkState
     /// <summary>
     /// Binds the room's projectile and sound owners before movement/palette production.
     /// </summary>
-    internal void BindProjectileOwners(
-        BeamChargeState charge,
-        SamusPowerBombExplosionState powerBomb)
-    {
-        _charge = charge;
-        _audioPowerBomb = powerBomb;
-    }
+    internal void BindProjectileOwners(SamusPowerBombExplosionState powerBomb) => _audioPowerBomb = powerBomb;
 
     /// <summary>Queue guard captured at the stored-shine warning call, not at publication.</summary>
     public bool StoredShineWarningSoundSuppressed { get; private set; }
@@ -289,14 +282,11 @@ public sealed class SamusShinesparkState
     {
         // The windup checks the charge counter before clearing it. A charge that has
         // reached the draw-time sound threshold first queues the charge-cancellation sound; shorter
-        // charges are still torn down without a sound call. The live projectile owner
-        // contains the flare layers and previous-counter word, while Samus mirrors the charge counter
-        // for movement decisions. Keep both views synchronized at this seam.
-        int cancelledCharge = samus.BeamChargeCount.Count;
+        // charges are still torn down without a sound call.
+        int cancelledCharge = samus.BeamCharge.FlareCounter;
         if (cancelledCharge != 0)
         {
-            _charge?.CancelForShinespark();
-            samus.BeamChargeCount.Clear();
+            samus.BeamCharge.ClearChargeAndFlare();
             if (cancelledCharge >= BeamChargeDefinitions.ChargeSoundStartCounter)
             {
                 _chargeCancellationSoundRequested = true;

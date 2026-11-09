@@ -56,8 +56,8 @@ public interface IRoomSamus
     /// <summary>Items collected.</summary>
     SamusEquipmentFlags CollectedItems { get; set; }
 
-    /// <summary>The beam charge as Samus's movement, bombs and sounds read it, which a suit item's pickup clears.</summary>
-    SharedBeamChargeCount BeamChargeCount { get; }
+    /// <summary>Clears the beam's charge count, as a Varia or Gravity Suit's pickup does (#1577).</summary>
+    void ClearBeamCharge();
 
     /// <summary>The remaining invincibility frames.</summary>
     WrappingCountdown InvincibilityTimer { get; set; }

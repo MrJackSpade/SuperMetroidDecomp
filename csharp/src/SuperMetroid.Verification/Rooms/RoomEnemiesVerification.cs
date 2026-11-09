@@ -511,7 +511,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.InvincibilityTimer = 1;
         ripper.FrozenTimer = 0;
         ripper.FlashTimer = 0;
-        var touchingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+        var touchingSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
@@ -565,7 +565,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         "enemy shake frame-counter bit one set subtracts one X pixel");
     AssertEqual(1, ripper.ShakeTimer, "negative enemy draw consumes one shake tick");
 
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
@@ -730,7 +730,7 @@ internal static void VerifyCeresDoorBossBranch()
 
     bool areaBossDefeated = false;
     int areaBossReads = 0;
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
     var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
         {
             areaBossReads++;
@@ -937,7 +937,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // Finish the 5-frame pre-roar and 253-frame pre-liftoff countdowns, then let the real
     // E969 instruction arm A6AF. Movement uses the translated common 8.8 integrator until
     // A6C8 crosses Y=$50 and publishes fight mode one.
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,

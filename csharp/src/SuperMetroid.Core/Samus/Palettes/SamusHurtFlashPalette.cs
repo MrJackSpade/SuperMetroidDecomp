@@ -134,7 +134,7 @@ public static class SamusHurtFlashPalette
                         : SamusHurtFlashRecoveryAction.SpinJumpSound;
             }
 
-            if (samus.BeamChargeCount.Count >= 16 &&
+            if (samus.BeamCharge.FlareCounter >= 16 &&
                 (controllerInput & ControllerButton.X) != ControllerButton.None)
             {
                 samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;

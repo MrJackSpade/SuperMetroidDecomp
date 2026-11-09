@@ -263,7 +263,7 @@ internal static class SamusHyperBeamColorsVerification
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(0, invalid), "Hyper-shot color bounds");
-        var shotSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HyperBeamEnabled = true };
+        var shotSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { HyperBeamEnabled = true };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
@@ -278,7 +278,7 @@ internal static class SamusHyperBeamColorsVerification
                     "Guarded Hyper-shot cycle preserves original shade colors and held rows");
         }
         AssertEqual(0, shotGuard.ForbiddenReadAttempts, "Hyper-shot calculated colors avoid original palette and pointer reads");
-        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         installedSamus.Drained.EnableRainbow(installedSamus);
         var installedSources = InstalledFixtures.SamusShadeSources with { HyperBeamSuit = catalog.ToColours() };
         var installedColours = new SamusColours();

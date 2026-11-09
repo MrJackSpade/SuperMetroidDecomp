@@ -215,7 +215,7 @@ internal static class RoomObjectPopulationVerification
                 new RoomBlockBehavior[64]);
             var system = new SharedGameState(new SharedRandom());
             var roomObjects = RoomObjectFixtures.Unbound();
-            AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), decoded, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), decoded, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident door $84:{raw:X4} loads through production setup");
 
             var enteringDoor = new DoorDefinition(
@@ -302,7 +302,7 @@ internal static class RoomObjectPopulationVerification
             new RoomTerrainBlock[width * height],
             new RoomBlockBehavior[width * height]);
         var system = new SharedGameState(new SharedRandom());
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Health = 25,
             MaxHealth = 199,
@@ -405,7 +405,7 @@ internal static class RoomObjectPopulationVerification
             new RoomTerrainBlock[width * height],
             new RoomBlockBehavior[width * height]);
         var system = new SharedGameState(new SharedRandom());
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             CollectedItems = SamusEquipmentFlags.Bombs,
         };
@@ -515,7 +515,7 @@ internal static class RoomObjectPopulationVerification
             new RoomBlockBehavior[width * height]);
         var system = new SharedGameState(new SharedRandom());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Brinstar pre-map grey door loads through the shared population path");
 
         var enteringDoor = new DoorDefinition(
@@ -578,7 +578,7 @@ internal static class RoomObjectPopulationVerification
             levelWords,
             new RoomBlockBehavior[width * height]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.WreckedShip), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.WreckedShip), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
         RoomObjectSlotSnapshot loaded = roomObjects.PopulationSlots.Single();
         AssertEqual(0, loaded.ProcessingPosition,
@@ -651,7 +651,7 @@ internal static class RoomObjectPopulationVerification
         RoomLevelData completedLevel = CreateLevel();
         RoomObjectSystem completed = Load(
             completedSystem,
-            new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()),
+            new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()),
             CreateFx(0x0300, 0x0100, 0, 5),
             completedLevel,
             _ => { });
@@ -659,7 +659,7 @@ internal static class RoomObjectPopulationVerification
             "event-$15 setup deletes B8AC synchronously");
 
         var unequippedSystem = new SharedGameState(new SharedRandom());
-        var unequippedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var unequippedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         RoomFxOverlayState unequippedFx = CreateFx(0x0300, 0x0100, 0x1234, 5);
         int earthquakeTimer = 7;
         RoomLevelData unequippedLevel = CreateLevel();
@@ -683,7 +683,7 @@ internal static class RoomObjectPopulationVerification
             "missing Speed Booster clears global earthquake timer");
 
         var disabledSystem = new SharedGameState(new SharedRandom());
-        var disabledSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+        var disabledSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             CollectedItems = SamusEquipmentFlags.SpeedBooster,
         };
@@ -700,7 +700,7 @@ internal static class RoomObjectPopulationVerification
             "negative FX target deletes collected-Speed-Booster controller");
 
         var activeSystem = new SharedGameState(new SharedRandom());
-        var activeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+        var activeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             CollectedItems = SamusEquipmentFlags.SpeedBooster,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0ae1, 0)),
@@ -781,7 +781,7 @@ internal static class RoomObjectPopulationVerification
             new RoomTerrainBlock[width * height],
             new RoomBlockBehavior[width * height]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(2, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), decoded, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(2, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), decoded, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
         RoomObjectSlotSnapshot[] slots = roomObjects.PopulationSlots.ToArray();
         AssertEqual(0, slots[0].ProcessingPosition,
@@ -805,7 +805,7 @@ internal static class RoomObjectPopulationVerification
                 new(offRoomX, offRoomY), null, Array.Empty<RoomScrollWrite>()),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room scroll owner fails when setup consumes a required logical block");
     }
 
@@ -859,7 +859,7 @@ internal static class RoomObjectPopulationVerification
         ordinaryLevel.SetTerrain(gateBlock, originalGateWord);
         var ordinary = RoomObjectFixtures.Unbound();
         var system = new SharedGameState(new SharedRandom());
-        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref ordinary, new RoomObjectRoom(ordinaryLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref ordinary, new RoomObjectRoom(ordinaryLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "escape gate population record is accepted by the sequential loader");
         AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "C8CA setup clears collision class bits without deleting its resident slot");
@@ -881,7 +881,7 @@ internal static class RoomObjectPopulationVerification
             new RoomBlockBehavior[width * height]);
         escapeLevel.SetTerrain(gateBlock, originalGateWord);
         var escape = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref escape, new RoomObjectRoom(escapeLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        RoomObjectFixtures.LoadPopulation(ref escape, new RoomObjectRoom(escapeLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new DoorDefinition(
             Name: nameof(TourianDoorDefinitions.MotherBrain1),
             DestinationRoom: RoomHeaderDefinitions.TourianEscape1,
@@ -999,7 +999,7 @@ internal static class RoomObjectPopulationVerification
             new RoomBlockBehavior[64]);
         var system = new SharedGameState(new SharedRandom());
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(5, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
+        AssertEqual(5, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
             "Metroids-cleared population loads all argument families");
 
         roomObjects.Step(level, enemyDeaths: 2, enemyDeathQuota: 3);
@@ -1040,7 +1040,7 @@ internal static class RoomObjectPopulationVerification
             0x00, 0x00,
         ]);
         AssertThrows<InvalidDataException>(
-            () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Tourian), RoomObjectPopulationImporter.Read(bus, invalidPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Tourian), RoomObjectPopulationImporter.Read(bus, invalidPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "odd Metroids-cleared room argument fails loudly");
     }
 
@@ -1078,7 +1078,7 @@ internal static class RoomObjectPopulationVerification
             new RoomBlockBehavior[32 * 32]);
         RoomScrollGrid scrolls = RoomScrollGrid.LoadNativeTable(
             new byte[RoomScrollGrid.KeptCellCount], new Extent16<RoomScreens>(2, 2));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         var system = new SharedGameState(new SharedRandom());
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(0, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, emptyPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
@@ -1125,7 +1125,7 @@ internal static class RoomObjectPopulationVerification
             new RoomTerrainBlock[width * 16],
             new RoomBlockBehavior[width * 16]);
         var system = new SharedGameState(new SharedRandom());
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
@@ -1260,7 +1260,7 @@ internal static class RoomObjectPopulationVerification
         SeedSaveStationElectricityProjectile(bus);
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x4040));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) });
         // The fixture room places no enemies, so loading it keeps the session's first set; a save room's own set holds
         // the electricity on its shared sheet, as entering a save room loads it (#1513).
         SpawnedObjectFixtures.LoadSetSpawning(enemies, EnemyProjectileFrameId.SaveStationElectricityFrame00,

@@ -40,7 +40,7 @@ public static class SamusPostDrawAudio
         samus.LiquidPhysics.QueueMovementSound(SamusSound.SpinJumpEnd, priority: SoundRequestPriority.Essential);
         // Resume on the NEXT post-draw pass, after the spin-stop command. The runtime
         // supplies normalized controls, so X here is the configured Shoot action.
-        if (samus.BeamChargeCount.Count >= BeamChargeDefinitions.ChargeSoundStartCounter &&
+        if (samus.BeamCharge.FlareCounter >= BeamChargeDefinitions.ChargeSoundStartCounter &&
             (controllerInput & ControllerButton.X) != ControllerButton.None)
             samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
     }

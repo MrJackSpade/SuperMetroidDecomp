@@ -107,7 +107,7 @@ internal static class CrocomireCutsceneVerification
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetCell;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, SamusState?, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
         run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);

@@ -64,7 +64,7 @@ internal static class GrappleConnectionDefinitionsVerification
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
         var guard = NewGrappleConnectionReadGuard(metadata);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         samus.Grapple.FlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         samus.Grapple.SwingFrames = SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameFile.Load(
@@ -128,7 +128,7 @@ internal static class GrappleConnectionDefinitionsVerification
         for (int record = 0; record < native.Length; record++)
             AssertEqual(native[record], GrappleConnections.SpecialAngle(record), $"Native special-angle record {record}");
         AssertThrows<ArgumentOutOfRangeException>(() => GrappleConnections.SpecialAngle(native.Length), "Special-angle bound");
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         samus.Grapple.FlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         var g = samus.Grapple;
@@ -183,7 +183,7 @@ internal static class GrappleConnectionDefinitionsVerification
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
         var guard = NewGrappleConnectionReadGuard(rom);
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
         samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
         samus.Grapple.FlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));

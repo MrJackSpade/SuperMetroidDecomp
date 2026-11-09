@@ -177,7 +177,7 @@ internal static class CrocomireAnimationsVerification
             "the sleeping body shows its initial frame");
         AssertEqual((ushort)1, state.Body.FrameHold.RawValue, "the initial frame lasts one update");
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
         Pass(enemies, state, samus);
         AssertEqual(CrocomireFightFunction.WaitingForFirstDamage, state.FightFunction, "Samus within range wakes Crocomire");
@@ -267,7 +267,7 @@ internal static class CrocomireAnimationsVerification
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
-        shotSystem.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 99, MaxHealth = 99 });
+        shotSystem.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99 });
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, 2);
         RoomEnemyProjectileSlot exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);

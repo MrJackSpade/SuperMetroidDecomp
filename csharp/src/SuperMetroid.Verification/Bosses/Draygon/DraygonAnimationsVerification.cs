@@ -243,7 +243,7 @@ internal static class DraygonAnimationsVerification
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertTrue(goop.Animation is DraygonProjectileAnimation, "the real goop producer starts the typed goop program");
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
         AssertEqual(EnemyProjectileFrameBehavior.DraygonGoopStuckToSamus, goop.FrameBehavior, "the goop touch sticks the goop to Samus");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,

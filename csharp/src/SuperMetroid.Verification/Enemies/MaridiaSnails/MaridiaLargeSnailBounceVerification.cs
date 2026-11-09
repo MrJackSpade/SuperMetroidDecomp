@@ -41,7 +41,7 @@ internal static class MaridiaLargeSnailBounceVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));
             state.BounceFunction = phase;
             state.YSpeedTableIndex = start;
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
             samus.Position = samus.Position.WithWhole(new(1000, 1000));
             var frame = new ClockedEnemyAiFrame(
                 new RoomEnemyFrame { FrameCounter = 0, Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },

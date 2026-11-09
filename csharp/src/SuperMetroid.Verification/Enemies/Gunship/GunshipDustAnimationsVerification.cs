@@ -30,7 +30,7 @@ internal static class GunshipDustAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native gunship dust list at ${address:X6}.");
-            enemies.Projectiles.SpawnGunshipLiftoffDustCloud(GunshipDustDefinitions.LiftoffClouds[cloud], new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()));
+            enemies.Projectiles.SpawnGunshipLiftoffDustCloud(GunshipDustDefinitions.LiftoffClouds[cloud], new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
             GunshipDustProgram program = GunshipDustDefinitions.LiftoffClouds[cloud].Program;
             AssertTrue(dust.Animation is GunshipDustAnimation started && started.Cursor == AnimationProgramCursor<GunshipDustProgram>.Start(program),

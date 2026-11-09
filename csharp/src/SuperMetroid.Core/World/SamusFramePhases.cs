@@ -331,7 +331,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
                 room.Projectiles.Firing.CancelChargeForHudSelection();
-                samus.BeamChargeCount.Clear();
                 SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
             }
 
@@ -356,7 +355,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             if (bombFrame.BeamChargeConsumed)
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
-                samus.BeamChargeCount.Clear();
                 SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
             }
 
@@ -385,10 +383,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // until this point in the following gameplay frame.
             SamusAerialPoseTransitions.DropPendingTransitionShot(samus);
             samus.ProjectileInheritance.ClearMovement();
-
-            // Samus's spin/wall-jump contact-damage handlers run in beta and must see the
-            // charge that the projectile update just updated during alpha.
-            samus.BeamChargeCount.Publish(room.Projectiles.Charge.FlareCounter);
         }
 
         // Samus's end-of-alpha step snapshots movement,

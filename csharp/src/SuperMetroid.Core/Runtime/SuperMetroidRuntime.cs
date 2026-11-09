@@ -193,7 +193,7 @@ internal sealed class SuperMetroidRuntime
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads });
-        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation });
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation, BeamCharge = BeamCharge });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { Artwork = Artwork, Controller1 = Controller1, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
@@ -469,7 +469,7 @@ internal sealed class SuperMetroidRuntime
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
         scope.RoomObjects.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion.Activity);
-        Player.Samus?.Shinespark.BindProjectileOwners(BeamCharge, scope.BombProjectiles.PowerBombExplosion);
+        Player.Samus?.Shinespark.BindProjectileOwners(scope.BombProjectiles.PowerBombExplosion);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
     }
 

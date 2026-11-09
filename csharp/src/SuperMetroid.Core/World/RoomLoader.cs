@@ -266,7 +266,7 @@ internal sealed class RoomLoader
     internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus())
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
@@ -302,7 +302,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a loadout already granted to her is not granted again.
         // Initialization clears Pose; the port's constructor defaults to the right-facing pose.
-        var samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus()) { Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge) { Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _assists.CarryLoadoutGrant(carried, samus);
@@ -925,7 +925,7 @@ internal sealed class RoomLoader
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
-        _player.Samus?.Shinespark.BindProjectileOwners(_beamCharge, bombs.PowerBombExplosion);
+        _player.Samus?.Shinespark.BindProjectileOwners(bombs.PowerBombExplosion);
 
         // The room-object loader walks this list once. Each record allocates
         // the highest free one of forty IDs before its setup executes. Immediate
@@ -1131,7 +1131,7 @@ internal sealed class RoomLoader
         if (_room.ActiveRoom is null || _room.ActiveLoadStation is null)
             throw new InvalidOperationException("The starting Ceres room must be loaded before Samus setup.");
 
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus())
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence, SamusCompatibility.ForNewSamus(), _beamCharge)
         {
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,

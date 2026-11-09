@@ -26,7 +26,7 @@ internal static class GameSaveJsonVerification
         if (!File.Exists(romPath))
             throw new FileNotFoundException("JSON save verification requires the private retail ROM.", romPath);
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState())
         {
             Health = 94,
             MaxHealth = 199,
@@ -223,7 +223,7 @@ internal static class GameSaveJsonVerification
     {
         AreaMapPresentation maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
         var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = ushort.MaxValue };
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
             new SaveSnapshotContext { Area = AreaId.Maridia, SaveStation = SaveFieldValue.MaximumValue }) with

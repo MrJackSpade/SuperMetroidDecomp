@@ -28,7 +28,7 @@ internal static class StatueWalkDefinitionsVerification
         slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(slot, true);
         var statue = new ChozoStatueState();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState());
         for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
         {
             int offset = step * 2;

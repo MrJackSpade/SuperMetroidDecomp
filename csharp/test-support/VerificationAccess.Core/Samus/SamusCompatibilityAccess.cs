@@ -12,7 +12,7 @@ internal static class SamusCompatibilityAccess
         /// <summary>Publishes <paramref name="count"/> as her beam charge, as the projectile pass does, and returns her.</summary>
         internal SamusState WithBeamChargeCount(int count)
         {
-            self.BeamChargeCount.Publish(count);
+            self.BeamCharge.FlareCounter = count;
             return self;
         }
 

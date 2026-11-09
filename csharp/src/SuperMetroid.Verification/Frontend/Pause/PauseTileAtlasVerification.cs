@@ -27,8 +27,8 @@ internal static class PauseTileAtlasVerification
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {
             var system = new SharedGameState(new SharedRandom()); system.SetAreaMapAcquired(area);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
-            var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
+            var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
             var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
             int toMap = 2 + PausePageTransitionNativeLength + 1;

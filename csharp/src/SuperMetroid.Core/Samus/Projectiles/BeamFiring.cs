@@ -59,7 +59,6 @@ internal sealed class BeamFiring
     {
         _charge.ChargePaletteStep = 0;
         _charge.FlareCounter = 0;
-        samus.BeamChargeCount.Clear();
         _animation.ClearFlareAnimationState();
         ProjectileAnimation.LoadNormalSuitPalette(colours, samus);
     }

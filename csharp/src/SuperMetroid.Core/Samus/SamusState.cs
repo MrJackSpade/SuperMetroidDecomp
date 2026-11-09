@@ -300,11 +300,11 @@ public sealed class SamusState
     public SamusBeamFlags CollectedBeams { get; set; }
 
     /// <summary>
-    /// The beam charge as her movement, bombs and sounds read it: at least 60 is a full charge, which makes her spin and
-    /// wall jump a pseudo Screw Attack. The projectile pass publishes the beam's charge into it, and her other sequences
-    /// clear it.
+    /// The beam's charge (#1577): the session's one count, which the projectile pass advances and her movement, bombs,
+    /// sounds and palettes read; at least 60 is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
+    /// Every clear, hers or the projectiles', clears it for every reader.
     /// </summary>
-    public SharedBeamChargeCount BeamChargeCount { get; }
+    internal SuperMetroid.Core.Samus.Projectiles.BeamChargeState BeamCharge { get; }
 
     /// <summary>
     /// The shared bomb-spread charge timeout. The game clears this
@@ -522,9 +522,11 @@ public sealed class SamusState
     /// <param name="animationContinuation">What an animation frame past her pose's program reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
+    /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
     internal SamusState(LaidOutProgramContinuation<SamusPoseId, SamusAnimationProgramStep> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence,
-        SamusCompatibility compatibility)
+        SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge)
     {
+        BeamCharge = Ensure.NotNull(beamCharge);
         AnimationContinuation = Ensure.NotNull(animationContinuation);
         UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         Ensure.NotNull(compatibility);
@@ -532,7 +534,6 @@ public sealed class SamusState
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;
         HurtFlash = compatibility.HurtFlash;
-        BeamChargeCount = compatibility.BeamChargeCount;
         Shinespark = new SamusShinesparkState(compatibility.SparkCarryover);
         CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount);
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);

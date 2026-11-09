@@ -35,7 +35,7 @@ internal static class DraygonStateQuantitiesVerification
     private static void VerifyAttachedGoopCountdown()
     {
         (RoomEnemySystem enemies, _) = NewDraygon();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { XSpeedDivisor = 1 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { XSpeedDivisor = 1 };
         RoomEnemyProjectileSlot goop = AttachedGoop(enemies, lifetime: 2);
         enemies.DraygonBehavior.Goop.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
@@ -92,7 +92,7 @@ internal static class DraygonStateQuantitiesVerification
         Position16<RoomPixels> center = state.SpiralCenter.Whole;
         state.Function = DraygonAiFunction.FlailWithSamus;
 
-        enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()));
+        enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()));
 
         Position16<RoomPixels> expectedBody = center + new Offset16<RoomPixels>(
             unchecked((short)EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(angle), radiusWhole)),
@@ -140,7 +140,7 @@ internal static class DraygonStateQuantitiesVerification
         const ushort resetX = 65456, resetY = 128;
         state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
         state.SwoopAcceleration = new EightEightVector<RoomPixels>(0, 40);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState()) { Position = FixedPosition<RoomPixels>.FromWhole(new(200, 400)) };
 
         DraygonSwoops.BuildDraygonSwoopYPositions(state, samus);
 

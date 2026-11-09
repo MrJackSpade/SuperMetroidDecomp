@@ -144,16 +144,19 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     }
 
     /// <summary>
-    /// The object's words, in the order <see cref="Of(DemoInputState)"/> gives a typed object's. The initialization
+    /// The object's words, in the order <see cref="Of(DemoInputState, ushort)"/> gives a typed object's. The initialization
     /// parameter is left out: every object's initializer returns at once, so nothing reads it.
     /// </summary>
     internal string Snapshot() =>
         $"{Enabled}/{FrameBehaviorPointer}/{InstructionPointer}/{FrameHold.RawValue}/" +
         $"{Timer.RawValue}/{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousHeld}/{PublishedPreviousNewlyPressed}";
 
-    /// <summary>A typed object's words: its cursor as the native instruction pointer and its buttons as joypad words.</summary>
-    internal static string Of(DemoInputState state) =>
-        $"{state.Enabled}/{DemoInputNativeListAddresses.FrameBehaviorAddress(state.FrameBehavior)}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
+    /// <summary>
+    /// A typed playback's words: what its owner watches for as <paramref name="frameBehavior"/>, the native pre-instruction
+    /// word it stands for, its cursor as the native instruction pointer and its buttons as joypad words.
+    /// </summary>
+    internal static string Of(DemoInputState state, ushort frameBehavior) =>
+        $"{state.Enabled}/{frameBehavior}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
         $"{state.FrameHold.RawValue}/{state.Timer.RawValue}/{ControllerWordCodec.ToJoypadWord(state.Held)}/{ControllerWordCodec.ToJoypadWord(state.NewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PreviousHeld)}/" +
         $"{ControllerWordCodec.ToJoypadWord(state.PreviousNewlyPressed)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousHeld)}/{ControllerWordCodec.ToJoypadWord(state.PublishedPreviousNewlyPressed)}";
 

@@ -3,23 +3,25 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The demo-controller object, running a typed <see cref="DemoInputProgram"/> (#1300).
+/// A demo's recorded-input playback, running a typed <see cref="DemoInputProgram"/> (#1300).
 /// </summary>
 /// <remarks>
-/// The object's per-frame behaviour step is the owner's: each step hands it to the owner's callback, which may redirect the
-/// object, and the program's cues go to the owner as the object's private routines did. The object's own frame
-/// hold gates the program, so each input lasts exactly as long as its recorded input.
+/// The playback holds only the recording: where it is, how long the current input lasts and the controller words it
+/// publishes. What a demo watches for before each step (the title leaving, Samus reaching her scripted place) is its
+/// owner's own state (#1554): the owner checks it while <see cref="IsPlaying"/>, may switch the playback to another
+/// recording, and then steps it; the recording's cues go to the owner. The playback's own frame hold gates the
+/// recording, so each input lasts exactly as long as its recorded input.
 /// </remarks>
 public sealed class DemoInputState
 {
-    /// <summary>High-bit enable flag set when a demo object is created.</summary>
+    /// <summary>Whether the playback runs: set when a demo starts, cleared when its recording ends the demo's input.</summary>
     public bool Enabled { get; private set; }
 
-    /// <summary>Object-specific routine its owner runs before the shared instruction timer.</summary>
-    public DemoInputFrameBehavior FrameBehavior { get; private set; }
-
-    /// <summary>Where the object's program resumes; null once the object is deleted.</summary>
+    /// <summary>Where the recording resumes; null once the recording has ended.</summary>
     internal AnimationProgramCursor<DemoInputProgram>? Cursor { get; private set; }
+
+    /// <summary>Whether the next <see cref="Step"/> plays the recording: the playback runs and its recording has not ended.</summary>
+    public bool IsPlaying => Enabled && Cursor is not null;
 
     /// <summary>Frames remaining in the active input record, wrapping at sixteen bits.</summary>
     public WrappingCountdown FrameHold { get; private set; }
@@ -39,14 +41,10 @@ public sealed class DemoInputState
     /// <summary>Previous demo-edge word retained by the publication seam.</summary>
     public ControllerButton PreviousNewlyPressed { get; private set; }
 
-    /// <summary>
-    /// Prior held word published to <c>joypad1_input_samusfilter</c> for this handler call.
-    /// </summary>
+    /// <summary>The held word published before this step, which Samus's input filter reads as the previous held input.</summary>
     public ControllerButton PublishedPreviousHeld { get; private set; }
 
-    /// <summary>
-    /// Prior edge word published to <c>joypad1_newinput_samusfilter</c> for this call.
-    /// </summary>
+    /// <summary>The edge word published before this step, which Samus's input filter reads as the previous new input.</summary>
     public ControllerButton PublishedPreviousNewlyPressed { get; private set; }
 
     /// <summary>
@@ -55,7 +53,6 @@ public sealed class DemoInputState
     public void Clear()
     {
         Enabled = false;
-        FrameBehavior = DemoInputFrameBehavior.None;
         Cursor = null;
         FrameHold = WrappingCountdown.Start(0);
         Timer = WrappingCountdown.Start(0);
@@ -67,52 +64,43 @@ public sealed class DemoInputState
         PublishedPreviousNewlyPressed = 0;
     }
 
-    /// <summary>Creates the demo object; loading and enabling remain separate steps.</summary>
+    /// <summary>Starts the playback; loading and enabling remain separate steps.</summary>
     public void Enable() => Enabled = true;
 
-    /// <summary>Disables the demo object without discarding its loaded state.</summary>
+    /// <summary>Stops the playback without discarding its loaded recording.</summary>
     public void Disable() => Enabled = false;
 
-    /// <summary>
-    /// Loads an object: its per-frame behaviour step and animation script, with the first record due on the next
-    /// step. Every object's initializer does nothing, so no initialization parameter is kept.
-    /// </summary>
-    public void Load(DemoInputObjectDefinition definition)
+    /// <summary>Loads <paramref name="program"/>, with its first record due on the next step.</summary>
+    public void Load(DemoInputProgram program)
     {
-        FrameBehavior = definition.FrameBehavior;
-        Cursor = AnimationProgramCursor<DemoInputProgram>.Start(definition.Program);
+        Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);
         FrameHold = WrappingCountdown.Start(1);
         Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>
-    /// Applies an object-specific pre-instruction redirect to the shared object words.
+    /// Switches the playback to <paramref name="program"/>, whose first record is due after <paramref name="frameHold"/>
+    /// steps, as an owner's watch does before a step.
     /// </summary>
     /// <remarks>
-    /// Redirects such as the shinespark demo's update all three words synchronously. Providing one method
-    /// prevents a host callback from publishing a new list with a stale countdown for one
-    /// frame, a state the game cannot expose.
+    /// The recording and its countdown change together, so a switch never publishes the new recording with the old
+    /// countdown for one step, a state the game cannot expose.
     /// </remarks>
-    public void Redirect(DemoInputFrameBehavior frameBehavior, DemoInputProgram program, int frameHold = 1)
+    public void SwitchTo(DemoInputProgram program, int frameHold = 1)
     {
-        FrameBehavior = frameBehavior;
         Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);
         FrameHold = WrappingCountdown.FromRaw(frameHold);
     }
 
     /// <summary>
-    /// Runs one demo step and publishes the resulting controller words. The owner runs the object's
-    /// pre-instruction in <paramref name="frameBehavior"/> and its private routines in <paramref name="cue"/>.
+    /// Plays one step of the recording and publishes the resulting controller words. The owner runs the recording's cues
+    /// in <paramref name="cue"/>. The owner checks what it watches for before this step, while <see cref="IsPlaying"/>.
     /// </summary>
-    public void Step(Action<DemoInputState, DemoInputFrameBehavior> frameBehavior, Action<DemoInputCue> cue)
+    public void Step(Action<DemoInputCue> cue)
     {
-        Ensure.NotNull(frameBehavior);
         Ensure.NotNull(cue);
         if (!Enabled || Cursor is not { } cursor)
             return;
-
-        frameBehavior(this, FrameBehavior);
-        cursor = Cursor ?? throw new InvalidOperationException("A demo pre-instruction deleted its object.");
 
         // The countdown is a wrapping 16-bit word. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
@@ -153,14 +141,5 @@ public sealed class DemoInputState
         PublishedPreviousNewlyPressed = PreviousNewlyPressed;
         PreviousHeld = Held;
         PreviousNewlyPressed = NewlyPressed;
-    }
-
-    /// <summary>
-    /// The pre-instruction of an object whose owner has none of its own: only the return-only routine may be installed.
-    /// </summary>
-    public static void RunReturnOnlyFrameBehavior(DemoInputState _, DemoInputFrameBehavior frameBehavior)
-    {
-        if (frameBehavior != DemoInputFrameBehavior.ReturnOnly)
-            throw new InvalidOperationException($"Demo-input pre-instruction {frameBehavior} was not supplied by the owning object.");
     }
 }

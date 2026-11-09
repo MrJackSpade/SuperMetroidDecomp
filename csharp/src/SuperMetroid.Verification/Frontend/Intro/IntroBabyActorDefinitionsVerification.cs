@@ -19,12 +19,12 @@ internal static class IntroBabyActorDefinitionsVerification
     internal static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        // Hold the pre-instruction inert so the initial running-left loop is exercised
-        // independently of Samus's position-dependent stop-and-look redirect.
+        // Play the recording without its owner's watch, so the initial running-left loop is exercised
+        // independently of Samus's position-dependent stop-and-look switch.
         var compiledInput = new DemoInputState();
         compiledInput.Clear();
         compiledInput.Enable();
-        compiledInput.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery);
+        compiledInput.Load(DemoInputProgram.IntroBabyDiscoveryRunningLeft);
         ushort NativeInputWord(ushort pointer) =>
             LittleEndianBytes.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))));
         var cartridgeInput = new NativeDemoInputReference(NativeInputWord);
@@ -32,9 +32,9 @@ internal static class IntroBabyActorDefinitionsVerification
         cartridgeInput.Load(DemoInputListWords.IntroBabyDiscoveryObject, initializationParameter: 0);
         for (int frame = 0; frame < 128; frame++)
         {
-            compiledInput.Step((_, _) => { }, cue => throw new InvalidOperationException($"SR388 running-left loop called {cue}."));
+            compiledInput.Step(cue => throw new InvalidOperationException($"SR388 running-left loop called {cue}."));
             cartridgeInput.Step((_, _) => { }, NativeDemoInputReference.NoRoutines);
-            AssertEqual(cartridgeInput.Snapshot(), NativeDemoInputReference.Of(compiledInput),
+            AssertEqual(cartridgeInput.Snapshot(), NativeDemoInputReference.Of(compiledInput, DemoInputNativeListAddresses.PhaseAddress(IntroBabyDiscoveryDemoPhase.RunningLeft)),
                 $"SR388 initial demo loop object at frame {frame}");
         }
         // Native cinematic-object definitions $8B:CE5B/CE61/CE67/CE79, in compiled order.

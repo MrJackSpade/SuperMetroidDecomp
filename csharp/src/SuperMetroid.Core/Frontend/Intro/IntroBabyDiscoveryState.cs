@@ -20,6 +20,8 @@ internal sealed class IntroBabyDiscoveryState
     private readonly AudioQueues? audio;
     /// <summary>Feeds the scripted pose and movement input to Samus.</summary>
     internal readonly DemoInputState demo = new();
+    /// <summary>What the scripted input watches for before its next step.</summary>
+    internal IntroBabyDiscoveryDemoPhase DemoPhase { get; private set; } = IntroBabyDiscoveryDemoPhase.RunningLeft;
     /// <summary>Particles emitted when the egg begins hatching.</summary>
     internal readonly List<IntroEggParticle> eggParticles = [];
     /// <summary>Drops emitted as the baby rises past the hatch scanline.</summary>
@@ -67,7 +69,7 @@ internal sealed class IntroBabyDiscoveryState
 
         demo.Clear();
         demo.Enable();
-        demo.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery);
+        demo.Load(DemoInputProgram.IntroBabyDiscoveryRunningLeft);
     }
 
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
@@ -103,7 +105,9 @@ internal sealed class IntroBabyDiscoveryState
         {
             // The demo pose-input handler runs DemoInputObjectHandler inside Samus's
             // current-state handler, ahead of her pose input and movement.
-            demo.Step((_, frameBehavior) => RunDemoFrameBehavior(frameBehavior, introCrossfadeTimer), HandleDemoCue);
+            if (demo.IsPlaying)
+                CheckDemoPhase(introCrossfadeTimer);
+            demo.Step(HandleDemoCue);
             // The current-state handler ends with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
@@ -175,36 +179,35 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Draw(objects, eggEffectArt);
     }
 
-    /// <summary>Changes the demo from running to waiting or ending at its scripted position and crossfade edges.</summary>
-    private void RunDemoFrameBehavior(DemoInputFrameBehavior frameBehavior, int introCrossfadeTimer)
+    /// <summary>
+    /// Moves the scripted input from running to stopping and looking once Samus passes her scripted place, and from
+    /// looking to its ending once the crossfade finishes. Runs before the input's step, in the same step.
+    /// </summary>
+    private void CheckDemoPhase(int introCrossfadeTimer)
     {
-        // The Baby-discovery object holds only its own two routines or the return-only one.
-        switch (frameBehavior)
+        switch (DemoPhase)
         {
-            case DemoInputFrameBehavior.IntroBabyRunningLeft:
+            case IntroBabyDiscoveryDemoPhase.RunningLeft:
                 if (Samus.Position.X.Whole < 178)
-                    demo.Redirect(
-                        DemoInputFrameBehavior.IntroBabyStopAndLook,
-                        DemoInputProgram.IntroBabyDiscoveryStopAndLook);
+                {
+                    DemoPhase = IntroBabyDiscoveryDemoPhase.StoppedAndLooking;
+                    demo.SwitchTo(DemoInputProgram.IntroBabyDiscoveryStopAndLook);
+                }
                 return;
 
-            case DemoInputFrameBehavior.IntroBabyStopAndLook:
+            case IntroBabyDiscoveryDemoPhase.StoppedAndLooking:
                 if (introCrossfadeTimer == 0)
-                    demo.Redirect(
-                        DemoInputFrameBehavior.ReturnOnly,
-                        DemoInputProgram.IntroBabyDiscoveryEnd);
+                {
+                    DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
+                    demo.SwitchTo(DemoInputProgram.IntroBabyDiscoveryEnd);
+                }
                 return;
 
-            case DemoInputFrameBehavior.ReturnOnly:
+            case IntroBabyDiscoveryDemoPhase.Ending:
                 return;
-
-            case DemoInputFrameBehavior.None:
-            case DemoInputFrameBehavior.AttractCheckLeave:
-            case DemoInputFrameBehavior.AttractShinespark:
-                throw new InvalidOperationException($"The Baby-discovery demo object cannot hold the {frameBehavior} pre-instruction.");
 
             default:
-                throw new InvalidOperationException($"Undefined {nameof(DemoInputFrameBehavior)} {frameBehavior}.");
+                throw new InvalidOperationException($"Undefined {nameof(IntroBabyDiscoveryDemoPhase)} {DemoPhase}.");
         }
     }
 

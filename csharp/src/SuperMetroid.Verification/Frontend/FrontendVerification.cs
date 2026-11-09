@@ -457,7 +457,7 @@ internal static void VerifyDemoInputObject()
     var demo = new DemoInputState();
     demo.Clear();
     demo.Enable();
-    demo.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
+    demo.Load(DemoInputProgram.IntroMotherBrainFlashback);
 
     // The first six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code, not this program, decides each shot.
@@ -478,7 +478,7 @@ internal static void VerifyDemoInputObject()
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(DemoInputState.RunReturnOnlyFrameBehavior, EndRoutine);
+            demo.Step(EndRoutine);
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -496,7 +496,7 @@ internal static void VerifyDemoInputObject()
 
     // $8739 disables the object and returns into the shared delete in the same handler call.
     for (int frame = 0; frame < 1024 && demo.IsActive; frame++)
-        demo.Step(DemoInputState.RunReturnOnlyFrameBehavior, EndRoutine);
+        demo.Step(EndRoutine);
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");

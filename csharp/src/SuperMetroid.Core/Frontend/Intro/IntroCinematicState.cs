@@ -628,7 +628,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackDemoInput = new DemoInputState();
         CurrentFlashbackDemoInput.Clear();
         CurrentFlashbackDemoInput.Enable();
-        CurrentFlashbackDemoInput.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
+        CurrentFlashbackDemoInput.Load(DemoInputProgram.IntroMotherBrainFlashback);
         // Samus is processed, and drawn ahead of the cinematic objects.
         flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
 
@@ -907,7 +907,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and palette updates for the Mother Brain flashback.</summary>
     internal void StepMotherBrainDemo()
     {
-        FlashbackDemoInput.Step(DemoInputState.RunReturnOnlyFrameBehavior, HandleMotherBrainDemoCue);
+        FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
 
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running

@@ -21,12 +21,12 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         compiled.Clear();
         compiled.Enable();
         reference.Enable();
-        compiled.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
+        compiled.Load(DemoInputProgram.IntroMotherBrainFlashback);
         reference.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
-            compiled.Step(DemoInputState.RunReturnOnlyFrameBehavior, cue =>
+            compiled.Step(cue =>
             {
                 AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, $"intro Mother Brain demo routine frame {frame}");
                 compiled.Disable();
@@ -36,7 +36,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
                 AssertEqual(DemoInputListWords.EndIntroMotherBrainFlashbackRoutine, routine, $"intro Mother Brain native routine frame {frame}");
                 state.Disable();
             });
-            AssertEqual(reference.Snapshot(), NativeDemoInputReference.Of(compiled), $"intro Mother Brain demo object frame {frame}");
+            AssertEqual(reference.Snapshot(), NativeDemoInputReference.Of(compiled, DemoInputNativeListAddresses.ReturnOnlyAddress), $"intro Mother Brain demo object frame {frame}");
             if (!compiled.IsActive)
             {
                 endFrame = frame;
@@ -57,7 +57,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         nativeFirst.Enable();
         nativeFirst.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
         nativeFirst.Step(NativeDemoInputReference.ReturnOnly, NativeDemoInputReference.NoRoutines);
-        AssertEqual(nativeFirst.Snapshot(), NativeDemoInputReference.Of(live), "production flashback plays the native first record");
+        AssertEqual(nativeFirst.Snapshot(), NativeDemoInputReference.Of(live, DemoInputNativeListAddresses.ReturnOnlyAddress), "production flashback plays the native first record");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "production flashback reads no guarded intro source");
     }
 }

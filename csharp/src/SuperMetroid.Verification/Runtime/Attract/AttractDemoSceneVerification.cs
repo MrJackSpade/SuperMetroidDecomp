@@ -31,7 +31,7 @@ internal static class AttractDemoSceneVerification
         WriteRomWord(rom, AttractDemoSceneSources.EquipmentSetPointers, 0xa000);
         WriteRomWord(rom, AttractDemoSceneSources.SamusSetupSetPointers, 0xb000);
         ushort[] room = [0x91f8, 0x896a, 1, 0x100, 0x200, 0x40, 0xffd2, 0x151, 0x8924];
-        ushort inputObject = DemoInputObjectDefinitions.NativeHeaderOf(DemoInputObjectDefinitions.AttractLandingSite);
+        ushort inputObject = AttractDemoInputDefinitions.NativeHeaderOf(AttractDemoInputDefinitions.AttractLandingSite);
         ushort[] equipment = [0x3105, 10, 5, 2, 399, 0x100f, 0x100b, inputObject];
         for (int word = 0; word < room.Length; word++) WriteRomWord(rom, 0x829000 + word * 2, room[word]);
         for (int word = 0; word < equipment.Length; word++) WriteRomWord(rom, 0x91a000 + word * 2, equipment[word]);
@@ -50,7 +50,7 @@ internal static class AttractDemoSceneVerification
             ControllerWordCodec.ToJoypadWord(ControllerButton.Right));
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(RoomHeaderDefinitions.LandingSite, CrateriaDoorDefinitions.Parlor1, new(0x100, 0x200), new(-46, 0x40),
-            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), 10, 5, 2, 399, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Plasma, DemoInputObjectDefinitions.AttractLandingSite);
+            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), 10, 5, 2, 399, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Plasma, AttractDemoInputDefinitions.AttractLandingSite);
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");
         if (expected.SamusPosition != new Position16<RoomPixels>(338, 576))
@@ -151,8 +151,8 @@ internal static class AttractDemoSceneVerification
                 var movement = frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing;
                 reference.Step(gameState, movement);
                 compiled.StepStock(gameState, movement);
-                AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script),
-                    $"compiled attract {scene.InputObject.Program}, leave {leaveFrame}, frame {frame}");
+                AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script, DemoInputNativeListAddresses.WatchAddress(compiled.Watch)),
+                    $"compiled attract {scene.Input.Program}, leave {leaveFrame}, frame {frame}");
             }
         }
     }

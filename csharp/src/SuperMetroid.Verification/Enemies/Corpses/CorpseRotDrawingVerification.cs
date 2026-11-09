@@ -10,7 +10,6 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -18,213 +17,191 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.Corpses;
 
 /// <summary>
-/// Confirms every rotting corpse's frame draws, at every rot call, as the game's character rot leaves it (#1531): the
-/// installed sheet's one picture of the frame, drawn through the rows Core's rot leaves and where the sheet says the
-/// corpse lies in it, paints at every screen pixel the colour the frame's parts paint over the sprite characters the
-/// character rot oracle leaves (<see cref="CorpseCharacterRot"/>). It covers both dead Sidehoppers, every dead Zoomer, Ripper
-/// and Skree, the dead Torizo's body and its hook's sand, each half as its main-AI calls last uploaded it, and Mother
-/// Brain's corpse, whose last rot call is never shown, and which keeps its whole picture through her escape's pages.
+/// Confirms every rotting corpse is drawn whole, from its own rot state, at every rot call (#1539): the installed sheet's one
+/// picture of each corpse frame, drawn through the rows the corpse's own rot leaves and where the sheet says the corpse
+/// lies in it, shows at every pixel the unrotted picture's pixel of the row the authored rot has moved there, across the
+/// whole picture, or nothing where it has cleared it. The authored rot is restated here: each move copies a row onto the
+/// row below it, the corpse's last row landing nowhere, and a move, rather than a copy, then clears it. It covers both dead
+/// Sidehoppers, every dead Zoomer, Ripper and Skree, the dead Torizo's body and its hook's sand heap, and Mother Brain's
+/// corpse; and that two corpses of one kind rot apart.
 /// </summary>
 internal static class CorpseRotDrawingVerification
 {
     /// <summary>The screen point every compared draw's origin lands on.</summary>
     private static readonly Position16<ScreenPixels> Origin = new(128, 112);
 
-    /// <summary>Draws every corpse frame at every rot call and compares it with the character rot oracle.</summary>
+    /// <summary>Draws every corpse frame at every rot call and compares it with the authored rot of its whole picture.</summary>
     internal static void VerifyCorpseRotDrawing()
     {
         InstalledEnemySheets sheets = InstalledFixtures.EnemySheets;
-        EnemyTileSourceArtwork enemies = InstalledFixtures.EnemyTiles;
-        int compared = 0;
-        foreach (int graphicsVariant in new[] { 0, 2 })
-        {
-            DeadSidehopperCorpseDefinition definition = graphicsVariant == 0
-                ? DeadSidehopperCorpseDefinitions.InitiallyAlive : DeadSidehopperCorpseDefinitions.InitiallyDead;
-            compared += VerifyDeadMonster(sheets, EnemyDefinitionId.CorpseSidehopper, definition.RowCount,
-                CorpseCharacterRot.Sidehopper(enemies, graphicsVariant));
-        }
+        int compared = VerifyDeadMonster(sheets, EnemyDefinitionId.CorpseSidehopper, DeadSidehopperCorpseDefinitions.RowCount);
         foreach (EnemyDefinitionId enemy in new[] { EnemyDefinitionId.CorpseZoomer, EnemyDefinitionId.CorpseRipper, EnemyDefinitionId.CorpseSkree })
         {
             DeadTourianBehavior.DeadTourianCorpseProfile profile = DeadTourianBehavior.ProfileForDeadTourianCorpse(enemy);
-            for (int variant = 0; variant < DeadTourianCorpses.VariantCount(profile.Species); variant++)
-            {
-                compared += VerifyDeadMonster(sheets, enemy, DeadTourianCorpses.For(profile.Species, variant).RowCount,
-                    CorpseCharacterRot.Tourian(enemies, profile.Species, variant));
-            }
+            foreach (int rowCount in Enumerable.Range(0, DeadTourianCorpses.VariantCount(profile.Species))
+                .Select(variant => DeadTourianCorpses.For(profile.Species, variant).RowCount).Distinct())
+                compared += VerifyDeadMonster(sheets, enemy, rowCount);
         }
-        compared += VerifyDeadTorizo(sheets, CorpseCharacterRot.Torizo(enemies));
-        compared += VerifyMotherBrain(sheets, CorpseCharacterRot.MotherBrain(InstalledFixtures.BossArtwork));
-        Console.WriteLine($"  Corpse rot drawing: {compared} draws of every corpse frame at every rot call paint as the game's character rot leaves them.");
+        compared += VerifyDeadTorizo(sheets);
+        compared += VerifyMotherBrain(sheets);
+        VerifyCorpsesOfOneKindRotApart();
+        Console.WriteLine($"  Corpse rot drawing: {compared} draws of every corpse frame at every rot call show the whole picture as its own rot leaves it.");
     }
 
     /// <summary>
-    /// Rots one dead monster's rows as Core does, its rows uploaded after every rot call, and compares each of its frames
-    /// that reads them at every call.
+    /// Rots a dead monster's own rows as its rot calls do and compares each of its frames that shows the corpse at every call,
+    /// from before the first.
     /// </summary>
-    private static int VerifyDeadMonster(InstalledEnemySheets sheets, EnemyDefinitionId enemy, int rowCount, CorpseCharacterRot oracle)
+    private static int VerifyDeadMonster(InstalledEnemySheets sheets, EnemyDefinitionId enemy, int rowCount)
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, enemy);
-        byte[] loaded = Loaded(set, []);
-        EnemyFrameId[] frames = [.. CorpseFrames(sheets, set, enemy).Where(frame => Reads(set, enemy, frame, oracle, loaded))];
-        AssertTrue(frames.Length > 0, $"{oracle.Name}'s rows show in a frame of {enemy}");
+        EnemyFrameId[] frames = [.. CorpseFrames(sheets, set, enemy)];
+        AssertTrue(frames.Length > 0, $"a frame of {enemy} shows its corpse");
         var rows = new RottingCorpseRows(rowCount);
+        var authored = new AuthoredRot(rowCount);
         var schedule = new CorpseRotSchedule(rowCount);
         int compared = 0;
-        for (int call = 0; call <= oracle.CallCount; call++)
+        bool rotting = true;
+        for (int call = 0; rotting; call++)
         {
             if (call > 0)
-            {
-                bool rotting = schedule.Step(rows.MoveRow, _ => { });
-                AssertEqual(call < oracle.CallCount, rotting, $"{oracle.Name} rots for as many calls as the oracle's");
-            }
-            byte[] characters = oracle.Characters(loaded, call);
+                rotting = schedule.Step((row, operation) => { rows.MoveRow(row, operation); authored.Move(row, operation); }, _ => { });
             foreach (EnemyFrameId frame in frames)
-                compared += AssertDrawsAsRotted(sheets.For(set, enemy).Frame, sheets.CorpseLayout(set, enemy, EnemySheetDefinitions.FrameName(frame)),
-                    EnemySheetDefinitions.FrameName(frame), rows.Shown, characters, frame, TileBase(set, enemy), $"{oracle.Name} {frame} after rot call {call}");
+            {
+                string picture = EnemySheetDefinitions.FrameName(frame);
+                compared += AssertDrawsWhole(sheets.For(set, enemy).Frame(picture), sheets.CorpsePlacement(set, enemy, picture), rows.Shown,
+                    authored, $"{enemy} {frame} after rot call {call}");
+            }
         }
         return compared;
     }
 
     /// <summary>
-    /// Rots the dead Torizo as Core does, showing one half each main-AI call, and compares its body frame and its hook at
-    /// each call, from its intact calls to the calls after its rot has finished.
+    /// Rots the dead Torizo through its own rot calls and compares its body frame and its hook's sand heap at each call,
+    /// from the intact corpse to its finished rot: the body is its own rows whole, and the heap shows a line more every
+    /// fifteenth call.
     /// </summary>
-    private static int VerifyDeadTorizo(InstalledEnemySheets sheets, CorpseCharacterRot oracle)
+    private static int VerifyDeadTorizo(InstalledEnemySheets sheets)
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.CorpseTorizo);
-        byte[] loaded = Loaded(set, []);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount));
+        var authored = new AuthoredRot(DeadTorizoCorpseDefinitions.RowCount);
         string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStationary);
         string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.HookFrame);
         SpriteSheet bodySheet = sheets.For(set, EnemyDefinitionId.CorpseTorizo);
         SpawnedObjectSheet hookSheet = sheets.Spawned(set, SpawnedObjectOwner.Shared);
-        int tileBase = TileBase(set, EnemyDefinitionId.CorpseTorizo);
         int compared = 0;
-        int update = 0;
-
-        // Each main-AI call shows the next half: two while the corpse is intact, one after each rot call, and two once its
-        // rot has finished.
-        void ShowNextHalf()
-        {
-            DeadTorizoBehavior.ShowNextRotHalf(state);
-            byte[] characters = oracle.Characters(loaded, state.EvenHalfStep, state.OddHalfStep);
-            string context = $"dead Torizo after main-AI call {update++}";
-            compared += AssertDrawsAsRotted(bodySheet.Frame, sheets.CorpseLayout(set, EnemyDefinitionId.CorpseTorizo, body), body,
-                DeadTorizoBehavior.ShownBody(state), characters, EnemyFrameId.DeadTorizoStationary, tileBase, context);
-            compared += AssertDrawsAsRotted(hookSheet.Frame, sheets.SpawnedCorpseLayout(set, SpawnedObjectOwner.Shared, hook), hook,
-                DeadTorizoBehavior.ShownSand(state), characters, DeadTorizoArtworkDefinitions.HookFrame, 0, $"{context}'s hook");
-        }
-
-        ShowNextHalf();
-        ShowNextHalf();
         bool rotting = true;
-        while (rotting)
+        while (true)
         {
+            int calls = checked((int)state.ProcessCallCount);
+            compared += AssertDrawsWhole(bodySheet.Frame(body), sheets.CorpsePlacement(set, EnemyDefinitionId.CorpseTorizo, body), state.Rows.Shown,
+                authored, $"dead Torizo after rot call {calls}");
+            compared += AssertDrawsWhole(hookSheet.Frame(hook), sheets.SpawnedCorpsePlacement(set, SpawnedObjectOwner.Shared, hook),
+                DeadTorizoBehavior.ShownSand(state), AuthoredRot.Sand(calls), $"dead Torizo's hook after rot call {calls}");
+            if (!rotting)
+                break;
             state.ProcessCallCount++;
-            rotting = state.Rot.Step((row, operation) => state.Rows.MoveRow(row, operation), _ => { });
-            ShowNextHalf();
+            rotting = state.Rot.Step((row, operation) => { state.Rows.MoveRow(row, operation); authored.Move(row, operation); }, _ => { });
         }
-        ShowNextHalf();
-        ShowNextHalf();
-        AssertEqual(oracle.CallCount, checked((int)state.ProcessCallCount), "the dead Torizo rots for as many calls as the oracle's");
         return compared;
     }
 
-    /// <summary>
-    /// Rots Mother Brain's corpse as Core does, over her corpse's look, and compares her corpse frame at every call; her
-    /// corpse frame has one finished picture, which no later look changes, so it shows her whole corpse through its rows,
-    /// never the escape's pages copied over its characters (#1538).
-    /// </summary>
-    private static int VerifyMotherBrain(InstalledEnemySheets sheets, CorpseCharacterRot oracle)
+    /// <summary>Rots Mother Brain's corpse through its own rot calls and compares her corpse frame at every call, from before the first.</summary>
+    private static int VerifyMotherBrain(InstalledEnemySheets sheets)
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.MotherBrainHead);
         string name = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainHead12);
         AssertEqual(0, sheets.ChangingEncounters(set, EnemyDefinitionId.MotherBrainHead, name).Count,
             "Mother Brain's corpse frame has one finished picture, which no later look changes");
         SpriteSheet sheet = sheets.For(set, EnemyDefinitionId.MotherBrainHead);
-        int tileBase = TileBase(set, EnemyDefinitionId.MotherBrainHead);
-        byte[] loaded = EnemySheetFixtures.LivePage(set, ComposedEncounter.MotherBrain,
-                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook))
-            .Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
         var rotting = new MotherBrainCorpseRottingState();
+        var authored = new AuthoredRot(MotherBrainCorpseRottingState.EntryCount);
         int compared = 0;
-        for (int call = 0; call <= oracle.CallCount; call++)
+        bool still = true;
+        for (int call = 0; still; call++)
         {
             if (call > 0)
-                _ = rotting.Step(new Position16<RoomPixels>(128, 112), MotherBrainRandomSample.FromGenerator(unchecked((ushort)(call * 37))), call);
-            compared += AssertDrawsAsRotted(sheet.Frame, sheets.CorpseLayout(set, EnemyDefinitionId.MotherBrainHead, name), name, rotting.Shown, oracle.Characters(loaded, call),
-                EnemyFrameId.MotherBrainHead12, tileBase, $"Mother Brain's corpse after rot call {call}");
+            {
+                still = rotting.Step(new Position16<RoomPixels>(128, 112), MotherBrainRandomSample.FromGenerator(unchecked((ushort)(call * 37))), call).StillRotting;
+                ReplaySchedule(authored, rotting);
+            }
+            compared += AssertDrawsWhole(sheet.Frame(name), sheets.CorpsePlacement(set, EnemyDefinitionId.MotherBrainHead, name), rotting.Shown,
+                authored, $"Mother Brain's corpse after rot call {call}");
         }
         return compared;
     }
 
     /// <summary>
-    /// Checks picture <paramref name="picture"/>, which <paramref name="pictureOf"/> finds on its sheets, drawn through
-    /// <paramref name="rows"/> as the sheet's <paramref name="layout"/> says, paints the colour <paramref name="frame"/>'s parts
-    /// paint over <paramref name="characters"/> at every screen pixel; before the corpse's rows rot it draws as itself.
+    /// Brings <paramref name="authored"/> to the rot Mother Brain's corpse has taken: her state runs its schedule itself, so the
+    /// authored rot follows a schedule of its own through as many calls.
     /// </summary>
-    private static int AssertDrawsAsRotted(Func<string, SpriteSheetFrame> pictureOf, CorpsePictureLayout? layout, string picture, CorpseRotRows? rows,
-        byte[] characters, EnemyFrameId frame, int tileBase, string context)
+    private static void ReplaySchedule(AuthoredRot authored, MotherBrainCorpseRottingState rotting)
     {
-        AssertTrue(layout is not null, $"{context}: the sheet says where the corpse lies in {picture}");
-        SpriteSheetFrame image = pictureOf(picture);
-        var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), image, Origin, SpriteMirror.None)
+        while (authored.Calls < rotting.ProcessCallCount)
+            authored.Call();
+    }
+
+    /// <summary>
+    /// Two dead Sidehoppers of one kind rot apart (#1539): rotting one through its whole schedule leaves the other's rows every
+    /// one itself, and the other's draw unrotted.
+    /// </summary>
+    private static void VerifyCorpsesOfOneKindRotApart()
+    {
+        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        var rotting = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], 2, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        var intact = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[1], 2, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
+        while (rotting.Rot.Step(rotting.Rows.MoveRow, _ => { }))
         {
-            Shading = PictureShading.Standard,
-            CorpseRot = layout is not null && rows is not null ? CorpseRotDrawing.Picture(layout, rows, image.Size, picture) : null,
-        };
-        CharacterSpriteDraw parts = EnemyPartComposition.Spritemap(ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), characters),
-            draw.Source, InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("The installation holds the enemy compositions."),
-            new EnemySpritemapDraw { Frame = frame, Origin = new(Origin.X, Origin.Y), PaletteBits = 0, BaseTileIndex = tileBase })
-            ?? throw new InvalidOperationException($"{context}: {frame} has parts.");
-        var expected = new Dictionary<ScreenPixel, int>();
-        for (int part = 0; part < parts.Frame.Parts.Length; part++)
+        }
+        AssertTrue(Enumerable.Range(0, DeadSidehopperCorpseDefinitions.RowCount).Any(row => rotting.Rows.Shown.Shown(row) != row),
+            "the rotted corpse's rows have moved");
+        for (int row = 0; row < DeadSidehopperCorpseDefinitions.RowCount; row++)
+            AssertEqual<int?>(row, intact.Rows.Shown.Shown(row), $"the other corpse of the kind still shows its row {row} itself");
+    }
+
+    /// <summary>
+    /// Checks <paramref name="image"/>, in which the corpse lies as <paramref name="placement"/> says, drawn through
+    /// <paramref name="rows"/> as the game draws it, shows at every pixel the unrotted picture's pixel of the row
+    /// <paramref name="authored"/> says has moved there, the same row across the whole picture, or nothing where it has
+    /// cleared it; the renderer draws it so once, part-way through the rot.
+    /// </summary>
+    private static int AssertDrawsWhole(SpriteSheetFrame image, CorpsePicturePlacement? placement, CorpseRotRows rows, AuthoredRot authored, string context)
+    {
+        if (placement is null)
+            throw new InvalidOperationException($"{context}: the sheet does not say where the corpse lies in its picture.");
+        var plain = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), image, Origin, SpriteMirror.None) { Shading = PictureShading.Standard };
+        ImageSpriteDraw draw = plain with { CorpseRot = CorpseRotDrawing.Picture(placement, rows, image.Size) };
+        for (ushort y = 0; y < image.Size.Y; y++)
         {
-            SpriteScreenPart placed = parts.Place(part);
-            for (ushort y = 0; y < placed.Size.Y; y++)
-            for (ushort x = 0; x < placed.Size.X; x++)
+            int? source = authored.PictureRow(placement.Top, y, image.Size.Y);
+            for (ushort x = 0; x < image.Size.X; x++)
             {
-                int character = placed.CharacterAt(new(x, y), out Position16<CharacterPixels> within);
-                int colour = parts.Artwork.ColorIndex(character, within);
-                if (colour != 0)
-                    expected.TryAdd(new ScreenPixel(placed.Position.X + x, placed.Position.Y + y), colour);
+                int want = source is int row ? plain.PaletteIndexAt(new Position16<ScreenPixels>(x, checked((ushort)row))) : 0;
+                int got = draw.PaletteIndexAt(new Position16<ScreenPixels>(x, y));
+                if (want != got)
+                    throw new InvalidOperationException($"{context}: pixel ({x},{y}) shows palette index {got}, where the corpse's own rot leaves {want}.");
             }
         }
-        var actual = new Dictionary<ScreenPixel, int>();
-        for (ushort y = 0; y < image.Size.Y; y++)
-        for (ushort x = 0; x < image.Size.X; x++)
-        {
-            int entry = draw.PaletteIndexAt(new Position16<ScreenPixels>(x, y));
-            if (entry != 0)
-                actual.TryAdd(new ScreenPixel(draw.Corner.X + x, draw.Corner.Y + y), entry % 16);
-        }
-        foreach (ScreenPixel pixel in expected.Keys.Union(actual.Keys))
-        {
-            int? want = expected.TryGetValue(pixel, out int e) ? e : null, got = actual.TryGetValue(pixel, out int g) ? g : null;
-            if (want != got)
-                throw new InvalidOperationException($"{context}: {picture} paints colour {got?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none"} at screen pixel ({pixel.X},{pixel.Y}), where the character rot leaves {want?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none"}.");
-        }
-        if (draw.CorpseRot is { } rot)
-        {
-            rottedComparisons[picture] = rottedComparisons.GetValueOrDefault(picture) + 1;
-            if (rottedComparisons[picture] == ShaderSampleComparison)
-                AssertShaderDrawsAsMapped(draw, rot, context);
-        }
+        string key = context[..context.IndexOf(" after", StringComparison.Ordinal)];
+        rottedComparisons[key] = rottedComparisons.GetValueOrDefault(key) + 1;
+        if (rottedComparisons[key] == ShaderSampleComparison && draw.CorpseRot is { } rot)
+            AssertShaderDrawsAsMapped(draw, rot, context);
         return 1;
     }
 
-    /// <summary>Which rotted comparison of each picture the renderer also draws: one part-way through its rot.</summary>
+    /// <summary>Which comparison of each corpse picture the renderer also draws: one part-way through its rot.</summary>
     private const int ShaderSampleComparison = 8;
 
-    /// <summary>How many rotted comparisons each picture has had, so each is drawn through the renderer once.</summary>
+    /// <summary>How many comparisons each corpse picture has had, so each is drawn through the renderer once.</summary>
     private static readonly Dictionary<string, int> rottedComparisons = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// Checks the renderer draws <paramref name="draw"/> through its column tables (#1531): every screen pixel of the rotted
-    /// draw shows the pixel the unrotted picture shows at the row its column's table maps that row to, and the backdrop
-    /// where the table clears the row. The unrotted picture is drawn once as the reference, so the comparison does not
-    /// depend on how the renderer converts colours.
+    /// Checks the renderer draws <paramref name="draw"/> through its one table of rows (#1539): every screen pixel of the
+    /// rotted draw shows the pixel the unrotted picture shows at the row its table maps that row to, in the same column, and
+    /// the backdrop where the table clears the row. The unrotted picture is drawn once as the reference, so the comparison
+    /// does not depend on how the renderer converts colours.
     /// </summary>
     private static void AssertShaderDrawsAsMapped(ImageSpriteDraw draw, CorpseRotPicture rot, string context)
     {
@@ -241,13 +218,12 @@ internal static class CorpseRotDrawingVerification
                 int screenX = draw.Corner.X + x, screenY = draw.Corner.Y + y;
                 if ((uint)screenX >= DisplayScreen.Width || (uint)screenY >= DisplayScreen.Height)
                     continue;
-                int? source = rot.Shown(rot.TableOf(x / CorpseRotPicture.ColumnPixels), y);
-                RgbaPixel want = source is int row && draw.Corner.Y + row is >= 0 and < DisplayScreen.Height
+                RgbaPixel want = rot.Shown(y) is int row && draw.Corner.Y + row is >= 0 and < DisplayScreen.Height
                     ? plain[(draw.Corner.Y + row) * DisplayScreen.Width + screenX]
                     : backdrop;
                 RgbaPixel got = rotted[screenY * DisplayScreen.Width + screenX];
                 if (got != want)
-                    throw new InvalidOperationException($"{context}: the renderer draws {got} at screen pixel ({screenX},{screenY}), where the column table shows {want}.");
+                    throw new InvalidOperationException($"{context}: the renderer draws {got} at screen pixel ({screenX},{screenY}), where the corpse's rows show {want}.");
             }
         }
     }
@@ -255,33 +231,9 @@ internal static class CorpseRotDrawingVerification
     /// <summary>The brightness the renderer comparison draws at: full, so colours are unchanged.</summary>
     private const int FullBrightness = 15;
 
-    /// <summary>Whether <paramref name="frame"/> of <paramref name="enemy"/> reads characters the oracle's rot changes at some call.</summary>
-    private static bool Reads(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, EnemyFrameId frame, CorpseCharacterRot oracle, byte[] loaded)
-    {
-        byte[] last = oracle.Characters(loaded, oracle.CallCount);
-        EnemySpritemapCatalog spritemaps = InstalledFixtures.EnemyTiles.Spritemaps
-            ?? throw new InvalidOperationException("The installation holds the enemy compositions.");
-        if (!spritemaps.TryGetDisplay(frame, out EnemySpritemapParts display))
-            throw new InvalidOperationException($"{frame} has no installed composition.");
-        foreach (SpriteFramePart part in EnemySpriteFrames.Frame(display, TileBase(set, enemy), 0).Parts)
-        {
-            for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
-            {
-                for (int column = 0; column < part.Size.X / SpriteArtwork.CharacterPixels; column++)
-                {
-                    int first = (part.Character + row * SpriteArtwork.CharactersPerRow + column) * SpriteArtwork.CharacterByteCount;
-                    if (first < SpriteCharacterTableLayout.TableByteCount
-                        && !last.AsSpan(first, SpriteArtwork.CharacterByteCount).SequenceEqual(loaded.AsSpan(first, SpriteArtwork.CharacterByteCount)))
-                        return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /// <summary>The frames of <paramref name="enemy"/>'s sheet under <paramref name="set"/> the sheet says a rotting corpse lies in.</summary>
     private static IEnumerable<EnemyFrameId> CorpseFrames(InstalledEnemySheets sheets, RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) =>
-        EnemyDefinitionFrameDefinitions.Frames[enemy].Where(frame => sheets.CorpseLayout(set, enemy, EnemySheetDefinitions.FrameName(frame)) is not null);
+        EnemyDefinitionFrameDefinitions.Frames[enemy].Where(frame => sheets.CorpsePlacement(set, enemy, EnemySheetDefinitions.FrameName(frame)) is not null);
 
     /// <summary>The first graphics set that installs a sheet of <paramref name="enemy"/>.</summary>
     private static RoomEnemyGraphicsSetDefinition SetDrawing(InstalledEnemySheets sheets, EnemyDefinitionId enemy)
@@ -290,17 +242,70 @@ internal static class CorpseRotDrawingVerification
         return RoomEnemyGraphicsSetLists.DrawnUnder.First(set => set.Name == name);
     }
 
-    /// <summary>The character a frame of <paramref name="enemy"/> under <paramref name="set"/> counts its parts' characters from.</summary>
-    private static int TileBase(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy) => GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(set)).TileBaseOf(enemy);
+    /// <summary>
+    /// The authored rot, restated apart from Core: for each corpse row, the corpse row it shows, or none. A move copies a row
+    /// onto the row below it, the last row landing nowhere, and a move, rather than a copy, then clears it.
+    /// </summary>
+    private sealed class AuthoredRot
+    {
+        /// <summary>The corpse row each corpse row shows, or none.</summary>
+        private readonly int?[] shown;
 
-    /// <summary>The sprite characters <paramref name="set"/>'s load and its encounters' <paramref name="shown"/> looks leave.</summary>
-    private static byte[] Loaded(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown) =>
-        EnemySheetFixtures.LivePage(set, shown).Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
+        /// <summary>The schedule the authored rot follows itself, for a corpse whose state runs its own.</summary>
+        private readonly CorpseRotSchedule schedule;
 
-    /// <summary>One screen pixel.</summary>
-    /// <param name="X">Its column.</param>
-    /// <param name="Y">Its row.</param>
-    private readonly record struct ScreenPixel(int X, int Y);
+        /// <summary>A corpse <paramref name="rowCount"/> rows tall, each row itself.</summary>
+        internal AuthoredRot(int rowCount)
+        {
+            shown = [.. Enumerable.Range(0, rowCount).Select(row => (int?)row)];
+            schedule = new CorpseRotSchedule(rowCount);
+        }
+
+        /// <summary>The rot calls it has followed its own schedule through.</summary>
+        internal uint Calls { get; private set; }
+
+        /// <summary>Moves corpse row <paramref name="row"/> by <paramref name="operation"/>.</summary>
+        internal void Move(int row, CorpseRowOperation operation)
+        {
+            if (row + 1 < shown.Length)
+                shown[row + 1] = shown[row];
+            if (operation == CorpseRowOperation.Move)
+                shown[row] = null;
+        }
+
+        /// <summary>Runs one rot call of its own schedule.</summary>
+        internal void Call()
+        {
+            Calls++;
+            _ = schedule.Step(Move, _ => { });
+        }
+
+        /// <summary>
+        /// The picture row that picture row <paramref name="y"/> of a picture <paramref name="height"/> rows tall, whose corpse
+        /// begins at <paramref name="top"/>, shows: itself outside the corpse, else the picture row of the corpse row moved there,
+        /// or none where it is cleared or lies outside the picture.
+        /// </summary>
+        internal int? PictureRow(int top, int y, int height)
+        {
+            int corpseRow = y - top;
+            if (corpseRow < 0 || corpseRow >= shown.Length)
+                return y;
+            return shown[corpseRow] is int source && source + top >= 0 && source + top < height ? source + top : null;
+        }
+
+        /// <summary>
+        /// The dead Torizo's sand heap after <paramref name="calls"/> rot calls: each of its sixteen rows shows itself once that
+        /// many lines have fallen from the last up, one every fifteen calls up to fifteen, and nothing before.
+        /// </summary>
+        internal static AuthoredRot Sand(int calls)
+        {
+            var sand = new AuthoredRot(16);
+            int lines = Math.Min(15, calls / 15);
+            for (int row = 0; row < 16 - lines; row++)
+                sand.shown[row] = null;
+            return sand;
+        }
+    }
 
     /// <summary>Runs the corpse rot drawing check.</summary>
     [VerificationCommand("--corpse-rot-drawing")]

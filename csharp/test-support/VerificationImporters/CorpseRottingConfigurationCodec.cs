@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -31,29 +32,17 @@ internal static class CorpseRottingConfigurationCodec
     /// <summary>The record word holding the corpse's height in pixel rows.</summary>
     private const int RowCountWord = 4;
 
-    /// <summary>The record word holding the bank-$A9 address of the corpse's character-row layout table.</summary>
-    private const int RowLayoutWord = 6;
-
-    /// <summary>The byte offset, in the row layout table, of the second character row's staged offset.</summary>
-    private const int SecondRowOffsetByte = 2;
-
-    /// <summary>The bytes the wrap is short of the second character row's staged offset: the planes-0/1 words of a character's six rows above its last two.</summary>
-    private const int WrapCarryBack = 12;
-
     /// <summary>Decodes the configuration record at bank-$A9 <paramref name="recordAddress"/>.</summary>
     internal static CorpseRottingConfiguration Decode(ISnesAddressSpace rom, ushort recordAddress)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int Word(int index) => cartridge.ReadCartridgeWord(CorpseBank | (recordAddress + index * 2));
         int uploadList = Word(UploadListWord);
-        int rowLayout = Word(RowLayoutWord);
         int rowCount = Word(RowCountWord);
         int scheduleStart = Word(ScheduleWord) - RottingHeap;
         return new CorpseRottingConfiguration(
-            Kind: uploadList == 0 ? null : CorpseNativeAddresses.TransferTableAt(checked((ushort)uploadList)),
+            UploadList: uploadList == 0 ? null : CorpseNativeAddresses.TransferTableAt(checked((ushort)uploadList)),
             RowCount: rowCount,
-            RowLayoutTable: checked((ushort)rowLayout),
-            Wrap: cartridge.ReadCartridgeWord(CorpseBank | (rowLayout + SecondRowOffsetByte)) - WrapCarryBack,
             ScheduleHeapBytes: new CorpseScheduleHeapBytes(scheduleStart, scheduleStart + rowCount * ScheduleEntryBytes));
     }
 }

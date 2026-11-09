@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -15,15 +16,12 @@ internal static class DeadTorizoCorpseDefinitionsVerification
     /// <summary>The bank-$A9 address of the dead Torizo's configuration record.</summary>
     private const ushort ConfigurationPointer = 0xdd58;
 
-    /// <summary>Compares the decoded native configuration with the definition, the character rot oracle's row movers and the slot state.</summary>
+    /// <summary>Compares the decoded native configuration with the definition and the slot state.</summary>
     internal static void VerifyDeadTorizoCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer);
         AssertEqual(DeadTorizoCorpseDefinitions.RowCount, configuration.RowCount, "dead Torizo corpse height");
-        AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Torizo), configuration.RowLayoutTable,
-            "dead Torizo configuration names the Torizo tile-row layout production copies with");
-        AssertEqual(configuration.Wrap, CorpseRowGeometry.Torizo.Wrap, "dead Torizo wrap is the character rot oracle's row movers'");
-        AssertEqual<RottingCorpseKind?>(null, configuration.Kind,
+        AssertEqual<CorpseRowUploadList?>(null, configuration.UploadList,
             "dead Torizo has no generic transfer list; it uploads through its alternating halves");
 
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
@@ -36,7 +34,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         CorpseRotScheduleChecks.AssertFreshSchedule(DeadTorizoCorpseDefinitions.RowCount, state.Rot, "dead Torizo production");
 
         Console.WriteLine(
-            "Dead Torizo corpse definitions: the decoded configuration's height, row layout and wrap, and the real initializer's own fresh rot schedule pass.");
+            "Dead Torizo corpse definitions: the decoded configuration's height and upload list, and the real initializer's own fresh rot schedule pass.");
     }
 
 

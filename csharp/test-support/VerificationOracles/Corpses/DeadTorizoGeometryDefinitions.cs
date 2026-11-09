@@ -1,19 +1,16 @@
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
-/// Tile geometry shared by $A9:DE18-DEBF initialization and E272/E38B row motion.
+/// Tile geometry of the $A9:DE18-DEBF initialization.
 /// All crop edges derive from the immutable stationary composition's tile union.
 /// Its artwork ownership remains explicit in DeadTorizoStationaryCompositionDefinitions.
 /// </summary>
 internal static class DeadTorizoGeometryDefinitions
 {
     /// <summary>Planar bytes and pixels contributed by one corpse-sheet tile.</summary>
-    private const int TileBytes = 32, TilePixels = 8;
+    private const int TileBytes = 32;
     /// <summary>Height in tiles of the stationary corpse composition's occupied bounds.</summary>
     internal static int Rows => Bounds.Bottom - Bounds.Top;
-    /// <summary>Width in tiles of the stationary corpse composition's occupied bounds.</summary>
-    internal static int Columns => Bounds.Right - Bounds.Left;
-
     /// <summary>Unions the tile extents of stationary sprite parts to define the corpse crop.</summary>
     private static DeadTorizoBounds Bounds
     {
@@ -55,25 +52,4 @@ internal static class DeadTorizoGeometryDefinitions
             (row * (bounds.Right - bounds.Left) + left - bounds.Left) * TileBytes, (right - left) * TileBytes);
     }
 
-    /// <summary>$A9:E27F-E383/E398-E458: each tile column advances sixteen planar words.</summary>
-    internal static int ColumnWordOffset(int column)
-    {
-        if ((uint)column >= Columns) throw new ArgumentOutOfRangeException(nameof(column));
-        return column * TileBytes / sizeof(ushort);
-    }
-
-    /// <summary>First pixel row covered by a stock sprite in the given packed tile column.</summary>
-    internal static int ColumnMinimumY(int column)
-    {
-        var bounds = Bounds;
-        if ((uint)column >= bounds.Right - bounds.Left) throw new ArgumentOutOfRangeException(nameof(column));
-        int sourceColumn = bounds.Left + column, firstRow = bounds.Bottom;
-        for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
-        {
-            var part = SourcePart(index);
-            if (sourceColumn >= part.Corner.X && sourceColumn < part.Corner.X + part.Extent)
-                firstRow = Math.Min(firstRow, part.Corner.Y);
-        }
-        return (firstRow - bounds.Top) * TilePixels;
-    }
 }

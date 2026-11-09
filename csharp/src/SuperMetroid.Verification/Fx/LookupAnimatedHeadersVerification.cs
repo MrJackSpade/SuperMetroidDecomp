@@ -40,9 +40,9 @@ internal static class LookupAnimatedHeadersVerification
     /// <summary>Compares the seven compiled instruction-start pointers with native headers.</summary>
     internal static void VerifySimpleAnimationInstructionStarts(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 0, definition => definition.InstructionPointer));
-    /// <summary>Compares each compiled tile-transfer size with its native header.</summary>
+    /// <summary>Compares the import's picture size of each loop with the transfer size of its native header.</summary>
     internal static void VerifySimpleAnimationTransferSizes(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.FrameArtworkSize));
+        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.PictureByteCount));
     /// <summary>Compares each encoded VRAM destination with its native header.</summary>
     internal static void VerifySimpleAnimationVramDestinations(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => AnimatedTileVramDestinations.WordOf(definition.AnimatedObject)));

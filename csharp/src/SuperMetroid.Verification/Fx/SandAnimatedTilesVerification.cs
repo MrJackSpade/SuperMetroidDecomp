@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Fx.RoomFxAnimatedTileArtworkVerification;
@@ -24,13 +25,13 @@ internal static class SandAnimatedTilesVerification
             AssertTrue(RoomFxAnimatedTiles.TryResolve(
                     definitions[slot], out RoomFxAnimatedTileLoop? definition),
                 $"sand object {slot} resolves compiled mechanics");
-            for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).FrameCount; frame++)
+            for (int frame = 0; frame < (definition ?? throw new InvalidOperationException("Verification requires definition.")).Frames.Count; frame++)
             {
                 int source = AnimatedTileImageSources.OfCursor(
                     definition, definition.FrameInstructionPointer(frame));
                 bus.WriteBytes(source,
                     Enumerable.Repeat((byte)(1 + slot * 4 + frame),
-                        definition.FrameArtworkSize).ToArray());
+                        definition.PictureByteCount).ToArray());
             }
         }
         var guarded = NewRoomFxArtworkForbiddenBus(bus);

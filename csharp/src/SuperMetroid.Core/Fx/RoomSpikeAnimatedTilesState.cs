@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class RoomSpikeAnimatedTilesState
 {
-    /// <summary>Current room's horizontal-spike tile transfer state, reset whenever a new FX record is selected.</summary>
+    /// <summary>The current room's horizontal-spike animation, which each room builds afresh.</summary>
     private readonly RoomFxAnimatedTilesState animation = new();
 
     /// <summary>Spawns one room's horizontal spikes, at most once, from the door-selected FX record.</summary>
@@ -21,7 +21,7 @@ public sealed class RoomSpikeAnimatedTilesState
             animation.LoadDefinition(AnimatedTileObject.HorizontalSpikes);
     }
 
-    /// <summary>Schedules the authored character transfer for the next frame boundary.</summary>
+    /// <summary>Advances the spike animation and selects its authored frame for the next frame boundary.</summary>
     public void Step(ArtworkFrameSelections frames) =>
         animation.Step(frames);
 }

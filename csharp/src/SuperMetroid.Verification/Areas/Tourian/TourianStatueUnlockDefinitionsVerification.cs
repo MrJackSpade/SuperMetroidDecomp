@@ -81,16 +81,17 @@ internal static class TourianStatueUnlockDefinitionsVerification
         int pictureCount = 0;
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlasPng.Read(
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
-        foreach (TourianStatueAnimatedTileProgramDefinition definition in
+        foreach (TourianStatueAnimationDefinition definition in
                  TourianStatueAnimatedTilePrograms.All)
         foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
         {
-            int source = AnimatedTileImageSources.TourianStatue(definition.AnimatedObject, picture);
-            byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.FrameArtworkSize);
+            int source = AnimatedTileImageSources.TourianStatue(definition.Statue, picture);
+            byte[] native = ReadNativeTourianStatueFrame(rom, source,
+                RoomFxAnimatedTilePictures.TourianStatuePictureByteCount(definition.Statue));
             AssertTrue(artwork.TryResolve(source, native.Length,
                     out ReadOnlyMemory<byte> installed) &&
                 installed.Span.SequenceEqual(native),
-                $"statue {definition.AnimatedObject} picture {picture} preserves every cartridge pixel byte");
+                $"{definition.Statue} statue picture {picture} preserves every cartridge pixel byte");
             pictureCount++;
         }
 

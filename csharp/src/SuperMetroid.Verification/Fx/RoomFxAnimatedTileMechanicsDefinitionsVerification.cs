@@ -46,7 +46,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         {
             mechanicsWordCount += 3;
 
-            for (int index = 0; index < definition.FrameCount; index++)
+            for (int index = 0; index < definition.Frames.Count; index++)
             {
                 ushort operand = definition.FrameSourceOperandPointer(index);
                 AssertTrue(!definition.TryReadMechanicsWord(
@@ -64,7 +64,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             var state = new RoomFxAnimatedTilesState();
             state.LoadDefinition(definition.AnimatedObject);
 
-            int steps = definition.FrameCount * definition.FrameDuration + 1;
+            int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
             int observedFrames = 0;
             for (int step = 0; step < steps; step++)
             {
@@ -75,7 +75,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                     observedFrames++;
             }
 
-            AssertEqual(definition.FrameCount + 1, observedFrames,
+            AssertEqual(definition.Frames.Count + 1, observedFrames,
                 $"object {definition.AnimatedObject} executes one complete loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"object {definition.AnimatedObject} performs no mechanics ROM reads");
@@ -110,7 +110,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             .Observe(address =>
                 {
                     ushort offset = SnesAddress.FromBusAddress(address).Offset;
-                    return InAnimatedTileBank(address) && Enumerable.Range(0, definition.FrameCount).Any(index =>
+                    return InAnimatedTileBank(address) && Enumerable.Range(0, definition.Frames.Count).Any(index =>
                         offset == definition.FrameSourceOperandPointer(index) ||
                         offset == unchecked((ushort)(definition.FrameSourceOperandPointer(index) + 1)));
                 },
@@ -127,11 +127,12 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         {
             var expected = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             int update = 0;
-            for (int index = 0; index <= definition.FrameCount; index++)
+            for (int index = 0; index <= definition.Frames.Count; index++)
             {
+                int frame = index % definition.Frames.Count;
                 expected.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(update,
-                    AnimatedTileImageSources.OfCursor(definition, definition.FrameInstructionPointer(index % definition.FrameCount))));
-                update += definition.FrameDuration;
+                    AnimatedTileImageSources.OfCursor(definition, definition.FrameInstructionPointer(frame))));
+                update += definition.Frames[frame].Duration;
             }
 
             var state = new RoomFxAnimatedTilesState();

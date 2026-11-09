@@ -63,11 +63,11 @@ internal static class AnimatedTileFrameArtwork
     {
         foreach (RoomFxAnimatedTileLoop mechanics in RoomFxAnimatedTileLoops.All)
         {
-            for (int frame = 0; frame < mechanics.FrameCount; frame++)
+            for (int frame = 0; frame < mechanics.Frames.Count; frame++)
             {
                 AnimatedTileImage image = mechanics.Image(frame);
-                yield return new(AnimatedTileFrames.Frame(mechanics.AnimatedObject, frame),
-                    AnimatedTileImageSources.Of(image), Picture(image, mechanics.FrameArtworkSize));
+                yield return new(mechanics.Frames[frame].Frame,
+                    AnimatedTileImageSources.Of(image), Picture(image, mechanics.PictureByteCount));
             }
         }
         foreach (WreckedShipTreadmillDirection direction in Enum.GetValues<WreckedShipTreadmillDirection>())
@@ -77,12 +77,12 @@ internal static class AnimatedTileFrameArtwork
                 yield return new(AnimatedTileFrames.Frame(treadmill.AnimatedObject, frame), AnimatedTileImageSources.Of(treadmill.Image(frame)),
                     Picture(treadmill.Image(frame), RoomFxAnimatedTileLoops.TreadmillFrameByteCount));
         }
-        foreach (TourianStatueAnimatedTileProgramDefinition statue in TourianStatueAnimatedTilePrograms.All)
+        foreach (TourianStatueAnimationDefinition statue in TourianStatueAnimatedTilePrograms.All)
         {
             foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
-                yield return new(AnimatedTileFrames.Picture(statue.AnimatedObject, picture),
-                    AnimatedTileImageSources.TourianStatue(statue.AnimatedObject, picture),
-                    atlas => atlas.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameArtworkSize));
+                yield return new(statue.Picture(picture),
+                    AnimatedTileImageSources.TourianStatue(statue.Statue, picture),
+                    atlas => atlas.TourianStatuePicture(statue.Statue, picture));
         }
     }
 }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
@@ -6,19 +6,24 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// <summary>
 /// The characters of each picture the installed room-FX atlas holds (#1415): the import pipeline composes room sheets and
 /// the Tourian statues' OBJ pictures from them. Pictures are found by their place in the atlas's segment order, and the
-/// statues' pictures as windows of the shared statue strip.
+/// statues' pictures as windows of the shared statue strip (<see cref="TourianStatueTileStripDefinitions"/>).
 /// </summary>
 internal static class RoomFxAnimatedTilePictures
 {
     /// <summary>The pictures each Tourian statue shows, each one window of the shared strip.</summary>
     internal static IReadOnlyList<TourianStatueTilePicture> TourianStatuePictures { get; } = Enum.GetValues<TourianStatueTilePicture>();
 
+    /// <summary>The windows of <paramref name="statue"/> in the shared strip.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
+    internal static TourianStatueTileWindow TourianStatueWindow(TourianGreyStatues statue) =>
+        TourianStatueTileStripDefinitions.Windows.TryGetValue(statue, out TourianStatueTileWindow window)
+            ? window : throw new InvalidDataException($"Unknown Tourian statue {statue}.");
+
     /// <summary>The strip character <paramref name="picture"/> of <paramref name="statue"/> starts at.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not a statue, or the picture is undefined.</exception>
-    internal static int TourianStatueFirstTile(AnimatedTileObject statue, TourianStatueTilePicture picture)
+    internal static int TourianStatueFirstTile(TourianGreyStatues statue, TourianStatueTilePicture picture)
     {
-        TourianStatueTileWindow window = TourianStatueTileStripDefinitions.Windows.TryGetValue(statue, out TourianStatueTileWindow found)
-            ? found : throw new InvalidDataException($"Unknown Tourian statue {statue}.");
+        TourianStatueTileWindow window = TourianStatueWindow(statue);
         return picture switch
         {
             TourianStatueTilePicture.OscillationFirst => window.First,
@@ -28,6 +33,11 @@ internal static class RoomFxAnimatedTilePictures
             _ => throw new InvalidDataException($"Undefined {nameof(TourianStatueTilePicture)} {picture}."),
         };
     }
+
+    /// <summary>The bytes of characters one picture of <paramref name="statue"/> holds.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
+    internal static int TourianStatuePictureByteCount(TourianGreyStatues statue) =>
+        TourianStatueWindow(statue).Tiles * TourianStatueTileStripDefinitions.CharacterByteCount;
 
     /// <summary>The pictures of one installed atlas.</summary>
     extension(RoomFxAnimatedTileAtlas atlas)
@@ -54,16 +64,12 @@ internal static class RoomFxAnimatedTilePictures
         }
 
         /// <summary>Returns the characters of <paramref name="picture"/> of <paramref name="statue"/>, a window of the shared statue strip.</summary>
-        /// <exception cref="InvalidDataException"><paramref name="byteCount"/> is not the statue's picture size, or <paramref name="statue"/> is not a statue.</exception>
-        internal ReadOnlyMemory<byte> TourianStatuePicture(AnimatedTileObject statue, TourianStatueTilePicture picture, int byteCount)
+        /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
+        internal ReadOnlyMemory<byte> TourianStatuePicture(TourianGreyStatues statue, TourianStatueTilePicture picture)
         {
-            int windowByteCount = TourianStatueTileStrip.PictureArtworkSize(statue);
-            if (byteCount != windowByteCount)
-                throw new InvalidDataException(
-                    $"Tourian statue {statue} {picture} requires {windowByteCount} bytes, not {byteCount}.");
             int offset = (RoomFxAnimatedTileAtlasFormat.PreStatueTileCount + TourianStatueFirstTile(statue, picture)) *
-                TourianStatueTileStripDefinitions.CharacterArtworkSize;
-            return atlas.characters.AsMemory(offset, byteCount);
+                TourianStatueTileStripDefinitions.CharacterByteCount;
+            return atlas.characters.AsMemory(offset, TourianStatuePictureByteCount(statue));
         }
     }
 }

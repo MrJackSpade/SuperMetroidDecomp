@@ -58,10 +58,10 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>One spawned statue animation's definition, program position, and frame timer.</summary>
-    internal sealed class TileObject(TourianStatueAnimatedTileProgramDefinition definition)
+    internal sealed class TileObject(TourianStatueAnimationDefinition definition)
     {
-        /// <summary>Program identity and installed transfer dimensions for this statue.</summary>
-        public TourianStatueAnimatedTileProgramDefinition Definition { get; } = definition;
+        /// <summary>The statue's animation and the operands its program's cues act on.</summary>
+        public TourianStatueAnimationDefinition Definition { get; } = definition;
         /// <summary>The statue's typed animated-tile programs, built once for its first-frame duration.</summary>
         public AnimationProgramSet<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Program { get; } =
             TourianStatueTileAnimations.Create(definition.FirstFrameDuration);
@@ -154,18 +154,16 @@ public sealed class TourianStatueSequence
     /// </summary>
     internal void SpawnAnimatedObjects()
     {
-        Spawn(AnimatedTileObject.TourianStatueKraid);
-        Spawn(AnimatedTileObject.TourianStatuePhantoon);
-        Spawn(AnimatedTileObject.TourianStatueDraygon);
-        Spawn(AnimatedTileObject.TourianStatueRidley);
+        Spawn(TourianGreyStatues.Kraid);
+        Spawn(TourianGreyStatues.Phantoon);
+        Spawn(TourianGreyStatues.Draygon);
+        Spawn(TourianGreyStatues.Ridley);
 
         // Resolve each statue's definition and start it at its program entry.
-        void Spawn(AnimatedTileObject animatedObject)
+        void Spawn(TourianGreyStatues statue)
         {
-            if (!TourianStatueAnimatedTiles.TryResolveObjectHeader(
-                    animatedObject, out TourianStatueAnimatedTileProgramDefinition? definition))
-                throw new InvalidDataException(
-                    $"Tourian statue animated-tile object {animatedObject} is not cataloged.");
+            if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))
+                throw new InvalidDataException($"Tourian statue {statue} is not cataloged.");
 
             objects.Add(new(definition));
         }
@@ -184,27 +182,27 @@ public sealed class TourianStatueSequence
             if (!tile.CountDown() || tile.Cursor is not { } cursor) continue;
             // The statue programs load no loop counter; the program set still takes one.
             WrappingCountdown loopCounter = WrappingCountdown.Start(0);
-            TourianStatueAnimatedTileProgramDefinition definition = tile.Definition;
+            TourianStatueAnimationDefinition definition = tile.Definition;
             AnimationProgramAdvance<TourianStatueTilePicture> advance = tile.Program.AdvanceTo(
                 ref cursor, ref loopCounter, (cue, _) => RunCue(definition, cue));
             switch (advance)
             {
                 case AnimationProgramAdvance<TourianStatueTilePicture>.Show shown:
                     tile.Show(cursor, shown.Duration);
-                    _room.LoadedScope.ArtworkFrames.Select(AnimatedTileFrames.Picture(definition.AnimatedObject, shown.Frame));
+                    _room.LoadedScope.ArtworkFrames.Select(definition.Picture(shown.Frame));
                     break;
                 case AnimationProgramAdvance<TourianStatueTilePicture>.Stop:
                     tile.Stop();
                     break;
                 default:
                     throw new InvalidOperationException(
-                        $"Tourian statue {definition.AnimatedObject} program ended an advance with unauthored {advance}.");
+                        $"Tourian statue {definition.Statue} program ended an advance with unauthored {advance}.");
             }
         }
 
         // Runs one cue with the statue's operands; a branching cue whose condition holds returns where the program continues.
         AnimationProgramCursor<TourianStatueTileProgram>? RunCue(
-            TourianStatueAnimatedTileProgramDefinition definition, TourianStatueTileCue cue)
+            TourianStatueAnimationDefinition definition, TourianStatueTileCue cue)
         {
             ITourianStatueActors statue = _enemies.TourianStatue;
             AnimationProgramCursor<TourianStatueTileProgram> branch =

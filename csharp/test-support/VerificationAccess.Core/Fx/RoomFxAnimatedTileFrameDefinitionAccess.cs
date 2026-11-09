@@ -9,7 +9,7 @@ internal static class RoomFxAnimatedTileFrameDefinitionAccess
         /// <summary>The bank-$87 cursor of the timed control word of the loop's frame <paramref name="index"/>.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not one of the loop's frames.</exception>
         internal ushort FrameInstructionPointer(int index) =>
-            (uint)index < (uint)self.FrameCount
+            (uint)index < (uint)self.Frames.Count
                 ? unchecked((ushort)(RoomFxAnimatedTileObjectDefinitionAccess.FirstCursor(self.AnimatedObject) + index * 4))
                 : throw new ArgumentOutOfRangeException(nameof(index), index, $"{self.AnimatedObject} has no frame {index}.");
 

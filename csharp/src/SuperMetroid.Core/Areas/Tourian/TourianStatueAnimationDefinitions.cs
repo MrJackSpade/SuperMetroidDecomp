@@ -1,31 +1,20 @@
-using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The four Tourian entrance statues' animated-tile definitions: artwork transfer geometry and the operands their
-/// shared typed program (<see cref="TourianStatueTileAnimations"/>) acts on.
+/// The four Tourian entrance statues' background animations: the operands their shared typed program
+/// (<see cref="TourianStatueTileAnimations"/>) acts on.
 /// </summary>
-/// <remarks>
-/// <see cref="TourianStatueAnimatedTiles"/> resolves them. The pictures each program shows are presentation references in
-/// <see cref="SuperMetroid.Core.Fx.Artwork.TourianStatueTileStripDefinitions"/>.
-/// </remarks>
-public static class TourianStatueAnimatedTileMechanicsDefinitions
+public static class TourianStatueAnimationDefinitions
 {
-    /// <summary>
-    /// Each statue's transfer geometry, event, boss test, shades, eye and palette effect, by its animated-tile
-    /// object; no other animated-tile object is a statue (<see cref="TourianStatueAnimatedTiles"/>).
-    /// </summary>
-    internal static readonly IReadOnlyDictionary<AnimatedTileObject, TourianStatueAnimatedTileProgramDefinition> Statues =
-        new Dictionary<AnimatedTileObject, TourianStatueAnimatedTileProgramDefinition>
+    /// <summary>Each statue's event, first-frame duration, boss test, shades, eye and palette effect, by statue.</summary>
+    internal static readonly IReadOnlyDictionary<TourianGreyStatues, TourianStatueAnimationDefinition> Statues =
+        new Dictionary<TourianGreyStatues, TourianStatueAnimationDefinition>
     {
-        [AnimatedTileObject.TourianStatuePhantoon] = new()
+        [TourianGreyStatues.Phantoon] = new()
         {
-            AnimatedObject = AnimatedTileObject.TourianStatuePhantoon,
-            FrameArtworkSize = TourianStatueTileStrip.PictureArtworkSize(AnimatedTileObject.TourianStatuePhantoon),
             Statue = TourianGreyStatues.Phantoon,
             GreyEvent = StoryEvent.PhantoonStatueGrey,
             FirstFrameDuration = 6,
@@ -36,10 +25,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             PaletteFx = PaletteFxObject.GreyOutTourianStatuePhantoon,
             GreyShade = TourianStatueShades.PhantoonGrey,
         },
-        [AnimatedTileObject.TourianStatueRidley] = new()
+        [TourianGreyStatues.Ridley] = new()
         {
-            AnimatedObject = AnimatedTileObject.TourianStatueRidley,
-            FrameArtworkSize = TourianStatueTileStrip.PictureArtworkSize(AnimatedTileObject.TourianStatueRidley),
             Statue = TourianGreyStatues.Ridley,
             GreyEvent = StoryEvent.RidleyStatueGrey,
             FirstFrameDuration = 10,
@@ -50,10 +37,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             PaletteFx = PaletteFxObject.GreyOutTourianStatueRidley,
             GreyShade = TourianStatueShades.RidleyGrey,
         },
-        [AnimatedTileObject.TourianStatueKraid] = new()
+        [TourianGreyStatues.Kraid] = new()
         {
-            AnimatedObject = AnimatedTileObject.TourianStatueKraid,
-            FrameArtworkSize = TourianStatueTileStrip.PictureArtworkSize(AnimatedTileObject.TourianStatueKraid),
             Statue = TourianGreyStatues.Kraid,
             GreyEvent = StoryEvent.KraidStatueGrey,
             FirstFrameDuration = 4,
@@ -64,10 +49,8 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             PaletteFx = PaletteFxObject.GreyOutTourianStatueKraid,
             GreyShade = TourianStatueShades.KraidGrey,
         },
-        [AnimatedTileObject.TourianStatueDraygon] = new()
+        [TourianGreyStatues.Draygon] = new()
         {
-            AnimatedObject = AnimatedTileObject.TourianStatueDraygon,
-            FrameArtworkSize = TourianStatueTileStrip.PictureArtworkSize(AnimatedTileObject.TourianStatueDraygon),
             Statue = TourianGreyStatues.Draygon,
             GreyEvent = StoryEvent.DraygonStatueGrey,
             FirstFrameDuration = 8,

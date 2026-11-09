@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
+using SuperMetroid.AssetExtraction.Areas.Tourian;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Areas.Tourian;
@@ -42,7 +43,8 @@ internal static class LookupTourianSpawnVerification
         {
             var tile = objects[index];
             var definition = tile.Definition;
-            AssertEqual(expected[index], FxNativeWords.AnimatedTileObjects.Word(definition.AnimatedObject), "Native spawn/handler order");
+            AssertEqual(expected[index], FxNativeWords.AnimatedTileObjects.Word(TourianStatueAnimatedTilePrograms.ObjectOf(definition.Statue)),
+                "Native spawn/handler order");
             // The program oracle proves the entry program starts at the header's native program pointer.
             AssertEqual<AnimationProgramCursor<TourianStatueTileProgram>?>(
                 AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry),

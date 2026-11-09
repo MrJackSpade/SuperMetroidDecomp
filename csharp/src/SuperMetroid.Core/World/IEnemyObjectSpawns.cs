@@ -7,7 +7,7 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>The enemy-side effects room PLMs and room effects trigger.</summary>
+/// <summary>The enemy-side effects room objects and room effects trigger.</summary>
 internal interface IEnemyObjectSpawns
 {
     /// <summary>Spawns a n00b-tube projectile.</summary>
@@ -19,7 +19,7 @@ internal interface IEnemyObjectSpawns
     /// <summary>Spawns the old Tourian escape-shaft wall's explosion.</summary>
     void SpawnOldTourianEscapeShaftWallExplosion();
 
-    /// <summary>Disables the Draygon cannon a PLM identifies.</summary>
+    /// <summary>Disables the Draygon cannon a room object identifies.</summary>
     void DisableDraygonCannon(DraygonWallCannon cannon);
 
     /// <summary>Spawns a projectile Mother Brain's glass bytecode requested.</summary>

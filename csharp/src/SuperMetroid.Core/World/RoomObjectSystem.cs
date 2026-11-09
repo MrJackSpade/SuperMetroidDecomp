@@ -21,11 +21,11 @@ using SuperMetroid.Core.Areas.WreckedShip;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Frame-steppable room PLM owner translating movement-triggered breakable terrain and its
+/// Frame-steppable room-object owner translating movement-triggered breakable terrain and its
 /// authored animation scripts.
 /// </summary>
 /// <remarks>
-/// A PLM is not a Samus animation. It is an independent room object which keeps running
+/// A room object is not a Samus animation. It is an independent room object which keeps running
 /// after the rope disconnects, owns collision/BTS mutation, and requests a background redraw when
 /// an instruction changes its level word. Keeping this state outside <c>SamusGrappleState</c>
 /// is essential for the respawning block: Samus is long gone when its original word returns.
@@ -34,31 +34,31 @@ namespace SuperMetroid.Core.World;
 /// the highest slot downward. The C# array uses logical indices 0..39 and preserves that
 /// search and handler order. The translated step surface is deliberately limited to the
 /// collision-bomb, projectile-reaction bomb, and breakable-grapple lists. Encountering any
-/// other program fails instead of silently inventing an effect for a still-untranslated PLM
+/// other program fails instead of silently inventing an effect for a still-untranslated room object
 /// family.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
 {
-    /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>
+    /// <summary>Creates collision-triggered block room objects from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }
 
-    /// <summary>Applies boss encounter mutations to the active room's PLM slots.</summary>
+    /// <summary>Applies boss encounter mutations to the active room's room-object slots.</summary>
     internal BossRoomMutationObjects BossRoomMutations { get; }
 
     /// <summary>The game's event flags, which scripted room objects set.</summary>
     internal IGlobalEventFlags? Events { get; }
 
-    /// <summary>Forty word-indexed PLM slots shared by the room's object families.</summary>
+    /// <summary>Forty word-indexed room-object slots shared by the room's object families.</summary>
     internal RoomObjectSlotTable SlotTable { get; }
 
     /// <summary>Queues sound requests emitted by room object instructions.</summary>
     internal RoomObjectSoundQueue Sounds { get; }
 
-    /// <summary>Turns PLM draw-list commands into level changes and background picture updates.</summary>
+    /// <summary>Turns room-object draw-list commands into level changes and background picture updates.</summary>
     internal RoomObjectBlockDrawing Drawing { get; }
 
-    /// <summary>Spawns PLMs for breakable blocks struck by projectile impacts.</summary>
+    /// <summary>Spawns room objects for breakable blocks struck by projectile impacts.</summary>
     internal ProjectileTriggerObjects ProjectileTriggers { get; }
 
     /// <summary>Handles enemy-triggered changes to breakable room terrain.</summary>
@@ -67,7 +67,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Runs quicksand room objects through the shared slot allocation.</summary>
     internal QuicksandObjects Quicksand { get; }
 
-    /// <summary>Coordinates Shaktool's tunnel digging and block replacement PLMs.</summary>
+    /// <summary>Coordinates Shaktool's tunnel digging and block replacement room objects.</summary>
     internal ShaktoolObjects Shaktool { get; }
 
     /// <summary>Runs Samus Eater plant damage, release, and room object state.</summary>
@@ -82,7 +82,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Handles speed-booster escape tunnel block reactions.</summary>
     internal SpeedBoosterEscapeObjects SpeedBoosterEscape { get; }
 
-    /// <summary>Connects Chozo statue activity with its room FX and PLM state.</summary>
+    /// <summary>Connects Chozo statue activity with its room FX and room-object state.</summary>
     internal ChozoStatueObjects ChozoStatue { get; }
 
     /// <summary>The room's scroll triggers and extensions.</summary>
@@ -106,7 +106,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Controls the Mother Brain chamber glass barrier and shatter sequence.</summary>
     internal MotherBrainGlassObjects MotherBrainGlass { get; }
 
-    /// <summary>Builds a room's PLM population into the slot table, in spawn order.</summary>
+    /// <summary>Builds a room's room-object population into the slot table, in spawn order.</summary>
     internal RoomObjectPopulationLoader PopulationLoader { get; }
 
     /// <summary>Runs save, map, and refill station room interactions.</summary>
@@ -121,10 +121,10 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Handles grey door conditions and opening animation.</summary>
     internal GreyDoorObjects GreyDoors { get; }
 
-    /// <summary>Creates one room's forty empty PLM slots and the PLM family owners that run in them.</summary>
+    /// <summary>Creates one room's forty empty room-object slots and the room-object family owners that run in them.</summary>
     /// <param name="room">The room the objects live in.</param>
-    /// <param name="services">The room's service owners; each PLM family receives the ones it uses.</param>
-    /// <param name="visuals">The host's installed PLM artwork.</param>
+    /// <param name="services">The room's service owners; each room-object family receives the ones it uses.</param>
+    /// <param name="visuals">The host's installed room-object artwork.</param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals)
     {
         Ensure.NotNull(room);
@@ -164,7 +164,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
 
 
     /// <summary>
-    /// Executes the PLM handler with the frame boundary's newly pressed controller bits.
+    /// Executes the room-object handler with the frame boundary's newly pressed controller bits.
     /// Resident programs such as the n00b tube consume edges, not held input.
     /// </summary>
     public void Step(RoomLevelData level, RoomObjectFrameInputs frame)
@@ -189,7 +189,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     }
 
     /// <summary>
-    /// Releases the slot. Lists and typed programs end a PLM the same way.
+    /// Releases the slot. Lists and typed programs end a room object the same way.
     /// </summary>
     internal void DeleteObject(RoomObjectSlot slot)
     {

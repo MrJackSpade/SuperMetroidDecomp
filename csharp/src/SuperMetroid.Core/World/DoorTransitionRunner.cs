@@ -55,13 +55,13 @@ internal sealed class DoorTransitionRunner
         _system = dependencies.System;
     }
     /// <summary>
-    /// Runs the setup routine named by the active door header after PLM creation.
+    /// Runs the setup routine named by the active door header after room-object creation.
     /// </summary>
     /// <remarks>
-    /// <c>LoadMoreThings</c> calls the door's routine between room-object
+    /// The room load runs the door's routine between room-object
     /// construction and the first visible destination viewport. These routines are shared
-    /// programs, not room-name patches: every door that points at a translated
-    /// address receives the same writes. Unknown nonzero pointers throw so missing camera
+    /// programs, not room-name patches: every door that names a translated
+    /// routine receives the same writes. An unknown routine throws so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
     internal void RunDoorSetupCode(DoorDefinition door, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
@@ -206,7 +206,7 @@ internal sealed class DoorTransitionRunner
         }
     }
 
-    /// <summary>Starts animated treadmill tiles and attempts the matching entrance PLM spawn.</summary>
+    /// <summary>Starts animated treadmill tiles and attempts the matching entrance room-object spawn.</summary>
     private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction, RoomObjectSystem roomObjects, WreckedShipTreadmillAnimatedTilesState wreckedShipTreadmill)
     {
         if (_room.LevelData is null || _room.ActiveRoom is null)
@@ -218,14 +218,14 @@ internal sealed class DoorTransitionRunner
         wreckedShipTreadmill.Start(direction);
         // Both spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
-        // above cannot exhaust; preserve the PLM allocator's false result here.
+        // above cannot exhaust; preserve the room-object allocator's false result here.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
             direction,
             _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
     }
 
-    /// <summary>Positions Samus for the selected elevatube entrance and attempts its room PLM spawn.</summary>
+    /// <summary>Positions Samus for the selected elevatube entrance and attempts its room-object spawn.</summary>
     private void SetUpMaridiaElevatube(ElevatubeEntry entry, RoomObjectSystem roomObjects, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.LevelData is null)
@@ -238,7 +238,7 @@ internal sealed class DoorTransitionRunner
         else
             maridiaElevatube.SetUpFromNorth(samus);
 
-        // The door routine ignores SpawnHardcodedPLM's carry result when all forty IDs are
+        // The door routine ignores whether the spawn found a free slot when all forty are
         // occupied. Retaining the bool-returning allocator preserves that edge.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
@@ -272,14 +272,14 @@ internal sealed class DoorTransitionRunner
     {
         _sprites.BeginFrame();
         // The draw handler can append spin-stop/charge sounds. Do not publish the
-        // prior gameplay frame's liquid, movement, projectile or PLM requests again.
+        // prior gameplay frame's liquid, movement, projectile or room-object requests again.
         _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(room.BombProjectiles.PowerBombExplosion);
         _enemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
             RunEnemyProjectileHandler(room.BombProjectiles, room);
         _actorDrawing.DrawGameplayActors(room, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
-        // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
+        // Drawing Samus every frame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
             _player.Samus.Presentation.Draw(_player.Samus, _sprites,

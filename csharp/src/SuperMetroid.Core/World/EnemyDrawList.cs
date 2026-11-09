@@ -29,7 +29,7 @@ internal sealed class EnemyDrawList
     private readonly EnemyRoomBinding _room;
 
 
-    /// <summary>Retains the behavior and presentation owners used by EnemyMain's draw pass.</summary>
+    /// <summary>Retains the behavior and presentation owners used by the enemy phase's draw pass.</summary>
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
     {
         _deadTorizoBehavior = dependencies.DeadTorizoBehavior;
@@ -176,7 +176,7 @@ internal sealed class EnemyDrawList
                     });
             }
 
-            // EnemyGraphicsDrawnHook runs after the complete ordinary enemy queue. Mother
+            // The enemies' graphics-drawn hook runs after the complete ordinary enemy queue. Mother
             // Brain installs it from its hidden head record, but the hook itself belongs to
             // the record's authored layer-five pass and therefore must not run in both of
             // the frontend's disjoint low/high-priority layer ranges.

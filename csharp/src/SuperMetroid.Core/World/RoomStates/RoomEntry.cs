@@ -11,7 +11,7 @@ internal readonly record struct RoomEntry
     /// <summary>The Landing Site gunship scenario the room's enemies load with.</summary>
     public GunshipLoadScenario GunshipScenario { get; init; }
 
-    /// <summary>Whether the entry door's closing PLM spawns after the room's PLMs, as a door transition does.</summary>
+    /// <summary>Whether the entry door's closing room object spawns after the room's room objects, as a door transition does.</summary>
     public bool RunDoorClosingObject { get; init; }
 
     /// <summary>The destination assets a door transition built before consuming its door, or null to load them here.</summary>

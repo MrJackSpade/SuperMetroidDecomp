@@ -15,7 +15,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room effects enemy AI requests during a pass: the hardcoded PLM spawns of Botwoon, Spore Spawn, Crocomire,
+/// Room effects enemy AI requests during a pass: the hardcoded room-object spawns of Botwoon, Spore Spawn, Crocomire,
 /// Kraid, Mother Brain, the Shitroid and the Chozo statues, and the downward gates' projectile requests.
 /// </summary>
 internal sealed class EnemyRoomEffects
@@ -24,7 +24,7 @@ internal sealed class EnemyRoomEffects
     private readonly EscapeTimer _escapeTimer;
     /// <summary>Supplies Samus equipment and relinquishes the drained-phase timer handler.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Provides active level, area, FX pointer, and room scroll state.</summary>
+    /// <summary>Provides active level, area, FX record, and room scroll state.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Records boss bits and the Zebes timebomb event requested by the encounter.</summary>
     private readonly SharedGameState _system;
@@ -39,17 +39,17 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Starts the Ceres escape timer: Ceres Ridley starts it on the same EnemyMain call that changes ceres_status
-    /// from one to two.
+    /// Starts the Ceres escape timer: Ceres Ridley starts it on the same enemy pass that moves Ceres from the fight to
+    /// the escape.
     /// </summary>
     internal void StartCeresEscape() => _escapeTimer.RequestCeresStart();
 
     /// <summary>
-    /// Applies the hardcoded PLMs and room effects that enemy AI requested during its pass.
+    /// Applies the hardcoded room objects and room effects that enemy AI requested during its pass.
     /// </summary>
     /// <remarks>
     /// Actors spawn their fixed room objects and make their other room writes
-    /// inside EnemyMain, and each PLM's setup edits the level at once. Applying them right
+    /// inside the enemy pass, and each room object's setup edits the level at once. Applying them right
     /// after the enemy pass lets Samus's movement later in the frame meet the edited
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs
     /// through it.
@@ -75,8 +75,8 @@ internal sealed class EnemyRoomEffects
 
     /// <summary>
     /// Applies the effect published by Botwoon's AI through the shared
-    ///  PLM owner. This is called at both producer sites: room initialization
-    /// for an already-defeated boss and EnemyMain when the final body segment lands.
+    /// room-object owner. This is called at both producer sites: room initialization
+    /// for an already-defeated boss and the enemy pass when the final body segment lands.
     /// </summary>
     internal void ApplyPendingBotwoonWallObject(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
     {
@@ -85,10 +85,10 @@ internal sealed class EnemyRoomEffects
         if (_room.LevelData is null || _room.Camera is null)
         {
             throw new InvalidOperationException(
-                "Botwoon published a wall PLM without an active room level and scroll grid.");
+                "Botwoon published a wall room object without an active room level and scroll grid.");
         }
 
-        // SpawnHardcodedPLM silently returns when all slots are occupied. Preserve
+        // A fixed room-object spawn silently does nothing when all slots are occupied. Preserve
         // that allocator behavior; normal load begins from Reset's empty pool, while an
         // artificial full-pool audit must not gain a host-only exception or terrain edit.
         roomObjects.BossRoomMutations.BotwoonWall.TrySpawn(_room.LevelData, mutation);
@@ -96,7 +96,7 @@ internal sealed class EnemyRoomEffects
         if (mutation == BotwoonWallMutation.Clear)
         {
             // The already-defeated branch clears the wall directly with one store
-            // during setup; unlike the live crumble PLM, it does not wait for its
+            // during setup; unlike the live crumble room object, it does not wait for its
             // clearing step during the first handler pass.
             _room.Camera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
             _room.Camera.Scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
@@ -104,7 +104,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Applies Spore Spawn's ceiling request through the shared PLM
+    /// Applies Spore Spawn's ceiling request through the shared room-object
     /// owner. Initialization publishes the clear entry for a defeated save; the live death
     /// reaction publishes the animated crumble entry on the exact collision frame.
     /// </summary>
@@ -115,16 +115,16 @@ internal sealed class EnemyRoomEffects
         if (_room.LevelData is null)
         {
             throw new InvalidOperationException(
-                "Spore Spawn published a ceiling PLM without active room level data.");
+                "Spore Spawn published a ceiling room object without active room level data.");
         }
 
-        // SpawnHardcodedPLM silently drops the request if all forty slots are full.
+        // A fixed room-object spawn silently drops the request if all forty slots are full.
         roomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(_room.LevelData, mutation);
     }
 
     /// <summary>
     /// Applies Crocomire's hardcoded arena mutations through the shared 
-    /// PLM owner. Consuming the full frame-local list preserves publication order
+    /// room-object owner. Consuming the full frame-local list preserves publication order
     /// and fixed-pool exhaustion behavior.
     /// </summary>
     internal void ApplyPendingCrocomireArenaObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
@@ -134,12 +134,12 @@ internal sealed class EnemyRoomEffects
         if (_room.LevelData is null)
         {
             throw new InvalidOperationException(
-                "Crocomire published an arena PLM without an active room level.");
+                "Crocomire published an arena room object without an active room level.");
         }
 
         foreach (RoomObjectSpawnRequest<CrocomireArenaMutation> request in requests.CrocomireObjects)
         {
-            // SpawnHardcodedPLM silently loses a request when all forty slots are
+            // A fixed room-object spawn silently loses a request when all forty slots are
             // occupied. The arena spawner deliberately mirrors that result.
             roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(_room.LevelData, request);
         }
@@ -147,21 +147,21 @@ internal sealed class EnemyRoomEffects
 
     /// <summary>
     /// Transfers Kraid's hardcoded ceiling/platform calls into the shared 
-    /// PLM pool before the current frame's handler pass.
+    /// room-object pool before the current frame's handler pass.
     /// </summary>
     internal void ApplyPendingKraidObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
     {
         if (requests.KraidObjects.Count == 0)
             return;
         if (_room.LevelData is null)
-            throw new InvalidOperationException("Kraid published room PLMs without active level data.");
+            throw new InvalidOperationException("Kraid published room objects without active level data.");
 
         foreach (RoomObjectSpawnRequest<KraidRoomMutation> request in requests.KraidObjects)
             roomObjects.BossRoomMutations.KraidRoom.TrySpawn(_room.LevelData, request);
     }
 
     /// <summary>
-    /// Transfers Mother Brain's hardcoded-PLM requests to the shared 
+    /// Transfers Mother Brain's fixed room-object requests to the shared 
     /// owner. The enemy state publishes requests in call order; consuming them
     /// here retains the descending-slot allocation and one-frame execution seam.
     /// </summary>
@@ -191,7 +191,7 @@ internal sealed class EnemyRoomEffects
         if (_room.LevelData is null)
         {
             throw new InvalidOperationException(
-                "Mother Brain published a room PLM without active room level data.");
+                "Mother Brain published a room object without active room level data.");
         }
 
         foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> request in requests.MotherBrainObjects)
@@ -199,7 +199,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Transfers Shitroid's hardcoded wall requests to the shared PLM
+    /// Transfers Shitroid's hardcoded wall requests to the shared room-object
     /// pool at both producer seams: enemy initialization and the end of each enemy pass.
     /// </summary>
     internal void ApplyPendingShitroidWallObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
@@ -209,7 +209,7 @@ internal sealed class EnemyRoomEffects
         if (_room.LevelData is null)
         {
             throw new InvalidOperationException(
-                "Shitroid published wall PLMs without active room level data.");
+                "Shitroid published wall room objects without active room level data.");
         }
 
         foreach (RoomObjectSpawnRequest<ShitroidWallMutation> request in requests.ShitroidObjects)

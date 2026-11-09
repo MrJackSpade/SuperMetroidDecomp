@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [ArchitectureReview("wide-dependencies", "The room composer: a room load builds every room-lifetime owner (level, " +
-    "camera, FX, palette FX, backgrounds, projectiles, PLMs, enemies, Tourian statues) over the session owners each one " +
+    "camera, FX, palette FX, backgrounds, projectiles, room objects, enemies, Tourian statues) over the session owners each one " +
     "outlives, as the room load initializes them in one pass; each member is one of those session owners.")]
 internal sealed record RoomLoaderDependencies
 {
@@ -69,7 +69,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
-    /// <summary>The host's installed PLM artwork each room's PLM system draws with.</summary>
+    /// <summary>The host's installed room-object artwork each room's room-object system draws with.</summary>
     public required RoomObjectVisuals ShotBlockVisuals { get; init; }
 
     /// <summary>The held beam charge, flare and charge palette, which each room's projectile system shares.</summary>

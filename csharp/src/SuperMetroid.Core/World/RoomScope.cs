@@ -133,10 +133,10 @@ internal sealed record RoomScope
     /// <summary>The room's enemy population and the species owners that run it.</summary>
     public required RoomEnemySystem Enemies { get; init; }
 
-    /// <summary>The room's PLM population and the family owners that run it.</summary>
+    /// <summary>The room's room-object population and the family owners that run it.</summary>
     public required RoomObjectSystem RoomObjects { get; init; }
 
-    /// <summary>The room's runtime services, bound to its area, shared by its PLMs and enemies.</summary>
+    /// <summary>The room's runtime services, bound to its area, shared by its room objects and enemies.</summary>
     public required RoomEnemyRuntimeServices Services { get; init; }
 
     /// <summary>The load-station record whose load established this room; null for a room entered otherwise.</summary>

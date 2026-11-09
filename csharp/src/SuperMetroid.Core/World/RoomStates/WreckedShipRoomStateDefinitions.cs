@@ -37,12 +37,12 @@ public static class WreckedShipRoomStateDefinitions
         new(nameof(AtticWhenAreaBossDead), RoomLevelDefinitions.AtticWhenAreaBossDead, 4, new RoomMusic(MusicDataSet.WreckedShip, RoomMusicTrack.Plays(MusicTrack.SecondSetSong)), SuperMetroid.Core.Fx.RoomFxDefinitions.AtticWhenAreaBossDead, RoomEnemyPopulationDefinitions.AtticWhenAreaBossDead, Enemies.RoomEnemyGraphicsSetDefinitions.AtticWhenAreaBossDead, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 255), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Attic, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AtticWhenAreaBossDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.WreckedShip45ExperimentRoom, RoomSetupCallback.OrdinaryReturn);
 
 
-    /// <summary>The Assembly Line room's state 0.</summary>
+    /// <summary>Wrecked Ship's Assembly Line room's state 0.</summary>
     public static RoomStateSettings AssemblyLineDefault { get; } =
         new(nameof(AssemblyLineDefault), RoomLevelDefinitions.AssemblyLine, 5, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.AssemblyLineDefault, RoomEnemyPopulationDefinitions.AssemblyLineDefault, Enemies.RoomEnemyGraphicsSetDefinitions.AssemblyLineDefault, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AssemblyLineDefault, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.WreckedShip45PanelsVentsVertical, RoomSetupCallback.OrdinaryReturn);
 
 
-    /// <summary>The Assembly Line room's state 1.</summary>
+    /// <summary>Wrecked Ship's Assembly Line room's state 1.</summary>
     public static RoomStateSettings AssemblyLineWhenAreaBossDead { get; } =
         new(nameof(AssemblyLineWhenAreaBossDead), RoomLevelDefinitions.AssemblyLine, 4, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.AssemblyLineWhenAreaBossDead, RoomEnemyPopulationDefinitions.AssemblyLineWhenAreaBossDead, Enemies.RoomEnemyGraphicsSetDefinitions.AssemblyLineWhenAreaBossDead, SuperMetroid.Core.Rooms.Scrolling.BackgroundScrollModes.FromHeader(193, 193), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.GreenWithBlueBottomRow, null, RoomMainCallback.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.AssemblyLineWhenAreaBossDead, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.WreckedShip45PanelsVentsVertical, RoomSetupCallback.OrdinaryReturn);
 

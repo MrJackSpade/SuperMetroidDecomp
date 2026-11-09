@@ -38,7 +38,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The frame each of the room's animations shows (#1406), which the animations the load builds select into.</summary>
     public ArtworkFrameSelections ArtworkFrames { get; } = new();
 
-    /// <summary>What gameplay shows over the room's load (#1466), which the PLMs and enemies the load builds show into.</summary>
+    /// <summary>What gameplay shows over the room's load (#1466), which the room objects and enemies the load builds show into.</summary>
     public RoomAppearance Appearance { get; } = new();
 
     /// <summary>The level allocation, once the level step has run.</summary>
@@ -102,10 +102,10 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The enemy system, once the enemy step has built it.</summary>
     public RoomEnemySystem? Enemies { get; set; }
 
-    /// <summary>The PLM system, once the PLM population step has built it.</summary>
+    /// <summary>The room-object system, once the room-object population step has built it.</summary>
     public RoomObjectSystem? RoomObjects { get; set; }
 
-    /// <summary>The runtime services, once the PLM population step has created them.</summary>
+    /// <summary>The runtime services, once the room-object population step has created them.</summary>
     public RoomEnemyRuntimeServices? Services { get; set; }
 
     /// <summary>The finished scope.</summary>

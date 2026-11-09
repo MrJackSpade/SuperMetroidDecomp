@@ -24,9 +24,9 @@ internal sealed class MessageBoxFlow
     private readonly GameplayMessageBoxState _messageBox;
     /// <summary>Supplies Samus inventory and state for HUD refresh and suit pickup.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Supplies level data and camera for resumed PLM drawing.</summary>
+    /// <summary>Supplies level data and camera for resumed room-object drawing.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Starts Varia or Gravity transformation after its suspended PLM resumes.</summary>
+    /// <summary>Starts Varia or Gravity transformation after its suspended room object resumes.</summary>
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
     private readonly SharedGameState _system;
@@ -42,7 +42,7 @@ internal sealed class MessageBoxFlow
         _suitPickup = dependencies.SuitPickup;
         _system = dependencies.System;
     }
-    /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
+    /// <summary>Suit transformation to start when its item message returns to the room object.</summary>
     private SamusSuitPickupKind? _pendingSuitPickup;
     /// <summary>Station prompt waiting for the save confirmation's yes/no result.</summary>
     private StationActivationEvent? _pendingSaveStation;
@@ -55,7 +55,7 @@ internal sealed class MessageBoxFlow
     /// <summary>Whether a save station waits for its confirmation or completion message.</summary>
     internal bool HasPendingSaveStationWork => _pendingSaveStation is not null || _pendingSaveStationCompletion is not null;
 
-    /// <summary>Holds a suit transformation until its item message returns to the PLM.</summary>
+    /// <summary>Holds a suit transformation until its item message returns to the room object.</summary>
     internal void AwaitSuitPickup(SamusSuitPickupKind suit) => _pendingSuitPickup = suit;
 
     /// <summary>Holds a save station until the save confirmation's yes/no answer.</summary>
@@ -157,7 +157,7 @@ internal sealed class MessageBoxFlow
             _hud.UpdateGameplayCounters(_player.Samus, _freeze.TimeIsFrozen,
                 soundSuppressed: bombProjectiles.PowerBombExplosion.IsActive);
 
-        // The routine returns directly to the suspended item-PLM instruction list.
+        // The message returns directly to the suspended item's script.
         // Varia/Gravity immediately call their shared setup routine; for other items the
         // rest of the dispatch already ran when the box opened.
         if (_pendingSuitPickup is { } pendingSuit)

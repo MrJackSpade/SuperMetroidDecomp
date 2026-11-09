@@ -12,7 +12,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>Loads a room PLM population: installs the room bindings, allocates slots and runs each family setup in record order.</summary>
+/// <summary>Loads a room-object population: installs the room bindings, allocates slots and runs each family setup in record order.</summary>
 [RoomLifetime]
 internal sealed class RoomObjectPopulationLoader
 {
@@ -20,7 +20,7 @@ internal sealed class RoomObjectPopulationLoader
     private readonly BombTorizoHandObjects _bombTorizoHand;
     /// <summary>Sets up permanent item slots and their dynamic graphics.</summary>
     private readonly CollectibleObjects _collectibleObjects;
-    /// <summary>Sets up eye-door headers after allocating their PLM slots.</summary>
+    /// <summary>Sets up eye-door headers after allocating their room-object slots.</summary>
     private readonly EyeDoorObjects _eyeDoors;
     /// <summary>Sets up downward gates and their collision changes.</summary>
     private readonly GateObjects _gates;
@@ -33,7 +33,7 @@ internal sealed class RoomObjectPopulationLoader
     /// <summary>Initializes the Speed Booster escape object when its header appears.</summary>
     private readonly SpeedBoosterEscapeObjects _speedBoosterEscape;
 
-    /// <summary>Connects setup-family services and the shared slot table for one PLM system.</summary>
+    /// <summary>Connects setup-family services and the shared slot table for one room-object system.</summary>
     internal RoomObjectPopulationLoader(RoomObjectPopulationLoaderDependencies dependencies)
     {
         _bombTorizoHand = dependencies.BombTorizoHand;
@@ -67,14 +67,14 @@ internal sealed class RoomObjectPopulationLoader
             RoomObjectHeaderId header = placement.Header.Header;
             if (DraygonCannonObjects.IsDraygonCannonHeader(header) != placement.Cannon.HasValue)
                 throw new InvalidDataException(
-                    $"Room PLM population {population.Name} record {recordIndex} ({header}) must carry a cannon-control word exactly when it is a Draygon cannon.");
+                    $"Room-object population {population.Name} record {recordIndex} ({header}) must carry a cannon-control word exactly when it is a Draygon cannon.");
             var record = new RoomObjectPopulationRecord(
                 recordIndex, header, placement.Block, placement.Argument);
 
             int blockIndex;
             try
             {
-                // A room PLM spawn allocates the ID first and converts the two unsigned
+                // A room-object spawn allocates the ID first and converts the two unsigned
                 // coordinates with the room-width multiplier without checking logical
                 // dimensions. The bounded allocation preserves that ordering for
                 // the two shipped off-room door records; setup routines that genuinely
@@ -84,7 +84,7 @@ internal sealed class RoomObjectPopulationLoader
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
-                    $"Room PLM population {population.Name} record {recordIndex} " +
+                    $"Room-object population {population.Name} record {recordIndex} " +
                     $"header {header} has block outside the room's allocated blocks " +
                     $"({record.Block.X},{record.Block.Y}) and argument {record.Argument}.",
                     error);
@@ -101,7 +101,7 @@ internal sealed class RoomObjectPopulationLoader
                 // record without relying on a room-name special case.
                 slot.Clear();
                 throw new NotSupportedException(
-                    $"Room PLM population {population.Name} record {recordIndex} " +
+                    $"Room-object population {population.Name} record {recordIndex} " +
                     $"uses untranslated header " +
                     $"{header} at block ({record.Block.X},{record.Block.Y}) " +
                     $"with argument {record.Argument}.");

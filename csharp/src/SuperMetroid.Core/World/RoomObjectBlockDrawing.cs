@@ -19,11 +19,11 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>Draws PLM blocks into the room's terrain: compiled draws, their blocks and the visual catalogs that resolve them.</summary>
-/// <param name="visuals">The host's installed PLM artwork, which outlives each room's drawing.</param>
+/// <summary>Draws room-object blocks into the room's terrain: compiled draws, their blocks and the visual catalogs that resolve them.</summary>
+/// <param name="visuals">The host's installed room-object artwork, which outlives each room's drawing.</param>
 internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomObjectDrawing
 {
-    /// <summary>The host's installed PLM artwork.</summary>
+    /// <summary>The host's installed room-object artwork.</summary>
     private readonly RoomObjectVisuals _visuals = Ensure.NotNull(visuals);
 
     /// <summary>Visual-only shot-block selection; collision remains compiled.</summary>
@@ -59,7 +59,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Bomb Torizo hand art; the draw's terrain stays compiled.</summary>
     public InstalledRoomObjectBombTorizoHandVisuals? BombTorizoHandVisuals => _visuals.RoomObjectBombTorizoHandVisuals;
 
-    /// <summary>Chozo statue PLM art; the draw's terrain stays compiled.</summary>
+    /// <summary>Chozo statue room-object art; the draw's terrain stays compiled.</summary>
     public InstalledRoomObjectChozoStatueVisuals? ChozoStatueVisuals => _visuals.RoomObjectChozoStatueVisuals;
 
     /// <summary>Linked-block restoration art; collision stays compiled.</summary>
@@ -71,7 +71,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>The installed picture of the Speed Booster block reveal; compiled terrain still determines collision and breakability.</summary>
     public InstalledRoomObjectSpeedBoosterVisuals? SpeedBoosterVisuals => _visuals.RoomObjectSpeedBoosterVisuals;
 
-    /// <summary>The installed picture of the Maridia elevatube for the draw it shares with Kraid's room, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
+    /// <summary>The installed picture of the Maridia elevatube for the draw it shares with Kraid's room, selected by room-object ownership rather than borrowing Kraid's appearance.</summary>
     public InstalledRoomObjectMaridiaElevatubeVisuals? MaridiaElevatubeVisuals => _visuals.RoomObjectMaridiaElevatubeVisuals;
 
     /// <summary>The installed pictures of the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their terrain or sequence timing.</summary>
@@ -98,7 +98,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining the draw's collision.</summary>
     public void Draw(RoomLevelData level, int blockIndex, RoomObjectDraw draw)
     {
-        // A draw is a list of runs, each a row or a column of blocks starting at its own offset from the PLM origin; the
+        // A draw is a list of runs, each a row or a column of blocks starting at its own offset from the room-object origin; the
         // list ends at its last run. The 2x2 bomb art is consequently two horizontal runs: row zero at the origin, then
         // row one starting one block below it.
         Position16<RoomBlocks> origin = level.Size.CellAtRowMajorIndex(blockIndex);
@@ -289,8 +289,8 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             RoomObjectFrameImage gatePicture = Installed(DownwardGateVisuals, "downward gate").Image(draw);
             for (int run = 0; run < gate.RunCount; run++)
-                for (int word = 0; word < gate.BlockCount(run); word++)
-                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), gate.CollisionAt(run, word));
+                for (int cell = 0; cell < gate.BlockCount(run); cell++)
+                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : cell, gate.Column ? cell : 0), gate.CollisionAt(run, cell));
             return;
         }
         if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))
@@ -304,8 +304,8 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             RoomObjectFrameImage hand = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw);
             for (int run = 0; run < bombTorizoHand.RunCount; run++)
-                for (int word = 0; word < bombTorizoHand.BlockCount(run); word++)
-                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), bombTorizoHand.CollisionAt(run, word));
+                for (int cell = 0; cell < bombTorizoHand.BlockCount(run); cell++)
+                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(cell, 0), bombTorizoHand.CollisionAt(run, cell));
             return;
         }
         if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
@@ -338,13 +338,13 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (GrappleBlockObjectDraws.TryGet(draw, out var grapple))
         {
-            // All five draws are a single block at the PLM origin. The terrain retains Grapple/air collision
+            // All five draws are a single block at the room-object origin. The terrain retains Grapple/air collision
             // independently of art.
             DrawImageCell(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), Offset16<RoomBlocks>.Zero, grapple.Collision);
             return;
         }
 
-        throw new InvalidDataException($"PLM draw {draw} has no compiled definition.");
+        throw new InvalidDataException($"Room-object draw {draw} has no compiled definition.");
     }
 
     /// <summary>
@@ -359,7 +359,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 DrawImageCell(level, definition.Draw, origin, image, run.CellAt(offset), run.Collisions.Span[offset]);
     }
 
-    /// <summary>Converts a draw's block coordinate to a PLM block index before writing its terrain.</summary>
+    /// <summary>Converts a draw's block coordinate to a room-object block index before writing its terrain.</summary>
     private static void DrawTerrainAt(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> block, RoomTerrainBlock terrain)
     {
         int blockIndex;
@@ -370,8 +370,8 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         catch (ArgumentOutOfRangeException error)
         {
             throw new InvalidDataException(
-                $"PLM draw {draw} targets block ({block.X},{block.Y}) outside " +
-                "the room's PLM-reachable blocks.", error);
+                $"Room-object draw {draw} targets block ({block.X},{block.Y}) outside " +
+                "the room's room-object-reachable blocks.", error);
         }
 
         RoomObjectLevelWrites.DrawTerrain(level, blockIndex, terrain);

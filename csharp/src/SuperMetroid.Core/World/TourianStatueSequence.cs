@@ -11,8 +11,8 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Owns the four statue tile programs and the descending background
-/// pre-instructions. Boss victories and grey-statue events are deliberately separate:
+/// Owns the four statue tile programs and the descending background's
+/// per-frame steps. Boss victories and grey-statue events are deliberately separate:
 /// visiting the room must play each release before opening the elevator route.
 /// </summary>
 [RoomLifetime]
@@ -40,7 +40,7 @@ public sealed class TourianStatueSequence
     /// <param name="dependencies">The session owners the sequence reads and writes.</param>
     /// <param name="roomFxOverlay">The room's effect overlay FX, whose earthquake sound the descent publishes.</param>
     /// <param name="roomPaletteFx">The room's palette FX.</param>
-    /// <param name="roomObjects">The room's PLM system, which receives the Tourian access PLM when the statues are already open.</param>
+    /// <param name="roomObjects">The room's room-object system, which receives the Tourian access room object when the statues are already open.</param>
     /// <param name="enemies">The room's enemies, whose statue actors the sequence drives.</param>
     internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies, RoomFxOverlayState roomFxOverlay,
         RoomPaletteFxSystem roomPaletteFx, RoomObjectSystem roomObjects, RoomEnemySystem enemies)
@@ -113,7 +113,7 @@ public sealed class TourianStatueSequence
     /// Restarts the room's statue sequence when the statues newly stand open while Samus is in the room: the statues
     /// return to their starting delay and descent, then begin as a room load would.
     /// </summary>
-    /// <param name="roomObjects">The room's PLM system.</param>
+    /// <param name="roomObjects">The room's room-object system.</param>
     internal void RestartWithStatuesOpen(RoomObjectSystem roomObjects)
     {
         objects.Clear();
@@ -125,7 +125,7 @@ public sealed class TourianStatueSequence
 
     /// <summary>Begins the room's statue sequence, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
     /// <remarks>
-    /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
+    /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its room object, and enables vertical scrolling.
     /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
     /// </remarks>
     private void Begin(RoomObjectSystem roomObjects)
@@ -172,7 +172,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Runs AnimtilesHandler in spawn order: each live statue counts its frame down and, when it expires,
+    /// Runs the animated tiles in spawn order: each live statue counts its frame down and, when it expires,
     /// advances its typed program to the next shown picture, running the program's cues on the way.
     /// </summary>
     public void StepTiles()

@@ -448,7 +448,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The species registry that binds each installed occupant's entity.</summary>
     internal EnemySpeciesRegistry Species { get; }
 
-    /// <summary>The loaded room's address space, services and artwork, shared with the composed owners.</summary>
+    /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
     internal EnemyRoomBinding Room { get; }
 
     /// <summary>
@@ -508,11 +508,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The enemy setup the attract demo's room setups perform.</summary>
     internal IEnemyAttractDemoHooks AttractDemoHooks => field ??= new EnemyAttractDemoHooks(KraidBehavior);
 
-    /// <summary>The enemy-side effects room PLMs and room effects trigger.</summary>
+    /// <summary>The enemy-side effects room objects and room effects trigger.</summary>
     internal IEnemyObjectSpawns RoomObjectSpawns => field ??= new EnemyObjectSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
         DraygonBehavior, MotherBrainBehavior, BombTorizoBehavior, EscapeExplosionsBehavior);
 
-    /// <summary>The PLM work the Chozo statues and downward gates exchange with their PLMs each frame.</summary>
+    /// <summary>The room-object work the Chozo statues and downward gates exchange with their room objects each frame.</summary>
     internal IEnemyObjectRequests RoomObjectRequests => field ??= new EnemyObjectRequests(ChozoStatueBehavior, DownwardGateBehavior);
 
     /// <summary>The Tourian statue sequence's operations.</summary>
@@ -863,12 +863,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Whether <see cref="Load"/> has loaded this room's population; a room loads it once.</summary>
     private bool _populationLoaded;
 
-    /// <summary>Whether an address-space dependency has been bound by <see cref="Load"/>; this reports binding, not successful completion of every initializer or artwork validation.</summary>
+    /// <summary>Whether the room's enemy definitions have been bound by <see cref="Load"/>; this reports binding, not successful completion of every initializer or artwork validation.</summary>
     public bool IsLoaded => Room.IsLoaded;
 
     /// <summary>
-    /// Ports the data-producing parts of <c>LoadEnemies</c>,
-    /// <c>ProcessEnemyTilesets</c>, and <c>InitializeEnemies</c>.
+    /// Loads the room's enemies: their graphics set, their population and each one's initialization.
     /// </summary>
     public void Load(IRoomEnemyLoad request)
     {
@@ -891,8 +890,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RinkaBehavior.SetRinkaCamera(request.Camera);
         ShuttersBehavior.BeginShutterFrame(request.Camera);
 
-        // Enemy loading does not even inspect the room's enemy set when the first population
-        // word is the terminator. This is observable: an empty room must not overwrite
+        // Enemy loading does not even inspect the room's enemy set when the population
+        // is empty. This is observable: an empty room must not overwrite
         // the room's colours or enemy artwork merely because its state happens to retain a non-empty enemy set.
         RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
@@ -904,7 +903,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     }
 
     /// <summary>
-    /// Runs one enemy pass: executes selected AI and instruction lists, publishes
+    /// Runs one enemy pass: executes selected AI and animation scripts, publishes
     /// live collision bodies and frame requests, and builds queues for the later draw phase.
     /// </summary>
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
@@ -932,14 +931,14 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
         foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
         {
-            // EnemyMain decrements tangible actors' invincibility
+            // The enemy pass decrements tangible actors' invincibility
             // before checking time freeze. X-ray therefore stops their movement but
             // not this clock. Remember the entry value: the call that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
             bool invincibleAtEntry = slot.InvincibilityTimer != 0;
             if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus) && invincibleAtEntry)
                 slot.InvincibilityTimer--;
-            // EnemyMain checks contact against the pre-movement actor, not the position
+            // The enemy pass checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // Samus's movement consumes the carry; a late touch pass would retrigger that support.
             if (!frame.TimeIsFrozen && !invincibleAtEntry && frame.ResolveSamusContactBeforeAi && frame.Samus is not null)
@@ -952,7 +951,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
                     Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
                         frame.Samus, slot);
-                // Alpha already updated the bomb slots. EnemyMain checks
+                // Alpha already updated the bomb slots. The enemy pass checks
                 // them before this actor's touch and AI, so escape starts now.
                 if (frame.SharedProjectiles is not null && frame.SamusProjectiles is not null)
                     Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot);
@@ -978,7 +977,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     hurt(slot, frame);
                     ranActorAi = true;
                 }
-                // EnemyMain selects the handler from the lowest set AI bit alone. A frozen
+                // The enemy pass selects the handler from the lowest set AI bit alone. A frozen
                 // clock without bit four (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
                 if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
@@ -1026,7 +1025,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 if (ranActorAi)
                 {
                     slot.FrameCounter = WrappingCounter.IncrementWord(slot.FrameCounter);
-                    // EnemyMain skips the animation script whenever frozen bit
+                    // The enemy pass skips the animation script whenever frozen bit
                     // four is present, even if lower-priority hurt bit two selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
@@ -1042,7 +1041,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 }
             }
 
-            // EnemyMain queues ordinary-sprite actors only after AI and instruction work.
+            // The enemy pass queues ordinary-sprite actors only after AI and animation work.
             // The two hide-drawing properties suppress drawing, while the always-queue extra property can
             // force an otherwise off-screen actor into the queue. Gunship uses the normal
             // radius-aware visibility test.
@@ -1051,13 +1050,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             if (visible && !slot.Presence.HasAny(EnemyPresence.Hidden | EnemyPresence.Deleted))
                 Drawing.Enqueue(slot.Layer, slot);
 
-            // EnemyMain performs this after the enemy has been admitted to its draw queue.
+            // The enemy pass performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the
             // frame just processed rather than the already-decremented following frame.
             if (!frame.TimeIsFrozen && slot.FlashTimer != 0)
             {
                 slot.FlashTimer--;
-                // EnemyMain clears hurt dispatch once the post-decrement timer is below
+                // The enemy pass clears hurt dispatch once the post-decrement timer is below
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
                 if (slot.FlashTimer - 8 < 0)
@@ -1190,7 +1189,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         return table;
     }
 
-    /// <summary>Maps enemy-definition bomb reaction pointers to translated handlers.</summary>
+    /// <summary>Maps each enemy definition's bomb reaction to its translated handler.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations.</remarks>
     private void AddBombReactions(EnemySharedReactions table)
@@ -1205,7 +1204,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CeresRidleyBehavior.Hits.AddCeresRidleyBombReactions(table);
         BombTorizoBehavior.Combat.AddBombTorizoBombReactions(table);
 
-        // The body callback is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and the
+        // The body's reaction makes a dud shot. The multibox bomb walker has already marked the physical explosion, and the
         // body callback performs no health, phase, or multipart-state work of its own.
         MotherBrainCombat.AddMotherBrainBodyBombReactions(table);
         MotherBrainBehavior.Combat.AddMotherBrainBombReactions(table);
@@ -1219,13 +1218,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RipperBehavior.AddRipperBombReactions(table);
         DragonBehavior.AddDragonBombReactions(table);
         // The metal-debris death restores the dying actor's graphics long enough to seed four debris actors, then clears both
-        // words. The host death flag does not erase the record, so the exact source remains here.
+        // values. The host death flag does not erase the record, so the exact source remains here.
         MetareeBehavior.AddMetareeBombReactions(table);
         FirefleaBehavior.AddFirefleaBombReactions(table);
         FakeKraidBehavior.AddFakeKraidBombReactions(table);
         PlatformsBehavior.AddPlatformsBombReactions(table);
-        // Skree's callback owns its four-piece burst and death animation because it called
-        // `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).
+        // Skree's callback owns its four-piece burst and death animation because its shot reaction skips the
+        // ordinary death animation. A normal bomb selects death variant zero (only missiles select two).
         SkreeBehavior.AddSkreeBombReactions(table);
         ZebetiteBehavior.AddZebetiteBombReactions(table);
         SporeSpawnBehavior.AddSporeSpawnBombReactions(table);
@@ -1280,12 +1279,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         DraygonBehavior.Combat.AddDraygonPowerBombReactions(table);
 }
 
-    /// <summary>Advances enemy-projectile actors after Samus movement and before PLMs.</summary>
+    /// <summary>Advances enemy-projectile actors after Samus movement and before room objects.</summary>
     public void StepEnemyProjectileInstructions(
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int frameCounterByte,
+        int shortFrameCounter,
         SamusBombProjectileSystem? samusBombs,
         int frameCounter)
     {
@@ -1294,12 +1293,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // A projectile pass starts with no drop or death sound pending: the previous pass's, published or not, are dropped.
         Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyPickup);
         Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyDeath);
-        Projectiles.RunPass(level, samus, camera, frameCounterByte, samusBombs, frameCounter);
+        Projectiles.RunPass(level, samus, camera, shortFrameCounter, samusBombs, frameCounter);
     }
 
     /// <summary>
     /// Registers species projectile handlers before generic and cross-species handlers,
-    /// preserving the keyed pre-instruction and ordered instruction-interceptor dispatch.
+    /// preserving the keyed per-frame step and ordered script-interceptor dispatch.
     /// </summary>
     void IEnemyProjectileHandlerSource.AddEnemyProjectileHandlers(EnemyProjectileHandlerTable table)
     {
@@ -1363,7 +1362,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         DeathsAndDrops.ConnectDeathExplosionCues(table);
     }
 
-    /// <summary>Maps shot-response pointers, including species-specific damage behavior.</summary>
+    /// <summary>Maps shot responses, including species-specific damage behavior.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive. Kraid's parts
     /// precede the generic ignoring header and the ordinary normal-shot reaction is last, because Crocomire's
@@ -1482,9 +1481,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 }
 
 
-    /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
-    /// <remarks>Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt
-    /// pointer is last.</remarks>
+    /// <summary>Maps hurt-state AI used while enemies are flashing or reacting.</summary>
+    /// <remarks>Hurt AI is a first-match list in the enemy pass's dispatch order; the shared no-op hurt
+    /// AI is last.</remarks>
     private void AddHurtAi(EnemySharedReactions table)
     {
         MetroidBehavior.AddMetroidHurtAi(table);
@@ -1495,7 +1494,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         table.AddHurt(slot => slot.Definition.HurtAi == EnemyAiRoutine.Inert, (_, _) => { });
     }
 
-    /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>
+    /// <summary>Maps frozen-state AI used while ice suspends normal behavior.</summary>
     /// <remarks>Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after
     /// it.</remarks>
     private void AddFrozenAi(EnemySharedReactions table)

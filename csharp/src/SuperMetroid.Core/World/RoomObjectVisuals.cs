@@ -11,9 +11,9 @@ using SuperMetroid.Core.Areas.Tourian.Artwork;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Visual state of the room's shot-reactive PLM blocks.
+/// Visual state of the room's shot-reactive room-object blocks.
 /// </summary>
-[ArchitectureReview("context-bag", "The installed PLM visual catalogs a host binds; every member is immutable artwork data, not a service.")]
+[ArchitectureReview("context-bag", "The installed room-object visual catalogs a host binds; every member is immutable artwork data, not a service.")]
 internal sealed class RoomObjectVisuals
 {
     /// <summary>Visual-only shot-block selection; collision words remain compiled.</summary>
@@ -58,7 +58,7 @@ internal sealed class RoomObjectVisuals
     /// <summary>The installed pictures of Draygon's cannon frames; collision stays with the draws.</summary>
     public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; set; }
 
-    /// <summary>Chozo statue PLM art; physical draw words stay compiled.</summary>
+    /// <summary>Chozo statue room-object art; physical draw words stay compiled.</summary>
     public InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; set; }
 
     /// <summary>Linked-block restoration art; collision stays compiled.</summary>
@@ -71,7 +71,7 @@ internal sealed class RoomObjectVisuals
     /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
     public InstalledRoomObjectSpeedBoosterVisuals? RoomObjectSpeedBoosterVisuals { get; set; }
 
-    /// <summary>Gets or replaces Maridia elevatube artwork for the shared elevatube draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
+    /// <summary>Gets or replaces Maridia elevatube artwork for the shared elevatube draw, selected by room-object ownership rather than borrowing Kraid's appearance.</summary>
     /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
     public InstalledRoomObjectMaridiaElevatubeVisuals? RoomObjectMaridiaElevatubeVisuals { get; set; }
 
@@ -86,7 +86,7 @@ internal sealed class RoomObjectVisuals
     /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
     public InstalledRoomObjectBotwoonWallVisuals? RoomObjectBotwoonWallVisuals { get; set; }
 
-    /// <summary>Gets or replaces Kraid ceiling/spike PLM artwork, distinct from the boss's private body maps and from elevatube owners of the shared elevatube draw.</summary>
+    /// <summary>Gets or replaces Kraid ceiling/spike room-object artwork, distinct from the boss's private body maps and from elevatube owners of the shared elevatube draw.</summary>
     /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
     public InstalledRoomObjectKraidVisuals? RoomObjectKraidVisuals { get; set; }
 

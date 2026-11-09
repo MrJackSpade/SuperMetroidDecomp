@@ -419,7 +419,7 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition ElectricDeathDefault { get; } = Find(nameof(ElectricDeathDefault));
     /// <summary>The enemy population of the Bowling Alley room once the area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition BowlingAlleyWhenAreaBossDead { get; } = Find(nameof(BowlingAlleyWhenAreaBossDead));
-    /// <summary>The enemy population of the Assembly Line room in its default state.</summary>
+    /// <summary>The enemy population of Wrecked Ship's Assembly Line room in its default state.</summary>
     public static RoomEnemyPopulationDefinition AssemblyLineDefault { get; } = Find(nameof(AssemblyLineDefault));
     /// <summary>The enemy population of the Phantoon room once the area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition PhantoonWhenAreaBossDead { get; } = Find(nameof(PhantoonWhenAreaBossDead));
@@ -435,7 +435,7 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition BasementDefault { get; } = Find(nameof(BasementDefault));
     /// <summary>The enemy population of the Wrecked Ship Entrance room in its default state.</summary>
     public static RoomEnemyPopulationDefinition WreckedShipEntranceDefault { get; } = Find(nameof(WreckedShipEntranceDefault));
-    /// <summary>The enemy population of the Assembly Line room once the area's boss is dead.</summary>
+    /// <summary>The enemy population of Wrecked Ship's Assembly Line room once the area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition AssemblyLineWhenAreaBossDead { get; } = Find(nameof(AssemblyLineWhenAreaBossDead));
     /// <summary>The enemy population of the Wrecked Ship Save room once the area's boss is dead.</summary>
     public static RoomEnemyPopulationDefinition WreckedShipSaveWhenAreaBossDead { get; } = Find(nameof(WreckedShipSaveWhenAreaBossDead));

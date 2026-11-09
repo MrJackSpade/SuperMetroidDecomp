@@ -11,7 +11,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// SRAM image as raw pages, whose remaining fields are read back through <see cref="SaveRamCodec"/>; schema two (#1475)
 /// listed bosses, used stations and acquired maps by the cartridge's table positions, which become lists by area; schema
 /// three (#1523) kept the cartridge's loading-state word, which becomes the startup route it selects; schema four
-/// (#1527) listed the Zebetite count as three event bits, which become a count, and named an event after its number.
+/// (#1527) listed the Zebetite count as three event bits, which become a count, and named an event after its number;
+/// schema five (#1553) listed event-table bits no story event uses by number, which hold nothing the game reads.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -49,7 +50,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through four to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through five to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -63,7 +64,9 @@ public static class LegacyGameSaveJson
             UpgradeSchemaTwo(root);
         if (sourceSchemaVersion <= SchemaThree)
             UpgradeSchemaThree(root);
-        UpgradeSchemaFour(root);
+        if (sourceSchemaVersion <= SchemaFour)
+            UpgradeSchemaFour(root);
+        UpgradeSchemaFive(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
@@ -71,18 +74,64 @@ public static class LegacyGameSaveJson
     /// <summary>The schema that kept the cartridge's loading-state word.</summary>
     private const int SchemaThree = 3;
 
+    /// <summary>The schema that listed the Zebetite count as three event bits.</summary>
+    private const int SchemaFour = 4;
+
+    /// <summary>
+    /// Schema five to six (#1553): schema five listed a bit of the event table that no story event uses as its number,
+    /// <c>0xNN</c>. Nothing in the game reads such a bit (only SpaceTime's overwrite or an imported save image could set
+    /// one), so, like schema two's padding, it is not carried; every named event is kept as it was.
+    /// </summary>
+    private static void UpgradeSchemaFive(JsonObject root)
+    {
+        foreach ((JsonObject progression, int index) in Progressions(root))
+        {
+            JsonArray events = progression["events"] as JsonArray ??
+                throw new InvalidDataException($"slots[{index}].progression.events is required");
+            var named = new JsonArray();
+            foreach (JsonNode? entry in events)
+            {
+                string name = entry is JsonValue value && value.TryGetValue(out string? text) ? text
+                    : throw new InvalidDataException($"slots[{index}].progression.events lists an event that is not a string");
+                if (!name.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    named.Add(name);
+            }
+            progression["events"] = named;
+        }
+    }
+
+    /// <summary>Each saved slot's progression object and the slot's index.</summary>
+    private static List<SlotProgression> Progressions(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        var progressions = new List<SlotProgression>();
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is null) continue;
+            JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
+            progressions.Add(new SlotProgression(slot["progression"] as JsonObject ??
+                throw new InvalidDataException($"slots[{index}].progression is required"), index));
+        }
+        return progressions;
+    }
+
+    /// <summary>One saved slot's progression object.</summary>
+    /// <param name="Progression">The slot's progression object.</param>
+    /// <param name="Index">The slot's index.</param>
+    private sealed record SlotProgression(JsonObject Progression, int Index);
+
     /// <summary>The event names through which schema four listed the Zebetite counter's bits, lowest bit first.</summary>
     private static readonly string[] ZebetiteCounterEventNames =
         ["ZebetiteDestroyedBit0", "ZebetiteDestroyedBit1", "ZebetiteDestroyedBit2"];
 
-    /// <summary>The name schema four gave the event schema five names <see cref="EventNumber.ShitroidEncounterMusicSkipped"/>.</summary>
+    /// <summary>The name schema four gave the event schema five names <see cref="StoryEvent.ShitroidEncounterMusicSkipped"/>.</summary>
     private const string ShitroidEncounterMusicSkippedSchemaFourName = "Unused14";
 
     /// <summary>
     /// Schema four to five (#1527): schema four listed the Zebetite count as the three events
     /// <c>ZebetiteDestroyedBit0</c> through <c>ZebetiteDestroyedBit2</c>, the bits of the cartridge's counter; they leave
     /// a slot's events and become its <c>zebetitesDestroyed</c> count, read as the cartridge's table codec reads the
-    /// counter. The event schema four called <c>Unused14</c> is renamed to <see cref="EventNumber.ShitroidEncounterMusicSkipped"/>.
+    /// counter. The event schema four called <c>Unused14</c> is renamed to <see cref="StoryEvent.ShitroidEncounterMusicSkipped"/>.
     /// </summary>
     private static void UpgradeSchemaFour(JsonObject root)
     {
@@ -108,7 +157,7 @@ public static class LegacyGameSaveJson
                 if (bit >= 0)
                     counter |= 1 << bit;
                 else if (string.Equals(name, ShitroidEncounterMusicSkippedSchemaFourName, StringComparison.OrdinalIgnoreCase))
-                    upgraded.Add(nameof(EventNumber.ShitroidEncounterMusicSkipped));
+                    upgraded.Add(nameof(StoryEvent.ShitroidEncounterMusicSkipped));
                 else
                     upgraded.Add(name);
             }

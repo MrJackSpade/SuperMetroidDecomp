@@ -159,7 +159,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.IsWreckedShip)
         {
             // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
-            _room.Services.Events.Set(EventNumber.LowerNorfairChozoLoweredAcid);
+            _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
             PublishHardcodedChozoObject(
                 RoomObjectHeaderId.CrumbleLowerNorfairChozoRoomPlug,
                 ChozoStatueRoomDefinitions.LowerNorfairHandBlock);

@@ -21,8 +21,8 @@ internal static class TourianStatueDescentRoundingVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
-        foreach (EventNumber grey in new[] { EventNumber.PhantoonStatueGrey, EventNumber.RidleyStatueGrey,
-                     EventNumber.DraygonStatueGrey, EventNumber.KraidStatueGrey })
+        foreach (StoryEvent grey in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey,
+                     StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
             runtime.System.SetEvent(grey);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         runtime.Player.IntroducedSamus.Control.LockHandlers();
@@ -36,7 +36,7 @@ internal static class TourianStatueDescentRoundingVerification
         runtime.StepFrame(0);
         AssertEqual(-2, runtime.TourianStatues.VerticalOffset, "the fifth quarter step reaches -2");
 
-        StepUntil(() => runtime.System.HasEvent(EventNumber.TourianUnlocked), _ => runtime.StepFrame(0),
+        StepUntil(() => runtime.System.HasEvent(StoryEvent.TourianUnlocked), _ => runtime.StepFrame(0),
             maximumFrames: 1000, context: "the statues finish descending");
         AssertEqual(-240, runtime.TourianStatues.VerticalOffset,
             "Tourian unlocks the frame the whole word first reads $FF10");

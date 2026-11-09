@@ -33,7 +33,7 @@ internal static class AcidStatueFirstEntryVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(EventNumber.LowerNorfairChozoLoweredAcid);
+        runtime.System.SetEvent(StoryEvent.LowerNorfairChozoLoweredAcid);
         runtime.LoadCartridgeRoomForDebug(sourceRoom);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
@@ -71,7 +71,7 @@ internal static class AcidStatueFirstEntryVerification
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
         transition.Begin(runtime);
-        AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid),
+        AssertTrue(runtime.System.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid),
             "completed Chozo event survives source-room staging");
         int destinationFrames = 0;
         bool sawDestinationFade = false;

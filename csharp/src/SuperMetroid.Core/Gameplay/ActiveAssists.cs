@@ -54,7 +54,7 @@ internal sealed class ActiveAssists
         if (Current.EncounterResetOnLoad is not { } reset) return;
         foreach (AreaId area in reset.BossAreas)
             _system.ClearBossBits(area, BossBitMasks.AllKnown);
-        foreach (EventNumber eventNumber in reset.ClearedEvents)
+        foreach (StoryEvent eventNumber in reset.ClearedEvents)
             _system.ClearEvent(eventNumber);
         foreach (int door in reset.ClearedDoorFlags)
             _system.Progress.OpenedDoors.Remove(door);

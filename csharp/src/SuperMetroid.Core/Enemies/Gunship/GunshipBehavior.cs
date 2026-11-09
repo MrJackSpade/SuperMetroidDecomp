@@ -468,7 +468,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // The Zebes-timebomb-set event is set by Mother Brain's death sequence. Bypasses every refill
         // and save-prompt branch here, installs the takeoff tile uploader, and keeps the
         // already hidden/input-locked Samus rigidly attached to the ship.
-        if (_room.Services.Events.Has(EventNumber.ZebesTimebombSet))
+        if (_room.Services.Events.Has(StoryEvent.ZebesTimebombSet))
         {
             RoomEnemySlot bottom = Pieces(top).Bottom;
             Part(top).Function = GunshipFunction.ReadyTakeoffEngines;

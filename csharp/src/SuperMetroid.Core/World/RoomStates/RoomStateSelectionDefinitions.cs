@@ -16,23 +16,23 @@ public static class RoomStateSelectionDefinitions
     {
         [RoomHeaderDefinitions.LandingSite] = new(CrateriaRoomStateDefinitions.LandingSiteDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.LandingSiteWhenZebesTimebombSet),
+            new(RoomStateCondition.Event(StoryEvent.ZebesTimebombSet), CrateriaRoomStateDefinitions.LandingSiteWhenZebesTimebombSet),
             new(RoomStateCondition.PowerBombs, CrateriaRoomStateDefinitions.LandingSiteWithPowerBombs),
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.LandingSiteWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), CrateriaRoomStateDefinitions.LandingSiteWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.GauntletEntrance] = new(CrateriaRoomStateDefinitions.GauntletEntranceDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.GauntletEntranceWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), CrateriaRoomStateDefinitions.GauntletEntranceWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.Parlor] = new(CrateriaRoomStateDefinitions.ParlorDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.ParlorWhenZebesTimebombSet),
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.ParlorWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesTimebombSet), CrateriaRoomStateDefinitions.ParlorWhenZebesTimebombSet),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), CrateriaRoomStateDefinitions.ParlorWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.Climb] = new(CrateriaRoomStateDefinitions.ClimbDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.ClimbWhenZebesTimebombSet),
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.ClimbWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesTimebombSet), CrateriaRoomStateDefinitions.ClimbWhenZebesTimebombSet),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), CrateriaRoomStateDefinitions.ClimbWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.Pit] = new(CrateriaRoomStateDefinitions.PitDefault,
         [
@@ -44,21 +44,21 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomHeaderDefinitions.BombTorizo] = new(CrateriaRoomStateDefinitions.BombTorizoDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.BombTorizoWhenZebesTimebombSet),
+            new(RoomStateCondition.Event(StoryEvent.ZebesTimebombSet), CrateriaRoomStateDefinitions.BombTorizoWhenZebesTimebombSet),
             new(RoomStateCondition.BossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.BombTorizoWhenAreaTorizoDead),
         ]),
         [RoomHeaderDefinitions.Flyway] = new(CrateriaRoomStateDefinitions.FlywayDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesTimebombSet), CrateriaRoomStateDefinitions.FlywayWhenZebesTimebombSet),
+            new(RoomStateCondition.Event(StoryEvent.ZebesTimebombSet), CrateriaRoomStateDefinitions.FlywayWhenZebesTimebombSet),
             new(RoomStateCondition.BossDead(BossBits.AreaTorizo), CrateriaRoomStateDefinitions.FlywayWhenAreaTorizoDead),
         ]),
         [RoomHeaderDefinitions.FinalMissileBombway] = new(CrateriaRoomStateDefinitions.FinalMissileBombwayDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissileBombwayWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissileBombwayWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.FinalMissile] = new(CrateriaRoomStateDefinitions.FinalMissileDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissileWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), CrateriaRoomStateDefinitions.FinalMissileWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.SporeSpawn] = new(BrinstarRoomStateDefinitions.SporeSpawnDefault,
         [
@@ -66,15 +66,15 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomHeaderDefinitions.MorphBall] = new(BrinstarRoomStateDefinitions.MorphBallDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.MorphBallWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), BrinstarRoomStateDefinitions.MorphBallWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.ConstructionZone] = new(BrinstarRoomStateDefinitions.ConstructionZoneDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.ConstructionZoneWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), BrinstarRoomStateDefinitions.ConstructionZoneWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.BlueBrinstarETank] = new(BrinstarRoomStateDefinitions.BlueBrinstarETankDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ZebesAwake), BrinstarRoomStateDefinitions.BlueBrinstarETankWhenZebesAwake),
+            new(RoomStateCondition.Event(StoryEvent.ZebesAwake), BrinstarRoomStateDefinitions.BlueBrinstarETankWhenZebesAwake),
         ]),
         [RoomHeaderDefinitions.MiniKraid] = new(BrinstarRoomStateDefinitions.MiniKraidDefault,
         [
@@ -162,7 +162,7 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomHeaderDefinitions.GlassTunnel] = new(MaridiaRoomStateDefinitions.GlassTunnelDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.MaridiaNoobTubeBroken), MaridiaRoomStateDefinitions.GlassTunnelWhenMaridiaNoobTubeBroken),
+            new(RoomStateCondition.Event(StoryEvent.MaridiaNoobTubeBroken), MaridiaRoomStateDefinitions.GlassTunnelWhenMaridiaNoobTubeBroken),
         ]),
         [RoomHeaderDefinitions.ThePrecious] = new(MaridiaRoomStateDefinitions.ThePreciousDefault,
         [
@@ -170,7 +170,7 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomHeaderDefinitions.Shaktool] = new(MaridiaRoomStateDefinitions.ShaktoolDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ShaktoolClearedPath), MaridiaRoomStateDefinitions.ShaktoolWhenShaktoolClearedPath),
+            new(RoomStateCondition.Event(StoryEvent.ShaktoolClearedPath), MaridiaRoomStateDefinitions.ShaktoolWhenShaktoolClearedPath),
         ]),
         [RoomHeaderDefinitions.Botwoon] = new(MaridiaRoomStateDefinitions.BotwoonDefault,
         [
@@ -182,36 +182,36 @@ public static class RoomStateSelectionDefinitions
         ]),
         [RoomHeaderDefinitions.Metroids1] = new(TourianRoomStateDefinitions.Metroids1Default,
         [
-            new(RoomStateCondition.Event(EventNumber.FirstMetroidHallCleared), TourianRoomStateDefinitions.Metroids1WhenFirstMetroidHallCleared),
+            new(RoomStateCondition.Event(StoryEvent.FirstMetroidHallCleared), TourianRoomStateDefinitions.Metroids1WhenFirstMetroidHallCleared),
         ]),
         [RoomHeaderDefinitions.Metroids2] = new(TourianRoomStateDefinitions.Metroids2Default,
         [
-            new(RoomStateCondition.Event(EventNumber.FirstMetroidShaftCleared), TourianRoomStateDefinitions.Metroids2WhenFirstMetroidShaftCleared),
+            new(RoomStateCondition.Event(StoryEvent.FirstMetroidShaftCleared), TourianRoomStateDefinitions.Metroids2WhenFirstMetroidShaftCleared),
         ]),
         [RoomHeaderDefinitions.Metroids3] = new(TourianRoomStateDefinitions.Metroids3Default,
         [
-            new(RoomStateCondition.Event(EventNumber.SecondMetroidHallCleared), TourianRoomStateDefinitions.Metroids3WhenSecondMetroidHallCleared),
+            new(RoomStateCondition.Event(StoryEvent.SecondMetroidHallCleared), TourianRoomStateDefinitions.Metroids3WhenSecondMetroidHallCleared),
         ]),
         [RoomHeaderDefinitions.Metroids4] = new(TourianRoomStateDefinitions.Metroids4Default,
         [
-            new(RoomStateCondition.Event(EventNumber.SecondMetroidShaftCleared), TourianRoomStateDefinitions.Metroids4WhenSecondMetroidShaftCleared),
+            new(RoomStateCondition.Event(StoryEvent.SecondMetroidShaftCleared), TourianRoomStateDefinitions.Metroids4WhenSecondMetroidShaftCleared),
         ]),
         [RoomHeaderDefinitions.BlueHopper] = new(TourianRoomStateDefinitions.BlueHopperDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.BlueHopperWhenShitroidEncounterMusicSkipped),
+            new(RoomStateCondition.Event(StoryEvent.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.BlueHopperWhenShitroidEncounterMusicSkipped),
         ]),
         [RoomHeaderDefinitions.DustTorizo] = new(TourianRoomStateDefinitions.DustTorizoDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.DustTorizoWhenShitroidEncounterMusicSkipped),
+            new(RoomStateCondition.Event(StoryEvent.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.DustTorizoWhenShitroidEncounterMusicSkipped),
         ]),
         [RoomHeaderDefinitions.BigBoy] = new(TourianRoomStateDefinitions.BigBoyDefault,
         [
-            new(RoomStateCondition.Event(EventNumber.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.BigBoyWhenShitroidEncounterMusicSkipped),
+            new(RoomStateCondition.Event(StoryEvent.ShitroidEncounterMusicSkipped), TourianRoomStateDefinitions.BigBoyWhenShitroidEncounterMusicSkipped),
         ]),
         [RoomHeaderDefinitions.MotherBrain] = new(TourianRoomStateDefinitions.MotherBrainDefault,
         [
             new(RoomStateCondition.BossDead(RoomStateSelectorOperands.MainAreaBoss), TourianRoomStateDefinitions.MotherBrainWhenMainAreaBossDead),
-            new(RoomStateCondition.Event(EventNumber.MotherBrainGlassDestroyed), TourianRoomStateDefinitions.MotherBrainWhenMotherBrainGlassDestroyed),
+            new(RoomStateCondition.Event(StoryEvent.MotherBrainGlassDestroyed), TourianRoomStateDefinitions.MotherBrainWhenMotherBrainGlassDestroyed),
         ]),
         [RoomHeaderDefinitions.CeresElev] = new(CeresRoomStateDefinitions.CeresElevDefault,
         [

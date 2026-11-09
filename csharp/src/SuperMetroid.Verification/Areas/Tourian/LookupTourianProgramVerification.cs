@@ -109,7 +109,7 @@ internal static class LookupTourianProgramVerification
                     break;
                 }
                 case AnimatedTileInstruction.GotoIfEventSet:
-                    AssertEqual(operand, definition.GreyEvent.ToEventNumber(), $"{at}: grey event");
+                    AssertEqual(operand, definition.GreyEvent.Number(), $"{at}: grey event");
                     steps.Add(Cue(TourianStatueTileCueKind.GoToIfGrey,
                         Label(labels, Word(rom, instruction.Cursor + 4), at)));
                     break;
@@ -139,7 +139,7 @@ internal static class LookupTourianProgramVerification
                     steps.Add(Cue(TourianStatueTileCueKind.SpawnGreyPaletteFx));
                     break;
                 case AnimatedTileInstruction.SetEvent:
-                    AssertEqual(operand, definition.GreyEvent.ToEventNumber(), $"{at}: grey event set");
+                    AssertEqual(operand, definition.GreyEvent.Number(), $"{at}: grey event set");
                     steps.Add(Cue(TourianStatueTileCueKind.SetGreyEvent));
                     break;
                 case AnimatedTileInstruction.WriteEightTargetPaletteColors:

@@ -114,7 +114,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     /// <summary>Whether the Lower Norfair acid has been lowered, the event the hand's program branches on.</summary>
     internal bool HasLoweredLowerNorfairAcid =>
         (_system ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
-            .HasEvent(EventNumber.LowerNorfairChozoLoweredAcid);
+            .HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid);
 
     /// <summary>Turns the Wrecked Ship Chozo spikes into slopes.</summary>
     internal static void TransformSpikesToSlopes(RoomLevelData level)

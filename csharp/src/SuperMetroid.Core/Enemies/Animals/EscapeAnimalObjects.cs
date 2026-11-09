@@ -47,7 +47,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
             "Crateria mainstreet escape passage requires the room event owner.");
         if (_slotTable.IsFull)
             return false;
-        if (!events.Has(EventNumber.CrittersEscaped))
+        if (!events.Has(StoryEvent.CrittersEscaped))
             return false;
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;

@@ -13,7 +13,7 @@ public sealed record SavedEncounterReset
     public required IReadOnlyList<AreaId> BossAreas { get; init => field = Ensure.NotNull(value); }
 
     /// <summary>The story events cleared, so the encounters they record happen again.</summary>
-    public required IReadOnlyList<EventNumber> ClearedEvents { get; init => field = Ensure.NotNull(value); }
+    public required IReadOnlyList<StoryEvent> ClearedEvents { get; init => field = Ensure.NotNull(value); }
 
     /// <summary>The door flags cleared, numbered as the save's door flags are, so the door guardians they record return.</summary>
     public required IReadOnlyList<int> ClearedDoorFlags { get; init => field = Ensure.NotNull(value); }

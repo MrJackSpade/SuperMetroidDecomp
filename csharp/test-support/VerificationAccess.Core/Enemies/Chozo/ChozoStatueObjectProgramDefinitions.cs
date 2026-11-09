@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Progression;
@@ -124,7 +125,7 @@ internal static class ChozoStatueObjectProgramDefinitions
                 return offset switch
                 {
                     0 => (ushort)RoomObjectInstruction.GotoIfEventSet,
-                    2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid.ToEventNumber(),
+                    2 => (ushort)StoryEvent.LowerNorfairChozoLoweredAcid.Number(),
                     4 => RestoreLoweredAcid,
                     6 => (ushort)RoomObjectInstruction.InstallFrameBehavior,
                     8 => ChozoStatueObjectNativeRoutines.WaitForLowerNorfairHand,

@@ -47,14 +47,14 @@ internal static class EscapeAnimalBlocksVerification
                 "grapple stops on rescue origin or extension");
             AssertEqual(before, roomObjects.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");
             AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "grapple leaves rescue wall intact");
-            AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "grapple alone cannot rescue animals");
+            AssertTrue(!system.HasEvent(StoryEvent.CrittersEscaped), "grapple alone cannot rescue animals");
         }
         AssertTrue(!roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.None, true), "native zero grapple word rejected");
         AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), true), "nonzero beam opens rescue wall");
-        AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "rescue event waits for animation");
+        AssertTrue(!system.HasEvent(StoryEvent.CrittersEscaped), "rescue event waits for animation");
         for (int frame = 0; frame < 16; frame++)
             roomObjects.Step(level);
-        AssertTrue(system.HasEvent(EventNumber.CrittersEscaped), "native animation sets rescue event");
+        AssertTrue(system.HasEvent(StoryEvent.CrittersEscaped), "native animation sets rescue event");
         for (int y = 10; y <= 12; y++)
             AssertEqual(RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(15, checked((ushort)y))).Terrain, "native rescue opening clears artwork but remains solid to Samus");
         Console.WriteLine("Animal rescue: native setup, ROM break animation, cleared wall and event verified.");

@@ -198,7 +198,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             for (int area = 1; area <= 4; area++)
                 runtime.System.SetBossBits(area, BossBits.AreaBoss);
-            for (int greyEvent = 6; greyEvent <= 9; greyEvent++)
+            foreach (StoryEvent greyEvent in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey, StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
                 runtime.System.Progress.Events.Add(greyEvent);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
             AssertTrue(runtime.TourianStatues.Enabled,

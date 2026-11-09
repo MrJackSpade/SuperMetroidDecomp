@@ -221,7 +221,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Samples the critters-escaped event for Dachora's instruction-list branch and room revisit handling.</summary>
-    private bool HasCrittersEscaped() => _room.Services.Events.Has(EventNumber.CrittersEscaped);
+    private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>
     /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent,

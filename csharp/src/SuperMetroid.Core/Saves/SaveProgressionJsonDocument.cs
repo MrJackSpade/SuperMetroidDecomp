@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>A save slot's persistent progress, each set listed by its own identities (schema three, #1475).</summary>
 public sealed record SaveProgressionJsonDocument
 {
-    /// <summary>The story events that have happened: a retail event's name, or <c>0xNN</c> for an event the game does not name.</summary>
+    /// <summary>The story events that have happened, by name, in the order the game lists them (schema six, #1553).</summary>
     public required string[] Events { get; init; }
 
     /// <summary>How many Zebetites have been destroyed, 0 through 4 (schema five, #1527).</summary>

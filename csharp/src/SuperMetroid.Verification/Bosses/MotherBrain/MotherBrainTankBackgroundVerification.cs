@@ -31,7 +31,7 @@ internal static class MotherBrainTankBackgroundVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(EventNumber.ZebesAwake);
+        runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
         // The room shows its library background as the installed image of the pages its list builds (#1406, #1466),

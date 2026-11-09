@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Progression;
 /// event, boss, orb, item, door, station and map as the copy does; the owner kept only the progress part of the
 /// overwrite (#1318).
 /// </remarks>
-/// <param name="Events">The story events, by event number, the copy decides.</param>
+/// <param name="Events">The story events the copy decides.</param>
 /// <param name="ZebetitesDestroyed">The Zebetite count the copy leaves, or null when it stops before deciding it.</param>
 /// <param name="AreaBosses">Each area whose defeated bosses the copy replaces, with the bosses it leaves defeated.</param>
 /// <param name="ChozoOrbs">The Chozo orbs, by room-data number, the copy decides.</param>
@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Progression;
 /// <param name="AreaMaps">Each area whose map the copy leaves acquired (true) or not (false).</param>
 /// <param name="SavedStartupRoute">The saved startup route replacing the session's, or null when the copy stops before it.</param>
 public sealed record ProgressionOverwrite(
-    FlagOverwrite Events,
+    DecidedFlags<StoryEvent> Events,
     int? ZebetitesDestroyed,
     IReadOnlyDictionary<AreaId, BossBits> AreaBosses,
     FlagOverwrite ChozoOrbs,

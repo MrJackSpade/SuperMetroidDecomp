@@ -15,7 +15,8 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// eight slots for seven areas; the station table holds a little-endian word per area slot, station <c>n</c> in its bit
 /// <c>n</c>; the map-station table holds a nonzero byte for each area whose map is acquired, then padding. Reading keeps
 /// what the game reads: the eighth area slot, boss bits no routine tests and map-station padding hold nothing the game
-/// can observe and are not kept, and writing leaves them clear. An explored-map plane stores an area's 64-by-32 cells as
+/// can observe and are not kept, and writing leaves them clear; so do the event table's bits no story event uses
+/// (<see cref="StoryEventNumbers"/>). An explored-map plane stores an area's 64-by-32 cells as
 /// two 32-column pages, most significant bit first. The event table keeps the Zebetite count as a three-bit counter in
 /// the bits of events three, four and five, lowest bit first (#1527); reading takes those bits out of the story events
 /// into <see cref="PersistentProgress.ZebetitesDestroyed"/>, and writing puts the count back into them.
@@ -24,7 +25,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 public static class ProgressionTableCodec
 {
     /// <summary>Bytes of the story-event table.</summary>
-    public const int EventByteCount = PersistentProgress.EventCount / BitsPerByte;
+    public const int EventByteCount = StoryEventNumbers.NumberCount / BitsPerByte;
 
     /// <summary>Bytes of the area-boss table: one per area slot.</summary>
     public const int AreaBossByteCount = 8;
@@ -97,14 +98,14 @@ public static class ProgressionTableCodec
     public static void ReadEvents(ReadOnlySpan<byte> table, PersistentProgress progress)
     {
         Ensure.NotNull(progress);
-        ReadFlags(table, progress.Events);
+        Ensure.LengthEqual(table, EventByteCount);
+        foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
+            progress.Events.Set(storyEvent, IsBitSet(table, storyEvent.Number()));
         int counter = 0;
         for (int bit = 0; bit < ZebetiteCounterBits; bit++)
         {
-            int counterEvent = FirstZebetiteCounterEvent + bit;
-            if (progress.Events.Contains(counterEvent))
+            if (IsBitSet(table, FirstZebetiteCounterEvent + bit))
                 counter |= 1 << bit;
-            progress.Events.Remove(counterEvent);
         }
         progress.ZebetitesDestroyed = ZebetitesDestroyed(counter);
     }
@@ -114,17 +115,16 @@ public static class ProgressionTableCodec
     /// events three through five.
     /// </summary>
     /// <exception cref="ArgumentException">The table is not eight bytes.</exception>
-    /// <exception cref="InvalidDataException">The story events hold a number the table keeps for the Zebetite counter.</exception>
     public static void WriteEvents(PersistentProgress progress, Span<byte> table)
     {
         Ensure.NotNull(progress);
-        for (int bit = 0; bit < ZebetiteCounterBits; bit++)
+        Ensure.LengthEqual(table, EventByteCount);
+        table.Clear();
+        foreach (StoryEvent storyEvent in progress.Events.Members)
         {
-            int counterEvent = FirstZebetiteCounterEvent + bit;
-            if (progress.Events.Contains(counterEvent))
-                throw new InvalidDataException($"Story event {counterEvent} is where the game keeps the Zebetite count, which progress holds as a count.");
+            int number = storyEvent.Number();
+            table[number / BitsPerByte] |= (byte)(1 << (number % BitsPerByte));
         }
-        WriteFlags(progress.Events, table);
         for (int bit = 0; bit < ZebetiteCounterBits; bit++)
         {
             if ((progress.ZebetitesDestroyed & (1 << bit)) != 0)
@@ -135,12 +135,18 @@ public static class ProgressionTableCodec
         }
     }
 
-    /// <summary>The story events <paramref name="eventTable"/>, an overwrite of the event table, decides, without the Zebetite counter's bits.</summary>
-    public static FlagOverwrite StoryEventsOf(FlagOverwrite eventTable)
+    /// <summary>
+    /// The story events <paramref name="eventTable"/>, an overwrite of the event table, decides: those whose bits it
+    /// reaches. The Zebetite counter's bits are <see cref="ZebetitesDestroyedOf"/>'s, and bits no story event uses hold
+    /// nothing the game reads.
+    /// </summary>
+    public static DecidedFlags<StoryEvent> StoryEventsOf(FlagOverwrite eventTable)
     {
         Ensure.NotNull(eventTable);
-        return new FlagOverwrite(eventTable.Decided, [.. eventTable.Set.Where(number =>
-            number is < FirstZebetiteCounterEvent or >= FirstZebetiteCounterEvent + ZebetiteCounterBits)]);
+        StoryEvent[] decided = [.. Enum.GetValues<StoryEvent>().Where(storyEvent => storyEvent.Number() < eventTable.Decided)];
+        return new DecidedFlags<StoryEvent>(
+            decided.ToHashSet(),
+            decided.Where(storyEvent => eventTable.Set.Contains(storyEvent.Number())).ToHashSet());
     }
 
     /// <summary>

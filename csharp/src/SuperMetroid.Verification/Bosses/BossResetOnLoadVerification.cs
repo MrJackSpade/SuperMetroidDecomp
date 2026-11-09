@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
@@ -38,7 +39,7 @@ internal static class BossResetOnLoadVerification
         // Every boss of every area, every event and door, and alternating pickups and orbs.
         for (int area = 0; area < AreaIds.RetailCount; area++)
             snapshot.Progress.SetDefeatedBosses(AreaIds.At(area), BossBitMasks.AllKnown);
-        PersistentProgressAccess.FillAll(snapshot.Progress.Events);
+        snapshot.Progress.Events.AddAll();
         PersistentProgressAccess.FillAll(snapshot.Progress.OpenedDoors);
         for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
         {
@@ -47,7 +48,7 @@ internal static class BossResetOnLoadVerification
         }
         // Escape is outside this tester option's scope. Keep this particular save
         // out of escape so room selection can demonstrate both Torizo encounters.
-        snapshot.Progress.ClearEvent(EventNumber.ZebesTimebombSet);
+        snapshot.Progress.ClearEvent(StoryEvent.ZebesTimebombSet);
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
@@ -63,12 +64,12 @@ internal static class BossResetOnLoadVerification
                 AssertEqual(resetArea ? BossBits.None : BossBitMasks.AllKnown, runtime.System.GetBossBits(area),
                     $"boss/miniboss/Torizo load policy area {area}, enabled={enabled}");
             }
-            for (int number = 0; number < PersistentProgress.EventCount; number++)
+            foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
             {
-                bool expected = snapshot.Progress.Events.Contains(number) &&
-                    !(enabled && number == EventNumber.ShaktoolClearedPath.ToEventNumber());
-                AssertEqual(expected, runtime.System.Progress.Events.Contains(number),
-                    $"only Shaktool's encounter event resets; event {number}, enabled={enabled}");
+                bool expected = snapshot.Progress.Events.Contains(storyEvent) &&
+                    !(enabled && storyEvent == StoryEvent.ShaktoolClearedPath);
+                AssertEqual(expected, runtime.System.Progress.Events.Contains(storyEvent),
+                    $"only Shaktool's encounter event resets; event {storyEvent}, enabled={enabled}");
             }
             for (int bit = 0; bit < PersistentProgress.RoomFlagCount; bit++)
                 AssertEqual(!(enabled && eyeBits.Contains((ushort)bit)), runtime.System.HasOpenedDoorBit(bit),

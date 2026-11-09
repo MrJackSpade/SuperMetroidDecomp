@@ -38,7 +38,7 @@ public static class TesterAssistDefinitions
     public static SavedEncounterReset EncounterReset { get; } = new()
     {
         BossAreas = new[] { AreaId.Crateria, AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia, AreaId.Ceres },
-        ClearedEvents = new[] { EventNumber.ShaktoolClearedPath },
+        ClearedEvents = new[] { StoryEvent.ShaktoolClearedPath },
         ClearedDoorFlags = new[] { 69, 92, 133, 155, 168 },
     };
 }

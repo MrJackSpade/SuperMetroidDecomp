@@ -44,7 +44,7 @@ internal static class MotherBrainGlassObjectProgramVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => eventSet, SetEvent = eventNumber =>
             {
-                AssertEqual(EventNumber.MotherBrainGlassDestroyed, eventNumber,
+                AssertEqual(StoryEvent.MotherBrainGlassDestroyed, eventNumber,
                     "glass completion sets the native break event");
                 eventSet = true;
             } } }), "glass PLM loads for complete program test");

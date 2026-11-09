@@ -17,10 +17,10 @@ internal sealed class RoomAreaProgress(SharedGameState system, AreaId area) : IG
     }
 
     /// <summary>Checks a persistent event bit from the system owner.</summary>
-    public bool Has(EventNumber eventNumber) => system.HasEvent(eventNumber);
+    public bool Has(StoryEvent eventNumber) => system.HasEvent(eventNumber);
 
     /// <summary>Publishes an event bit through the system owner.</summary>
-    public void Set(EventNumber eventNumber) => system.SetEvent(eventNumber);
+    public void Set(StoryEvent eventNumber) => system.SetEvent(eventNumber);
 
     /// <summary>Checks whether any requested boss bit is set for this room's area.</summary>
     public bool IsDefeated(BossBits bits) => system.HasAnyBossBits(area, bits);

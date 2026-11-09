@@ -24,7 +24,7 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Optional case-owned callback for resetting the RNG word.</summary>
     public Action<ushort>? SeedRandom { get; set; }
     /// <summary>Optional case-owned query for global event flags.</summary>
-    public Func<EventNumber, bool>? HasEvent { get; set; }
+    public Func<StoryEvent, bool>? HasEvent { get; set; }
     /// <summary>Optional case-owned query for how many Zebetites have been destroyed.</summary>
     public Func<int>? ReadZebetitesDestroyed { get; set; }
     /// <summary>Optional case-owned query for the area's major boss flag.</summary>
@@ -73,11 +73,11 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     }
 
     /// <summary>Queries a global event through the fixture override or loaded services.</summary>
-    public bool Has(EventNumber eventNumber) =>
+    public bool Has(StoryEvent eventNumber) =>
         HasEvent is { } has ? has(eventNumber) : Loaded("read global event bits").Events.Has(eventNumber);
 
     /// <summary>Forwards event writes to loaded room services.</summary>
-    public void Set(EventNumber eventNumber) => Loaded("set a global event bit").Events.Set(eventNumber);
+    public void Set(StoryEvent eventNumber) => Loaded("set a global event bit").Events.Set(eventNumber);
 
     /// <summary>Reads the Zebetite count through the case override or loaded services; writes go to loaded services.</summary>
     int IZebetiteProgress.ZebetitesDestroyed

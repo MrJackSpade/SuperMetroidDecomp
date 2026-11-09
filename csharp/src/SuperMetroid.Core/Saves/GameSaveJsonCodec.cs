@@ -148,9 +148,7 @@ public static class GameSaveJsonCodec
     /// <summary>Lists each set of <paramref name="progress"/> by its identities.</summary>
     private static SaveProgressionJsonDocument CaptureProgression(PersistentProgress progress) => new()
     {
-        Events = [.. progress.Events.Members.Select(number => EventNumberCodec.TryFromEventNumber(number, out EventNumber named)
-            ? named.ToString()
-            : $"0x{number:X2}")],
+        Events = [.. progress.Events.Members.Select(storyEvent => storyEvent.ToString())],
         ZebetitesDestroyed = progress.ZebetitesDestroyed,
         DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.DefeatedBosses(area)))],
         BrokenChozoOrbs = [.. progress.ChozoOrbs.Members],
@@ -335,7 +333,7 @@ public static class GameSaveJsonCodec
             progression.AcquiredMaps is null || progression.ExploredAreas is null)
             throw new InvalidDataException($"{property} is incomplete");
         var progress = new PersistentProgress();
-        DecodeNumbers(DecodeEvents(progression.Events, $"{property}.events"), progress.Events, $"{property}.events");
+        DecodeEvents(progression.Events, progress.Events, $"{property}.events");
         if (progression.ZebetitesDestroyed is < 0 or > PersistentProgress.ZebetiteCount)
             throw new InvalidDataException($"{property}.zebetitesDestroyed must be 0 through {PersistentProgress.ZebetiteCount}");
         progress.ZebetitesDestroyed = progression.ZebetitesDestroyed;
@@ -398,24 +396,26 @@ public static class GameSaveJsonCodec
         return listed;
     }
 
-    /// <summary>The event numbers validated symbolic event names list.</summary>
-    private static int[] DecodeEvents(string[] events, string property)
+    /// <summary>
+    /// Records the story events <paramref name="events"/> names as happened, rejecting an unknown name, a duplicate and
+    /// any name out of the order <see cref="StoryEvent"/> declares.
+    /// </summary>
+    private static void DecodeEvents(string[] events, ProgressSet<StoryEvent> happened, string property)
     {
-        var numbers = new int[events.Length];
+        StoryEvent[] order = Enum.GetValues<StoryEvent>();
+        int previous = -1;
         for (int index = 0; index < events.Length; index++)
         {
             string value = events[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
-            if (Enum.TryParse(value, ignoreCase: true, out EventNumber named) && Enum.IsDefined(named))
-                numbers[index] = named.ToEventNumber();
-            else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) &&
-                     int.TryParse(value[2..], NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out int raw))
-                numbers[index] = raw >= PersistentProgress.EventCount || EventNumberCodec.IsStoryEventNumber(raw)
-                    ? raw // A number past the event range is rejected with the range check of DecodeNumbers.
-                    : throw new InvalidDataException($"{property}[{index}] '{value}' numbers no story event; the Zebetite count is zebetitesDestroyed");
-            else
-                throw new InvalidDataException($"{property}[{index}] '{value}' is not a known name or 0xNN event number");
+            if (!Enum.TryParse(value, ignoreCase: true, out StoryEvent storyEvent) || !Enum.IsDefined(storyEvent) ||
+                int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                throw new InvalidDataException($"{property}[{index}] '{value}' names no story event");
+            int place = Array.IndexOf(order, storyEvent);
+            if (place <= previous)
+                throw new InvalidDataException($"{property} must list each event once, in the order the game lists them");
+            happened.Add(storyEvent);
+            previous = place;
         }
-        return numbers;
     }
 
     /// <summary>Turns on the listed flags, rejecting duplicates, disorder and numbers outside the range.</summary>

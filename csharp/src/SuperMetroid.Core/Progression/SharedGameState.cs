@@ -231,13 +231,13 @@ public sealed class SharedGameState
     public BossBits GetBossBits(AreaId area) => Progress.DefeatedBosses(area);
 
     /// <summary>Marks an event as having occurred.</summary>
-    public void SetEvent(EventNumber eventNumber) => Progress.SetEvent(eventNumber);
+    public void SetEvent(StoryEvent eventNumber) => Progress.SetEvent(eventNumber);
 
     /// <summary>Clears an event.</summary>
-    public void ClearEvent(EventNumber eventNumber) => Progress.ClearEvent(eventNumber);
+    public void ClearEvent(StoryEvent eventNumber) => Progress.ClearEvent(eventNumber);
 
     /// <summary>Tests an event.</summary>
-    public bool HasEvent(EventNumber eventNumber) => Progress.HasEvent(eventNumber);
+    public bool HasEvent(StoryEvent eventNumber) => Progress.HasEvent(eventNumber);
 
     /// <summary>
     /// Whether the item location a nonnegative room-PLM argument numbers has been collected, as the item PLMs test it.

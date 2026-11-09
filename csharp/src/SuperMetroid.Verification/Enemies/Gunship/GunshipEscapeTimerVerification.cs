@@ -32,8 +32,8 @@ internal static class GunshipEscapeTimerVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(EventNumber.ZebesAwake);
-        runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
+        runtime.System.SetEvent(StoryEvent.ZebesAwake);
+        runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;

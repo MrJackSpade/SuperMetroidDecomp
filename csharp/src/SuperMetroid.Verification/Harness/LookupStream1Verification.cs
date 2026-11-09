@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -1469,7 +1470,7 @@ internal static class LookupStream1Verification
                 AssertTrue(eventNumber is null, "nine no-op quota identities have no event");
                 AssertEqual((byte)0x60, LookupStream1PuyoAndQuotaRomByte(rom, 0x840000 | pointer), "native distinct no-op RTS");
             }
-            else AssertEqual(Word(0x840000 | (pointer + 9)), (eventNumber ?? throw new InvalidOperationException("Verification requires eventNumber.")).ToEventNumber(), "native quota observer event operand");
+            else AssertEqual(Word(0x840000 | (pointer + 9)), (eventNumber ?? throw new InvalidOperationException("Verification requires eventNumber.")).Number(), "native quota observer event operand");
         }
         foreach (ushort invalid in new ushort[] { 1, 17, 25, 26, ushort.MaxValue })
         {

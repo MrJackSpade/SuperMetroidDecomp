@@ -157,7 +157,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (!actual.SetEquals(expected))
                     mismatches.Add($"{name}: native=[{string.Join(",", expected.Members)}] port=[{string.Join(",", actual.Members)}]");
             }
-            CheckFlags("Events", portProgress.Events, nativeProgress.Events);
+            void CheckSet<TMember>(string name, ProgressSet<TMember> actual, ProgressSet<TMember> expected)
+                where TMember : notnull
+            {
+                if (!actual.SetEquals(expected))
+                    mismatches.Add($"{name}: native=[{string.Join(",", expected.Members)}] port=[{string.Join(",", actual.Members)}]");
+            }
+            CheckSet("Events", portProgress.Events, nativeProgress.Events);
             CheckValue("Zebetites destroyed", portProgress.ZebetitesDestroyed, nativeProgress.ZebetitesDestroyed);
             CheckFlags("Collected items", portProgress.CollectedItems, nativeProgress.CollectedItems);
             CheckFlags("Opened doors", portProgress.OpenedDoors, nativeProgress.OpenedDoors);

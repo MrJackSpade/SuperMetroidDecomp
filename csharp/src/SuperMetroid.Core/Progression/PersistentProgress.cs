@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Progression;
 /// </summary>
 public sealed class PersistentProgress
 {
-    /// <summary>The story events the game numbers, 0 through 63; <see cref="EventNumber"/> names the ones the retail game uses.</summary>
-    public const int EventCount = 64;
-
     /// <summary>The Chozo orbs, item locations and doors room data numbers, 0 through 511 each.</summary>
     public const int RoomFlagCount = 512;
 
@@ -36,8 +33,11 @@ public sealed class PersistentProgress
     /// <summary>Each area's explored map cells, by area index, each cell numbered in row-major order.</summary>
     private readonly NumberedFlagSet[] _explored = Areas(MapCellsPerArea);
 
-    /// <summary>The story events that have happened, by event number.</summary>
-    public NumberedFlagSet Events { get; } = new(EventCount);
+    /// <summary>Every story event, in the order the game lists them.</summary>
+    private static readonly IReadOnlyList<StoryEvent> StoryEvents = Enum.GetValues<StoryEvent>();
+
+    /// <summary>The story events that have happened.</summary>
+    public ProgressSet<StoryEvent> Events { get; } = new(StoryEvents);
 
     /// <summary>
     /// How many Zebetites Samus has destroyed, 0 through <see cref="ZebetiteCount"/>. The Zebetites read it when they
@@ -59,17 +59,17 @@ public sealed class PersistentProgress
     /// <summary>The coloured doors opened for good, by room-data number.</summary>
     public NumberedFlagSet OpenedDoors { get; } = new(RoomFlagCount);
 
-    /// <summary>Whether <paramref name="eventNumber"/> has happened.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="eventNumber"/> names no retail event.</exception>
-    public bool HasEvent(EventNumber eventNumber) => Events.Contains(eventNumber.ToEventNumber());
+    /// <summary>Whether <paramref name="storyEvent"/> has happened.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="storyEvent"/> is not a defined story event.</exception>
+    public bool HasEvent(StoryEvent storyEvent) => Events.Contains(storyEvent);
 
-    /// <summary>Records that <paramref name="eventNumber"/> has happened.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="eventNumber"/> names no retail event.</exception>
-    public void SetEvent(EventNumber eventNumber) => Events.Add(eventNumber.ToEventNumber());
+    /// <summary>Records that <paramref name="storyEvent"/> has happened.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="storyEvent"/> is not a defined story event.</exception>
+    public void SetEvent(StoryEvent storyEvent) => Events.Add(storyEvent);
 
-    /// <summary>Records that <paramref name="eventNumber"/> has not happened.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="eventNumber"/> names no retail event.</exception>
-    public void ClearEvent(EventNumber eventNumber) => Events.Remove(eventNumber.ToEventNumber());
+    /// <summary>Records that <paramref name="storyEvent"/> has not happened.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="storyEvent"/> is not a defined story event.</exception>
+    public void ClearEvent(StoryEvent storyEvent) => Events.Remove(storyEvent);
 
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
     public BossBits DefeatedBosses(AreaId area) => _defeatedBosses[AreaIds.ToIndex(area)];

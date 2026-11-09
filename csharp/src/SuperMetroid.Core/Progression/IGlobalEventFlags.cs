@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Progression;
 public interface IGlobalEventFlags
 {
     /// <summary>Whether <paramref name="eventNumber"/> is set.</summary>
-    bool Has(EventNumber eventNumber);
+    bool Has(StoryEvent eventNumber);
 
     /// <summary>Sets <paramref name="eventNumber"/>.</summary>
-    void Set(EventNumber eventNumber);
+    void Set(StoryEvent eventNumber);
 }

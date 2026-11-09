@@ -122,7 +122,7 @@ internal sealed class MotherBrainBody
         // event two is clear and the first-phase function performs no phase mutation. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
         // body-function dispatcher.
-        bool glassDestroyed = _room.Services.Events.Has(EventNumber.MotherBrainGlassDestroyed);
+        bool glassDestroyed = _room.Services.Events.Has(StoryEvent.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
             state.BrainMainShakeTimer = _earthquake.EarthquakeTimer.RemainingFrames;

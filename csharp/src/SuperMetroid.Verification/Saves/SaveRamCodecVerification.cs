@@ -203,7 +203,7 @@ internal static class SaveRamCodecVerification
     {
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
         var system = new SharedGameState(new SharedRandom());
-        system.SetEvent(EventNumber.ZebesAwake);
+        system.SetEvent(StoryEvent.ZebesAwake);
         system.SetBossBits(area, BossBits.AreaBoss);
         system.SetCollectedItemBit(health % 64);
         system.MarkSaveStationUsed(area, 1);

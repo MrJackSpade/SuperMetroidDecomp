@@ -481,7 +481,7 @@ internal static class CollectiblesVerification
         sourceSystem.SetOpenedDoorBit(0);
         sourceSystem.SetOpenedDoorBit(91);
         sourceSystem.SetOpenedDoorBit(511);
-        sourceSystem.SetEvent(EventNumber.TourianUnlocked);
+        sourceSystem.SetEvent(StoryEvent.TourianUnlocked);
         sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
         var sourceSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
@@ -507,7 +507,7 @@ internal static class CollectiblesVerification
         AssertTrue(restoredSystem.HasOpenedDoorBit(0), "first opened-door bit round-trips");
         AssertTrue(restoredSystem.HasOpenedDoorBit(91), "middle opened-door bit round-trips");
         AssertTrue(restoredSystem.HasOpenedDoorBit(511), "last opened-door bit round-trips");
-        AssertTrue(restoredSystem.HasEvent(EventNumber.TourianUnlocked),
+        AssertTrue(restoredSystem.HasEvent(StoryEvent.TourianUnlocked),
             "event bytes round-trip through SRAM");
         AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaBoss),
             "area boss byte round-trips through SRAM");

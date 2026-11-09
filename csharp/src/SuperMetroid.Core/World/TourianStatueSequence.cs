@@ -133,7 +133,7 @@ public sealed class TourianStatueSequence
         Enabled = _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
         SpawnAnimatedObjects();
-        if (_assists.Current.TourianStatuesOpen || _system.HasEvent(EventNumber.TourianUnlocked))
+        if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
             Descent = SixteenSixteen.FromWhole(TourianStatueSequenceDefinitions.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
@@ -261,11 +261,11 @@ public sealed class TourianStatueSequence
         if (!Enabled) return;
         _enemies.TourianStatue.WaterSurface = new(0, CoordinateAxis.Wrap(_roomFxOverlay.Surface
             ?? throw new InvalidOperationException("The Tourian statues' room effect names no water surface.")));
-        if (_assists.Current.TourianStatuesOpen || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
+        if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {
-            if (!_system.HasEvent(EventNumber.PhantoonStatueGrey) || !_system.HasEvent(EventNumber.RidleyStatueGrey)
-                || !_system.HasEvent(EventNumber.DraygonStatueGrey) || !_system.HasEvent(EventNumber.KraidStatueGrey)) return;
+            if (!_system.HasEvent(StoryEvent.PhantoonStatueGrey) || !_system.HasEvent(StoryEvent.RidleyStatueGrey)
+                || !_system.HasEvent(StoryEvent.DraygonStatueGrey) || !_system.HasEvent(StoryEvent.KraidStatueGrey)) return;
             _enemies.TourianStatue.Animation.AllReleased = true;
             if (_enemies.TourianStatue.Animation.ReleaseInProgress) return;
             delay = TourianStatueSequenceDefinitions.DescentDelay;
@@ -288,7 +288,7 @@ public sealed class TourianStatueSequence
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
         {
             roomObjects.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Crumble);
-            _system.SetEvent(EventNumber.TourianUnlocked);
+            _system.SetEvent(StoryEvent.TourianUnlocked);
         }
     }
 

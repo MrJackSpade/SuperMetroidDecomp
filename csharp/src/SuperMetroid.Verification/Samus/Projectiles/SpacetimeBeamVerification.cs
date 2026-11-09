@@ -226,8 +226,7 @@ internal static class SpacetimeBeamVerification
                 CollectedItems = SamusEquipmentFlags.GravitySuit,
                 StartupRoute = SaveLoadingGameState.OpeningCinematic,
             };
-            for (int number = 0; number < PersistentProgress.EventCount; number++)
-                snapshot.Progress.Events.Add(number);
+            snapshot.Progress.Events.AddAll();
             return snapshot;
         }
 

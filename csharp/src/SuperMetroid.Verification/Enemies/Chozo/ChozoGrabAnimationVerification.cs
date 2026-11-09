@@ -27,7 +27,7 @@ internal static class ChozoGrabAnimationVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(EventNumber.ZebesAwake);
+        runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BowlingAlley);
         var samus = runtime.Player.IntroducedSamus;

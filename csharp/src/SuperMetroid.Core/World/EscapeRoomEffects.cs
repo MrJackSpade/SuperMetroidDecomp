@@ -67,7 +67,7 @@ internal sealed class EscapeRoomEffects
             enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(WrappingCountdown.LongestStart);
         }
         if (setup == RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking)
-            _system.SetEvent(SuperMetroid.Core.Progression.EventNumber.ZebesTimebombSet);
+            _system.SetEvent(SuperMetroid.Core.Progression.StoryEvent.ZebesTimebombSet);
     }
 
     /// <summary>Dispatches the escape room-main callbacks at the post-draw boundary.</summary>

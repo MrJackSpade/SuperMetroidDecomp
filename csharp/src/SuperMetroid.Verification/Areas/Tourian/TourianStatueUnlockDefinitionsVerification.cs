@@ -153,10 +153,10 @@ internal static class TourianStatueUnlockDefinitionsVerification
 
     /// <summary>Checks that all four defeated-boss statue release events have been recorded.</summary>
     private static bool TourianStatueGreyEventsAreSet(SuperMetroidRuntime runtime) =>
-        runtime.System.HasEvent(EventNumber.PhantoonStatueGrey) &&
-        runtime.System.HasEvent(EventNumber.RidleyStatueGrey) &&
-        runtime.System.HasEvent(EventNumber.DraygonStatueGrey) &&
-        runtime.System.HasEvent(EventNumber.KraidStatueGrey);
+        runtime.System.HasEvent(StoryEvent.PhantoonStatueGrey) &&
+        runtime.System.HasEvent(StoryEvent.RidleyStatueGrey) &&
+        runtime.System.HasEvent(StoryEvent.DraygonStatueGrey) &&
+        runtime.System.HasEvent(StoryEvent.KraidStatueGrey);
 
     /// <summary>Forbids production reads of the migrated bank-$86 eye-coordinate tables.</summary>
     private static CartridgeReadGuard NewTourianStatueEyeReadGuard(ISnesAddressSpace source) =>

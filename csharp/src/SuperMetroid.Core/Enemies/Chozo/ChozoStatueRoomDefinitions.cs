@@ -12,16 +12,16 @@ internal static class ChozoStatueRoomDefinitions
     public const int FirstSlopeBlockIndex = 2820;
 
     /// <summary>The slope shape written at the first slope block.</summary>
-    public static readonly RoomBlockBehavior FirstSlopeBehavior = new(18);
+    public static readonly RoomBlockBehavior FirstSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(18, BlockMirroring.None));
 
     /// <summary>The slope shape written at the adjacent slope block.</summary>
-    public static readonly RoomBlockBehavior SecondSlopeBehavior = new(19);
+    public static readonly RoomBlockBehavior SecondSlopeBehavior = RoomBlockBehavior.Sloping(new SlopeGeometry(19, BlockMirroring.None));
 
     /// <summary>The special-solid behaviour of the Wrecked Ship hand's block in that area's behaviour table.</summary>
-    public static readonly RoomBlockBehavior WreckedShipHandBehavior = new(128);
+    public static readonly RoomBlockBehavior WreckedShipHandBehavior = RoomBlockBehavior.Reacting(BlockReaction.AreaSpecific(0));
 
     /// <summary>The special-solid behaviour of the Lower Norfair hand's block in Norfair's behaviour table.</summary>
-    public static readonly RoomBlockBehavior LowerNorfairHandBehavior = new(131);
+    public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(BlockReaction.AreaSpecific(3));
 
     /// <summary>
     /// The block the room-load crumbling plug writes: its setup never chooses one, so it writes what the room loader's

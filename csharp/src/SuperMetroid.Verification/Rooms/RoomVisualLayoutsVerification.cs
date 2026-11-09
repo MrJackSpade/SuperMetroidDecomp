@@ -73,7 +73,7 @@ internal static class RoomVisualLayoutsVerification
                     ? BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(backgroundOffset + index * 2))
                     : (ushort)0);
                 AssertBlockEqual(RoomLevelWordCodec.Decode(foreground), terrain.Foreground[index], levelName, "installed terrain", index);
-                AssertBlockEqual(new RoomBlockBehavior(native[2 + layerBytes + index]), terrain.Behaviors[index],
+                AssertBlockEqual(RoomBlockBehaviorCodec.Decode(native[2 + layerBytes + index]), terrain.Behaviors[index],
                     levelName, "installed behaviour", index);
                 AssertBlockEqual(background, terrain.Background[index], levelName, "installed background", index);
                 AssertBlockEqual(RoomLevelWordCodec.DecodeAppearance(foreground), layout.Foreground.Span[index],
@@ -137,7 +137,7 @@ internal static class RoomVisualLayoutsVerification
                             native.AsSpan(bg2Offset + blockIndex * 2))
                         : FillWord;
                     AssertBlockEqual(RoomLevelWordCodec.Decode(nativeWord), block.Terrain, stateName, "terrain", blockIndex);
-                    AssertBlockEqual(new RoomBlockBehavior(nativeBts), block.Behavior, stateName, "behaviour", blockIndex);
+                    AssertBlockEqual(RoomBlockBehaviorCodec.Decode(nativeBts), block.Behavior, stateName, "behaviour", blockIndex);
                     AssertBlockEqual(RoomLevelWordCodec.DecodeAppearance(nativeBg2Word), shownBackground[blockIndex],
                         stateName, "background", blockIndex);
                     if (block.CollisionType == RoomCollisionType.Slope) slopeBlocks++;

@@ -79,9 +79,9 @@ internal sealed class GateObjects : IRoomObjectFamilySource
         // The setup performs independent left and right writes even though every authored row installs exactly one
         // side. Preserve that ordering instead of deriving the side from the trigger.
         if (definition.LeftBlock is { } left)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, left);
+            WriteDownwardGateShotBlock(level, slot.BlockIndex - 1, left, definition.Trigger);
         if (definition.RightBlock is { } right)
-            WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, right);
+            WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, right, definition.Trigger);
     }
 
     /// <summary>
@@ -94,12 +94,13 @@ internal sealed class GateObjects : IRoomObjectFamilySource
             : throw new InvalidDataException($"Downward gate trigger {trigger} does not name one of the eight colors and sides.");
 
     /// <summary>Writes a trigger's terrain and its gate-trigger behaviour to one collision block.</summary>
-    /// <remarks>The trigger's behaviour comes from its block number, which selects the trigger's color and side.</remarks>
-    private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, RoomTerrainBlock trigger)
+    /// <remarks>The trigger's reaction selects its color and side, as the block it shows does.</remarks>
+    private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, RoomTerrainBlock block,
+        DownwardGateTriggerBehavior trigger)
     {
         _ = level.GetCollisionBlockByIndex(blockIndex);
-        level.SetTerrain(blockIndex, trigger);
-        level.SetBehavior(blockIndex, RoomBlockBehavior.OfGateTrigger(trigger.Appearance));
+        level.SetTerrain(blockIndex, block);
+        level.SetBehavior(blockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(trigger)));
     }
 
     /// <summary>Runs the gate-trigger shot dispatcher and wakes its adjacent gate.</summary>

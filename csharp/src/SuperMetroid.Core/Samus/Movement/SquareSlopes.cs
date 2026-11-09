@@ -19,14 +19,14 @@ public static class SquareSlopes
 
     /// <summary>The square slope shape a slope block's behaviour selects.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>
-    public static SquareSlopeShape ShapeOf(RoomBlockBehavior behavior) => behavior.SlopeShape switch
+    public static SquareSlopeShape ShapeOf(RoomBlockBehavior behavior) => behavior.Slope.Shape switch
     {
         0 => SquareSlopeShape.BottomHalf,
         1 => SquareSlopeShape.RightHalf,
         2 => SquareSlopeShape.BottomRightQuarter,
         3 => SquareSlopeShape.AllButTopLeft,
         4 => SquareSlopeShape.Full,
-        _ => throw new ArgumentOutOfRangeException(nameof(behavior), behavior.SlopeShape, "The behaviour selects a non-square slope shape."),
+        _ => throw new ArgumentOutOfRangeException(nameof(behavior), behavior.Slope.Shape, "The behaviour selects a non-square slope shape."),
     };
 
     /// <summary>Whether the quarter of a square slope block that <paramref name="quadrant"/> names is solid.</summary>

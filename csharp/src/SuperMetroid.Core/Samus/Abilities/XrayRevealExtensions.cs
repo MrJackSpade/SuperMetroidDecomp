@@ -17,12 +17,13 @@ public static class XrayRevealExtensions
         RoomCollisionBlock block = level.GetObjectCollisionBlockByIndex(blockIndex);
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
             throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(blockIndex));
-        if (block.Behavior == RoomBlockBehaviorValues.None) return null;
+        if (block.Behavior.EndsExtension) return null;
         int x = blockIndex % level.Size.X;
         int y = blockIndex / level.Size.X;
         bool vertical = block.CollisionType == RoomCollisionType.VerticalExtension;
-        // Both entry points read the initial behaviour as a signed offset. Later reads are asymmetric: only the
-        // horizontal-extension branch reads it signed again; the vertical branch reads the unsigned value.
+        // Both entry points read the initial offset signed. Later reads are asymmetric: only the horizontal-extension
+        // branch reads it signed again; the vertical branch reads a backward offset as a forward step of its distance
+        // short of a full offset span.
         int step = block.Behavior.ExtensionOffset;
         var visited = new HashSet<XrayRevealVisit>();
         while (true)
@@ -35,9 +36,9 @@ public static class XrayRevealExtensions
             // The block lookup takes Y's row within the scan cycle; X is then added, so it may legitimately spill into
             // the next row.
             block = level.GetObjectCollisionBlockByIndex(CoordinateAxis.Wrap(BlockScanCycle.RowStart(y, level.Size.X) + x));
-            step = block.Behavior.Value;
             if (block.CollisionType == RoomCollisionType.VerticalExtension)
             {
+                step = ForwardStep(block.Behavior.ExtensionOffset);
                 vertical = true;
                 continue;
             }
@@ -45,7 +46,8 @@ public static class XrayRevealExtensions
             {
                 // A positive horizontal offset reached from the vertical loop stays vertical. A negative horizontal
                 // offset alone switches that loop to X.
-                if (block.Behavior.ExtensionOffset < 0) { step = block.Behavior.ExtensionOffset; vertical = false; }
+                step = block.Behavior.ExtensionOffset;
+                if (step < 0) vertical = false;
                 continue;
             }
             if (block.CollisionType != RoomCollisionType.SpecialAir) return null;
@@ -55,4 +57,11 @@ public static class XrayRevealExtensions
             return reveal?.TopLeft;
         }
     }
+
+    /// <summary>
+    /// The step the vertical loop takes for an extension offset: a backward offset becomes a forward step of the span of
+    /// offsets less its distance.
+    /// </summary>
+    private static int ForwardStep(int offset) =>
+        offset < 0 ? offset + (RoomBlockBehavior.MostForwardExtension - RoomBlockBehavior.MostBackwardExtension + 1) : offset;
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -300,7 +301,7 @@ internal static class RoomObjectPopulationVerification
         // cartridge message ID; it does not require a room-name callback.
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialBlock), level.GetCollisionBlock(new(21, 8)).Terrain,
             "energy setup installs type-B right access");
-        AssertEqual(0x49, level.GetCollisionBlock(new(21, 8)).Behavior.Value,
+        AssertEqual(0x49, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(21, 8)).Behavior),
             "energy setup installs BTS $49");
         AssertTrue(roomObjects.TryNotifyStationTouch(level.GetBlockIndex(new(21, 8)), 0x49),
             "generic BTS dispatcher locates energy-station parent");
@@ -1100,15 +1101,15 @@ internal static class RoomObjectPopulationVerification
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(3, roomObjects.StationSnapshots.Count, "map, missile, and save parents share one pool");
-        AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Behavior.Value,
+        AssertEqual(0x47, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(7, 6)).Behavior),
             "map right access setup uses BTS $47");
-        AssertEqual(0x48, level.GetCollisionBlock(new(4, 6)).Behavior.Value,
+        AssertEqual(0x48, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(4, 6)).Behavior),
             "map left access setup uses native two-block offset");
-        AssertEqual(0x4b, level.GetCollisionBlock(new(13, 6)).Behavior.Value,
+        AssertEqual(0x4b, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(13, 6)).Behavior),
             "missile right access setup uses BTS $4B");
-        AssertEqual(0x4c, level.GetCollisionBlock(new(11, 6)).Behavior.Value,
+        AssertEqual(0x4c, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(11, 6)).Behavior),
             "missile left access setup uses BTS $4C");
-        AssertEqual(0x4d, level.GetCollisionBlock(new(18, 6)).Behavior.Value,
+        AssertEqual(0x4d, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(18, 6)).Behavior),
             "save station setup installs trigger BTS $4D");
 
         AssertTrue(roomObjects.TryNotifyStationTouch(level.GetBlockIndex(new(7, 6)), 0x47),

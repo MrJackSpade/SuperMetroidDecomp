@@ -468,8 +468,8 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
     {
         RoomBlockBehavior facing = orientation switch
         {
-            EyeDoorOrientation.Left => RoomBlockBehaviorValues.BlueDoorFacingLeft,
-            EyeDoorOrientation.Right => RoomBlockBehaviorValues.BlueDoorFacingRight,
+            EyeDoorOrientation.Left => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
+            EyeDoorOrientation.Right => RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
         };
         slot.BlockIndex = checked(slot.BlockIndex - level.Size.X);
@@ -493,7 +493,7 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
                 level,
                 checked(originIndex + row * level.Size.X),
                 RoomCollisionType.VerticalExtension,
-                RoomBlockBehavior.OfExtensionOffset(-row));
+                RoomBlockBehavior.Extending(-row));
         }
     }
 

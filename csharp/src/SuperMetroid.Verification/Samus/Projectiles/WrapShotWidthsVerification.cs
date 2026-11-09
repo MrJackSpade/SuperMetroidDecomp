@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -30,7 +31,7 @@ internal static class WrapShotWidthsVerification
     private static readonly RoomTerrainBlock OpenedDoorCap = RoomTerrainBlock.Of(0x00c, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock);
 
     /// <summary>A vertical extension's behaviour reaching one block up (signed -1).</summary>
-    private static readonly RoomBlockBehavior OneBlockUp = new(0xff);
+    private static readonly RoomBlockBehavior OneBlockUp = RoomBlockBehavior.Extending(-1);
 
     /// <summary>Checks shot positions, radii, lifetime, and remote door writes at adjacent one-pixel offsets.</summary>
     internal static void VerifyWrapShotWidths(string tracePath)
@@ -49,7 +50,7 @@ internal static class WrapShotWidthsVerification
             var words = new RoomTerrainBlock[width * height];
             var bts = new RoomBlockBehavior[words.Length];
             for (int row = 0; row < height; row++) words[row * width + (left ? 0 : width - 1)] = Solid;
-            words[target] = DoorCap; bts[target] = RoomBlockBehaviorValues.BlueDoorFacingRight;
+            words[target] = DoorCap; bts[target] = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right));
             for (int row = 1; row < 4; row++) { words[target + row * width] = DoorCapExtension; bts[target + row * width] = OneBlockUp; }
             var level = CreateRoom(new(checked((ushort)width), checked((ushort)height)), words, bts);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
@@ -367,8 +368,8 @@ level, samus, ControllerButton.A, unchecked((ushort)index));
     var halfPlatformBts = new RoomBlockBehavior[halfPlatformWords.Length];
     halfPlatformWords[12 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
     halfPlatformWords[12 * width + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-    halfPlatformBts[12 * width + 2] = new RoomBlockBehavior(0x02);
-    halfPlatformBts[12 * width + 3] = new RoomBlockBehavior(0x00);
+    halfPlatformBts[12 * width + 2] = RoomBlockBehaviorCodec.Decode(0x02);
+    halfPlatformBts[12 * width + 3] = RoomBlockBehaviorCodec.Decode(0x00);
     RoomLevelData halfPlatform = CreateRoom(new(width, height),
         halfPlatformWords,
         halfPlatformBts);

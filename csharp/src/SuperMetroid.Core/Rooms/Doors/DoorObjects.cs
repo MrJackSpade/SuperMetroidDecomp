@@ -108,7 +108,7 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
         level.SetObjectTerrain(
             blockIndex,
             level.GetObjectCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
-        level.SetObjectBehavior(blockIndex, RoomBlockBehaviorValues.ResidentObjectProjectileTrigger);
+        level.SetObjectBehavior(blockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
     }
 
     /// <summary>

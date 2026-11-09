@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -496,7 +497,7 @@ public static class SamusGrappleSwing
                     // 60-frame invulnerability and 10-frame knockback timers. The timer
                     // check must precede the behaviour lookup so a second radial probe in this
                     // same six-point sweep cannot queue damage again.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Value, block: SwingSpikeBlock.Plain);
+                    ApplySwingSpikeDamage(samus, block.Behavior.Reaction, block: SwingSpikeBlock.Plain);
                     return false;
 
                 // Slopes are unconditional collision in this grapple-specific dispatcher.
@@ -513,17 +514,17 @@ public static class SamusGrappleSwing
                     // The solid spike reaction always reports collision. Before setting carry it applies
                     // 60 damage for behaviour zero or 16 for behaviour one; every other entry is
                     // literally zero. A negative behaviour skips the table entirely.
-                    ApplySwingSpikeDamage(samus, block.Behavior.Value, block: SwingSpikeBlock.Solid);
+                    ApplySwingSpikeDamage(samus, block.Behavior.Reaction, block: SwingSpikeBlock.Solid);
                     return true;
 
                 case RoomCollisionType.HorizontalExtension:
-                    if (block.Behavior == RoomBlockBehaviorValues.None)
+                    if (block.Behavior.EndsExtension)
                         return false;
                     index += block.Behavior.ExtensionOffset;
                     continue;
 
                 case RoomCollisionType.VerticalExtension:
-                    if (block.Behavior == RoomBlockBehaviorValues.None)
+                    if (block.Behavior.EndsExtension)
                         return false;
                     index += block.Behavior.ExtensionOffset * level.Size.X;
                     continue;
@@ -558,23 +559,20 @@ public static class SamusGrappleSwing
     /// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
-        int behavior,
+        BlockReaction reaction,
         SwingSpikeBlock block)
     {
-        // Both handlers return immediately while the invincibility timer is nonzero or when behaviour is
-        // negative. This shared guard is observable because one sweep can sample the same
-        // damaging block up to six times, yet only its first sample may publish damage.
-        if (!samus.InvincibilityTimer.IsZero || new RoomBlockBehavior(behavior).RejectsGrappleReaction)
+        // Both handlers return immediately while the invincibility timer is nonzero or for an area reaction. This shared
+        // guard is observable because one sweep can sample the same damaging block up to six times, yet only its first
+        // sample may publish damage.
+        if (!samus.InvincibilityTimer.IsZero || reaction.IsAreaSpecific)
             return;
 
         int damage = block == SwingSpikeBlock.Solid
-            ? behavior switch
-            {
-                0 => 60,
-                1 => 16,
-                _ => 0,
-            }
-            : behavior == 2
+            ? reaction == SpikeHazardDefinitions.HeavySpikeReaction ? 60
+                : reaction == SpikeHazardDefinitions.LightSpikeReaction ? 16
+                : 0
+            : reaction == SpikeHazardDefinitions.DamagingSpikeAirReaction
                 ? 16
                 : 0;
         if (damage == 0)

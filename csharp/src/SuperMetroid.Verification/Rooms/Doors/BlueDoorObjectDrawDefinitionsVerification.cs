@@ -51,8 +51,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             const int origin = 4 + 4 * width;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectBlueDoorVisuals = stock });
-            RoomBlockBehavior behavior = new(unchecked((byte)(
-                RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)orientation)));
+            RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(orientation));
             AssertTrue(roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, origin, behavior,
                 SamusProjectileType.None),
                 $"{orientation} blue door allocates its native opening actor");
@@ -83,8 +82,8 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
                     roomObjects.Step(level);
                 AssertEqual(0, roomObjects.SlotTable.ActiveCount,
                     $"{orientation} {program} reaches its deletion");
-                AssertEqual(behavior.Value,
-                    level.GetCollisionBlockByIndex(origin).Behavior.Value,
+                AssertEqual(RoomBlockBehaviorCodec.Encode(behavior),
+                    RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(origin).Behavior),
                     $"{orientation} {program} restores the blue-door BTS");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,

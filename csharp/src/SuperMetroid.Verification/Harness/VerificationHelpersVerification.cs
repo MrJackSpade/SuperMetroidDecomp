@@ -219,7 +219,7 @@ internal static class VerificationHelpersVerification
         // probes that reach past the grid find what the game's prefilled level space holds (#1469).
         var beyond = new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>([],
             Math.Max(0, RoomLevelSpaceDefinitions.PrefilledWordCount - blockCount), RoomTerrainBlocks.EdgeSolid,
-            RoomBlockBehaviorValues.None);
+            RoomBlockBehavior.None);
         return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), beyond, doors);
     }
 

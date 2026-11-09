@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Grapple.GrapplePoseRefireVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -29,12 +30,12 @@ internal static class GrappleDoorsVerification
             var words = new RoomTerrainBlock[width * width];
             var bts = new RoomBlockBehavior[words.Length];
             words[origin] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-            bts[origin] = new RoomBlockBehavior(RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (int)orientation);
+            bts[origin] = RoomBlockBehaviorCodec.Decode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)).Value + (int)orientation);
             for (int offset = 1; offset < 4; offset++)
             {
                 words[origin + offset * stride] = RoomTerrainBlock.Of(0, BlockMirroring.None, verticalCap
                     ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension);
-                bts[origin + offset * stride] = RoomBlockBehavior.OfExtensionOffset(-offset);
+                bts[origin + offset * stride] = RoomBlockBehavior.Extending(-offset);
             }
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             int hitBlock = origin + hitOffset * stride;

@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -224,7 +225,7 @@ internal static class RoomObjectSystemAccess
         /// type-$B collision seam used by item and scroll PLMs; no room identity participates.
         /// </summary>
         internal bool TryNotifyStationTouch(int accessBlockIndex, byte behavior)
-            => self.TryNotifyStationTouch(accessBlockIndex, new RoomBlockBehavior(behavior));
+            => self.TryNotifyStationTouch(accessBlockIndex, RoomBlockBehaviorCodec.Decode(behavior));
 
         /// <summary>Typed BTS overload used by room collision dispatch.</summary>
         internal bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
@@ -241,7 +242,7 @@ internal static class RoomObjectSystemAccess
             => self.BlockReactions.TrySpawnBreakableGrappleBlock(
                 level,
                 blockIndex,
-                new RoomBlockBehavior(behavior));
+                RoomBlockBehaviorCodec.Decode(behavior));
 
         /// <summary>
         /// Spawns the bank-$84 collision PLM selected by type-$F BTS zero through seven.
@@ -262,7 +263,7 @@ internal static class RoomObjectSystemAccess
             RoomLevelData level,
             int blockIndex,
             byte behavior)
-            => self.BlockReactions.TrySpawnCollisionBombBlock(level, blockIndex, new RoomBlockBehavior(behavior));
+            => self.BlockReactions.TrySpawnCollisionBombBlock(level, blockIndex, RoomBlockBehaviorCodec.Decode(behavior));
 
         /// <summary>
         /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
@@ -291,7 +292,7 @@ internal static class RoomObjectSystemAccess
             => self.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 blockIndex,
-                new RoomBlockBehavior(behavior),
+                RoomBlockBehaviorCodec.Decode(behavior),
                 projectileType);
 
         /// <summary>
@@ -316,7 +317,7 @@ internal static class RoomObjectSystemAccess
             => self.TrySpawnBombedShootableBlock(
                 level,
                 blockIndex,
-                new RoomBlockBehavior(behavior),
+                RoomBlockBehaviorCodec.Decode(behavior),
                 projectileType);
 
         /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
@@ -327,14 +328,14 @@ internal static class RoomObjectSystemAccess
             SamusProjectileType projectileType)
         {
             Ensure.NotNull(level);
-            bool areaDependent = bts.UsesAreaReactionTable;
-            if (areaDependent && !bts.IsAreaReactionIndex(8))
+            bool areaDependent = bts.Reaction.IsAreaSpecific;
+            if (areaDependent && !bts.Reaction.IsAreaEntryBelow(8))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(bts),
                     "Area-dependent shootable BTS must address one of its eight native entries.");
             }
-            if (!areaDependent && !bts.IsNormalReactionIndex(16))
+            if (!areaDependent && !bts.Reaction.IsCommonEntryBelow(16))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(bts),
@@ -365,27 +366,28 @@ internal static class RoomObjectSystemAccess
                 return true;
             }
 
-            if (bts.IsRespawningReaction)
+            ShotBlockReaction? reaction = ShotBlockReactions.Of(bts.Reaction);
+            if (reaction == ShotBlockReaction.RespawningBreak)
             {
                 // The setup throws away the original appearance. The shot-block parent with the block's collision kind
                 // is both the restore block and the source of the deactivated live block.
                 slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.ShotBlockParent);
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.RespawningShot(bts.NormalReactionIndex)));
+                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.RespawningShot(ShotBlockReactions.BreakShape(bts.Reaction))));
                 level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
                 return true;
             }
 
-            if (bts.IsPermanentReaction)
+            if (reaction == ShotBlockReaction.PermanentBreak)
             {
                 // The deactivating setup does not synthesize a restore block. Deactivation turns shootable air into
                 // ordinary air and a shootable block into a solid block until the same-frame program draws its first
                 // breaking frame.
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.PermanentShot(bts.NormalReactionIndex - 4)));
+                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.PermanentShot(ShotBlockReactions.BreakShape(bts.Reaction))));
                 level.SetTerrain(blockIndex, block.Terrain.Deactivated());
                 return true;
             }
 
-            if (bts.RequiresPowerBombReaction)
+            if (reaction is ShotBlockReaction.RespawningPowerBombBreak or ShotBlockReaction.PermanentPowerBombBreak)
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
@@ -393,7 +395,7 @@ internal static class RoomObjectSystemAccess
                 return true;
             }
 
-            if (bts.RequiresSuperMissileReaction)
+            if (reaction is ShotBlockReaction.RespawningSuperMissileBreak or ShotBlockReaction.PermanentSuperMissileBreak)
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
@@ -432,7 +434,7 @@ internal static class RoomObjectSystemAccess
             => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 blockIndex,
-                new RoomBlockBehavior(behavior),
+                RoomBlockBehaviorCodec.Decode(behavior),
                 projectileType,
                 solidBlock);
 
@@ -459,7 +461,7 @@ internal static class RoomObjectSystemAccess
             => self.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 blockIndex,
-                new RoomBlockBehavior(behavior),
+                RoomBlockBehaviorCodec.Decode(behavior),
                 areaIndex,
                 projectileType);
 

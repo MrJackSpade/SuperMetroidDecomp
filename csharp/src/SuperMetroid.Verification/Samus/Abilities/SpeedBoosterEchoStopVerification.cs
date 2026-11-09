@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -125,7 +126,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.EchoSoundFlag = 1;
         speed.EchoSoundRequested = true;
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(new RoomBlockBehavior(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
+        var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
         AssertEqual(0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");
         AssertTrue(speed.EchoSoundRequested, "quicksand does not retract a previously published start command");

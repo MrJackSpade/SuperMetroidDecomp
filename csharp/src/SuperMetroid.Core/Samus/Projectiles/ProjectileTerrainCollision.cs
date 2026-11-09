@@ -306,9 +306,9 @@ internal sealed class ProjectileTerrainCollision
         if (resolvedBlock is null)
             return false;
         block = resolvedBlock.Value;
-        if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.SlopeShape < 5)
+        if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
             return SquareSlopeShotReaction(slot, block, span, axis == Axis.Horizontal);
-        if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.SlopeShape >= 5)
+        if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
         {
             // Non-square slopes dispatch through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
@@ -318,9 +318,9 @@ internal sealed class ProjectileTerrainCollision
 
             int x = slot.Position.X.Whole & 15;
             int y = slot.Position.Y.Whole & 15;
-            if (block.Behavior.SlopeFlipsHorizontally) x ^= 15;
-            if (block.Behavior.SlopeFlipsVertically) y ^= 15;
-            bool hit = SlopeHeights.Read(block.Behavior.SlopeShape, x) <= y;
+            if (block.Behavior.Slope.FlipsHorizontally) x ^= 15;
+            if (block.Behavior.Slope.FlipsVertically) y ^= 15;
+            bool hit = SlopeHeights.Read(block.Behavior.Slope.Shape, x) <= y;
             // A surface hit clears both scan counters. This overrides
             // earlier air rows and ends the span; Wave still discards collision carry.
             endSpan = hit;
@@ -331,7 +331,7 @@ internal sealed class ProjectileTerrainCollision
         // reaction does not use the ordinary behaviour 0..F shot-block table: its header
         // finds and triggers the already-loaded permanent-item PLM at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
+            block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
         {
             _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
@@ -340,7 +340,7 @@ internal sealed class ProjectileTerrainCollision
         // Both the solid and the shootable resident-object trigger collision routes allocate the generic shot trigger,
         // which publishes the live projectile word to the resident PLM at this block.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
-            block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
+            block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
             NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return true;
@@ -348,7 +348,7 @@ internal sealed class ProjectileTerrainCollision
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
-            if (block.Behavior.IsShootableCollisionProbe)
+            if (block.Behavior.Reaction.IsShotCollisionProbe)
             {
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full PLM pool skips setup entirely, so it must not end the scan.
@@ -445,7 +445,7 @@ internal sealed class ProjectileTerrainCollision
         // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
         // actors all share the shootable resident-object trigger. The resident PLM determines the accepted family
         // after the generic shot trigger publishes the projectile word.
-        if (block.Behavior == RoomBlockBehaviorValues.ResidentObjectProjectileTrigger)
+        if (block.Behavior.Reaction == BlockReactionDefinitions.ResidentObjectTrigger)
         {
             NotifyResidentProjectileHit(roomObjects, block, slot.Type);
             return;
@@ -472,10 +472,10 @@ internal sealed class ProjectileTerrainCollision
         // slot; shootable-air's method exits without allocating. The RoomObject owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
         // each setup sees the current projectile type while the room object spawns.
-        bool translatedBehavior = block.Behavior.IsAreaReactionIndex(8) ||
+        bool translatedBehavior = block.Behavior.Reaction.IsAreaEntryBelow(8) ||
             block.Behavior == EscapeAnimalWallDefinitions.ReactionBehavior ||
-            block.Behavior.IsNormalReactionIndex(16) ||
-            block.Behavior.IsShootableCollisionProbe;
+            block.Behavior.Reaction.IsCommonEntryBelow(16) ||
+            block.Behavior.Reaction.IsShotCollisionProbe;
         if (translatedBehavior)
         {
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(

@@ -267,7 +267,7 @@ internal sealed class EnemyTerrain
             RoomCollisionType.ShootableAir or
             RoomCollisionType.UnusedAir or
             RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Behavior.IsNonSquareSlope =>
+            RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
                 treatNonSquareSlopesAsWalls,
             RoomCollisionType.Slope => SquareHorizontalSlopeIsSolid(
                 slot,
@@ -302,7 +302,7 @@ internal sealed class EnemyTerrain
             RoomCollisionType.ShootableAir or
             RoomCollisionType.UnusedAir or
             RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Behavior.IsNonSquareSlope =>
+            RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
                 NonSquareVerticalSlopeIsSolid(
                     level,
                     slot,
@@ -361,9 +361,9 @@ internal sealed class EnemyTerrain
             int offset = block.CollisionType switch
             {
                 RoomCollisionType.HorizontalExtension when
-                    block.Behavior != RoomBlockBehaviorValues.None => block.Behavior.ExtensionOffset,
+                    block.Behavior.EndsExtension is false => block.Behavior.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
-                    block.Behavior != RoomBlockBehaviorValues.None =>
+                    block.Behavior.EndsExtension is false =>
                     block.Behavior.ExtensionOffset * level.Size.X,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
@@ -424,9 +424,9 @@ internal sealed class EnemyTerrain
             int offset = block.CollisionType switch
             {
                 RoomCollisionType.HorizontalExtension when
-                    block.Behavior != RoomBlockBehaviorValues.None => block.Behavior.ExtensionOffset,
+                    block.Behavior.EndsExtension is false => block.Behavior.ExtensionOffset,
                 RoomCollisionType.VerticalExtension when
-                    block.Behavior != RoomBlockBehaviorValues.None =>
+                    block.Behavior.EndsExtension is false =>
                     block.Behavior.ExtensionOffset * level.Size.X,
                 RoomCollisionType.Air or RoomCollisionType.Slope or RoomCollisionType.SpikeAir or
                     RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
@@ -510,13 +510,13 @@ internal sealed class EnemyTerrain
             return false;
 
         RoomBlockBehavior behavior = block.Behavior;
-        int xWithinBlock = behavior.SlopeFlipsHorizontally
+        int xWithinBlock = behavior.Slope.FlipsHorizontally
             ? RoomGridConversions.OffsetFromBlockEnd(slot.Position.X.Whole)
             : RoomGridConversions.OffsetWithinBlock(slot.Position.X.Whole);
         int height = ReadNonSquareSlopeHeight(behavior, xWithinBlock);
         if (movingUp)
         {
-            if (!behavior.SlopeFlipsVertically)
+            if (!behavior.Slope.FlipsVertically)
                 return false;
             int edgeWithinBlock = RoomGridConversions.OffsetFromBlockEnd(targetCenter - slot.Radius.Y);
             int adjustment = height - edgeWithinBlock - 1;
@@ -526,7 +526,7 @@ internal sealed class EnemyTerrain
             return true;
         }
 
-        if (behavior.SlopeFlipsVertically)
+        if (behavior.Slope.FlipsVertically)
             return false;
         int bottomWithinBlock = RoomGridConversions.OffsetWithinBlock(slot.Radius.Y + targetCenter - 1);
         int downwardAdjustment = height - bottomWithinBlock - 1;
@@ -579,12 +579,12 @@ internal sealed class EnemyTerrain
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
         if (block.CollisionType != RoomCollisionType.Slope ||
-            !block.Behavior.IsNonSquareSlope)
+            !block.Behavior.Slope.IsNonSquare)
             return false;
-        if ((surface == SlopeSurface.Underside) != block.Behavior.SlopeFlipsVertically)
+        if ((surface == SlopeSurface.Underside) != block.Behavior.Slope.FlipsVertically)
             return false;
 
-        int xWithinBlock = block.Behavior.SlopeFlipsHorizontally
+        int xWithinBlock = block.Behavior.Slope.FlipsHorizontally
             ? RoomGridConversions.OffsetFromBlockEnd(pixel.X)
             : RoomGridConversions.OffsetWithinBlock(pixel.X);
         int height = ReadNonSquareSlopeHeight(block.Behavior, xWithinBlock);
@@ -602,7 +602,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>Looks up the authored height of a slope shape at an already oriented block-local X.</summary>
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior behavior, int xWithinBlock) =>
-        SlopeHeights.Read(behavior.SlopeShape, xWithinBlock);
+        SlopeHeights.Read(behavior.Slope.Shape, xWithinBlock);
     /// <summary>
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
     /// context belongs to one frame; every enemy frame supplies it again, including after a saved game state is restored.

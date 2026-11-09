@@ -251,15 +251,20 @@ internal static class InstalledArtworkContentIdentity
         /// <summary>Identity of every selected drawable rule and its installed overlays, excluding command mechanics.</summary>
         public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledXrayReveals), content =>
         {
-            for (int index = 0; index < reveals.blocks.Length; index++)
-                if (reveals.blocks[index] is { } visual)
-                {
-                    content.Append("kind and behaviour", index);
-                    content.Append("top left", visual.TopLeft);
-                    content.Append("top right", visual.TopRight);
-                    content.Append("bottom left", visual.BottomLeft);
-                    content.Append("bottom right", visual.BottomRight);
-                }
+            // Each visual is identified by its kind's collision nibble times the 256 behaviour bytes, plus its reaction's
+            // byte, in that order.
+            static int VisualIndex(XrayRevealVisualKey key) =>
+                RoomLevelWordCodec.KindsByNibble.IndexOf(key.Type) * (byte.MaxValue + 1) +
+                RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(key.Reaction));
+            foreach (KeyValuePair<XrayRevealVisualKey, XrayRevealVisualBlocks> pair in reveals.blocks.OrderBy(entry => VisualIndex(entry.Key)))
+            {
+                XrayRevealVisualBlocks visual = pair.Value;
+                content.Append("kind and behaviour", VisualIndex(pair.Key));
+                content.Append("top left", visual.TopLeft);
+                content.Append("top right", visual.TopRight);
+                content.Append("bottom left", visual.BottomLeft);
+                content.Append("bottom right", visual.BottomRight);
+            }
             content.Append("has overlays", reveals.Overlays is null ? 0 : 1);
             if (reveals.Overlays is not null)
                 content.Append("overlays", Convert.FromHexString(reveals.Overlays.ContentIdentity));

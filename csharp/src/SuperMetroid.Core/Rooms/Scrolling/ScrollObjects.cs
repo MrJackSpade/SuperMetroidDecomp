@@ -92,7 +92,7 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
         level.SetTerrain(
             slot.BlockIndex,
             level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.WithCollision(RoomCollisionType.SpecialAir));
-        level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
+        level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger));
     }
 
     /// <summary>Runs one scroll/extension setup after the shared allocator chose its ID.</summary>
@@ -390,7 +390,7 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
             level.SetTerrain(
                 slot.BlockIndex,
                 level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.WithCollision(collisionType));
-            level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.OfExtensionOffset(offset));
+            level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Extending(offset));
 
             // Every extension setup ends in DeletePLM. Clearing this preallocated slot is
             // what permits the following authored record to reuse the same highest ID.
@@ -407,7 +407,7 @@ internal sealed class ScrollObjects : IRoomObjectFamilySource
         level.SetTerrain(
             slot.BlockIndex,
             level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.WithCollision(RoomCollisionType.SpecialAir));
-        level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
+        level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger));
     }
 
     /// <summary>Per-PLM scroll trigger latch and its bound retail or constructed write program.</summary>

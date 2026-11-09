@@ -1,13 +1,11 @@
 
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Typed catalog for all five retail Speed Booster collision-block variants.</summary>
 internal static class SpeedBoosterBlockObjectDefinitions
 {
-    /// <summary>The behaviour of a Speed Booster block that grows back.</summary>
-    internal const int RespawningBts = 14;
-    /// <summary>The behaviour of a Speed Booster block that stays broken.</summary>
-    internal const int PermanentBts = 15;
 
     /// <summary>Brinstar's respawning Speed Booster block with the slower crumble.</summary>
     public static readonly SpeedBoosterBlockObjectDefinition BrinstarSlowRespawning = new(
@@ -33,4 +31,22 @@ internal static class SpeedBoosterBlockObjectDefinitions
     public static readonly SpeedBoosterBlockObjectDefinition Permanent = new(
         RoomObjectHeaderId.SpeedBlockPermanent,
         SpeedBoosterBlockProgram.Permanent);
+
+    /// <summary>The Speed Booster blocks the common special-block reactions select, in every area.</summary>
+    public static readonly IReadOnlyDictionary<BlockReaction, SpeedBoosterBlockObjectDefinition> CommonBlocks =
+        new Dictionary<BlockReaction, SpeedBoosterBlockObjectDefinition>
+        {
+            [BlockReaction.Common(14)] = Respawning,
+            [BlockReaction.Common(15)] = Permanent,
+        };
+
+    /// <summary>The Speed Booster blocks Brinstar's own special-block reactions select.</summary>
+    public static readonly IReadOnlyDictionary<BlockReaction, SpeedBoosterBlockObjectDefinition> BrinstarBlocks =
+        new Dictionary<BlockReaction, SpeedBoosterBlockObjectDefinition>
+        {
+            [BlockReaction.AreaSpecific(2)] = BrinstarSlowRespawning,
+            [BlockReaction.AreaSpecific(3)] = BrinstarSlowPermanent,
+            [BlockReaction.AreaSpecific(4)] = DachoraRespawning,
+            [BlockReaction.AreaSpecific(5)] = Permanent,
+        };
 }

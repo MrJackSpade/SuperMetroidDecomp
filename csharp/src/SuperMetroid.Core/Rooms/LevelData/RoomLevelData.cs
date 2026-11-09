@@ -98,7 +98,7 @@ public sealed class RoomLevelData
     /// own, are built with it.
     /// </summary>
     public static TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior> NothingBeyondGrid() =>
-        new([], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehaviorValues.None);
+        new([], 0, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
 
     /// <summary>
     /// Room size in 16-pixel blocks. The width is every row's index stride; the height comes from the room's level, which
@@ -286,7 +286,7 @@ public sealed class RoomLevelData
     /// request for the top-level dispatcher.
     /// </summary>
     public DoorListEntry ResolveDoorCollision(
-        int behavior,
+        RoomBlockBehavior behavior,
         SamusCollisionPose samusPose,
         bool publishDoorSideEffects = true)
     {
@@ -301,7 +301,7 @@ public sealed class RoomLevelData
 
         // Elevator and special-door behaviours share the door list lookup before the destination
         // decides whether collision is solid or starts the door transition.
-        int index = new RoomBlockBehavior(behavior).DoorListIndex;
+        int index = behavior.DoorLink;
         if (index >= doors.Count)
             throw new InvalidDataException($"Door index {index} is outside the room's {doors.Count}-entry door list.");
         DoorListEntry entry = doors[index];

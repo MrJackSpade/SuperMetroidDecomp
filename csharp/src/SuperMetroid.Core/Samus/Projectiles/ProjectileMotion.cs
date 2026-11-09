@@ -508,7 +508,7 @@ internal sealed class ProjectileMotion
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
+            block.Behavior.Reaction == BlockReactionDefinitions.CollectibleTrigger)
         {
             _ = roomObjects?.CollectibleObjects.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
@@ -571,7 +571,7 @@ internal sealed class ProjectileMotion
         RoomCollisionBlock block,
         SamusProjectileSlot slot)
     {
-        int slopeShape = block.Behavior.SlopeShape;
+        int slopeShape = block.Behavior.Slope.Shape;
         if (slopeShape >= 5)
         {
             // Non-square slope collision mirrors the projectile's within-block coordinate before indexing
@@ -579,11 +579,11 @@ internal sealed class ProjectileMotion
             // above the mirrored Y point (the original uses signed `height - y <= 0`) is
             // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
             int xInBlock = slot.Position.X.Whole & 15;
-            if (block.Behavior.SlopeFlipsHorizontally)
+            if (block.Behavior.Slope.FlipsHorizontally)
                 xInBlock ^= 15;
 
             int yInBlock = slot.Position.Y.Whole & 15;
-            if (block.Behavior.SlopeFlipsVertically)
+            if (block.Behavior.Slope.FlipsVertically)
                 yInBlock ^= 15;
 
             int height = SlopeHeights.Read(slopeShape, xInBlock);

@@ -31,8 +31,8 @@ public static class MotherBrainDeathDefinitions
     public const int SubtitleX = 128, SubtitleY = 192;
 
     /// <summary>The escape door's behaviour: it leads through door-list entry one.</summary>
-    public static readonly RoomBlockBehavior EscapeDoorBehavior = new(1);
+    public static readonly RoomBlockBehavior EscapeDoorBehavior = RoomBlockBehavior.LinkingDoor(1);
 
     /// <summary>Each escape-door extension's behaviour: a link to the block one row upward.</summary>
-    public static readonly RoomBlockBehavior EscapeDoorExtensionBehavior = new(255);
+    public static readonly RoomBlockBehavior EscapeDoorExtensionBehavior = RoomBlockBehavior.Extending(-1);
 }

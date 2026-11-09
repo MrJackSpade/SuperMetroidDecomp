@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -128,11 +129,11 @@ internal static void VerifySamusStoredShineAndShinespark()
     int sparkBombBlockIndex = 9 * width + 10;
     int sparkExtensionBlockIndex = 8 * width + 10;
     sparkForeground[sparkBombBlockIndex] = RoomTerrainBlock.Of(291, BlockMirroring.None, RoomCollisionType.BombableBlock);
-    sparkBehavior[sparkBombBlockIndex] = new RoomBlockBehavior(7);
+    sparkBehavior[sparkBombBlockIndex] = RoomBlockBehaviorCodec.Decode(7);
     // Type `$D` adds signed BTS rows and asks the dispatcher to run again. Point the first
     // scanned row down one row to the bomb block; the native real-room case uses FF/up.
     sparkForeground[sparkExtensionBlockIndex] = RoomTerrainBlock.Of(86, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension);
-    sparkBehavior[sparkExtensionBlockIndex] = new RoomBlockBehavior(1);
+    sparkBehavior[sparkExtensionBlockIndex] = RoomBlockBehaviorCodec.Decode(1);
     RoomLevelData empty = CreateRoom(new(width, height), sparkForeground, sparkBehavior);
 
     // Exercise all six stable direction poses through the public install and movement

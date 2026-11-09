@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -20,7 +21,7 @@ internal static class QuicksandVerification
     /// <summary>Checks suit- and direction-dependent sinking, surface contact, and sandfall side effects.</summary>
     internal static void VerifyQuicksand()
     {
-        RoomLevelData Room(byte bts) => new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(new RoomBlockBehavior(bts), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
+        RoomLevelData Room(byte bts) => new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(bts), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         var level = Room(0x80);
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
@@ -81,7 +82,7 @@ internal static class QuicksandVerification
         Suite(nameof(VerifyQuicksandUpwardLimit), () => VerifyQuicksandUpwardLimit(rom));
 
         var guarded = NewQuicksandDefinitionReadGuard(rom);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(new RoomBlockBehavior(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid());
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
@@ -129,7 +130,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(0x28000);
             bool collided = SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
-                new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), new RoomBlockBehavior(0x80 + index)),
+                new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact);
@@ -250,7 +251,7 @@ internal static class QuicksandVerification
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromRaw(probe);
             SamusInsideBlockReactions.ReactCollision(
                 new(body, body.CollisionContactDamageIndex(null)),
-                new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), new RoomBlockBehavior(0x80)),
+                new RoomCollisionBlock(0, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(0x80)),
                 axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact,
@@ -303,10 +304,10 @@ internal static class QuicksandVerification
             ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
             ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
             ushort expected = setup ? ReadRomWord(rom, 0x840000 | header) : header;
-            var bts = new RoomBlockBehavior((byte)(0x80 | index));
-            AssertEqual(true, bts.UsesAreaReactionTable, "special-air BTS sign selects area dispatch");
-            AssertEqual((byte)index, bts.AreaReactionIndex, "special-air BTS clears its sign bit");
-            SpecialAirReactionDefinition actual = resolve(area, bts.AreaReactionIndex);
+            var bts = RoomBlockBehaviorCodec.Decode((byte)(0x80 | index));
+            AssertEqual(true, bts.Reaction.IsAreaSpecific, "special-air BTS sign selects area dispatch");
+            AssertEqual((byte)index, bts.Reaction.Entry, "special-air BTS clears its sign bit");
+            SpecialAirReactionDefinition actual = resolve(area, bts.Reaction.Entry);
             AssertEqual(expected, setup ? FxNativeWords.SpecialAirReactionSetups.Word(actual.Setup) : RoomObjectNativeWords.Word(actual.Header),
                 $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
         }

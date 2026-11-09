@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
@@ -18,7 +19,7 @@ internal static class TreadmillPhysicsVerification
         var terrain = new RoomTerrainBlock[16];
         var behavior = new RoomBlockBehavior[16];
         terrain.AsSpan().Fill(Air);
-        behavior.AsSpan().Fill(RoomBlockBehaviorValues.None);
+        behavior.AsSpan().Fill(RoomBlockBehavior.None);
         for (int i = 8; i < 12; i++)
         {
             terrain[i] = WreckedShipTreadmillBlockDefinitions.ActiveTreadmillBlock;
@@ -85,8 +86,8 @@ internal static class TreadmillPhysicsVerification
     [
         new(WreckedShipTreadmillBlockDefinitions.RightwardsBehavior, WreckedShipTreadmillDirection.Rightwards),
         new(WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior, WreckedShipTreadmillDirection.Leftwards),
-        new(new RoomBlockBehavior(10), WreckedShipTreadmillDirection.Rightwards),
-        new(new RoomBlockBehavior(11), WreckedShipTreadmillDirection.Leftwards),
+        new(RoomBlockBehaviorCodec.Decode(10), WreckedShipTreadmillDirection.Rightwards),
+        new(RoomBlockBehaviorCodec.Decode(11), WreckedShipTreadmillDirection.Leftwards),
     ];
 
     /// <summary>One conveyor behaviour and the direction it carries Samus.</summary>

@@ -20,7 +20,7 @@ internal static class MaridiaPipeIncomingDoorSeed
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            if (level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), false).Pointer != door.Pointer) continue;
+            if (level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), false).Pointer != door.Pointer) continue;
             entry = index;
             break;
         }

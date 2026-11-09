@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
@@ -1023,9 +1025,9 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     const int reactionParentIndex = 3 * width + 2;
     const int reactionExtensionIndex = 3 * width + 3;
     reactionWords[reactionParentIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.BombableBlock);
-    reactionBts[reactionParentIndex] = new RoomBlockBehavior(0);
+    reactionBts[reactionParentIndex] = RoomBlockBehaviorCodec.Decode(0);
     reactionWords[reactionExtensionIndex] = RoomTerrainBlock.Of(88, BlockMirroring.None, RoomCollisionType.HorizontalExtension);
-    reactionBts[reactionExtensionIndex] = new RoomBlockBehavior(0xff);
+    reactionBts[reactionExtensionIndex] = RoomBlockBehaviorCodec.Decode(0xff);
     RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new RoomBlockAppearance[reactionWords.Length]), RoomLevelData.NothingBeyondGrid());
     var reactionObjects = RoomObjectFixtures.Unbound();
     var reactionBombs = CreateBombFixture();
@@ -1046,7 +1048,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomCollisionType.HorizontalExtension,
         reactionLevel.GetCollisionBlockByIndex(reactionExtensionIndex).CollisionType,
         "bomb cross leaves the visited horizontal extension in place");
-    AssertEqual(new RoomBlockBehavior(0xff),
+    AssertEqual(RoomBlockBehaviorCodec.Decode(0xff),
         reactionLevel.GetCollisionBlockByIndex(reactionExtensionIndex).Behavior,
         "bomb cross preserves the extension's signed redirect BTS");
     AssertEqual(RoomCollisionType.SolidBlock,
@@ -1096,7 +1098,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     var integratedRevealBts = new RoomBlockBehavior[integratedRevealWords.Length];
     const int integratedRevealIndex = 3 * width + 3;
     integratedRevealWords[integratedRevealIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-    integratedRevealBts[integratedRevealIndex] = new RoomBlockBehavior(8);
+    integratedRevealBts[integratedRevealIndex] = RoomBlockBehaviorCodec.Decode(8);
     RoomLevelData integratedRevealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedRevealWords, integratedRevealBts, new RoomBlockAppearance[integratedRevealWords.Length]), RoomLevelData.NothingBeyondGrid());
     var integratedRevealObjects = RoomObjectFixtures.Unbound();
     var integratedRevealBombs = CreateBombFixture();
@@ -1136,7 +1138,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     var bombDoorBts = new RoomBlockBehavior[bombDoorWords.Length];
     const int bombDoorIndex = 3 * width + 3;
     bombDoorWords[bombDoorIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-    bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight;
+    bombDoorBts[bombDoorIndex] = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right));
     RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new RoomBlockAppearance[bombDoorWords.Length]), RoomLevelData.NothingBeyondGrid());
     var bombDoorObjects = RoomObjectFixtures.Unbound();
     var bombDoorBombs = CreateBombFixture();
@@ -1163,7 +1165,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertTrue(!powerBombDoorObjects.DoorObjects.TrySpawnBlueDoorOpening(
             powerBombDoorLevel,
             bombDoorIndex,
-            RoomBlockBehaviorValues.BlueDoorFacingRight,
+            RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
             SamusBombProjectileSystem.PowerBombType),
         "power-bomb family remains rejected by blue-door setup");
     AssertEqual(RoomCollisionType.ShootableBlock,
@@ -1249,7 +1251,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     var integratedPowerBombWords = new RoomTerrainBlock[width * height];
     var integratedPowerBombBts = new RoomBlockBehavior[integratedPowerBombWords.Length];
     integratedPowerBombWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-    integratedPowerBombBts[shotIndex] = new RoomBlockBehavior(8);
+    integratedPowerBombBts[shotIndex] = RoomBlockBehaviorCodec.Decode(8);
     RoomLevelData integratedPowerBombLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedPowerBombWords, integratedPowerBombBts, new RoomBlockAppearance[integratedPowerBombWords.Length]), RoomLevelData.NothingBeyondGrid());
     var integratedPowerBombObjects = RoomObjectFixtures.Unbound();
     var integratedPowerBombs = CreateBombFixture();
@@ -1291,7 +1293,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     var collisionProbeWords = new RoomTerrainBlock[width * height];
     var collisionProbeBts = new RoomBlockBehavior[collisionProbeWords.Length];
     collisionProbeWords[shotIndex] = RoomTerrainBlock.Of(801, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-    collisionProbeBts[shotIndex] = new RoomBlockBehavior(0x10);
+    collisionProbeBts[shotIndex] = RoomBlockBehaviorCodec.Decode(0x10);
     RoomLevelData collisionProbeLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(collisionProbeWords, collisionProbeBts, new RoomBlockAppearance[collisionProbeWords.Length]), RoomLevelData.NothingBeyondGrid());
     var collisionProbeObjects = RoomObjectFixtures.Unbound();
     RunPowerBombToInitialBoundary(
@@ -1474,7 +1476,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         var words = new RoomTerrainBlock[width * height];
         var behaviors = new RoomBlockBehavior[words.Length];
         words[crumbleIndex] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialBlock);
-        behaviors[crumbleIndex] = new RoomBlockBehavior(behavior);
+        behaviors[crumbleIndex] = RoomBlockBehaviorCodec.Decode(behavior);
         var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var tableObjects = RoomObjectFixtures.Unbound();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,

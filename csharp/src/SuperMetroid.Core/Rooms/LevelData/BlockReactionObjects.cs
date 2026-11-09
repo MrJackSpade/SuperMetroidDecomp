@@ -29,8 +29,9 @@ internal sealed class BlockReactionObjects
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        if (!behavior.IsBreakableGrappleReaction)
-            throw new ArgumentOutOfRangeException(nameof(behavior), "Breakable grapple behaviour must be one or two.");
+        bool respawning = behavior.Reaction == GrappleBlockReactionDefinitions.RespawningBreakableAnchor;
+        if (!respawning && behavior.Reaction != GrappleBlockReactionDefinitions.PermanentBreakableAnchor)
+            throw new ArgumentOutOfRangeException(nameof(behavior), "The behaviour is not a breakable grapple block.");
 
         // Spawning searches the PLM slots from the last down to the first. Matching it matters if multiple
         // PLMs mutate the same room on one frame because the handler uses the same order.
@@ -40,7 +41,7 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
         slot.RestoreTerrain = block.Terrain;
-        slot.StartAnimation(new BlockReactionObjectAnimation(behavior.GrappleReactionIndex == 1
+        slot.StartAnimation(new BlockReactionObjectAnimation(respawning
             ? BlockReactionObjectProgram.RespawningBreakableGrappleBlock
             : BlockReactionObjectProgram.PermanentBreakableGrappleBlock));
         slot.FrameHold = 1;
@@ -48,7 +49,7 @@ internal sealed class BlockReactionObjects
         // The setup saves the complete original block but clears only its behaviour. It deliberately leaves the
         // Grapple-block collision intact until the first PLM pass later in this same gameplay frame draws the intact
         // Grapple block.
-        level.SetBehavior(blockIndex, RoomBlockBehaviorValues.None);
+        level.SetBehavior(blockIndex, RoomBlockBehavior.None);
         return true;
     }
 
@@ -59,7 +60,7 @@ internal sealed class BlockReactionObjects
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        if (!behavior.IsNormalReactionIndex(8))
+        if (!behavior.Reaction.IsCommonEntryBelow(8))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
@@ -78,7 +79,7 @@ internal sealed class BlockReactionObjects
         // This is not the original appearance. The setup deliberately replaces the block and its mirroring with the
         // bomb-block parent; multi-block restorations then add extension blocks around this parent.
         slot.RestoreTerrain = new RoomTerrainBlock(RoomObjectVisualBlockDefinitions.CollisionBombParent, block.CollisionType);
-        slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.CollisionBomb(behavior.NormalReactionIndex)));
+        slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.CollisionBomb(behavior.Reaction.Entry)));
         slot.FrameHold = 1;
         level.SetTerrain(blockIndex, new RoomTerrainBlock(RoomObjectVisualBlockDefinitions.CollisionBombParent, RoomCollisionType.Air));
         return true;
@@ -101,7 +102,7 @@ internal sealed class BlockReactionObjects
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        if (!behavior.IsNormalReactionIndex(8))
+        if (!behavior.Reaction.IsCommonEntryBelow(8))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
@@ -113,11 +114,11 @@ internal sealed class BlockReactionObjects
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.Header =
-            RoomObjectHeaders.ContactCrumbleByReactionIndex(behavior.NormalReactionIndex);
+            RoomObjectHeaders.ContactCrumbleByReactionIndex(behavior.Reaction.Entry);
         slot.BlockIndex = blockIndex;
         RoomTerrainBlock restore = block.Terrain.WithBlock(RoomObjectVisualBlockDefinitions.ContactCrumbleParent.Block);
         slot.RestoreTerrain = restore;
-        slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.ContactCrumble(behavior.NormalReactionIndex)));
+        slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.ContactCrumble(behavior.Reaction.Entry)));
         slot.FrameHold = 4;
         level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.SolidBlock));
         return true;
@@ -183,7 +184,7 @@ internal sealed class BlockReactionObjects
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (!behavior.IsNormalReactionIndex(16))
+        if (!behavior.Reaction.IsCommonEntryBelow(16))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
@@ -207,7 +208,7 @@ internal sealed class BlockReactionObjects
         slot.BlockIndex = blockIndex;
         slot.FrameHold = 1;
 
-        if (!behavior.IsNormalReactionIndex(8))
+        if (!behavior.Reaction.IsCommonEntryBelow(8))
         {
             // Table entries 8..15 are all the empty reaction, whose setup does nothing and whose program deletes.
             slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
@@ -220,8 +221,8 @@ internal sealed class BlockReactionObjects
         slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.CollisionBombParent);
         // Only normal bombs skip the reaction sound: a normal bomb starts the shared break tail.
         slot.StartAnimation(new BlockReactionObjectAnimation(projectileFamily == SamusProjectileFamily.Bomb
-            ? BlockReactionObjectPrograms.BombBreak(behavior.NormalReactionIndex)
-            : BlockReactionObjectPrograms.ReactionBomb(behavior.NormalReactionIndex)));
+            ? BlockReactionObjectPrograms.BombBreak(behavior.Reaction.Entry)
+            : BlockReactionObjectPrograms.ReactionBomb(behavior.Reaction.Entry)));
 
         level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
         return true;
@@ -238,16 +239,15 @@ internal sealed class BlockReactionObjects
         Ensure.NotNull(level);
         if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
             return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, blockIndex, projectileType);
-        bool areaDependent = behavior.UsesAreaReactionTable;
-        if (areaDependent && !behavior.IsAreaReactionIndex(8))
+        bool areaDependent = behavior.Reaction.IsAreaSpecific;
+        if (areaDependent && !behavior.Reaction.IsAreaEntryBelow(8))
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
                 "Area-dependent shootable behaviour must name one of its area's eight shootable entries.");
         }
-        if (!areaDependent &&
-            !behavior.IsNormalReactionIndex(16) &&
-            !behavior.IsShootableCollisionProbe && !behavior.IsUnusedShootableReaction)
+        ShotBlockReaction? reaction = ShotBlockReactions.Of(behavior.Reaction);
+        if (!areaDependent && reaction is null)
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
@@ -265,11 +265,11 @@ internal sealed class BlockReactionObjects
         // Observably that is identical to returning with no active slot: setup never changes the live block, and the
         // next handler has nothing to process. Perform this
         // gate before the host allocation loop while preserving every accepted path.
-        if (behavior.RequiresPowerBombReaction && projectileFamily is not (
-            SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
+        if (reaction is ShotBlockReaction.RespawningPowerBombBreak or ShotBlockReaction.PermanentPowerBombBreak &&
+            projectileFamily is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
             return false;
-        if (behavior.RequiresSuperMissileReaction && projectileFamily is not (
-            SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Bomb))
+        if (reaction is ShotBlockReaction.RespawningSuperMissileBreak or ShotBlockReaction.PermanentSuperMissileBreak &&
+            projectileFamily is not (SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Bomb))
             return false;
 
         // The spawn scans from the highest slot down and changes nothing when full. The projectile still receives the
@@ -282,87 +282,87 @@ internal sealed class BlockReactionObjects
         slot.FrameHold = 1;
         slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
 
-        if (areaDependent)
+        switch (reaction)
         {
-            // Every retail area-table target is the nothing entry. The spawn still consumes a slot until its delete
-            // instruction runs.
-            RoomObjectProgramStart.Delete.StartOn(slot);
-            return true;
-        }
-
-        if (behavior.IsShootableCollisionProbe)
-        {
-            // Setup ends the projectile scan and forces its collision counter;
-            // the caller publishes those scratch effects only after successful
-            // allocation. This actor does not mutate terrain and deletes next pass.
-            RoomObjectProgramStart.Delete.StartOn(slot);
-            return true;
-        }
-
-        if (behavior.IsRespawningReaction)
-        {
-            // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame restoration,
-            // and deactivates the live block immediately.
-            slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.ShotBlockParent);
-            slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.RespawningShot(behavior.NormalReactionIndex)));
-            level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
-            return true;
-        }
-
-        if (behavior.IsPermanentReaction)
-        {
-            // The deactivating setup keeps no restore block: behaviours four through seven are permanent. The current
-            // block loses its shootable collision before the first animated breaking frame runs later in this pass.
-            slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectPrograms.PermanentShot(behavior.NormalReactionIndex - 4)));
-            level.SetTerrain(blockIndex, block.Terrain.Deactivated());
-            return true;
-        }
-
-        if (behavior.RequiresPowerBombReaction)
-        {
-            if (projectileFamily == SamusProjectileFamily.Bomb)
-            {
-                // A normal bomb does not break this block. The setup redirects to the one-frame visible power-bomb
-                // reveal without touching collision.
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectProgram.BombedPowerBombBlockUnused));
+            case null:
+                // Every retail area-table target is the nothing entry. The spawn still consumes a slot until its delete
+                // instruction runs.
+                RoomObjectProgramStart.Delete.StartOn(slot);
                 return true;
-            }
 
-            // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live block,
-            // and runs its header's program. Behaviour eight uses the ordinary four-frame breakup; nine uses its shorter
-            // 3/2/1-frame counterpart.
-            slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.PowerBombBlockParent);
-            slot.StartAnimation(new BlockReactionObjectAnimation(behavior.NormalReactionIndex == 8
-                ? BlockReactionObjectProgram.RespawningPowerBombBlock
-                : BlockReactionObjectProgram.PermanentPowerBombBlock));
-            level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
-            return true;
-        }
-
-        if (behavior.RequiresSuperMissileReaction)
-        {
-            if (projectileFamily == SamusProjectileFamily.Bomb)
-            {
-                // Ordinary bombs get the analogous one-frame Super Missile reveal. It deliberately leaves the live block
-                // untouched.
-                slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectProgram.BombedSuperMissileBlockUnused));
+            case ShotBlockReaction.CollisionProbe:
+                // Setup ends the projectile scan and forces its collision counter;
+                // the caller publishes those scratch effects only after successful
+                // allocation. This actor does not mutate terrain and deletes next pass.
+                RoomObjectProgramStart.Delete.StartOn(slot);
                 return true;
-            }
 
-            // Super Missiles keep the collision kind with the Super Missile parent's appearance; one header owns the
-            // respawning program and the other the permanent one.
-            slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.SuperMissileBlockParent);
-            slot.StartAnimation(new BlockReactionObjectAnimation(behavior.NormalReactionIndex == 10
-                ? BlockReactionObjectProgram.RespawningSuperMissileBlock
-                : BlockReactionObjectProgram.PermanentSuperMissileBlock));
-            level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
-            return true;
+            case ShotBlockReaction.RespawningBreak:
+                // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame
+                // restoration, and deactivates the live block immediately.
+                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.ShotBlockParent);
+                slot.StartAnimation(new BlockReactionObjectAnimation(
+                    BlockReactionObjectPrograms.RespawningShot(ShotBlockReactions.BreakShape(behavior.Reaction))));
+                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+                return true;
+
+            case ShotBlockReaction.PermanentBreak:
+                // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses its
+                // shootable collision before the first animated breaking frame runs later in this pass.
+                slot.StartAnimation(new BlockReactionObjectAnimation(
+                    BlockReactionObjectPrograms.PermanentShot(ShotBlockReactions.BreakShape(behavior.Reaction))));
+                level.SetTerrain(blockIndex, block.Terrain.Deactivated());
+                return true;
+
+            case ShotBlockReaction.RespawningPowerBombBreak:
+            case ShotBlockReaction.PermanentPowerBombBreak:
+                if (projectileFamily == SamusProjectileFamily.Bomb)
+                {
+                    // A normal bomb does not break this block. The setup redirects to the one-frame visible power-bomb
+                    // reveal without touching collision.
+                    slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectProgram.BombedPowerBombBlockUnused));
+                    return true;
+                }
+
+                // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live
+                // block, and runs its header's program. The respawning block uses the ordinary four-frame breakup; the
+                // permanent one its shorter 3/2/1-frame counterpart.
+                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.PowerBombBlockParent);
+                slot.StartAnimation(new BlockReactionObjectAnimation(reaction == ShotBlockReaction.RespawningPowerBombBreak
+                    ? BlockReactionObjectProgram.RespawningPowerBombBlock
+                    : BlockReactionObjectProgram.PermanentPowerBombBlock));
+                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+                return true;
+
+            case ShotBlockReaction.RespawningSuperMissileBreak:
+            case ShotBlockReaction.PermanentSuperMissileBreak:
+                if (projectileFamily == SamusProjectileFamily.Bomb)
+                {
+                    // Ordinary bombs get the analogous one-frame Super Missile reveal. It deliberately leaves the live
+                    // block untouched.
+                    slot.StartAnimation(new BlockReactionObjectAnimation(BlockReactionObjectProgram.BombedSuperMissileBlockUnused));
+                    return true;
+                }
+
+                // Super Missiles keep the collision kind with the Super Missile parent's appearance; one header owns the
+                // respawning program and the other the permanent one.
+                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.SuperMissileBlockParent);
+                slot.StartAnimation(new BlockReactionObjectAnimation(reaction == ShotBlockReaction.RespawningSuperMissileBreak
+                    ? BlockReactionObjectProgram.RespawningSuperMissileBlock
+                    : BlockReactionObjectProgram.PermanentSuperMissileBlock));
+                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+                return true;
+
+            case ShotBlockReaction.Nothing:
+            case ShotBlockReaction.Unused:
+                // The empty reaction and the unused entries leave the block alone, and the program deletes on the next
+                // handler pass.
+                RoomObjectProgramStart.Delete.StartOn(slot);
+                return true;
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(ShotBlockReaction)} {reaction}.");
         }
-
-        // Entries C..F are all the empty reaction. Its setup leaves the block alone and its program deletes on the next
-        // handler pass.
-        RoomObjectProgramStart.Delete.StartOn(slot);
-        return true;
     }
 
     /// <summary>Dispatches normal-bomb special blocks through the area-independent or Brinstar reaction table.</summary>
@@ -385,25 +385,24 @@ internal sealed class BlockReactionObjects
         }
 
         RoomObjectProgramStart program;
-        if (!behavior.UsesAreaReactionTable)
+        if (!behavior.Reaction.IsAreaSpecific)
         {
-            if (!behavior.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
+            if (!behavior.Reaction.IsCommonEntryBelow(BombSpecialBlockReactions.Count))
                 throw new ArgumentOutOfRangeException(nameof(behavior),
                     "Area-independent special-block behaviour has no special-block reaction.");
 
-            program = BombSpecialBlockReactions.ProgramAt(behavior.NormalReactionIndex);
+            program = BombSpecialBlockReactions.ProgramAt(behavior.Reaction.Entry);
         }
         else
         {
-            int areaBehavior = behavior.AreaReactionIndex;
-            if (!behavior.IsAreaReactionIndex(8))
+            if (!behavior.Reaction.IsAreaEntryBelow(8))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(behavior),
                     "Area-dependent bomb-special behaviour must name one of its area's eight bomb-special entries.");
             }
 
-            program = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
+            program = areaIndex == AreaId.Brinstar && SpeedBoosterBlockObjectDefinitions.BrinstarBlocks.ContainsKey(behavior.Reaction)
                 ? RoomObjectProgramStart.Typed(SpeedBoosterBlockProgram.BombReveal)
                 : RoomObjectProgramStart.Delete;
         }

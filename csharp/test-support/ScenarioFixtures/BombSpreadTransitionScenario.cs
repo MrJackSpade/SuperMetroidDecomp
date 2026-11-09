@@ -62,7 +62,7 @@ internal sealed class BombSpreadTransitionScenario
             int index = y * level.Size.X + x;
             level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None,
                 y >= 32 || (wallRoute && x == (left ? 29 : 33)) ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
-            level.SetBehavior(index, RoomBlockBehaviorValues.None);
+            level.SetBehavior(index, RoomBlockBehavior.None);
         }
         var samus = Samus;
         samus.Control.Unlock();

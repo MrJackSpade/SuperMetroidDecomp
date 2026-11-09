@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -77,8 +78,8 @@ internal static class NoobTubeObjectVerification
         AssertEqual(NoobTubeObjectDefinitions.SolidProjectileTrigger,
             level.GetCollisionBlock(new(blockX, blockY)).Terrain,
             "n00b-tube setup installs the complete type-$8 collision word");
-        AssertEqual(RoomBlockBehaviorValues.ResidentObjectProjectileTrigger.Value,
-            level.GetCollisionBlock(new(blockX, blockY)).Behavior.Value,
+        AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger).Value,
+            RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(blockX, blockY)).Behavior),
             "n00b-tube setup installs BTS $44");
 
         // First pass follows the event-not-set branch, publishes intact art, and sleeps
@@ -141,7 +142,7 @@ internal static class NoobTubeObjectVerification
             "Power Bomb boundary visits the live n00b-tube origin");
         AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");
-        AssertEqual(RoomBlockBehaviorValues.ResidentObjectProjectileTrigger,
+        AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger),
             level.GetCollisionBlockByIndex(blockIndex).Behavior,
             "Power Bomb observes the intact tube's BTS-$44 trigger");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.PowerBomb), roomObjects.PopulationSlots.Single().ProjectileHit,

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -41,7 +42,7 @@ internal static class StationAccessObjectDefinitionsVerification
         AssertEqual(6, entries.Length, "Station access original record count");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            bool decodes = new RoomBlockBehavior(raw).TryGetStationAccess(out StationAccessBehavior behavior);
+            bool decodes = RoomBlockBehaviorCodec.Decode(raw).TryGetStationAccess(out StationAccessBehavior behavior);
             if (raw is < 0x47 or > 0x4c)
             {
                 // Outside the six accesses only the save floor decodes, and it selects no access PLM.

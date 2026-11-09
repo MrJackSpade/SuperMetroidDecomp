@@ -54,7 +54,7 @@ internal static class RoomLevelStreamDecoder
         for (int index = 0; index < blockCount; index++)
         {
             foreground.Add(RoomLevelWordCodec.Decode(space[index]));
-            behaviors.Add(new RoomBlockBehavior(stream[behaviorOffset + index]));
+            behaviors.Add(RoomBlockBehaviorCodec.Decode(stream[behaviorOffset + index]));
             int backgroundByte = index * sizeof(ushort);
             background.Add(RoomLevelWordCodec.DecodeAppearance(backgroundByte < availableBackgroundBytes
                 ? BinaryPrimitives.ReadUInt16LittleEndian(stream[(backgroundOffset + backgroundByte)..])

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Areas.Escape.EscapeRoomEffectsVerification;
@@ -32,7 +33,7 @@ internal static class EscapeAnimalBlocksVerification
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x8412), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         int origin = level.GetBlockIndex(new(15, 10));
         roomObjects.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
-        AssertEqual(0x4f, level.GetCollisionBlock(new(15, 10)).Behavior.Value, "rescue origin has the critters-escape behaviour");
+        AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "rescue origin has the critters-escape behaviour");
         for (int y = 11; y <= 12; y++)
             AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(15, checked((ushort)y))).Terrain, "rescue extensions preserve visual tile");
         for (int y = 10; y <= 12; y++)
@@ -45,7 +46,7 @@ internal static class EscapeAnimalBlocksVerification
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");
             AssertEqual(before, roomObjects.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");
-            AssertEqual(0x4f, level.GetCollisionBlock(new(15, 10)).Behavior.Value, "grapple leaves rescue wall intact");
+            AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "grapple leaves rescue wall intact");
             AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "grapple alone cannot rescue animals");
         }
         AssertTrue(!roomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.None, true), "native zero grapple word rejected");

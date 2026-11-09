@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -27,7 +28,7 @@ internal static class SlopeLandingPoseProbeVerification
             new VerifySlopeLandingZeroDistanceProbeCase(6, 25, 0x53), new VerifySlopeLandingZeroDistanceProbeCase(7, 25, 0x55), new VerifySlopeLandingZeroDistanceProbeCase(8, 25, 0x54) })
         {
             foreground[y * Width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-            behavior[y * Width + x] = new RoomBlockBehavior(bts);
+            behavior[y * Width + x] = RoomBlockBehaviorCodec.Decode(bts);
         }
         RoomLevelData level = CreateRoom(new(Width, Height), foreground, behavior);
 

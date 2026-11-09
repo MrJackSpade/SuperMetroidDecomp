@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -92,7 +93,7 @@ internal static class CeresHazeVerification
         runtime.System.SetBossBits(runtime.Room.LoadedRoom.AreaIndex, BossBits.AreaBoss);
         for (int frame = 0; frame < 30; frame++) runtime.CeresHaze.Step();
         AssertTrue(!runtime.CeresHaze.IsRed, "defeat cannot replace the current room's HDMA channel");
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(0, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(RoomBlockBehavior.None, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
         var audio = new AudioQueues();
         transition.Begin(runtime);

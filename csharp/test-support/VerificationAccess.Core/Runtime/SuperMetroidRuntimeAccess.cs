@@ -147,8 +147,8 @@ internal static class SuperMetroidRuntimeAccess
                     height = 0;
                 }
                 else if (floor.CollisionType == RoomCollisionType.Slope &&
-                         floor.Behavior.IsNonSquareSlope &&
-                         !floor.Behavior.SlopeFlipsVertically)
+                         floor.Behavior.Slope.IsNonSquare &&
+                         !floor.Behavior.Slope.FlipsVertically)
                 {
                     // Upright non-square slopes use the cartridge's sixteen-sample profile.
                     // Square slopes are translated too, but selecting one as a spawn surface

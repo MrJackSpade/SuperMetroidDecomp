@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -45,7 +46,7 @@ internal static class RoomObjectDefinitionMigrationVerification
 
         // The deleted RomData catalogs' values.
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
-        AssertEqual(new RoomBlockBehavior(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
+        AssertEqual(RoomBlockBehaviorCodec.Decode(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         AssertEqual(0x1000, DownwardGateDefinitions.OneBlockDistance, "gate projectile block distance");
         AssertEqual(RoomTerrainBlock.Of(0x044, BlockMirroring.None, RoomCollisionType.SolidBlock), NoobTubeObjectDefinitions.SolidProjectileTrigger, "n00b tube origin block");
         AssertEqual(0x000b, NoobTubeObjectDefinitions.EarthquakeType, "n00b tube earthquake type");

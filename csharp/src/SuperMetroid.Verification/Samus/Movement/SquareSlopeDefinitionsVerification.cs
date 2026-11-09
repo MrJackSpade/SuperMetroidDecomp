@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -44,7 +45,7 @@ internal static class SquareSlopeDefinitionsVerification
         }
         for (int shape = 0; shape < 32; shape++)
         {
-            var behavior = new RoomBlockBehavior(shape);
+            var behavior = RoomBlockBehaviorCodec.Decode(shape);
             if (shape < NativeShapeOrder.Length)
                 AssertEqual(NativeShapeOrder[shape], SquareSlopes.ShapeOf(behavior), $"square slope shape {shape}");
             else
@@ -60,7 +61,7 @@ internal static class SquareSlopeDefinitionsVerification
         {
             int shape = raw & 31;
             if (shape >= 5) continue;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope)], [new RoomBlockBehavior(raw)], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid());
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope)], [RoomBlockBehaviorCodec.Decode(raw)], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid());
             var block = level.GetCollisionBlock(new(0, 0));
             for (ushort x = 0; x < 16; x++)
             for (ushort y = 0; y < 16; y++)

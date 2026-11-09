@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -26,7 +27,7 @@ internal static class ElevatorStandUpContactVerification
         {
             // Tourian's elevator list: behaviour 2 is the solid pseudo-door that arms the actor.
             blocks[DoorRow * Width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock);
-            behaviors[DoorRow * Width + x] = new RoomBlockBehavior(2);
+            behaviors[DoorRow * Width + x] = RoomBlockBehaviorCodec.Decode(2);
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[Width * Height]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
 

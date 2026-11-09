@@ -21,7 +21,7 @@ internal sealed record MagicNumberFinding(
         MagicNumberCategory.CallbackPointer => "a named callback/code-pointer catalog",
         MagicNumberCategory.DomainDiscriminator => "a domain enum or named value",
         MagicNumberCategory.CollisionType => "RoomCollisionType",
-        MagicNumberCategory.BlockBehavior => "RoomBlockBehavior/RoomBlockBehaviorValues",
+        MagicNumberCategory.BlockBehavior => "RoomBlockBehavior/BlockReactionDefinitions",
         MagicNumberCategory.PoseOrMovement => "a Samus pose or movement enum/catalog",
         MagicNumberCategory.ProjectileFamily => "a typed projectile family/kind",
         MagicNumberCategory.AudioId => "SoundEffectId or a named music command",

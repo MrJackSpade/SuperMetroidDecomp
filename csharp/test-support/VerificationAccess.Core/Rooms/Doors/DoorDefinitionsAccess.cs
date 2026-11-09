@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -295,7 +296,7 @@ internal static class DoorDefinitionsAccess
         internal static DoorListEntry Resolve(ushort listPointer, int behavior)
         {
             IReadOnlyList<DoorListEntry> doors = RoomDoorListDefinitions.ForListPointer(listPointer);
-            int index = new RoomBlockBehavior(behavior).DoorListIndex;
+            int index = RoomBlockBehaviorCodec.Decode(behavior).DoorLink;
             return index < doors.Count
                 ? doors[index]
                 : throw new InvalidDataException($"Door index {index} is outside the {doors.Count}-entry list $8F:{listPointer:X4}.");

@@ -30,10 +30,10 @@ internal static class XrayRevealVisualInstallationVerification
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            XrayRevealDefinition? native = XrayRevealTable.Find(type, new RoomBlockBehavior(bts));
+            XrayRevealDefinition? native = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts));
             if (native is not { } definition ||
                 !InstalledXrayReveals.IsDrawable(definition.Command)) continue;
-            AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, new RoomBlockBehavior(bts)),
+            AssertEqual((XrayRevealDefinition?)definition, stock.Apply(type, RoomBlockBehaviorCodec.Decode(bts)),
                 $"stock installed X-ray visual {type}/BTS ${bts:X2}");
             drawable++;
         }
@@ -79,7 +79,7 @@ internal static class XrayRevealVisualInstallationVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock), 1024).ToArray(), new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());
         level.SetObjectTerrain(33, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock));
-        level.SetObjectBehavior(33, new RoomBlockBehavior(2));
+        level.SetObjectBehavior(33, RoomBlockBehaviorCodec.Decode(2));
         RoomCollisionBlock before = level.GetObjectCollisionBlockByIndex(33);
         // Each reveal cell is the whole block shown and its arrangement (#1431).
         RevealedBlock?[] originalMap = XrayRevealMap.Build(level, new(16, 16), default, AreaId.Brinstar, stock);

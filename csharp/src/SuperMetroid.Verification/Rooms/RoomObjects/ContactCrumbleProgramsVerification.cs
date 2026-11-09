@@ -189,8 +189,8 @@ internal static class ContactCrumbleProgramsVerification
                     AssertEqual(native.Level.GetCollisionBlockByIndex(block).Terrain,
                         compiled.Level.GetCollisionBlockByIndex(block).Terrain,
                         $"contact-crumble BTS {bts} block {block}, frame {frame}");
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Behavior.Value,
-                        compiled.Level.GetCollisionBlockByIndex(block).Behavior.Value,
+                    AssertEqual(RoomBlockBehaviorCodec.Encode(native.Level.GetCollisionBlockByIndex(block).Behavior),
+                        RoomBlockBehaviorCodec.Encode(compiled.Level.GetCollisionBlockByIndex(block).Behavior),
                         $"contact-crumble BTS {bts} behavior {block}, frame {frame}");
                 }
             }
@@ -220,7 +220,7 @@ internal static class ContactCrumbleProgramsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals });
             AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
-                    new RoomBlockBehavior(0)),
+                    RoomBlockBehaviorCodec.Decode(0)),
                 "visual test installs the real contact-crumble PLM");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 4; frame++)
@@ -248,7 +248,7 @@ internal static class ContactCrumbleProgramsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound();
             AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
-                    new RoomBlockBehavior(1)),
+                    RoomBlockBehaviorCodec.Decode(1)),
                 "restored-art test installs linked contact-crumble PLM");
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
@@ -282,11 +282,11 @@ internal static class ContactCrumbleProgramsVerification
         var words = new RoomTerrainBlock[width * width];
         words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
         var behaviors = new RoomBlockBehavior[words.Length];
-        behaviors[blockIndex] = new RoomBlockBehavior(bts);
+        behaviors[blockIndex] = RoomBlockBehaviorCodec.Decode(bts);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
-                new RoomBlockBehavior(bts)),
+                RoomBlockBehaviorCodec.Decode(bts)),
             $"contact-crumble BTS {bts} installs its native program");
         return new ContactCrumbleFixture(level, roomObjects);
     }

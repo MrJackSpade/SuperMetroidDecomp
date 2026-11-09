@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Escape;
@@ -42,11 +43,11 @@ internal static class MotherBrainDeathHandoffVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(0, 6), MotherBrainRoomMutation.EscapeDoor)), "escape PLM allocates");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock), level.GetCollisionBlock(new(0, 6)).Terrain, "door setup preserves the block's appearance");
-        AssertEqual(1, level.GetCollisionBlock(new(0, 6)).Behavior.Value, "door setup selects second door header");
+        AssertEqual(1, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(0, 6)).Behavior), "door setup selects second door header");
         for (int row = 7; row < 10; row++)
         {
             AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(0, checked((ushort)row))).Terrain, "extension preserves the block's appearance");
-            AssertEqual(byte.MaxValue, level.GetCollisionBlock(new(0, checked((ushort)row))).Behavior.Value, "extension links one block upward");
+            AssertEqual(byte.MaxValue, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(0, checked((ushort)row))).Behavior), "extension links one block upward");
         }
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(0, 10)).Terrain, "door setup does not overrun four blocks");
         Console.WriteLine("  Mother Brain escape: typewriter glyph/delay/click semantics and native door setup agree.");

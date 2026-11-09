@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.RoomObjects.DownwardGateVisualsVerification;
@@ -125,7 +126,7 @@ internal static class DownwardGateObjectsVerification
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
         AssertEqual(RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(DownwardGateTriggerBehavior.BlueLeft),
-            level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior.Value,
+            RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior),
             "argument zero installs retail blue-left BTS $46");
 
         DownwardGateProjectileRequest request = roomObjects.Gates.TakeDownwardGateProjectileRequests().Single();

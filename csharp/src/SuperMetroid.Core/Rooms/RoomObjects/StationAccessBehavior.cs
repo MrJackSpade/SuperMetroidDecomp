@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The station access a special-solid block's behaviour selects (decoded by <c>RoomBlockBehaviorCodec</c>). Left/right
+/// The station access a special-solid block's reaction selects (<see cref="BlockReactionDefinitions.StationAccesses"/>). Left/right
 /// describe the side of the station containing the block.
 /// </summary>
 public enum StationAccessBehavior

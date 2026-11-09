@@ -61,7 +61,7 @@ internal sealed class MotherBrainGlassObjects
         slot.HitCounter = 0;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         level.SetTerrain(slot.BlockIndex, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));
-        level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ResidentObjectProjectileTrigger);
+        level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
 
         _motherBrainGlassSlot = slot;
         _motherBrainGlassRoomWidth = level.Size.X;

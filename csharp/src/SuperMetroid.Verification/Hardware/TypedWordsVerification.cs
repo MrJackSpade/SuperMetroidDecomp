@@ -421,43 +421,73 @@ internal static void VerifyTypedNativeWords()
             $"deactivation keeps solid kinds solid and makes the rest air (${collisionNibble:X1})");
     }
 
-    // BTS remains a raw byte until the collision nibble selects its meaning. Exercise
-    // each contextual view independently so no future cleanup conflates overlapping bits.
-    var reflectedSlopeOrAreaReaction = new RoomBlockBehavior(0xff);
+    // The import decodes every reading of the behaviour byte at once; each collision kind reads its own. Exercise each
+    // reading independently so no future cleanup conflates overlapping bits.
+    var reflectedSlopeOrAreaReaction = RoomBlockBehaviorCodec.Decode(0xff);
     AssertEqual(-1, reflectedSlopeOrAreaReaction.ExtensionOffset,
         "BTS signed extension offset");
-    AssertEqual(0x1f, reflectedSlopeOrAreaReaction.SlopeShape,
+    AssertEqual(0x1f, reflectedSlopeOrAreaReaction.Slope.Shape,
         "BTS slope shape field");
-    AssertTrue(reflectedSlopeOrAreaReaction.IsNonSquareSlope &&
-        reflectedSlopeOrAreaReaction.SlopeFlipsHorizontally &&
-        reflectedSlopeOrAreaReaction.SlopeFlipsVertically,
+    AssertTrue(reflectedSlopeOrAreaReaction.Slope.IsNonSquare &&
+        reflectedSlopeOrAreaReaction.Slope.FlipsHorizontally &&
+        reflectedSlopeOrAreaReaction.Slope.FlipsVertically,
         "BTS slope contextual fields");
-    AssertEqual(3, reflectedSlopeOrAreaReaction.SlopeOrientation,
-        "BTS slope orientation field");
-    AssertTrue(reflectedSlopeOrAreaReaction.UsesAreaReactionTable,
+    AssertEqual(BlockMirroring.Both, reflectedSlopeOrAreaReaction.Slope.Mirroring,
+        "BTS slope reflections");
+    AssertTrue(reflectedSlopeOrAreaReaction.Reaction.IsAreaSpecific,
         "BTS area-reaction selector");
-    AssertEqual(0x7f, reflectedSlopeOrAreaReaction.AreaReactionIndex,
+    AssertEqual(0x7f, reflectedSlopeOrAreaReaction.Reaction.Entry,
         "BTS area-reaction index");
-    AssertTrue(!reflectedSlopeOrAreaReaction.IsAreaReactionIndex(8) &&
-        !reflectedSlopeOrAreaReaction.IsNormalReactionIndex(16),
+    AssertTrue(!reflectedSlopeOrAreaReaction.Reaction.IsAreaEntryBelow(8) &&
+        !reflectedSlopeOrAreaReaction.Reaction.IsCommonEntryBelow(16),
         "BTS reaction bounds preserve table context");
-    AssertTrue(new RoomBlockBehavior(3).IsPersistentGrappleReaction &&
-        new RoomBlockBehavior(3).IsRespawningReaction,
+    AssertTrue(GrappleBlockReactionDefinitions.PersistentAnchors.Contains(RoomBlockBehaviorCodec.Decode(3).Reaction) &&
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(3).Reaction) == ShotBlockReaction.RespawningBreak,
         "BTS overlapping grapple and breakable-block views stay contextual");
-    AssertTrue(new RoomBlockBehavior(6).IsPermanentReaction,
+    AssertEqual(ShotBlockReaction.PermanentBreak, ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(6).Reaction),
         "BTS permanent breakable-block view");
-    AssertTrue(new RoomBlockBehavior(8).RequiresPowerBombReaction &&
-        new RoomBlockBehavior(10).RequiresSuperMissileReaction,
+    AssertEqual(2, ShotBlockReactions.BreakShape(RoomBlockBehaviorCodec.Decode(6).Reaction),
+        "BTS permanent break keeps its block shape");
+    AssertTrue(ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(8).Reaction) == ShotBlockReaction.RespawningPowerBombBreak &&
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(9).Reaction) == ShotBlockReaction.PermanentPowerBombBreak &&
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(10).Reaction) == ShotBlockReaction.RespawningSuperMissileBreak &&
+        ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(11).Reaction) == ShotBlockReaction.PermanentSuperMissileBreak,
         "BTS weapon-gated shot-block views");
-    AssertTrue(new RoomBlockBehavior(0x82).IsAreaReactionIndex(8),
+    for (int value = 0; value <= byte.MaxValue; value++)
+    {
+        // The shot-block dispatcher's own entries are 0 through 63 and 78; every other byte is dispatched elsewhere.
+        bool dispatched = value is >= 0 and <= 63 or 78;
+        AssertEqual(dispatched, ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(value).Reaction) is not null,
+            $"BTS ${value:X2} reaches the shot-block dispatcher");
+        AssertEqual(value is >= 17 and <= 63 or 78,
+            ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(value).Reaction) == ShotBlockReaction.Unused,
+            $"BTS ${value:X2} is an unused shot-block entry");
+        AssertEqual(value == 0x10, RoomBlockBehaviorCodec.Decode(value).Reaction.IsShotCollisionProbe,
+            $"BTS ${value:X2} is the shot-block collision probe");
+    }
+
+    // A room object writes a behaviour as one reading; the block keeps it through a change of collision kind, so every
+    // other reading must be the one the game's byte gives. The import's codec decodes the byte independently.
+    for (int value = 0; value <= byte.MaxValue; value++)
+    {
+        RoomBlockBehavior decoded = RoomBlockBehaviorCodec.Decode(value);
+        AssertEqual(value, RoomBlockBehaviorCodec.Encode(decoded), $"BTS ${value:X2} encodes back to itself");
+        AssertEqual(decoded, RoomBlockBehavior.Reacting(decoded.Reaction), $"BTS ${value:X2} carried from its reaction");
+        AssertEqual(decoded, RoomBlockBehavior.Extending(decoded.ExtensionOffset), $"BTS ${value:X2} carried from its extension offset");
+        if ((value & 0x20) == 0)
+            AssertEqual(decoded, RoomBlockBehavior.Sloping(decoded.Slope), $"BTS ${value:X2} carried from its slope");
+        if ((value & 0x80) == 0)
+            AssertEqual(decoded, RoomBlockBehavior.LinkingDoor(decoded.DoorLink), $"BTS ${value:X2} carried from its door link");
+    }
+    AssertTrue(RoomBlockBehaviorCodec.Decode(0x82).Reaction.IsAreaEntryBelow(8),
         "BTS area-reaction table view");
 
     RoomBlockBehavior[] blueDoorBehaviors =
     [
-        RoomBlockBehaviorValues.BlueDoorFacingLeft,
-        RoomBlockBehaviorValues.BlueDoorFacingRight,
-        RoomBlockBehaviorValues.BlueDoorFacingUp,
-        RoomBlockBehaviorValues.BlueDoorFacingDown,
+        RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
+        RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
+        RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Up)),
+        RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Down)),
     ];
     for (int orientationIndex = 0; orientationIndex < blueDoorBehaviors.Length;
          orientationIndex++)
@@ -468,21 +498,21 @@ internal static void VerifyTypedNativeWords()
         AssertEqual((ColoredDoorOrientation)orientationIndex, orientation,
             $"blue-door BTS {orientationIndex} orientation");
     }
-    AssertTrue(!RoomBlockBehaviorValues.CollectibleTrigger.TryGetBlueDoorOrientation(out _),
+    AssertTrue(!RoomBlockBehavior.Reacting(BlockReactionDefinitions.CollectibleTrigger).TryGetBlueDoorOrientation(out _),
         "non-door BTS rejects blue-door view");
 
     foreach (StationAccessBehavior expectedAccess in Enum.GetValues<StationAccessBehavior>())
     {
         ushort stationValue = RoomObjectBlockBehaviorNativeWords.StationAccesses.Word(expectedAccess);
-        var stationBehavior = new RoomBlockBehavior(stationValue);
+        var stationBehavior = RoomBlockBehaviorCodec.Decode(stationValue);
         AssertTrue(stationBehavior.TryGetStationAccess(out StationAccessBehavior access),
             $"station BTS ${stationValue:X2} decodes");
         AssertEqual(expectedAccess, access,
             $"station BTS ${stationValue:X2} decodes to its access");
-        AssertEqual(stationBehavior, RoomBlockBehaviorCodec.StationAccess(access),
+        AssertEqual(stationBehavior, RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(access)),
             $"station BTS ${stationValue:X2} remains lossless");
     }
-    AssertTrue(!RoomBlockBehaviorValues.ScrollTrigger.TryGetStationAccess(out _),
+    AssertTrue(!RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger).TryGetStationAccess(out _),
         "non-station BTS rejects station view");
 
     var typedPose = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());

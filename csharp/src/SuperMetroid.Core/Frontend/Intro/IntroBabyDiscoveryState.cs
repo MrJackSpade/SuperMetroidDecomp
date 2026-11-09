@@ -489,7 +489,7 @@ internal sealed class IntroBabyDiscoveryState
         const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
         RoomTerrainBlock[] foreground = IntroBabyDiscoveryCollision.CreateForeground();
         var behavior = new RoomBlockBehavior[width * height];
-        behavior.AsSpan().Fill(RoomBlockBehaviorValues.None);
+        behavior.AsSpan().Fill(RoomBlockBehavior.None);
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid());
     }

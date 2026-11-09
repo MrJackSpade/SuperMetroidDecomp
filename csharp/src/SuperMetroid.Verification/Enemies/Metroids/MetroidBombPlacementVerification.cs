@@ -103,7 +103,7 @@ internal static class MetroidBombPlacementVerification
         {
             int index = level.GetBlockIndex(new(checked((ushort)x), checked((ushort)y)));
             level.SetTerrain(index, y >= 10 ? Solid : OpenAir);
-            level.SetBehavior(index, RoomBlockBehaviorValues.None);
+            level.SetBehavior(index, RoomBlockBehavior.None);
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);
         var samus = runtime.Player.IntroducedSamus;

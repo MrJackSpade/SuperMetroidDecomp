@@ -40,7 +40,7 @@ internal sealed class NoobTubeObjects
             NoobTubeObjectDefinitions.SolidProjectileTrigger);
         level.SetBehavior(
             slot.BlockIndex,
-            RoomBlockBehaviorValues.ResidentObjectProjectileTrigger);
+            RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
         slot.StartAnimation(new NoobTubeObjectAnimation(NoobTubeProgram.Main));
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -55,7 +56,7 @@ internal static class SquareSlopeBeamCollisionVerification
                 : x == SlopeColumn && y == BeamRow ? RoomCollisionType.Slope
                 : RoomCollisionType.Air;
             level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type));
-            level.SetBehavior(index, new RoomBlockBehavior(type == RoomCollisionType.Slope ? slopeBts : 0));
+            level.SetBehavior(index, RoomBlockBehaviorCodec.Decode(type == RoomCollisionType.Slope ? slopeBts : 0));
         }
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

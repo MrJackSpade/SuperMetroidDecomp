@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -20,7 +21,7 @@ internal static class WaveDoorBandsVerification
             bool inside = y < 512;
             int target = inside ? (y >> 4) * 16 + 4 : 4;
             words[target] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-            behaviors[target] = (left ? RoomBlockBehaviorValues.BlueDoorFacingRight : RoomBlockBehaviorValues.BlueDoorFacingLeft);
+            behaviors[target] = (left ? RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)) : RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)));
             var level = CreateRoom(new(16, 32), words, behaviors);
             var roomObjects = RoomObjectFixtures.Unbound();
             var shot = new SamusProjectileSlot(0)

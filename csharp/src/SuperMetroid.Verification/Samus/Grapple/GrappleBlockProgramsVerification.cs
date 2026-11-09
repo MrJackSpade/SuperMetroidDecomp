@@ -159,8 +159,8 @@ internal static class GrappleBlockProgramsVerification
                 AssertEqual(native.Level.GetCollisionBlockByIndex(27).Terrain,
                     compiled.Level.GetCollisionBlockByIndex(27).Terrain,
                     $"Grapple BTS {bts} level word, frame {frame}");
-                AssertEqual(native.Level.GetCollisionBlockByIndex(27).Behavior.Value,
-                    compiled.Level.GetCollisionBlockByIndex(27).Behavior.Value,
+                AssertEqual(RoomBlockBehaviorCodec.Encode(native.Level.GetCollisionBlockByIndex(27).Behavior),
+                    RoomBlockBehaviorCodec.Encode(compiled.Level.GetCollisionBlockByIndex(27).Behavior),
                     $"Grapple BTS {bts} BTS, frame {frame}");
             }
 

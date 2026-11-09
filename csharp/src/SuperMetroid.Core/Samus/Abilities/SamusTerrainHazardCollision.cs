@@ -18,7 +18,7 @@ public static class SamusTerrainHazardCollision
 {
     /// <summary>
     /// Runs the damaging subset of <c>BlockInsideDetection</c> and
-    /// publishes the room-dependent spike-block behaviour-zero gate used later during movement.
+    /// publishes the room-dependent heavy-spike gate used later during movement.
     /// </summary>
     public static void PrepareFrame(
         RoomLevelData level,
@@ -29,9 +29,9 @@ public static class SamusTerrainHazardCollision
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
-        // The spike reaction makes Wrecked Ship's behaviour-zero spike blocks harmless until Phantoon's
-        // area-boss bit is set. Every other area admits that table entry unconditionally.
-        samus.OrdinarySpikeBlockBtsZeroDamageEnabled =
+        // The spike reaction makes Wrecked Ship's heavy spike blocks harmless until Phantoon's area-boss bit is set.
+        // Every other area admits that reaction unconditionally.
+        samus.HeavySpikeDamageEnabled =
             area != AreaId.WreckedShip || areaBossDefeated;
 
         SamusInsideBlockSamplePoints.Visit(samus.Position.Y.Whole, samus.Kinematics.Radius.Y, (y, _) =>
@@ -46,19 +46,12 @@ public static class SamusTerrainHazardCollision
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
-        // Every other spike-block behaviour value selects a harmless reaction.
-        SpikeBlockBehavior? spike = block.Behavior.Value switch
-        {
-            0 => SpikeBlockBehavior.Heavy,
-            1 => SpikeBlockBehavior.Light,
-            3 => SpikeBlockBehavior.AlternateLight,
-            _ => null,
-        };
-        if (spike is not { } behavior)
+        // Every other spike-block reaction is harmless.
+        if (!SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(block.Behavior.Reaction, out SpikeBlockBehavior behavior))
             return;
         int damage = behavior switch
         {
-            SpikeBlockBehavior.Heavy => samus.OrdinarySpikeBlockBtsZeroDamageEnabled
+            SpikeBlockBehavior.Heavy => samus.HeavySpikeDamageEnabled
                 ? SpikeHazardDefinitions.HeavySpikeDamage
                 : 0,
             SpikeBlockBehavior.Light or SpikeBlockBehavior.AlternateLight =>

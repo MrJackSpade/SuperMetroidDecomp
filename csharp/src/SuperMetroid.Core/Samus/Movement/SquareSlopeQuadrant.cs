@@ -33,7 +33,7 @@ public readonly record struct SquareSlopeQuadrant(SquareSlopeColumnHalf Column, 
     /// <param name="column">The block column half the point lies in.</param>
     /// <param name="row">The block row half the point lies in.</param>
     public static SquareSlopeQuadrant Showing(RoomBlockBehavior behavior, SquareSlopeColumnHalf column, SquareSlopeRowHalf row) =>
-        new(behavior.SlopeFlipsHorizontally ? Opposite(column) : column, behavior.SlopeFlipsVertically ? Opposite(row) : row);
+        new(behavior.Slope.FlipsHorizontally ? Opposite(column) : column, behavior.Slope.FlipsVertically ? Opposite(row) : row);
 
     /// <summary>The other column half.</summary>
     private static SquareSlopeColumnHalf Opposite(SquareSlopeColumnHalf column) => column switch

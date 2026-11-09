@@ -287,8 +287,6 @@ internal sealed class CrocomireCombat
     {
         // The setup performs one horizontal collision move and deliberately ignores carry.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-        // The timer is still zero from the spawn, so the sum is the velocity's word.
-        projectile.GeneralTimer += projectile.Velocity.X.RawValue;
 
         // Spawn parameters are 2,4,...,18. The last selects the tenth gradient, one past the
         // nine-word table, which the installed service holds; do not clamp the final shot to

@@ -70,7 +70,7 @@ internal static class IntroRinkaDefinitionsVerification
                         1 => (ushort)0x8c8d,
                         _ => (ushort)0x8cb9,
                     };
-                AssertEqual(expectedSprite, CinematicSpritePoseSpritemaps.Of(system.Rinka(0).Pose),
+                AssertEqual(expectedSprite, CinematicSpritePoseSpritemaps.Of(system.HittingRinka.Pose),
                     $"intro first Rinka selects its native frame at call {frame}");
             }
         }

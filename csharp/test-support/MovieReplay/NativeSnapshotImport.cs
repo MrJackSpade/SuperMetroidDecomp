@@ -497,7 +497,8 @@ internal static class NativeSnapshotImport
             VerificationAssertions.AssertEqual(1, NativeEnemyProjectileFamilies.All.Count(family => family.TryResumeAt(cartridge, typed, instruction)),
                 $"initial enemy projectile {projectile.SlotIndex} resumes its typed program");
             projectile.FrameHold = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileFrameHold + index));
-            projectile.GeneralTimer = W(NativeSnapshotMemory.EnemyProjectileTimer + index);
+            // The slot-only kinds keep nothing but their program's loop count in the native timer word.
+            projectile.LoopCountdown = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.EnemyProjectileTimer + index));
             projectile.Position = projectile.Position
                 .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))
                 .WithFractionY(W(NativeSnapshotMemory.EnemyProjectileYFraction + index));

@@ -65,7 +65,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(particle, 3);
         RoomEnemyProjectileSlot tail = Single(RoomEnemyProjectileKind.TourianStatueTail);
         Run(particle, 2);
-        AssertEqual(ushort.MaxValue, particle.GeneralTimer,
+        AssertEqual(ushort.MaxValue, particle.LoopCountdown.RemainingFrames,
             "unset particle loop timer wraps from zero to FFFF like the cartridge");
         AssertEqual((ushort)0xb806, NativePointer(particle),
             "particle counted branch immediately begins its next display cycle");

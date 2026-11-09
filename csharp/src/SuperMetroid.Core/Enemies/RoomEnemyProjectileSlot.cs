@@ -56,15 +56,10 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
     /// <summary>
-    /// The projectile's independent timer word. This is not the frame-list
-    /// frame hold: projectile animations explicitly initialize and decrement this
-    /// value for counted loops and randomized impact animations.
+    /// The count the projectile's program repeats its counted loops by: a set-counter step loads it and a
+    /// repeat-while-counting step counts it down. This is not the frame hold, and only those steps change it.
     /// </summary>
-    public int GeneralTimer
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
-    }
+    public WrappingCountdown LoopCountdown { get; internal set; }
     /// <summary>Gets Ridley's afterburn-chain counter; continuation decrements only its low byte and stops on signed underflow.</summary>
     public int RemainingAfterburns
     {
@@ -137,7 +132,8 @@ public sealed class RoomEnemyProjectileSlot
         Animation = null;
         Radius = Extent16<RoomPixels>.Zero;
         Graphics = SpriteGraphics.Emptied;
-        Damage = InvincibilityFrames = GeneralTimer = 0;
+        Damage = InvincibilityFrames = 0;
+        LoopCountdown = WrappingCountdown.Start(0);
         Depth = EnemyProjectileDepth.BehindSamus;
         RemainingAfterburns = 0;
         NextAfterburnKind = RoomEnemyProjectileKind.None;

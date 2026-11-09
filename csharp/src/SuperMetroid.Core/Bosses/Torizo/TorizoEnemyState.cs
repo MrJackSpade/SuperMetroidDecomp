@@ -66,8 +66,8 @@ public sealed class TorizoEnemyState
     public int SamusSpaceJumpFrames { get; internal set; }
 
     /// <summary>
-    /// Signed 8.8 jump velocity words. The walking instructions reuse the X word for a
-    /// signed whole-pixel walk delta, which they read as whole pixels.
+    /// Signed 8.8 velocity of the Torizo's jumps and falls. A walking step moves the Torizo by its own whole pixels and
+    /// leaves its sideways velocity at <see cref="TorizoWalkLeftVelocity"/>.
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 

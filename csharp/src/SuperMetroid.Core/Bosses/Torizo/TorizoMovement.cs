@@ -248,8 +248,7 @@ internal sealed class TorizoMovement
             }
         }
 
-        int fallingSpeed = Math.Min(Math.Abs(state.Velocity.X.SignedRawValue) + 1, 15);
-        if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(fallingSpeed)))
+        if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             // Bomb Torizo's fall swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
@@ -279,10 +278,7 @@ internal sealed class TorizoMovement
             }
         }
 
-        int fallingSpeed = Math.Min(
-            Math.Abs(state.Velocity.X.SignedRawValue) + 1,
-            15);
-        if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(fallingSpeed)))
+        if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0

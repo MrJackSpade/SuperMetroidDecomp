@@ -168,7 +168,7 @@ internal static class CinematicSpriteAnimationsVerification
                 return update + 1;
             AssertEqual(native.Spritemap, CinematicSpritePoseSpritemaps.Of(actor.Pose), $"{at}: spritemap");
             AssertEqual(native.FrameBehavior, actor.FrameBehaviorPointer, $"{at}: pre-instruction");
-            AssertEqual(native.Timer.RawValue, actor.GeneralTimer, $"{at}: loop timer");
+            AssertEqual(native.Timer.RawValue, actor.LoopCountdown.RemainingFrames, $"{at}: loop timer");
             AssertTrue(native.Cues.SequenceEqual(cues), $"{at}: owner cues");
         }
         return PlaybackUpdates;

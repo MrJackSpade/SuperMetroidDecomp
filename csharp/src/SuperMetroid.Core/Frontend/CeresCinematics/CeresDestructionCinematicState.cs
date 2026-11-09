@@ -661,9 +661,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             definition.Program);
         actor.InstallFrameBehavior(definition.FrameBehavior);
 
-        // The initializer writes its stagger directly to the frame hold.
-        // GeneralTimer is a different counter used by decrement-and-goto steps; using
-        // it here would make all five blasts appear immediately despite distinct delays.
+        // The initializer writes its stagger directly to the frame hold. The loop countdown is a different count, used
+        // by the program's counted loops; using it here would make all five blasts appear immediately despite distinct
+        // delays.
         actor.DelayFirstInstruction(placement.DelayFrames);
         actors.Add(actor);
     }

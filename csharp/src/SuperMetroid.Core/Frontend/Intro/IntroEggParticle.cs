@@ -6,8 +6,14 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>One of the six authored shell fragments spawned when the egg hatches.</summary>
 internal sealed class IntroEggParticle
 {
-    /// <summary>Generic cinematic sprite retaining this fragment's motion timer and current instruction cursor.</summary>
+    /// <summary>The cinematic sprite showing the fragment: its position and program.</summary>
     internal readonly IntroDiscoverySprite sprite;
+
+    /// <summary>The fragment, 0 through 5: it selects the fragment's program and horizontal velocity, and never changes.</summary>
+    private readonly int fragment;
+
+    /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>
+    private int framesFallen;
 
     /// <summary>The installed steps the fragment falls by once it has fallen past its gravity curve.</summary>
     private readonly ShellFragmentFallPastCurve fallPastCurve;
@@ -19,38 +25,26 @@ internal sealed class IntroEggParticle
     {
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
         CinematicActorDefinition definition = IntroEggParticleActors.Particle(index);
+        fragment = index;
         // The spawn indexes interleaved (X-10h,Y-3Bh) pairs with parameter*4, then restores
         // the two fixed biases. The compiled catalog is independently checked against all
         // twelve original words so this physical spawn does not read the original data.
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(index),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: definition.Program)
-        {
-            GeneralTimer = index,
-        };
+            program: definition.Program);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
-    /// <summary>
-    /// The actor's timer counts the fragment number below the frames the fragment has fallen, each frame fallen
-    /// counting as this step; the frames run past 255 back to zero without touching the fragment. The two stay in the
-    /// actor's one timer because instruction-program counter steps also count it.
-    /// </summary>
-    private const int FrameFallenStep = 256;
-
-    /// <summary>The fragment number the spawn stores, 0 through 5; it never changes.</summary>
-    private int Fragment => sprite.GeneralTimer % FrameFallenStep;
-
-    /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>
-    private int FramesFallen => sprite.GeneralTimer / FrameFallenStep;
+    /// <summary>The frames fallen count runs past 255 back to zero.</summary>
+    private const int FramesFallenWrap = 256;
 
     /// <summary>Applies 16.16 fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
     {
         if (!sprite.IsActive)
             return;
-        if (sprite.FrameBehavior != IntroEggParticleActors.Particle(Fragment).FrameBehavior)
+        if (sprite.FrameBehavior != IntroEggParticleActors.Particle(fragment).FrameBehavior)
         {
             throw new InvalidDataException(
                 $"Intro egg particle names invalid pre-instruction {sprite.FrameBehavior}.");
@@ -59,8 +53,8 @@ internal sealed class IntroEggParticle
         // The fragment motion indexes the horizontal velocities by fragment and the gravity table by the
         // frames fallen. Each velocity is a signed 16.16 pair stored high-word first,
         // exactly matching the actor's whole/subposition addition order.
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(Fragment));
-        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(FramesFallen, fallPastCurve));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(fragment));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(framesFallen, fallPastCurve));
         if (CoordinateAxis.Difference(sprite.WholePosition.Y, IntroEggMotionDefinitions.FragmentFloorY) >= 0)
         {
             // The game primes the shared one-word delete animation, which the generic handler
@@ -69,7 +63,7 @@ internal sealed class IntroEggParticle
         }
         else
         {
-            sprite.GeneralTimer = WrappingCounter.AddWord(sprite.GeneralTimer, FrameFallenStep);
+            framesFallen = (framesFallen + 1) % FramesFallenWrap;
         }
 
         sprite.Step();

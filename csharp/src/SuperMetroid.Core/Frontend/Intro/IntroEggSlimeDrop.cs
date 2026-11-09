@@ -6,8 +6,15 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>One of four Baby-Metroid slime drops created when the confused baby first cries.</summary>
 internal sealed class IntroEggSlimeDrop
 {
-    /// <summary>Discovery sprite owning this drop's position, timer, and impact instruction list.</summary>
+    /// <summary>Discovery sprite owning this drop's position and impact instruction list.</summary>
     internal readonly IntroDiscoverySprite sprite;
+    /// <summary>
+    /// The drop's trajectory, 0 through 3: it selects the horizontal velocity, and its parity the gravity curve; it never
+    /// changes.
+    /// </summary>
+    private readonly int trajectory;
+    /// <summary>The frames the drop has fallen, 0 through 255: its gravity-table index.</summary>
+    private int framesFallen;
     /// <summary>Stops velocity integration when the drop reaches the puddle-animation height.</summary>
     private bool motionEnabled = true;
 
@@ -18,31 +25,19 @@ internal sealed class IntroEggSlimeDrop
             throw new ArgumentOutOfRangeException(nameof(index));
 
         CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
+        trajectory = index;
 
         // The slime spawn copies the confused baby's slot coordinates rather than using a separate
-        // literal position table. Its low timer byte remains the horizontal trajectory ID.
+        // literal position table.
         sprite = new IntroDiscoverySprite(
             babyPosition,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: definition.Program)
-        {
-            GeneralTimer = index,
-        };
+            program: definition.Program);
         sprite.InstallFrameBehavior(definition.FrameBehavior);
     }
 
-    /// <summary>
-    /// The actor's timer counts the drop's trajectory number below the frames it has fallen, each frame fallen counting
-    /// as this step; the frames run past 255 back to zero without touching the trajectory. The two stay in the actor's
-    /// one timer because instruction-program counter steps also count it.
-    /// </summary>
-    private const int FrameFallenStep = 256;
-
-    /// <summary>The drop's horizontal trajectory number, 0 through 3; it never changes.</summary>
-    private int Drop => sprite.GeneralTimer % FrameFallenStep;
-
-    /// <summary>The frames the drop has fallen, 0 through 255: its gravity-table index.</summary>
-    private int FramesFallen => sprite.GeneralTimer / FrameFallenStep;
+    /// <summary>The frames fallen count runs past 255 back to zero.</summary>
+    private const int FramesFallenWrap = 256;
 
     /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y 168, then runs the puddle list in place.</summary>
     public void Step()
@@ -57,12 +52,12 @@ internal sealed class IntroEggSlimeDrop
                 throw new InvalidDataException(
                     $"Intro egg slime names invalid pre-instruction {sprite.FrameBehavior}.");
             }
-            AddVelocity(axis: Axis.Horizontal, IntroEggMotion.SlimeX(Drop));
+            AddVelocity(axis: Axis.Horizontal, IntroEggMotion.SlimeX(trajectory));
 
-            // BIT #1 selects two different gravity curves. This is the parameter's parity,
-            // not an animation-frame toggle: odd drops begin at -2 px/frame, evens at -3.
+            // The trajectory's parity selects one of two gravity curves, not an animation-frame toggle: odd drops begin
+            // at -2 px/frame, evens at -3.
             AddVelocity(axis: Axis.Vertical, IntroEggMotion.SlimeY(
-                FramesFallen, odd: (sprite.GeneralTimer & 1) != 0));
+                framesFallen, odd: trajectory % 2 != 0));
 
             if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
             {
@@ -75,7 +70,7 @@ internal sealed class IntroEggSlimeDrop
             }
             else
             {
-                sprite.GeneralTimer = WrappingCounter.AddWord(sprite.GeneralTimer, FrameFallenStep);
+                framesFallen = (framesFallen + 1) % FramesFallenWrap;
             }
         }
 

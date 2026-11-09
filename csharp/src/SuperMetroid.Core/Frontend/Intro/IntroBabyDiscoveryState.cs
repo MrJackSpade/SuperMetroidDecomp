@@ -312,7 +312,7 @@ internal sealed class IntroBabyDiscoveryState
                         CinematicSpriteFrameBehavior.ConfusedBabyDancing);
                     BabyIdleTimer = 0;
                     BabyVelocity = BabyVelocity.WithY(default);
-                    confusedBaby.GeneralTimer = 0;
+                    BabyDanceFrames = 0;
                 }
                 return;
 
@@ -363,6 +363,9 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Countdown from the apex of the baby's rise to the start of its dance.</summary>
     private int BabyIdleTimer { get; set; }
 
+    /// <summary>The frames the baby has danced, counted up to 128; it cries as the count reaches 64 and 128.</summary>
+    private int BabyDanceFrames { get; set; }
+
     /// <summary>Spawns slime at the authored scanline and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
     {
@@ -411,11 +414,11 @@ internal sealed class IntroBabyDiscoveryState
             return;
         }
 
-        if (confusedBaby.GeneralTimer < 128)
+        if (BabyDanceFrames < 128)
         {
-            confusedBaby.GeneralTimer = WrappingCounter.IncrementWord(confusedBaby.GeneralTimer);
-            // The dancing baby cries when the post-increment timer reaches 64 and 128.
-            if (confusedBaby.GeneralTimer % 64 == 0)
+            BabyDanceFrames++;
+            // The dancing baby cries when its count of frames danced reaches 64 and 128.
+            if (BabyDanceFrames % 64 == 0)
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.BabyCry1,
                     priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);

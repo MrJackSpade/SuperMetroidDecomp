@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinit
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Video;
@@ -34,6 +35,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
         string[] ids = ["first-frame","second-frame","third-frame"];
         var exported = RoomObjectElevatorPlatformVisualFiles.DrawLists.ToArray();
         AssertEqual(3, exported.Length, "ElevatorPlatform layout export count");
+        InstalledRoomObjectElevatorPlatformVisuals pictures = InstalledRoomObjectElevatorPlatformVisuals.Stock();
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -68,7 +70,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "ElevatorPlatform layout run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "ElevatorPlatform layout start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "ElevatorPlatform layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "ElevatorPlatform layout word run bounds");
                 }
             }
             var level = CreateEmptyRoom(new(32, 16));
@@ -99,7 +101,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "ElevatorPlatform layout native DTO geometry");
-                        AssertEqual(count, part.Blocks.Length, "ElevatorPlatform layout native DTO count");
+                        AssertEqual(count, part.Count, "ElevatorPlatform layout native DTO count");
                         AssertEqual(offset, RoomObjectRunContinuationCodecConstants.Encode(frame, run), "ElevatorPlatform layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
@@ -110,14 +112,16 @@ internal static class LookupElevatorPlatformLayoutsVerification
                     drawY = 4 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "ElevatorPlatform layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "ElevatorPlatform layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
-                    AssertTerrainField(field, expected, shape.BlockAt(run, cell), "ElevatorPlatform layout original calculated field");
+                    RoomObjectFrameImage picture = pictures.Image(NativeObjectDraws.At<ElevatorPlatformDraw>(pointer));
+                    Offset16<RoomBlocks> place = dto.Runs.Span[run].CellAt(cell);
+                    AssertCellField(field, expected, shape.CollisionAt(run, cell), picture, place, "ElevatorPlatform layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
-                        AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "ElevatorPlatform layout original DTO field");
+                        AssertCellField(field, expected, frame.Runs.Span[run].Collisions.Span[cell], picture, frame.Runs.Span[run].CellAt(cell), "ElevatorPlatform layout original DTO field");
                 }
                 cells += count;
                 run++;

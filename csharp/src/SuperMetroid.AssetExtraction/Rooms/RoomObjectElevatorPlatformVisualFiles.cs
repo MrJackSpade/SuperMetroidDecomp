@@ -54,7 +54,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
     {
         bool found = ElevatorPlatformDraws.TryDescribe(request, out ElevatorPlatformDraws.Draw draw);
         list = found
-            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start)
+            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.CollisionAt, draw.Start)
             : default;
         return found;
     }

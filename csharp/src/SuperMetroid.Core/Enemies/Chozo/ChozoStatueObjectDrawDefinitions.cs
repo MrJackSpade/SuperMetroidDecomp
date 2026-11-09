@@ -4,16 +4,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// Physical draw layouts used by the translated Chozo statue PLMs.
-/// The crumble plug shares the already-compiled shot-block breakup frames.
-/// Complete terrain blocks, run geometry and signed offsets are game mechanics;
-/// installed artwork may replace only their block appearances.
+/// The draw layouts used by the translated Chozo statue PLMs: run geometry, signed offsets and how each cell collides.
+/// The crumble plug shares the shot-block breakup frames. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class ChozoStatueObjectDrawDefinitions
 {
     /// <summary>
-    /// Each draw's horizontal runs. Lower Norfair's cleared hand is one air cell with the blank tile. The two Wrecked Ship
-    /// slope-access states share five runs and identical art: a fourteen-cell ledge, a nine-cell fill, a two-cell
+    /// Each draw's horizontal runs. Lower Norfair's cleared hand is one air cell. The two Wrecked Ship slope-access
+    /// states share five runs: a fourteen-cell ledge, a nine-cell fill, a two-cell
     /// transition and two single-cell stair runs, each run after the first five cells right and each run lower, the
     /// final run level. Clearing leaves slope endpoints on the ledge, the fill and the final stair; blocking makes the
     /// access solid, with spikes across the ledge except its final cell.
@@ -22,96 +20,96 @@ internal static class ChozoStatueObjectDrawDefinitions
     {
         [ChozoStatueDraw.LowerNorfairClearedHand] =
         [
-            new(new(0, 0), [RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air)]),
+            new(new(0, 0), [RoomCollisionType.Air]),
         ],
         [ChozoStatueDraw.ClearSlopeAccess] =
         [
             new(new(0, 0),
             [
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.Slope),
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Slope,
             ]),
             new(new(0, 5),
             [
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(411, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.Slope),
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
+                RoomCollisionType.Slope,
             ]),
             new(new(5, 6),
             [
-                RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.Air),
+                RoomCollisionType.Air,
+                RoomCollisionType.Air,
             ]),
             new(new(5, 7),
             [
-                RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.Air),
+                RoomCollisionType.Air,
             ]),
             new(new(5, 8),
             [
-                RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.Slope),
+                RoomCollisionType.Slope,
             ]),
         ],
         [ChozoStatueDraw.BlockSlopeAccess] =
         [
             new(new(0, 0),
             [
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SpikeBlock),
-                RoomTerrainBlock.Of(299, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SpikeBlock,
+                RoomCollisionType.SolidBlock,
             ]),
             new(new(0, 5),
             [
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(273, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(411, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
             ]),
             new(new(5, 6),
             [
-                RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(297, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomCollisionType.SolidBlock,
+                RoomCollisionType.SolidBlock,
             ]),
             new(new(5, 7),
             [
-                RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomCollisionType.SolidBlock,
             ]),
             new(new(5, 8),
             [
-                RoomTerrainBlock.Of(443, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomCollisionType.SolidBlock,
             ]),
         ],
     };

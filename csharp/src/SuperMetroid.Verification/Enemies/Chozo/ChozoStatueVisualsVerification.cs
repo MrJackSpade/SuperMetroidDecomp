@@ -116,7 +116,7 @@ internal static class ChozoStatueVisualsVerification
                     {
                         int first = 0x840000 | RoomObjectDrawAddressCodec.Of(draw.Draw);
                         int length = draw.Runs.Span.Sum(run =>
-                            4 + run.Blocks.Length * 2);
+                            4 + run.Count * 2);
                         return address >= first && address < first + length;
                     }),
                 address => $"Chozo PLM reread compiled program or draw byte ${address:X6}.");

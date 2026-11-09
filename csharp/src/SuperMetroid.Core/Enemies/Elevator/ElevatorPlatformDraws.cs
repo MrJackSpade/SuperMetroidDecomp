@@ -20,8 +20,8 @@ internal static class ElevatorPlatformDraws
         internal int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>Where a strip starts, in blocks from the PLM origin.</summary>
         internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
-        /// <summary>Gets a solid platform block.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>How a platform cell collides: solid.</summary>
+        internal RoomCollisionType CollisionAt(int run, int cell)
         {
             RoomObjectBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));

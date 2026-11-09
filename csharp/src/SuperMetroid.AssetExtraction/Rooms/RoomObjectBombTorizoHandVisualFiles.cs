@@ -46,7 +46,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
     {
         bool found = BombTorizoHandDraws.TryDescribe(request, out BombTorizoHandDraws.Draw draw);
         list = found
-            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.BlockAt, draw.Start)
+            ? RoomObjectDrawListExport.Strips(request, draw.RunCount, draw.BlockCount, draw.CollisionAt, draw.Start)
             : default;
         return found;
     }

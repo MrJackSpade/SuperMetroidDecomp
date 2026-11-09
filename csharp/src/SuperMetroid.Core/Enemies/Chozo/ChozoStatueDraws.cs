@@ -20,8 +20,8 @@ internal static class ChozoStatueDraws
         internal int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>Where a run starts, in blocks from the draw's origin.</summary>
         internal Offset16<RoomBlocks> Start(int run) => Strip(run).Start;
-        /// <summary>One cell's complete terrain block.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>How one cell collides.</summary>
+        internal RoomCollisionType CollisionAt(int run, int cell)
         {
             RoomObjectBlockStrip strip = Strip(run);
             if ((uint)cell >= (uint)strip.Cells.Length) throw new ArgumentOutOfRangeException(nameof(cell));

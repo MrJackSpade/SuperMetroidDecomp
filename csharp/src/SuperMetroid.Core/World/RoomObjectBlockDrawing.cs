@@ -282,7 +282,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage platform = Installed(ElevatorPlatformVisuals, "elevator-platform").Image(draw);
             for (int run = 0; run < elevator.RunCount; run++)
                 for (int cell = 0; cell < elevator.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, platform, elevator.Start(run) + new Offset16<RoomBlocks>(cell, 0), elevator.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, platform, elevator.Start(run) + new Offset16<RoomBlocks>(cell, 0), elevator.CollisionAt(run, cell));
             return;
         }
         if (DownwardGateObjectDraws.TryDescribe(draw, out var gate))
@@ -305,7 +305,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage hand = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").Image(draw);
             for (int run = 0; run < bombTorizoHand.RunCount; run++)
                 for (int word = 0; word < bombTorizoHand.BlockCount(run); word++)
-                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), bombTorizoHand.BlockAt(run, word).Collision);
+                    DrawImageCell(level, draw, origin, hand, bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), bombTorizoHand.CollisionAt(run, word));
             return;
         }
         if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
@@ -322,7 +322,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage statue = Installed(ChozoStatueVisuals, "Chozo statue").Image(draw);
             for (int run = 0; run < chozoStatue.RunCount; run++)
                 for (int cell = 0; cell < chozoStatue.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, statue, chozoStatue.Start(run) + new Offset16<RoomBlocks>(cell, 0), chozoStatue.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, statue, chozoStatue.Start(run) + new Offset16<RoomBlocks>(cell, 0), chozoStatue.CollisionAt(run, cell));
             return;
         }
         if (CollectibleObjectDraws.TryGetBlock(draw, out RoomTerrainBlock collectible))

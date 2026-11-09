@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinit
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 using SuperMetroid.Core.Enemies.Chozo;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -28,6 +29,7 @@ internal static class LookupChozoLayoutsVerification
         string[] ids = ["lower-norfair-cleared-hand","wrecked-ship-clear-slope-access","wrecked-ship-block-slope-access"];
         var exported = RoomObjectChozoStatueVisualFiles.All.ToArray();
         AssertEqual(3, exported.Length, "Chozo layout export count");
+        InstalledRoomObjectChozoStatueVisuals pictures = InstalledRoomObjectChozoStatueVisuals.Stock();
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -62,7 +64,7 @@ internal static class LookupChozoLayoutsVerification
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Chozo layout run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Chozo layout start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Chozo layout block run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Chozo layout block run bounds");
                 }
             }
             var level = CreateEmptyRoom(new(32, 16));
@@ -94,7 +96,7 @@ internal static class LookupChozoLayoutsVerification
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Chozo layout native DTO geometry");
-                        AssertEqual(count, part.Blocks.Length, "Chozo layout native DTO count");
+                        AssertEqual(count, part.Count, "Chozo layout native DTO count");
                         AssertEqual(offset, RoomObjectRunContinuationCodecConstants.Encode(frame, run), "Chozo layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
@@ -105,14 +107,16 @@ internal static class LookupChozoLayoutsVerification
                     drawY = 4 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Chozo layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Chozo layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
-                    AssertTerrainField(field, expected, shape.BlockAt(run, cell), "Chozo layout original calculated field");
+                    RoomObjectFrameImage picture = pictures.Image(NativeObjectDraws.At<ChozoStatueDraw>(pointer));
+                    Offset16<RoomBlocks> place = dto.Runs.Span[run].CellAt(cell);
+                    AssertCellField(field, expected, shape.CollisionAt(run, cell), picture, place, "Chozo layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
-                        AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "Chozo layout original DTO field");
+                        AssertCellField(field, expected, frame.Runs.Span[run].Collisions.Span[cell], picture, frame.Runs.Span[run].CellAt(cell), "Chozo layout original DTO field");
                 }
                 cells += count;
                 run++;

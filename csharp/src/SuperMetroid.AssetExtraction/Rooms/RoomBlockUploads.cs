@@ -227,7 +227,7 @@ internal static class RoomBlockUploads
             {
                 for (int band = 0; band < CrocomireMelting.BandCount(illustration); band++)
                 {
-                    yield return new AnimatedCharacterPlacement(CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(illustration, step), band),
+                    yield return AnimatedCharacterPlacement.Of(CrocomireMelting.MeltBandFrame(new CrocomireMeltBandPicture(illustration, step), band),
                         BgCharacterSet.Tiles, CrocomireMeltDissolve.BandFirstCharacter(band), CrocomireMeltDissolve.BandCharacters(image, band));
                 }
                 step++;

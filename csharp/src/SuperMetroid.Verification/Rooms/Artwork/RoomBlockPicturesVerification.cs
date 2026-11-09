@@ -283,7 +283,7 @@ internal static class RoomBlockPicturesVerification
                 vram = [.. loaded];
                 foreach (AnimatedCharacterPlacement placement in animated.Where(placement => placement.Set == BgCharacterSet.Tiles
                     && frame.Selected.TryGetValue(placement.Frame.Animation, out ArtworkFrame selected) && selected == placement.Frame))
-                    placement.Bytes.Span.CopyTo(vram.AsSpan(placement.FirstCharacter * TileCharacterWords * sizeof(ushort)));
+                    placement.Placement.Bytes.Span.CopyTo(vram.AsSpan(placement.Placement.FirstCharacter * TileCharacterWords * sizeof(ushort)));
             }
             BossBodyFrame shown = sheet.Frame(frame.Name);
             foreach ((int cell, BackgroundTile tile) in frame.Cells)

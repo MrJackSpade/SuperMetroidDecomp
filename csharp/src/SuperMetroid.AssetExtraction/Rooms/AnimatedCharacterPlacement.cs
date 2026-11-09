@@ -10,24 +10,26 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// frame its animation selected without knowing where the frame would have been copied.
 /// </summary>
 /// <param name="Frame">The frame.</param>
-/// <param name="Set">The characters it paints.</param>
-/// <param name="FirstCharacter">The first character it paints.</param>
-/// <param name="Bytes">The frame's characters, whole characters of the set.</param>
-internal sealed record AnimatedCharacterPlacement(ArtworkFrame Frame, BgCharacterSet Set, int FirstCharacter, ReadOnlyMemory<byte> Bytes)
+/// <param name="Placement">
+/// The frame's characters as artwork placed under the frame's identity, which pictures are composed over; held once, since
+/// a body's composition reads it for every character it places (#1573).
+/// </param>
+internal sealed record AnimatedCharacterPlacement(ArtworkFrame Frame, BgCharacterUpload Placement)
 {
-    /// <summary>
-    /// The frame's characters as artwork placed under the frame's identity, which pictures are composed over; made once,
-    /// since a body's composition reads it for every character it places (#1573).
-    /// </summary>
-    internal BgCharacterUpload Placement { get; } = new(BgArtworkIdentity.Frame(Frame), Set, FirstCharacter, Bytes);
+    /// <summary>The characters the frame paints.</summary>
+    internal BgCharacterSet Set => Placement.Set;
 
     /// <summary>The frame as the value of its animation's appearance input, showing its characters.</summary>
     internal AppearanceOption Option => new(new AnimationAppearance(Frame.Animation), AnimationAppearance.ValueOf(Frame), Placement);
+
+    /// <summary>Frame <paramref name="frame"/>'s characters <paramref name="bytes"/>, painted from <paramref name="firstCharacter"/> of <paramref name="set"/>.</summary>
+    internal static AnimatedCharacterPlacement Of(ArtworkFrame frame, BgCharacterSet set, int firstCharacter, ReadOnlyMemory<byte> bytes) =>
+        new(frame, new BgCharacterUpload(BgArtworkIdentity.Frame(frame), set, firstCharacter, bytes));
 
     /// <summary>Frame <paramref name="frame"/>, whose characters the cartridge copies to <paramref name="firstWord"/>.</summary>
     internal static AnimatedCharacterPlacement At(ArtworkFrame frame, int firstWord, ReadOnlyMemory<byte> bytes)
     {
         BgCharacterUpload placement = BgCharacterWords.Place(BgArtworkIdentity.Frame(frame), firstWord, bytes);
-        return new AnimatedCharacterPlacement(frame, placement.Set, placement.FirstCharacter, bytes);
+        return Of(frame, placement.Set, placement.FirstCharacter, bytes);
     }
 }

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;

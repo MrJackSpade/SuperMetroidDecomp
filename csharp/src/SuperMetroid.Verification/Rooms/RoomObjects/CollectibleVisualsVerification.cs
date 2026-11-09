@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.LookupCollectibleDrawsV
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupCollectibleSelectorsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupCollectibleStockVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;

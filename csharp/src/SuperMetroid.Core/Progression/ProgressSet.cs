@@ -88,7 +88,7 @@ public sealed class ProgressSet<T>
     public bool SetEquals(ProgressSet<T> other)
     {
         Ensure.NotNull(other);
-        return SameKind(other) && other._on.AsSpan().SequenceEqual(_on);
+        return SameKind(other) && other._on.SequenceEqual(_on);
     }
 
     /// <summary>

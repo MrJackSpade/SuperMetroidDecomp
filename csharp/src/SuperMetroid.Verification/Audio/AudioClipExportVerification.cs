@@ -114,7 +114,7 @@ internal static class AudioClipExportVerification
         RenderIndependently(
             catalog,
             MusicDataSet.GreenBrinstar,
-            AudioRequest.ForTrack(new MusicTrack(unchecked((byte)track))),
+            AudioRequest.ForTrack(MusicTrackNumbers.Decode(track)),
             player => player.Music.musicPortToSnes == track,
             byte.MaxValue,
             frames);

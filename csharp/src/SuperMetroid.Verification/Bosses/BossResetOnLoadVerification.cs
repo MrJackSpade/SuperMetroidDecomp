@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;

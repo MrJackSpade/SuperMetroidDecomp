@@ -4,33 +4,32 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Presentation-only selection for twenty grey-door and shared clear-cap frames. The compiled
-/// level appearances continue to own collision, animation timing, and door handoff.
+/// The installed pictures of the grey caps' frames and their shared clear frames (#1557). The caps' terrain, waits and
+/// timing stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectGreyDoorVisuals
 {
-    /// <summary>Copied visual overrides keyed by draw; unchanged frames use calculated stock appearances.</summary>
-    private readonly RoomObjectVisualOverrides customBlocks;
+    /// <summary>The installed pictures of every grey-cap frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated appearances of the frames that differ from the compiled caps.</summary>
-    /// <param name="customBlocks">The changed frames' four appearances, keyed by frame.</param>
-    internal InstalledRoomObjectGreyDoorVisuals(RoomObjectVisualOverrides customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every grey-cap frame.</summary>
+    /// <param name="pictures">Each grey-cap frame's four cell pictures, keyed by frame.</param>
+    internal InstalledRoomObjectGreyDoorVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves one selected cap block without changing its collision or door mechanics.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="blockIndex">Zero-based block ordinal 0..3 along the frame's run.</param>
-    /// <returns>The authored appearance, or the compiled stock appearance when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported frame.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside 0..3.</exception>
+    /// <summary>The installed picture of one cell of a grey-cap frame.</summary>
+    /// <param name="draw">The grey-cap frame.</param>
+    /// <param name="blockIndex">Zero-based block index 0..3 within the cap run, not a room-block coordinate.</param>
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException">The draw is not a grey-cap frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The block index is outside 0..3.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int blockIndex)
     {
-        if (!GreyDoorCaps.TryDescribe(draw, out var shape))
+        if (!GreyDoorCaps.TryDescribe(draw, out _))
             throw new InvalidDataException(
                 $"Grey-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(draw, out var appearances)
-            ? appearances[blockIndex] : shape.BlockAt(blockIndex).Appearance;
+        return pictures.At(draw, blockIndex);
     }
 }

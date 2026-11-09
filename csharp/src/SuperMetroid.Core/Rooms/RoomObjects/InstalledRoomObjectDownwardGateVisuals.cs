@@ -3,29 +3,26 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Presentation-only selection for downward-gate PLM blocks. Physical level appearances,
-/// gate collision, shot filters, and animation timing remain compiled.
+/// The installed pictures of the downward gate's frames and shot triggers (#1557). Gate terrain, shot filters and
+/// animation timing stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectDownwardGateVisuals
 {
-    /// <summary>
-    /// Deep-copied visual overrides keyed by draw; a gate frame absent here still takes its appearance from the compiled
-    /// physical appearances.
-    /// </summary>
-    private readonly IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customBlocks;
+    /// <summary>The installed pictures of every gate frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated run appearances of the layouts that differ from the compiled layouts.</summary>
-    /// <param name="customBlocks">The changed layouts' appearances run by run, keyed by draw.</param>
-    internal InstalledRoomObjectDownwardGateVisuals(IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every gate frame.</summary>
+    /// <param name="pictures">Each gate frame's cell pictures in run then cell order, keyed by frame.</param>
+    internal InstalledRoomObjectDownwardGateVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves one gate or shot-trigger appearance using the compiled layout's run structure.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
+    /// <summary>The installed picture of one cell of a gate or shot-trigger frame.</summary>
+    /// <param name="draw">The gate frame.</param>
     /// <param name="runIndex">Zero-based ordinal of the draw run.</param>
     /// <param name="blockIndex">Zero-based block ordinal within that run, not a room coordinate.</param>
-    /// <returns>The selected appearance, or the compiled terrain's appearance when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported gate or shot-trigger layout.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run or block ordinal is outside the compiled draw shape.</exception>
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException">The draw is not a gate or shot-trigger frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or block ordinal is outside the frame's shape.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (!DownwardGateObjectDraws.TryDescribe(draw, out var shape))
@@ -33,7 +30,9 @@ public sealed class InstalledRoomObjectDownwardGateVisuals
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)blockIndex >= (uint)shape.BlockCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGetValue(draw, out var runs)
-            ? runs[runIndex][blockIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
+        int flatIndex = blockIndex;
+        for (int run = 0; run < runIndex; run++)
+            flatIndex += shape.BlockCount(run);
+        return pictures.At(draw, flatIndex);
     }
 }

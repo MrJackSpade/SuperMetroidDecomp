@@ -3,16 +3,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
-/// <summary>
-/// The appearance of Bomb Torizo's hand: a cell's selected appearance, from the authored overrides or the compiled
-/// terrain block, and the identity of the selected frames.
-/// </summary>
+/// <summary>The appearance of Bomb Torizo's hand: the installed picture a cell of a hand frame shows (#1557).</summary>
 internal static class BombTorizoHandArtwork
 {
-    /// <summary>Resolves one selected appearance in a hand draw run, using compiled stock art when no independent edit was supplied.</summary>
-    /// <exception cref="InvalidDataException">The draw identity is not a supported hand frame.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled shape.</exception>
-    internal static RoomBlockAppearance Appearance(RoomObjectVisualOverrides customBlocks, RoomObjectDraw draw, int runIndex, int blockIndex)
+    /// <summary>The installed picture of one cell of a hand frame, translating run-local indices into the frame's cell order.</summary>
+    /// <exception cref="InvalidDataException">The draw is not a hand frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the frame's shape.</exception>
+    internal static RoomBlockAppearance Appearance(RoomObjectFramePictures pictures, RoomObjectDraw draw, int runIndex, int blockIndex)
     {
         if (!BombTorizoHandDraws.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
@@ -23,7 +20,6 @@ internal static class BombTorizoHandArtwork
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += shape.BlockCount(run);
-        return customBlocks.TryGet(draw, out var appearances)
-            ? appearances[flatIndex] : shape.BlockAt(runIndex, blockIndex).Appearance;
+        return pictures.At(draw, flatIndex);
     }
 }

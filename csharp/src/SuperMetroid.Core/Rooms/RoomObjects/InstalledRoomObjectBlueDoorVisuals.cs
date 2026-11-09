@@ -4,33 +4,32 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Presentation-only selection for sixteen blue-door frames with four physical aliases. The compiled
-/// level appearances continue to own collision, animation timing, and door handoff.
+/// The installed pictures of the sixteen blue-door frames, four of which a closed cap shows under a second identity
+/// (#1557). The caps' terrain, animation timing and door handoff stay the game's.
 /// </summary>
 public sealed class InstalledRoomObjectBlueDoorVisuals
 {
-    /// <summary>Owned appearance overrides keyed by draw; null means every frame uses stock art.</summary>
-    private readonly RoomObjectVisualOverrides customBlocks;
+    /// <summary>The installed pictures of every blue-door frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated appearances of the editable frames that differ from the compiled caps.</summary>
-    /// <param name="customBlocks">The changed frames' four appearances, keyed by editable frame.</param>
-    internal InstalledRoomObjectBlueDoorVisuals(RoomObjectVisualOverrides customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every blue-door frame.</summary>
+    /// <param name="pictures">Each blue-door frame's four cell pictures, keyed by frame.</param>
+    internal InstalledRoomObjectBlueDoorVisuals(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves a selected blue-door appearance, normalizing physical alias pointers to their shared editable frame without changing collision or door timing.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
+    /// <summary>The installed picture of one cell of a blue-door frame; a closed cap's second identity shows its frame's picture.</summary>
+    /// <param name="draw">The blue-door frame.</param>
     /// <param name="blockIndex">Zero-based block index 0..3 within the cap/clear run, not a room-block coordinate.</param>
-    /// <returns>The visual metatile reference and flips, with physical collision bits excluded.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported blue-door frame.</exception>
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException">The draw is not a blue-door frame, or the installation lacks it.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block index is outside 0..3.</exception>
     internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int blockIndex)
     {
-        if (!BlueDoorCaps.TryDescribe(draw, out var shape))
+        if (!BlueDoorCaps.TryDescribe(draw, out _))
             throw new InvalidDataException(
                 $"Blue-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(BlueDoorCaps.VisualSource(draw), out var appearances)
-            ? appearances[blockIndex] : shape.BlockAt(blockIndex).Appearance;
+        return pictures.At(BlueDoorCaps.VisualSource(draw), blockIndex);
     }
 }

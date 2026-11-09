@@ -29,12 +29,12 @@ public static class RoomObjectColoredDoorVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectColoredDoorVisuals>(VisualFileName, "Colored-door", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates complete coverage of the forty-eight colored-door frames and builds the visuals from the appearances that differ from the compiled caps.</summary>
+    /// <summary>Validates complete coverage of the forty-eight colored-door frames and builds the visuals from every frame's picture as installed.</summary>
     /// <param name="entries">Exactly one four-block, visual-only entry for each compiled color, orientation, and frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     internal static InstalledRoomObjectColoredDoorVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Colored-door", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Colored-door", TryGetByVisualId, All.Count()));
 
     /// <summary>Enumerates yellow, green, and red cap frames in their authored order.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All

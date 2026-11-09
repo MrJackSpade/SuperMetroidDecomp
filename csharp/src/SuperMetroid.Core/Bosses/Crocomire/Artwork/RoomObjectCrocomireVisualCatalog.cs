@@ -4,26 +4,26 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
-/// Visual-only Crocomire bridge and invisible-wall blocks. The compiled PLM
-/// programs, complete terrain blocks, and draw geometry remain immutable.
+/// The installed pictures of Crocomire's bridge and invisible-wall frames (#1557). The frames' terrain, programs and draw
+/// geometry stay the game's.
 /// </summary>
 public sealed class RoomObjectCrocomireVisualCatalog
 {
-    /// <summary>Copied visual-only differences for the five compiled Crocomire arena layouts.</summary>
-    private readonly RoomObjectVisualOverrides customAppearances;
+    /// <summary>The installed pictures of the five arena frames.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
-    /// <param name="customAppearances">The changed layouts' flattened appearances, keyed by draw.</param>
-    internal RoomObjectCrocomireVisualCatalog(RoomObjectVisualOverrides customAppearances) =>
-        this.customAppearances = Ensure.NotNull(customAppearances);
+    /// <summary>Holds the installed pictures of every arena frame.</summary>
+    /// <param name="pictures">Each arena frame's cell pictures, keyed by frame.</param>
+    internal RoomObjectCrocomireVisualCatalog(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves one arena-layout block, translating run-local indices into the flattened visual override.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based ordinal of the compiled draw run.</param>
+    /// <summary>The installed picture of one arena-frame block.</summary>
+    /// <param name="draw">The arena frame.</param>
+    /// <param name="runIndex">Zero-based ordinal of the frame's run.</param>
     /// <param name="blockIndex">Zero-based cell ordinal within that run, not a flattened entry index or room coordinate.</param>
-    /// <returns>The selected block and mirroring, taken from the compiled terrain block when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported arena layout.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
-    internal RoomBlockAppearance? GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex) =>
-        CrocomireArenaArtwork.Appearance(customAppearances, draw, runIndex, blockIndex);
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException">The draw is not an arena frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the frame's shape.</exception>
+    internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex) =>
+        CrocomireArenaArtwork.Appearance(pictures, draw, runIndex, blockIndex);
 }

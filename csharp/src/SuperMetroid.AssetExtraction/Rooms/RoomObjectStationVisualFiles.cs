@@ -78,13 +78,12 @@ public static class RoomObjectStationVisualFiles
         return CreateCatalog(ReadJson<VisualDocument>(path), path);
     }
 
-    /// <summary>Validates and captures the complete twenty-frame station artwork selection, building the visuals from the run appearances that differ from the compiled layouts.</summary>
+    /// <summary>Validates and captures the complete twenty-frame station artwork selection, building the visuals from every frame's picture as installed.</summary>
     /// <param name="entries">Every compiled map, energy, missile, save, and access frame exactly once, with its original run/cell counts and valid visual-only appearances.</param>
-    /// <remarks>Changed frames are deep-copied; stock-identical frames resolve from compiled definitions. Later caller-array edits do not affect either path.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">Coverage, uniqueness, frame identity, or array shape are invalid.</exception>
     internal static InstalledRoomObjectStationVisuals Create(IEnumerable<RoomObjectVisualRunEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.RunByRun(entries, "Station", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.RunByRun(entries, "Station", TryGetByVisualId, All.Count()));
 
     /// <summary>The layout of <paramref name="request"/>, which must be one of the twenty station draw lists.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="request"/> is not a station draw list.</exception>

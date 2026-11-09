@@ -144,22 +144,22 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             for (int run = 0; run < compiled.RunCount; run++)
                 for (int block = 0; block < compiled.BlocksPerRun; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.BlockAt(run, block), ShotBlockVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.BlockAt(run, block), Installed(ShotBlockVisuals, "shot-block").GetAppearance(draw, run, block));
             return;
         }
         if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
         {
-            DrawTerrainAt(level, draw, origin, SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain, SpeedBoosterVisuals?.GetAppearance(draw, 0, 0));
+            DrawTerrainAt(level, draw, origin, SpeedBoosterBlockObjectDrawDefinitions.BombRevealTerrain, Installed(SpeedBoosterVisuals, "Speed Booster").GetAppearance(draw, 0, 0));
             return;
         }
         if (KraidRoomObjectDraws.TryGet(draw, out var kraidDraw))
         {
-            DrawKraidBlockInstruction(level, kraidDraw, origin, KraidVisuals);
+            DrawKraidBlockInstruction(level, kraidDraw, origin, Installed(KraidVisuals, "Kraid room"));
             return;
         }
         if (draw == MaridiaElevatubeObjectDefinitions.BlockDraw)
         {
-            DrawTerrainAt(level, draw, origin, MaridiaElevatubeObjectDefinitions.Terrain, MaridiaElevatubeVisuals?.GetAppearance(draw, 0, 0));
+            DrawTerrainAt(level, draw, origin, MaridiaElevatubeObjectDefinitions.Terrain, Installed(MaridiaElevatubeVisuals, "Maridia elevatube").GetAppearance(draw, 0, 0));
             return;
         }
         if (CrocomireArenaDraws.TryDescribe(draw,
@@ -167,7 +167,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             for (int run = 0; run < crocomireDraw.RunCount; run++)
                 for (int block = 0; block < crocomireDraw.BlocksPerRun; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.BlockAt(run, block), CrocomireVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.BlockAt(run, block), Installed(CrocomireVisuals, "Crocomire arena").GetAppearance(draw, run, block));
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
@@ -199,14 +199,14 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             TourianAccessDraws.Describe(tourian, out int tourianRows, out RoomTerrainBlock tourianBlock);
             for (int row = 0; row < tourianRows; row++)
                 for (int column = 0; column < 4; column++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, row), tourianBlock, TourianAccessVisuals?.GetAppearance(draw, row, column));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, row), tourianBlock, Installed(TourianAccessVisuals, "Tourian access").GetAppearance(draw, row, column));
             return;
         }
         if (SporeSpawnCeilingDraws.TryGetBlock(draw, out RoomTerrainBlock sporeCeilingBlock))
         {
             for (int row = 0; row < 2; row++)
                 for (int column = 0; column < 2; column++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, row), sporeCeilingBlock, SporeSpawnCeilingVisuals?.GetAppearance(draw, row, column));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, row), sporeCeilingBlock, Installed(SporeSpawnCeilingVisuals, "Spore Spawn ceiling").GetAppearance(draw, row, column));
             return;
         }
         if (SamusEaterObjectDraws.TryDescribe(draw, out var samusEater))
@@ -215,21 +215,21 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             {
                 Position16<RoomBlocks> plant = origin + samusEater.Start(run);
                 for (int block = 0; block < SamusEaterObjectDraws.Draw.Count(run); block++)
-                    DrawTerrainAt(level, draw, plant + new Offset16<RoomBlocks>(block, 0), samusEater.BlockAt(run, block), SamusEaterVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, plant + new Offset16<RoomBlocks>(block, 0), samusEater.BlockAt(run, block), Installed(SamusEaterVisuals, "Samus Eater").GetAppearance(draw, run, block));
             }
             return;
         }
         if (draw == BotwoonWallObjectDrawDefinitions.Clear)
         {
             for (int row = 0; row < BotwoonWallObjectDrawDefinitions.BlockCount; row++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.BlockAt(row), BotwoonWallVisuals?.GetAppearance(draw, 0, row));
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(0, row), BotwoonWallObjectDraws.BlockAt(row), Installed(BotwoonWallVisuals, "Botwoon wall").GetAppearance(draw, 0, row));
             return;
         }
         if (LinkedRestoreObjectFamily.TryDescribeAny(draw, out var linkedRestore))
         {
             for (int run = 0; run < linkedRestore.RunCount; run++)
                 for (int block = 0; block < 2; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.BlockAt(run, block), LinkedRestoreVisuals?.GetAppearance(draw, run, block));
+                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.BlockAt(run, block), Installed(LinkedRestoreVisuals, "linked restoration").GetAppearance(draw, run, block));
             return;
         }
         if (BlueDoorCaps.TryDescribe(draw, out var blueDoor))
@@ -237,7 +237,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             for (int cell = 0; cell < 4; cell++)
             {
                 RoomTerrainBlock physical = blueDoor.BlockAt(cell);
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), physical, BlueDoorVisuals?.GetAppearance(draw, cell));
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), physical, Installed(BlueDoorVisuals, "blue-door").GetAppearance(draw, cell));
             }
             return;
         }
@@ -246,20 +246,20 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             for (int cell = 0; cell < 4; cell++)
             {
                 RoomTerrainBlock physical = coloredDoor.BlockAt(cell);
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), physical, ColoredDoorVisuals?.GetAppearance(draw, cell));
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), physical, Installed(ColoredDoorVisuals, "colored-door").GetAppearance(draw, cell));
             }
             return;
         }
         if (GreyDoorCaps.TryDescribe(draw, out var greyDoor))
         {
             for (int cell = 0; cell < 4; cell++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.BlockAt(cell), GreyDoorVisuals?.GetAppearance(draw, cell) ?? greyDoor.BlockAt(cell).Appearance);
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.BlockAt(cell), Installed(GreyDoorVisuals, "grey-door").GetAppearance(draw, cell));
             return;
         }
         if (EyeDoorDraws.TryDescribe(draw, out var eyeDoor))
         {
             for (int cell = 0; cell < eyeDoor.BlockCount; cell++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.BlockAt(cell), EyeDoorVisuals?.GetAppearance(draw, cell) ?? eyeDoor.BlockAt(cell).Appearance);
+                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.BlockAt(cell), Installed(EyeDoorVisuals, "eye-door").GetAppearance(draw, cell));
             return;
         }
         if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
@@ -286,8 +286,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 for (int cell = 0; cell < noobTube.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = noobTube.BlockAt(run, cell);
-                    RoomBlockAppearance visual = NoobTubeVisuals?.GetAppearance(draw, run, cell)
-                        ?? physical.Appearance;
+                    RoomBlockAppearance visual = Installed(NoobTubeVisuals, "n00b tube").GetAppearance(draw, run, cell);
                     DrawTerrainAt(level, draw, tube + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
             }
@@ -301,8 +300,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 for (int cell = 0; cell < station.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = station.BlockAt(run, cell);
-                    RoomBlockAppearance visual = StationVisuals?.GetAppearance(draw, run, cell)
-                        ?? physical.Appearance;
+                    RoomBlockAppearance visual = Installed(StationVisuals, "station").GetAppearance(draw, run, cell);
                     DrawTerrainAt(level, draw, stationRun + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
             }
@@ -316,8 +314,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 for (int cell = 0; cell < elevator.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = elevator.BlockAt(run, cell);
-                    RoomBlockAppearance visual = ElevatorPlatformVisuals?.GetAppearance(draw, run, cell)
-                        ?? physical.Appearance;
+                    RoomBlockAppearance visual = Installed(ElevatorPlatformVisuals, "elevator-platform").GetAppearance(draw, run, cell);
                     DrawTerrainAt(level, draw, strip + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
             }
@@ -331,8 +328,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 for (int word = 0; word < gate.BlockCount(run); word++)
                 {
                     RoomTerrainBlock physical = gate.BlockAt(run, word);
-                    RoomBlockAppearance visual = DownwardGateVisuals?.GetAppearance(draw, run, word)
-                        ?? physical.Appearance;
+                    RoomBlockAppearance visual = Installed(DownwardGateVisuals, "downward gate").GetAppearance(draw, run, word);
                     DrawTerrainAt(level, draw, gateRun + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), physical, visual);
                 }
             }
@@ -355,8 +351,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 for (int word = 0; word < bombTorizoHand.BlockCount(run); word++)
                 {
                     RoomTerrainBlock physical = bombTorizoHand.BlockAt(run, word);
-                    RoomBlockAppearance visual = BombTorizoHandVisuals?.GetAppearance(draw, run, word)
-                        ?? physical.Appearance;
+                    RoomBlockAppearance visual = Installed(BombTorizoHandVisuals, "Bomb Torizo hand").GetAppearance(draw, run, word);
                     DrawTerrainAt(level, draw, origin + bombTorizoHand.Start(run) + new Offset16<RoomBlocks>(word, 0), physical, visual);
                 }
             return;
@@ -384,8 +379,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 for (int cell = 0; cell < chozoStatue.BlockCount(run); cell++)
                 {
                     RoomTerrainBlock physical = chozoStatue.BlockAt(run, cell);
-                    RoomBlockAppearance visual = ChozoStatueVisuals?.GetAppearance(draw, run, cell)
-                        ?? physical.Appearance;
+                    RoomBlockAppearance visual = Installed(ChozoStatueVisuals, "Chozo statue").GetAppearance(draw, run, cell);
                     DrawTerrainAt(level, draw, strip + new Offset16<RoomBlocks>(cell, 0), physical, visual);
                 }
             }
@@ -393,14 +387,18 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (CollectibleObjectDraws.TryGetBlock(draw, out RoomTerrainBlock collectible))
         {
-            DrawTerrainAt(level, draw, origin, collectible, CollectibleVisuals?.GetAppearance(draw));
+            // A block pair's frame lies under the item's own picture (#1538): it writes only its terrain.
+            if (CollectibleObjectDraws.LiesUnderOwnPicture(draw))
+                DrawTerrainAt(level, draw, origin, collectible);
+            else
+                DrawTerrainAt(level, draw, origin, collectible, Installed(CollectibleVisuals, "collectible").GetAppearance(draw));
             return;
         }
         if (GrappleBlockObjectDraws.TryGet(draw, out var grapple))
         {
             // All five draws are a single block at the PLM origin. The terrain retains Grapple/air collision
             // independently of art.
-            DrawTerrainAt(level, draw, origin, grapple.Terrain, GrappleBlockVisuals?.GetAppearance(draw));
+            DrawTerrainAt(level, draw, origin, grapple.Terrain, Installed(GrappleBlockVisuals, "Grapple-block").GetAppearance(draw));
             return;
         }
 
@@ -447,13 +445,21 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
 
 
 
-    /// <summary>Draws one horizontal Kraid mutation with optional Kraid-owned visual replacements.</summary>
-    private static void DrawKraidBlockInstruction(RoomLevelData level, KraidRoomObjectDraws.Draw draw, Position16<RoomBlocks> origin, InstalledRoomObjectKraidVisuals? visuals)
+    /// <summary>Draws one horizontal Kraid mutation showing its installed pictures.</summary>
+    private static void DrawKraidBlockInstruction(RoomLevelData level, KraidRoomObjectDraws.Draw draw, Position16<RoomBlocks> origin, InstalledRoomObjectKraidVisuals visuals)
     {
         for (int block = 0; block < draw.BlockCount; block++)
         {
             DrawTerrainAt(level, RoomObjectDraw.Of(draw.Frame), origin + new Offset16<RoomBlocks>(block, 0), draw.BlockAt(block),
-                visuals?.GetAppearance(RoomObjectDraw.Of(draw.Frame), 0, block));
+                visuals.GetAppearance(RoomObjectDraw.Of(draw.Frame), 0, block));
         }
     }
+
+    /// <summary>
+    /// A family's installed pictures (#1557). A frame shows only what is installed, so drawing a family whose pictures
+    /// were never bound fails, naming it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The family's installed pictures are not bound.</exception>
+    private static TVisuals Installed<TVisuals>(TVisuals? visuals, string family) where TVisuals : class =>
+        visuals ?? throw new InvalidDataException($"No installed {family} visuals are bound to draw its frame.");
 }

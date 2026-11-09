@@ -4,26 +4,26 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 
 /// <summary>
-/// Editable Chozo hand and slope-access appearances. The calculated draw geometry and complete
-/// terrain blocks remain independent of installed block appearances.
+/// The installed pictures of the Chozo hand and slope-access frames (#1557). The frames' draw geometry and terrain stay
+/// the game's.
 /// </summary>
 public sealed class RoomObjectChozoStatueVisualCatalog
 {
-    /// <summary>Visual-only overrides keyed by draw; absent when every selected block uses its compiled appearance.</summary>
-    private readonly RoomObjectVisualOverrides customBlocks;
+    /// <summary>The installed pictures of every Chozo frame.</summary>
+    private readonly RoomObjectFramePictures pictures;
 
-    /// <summary>Holds the import-validated appearances of the layouts that differ from the compiled layouts.</summary>
-    /// <param name="customBlocks">The changed layouts' flattened appearances, keyed by draw.</param>
-    internal RoomObjectChozoStatueVisualCatalog(RoomObjectVisualOverrides customBlocks) =>
-        this.customBlocks = Ensure.NotNull(customBlocks);
+    /// <summary>Holds the installed pictures of every Chozo frame.</summary>
+    /// <param name="pictures">Each Chozo frame's cell pictures in run then cell order, keyed by frame.</param>
+    internal RoomObjectChozoStatueVisualCatalog(RoomObjectFramePictures pictures) =>
+        this.pictures = Ensure.NotNull(pictures);
 
-    /// <summary>Resolves one selected Chozo-layout appearance, projecting run-local indices into the flattened authored payload while preserving compiled mechanics.</summary>
-    /// <param name="draw">The draw whose appearance is resolved.</param>
+    /// <summary>The installed picture of one cell of a Chozo frame.</summary>
+    /// <param name="draw">The Chozo frame.</param>
     /// <param name="runIndex">Zero-based draw-run ordinal.</param>
     /// <param name="blockIndex">Zero-based cell ordinal within that run, not a room coordinate or flattened entry index.</param>
-    /// <returns>The block and its mirroring; unchanged layouts take them from the compiled stock blocks.</returns>
-    /// <exception cref="InvalidDataException">The draw is not a supported Chozo layout.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
-    internal RoomBlockAppearance? GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex) =>
-        ChozoStatueArtwork.Appearance(customBlocks, draw, runIndex, blockIndex);
+    /// <returns>The block picture and its mirroring.</returns>
+    /// <exception cref="InvalidDataException">The draw is not a Chozo frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the frame's shape.</exception>
+    internal RoomBlockAppearance GetAppearance(RoomObjectDraw draw, int runIndex, int blockIndex) =>
+        ChozoStatueArtwork.Appearance(pictures, draw, runIndex, blockIndex);
 }

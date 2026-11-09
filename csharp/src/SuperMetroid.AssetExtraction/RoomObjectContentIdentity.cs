@@ -287,7 +287,7 @@ internal static class RoomObjectContentIdentity
             Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
             foreach (var draw in RoomObjectLinkedRestoreVisualFiles.All.OrderBy(item => RoomObjectLinkedRestoreVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
             {
-                InstalledRoomObjectLinkedRestoreVisuals.Describe(draw.Draw, out int runs, out _);
+                InstalledRoomObjectLinkedRestoreVisuals.Describe(draw.Draw, out int runs);
                 for (int run = 0; run < runs; run++)
                     for (int block = 0; block < 2; block++)
                         appearances[run * 2 + block] = visuals.GetAppearance(draw.Draw, run, block);
@@ -351,8 +351,7 @@ internal static class RoomObjectContentIdentity
                     CrocomireArenaDraws.TryDescribe(draw.Draw, out var shape);
                     int count = shape.RunCount * shape.BlocksPerRun;
                     for (int index = 0; index < count; index++)
-                        appearances[index] = visuals.GetAppearance(draw.Draw, index / shape.BlocksPerRun, index % shape.BlocksPerRun) ??
-                            throw new InvalidDataException($"Crocomire visuals lack draw {draw.Draw}.");
+                        appearances[index] = visuals.GetAppearance(draw.Draw, index / shape.BlocksPerRun, index % shape.BlocksPerRun);
                     content.AppendName("frame", RoomObjectCrocomireVisualFiles.VisualId(draw.Draw));
                     // Preserve the flattened-frame identity used by existing visual installations.
                     content.Append("runs", 1);
@@ -463,8 +462,7 @@ internal static class RoomObjectContentIdentity
                 foreach (var draw in RoomObjectSporeSpawnCeilingVisualFiles.All.OrderBy(item => RoomObjectSporeSpawnCeilingVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
                 {
                     for (int index = 0; index < appearances.Length; index++)
-                        appearances[index] = visuals.GetAppearance(draw.Draw, index / 2, index % 2) ??
-                            throw new InvalidDataException($"Spore Spawn ceiling visuals lack frame {draw.Draw}.");
+                        appearances[index] = visuals.GetAppearance(draw.Draw, index / 2, index % 2);
                     content.AppendName("frame", RoomObjectSporeSpawnCeilingVisualFiles.VisualId(draw.Draw));
                     // Preserve the original flattened frame identity.
                     content.Append("runs", 1);
@@ -487,8 +485,7 @@ internal static class RoomObjectContentIdentity
                     int count = 0;
                     for (int run = 0; run < shape.RunCount; run++)
                         for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell) ??
-                                throw new InvalidDataException($"{nameof(visuals)} lack frame {frame.Draw}.");
+                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell);
                     content.AppendName("frame", RoomObjectBombTorizoHandVisualFiles.VisualId(frame.Draw));
                     // Preserve the flattened single-run framing of installed hand artwork.
                     content.Append("runs", 1);
@@ -511,8 +508,7 @@ internal static class RoomObjectContentIdentity
                     int count = 0;
                     for (int run = 0; run < shape.RunCount; run++)
                         for (int cell = 0; cell < shape.BlockCount(run); cell++)
-                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell) ??
-                                throw new InvalidDataException($"Chozo statue visuals lack frame {frame.Draw}.");
+                            appearances[count++] = visuals.GetAppearance(frame.Draw, run, cell);
                     content.AppendName("frame", RoomObjectChozoStatueVisualFiles.VisualId(frame.Draw));
                     // Preserve the flattened single-run framing of installed Chozo artwork.
                     content.Append("runs", 1);
@@ -538,8 +534,7 @@ internal static class RoomObjectContentIdentity
                     {
                         int count = shape.BlockCount(run);
                         for (int cell = 0; cell < count; cell++)
-                            buffer[cell] = visuals.GetAppearance(frame.Draw, run, cell) ??
-                                throw new InvalidDataException($"Elevator-platform visuals lack frame {frame.Draw}.");
+                            buffer[cell] = visuals.GetAppearance(frame.Draw, run, cell);
                         content.AppendAppearances("blocks", buffer.AsSpan(0, count));
                     }
                 }

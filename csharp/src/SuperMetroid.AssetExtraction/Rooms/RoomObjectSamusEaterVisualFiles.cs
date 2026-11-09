@@ -28,12 +28,12 @@ public static class RoomObjectSamusEaterVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectSamusEaterVisuals>(VisualFileName, "Samus Eater plant", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates all eight three-run plant poses and builds the visuals from the authored appearances that differ from the compiled poses, without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
+    /// <summary>Validates all eight three-run plant poses and builds the visuals from every frame's picture as installed, without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
     /// <param name="entries">Exactly one eight-block visual-only entry for each compiled floor and ceiling pose.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
     internal static InstalledRoomObjectSamusEaterVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Samus Eater", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Samus Eater", TryGetByVisualId, All.Count()));
 
     /// <summary>Maps a validated draw to the artwork catalog's orientation and phase ID.</summary>
     internal static string VisualId(RoomObjectDraw request) =>

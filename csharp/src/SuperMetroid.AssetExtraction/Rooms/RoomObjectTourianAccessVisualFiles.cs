@@ -30,13 +30,12 @@ public static class RoomObjectTourianAccessVisualFiles
             new RoomObjectVisualFamily<RoomObjectTourianAccessVisuals>(VisualFileName, "Tourian access", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates all five Tourian access-floor layouts and builds the visuals from the appearances that differ from the compiled layouts.</summary>
+    /// <summary>Validates all five Tourian access-floor layouts and builds the visuals from every frame's picture as installed.</summary>
     /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and appearances.</param>
-    /// <remarks>Edited arrays are copied; stock-identical layouts use compiled appearance, so caller-array edits after construction cannot alter the catalog.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">Coverage, uniqueness, layout identity, or block-array dimensions are invalid.</exception>
     internal static RoomObjectTourianAccessVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Tourian access", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Tourian access", TryGetByVisualId, All.Count()));
 
     /// <summary>The draw lists of every Tourian access draw.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All

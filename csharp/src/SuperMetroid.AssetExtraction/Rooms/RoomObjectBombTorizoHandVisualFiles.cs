@@ -29,12 +29,12 @@ public static class RoomObjectBombTorizoHandVisualFiles
             new RoomObjectVisualFamily<RoomObjectBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates complete hand-frame coverage and builds the visuals from the authored appearances that differ from the compiled frames, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>
+    /// <summary>Validates complete hand-frame coverage and builds the visuals from every frame's picture as installed, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>
     /// <param name="entries">One entry for every compiled hand frame, with exactly the flattened block count and no physical collision bits.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats a frame, changes a compiled identity/shape, or leaves coverage incomplete.</exception>
     internal static RoomObjectBombTorizoHandVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Bomb Torizo hand", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Bomb Torizo hand", TryGetByVisualId, All.Count()));
 
     /// <summary>The intact and cleared hand draw lists, in authored order.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All

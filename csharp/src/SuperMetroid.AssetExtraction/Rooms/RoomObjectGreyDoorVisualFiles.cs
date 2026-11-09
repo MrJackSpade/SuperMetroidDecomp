@@ -34,12 +34,12 @@ public static class RoomObjectGreyDoorVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectGreyDoorVisuals>(VisualFileName, "Grey-door", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates all twenty clear/grey-door frames and builds the visuals from the appearances that differ from the compiled caps.</summary>
+    /// <summary>Validates all twenty clear/grey-door frames and builds the visuals from every frame's picture as installed.</summary>
     /// <param name="entries">Exactly one four-block visual-only entry for each compiled orientation and frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves coverage incomplete.</exception>
     internal static InstalledRoomObjectGreyDoorVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Grey-door", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Grey-door", TryGetByVisualId, All.Count()));
 
     /// <summary>Enumerates all twenty authored cap records for artwork import and export.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All

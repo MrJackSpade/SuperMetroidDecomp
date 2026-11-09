@@ -48,12 +48,12 @@ public static class RoomObjectCrocomireVisualFiles
             new RoomObjectVisualFamily<RoomObjectCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates all five Crocomire arena layouts and builds the visuals from the appearances that differ from the compiled layouts, without changing terrain blocks, run geometry, or PLM programs.</summary>
+    /// <summary>Validates all five Crocomire arena layouts and builds the visuals from every frame's picture as installed, without changing terrain blocks, run geometry, or PLM programs.</summary>
     /// <param name="entries">Exactly one visual-only entry per compiled draw identity with its full flattened block count.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     internal static RoomObjectCrocomireVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Crocomire", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Crocomire", TryGetByVisualId, All.Count()));
 
     /// <summary>The draw lists of every bridge and wall draw.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All

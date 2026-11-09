@@ -31,13 +31,12 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
             new RoomObjectVisualFamily<RoomObjectSporeSpawnCeilingVisualCatalog>(VisualFileName, "Spore Spawn ceiling", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates complete coverage of the clear and three crumble frames and builds the visuals from the appearances that differ from the compiled frames, without changing compiled geometry or collision.</summary>
+    /// <summary>Validates complete coverage of the clear and three crumble frames and builds the visuals from every frame's picture as installed, without changing compiled geometry or collision.</summary>
     /// <param name="entries">Each of the four compiled visual identities exactly once, with four appearances per frame.</param>
-    /// <remarks>Edited arrays are copied; stock-identical frames use compiled appearances, so later edits to caller arrays cannot change this catalog.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
     /// <exception cref="InvalidDataException">A frame is missing, duplicated, null, unknown, or incorrectly shaped.</exception>
     internal static RoomObjectSporeSpawnCeilingVisualCatalog Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Spore Spawn ceiling", TryGetByVisualId, All.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Spore Spawn ceiling", TryGetByVisualId, All.Count()));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> All

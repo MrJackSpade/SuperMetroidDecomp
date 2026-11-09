@@ -3,16 +3,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Elevator.Artwork;
 
-/// <summary>
-/// The elevator platform's appearance: a cell's selected appearance, from the authored appearances that differ from
-/// the compiled frames, and the identity of the selected frames.
-/// </summary>
+/// <summary>The elevator platform's appearance: the installed picture a cell of a platform frame shows (#1557).</summary>
 internal static class ElevatorPlatformArtwork
 {
-    /// <summary>Resolves one elevator-platform block appearance without replacing its compiled terrain block or draw offset.</summary>
-    /// <exception cref="InvalidDataException">The draw is not a supported platform frame.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the compiled draw shape.</exception>
-    internal static RoomBlockAppearance Appearance(IReadOnlyDictionary<RoomObjectDraw, RoomBlockAppearance[][]> customAppearances, RoomObjectDraw draw, int runIndex, int cellIndex)
+    /// <summary>The installed picture of one cell of a platform frame, translating run-local indices into the frame's cell order.</summary>
+    /// <exception cref="InvalidDataException">The draw is not a platform frame, or the installation lacks it.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside the frame's shape.</exception>
+    internal static RoomBlockAppearance Appearance(RoomObjectFramePictures pictures, RoomObjectDraw draw, int runIndex, int cellIndex)
     {
         if (!ElevatorPlatformDraws.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
@@ -20,7 +17,9 @@ internal static class ElevatorPlatformArtwork
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)cellIndex >= (uint)shape.BlockCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(cellIndex));
-        return customAppearances.TryGetValue(draw, out var runs)
-            ? runs[runIndex][cellIndex] : shape.BlockAt(runIndex, cellIndex).Appearance;
+        int flatIndex = cellIndex;
+        for (int run = 0; run < runIndex; run++)
+            flatIndex += shape.BlockCount(run);
+        return pictures.At(draw, flatIndex);
     }
 }

@@ -27,12 +27,12 @@ public static class RoomObjectBlueDoorVisualFiles
             new RoomObjectVisualFamily<InstalledRoomObjectBlueDoorVisuals>(VisualFileName, "Blue-door", entries => Create(entries.Select(entry =>
                 new RoomObjectVisualEntry(entry.Id, entry.Blocks)))));
 
-    /// <summary>Validates complete canonical blue-door frame coverage and builds the visuals from the appearances that differ from the compiled caps.</summary>
+    /// <summary>Validates complete canonical blue-door frame coverage and builds the visuals from every frame's picture as installed.</summary>
     /// <param name="entries">Exactly one entry for every editable frame, each retaining the four-block run geometry.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is null, changes an identity/shape, repeats a frame, or leaves coverage incomplete.</exception>
     internal static InstalledRoomObjectBlueDoorVisuals Create(IEnumerable<RoomObjectVisualEntry> entries) =>
-        new(RoomObjectVisualOverrideReader.Flattened(entries, "Blue-door", TryGetByVisualId, Editable.Count()));
+        new(RoomObjectFramePictureReader.Flattened(entries, "Blue-door", TryGetByVisualId, Editable.Count()));
 
     /// <summary>Sixteen original artwork identities; the four physical aliases share frame zero.</summary>
     internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Editable

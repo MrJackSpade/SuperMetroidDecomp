@@ -88,27 +88,24 @@ public static class RoomObjectGrappleBlockVisualFiles
     /// <summary>The run ends with a zero vertical offset, leaving the next draw in its row.</summary>
     internal const int RunNextY = 0;
 
-    /// <summary>Validates all five compiled one-block frames and builds the visuals from the authored appearances that differ from the compiled frames.</summary>
-    /// <param name="entries">Exactly one visual-only entry for each compiled initial, breakup, and blank draw identity.</param>
+    /// <summary>Validates all five one-block frames and builds the visuals from every frame's picture as installed.</summary>
+    /// <param name="entries">Exactly one visual-only entry for each initial, breakup, and blank frame identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry changes an identity, repeats a frame, or leaves coverage incomplete.</exception>
+    /// <exception cref="InvalidDataException">An entry changes an identity, repeats a frame, or leaves a frame uninstalled.</exception>
     internal static InstalledRoomObjectGrappleBlockVisuals Create(IEnumerable<RoomObjectVisualBlockEntry> entries)
     {
         Ensure.NotNull(entries);
         var selected = new Dictionary<GrappleBlockDraw, RoomBlockAppearance>();
-        var seen = new HashSet<GrappleBlockDraw>();
         foreach (RoomObjectVisualBlockEntry entry in entries)
         {
             if (entry is null || !TryGetByVisualId(entry.Id, out var draw))
                 throw new InvalidDataException(
                     "Grapple-block visuals changed a compiled draw identity.");
-            if (!seen.Add(draw.Frame))
+            if (!selected.TryAdd(draw.Frame, entry.Appearance))
                 throw new InvalidDataException($"Grapple-block visuals repeat draw {entry.Id}.");
-            if (entry.Appearance != draw.Terrain.Appearance)
-                selected.Add(draw.Frame, entry.Appearance);
         }
 
-        if (seen.Count != All.Count())
+        if (selected.Count != All.Count())
             throw new InvalidDataException(
                 "Grapple-block visuals do not cover all compiled draw lists.");
         return new(selected);

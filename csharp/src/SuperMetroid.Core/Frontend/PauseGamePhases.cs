@@ -51,7 +51,6 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
         session.GameplayRuntime.UpdatePauseHeldInput();
-        ReserveTankMode previousReserveMode = session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
         bool unpauseRequested = session.ActivePauseMenu.Step(
             session.GameplayRuntime.System.TimedHeldInput,
             session.GameplayRuntime.PhysicalController1.NewlyPressed,
@@ -60,9 +59,6 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameplayRuntime.Room.BombProjectiles);
         // The paused update writes the HUD after reading pause input; the next displayed frame shows
         // its rows, including the first frame of the unpause fade.
-        if (previousReserveMode == ReserveTankMode.Auto &&
-            session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == ReserveTankMode.Manual)
-            session.GameplayRuntime.Hud.ClearAutoReserveIndicator();
         session.GameplayRuntime.Hud.UpdateGameplayCounters(session.GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
         session.display.PublishMenu(session.ActivePauseMenu);
         if (unpauseRequested)

@@ -10,37 +10,29 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>
-/// What Super Metroid's gameplay HUD shows, as values (#1466): each energy tank, the energy count, each ammunition
-/// count, the AUTO reserve indicator, which item icons are shown and the shade the selection last gave each, and the
-/// five-by-three minimap's cells. Each value keeps what the HUD last drew, as the game's HUD keeps its last
-/// writes; a value nothing has drawn since the HUD was set up shows the installed template. The values select the
-/// installed HUD images and place them (<see cref="Shown"/>).
+/// Super Metroid's gameplay HUD (#1466, #1555): the values it shows and the map cells its minimap shows, each as of the
+/// HUD's last update, and the images those values select (<see cref="Shown"/>), drawn afresh from them every time.
 /// </summary>
+/// <remarks>
+/// The HUD shows Samus's values as the HUD's own update last read them, not as they stand at every moment: gameplay
+/// updates the HUD once per gameplay pass, after the pass's damage and pickups, and the pause screen once per paused
+/// update; a pickup's message box holds the HUD until the box closes, so the new count appears only then. The minimap
+/// likewise shows the cells its own update last read, so a cell Samus's update explores after the minimap has read it
+/// (the corner above a sloped hallway) takes its explored shade on the next update. Nothing else of what the HUD drew
+/// before is kept: every image is chosen from these values whenever the HUD is shown.
+/// </remarks>
 public sealed class HudState
 {
+    /// <summary>The values the HUD shows, as its last update read them.</summary>
+    private HudSnapshot values;
 
-    /// <summary>Each energy tank as last drawn, or null where the template shows.</summary>
-    private readonly HudEnergyTank?[] energyTanks = new HudEnergyTank?[GameplayHudDefinitions.EnergyTankCount];
+    /// <summary>
+    /// What each of the minimap's cells shows as the minimap's last update read it, row by row; empty before the minimap has
+    /// been updated since the HUD was set up, while the template's starter picture shows.
+    /// </summary>
+    internal ImmutableArray<MinimapCell> Minimap { get; set; } = [];
 
-    /// <summary>The energy count as last drawn, or null before it has been.</summary>
-    private int? energyCount;
-
-    /// <summary>Each ammunition count as last drawn (missiles, Super Missiles, Power Bombs), or null before it has been.</summary>
-    private readonly int?[] ammoCounts = new int?[GameplayHudDefinitions.AmmoCounterCount];
-
-    /// <summary>The AUTO reserve indicator as last drawn, or null where the template shows.</summary>
-    private HudReserveIndicator? reserveIndicator;
-
-    /// <summary>Whether each item icon has been added since the HUD was set up.</summary>
-    private readonly bool[] iconsAdded = new bool[GameplayHudDefinitions.ItemCount];
-
-    /// <summary>The shade the selection last gave each icon's cells since its icon was drawn, or null.</summary>
-    private readonly HudIconShade?[] iconShades = new HudIconShade?[GameplayHudDefinitions.ItemCount];
-
-    /// <summary>Each minimap cell as last drawn, row by row, or null where the template's starter picture shows.</summary>
-    internal readonly MinimapCell?[] Minimap = new MinimapCell?[GameplayHudPresentation.MinimapSize.X * GameplayHudPresentation.MinimapSize.Y];
-
-    /// <summary>Previous item selection used to update both icon shades and sound edges.</summary>
+    /// <summary>Previous item selection used to detect a change of selection and its sound.</summary>
     internal HudItem PreviousSelectedItem { get; set; }
     /// <summary>The installed HUD layout the values are placed by.</summary>
     internal GameplayHudPresentation? Presentation { get; private set; }
@@ -48,11 +40,11 @@ public sealed class HudState
     /// <summary>Suppresses minimap updates after a boss initializer.</summary>
     public bool MinimapDisabled { get; internal set; }
 
-    /// <summary>Blanks the fifteen minimap cells and disables updates.</summary>
+    /// <summary>Hides the minimap's fifteen cells and disables updates.</summary>
     internal void DisableMinimapForBoss()
     {
         MinimapDisabled = true;
-        Minimap.AsSpan().Fill(MinimapHiddenCell.Instance);
+        Minimap = [.. Enumerable.Repeat<MinimapCell>(MinimapHiddenCell.Instance, MinimapCellCount)];
     }
 
     /// <summary>Restores minimap updates when leaving the room.</summary>
@@ -84,54 +76,18 @@ public sealed class HudState
     /// <summary>Absolute area-map tile (X 0-63, Y 0-31) selected by the latest minimap update.</summary>
     public Position16<MapTiles> MinimapCenter { get; private set; }
 
-    /// <summary>
-    /// Binds current host-owned HUD artwork. Rebinding changed content redraws the HUD's values from
-    /// <paramref name="samus"/> over the new template, keeping the minimap's cells.
-    /// </summary>
-    public void BindPresentation(GameplayHudPresentation? value, SamusState? samus = null)
-    {
-        GameplayHudPresentation? previous = Presentation;
-        Presentation = value;
-        if (!IsInitialized || value is null || samus is null ||
-            string.Equals(previous?.ContentIdentity, value.ContentIdentity, StringComparison.Ordinal))
-            return;
-        ShowTemplateExceptMinimap();
-        ApplyCurrentPresentationState(samus);
-    }
+    /// <summary>The minimap's cell count: its columns times its rows.</summary>
+    private static int MinimapCellCount => GameplayHudPresentation.MinimapSize.X * GameplayHudPresentation.MinimapSize.Y;
 
-    /// <summary>
-    /// Draws the HUD's initial values and its first
-    /// update for an explicit inventory snapshot.
-    /// </summary>
+    /// <summary>Binds current host-owned HUD artwork; the HUD's images are chosen from its values whenever it is shown.</summary>
+    public void BindPresentation(GameplayHudPresentation? value) => Presentation = value;
+
+    /// <summary>Sets the HUD up showing <paramref name="snapshot"/>'s values, the minimap showing the template's starter picture.</summary>
     public void Initialize(HudSnapshot snapshot)
     {
         _ = Presentation ?? throw new InvalidOperationException("HUD initialization requires installed presentation assets.");
-        ShowTemplateExceptMinimap();
-        Array.Clear(Minimap);
-
-        if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
-            AddIcon(itemIndex: 4);
-        if (snapshot.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam))
-            AddIcon(itemIndex: 3);
-        if (snapshot.MaxMissiles != 0)
-            AddIcon(itemIndex: 0);
-        if (snapshot.MaxSuperMissiles != 0)
-            AddIcon(itemIndex: 1);
-        if (snapshot.MaxPowerBombs != 0)
-            AddIcon(itemIndex: 2);
-
-        if (snapshot.ReserveMode == ReserveTankMode.Auto)
-            DrawAutoReserve(snapshot.ReserveHealth != 0);
-
-        DrawHealth(snapshot.Health, snapshot.MaxHealth);
-        if (snapshot.MaxMissiles != 0)
-            ammoCounts[0] = snapshot.Missiles;
-        if (snapshot.MaxSuperMissiles != 0)
-            ammoCounts[1] = snapshot.SuperMissiles;
-        if (snapshot.MaxPowerBombs != 0)
-            ammoCounts[2] = snapshot.PowerBombs;
-
-        ToggleItemHighlight(snapshot.SelectedItem, HudIconShade.Selected);
+        values = snapshot;
+        Minimap = [];
         // HUD setup initializes the previous selected item to zero. The HUD update
         // performs the first live comparison on the next gameplay pass.
         PreviousSelectedItem = HudItem.Beam;
@@ -140,11 +96,9 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Replays the mutable counter portion of the HUD update from live Samus state. The
-    /// counters are redrawn every gameplay frame and the next accepted frame shows them;
-    /// initialization is not the sole owner of the energy digits. Updating them on every
-    /// gameplay pass prevents enemy damage from changing physics state while the visible
-    /// HUD remains frozen at 99.
+    /// The HUD's update: reads Samus's values for the HUD to show and, when the selected item has changed, requests the
+    /// item-selection sound. Gameplay runs it every gameplay pass, so enemy damage that changes Samus's state during the
+    /// pass reaches the next accepted frame.
     /// </summary>
     [IndependentFlag("Time freeze and sound suppression are separate runtime states supplied by the frame.")]
     public void UpdateGameplayCounters(
@@ -159,40 +113,13 @@ public sealed class HudState
         SelectionSoundRequestedThisFrame = false;
 
         SelectionSoundSuppressedThisFrame = soundSuppressed;
+        values = HudSnapshot.Of(samus);
 
-        // Permanent pickups can introduce an inventory family after HUD initialization.
-        // The game's item pickups add those icons immediately; replay the same
-        // guarded additions here before updating their counters. Each addition is
-        // idempotent and preserves an already-shown icon and the live minimap.
-        if ((samus.EquippedItems & SamusEquipmentFlags.XrayScope) != SamusEquipmentFlags.None)
-            AddIcon(itemIndex: 4);
-        if ((samus.EquippedItems & SamusEquipmentFlags.GrappleBeam) != SamusEquipmentFlags.None)
-            AddIcon(itemIndex: 3);
-        if (samus.MaxMissiles != 0)
-            AddIcon(itemIndex: 0);
-        if (samus.MaxSuperMissiles != 0)
-            AddIcon(itemIndex: 1);
-        if (samus.MaxPowerBombs != 0)
-            AddIcon(itemIndex: 2);
-
-        DrawHealth(samus.Health, samus.MaxHealth);
-        if (samus.MaxMissiles != 0)
-            ammoCounts[0] = samus.Missiles;
-        if (samus.MaxSuperMissiles != 0)
-            ammoCounts[1] = samus.SuperMissiles;
-        if (samus.MaxPowerBombs != 0)
-            ammoCounts[2] = samus.PowerBombs;
-        if (samus.ReserveTankMode == ReserveTankMode.Auto)
-            DrawAutoReserve(samus.ReserveEnergy != 0);
-
-        // Selecting an item gives the newly selected icon the selected shade, returns the
-        // old icon to the deselected shade, then publishes the item-select sound. This belongs in the
-        // live HUD update rather than the input handler: the game suppresses the sound (but
-        // not the visual change) while spinning, wall-jumping, grappling, or time is frozen.
+        // Selecting an item publishes the item-select sound. This belongs in the live HUD update rather than the input
+        // handler: the game suppresses the sound (but not the visual change) while spinning, wall-jumping, grappling, or
+        // time is frozen.
         if (samus.SelectedHudItem != PreviousSelectedItem)
         {
-            ToggleItemHighlight(samus.SelectedHudItem, HudIconShade.Selected);
-            ToggleItemHighlight(PreviousSelectedItem, HudIconShade.Deselected);
             PreviousSelectedItem = samus.SelectedHudItem;
 
             SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -204,8 +131,8 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Draws the visible 5x3 minimap for a
-    /// supplied room/map position, including exploration bits and the blinking center cell.
+    /// Updates the visible 5x3 minimap for a supplied room/map position: explores the cell Samus is in (and the corner
+    /// above a sloped hallway) and reads the cells around it, including the blinking center cell.
     /// </summary>
     public void UpdateMinimap(SharedGameState system, MinimapFrame frame)
     {
@@ -242,6 +169,7 @@ public sealed class HudState
         system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY)));
         bool hasAreaMap = system.HasAreaMap(frame.AreaIndex);
         int columns = GameplayHudPresentation.MinimapSize.X;
+        var cells = new MinimapCell[MinimapCellCount];
 
         for (int outputY = 0; outputY < GameplayHudPresentation.MinimapSize.Y; outputY++)
         {
@@ -252,7 +180,7 @@ public sealed class HudState
                 int mapX = (centerX + outputX - 2) & 63;
                 if ((uint)mapY >= 32)
                 {
-                    Minimap[destination] = MinimapHiddenCell.Instance;
+                    cells[destination] = MinimapHiddenCell.Instance;
                     continue;
                 }
 
@@ -265,15 +193,15 @@ public sealed class HudState
                         frame.PresentationMap.IsDiscoverable(cell),
                         frame.MapRevealMode))
                 {
-                    Minimap[destination] = MinimapHiddenCell.Instance;
+                    cells[destination] = MinimapHiddenCell.Instance;
                     continue;
                 }
 
-                Minimap[destination] = new MinimapMapCell(frame.PresentationMap.Cell(cell),
+                cells[destination] = new MinimapMapCell(frame.PresentationMap.Cell(cell),
                     explored ? MinimapShade.Explored : MinimapShade.Unexplored);
                 // The center slope also explores the corner above it. The top
-                // row has already been rendered and its explored bits latched, so that
-                // cell acquires the explored shade on the next minimap update.
+                // row has already been read, so that cell acquires the explored
+                // shade on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
                     frame.PresentationMap.RevealsCellAbove(cell))
                     system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY - 1)));
@@ -285,14 +213,15 @@ public sealed class HudState
         // familiar blinking Samus location without a separate sprite. The center is always
         // the explored cell Samus stands in, so it is always a revealed map cell.
         int center = columns + 2;
-        if ((frame.FrameCounter & 8) == 0 && Minimap[center] is MinimapMapCell located)
-            Minimap[center] = located with { Shade = MinimapShade.SamusLocation };
+        if ((frame.FrameCounter & 8) == 0 && cells[center] is MinimapMapCell located)
+            cells[center] = located with { Shade = MinimapShade.SamusLocation };
+        Minimap = [.. cells];
     }
 
     /// <summary>
-    /// The HUD's images as its values select them now, in the order they are drawn (#1466): the static top row, then the
-    /// template with each value's images over it. A HUD with no artwork bound shows nothing, and one not yet set up shows
-    /// only its top row.
+    /// The HUD's images as its values select them now, in the order they are drawn (#1466, #1555): the static top row, then
+    /// the template with each value's images over it. A HUD with no artwork bound shows nothing, and one not yet set up
+    /// shows only its top row.
     /// </summary>
     public ShownHud Shown()
     {
@@ -303,109 +232,51 @@ public sealed class HudState
         if (!IsInitialized)
             return new ShownHud(images.ToImmutable());
         images.Add(GameplayHudPresentation.Template);
-        for (int item = 0; item < iconsAdded.Length; item++)
+        for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
         {
-            if (art.Icon(item, iconsAdded[item], iconShades[item]) is { } icon)
+            bool held = Holds(item);
+            // The selected item's icon shows the selected shade, every other held item's the shade the selection leaves.
+            HudIconShade? shade = values.SelectedItem == GameplayHudDefinitions.IconItems[item] ? HudIconShade.Selected
+                : held ? HudIconShade.Deselected : null;
+            if (art.Icon(item, held, shade) is { } icon)
                 images.Add(icon);
         }
-        for (int tank = 0; tank < energyTanks.Length; tank++)
+        int fullTanks = values.Health / 100;
+        int tankCount = Math.Min(values.MaxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
+        for (int tank = 0; tank < tankCount; tank++)
+            images.Add(art.EnergyTank(tank, tank < fullTanks ? HudEnergyTank.Full : HudEnergyTank.Empty));
+        images.AddRange(art.EnergyCount(values.Health % 100));
+        if (values.MaxMissiles != 0)
+            images.AddRange(art.Ammo(0, values.Missiles));
+        if (values.MaxSuperMissiles != 0)
+            images.AddRange(art.Ammo(1, values.SuperMissiles));
+        if (values.MaxPowerBombs != 0)
+            images.AddRange(art.Ammo(2, values.PowerBombs));
+        // AUTO shows its arrows filled or empty; the pause screen's switch to manual (the only way manual is reached)
+        // clears its cells; before the first reserve tank the template shows.
+        HudReserveIndicator? reserve = values.ReserveMode switch
         {
-            if (energyTanks[tank] is { } shown)
-                images.Add(art.EnergyTank(tank, shown));
-        }
-        if (energyCount is { } energy)
-            images.AddRange(art.EnergyCount(energy));
-        for (int counter = 0; counter < ammoCounts.Length; counter++)
-        {
-            if (ammoCounts[counter] is { } count)
-                images.AddRange(art.Ammo(counter, count));
-        }
-        if (reserveIndicator is { } indicator)
+            ReserveTankMode.Auto => values.ReserveHealth != 0 ? HudReserveIndicator.Filled : HudReserveIndicator.Empty,
+            ReserveTankMode.Manual => HudReserveIndicator.Cleared,
+            ReserveTankMode.None => null,
+            _ => throw new InvalidOperationException($"Undefined {nameof(ReserveTankMode)} {values.ReserveMode}."),
+        };
+        if (reserve is { } indicator)
             images.AddRange(art.AutoReserve(indicator));
         int columns = GameplayHudPresentation.MinimapSize.X;
         for (int index = 0; index < Minimap.Length; index++)
-        {
-            if (Minimap[index] is { } cell)
-                images.Add(art.MinimapCell(new(index % columns, index / columns), cell));
-        }
+            images.Add(art.MinimapCell(new(index % columns, index / columns), Minimap[index]));
         return new ShownHud(images.ToImmutable());
     }
 
-    /// <summary>Updates the energy tanks and the two-digit energy remainder.</summary>
-    private void DrawHealth(int health, int maxHealth)
+    /// <summary>Whether Samus holds item icon <paramref name="itemIndex"/>'s item, in <see cref="GameplayHudDefinitions.IconNames"/> order.</summary>
+    private bool Holds(int itemIndex) => itemIndex switch
     {
-        _ = Presentation ?? throw new InvalidOperationException("HUD energy requires installed presentation assets.");
-        int fullTanks = health / 100;
-        int tankCount = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
-        for (int tank = 0; tank < tankCount; tank++)
-            energyTanks[tank] = tank < fullTanks ? HudEnergyTank.Full : HudEnergyTank.Empty;
-        energyCount = health % 100;
-    }
-
-    /// <summary>Draws the AUTO reserve indicator when its selected tank contains energy.</summary>
-    private void DrawAutoReserve(bool containsEnergy)
-    {
-        _ = Presentation ?? throw new InvalidOperationException("HUD reserve indicator requires installed presentation assets.");
-        reserveIndicator = containsEnergy ? HudReserveIndicator.Filled : HudReserveIndicator.Empty;
-    }
-
-    /// <summary>Restores the HUD after a pause or menu without reinitializing icons, counters or the minimap.</summary>
-    public void ClearAutoReserveIndicator()
-    {
-        if (!IsInitialized) throw new InvalidOperationException("Initialize the HUD before clearing AUTO.");
-        _ = Presentation ?? throw new InvalidOperationException("HUD reserve indicator requires installed presentation assets.");
-        reserveIndicator = HudReserveIndicator.Cleared;
-    }
-
-    /// <summary>
-    /// Adds item <paramref name="itemIndex"/>'s icon if the HUD has not yet. The game draws an icon only over a
-    /// blank anchor, so an added icon replaces any shade the selection gave the cells beneath it only when it draws.
-    /// </summary>
-    private void AddIcon(int itemIndex)
-    {
-        GameplayHudPresentation art = Presentation ?? throw new InvalidOperationException("HUD icons require installed presentation assets.");
-        if (iconsAdded[itemIndex])
-            return;
-        iconsAdded[itemIndex] = true;
-        if (art.IconShowsOverTemplate(itemIndex))
-            iconShades[itemIndex] = null;
-    }
-
-    /// <summary>Gives the selected item's icon cells <paramref name="shade"/>, without redrawing the icon.</summary>
-    internal void ToggleItemHighlight(HudItem selectedItem, HudIconShade shade)
-    {
-        _ = Presentation ?? throw new InvalidOperationException("HUD selection requires installed presentation assets.");
-        int itemIndex = Array.IndexOf(GameplayHudDefinitions.IconItems, selectedItem);
-        if (itemIndex >= 0)
-            iconShades[itemIndex] = shade;
-    }
-
-    /// <summary>Returns every value but the minimap's to the template, as applying it does.</summary>
-    private void ShowTemplateExceptMinimap()
-    {
-        Array.Clear(energyTanks);
-        energyCount = null;
-        Array.Clear(ammoCounts);
-        reserveIndicator = null;
-        Array.Clear(iconsAdded);
-        Array.Clear(iconShades);
-    }
-
-    /// <summary>Restores visible icons, counters, reserve mode, and selection after artwork rebind.</summary>
-    private void ApplyCurrentPresentationState(SamusState samus)
-    {
-        if ((samus.EquippedItems & SamusEquipmentFlags.XrayScope) != SamusEquipmentFlags.None)
-            AddIcon(4);
-        if ((samus.EquippedItems & SamusEquipmentFlags.GrappleBeam) != SamusEquipmentFlags.None)
-            AddIcon(3);
-        if (samus.MaxMissiles != 0) AddIcon(0);
-        if (samus.MaxSuperMissiles != 0) AddIcon(1);
-        if (samus.MaxPowerBombs != 0) AddIcon(2);
-        DrawHealth(samus.Health, samus.MaxHealth);
-        if (samus.MaxMissiles != 0) ammoCounts[0] = samus.Missiles;
-        if (samus.MaxSuperMissiles != 0) ammoCounts[1] = samus.SuperMissiles;
-        if (samus.MaxPowerBombs != 0) ammoCounts[2] = samus.PowerBombs;
-        if (samus.ReserveTankMode == ReserveTankMode.Auto) DrawAutoReserve(samus.ReserveEnergy != 0);
-        ToggleItemHighlight(samus.SelectedHudItem, HudIconShade.Selected);
-    }
+        0 => values.MaxMissiles != 0,
+        1 => values.MaxSuperMissiles != 0,
+        2 => values.MaxPowerBombs != 0,
+        3 => values.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
+        4 => values.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
+        _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
+    };
 }

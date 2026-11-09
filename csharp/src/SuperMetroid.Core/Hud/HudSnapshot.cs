@@ -15,6 +15,12 @@ public readonly record struct HudSnapshot(
     int ReserveHealth,
     SuperMetroid.Core.Progression.ReserveTankMode ReserveMode)
 {
+    /// <summary>The values the HUD shows for <paramref name="samus"/>'s inventory and selection now.</summary>
+    internal static HudSnapshot Of(SuperMetroid.Core.Samus.SamusState samus) => new(
+        Ensure.NotNull(samus).Health, samus.MaxHealth, samus.Missiles, samus.MaxMissiles, samus.SuperMissiles,
+        samus.MaxSuperMissiles, samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, samus.SelectedHudItem,
+        samus.ReserveEnergy, samus.ReserveTankMode);
+
     /// <summary>A HUD before any item is collected: 99 energy and no equipment.</summary>
     public static HudSnapshot CeresDebug => new(
         Health: 99,

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.World;
@@ -12,7 +11,4 @@ internal sealed record GameplayHudSetupDependencies
 
     /// <summary>The HUD tilemap initialization fills.</summary>
     public required HudState Hud { get; init; }
-
-    /// <summary>The Samus whose inventory the HUD's presentation reflects.</summary>
-    public required SamusFrameState Player { get; init; }
 }

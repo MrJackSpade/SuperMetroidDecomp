@@ -990,24 +990,24 @@ public enum EnemyProjectileFrameId
     MotherBrainBlueRingImpact04,
     /// <summary><c>mother_brain_blue_ring_impact_05</c>, an installed program frame.</summary>
     MotherBrainBlueRingImpact05,
-    /// <summary><c>projectile_86_c76e_frame_00</c>, an installed program frame.</summary>
-    Projectile86C76eFrame00,
-    /// <summary><c>projectile_86_c76e_frame_01</c>, an installed program frame.</summary>
-    Projectile86C76eFrame01,
-    /// <summary><c>projectile_86_c76e_frame_02</c>, an installed program frame.</summary>
-    Projectile86C76eFrame02,
-    /// <summary><c>projectile_86_c76e_frame_03</c>, an installed program frame.</summary>
-    Projectile86C76eFrame03,
-    /// <summary><c>projectile_86_c76e_frame_04</c>, an installed program frame.</summary>
-    Projectile86C76eFrame04,
-    /// <summary><c>projectile_86_c76e_frame_05</c>, an installed program frame.</summary>
-    Projectile86C76eFrame05,
-    /// <summary><c>projectile_86_c76e_frame_06</c>, an installed program frame.</summary>
-    Projectile86C76eFrame06,
-    /// <summary><c>projectile_86_c76e_frame_07</c>, an installed program frame.</summary>
-    Projectile86C76eFrame07,
-    /// <summary><c>projectile_86_c76e_frame_08</c>, an installed program frame.</summary>
-    Projectile86C76eFrame08,
+    /// <summary><c>mother_brain_bomb_frame_00</c>, an installed program frame.</summary>
+    MotherBrainBombFrame00,
+    /// <summary><c>mother_brain_bomb_frame_01</c>, an installed program frame.</summary>
+    MotherBrainBombFrame01,
+    /// <summary><c>mother_brain_bomb_frame_02</c>, an installed program frame.</summary>
+    MotherBrainBombFrame02,
+    /// <summary><c>mother_brain_bomb_frame_03</c>, an installed program frame.</summary>
+    MotherBrainBombFrame03,
+    /// <summary><c>mother_brain_bomb_frame_04</c>, an installed program frame.</summary>
+    MotherBrainBombFrame04,
+    /// <summary><c>mother_brain_bomb_frame_05</c>, an installed program frame.</summary>
+    MotherBrainBombFrame05,
+    /// <summary><c>mother_brain_bomb_frame_06</c>, an installed program frame.</summary>
+    MotherBrainBombFrame06,
+    /// <summary><c>mother_brain_bomb_frame_07</c>, an installed program frame.</summary>
+    MotherBrainBombFrame07,
+    /// <summary><c>mother_brain_bomb_frame_08</c>, an installed program frame.</summary>
+    MotherBrainBombFrame08,
     /// <summary><c>mother_brain_hand_beam_frame_00</c>, an installed program frame.</summary>
     MotherBrainHandBeamFrame00,
     /// <summary><c>mother_brain_hand_beam_frame_01</c>, an installed program frame.</summary>
@@ -1050,18 +1050,18 @@ public enum EnemyProjectileFrameId
     MotherBrainHandBeamFrame19,
     /// <summary><c>mother_brain_hand_beam_frame_20</c>, an installed program frame.</summary>
     MotherBrainHandBeamFrame20,
-    /// <summary><c>projectile_86_c829_frame_00</c>, an installed program frame.</summary>
-    Projectile86C829Frame00,
-    /// <summary><c>projectile_86_c829_frame_01</c>, an installed program frame.</summary>
-    Projectile86C829Frame01,
-    /// <summary><c>projectile_86_c829_frame_02</c>, an installed program frame.</summary>
-    Projectile86C829Frame02,
-    /// <summary><c>projectile_86_c829_frame_03</c>, an installed program frame.</summary>
-    Projectile86C829Frame03,
-    /// <summary><c>projectile_86_c829_frame_04</c>, an installed program frame.</summary>
-    Projectile86C829Frame04,
-    /// <summary><c>projectile_86_c829_frame_05</c>, an installed program frame.</summary>
-    Projectile86C829Frame05,
+    /// <summary><c>mother_brain_rainbow_beam_charging_frame_00</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFrame00,
+    /// <summary><c>mother_brain_rainbow_beam_charging_frame_01</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFrame01,
+    /// <summary><c>mother_brain_rainbow_beam_charging_frame_02</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFrame02,
+    /// <summary><c>mother_brain_rainbow_beam_charging_frame_03</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFrame03,
+    /// <summary><c>mother_brain_rainbow_beam_charging_frame_04</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFrame04,
+    /// <summary><c>mother_brain_rainbow_beam_charging_frame_05</c>, an installed program frame.</summary>
+    MotherBrainRainbowBeamChargingFrame05,
     /// <summary><c>mother_brain_drool_attached_00</c>, an installed program frame.</summary>
     MotherBrainDroolAttached00,
     /// <summary><c>mother_brain_drool_attached_01</c>, an installed program frame.</summary>
@@ -1074,64 +1074,64 @@ public enum EnemyProjectileFrameId
     MotherBrainDroolAttached04,
     /// <summary><c>mother_brain_drool_released</c>, an installed program frame.</summary>
     MotherBrainDroolReleased,
-    /// <summary><c>projectile_86_c8e1_frame_00</c>, an installed program frame.</summary>
-    Projectile86C8e1Frame00,
-    /// <summary><c>projectile_86_c8e1_frame_01</c>, an installed program frame.</summary>
-    Projectile86C8e1Frame01,
-    /// <summary><c>projectile_86_c8e1_frame_02</c>, an installed program frame.</summary>
-    Projectile86C8e1Frame02,
-    /// <summary><c>projectile_86_c8e1_frame_03</c>, an installed program frame.</summary>
-    Projectile86C8e1Frame03,
-    /// <summary><c>projectile_86_ca22_frame_00</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame00,
-    /// <summary><c>projectile_86_ca22_frame_01</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame01,
-    /// <summary><c>projectile_86_ca22_frame_02</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame02,
-    /// <summary><c>projectile_86_ca22_frame_03</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame03,
-    /// <summary><c>projectile_86_ca22_frame_04</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame04,
-    /// <summary><c>projectile_86_ca22_frame_05</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame05,
-    /// <summary><c>projectile_86_ca22_frame_06</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame06,
-    /// <summary><c>projectile_86_ca22_frame_07</c>, an installed program frame.</summary>
-    Projectile86Ca22Frame07,
-    /// <summary><c>projectile_86_caa4_frame_00</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame00,
-    /// <summary><c>projectile_86_caa4_frame_01</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame01,
-    /// <summary><c>projectile_86_caa4_frame_02</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame02,
-    /// <summary><c>projectile_86_caa4_frame_03</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame03,
-    /// <summary><c>projectile_86_caa4_frame_04</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame04,
-    /// <summary><c>projectile_86_caa4_frame_05</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame05,
-    /// <summary><c>projectile_86_caa4_frame_06</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame06,
-    /// <summary><c>projectile_86_caa4_frame_07</c>, an installed program frame.</summary>
-    Projectile86Caa4Frame07,
-    /// <summary><c>projectile_86_cac8_frame_00</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame00,
-    /// <summary><c>projectile_86_cac8_frame_01</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame01,
-    /// <summary><c>projectile_86_cac8_frame_02</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame02,
-    /// <summary><c>projectile_86_cac8_frame_03</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame03,
-    /// <summary><c>projectile_86_cac8_frame_04</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame04,
-    /// <summary><c>projectile_86_cac8_frame_05</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame05,
-    /// <summary><c>projectile_86_cac8_frame_06</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame06,
-    /// <summary><c>projectile_86_cac8_frame_07</c>, an installed program frame.</summary>
-    Projectile86Cac8Frame07,
-    /// <summary><c>projectile_86_cb0d_frame_00</c>, an installed program frame.</summary>
-    Projectile86Cb0dFrame00,
+    /// <summary><c>mother_brain_drool_hit_floor_frame_00</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorFrame00,
+    /// <summary><c>mother_brain_drool_hit_floor_frame_01</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorFrame01,
+    /// <summary><c>mother_brain_drool_hit_floor_frame_02</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorFrame02,
+    /// <summary><c>mother_brain_drool_hit_floor_frame_03</c>, an installed program frame.</summary>
+    MotherBrainDroolHitFloorFrame03,
+    /// <summary><c>mother_brain_escape_door_particle_frame_00</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame00,
+    /// <summary><c>mother_brain_escape_door_particle_frame_01</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame01,
+    /// <summary><c>mother_brain_escape_door_particle_frame_02</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame02,
+    /// <summary><c>mother_brain_escape_door_particle_frame_03</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame03,
+    /// <summary><c>mother_brain_escape_door_particle_frame_04</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame04,
+    /// <summary><c>mother_brain_escape_door_particle_frame_05</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame05,
+    /// <summary><c>mother_brain_escape_door_particle_frame_06</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame06,
+    /// <summary><c>mother_brain_escape_door_particle_frame_07</c>, an installed program frame.</summary>
+    MotherBrainEscapeDoorParticleFrame07,
+    /// <summary><c>mother_brain_purple_breath_big_frame_00</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame00,
+    /// <summary><c>mother_brain_purple_breath_big_frame_01</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame01,
+    /// <summary><c>mother_brain_purple_breath_big_frame_02</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame02,
+    /// <summary><c>mother_brain_purple_breath_big_frame_03</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame03,
+    /// <summary><c>mother_brain_purple_breath_big_frame_04</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame04,
+    /// <summary><c>mother_brain_purple_breath_big_frame_05</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame05,
+    /// <summary><c>mother_brain_purple_breath_big_frame_06</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame06,
+    /// <summary><c>mother_brain_purple_breath_big_frame_07</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathBigFrame07,
+    /// <summary><c>mother_brain_purple_breath_small_frame_00</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame00,
+    /// <summary><c>mother_brain_purple_breath_small_frame_01</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame01,
+    /// <summary><c>mother_brain_purple_breath_small_frame_02</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame02,
+    /// <summary><c>mother_brain_purple_breath_small_frame_03</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame03,
+    /// <summary><c>mother_brain_purple_breath_small_frame_04</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame04,
+    /// <summary><c>mother_brain_purple_breath_small_frame_05</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame05,
+    /// <summary><c>mother_brain_purple_breath_small_frame_06</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame06,
+    /// <summary><c>mother_brain_purple_breath_small_frame_07</c>, an installed program frame.</summary>
+    MotherBrainPurpleBreathSmallFrame07,
+    /// <summary><c>mother_brain_escape_subtitle_frame_00</c>, an installed program frame.</summary>
+    MotherBrainEscapeSubtitleFrame00,
     /// <summary><c>mother_brain_top_tube_frame_00</c>, an installed program frame.</summary>
     MotherBrainTopTubeFrame00,
     /// <summary><c>mother_brain_top_tube_frame_01</c>, an installed program frame.</summary>
@@ -1610,390 +1610,390 @@ public enum EnemyProjectileFrameId
     MagdolliteLavaFrame00,
     /// <summary><c>magdollite_lava_frame_01</c>, an installed program frame.</summary>
     MagdolliteLavaFrame01,
-    /// <summary><c>projectile_86_e0ee_frame_00</c>, an installed program frame.</summary>
-    Projectile86E0eeFrame00,
-    /// <summary><c>projectile_86_e0ee_frame_01</c>, an installed program frame.</summary>
-    Projectile86E0eeFrame01,
-    /// <summary><c>projectile_86_e0ee_frame_02</c>, an installed program frame.</summary>
-    Projectile86E0eeFrame02,
-    /// <summary><c>projectile_86_e0ee_frame_03</c>, an installed program frame.</summary>
-    Projectile86E0eeFrame03,
-    /// <summary><c>projectile_86_e100_frame_00</c>, an installed program frame.</summary>
-    Projectile86E100Frame00,
-    /// <summary><c>projectile_86_e100_frame_01</c>, an installed program frame.</summary>
-    Projectile86E100Frame01,
-    /// <summary><c>projectile_86_e100_frame_02</c>, an installed program frame.</summary>
-    Projectile86E100Frame02,
-    /// <summary><c>projectile_86_e100_frame_03</c>, an installed program frame.</summary>
-    Projectile86E100Frame03,
-    /// <summary><c>projectile_86_e100_frame_04</c>, an installed program frame.</summary>
-    Projectile86E100Frame04,
-    /// <summary><c>projectile_86_e100_frame_05</c>, an installed program frame.</summary>
-    Projectile86E100Frame05,
-    /// <summary><c>projectile_86_e11a_frame_00</c>, an installed program frame.</summary>
-    Projectile86E11aFrame00,
-    /// <summary><c>projectile_86_e11a_frame_01</c>, an installed program frame.</summary>
-    Projectile86E11aFrame01,
-    /// <summary><c>projectile_86_e11a_frame_02</c>, an installed program frame.</summary>
-    Projectile86E11aFrame02,
-    /// <summary><c>projectile_86_e11a_frame_03</c>, an installed program frame.</summary>
-    Projectile86E11aFrame03,
-    /// <summary><c>projectile_86_e11a_frame_04</c>, an installed program frame.</summary>
-    Projectile86E11aFrame04,
-    /// <summary><c>projectile_86_e11a_frame_05</c>, an installed program frame.</summary>
-    Projectile86E11aFrame05,
-    /// <summary><c>projectile_86_e11a_frame_06</c>, an installed program frame.</summary>
-    Projectile86E11aFrame06,
-    /// <summary><c>projectile_86_e138_frame_00</c>, an installed program frame.</summary>
-    Projectile86E138Frame00,
-    /// <summary><c>projectile_86_e138_frame_01</c>, an installed program frame.</summary>
-    Projectile86E138Frame01,
-    /// <summary><c>projectile_86_e138_frame_02</c>, an installed program frame.</summary>
-    Projectile86E138Frame02,
-    /// <summary><c>projectile_86_e138_frame_03</c>, an installed program frame.</summary>
-    Projectile86E138Frame03,
-    /// <summary><c>projectile_86_e138_frame_04</c>, an installed program frame.</summary>
-    Projectile86E138Frame04,
-    /// <summary><c>projectile_86_e138_frame_05</c>, an installed program frame.</summary>
-    Projectile86E138Frame05,
-    /// <summary><c>projectile_86_e152_frame_00</c>, an installed program frame.</summary>
-    Projectile86E152Frame00,
-    /// <summary><c>projectile_86_e152_frame_01</c>, an installed program frame.</summary>
-    Projectile86E152Frame01,
-    /// <summary><c>projectile_86_e152_frame_02</c>, an installed program frame.</summary>
-    Projectile86E152Frame02,
-    /// <summary><c>projectile_86_e152_frame_03</c>, an installed program frame.</summary>
-    Projectile86E152Frame03,
-    /// <summary><c>projectile_86_e152_frame_04</c>, an installed program frame.</summary>
-    Projectile86E152Frame04,
-    /// <summary><c>projectile_86_e168_frame_00</c>, an installed program frame.</summary>
-    Projectile86E168Frame00,
-    /// <summary><c>projectile_86_e168_frame_01</c>, an installed program frame.</summary>
-    Projectile86E168Frame01,
-    /// <summary><c>projectile_86_e168_frame_02</c>, an installed program frame.</summary>
-    Projectile86E168Frame02,
-    /// <summary><c>projectile_86_e168_frame_03</c>, an installed program frame.</summary>
-    Projectile86E168Frame03,
-    /// <summary><c>projectile_86_e168_frame_04</c>, an installed program frame.</summary>
-    Projectile86E168Frame04,
-    /// <summary><c>projectile_86_e17e_frame_00</c>, an installed program frame.</summary>
-    Projectile86E17eFrame00,
-    /// <summary><c>projectile_86_e17e_frame_01</c>, an installed program frame.</summary>
-    Projectile86E17eFrame01,
-    /// <summary><c>projectile_86_e17e_frame_02</c>, an installed program frame.</summary>
-    Projectile86E17eFrame02,
-    /// <summary><c>projectile_86_e17e_frame_03</c>, an installed program frame.</summary>
-    Projectile86E17eFrame03,
-    /// <summary><c>projectile_86_e17e_frame_04</c>, an installed program frame.</summary>
-    Projectile86E17eFrame04,
-    /// <summary><c>projectile_86_e17e_frame_05</c>, an installed program frame.</summary>
-    Projectile86E17eFrame05,
-    /// <summary><c>projectile_86_e198_frame_00</c>, an installed program frame.</summary>
-    Projectile86E198Frame00,
-    /// <summary><c>projectile_86_e198_frame_01</c>, an installed program frame.</summary>
-    Projectile86E198Frame01,
-    /// <summary><c>projectile_86_e198_frame_02</c>, an installed program frame.</summary>
-    Projectile86E198Frame02,
-    /// <summary><c>projectile_86_e1a6_frame_00</c>, an installed program frame.</summary>
-    Projectile86E1a6Frame00,
-    /// <summary><c>projectile_86_e1a6_frame_01</c>, an installed program frame.</summary>
-    Projectile86E1a6Frame01,
-    /// <summary><c>projectile_86_e1b0_frame_00</c>, an installed program frame.</summary>
-    Projectile86E1b0Frame00,
-    /// <summary><c>projectile_86_e1b0_frame_01</c>, an installed program frame.</summary>
-    Projectile86E1b0Frame01,
-    /// <summary><c>projectile_86_e1b0_frame_02</c>, an installed program frame.</summary>
-    Projectile86E1b0Frame02,
-    /// <summary><c>projectile_86_e1b0_frame_03</c>, an installed program frame.</summary>
-    Projectile86E1b0Frame03,
-    /// <summary><c>projectile_86_e1b0_frame_04</c>, an installed program frame.</summary>
-    Projectile86E1b0Frame04,
-    /// <summary><c>projectile_86_e1c6_frame_00</c>, an installed program frame.</summary>
-    Projectile86E1c6Frame00,
-    /// <summary><c>projectile_86_e1c6_frame_01</c>, an installed program frame.</summary>
-    Projectile86E1c6Frame01,
-    /// <summary><c>projectile_86_e1c6_frame_02</c>, an installed program frame.</summary>
-    Projectile86E1c6Frame02,
-    /// <summary><c>projectile_86_e1c6_frame_03</c>, an installed program frame.</summary>
-    Projectile86E1c6Frame03,
-    /// <summary><c>projectile_86_e1d8_frame_00</c>, an installed program frame.</summary>
-    Projectile86E1d8Frame00,
-    /// <summary><c>projectile_86_e1d8_frame_01</c>, an installed program frame.</summary>
-    Projectile86E1d8Frame01,
-    /// <summary><c>projectile_86_e1d8_frame_02</c>, an installed program frame.</summary>
-    Projectile86E1d8Frame02,
-    /// <summary><c>projectile_86_e1d8_frame_03</c>, an installed program frame.</summary>
-    Projectile86E1d8Frame03,
-    /// <summary><c>projectile_86_e1ea_frame_00</c>, an installed program frame.</summary>
-    Projectile86E1eaFrame00,
-    /// <summary><c>projectile_86_e1ea_frame_01</c>, an installed program frame.</summary>
-    Projectile86E1eaFrame01,
-    /// <summary><c>projectile_86_e1ea_frame_02</c>, an installed program frame.</summary>
-    Projectile86E1eaFrame02,
-    /// <summary><c>projectile_86_e1ea_frame_03</c>, an installed program frame.</summary>
-    Projectile86E1eaFrame03,
-    /// <summary><c>projectile_86_e1fc_frame_00</c>, an installed program frame.</summary>
-    Projectile86E1fcFrame00,
-    /// <summary><c>projectile_86_e1fc_frame_01</c>, an installed program frame.</summary>
-    Projectile86E1fcFrame01,
-    /// <summary><c>projectile_86_e208_frame_00</c>, an installed program frame.</summary>
-    Projectile86E208Frame00,
-    /// <summary><c>projectile_86_e208_frame_01</c>, an installed program frame.</summary>
-    Projectile86E208Frame01,
-    /// <summary><c>projectile_86_e208_frame_02</c>, an installed program frame.</summary>
-    Projectile86E208Frame02,
-    /// <summary><c>projectile_86_e208_frame_03</c>, an installed program frame.</summary>
-    Projectile86E208Frame03,
-    /// <summary><c>projectile_86_e208_frame_04</c>, an installed program frame.</summary>
-    Projectile86E208Frame04,
-    /// <summary><c>projectile_86_e208_frame_05</c>, an installed program frame.</summary>
-    Projectile86E208Frame05,
-    /// <summary><c>projectile_86_e222_frame_00</c>, an installed program frame.</summary>
-    Projectile86E222Frame00,
-    /// <summary><c>projectile_86_e222_frame_01</c>, an installed program frame.</summary>
-    Projectile86E222Frame01,
-    /// <summary><c>projectile_86_e222_frame_02</c>, an installed program frame.</summary>
-    Projectile86E222Frame02,
-    /// <summary><c>projectile_86_e222_frame_03</c>, an installed program frame.</summary>
-    Projectile86E222Frame03,
-    /// <summary><c>projectile_86_e234_frame_00</c>, an installed program frame.</summary>
-    Projectile86E234Frame00,
-    /// <summary><c>projectile_86_e234_frame_01</c>, an installed program frame.</summary>
-    Projectile86E234Frame01,
-    /// <summary><c>projectile_86_e234_frame_02</c>, an installed program frame.</summary>
-    Projectile86E234Frame02,
-    /// <summary><c>projectile_86_e234_frame_03</c>, an installed program frame.</summary>
-    Projectile86E234Frame03,
-    /// <summary><c>projectile_86_e246_frame_00</c>, an installed program frame.</summary>
-    Projectile86E246Frame00,
-    /// <summary><c>projectile_86_e246_frame_01</c>, an installed program frame.</summary>
-    Projectile86E246Frame01,
-    /// <summary><c>projectile_86_e246_frame_02</c>, an installed program frame.</summary>
-    Projectile86E246Frame02,
-    /// <summary><c>projectile_86_e246_frame_03</c>, an installed program frame.</summary>
-    Projectile86E246Frame03,
-    /// <summary><c>projectile_86_e258_frame_00</c>, an installed program frame.</summary>
-    Projectile86E258Frame00,
-    /// <summary><c>projectile_86_e258_frame_01</c>, an installed program frame.</summary>
-    Projectile86E258Frame01,
-    /// <summary><c>projectile_86_e258_frame_02</c>, an installed program frame.</summary>
-    Projectile86E258Frame02,
-    /// <summary><c>projectile_86_e266_frame_00</c>, an installed program frame.</summary>
-    Projectile86E266Frame00,
-    /// <summary><c>projectile_86_e266_frame_01</c>, an installed program frame.</summary>
-    Projectile86E266Frame01,
-    /// <summary><c>projectile_86_e266_frame_02</c>, an installed program frame.</summary>
-    Projectile86E266Frame02,
-    /// <summary><c>projectile_86_e266_frame_03</c>, an installed program frame.</summary>
-    Projectile86E266Frame03,
-    /// <summary><c>projectile_86_e266_frame_04</c>, an installed program frame.</summary>
-    Projectile86E266Frame04,
-    /// <summary><c>projectile_86_e266_frame_05</c>, an installed program frame.</summary>
-    Projectile86E266Frame05,
-    /// <summary><c>projectile_86_e266_frame_06</c>, an installed program frame.</summary>
-    Projectile86E266Frame06,
-    /// <summary><c>projectile_86_e266_frame_07</c>, an installed program frame.</summary>
-    Projectile86E266Frame07,
-    /// <summary><c>projectile_86_e266_frame_08</c>, an installed program frame.</summary>
-    Projectile86E266Frame08,
-    /// <summary><c>projectile_86_e266_frame_09</c>, an installed program frame.</summary>
-    Projectile86E266Frame09,
-    /// <summary><c>projectile_86_e266_frame_10</c>, an installed program frame.</summary>
-    Projectile86E266Frame10,
-    /// <summary><c>projectile_86_e266_frame_11</c>, an installed program frame.</summary>
-    Projectile86E266Frame11,
-    /// <summary><c>projectile_86_e266_frame_12</c>, an installed program frame.</summary>
-    Projectile86E266Frame12,
-    /// <summary><c>projectile_86_e266_frame_13</c>, an installed program frame.</summary>
-    Projectile86E266Frame13,
-    /// <summary><c>projectile_86_e266_frame_14</c>, an installed program frame.</summary>
-    Projectile86E266Frame14,
-    /// <summary><c>projectile_86_e266_frame_15</c>, an installed program frame.</summary>
-    Projectile86E266Frame15,
-    /// <summary><c>projectile_86_e2a8_frame_00</c>, an installed program frame.</summary>
-    Projectile86E2a8Frame00,
-    /// <summary><c>projectile_86_e2a8_frame_01</c>, an installed program frame.</summary>
-    Projectile86E2a8Frame01,
-    /// <summary><c>projectile_86_e2a8_frame_02</c>, an installed program frame.</summary>
-    Projectile86E2a8Frame02,
-    /// <summary><c>projectile_86_e2a8_frame_03</c>, an installed program frame.</summary>
-    Projectile86E2a8Frame03,
-    /// <summary><c>projectile_86_e2ba_frame_00</c>, an installed program frame.</summary>
-    Projectile86E2baFrame00,
-    /// <summary><c>projectile_86_e2ba_frame_01</c>, an installed program frame.</summary>
-    Projectile86E2baFrame01,
-    /// <summary><c>projectile_86_e2ba_frame_02</c>, an installed program frame.</summary>
-    Projectile86E2baFrame02,
-    /// <summary><c>projectile_86_e2ba_frame_03</c>, an installed program frame.</summary>
-    Projectile86E2baFrame03,
-    /// <summary><c>projectile_86_e2ba_frame_04</c>, an installed program frame.</summary>
-    Projectile86E2baFrame04,
-    /// <summary><c>projectile_86_e2ba_frame_05</c>, an installed program frame.</summary>
-    Projectile86E2baFrame05,
-    /// <summary><c>projectile_86_e2d4_frame_00</c>, an installed program frame.</summary>
-    Projectile86E2d4Frame00,
-    /// <summary><c>projectile_86_e2d4_frame_01</c>, an installed program frame.</summary>
-    Projectile86E2d4Frame01,
-    /// <summary><c>projectile_86_e2d4_frame_02</c>, an installed program frame.</summary>
-    Projectile86E2d4Frame02,
-    /// <summary><c>projectile_86_e2d4_frame_03</c>, an installed program frame.</summary>
-    Projectile86E2d4Frame03,
-    /// <summary><c>projectile_86_e2d4_frame_04</c>, an installed program frame.</summary>
-    Projectile86E2d4Frame04,
-    /// <summary><c>projectile_86_e2d4_frame_05</c>, an installed program frame.</summary>
-    Projectile86E2d4Frame05,
-    /// <summary><c>projectile_86_e2d4_frame_06</c>, an installed program frame.</summary>
-    Projectile86E2d4Frame06,
-    /// <summary><c>projectile_86_e2f2_frame_00</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame00,
-    /// <summary><c>projectile_86_e2f2_frame_01</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame01,
-    /// <summary><c>projectile_86_e2f2_frame_02</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame02,
-    /// <summary><c>projectile_86_e2f2_frame_03</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame03,
-    /// <summary><c>projectile_86_e2f2_frame_04</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame04,
-    /// <summary><c>projectile_86_e2f2_frame_05</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame05,
-    /// <summary><c>projectile_86_e2f2_frame_06</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame06,
-    /// <summary><c>projectile_86_e2f2_frame_07</c>, an installed program frame.</summary>
-    Projectile86E2f2Frame07,
-    /// <summary><c>projectile_86_e314_frame_00</c>, an installed program frame.</summary>
-    Projectile86E314Frame00,
-    /// <summary><c>projectile_86_e314_frame_01</c>, an installed program frame.</summary>
-    Projectile86E314Frame01,
-    /// <summary><c>projectile_86_e314_frame_02</c>, an installed program frame.</summary>
-    Projectile86E314Frame02,
-    /// <summary><c>projectile_86_e314_frame_03</c>, an installed program frame.</summary>
-    Projectile86E314Frame03,
-    /// <summary><c>projectile_86_e314_frame_04</c>, an installed program frame.</summary>
-    Projectile86E314Frame04,
-    /// <summary><c>projectile_86_e314_frame_05</c>, an installed program frame.</summary>
-    Projectile86E314Frame05,
-    /// <summary><c>projectile_86_e314_frame_06</c>, an installed program frame.</summary>
-    Projectile86E314Frame06,
-    /// <summary><c>projectile_86_e314_frame_07</c>, an installed program frame.</summary>
-    Projectile86E314Frame07,
-    /// <summary><c>projectile_86_e314_frame_08</c>, an installed program frame.</summary>
-    Projectile86E314Frame08,
-    /// <summary><c>projectile_86_e314_frame_09</c>, an installed program frame.</summary>
-    Projectile86E314Frame09,
-    /// <summary><c>projectile_86_e314_frame_10</c>, an installed program frame.</summary>
-    Projectile86E314Frame10,
-    /// <summary><c>projectile_86_e314_frame_11</c>, an installed program frame.</summary>
-    Projectile86E314Frame11,
-    /// <summary><c>projectile_86_e314_frame_12</c>, an installed program frame.</summary>
-    Projectile86E314Frame12,
-    /// <summary><c>projectile_86_e314_frame_13</c>, an installed program frame.</summary>
-    Projectile86E314Frame13,
-    /// <summary><c>projectile_86_e314_frame_14</c>, an installed program frame.</summary>
-    Projectile86E314Frame14,
-    /// <summary><c>projectile_86_e314_frame_15</c>, an installed program frame.</summary>
-    Projectile86E314Frame15,
-    /// <summary><c>projectile_86_e314_frame_16</c>, an installed program frame.</summary>
-    Projectile86E314Frame16,
-    /// <summary><c>projectile_86_e314_frame_17</c>, an installed program frame.</summary>
-    Projectile86E314Frame17,
-    /// <summary><c>projectile_86_e314_frame_18</c>, an installed program frame.</summary>
-    Projectile86E314Frame18,
-    /// <summary><c>projectile_86_e314_frame_19</c>, an installed program frame.</summary>
-    Projectile86E314Frame19,
-    /// <summary><c>projectile_86_e314_frame_20</c>, an installed program frame.</summary>
-    Projectile86E314Frame20,
-    /// <summary><c>projectile_86_e314_frame_21</c>, an installed program frame.</summary>
-    Projectile86E314Frame21,
-    /// <summary><c>projectile_86_e314_frame_22</c>, an installed program frame.</summary>
-    Projectile86E314Frame22,
-    /// <summary><c>projectile_86_e314_frame_23</c>, an installed program frame.</summary>
-    Projectile86E314Frame23,
-    /// <summary><c>projectile_86_e314_frame_24</c>, an installed program frame.</summary>
-    Projectile86E314Frame24,
-    /// <summary><c>projectile_86_e314_frame_25</c>, an installed program frame.</summary>
-    Projectile86E314Frame25,
-    /// <summary><c>projectile_86_e314_frame_26</c>, an installed program frame.</summary>
-    Projectile86E314Frame26,
-    /// <summary><c>projectile_86_e314_frame_27</c>, an installed program frame.</summary>
-    Projectile86E314Frame27,
-    /// <summary><c>projectile_86_e314_frame_28</c>, an installed program frame.</summary>
-    Projectile86E314Frame28,
-    /// <summary><c>projectile_86_e314_frame_29</c>, an installed program frame.</summary>
-    Projectile86E314Frame29,
-    /// <summary><c>projectile_86_e314_frame_30</c>, an installed program frame.</summary>
-    Projectile86E314Frame30,
-    /// <summary><c>projectile_86_e392_frame_00</c>, an installed program frame.</summary>
-    Projectile86E392Frame00,
-    /// <summary><c>projectile_86_e392_frame_01</c>, an installed program frame.</summary>
-    Projectile86E392Frame01,
-    /// <summary><c>projectile_86_e392_frame_02</c>, an installed program frame.</summary>
-    Projectile86E392Frame02,
-    /// <summary><c>projectile_86_e3a0_frame_00</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame00,
-    /// <summary><c>projectile_86_e3a0_frame_01</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame01,
-    /// <summary><c>projectile_86_e3a0_frame_02</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame02,
-    /// <summary><c>projectile_86_e3a0_frame_03</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame03,
-    /// <summary><c>projectile_86_e3a0_frame_04</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame04,
-    /// <summary><c>projectile_86_e3a0_frame_05</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame05,
-    /// <summary><c>projectile_86_e3a0_frame_06</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame06,
-    /// <summary><c>projectile_86_e3a0_frame_07</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame07,
-    /// <summary><c>projectile_86_e3a0_frame_08</c>, an installed program frame.</summary>
-    Projectile86E3a0Frame08,
-    /// <summary><c>projectile_86_e3c6_frame_00</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame00,
-    /// <summary><c>projectile_86_e3c6_frame_01</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame01,
-    /// <summary><c>projectile_86_e3c6_frame_02</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame02,
-    /// <summary><c>projectile_86_e3c6_frame_03</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame03,
-    /// <summary><c>projectile_86_e3c6_frame_04</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame04,
-    /// <summary><c>projectile_86_e3c6_frame_05</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame05,
-    /// <summary><c>projectile_86_e3c6_frame_06</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame06,
-    /// <summary><c>projectile_86_e3c6_frame_07</c>, an installed program frame.</summary>
-    Projectile86E3c6Frame07,
-    /// <summary><c>projectile_86_e3e8_frame_00</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame00,
-    /// <summary><c>projectile_86_e3e8_frame_01</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame01,
-    /// <summary><c>projectile_86_e3e8_frame_02</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame02,
-    /// <summary><c>projectile_86_e3e8_frame_03</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame03,
-    /// <summary><c>projectile_86_e3e8_frame_04</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame04,
-    /// <summary><c>projectile_86_e3e8_frame_05</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame05,
-    /// <summary><c>projectile_86_e3e8_frame_06</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame06,
-    /// <summary><c>projectile_86_e3e8_frame_07</c>, an installed program frame.</summary>
-    Projectile86E3e8Frame07,
-    /// <summary><c>projectile_86_e40a_frame_00</c>, an installed program frame.</summary>
-    Projectile86E40aFrame00,
-    /// <summary><c>projectile_86_e40a_frame_01</c>, an installed program frame.</summary>
-    Projectile86E40aFrame01,
-    /// <summary><c>projectile_86_e40a_frame_02</c>, an installed program frame.</summary>
-    Projectile86E40aFrame02,
-    /// <summary><c>projectile_86_e40a_frame_03</c>, an installed program frame.</summary>
-    Projectile86E40aFrame03,
-    /// <summary><c>projectile_86_e40a_frame_04</c>, an installed program frame.</summary>
-    Projectile86E40aFrame04,
-    /// <summary><c>projectile_86_e40a_frame_05</c>, an installed program frame.</summary>
-    Projectile86E40aFrame05,
-    /// <summary><c>projectile_86_e40a_frame_06</c>, an installed program frame.</summary>
-    Projectile86E40aFrame06,
-    /// <summary><c>projectile_86_e40a_frame_07</c>, an installed program frame.</summary>
-    Projectile86E40aFrame07,
+    /// <summary><c>misc_dust_beam_charge_frame_00</c>, an installed program frame.</summary>
+    MiscDustBeamChargeFrame00,
+    /// <summary><c>misc_dust_beam_charge_frame_01</c>, an installed program frame.</summary>
+    MiscDustBeamChargeFrame01,
+    /// <summary><c>misc_dust_beam_charge_frame_02</c>, an installed program frame.</summary>
+    MiscDustBeamChargeFrame02,
+    /// <summary><c>misc_dust_beam_charge_frame_03</c>, an installed program frame.</summary>
+    MiscDustBeamChargeFrame03,
+    /// <summary><c>misc_dust_elbow_charge_particle_frame_00</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFrame00,
+    /// <summary><c>misc_dust_elbow_charge_particle_frame_01</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFrame01,
+    /// <summary><c>misc_dust_elbow_charge_particle_frame_02</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFrame02,
+    /// <summary><c>misc_dust_elbow_charge_particle_frame_03</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFrame03,
+    /// <summary><c>misc_dust_elbow_charge_particle_frame_04</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFrame04,
+    /// <summary><c>misc_dust_elbow_charge_particle_frame_05</c>, an installed program frame.</summary>
+    MiscDustElbowChargeParticleFrame05,
+    /// <summary><c>misc_dust_elbow_charge_energy_frame_00</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFrame00,
+    /// <summary><c>misc_dust_elbow_charge_energy_frame_01</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFrame01,
+    /// <summary><c>misc_dust_elbow_charge_energy_frame_02</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFrame02,
+    /// <summary><c>misc_dust_elbow_charge_energy_frame_03</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFrame03,
+    /// <summary><c>misc_dust_elbow_charge_energy_frame_04</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFrame04,
+    /// <summary><c>misc_dust_elbow_charge_energy_frame_05</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFrame05,
+    /// <summary><c>misc_dust_elbow_charge_energy_frame_06</c>, an installed program frame.</summary>
+    MiscDustElbowChargeEnergyFrame06,
+    /// <summary><c>misc_dust_small_explosion_frame_00</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFrame00,
+    /// <summary><c>misc_dust_small_explosion_frame_01</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFrame01,
+    /// <summary><c>misc_dust_small_explosion_frame_02</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFrame02,
+    /// <summary><c>misc_dust_small_explosion_frame_03</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFrame03,
+    /// <summary><c>misc_dust_small_explosion_frame_04</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFrame04,
+    /// <summary><c>misc_dust_small_explosion_frame_05</c>, an installed program frame.</summary>
+    MiscDustSmallExplosionFrame05,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_00</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFrame00,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_01</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFrame01,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_02</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFrame02,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_03</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFrame03,
+    /// <summary><c>misc_dust_rainbow_beam_explosion_frame_04</c>, an installed program frame.</summary>
+    MiscDustRainbowBeamExplosionFrame04,
+    /// <summary><c>misc_dust_beam_trail_frame_00</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFrame00,
+    /// <summary><c>misc_dust_beam_trail_frame_01</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFrame01,
+    /// <summary><c>misc_dust_beam_trail_frame_02</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFrame02,
+    /// <summary><c>misc_dust_beam_trail_frame_03</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFrame03,
+    /// <summary><c>misc_dust_beam_trail_frame_04</c>, an installed program frame.</summary>
+    MiscDustBeamTrailFrame04,
+    /// <summary><c>misc_dust_dud_shot_frame_00</c>, an installed program frame.</summary>
+    MiscDustDudShotFrame00,
+    /// <summary><c>misc_dust_dud_shot_frame_01</c>, an installed program frame.</summary>
+    MiscDustDudShotFrame01,
+    /// <summary><c>misc_dust_dud_shot_frame_02</c>, an installed program frame.</summary>
+    MiscDustDudShotFrame02,
+    /// <summary><c>misc_dust_dud_shot_frame_03</c>, an installed program frame.</summary>
+    MiscDustDudShotFrame03,
+    /// <summary><c>misc_dust_dud_shot_frame_04</c>, an installed program frame.</summary>
+    MiscDustDudShotFrame04,
+    /// <summary><c>misc_dust_dud_shot_frame_05</c>, an installed program frame.</summary>
+    MiscDustDudShotFrame05,
+    /// <summary><c>misc_dust_power_bomb_frame_00</c>, an installed program frame.</summary>
+    MiscDustPowerBombFrame00,
+    /// <summary><c>misc_dust_power_bomb_frame_01</c>, an installed program frame.</summary>
+    MiscDustPowerBombFrame01,
+    /// <summary><c>misc_dust_power_bomb_frame_02</c>, an installed program frame.</summary>
+    MiscDustPowerBombFrame02,
+    /// <summary><c>misc_dust_elevator_pad_frame_00</c>, an installed program frame.</summary>
+    MiscDustElevatorPadFrame00,
+    /// <summary><c>misc_dust_elevator_pad_frame_01</c>, an installed program frame.</summary>
+    MiscDustElevatorPadFrame01,
+    /// <summary><c>misc_dust_small_dust_cloud_frame_00</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFrame00,
+    /// <summary><c>misc_dust_small_dust_cloud_frame_01</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFrame01,
+    /// <summary><c>misc_dust_small_dust_cloud_frame_02</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFrame02,
+    /// <summary><c>misc_dust_small_dust_cloud_frame_03</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFrame03,
+    /// <summary><c>misc_dust_small_dust_cloud_frame_04</c>, an installed program frame.</summary>
+    MiscDustSmallDustCloudFrame04,
+    /// <summary><c>misc_dust_corpse_dust_cloud_frame_00</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudFrame00,
+    /// <summary><c>misc_dust_corpse_dust_cloud_frame_01</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudFrame01,
+    /// <summary><c>misc_dust_corpse_dust_cloud_frame_02</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudFrame02,
+    /// <summary><c>misc_dust_corpse_dust_cloud_frame_03</c>, an installed program frame.</summary>
+    MiscDustCorpseDustCloudFrame03,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_00</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropFrame00,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_01</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropFrame01,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_02</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropFrame02,
+    /// <summary><c>misc_dust_eye_door_sweat_drop_frame_03</c>, an installed program frame.</summary>
+    MiscDustEyeDoorSweatDropFrame03,
+    /// <summary><c>misc_dust_smoke_frame_00</c>, an installed program frame.</summary>
+    MiscDustSmokeFrame00,
+    /// <summary><c>misc_dust_smoke_frame_01</c>, an installed program frame.</summary>
+    MiscDustSmokeFrame01,
+    /// <summary><c>misc_dust_smoke_frame_02</c>, an installed program frame.</summary>
+    MiscDustSmokeFrame02,
+    /// <summary><c>misc_dust_smoke_frame_03</c>, an installed program frame.</summary>
+    MiscDustSmokeFrame03,
+    /// <summary><c>misc_dust_looping_elevator_pad_frame_00</c>, an installed program frame.</summary>
+    MiscDustLoopingElevatorPadFrame00,
+    /// <summary><c>misc_dust_looping_elevator_pad_frame_01</c>, an installed program frame.</summary>
+    MiscDustLoopingElevatorPadFrame01,
+    /// <summary><c>misc_dust_big_explosion_frame_00</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFrame00,
+    /// <summary><c>misc_dust_big_explosion_frame_01</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFrame01,
+    /// <summary><c>misc_dust_big_explosion_frame_02</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFrame02,
+    /// <summary><c>misc_dust_big_explosion_frame_03</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFrame03,
+    /// <summary><c>misc_dust_big_explosion_frame_04</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFrame04,
+    /// <summary><c>misc_dust_big_explosion_frame_05</c>, an installed program frame.</summary>
+    MiscDustBigExplosionFrame05,
+    /// <summary><c>misc_dust_small_energy_drop_frame_00</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropFrame00,
+    /// <summary><c>misc_dust_small_energy_drop_frame_01</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropFrame01,
+    /// <summary><c>misc_dust_small_energy_drop_frame_02</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropFrame02,
+    /// <summary><c>misc_dust_small_energy_drop_frame_03</c>, an installed program frame.</summary>
+    MiscDustSmallEnergyDropFrame03,
+    /// <summary><c>misc_dust_big_energy_drop_frame_00</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropFrame00,
+    /// <summary><c>misc_dust_big_energy_drop_frame_01</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropFrame01,
+    /// <summary><c>misc_dust_big_energy_drop_frame_02</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropFrame02,
+    /// <summary><c>misc_dust_big_energy_drop_frame_03</c>, an installed program frame.</summary>
+    MiscDustBigEnergyDropFrame03,
+    /// <summary><c>misc_dust_bomb_frame_00</c>, an installed program frame.</summary>
+    MiscDustBombFrame00,
+    /// <summary><c>misc_dust_bomb_frame_01</c>, an installed program frame.</summary>
+    MiscDustBombFrame01,
+    /// <summary><c>misc_dust_bomb_frame_02</c>, an installed program frame.</summary>
+    MiscDustBombFrame02,
+    /// <summary><c>misc_dust_bomb_frame_03</c>, an installed program frame.</summary>
+    MiscDustBombFrame03,
+    /// <summary><c>misc_dust_weird_energy_drop_frame_00</c>, an installed program frame.</summary>
+    MiscDustWeirdEnergyDropFrame00,
+    /// <summary><c>misc_dust_weird_energy_drop_frame_01</c>, an installed program frame.</summary>
+    MiscDustWeirdEnergyDropFrame01,
+    /// <summary><c>misc_dust_weird_energy_drop_frame_02</c>, an installed program frame.</summary>
+    MiscDustWeirdEnergyDropFrame02,
+    /// <summary><c>misc_dust_rock_particles_frame_00</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame00,
+    /// <summary><c>misc_dust_rock_particles_frame_01</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame01,
+    /// <summary><c>misc_dust_rock_particles_frame_02</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame02,
+    /// <summary><c>misc_dust_rock_particles_frame_03</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame03,
+    /// <summary><c>misc_dust_rock_particles_frame_04</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame04,
+    /// <summary><c>misc_dust_rock_particles_frame_05</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame05,
+    /// <summary><c>misc_dust_rock_particles_frame_06</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame06,
+    /// <summary><c>misc_dust_rock_particles_frame_07</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame07,
+    /// <summary><c>misc_dust_rock_particles_frame_08</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame08,
+    /// <summary><c>misc_dust_rock_particles_frame_09</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame09,
+    /// <summary><c>misc_dust_rock_particles_frame_10</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame10,
+    /// <summary><c>misc_dust_rock_particles_frame_11</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame11,
+    /// <summary><c>misc_dust_rock_particles_frame_12</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame12,
+    /// <summary><c>misc_dust_rock_particles_frame_13</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame13,
+    /// <summary><c>misc_dust_rock_particles_frame_14</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame14,
+    /// <summary><c>misc_dust_rock_particles_frame_15</c>, an installed program frame.</summary>
+    MiscDustRockParticlesFrame15,
+    /// <summary><c>misc_dust_short_big_dust_cloud_frame_00</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudFrame00,
+    /// <summary><c>misc_dust_short_big_dust_cloud_frame_01</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudFrame01,
+    /// <summary><c>misc_dust_short_big_dust_cloud_frame_02</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudFrame02,
+    /// <summary><c>misc_dust_short_big_dust_cloud_frame_03</c>, an installed program frame.</summary>
+    MiscDustShortBigDustCloudFrame03,
+    /// <summary><c>misc_dust_short_beam_cloud_frame_00</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFrame00,
+    /// <summary><c>misc_dust_short_beam_cloud_frame_01</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFrame01,
+    /// <summary><c>misc_dust_short_beam_cloud_frame_02</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFrame02,
+    /// <summary><c>misc_dust_short_beam_cloud_frame_03</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFrame03,
+    /// <summary><c>misc_dust_short_beam_cloud_frame_04</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFrame04,
+    /// <summary><c>misc_dust_short_beam_cloud_frame_05</c>, an installed program frame.</summary>
+    MiscDustShortBeamCloudFrame05,
+    /// <summary><c>misc_dust_medium_beam_cloud_frame_00</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFrame00,
+    /// <summary><c>misc_dust_medium_beam_cloud_frame_01</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFrame01,
+    /// <summary><c>misc_dust_medium_beam_cloud_frame_02</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFrame02,
+    /// <summary><c>misc_dust_medium_beam_cloud_frame_03</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFrame03,
+    /// <summary><c>misc_dust_medium_beam_cloud_frame_04</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFrame04,
+    /// <summary><c>misc_dust_medium_beam_cloud_frame_05</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFrame05,
+    /// <summary><c>misc_dust_medium_beam_cloud_frame_06</c>, an installed program frame.</summary>
+    MiscDustMediumBeamCloudFrame06,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_00</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame00,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_01</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame01,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_02</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame02,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_03</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame03,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_04</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame04,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_05</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame05,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_06</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame06,
+    /// <summary><c>misc_dust_big_dust_cloud_frame_07</c>, an installed program frame.</summary>
+    MiscDustBigDustCloudFrame07,
+    /// <summary><c>misc_dust_long_beam_frame_00</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame00,
+    /// <summary><c>misc_dust_long_beam_frame_01</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame01,
+    /// <summary><c>misc_dust_long_beam_frame_02</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame02,
+    /// <summary><c>misc_dust_long_beam_frame_03</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame03,
+    /// <summary><c>misc_dust_long_beam_frame_04</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame04,
+    /// <summary><c>misc_dust_long_beam_frame_05</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame05,
+    /// <summary><c>misc_dust_long_beam_frame_06</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame06,
+    /// <summary><c>misc_dust_long_beam_frame_07</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame07,
+    /// <summary><c>misc_dust_long_beam_frame_08</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame08,
+    /// <summary><c>misc_dust_long_beam_frame_09</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame09,
+    /// <summary><c>misc_dust_long_beam_frame_10</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame10,
+    /// <summary><c>misc_dust_long_beam_frame_11</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame11,
+    /// <summary><c>misc_dust_long_beam_frame_12</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame12,
+    /// <summary><c>misc_dust_long_beam_frame_13</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame13,
+    /// <summary><c>misc_dust_long_beam_frame_14</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame14,
+    /// <summary><c>misc_dust_long_beam_frame_15</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame15,
+    /// <summary><c>misc_dust_long_beam_frame_16</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame16,
+    /// <summary><c>misc_dust_long_beam_frame_17</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame17,
+    /// <summary><c>misc_dust_long_beam_frame_18</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame18,
+    /// <summary><c>misc_dust_long_beam_frame_19</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame19,
+    /// <summary><c>misc_dust_long_beam_frame_20</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame20,
+    /// <summary><c>misc_dust_long_beam_frame_21</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame21,
+    /// <summary><c>misc_dust_long_beam_frame_22</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame22,
+    /// <summary><c>misc_dust_long_beam_frame_23</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame23,
+    /// <summary><c>misc_dust_long_beam_frame_24</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame24,
+    /// <summary><c>misc_dust_long_beam_frame_25</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame25,
+    /// <summary><c>misc_dust_long_beam_frame_26</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame26,
+    /// <summary><c>misc_dust_long_beam_frame_27</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame27,
+    /// <summary><c>misc_dust_long_beam_frame_28</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame28,
+    /// <summary><c>misc_dust_long_beam_frame_29</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame29,
+    /// <summary><c>misc_dust_long_beam_frame_30</c>, an installed program frame.</summary>
+    MiscDustLongBeamFrame30,
+    /// <summary><c>misc_dust_flickering_long_beam_frame_00</c>, an installed program frame.</summary>
+    MiscDustFlickeringLongBeamFrame00,
+    /// <summary><c>misc_dust_flickering_long_beam_frame_01</c>, an installed program frame.</summary>
+    MiscDustFlickeringLongBeamFrame01,
+    /// <summary><c>misc_dust_flickering_long_beam_frame_02</c>, an installed program frame.</summary>
+    MiscDustFlickeringLongBeamFrame02,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_00</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame00,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_01</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame01,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_02</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame02,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_03</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame03,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_04</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame04,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_05</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame05,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_06</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame06,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_07</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame07,
+    /// <summary><c>misc_dust_draygon_breath_bubbles_frame_08</c>, an installed program frame.</summary>
+    MiscDustDraygonBreathBubblesFrame08,
+    /// <summary><c>misc_dust_save_station_electricity_frame_00</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame00,
+    /// <summary><c>misc_dust_save_station_electricity_frame_01</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame01,
+    /// <summary><c>misc_dust_save_station_electricity_frame_02</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame02,
+    /// <summary><c>misc_dust_save_station_electricity_frame_03</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame03,
+    /// <summary><c>misc_dust_save_station_electricity_frame_04</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame04,
+    /// <summary><c>misc_dust_save_station_electricity_frame_05</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame05,
+    /// <summary><c>misc_dust_save_station_electricity_frame_06</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame06,
+    /// <summary><c>misc_dust_save_station_electricity_frame_07</c>, an installed program frame.</summary>
+    MiscDustSaveStationElectricityFrame07,
+    /// <summary><c>misc_dust_expanding_gate_frame_00</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame00,
+    /// <summary><c>misc_dust_expanding_gate_frame_01</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame01,
+    /// <summary><c>misc_dust_expanding_gate_frame_02</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame02,
+    /// <summary><c>misc_dust_expanding_gate_frame_03</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame03,
+    /// <summary><c>misc_dust_expanding_gate_frame_04</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame04,
+    /// <summary><c>misc_dust_expanding_gate_frame_05</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame05,
+    /// <summary><c>misc_dust_expanding_gate_frame_06</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame06,
+    /// <summary><c>misc_dust_expanding_gate_frame_07</c>, an installed program frame.</summary>
+    MiscDustExpandingGateFrame07,
+    /// <summary><c>misc_dust_contracting_gate_frame_00</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame00,
+    /// <summary><c>misc_dust_contracting_gate_frame_01</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame01,
+    /// <summary><c>misc_dust_contracting_gate_frame_02</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame02,
+    /// <summary><c>misc_dust_contracting_gate_frame_03</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame03,
+    /// <summary><c>misc_dust_contracting_gate_frame_04</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame04,
+    /// <summary><c>misc_dust_contracting_gate_frame_05</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame05,
+    /// <summary><c>misc_dust_contracting_gate_frame_06</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame06,
+    /// <summary><c>misc_dust_contracting_gate_frame_07</c>, an installed program frame.</summary>
+    MiscDustContractingGateFrame07,
     /// <summary><c>downward_gate_frame_00</c>, an installed program frame.</summary>
     DownwardGateFrame00,
     /// <summary><c>downward_gate_frame_01</c>, an installed program frame.</summary>

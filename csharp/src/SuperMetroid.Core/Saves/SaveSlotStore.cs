@@ -165,7 +165,7 @@ public sealed class SaveSlotStore
     /// <summary>Whether any slot holds a save.</summary>
     private bool AnySlotValid => slots.Any(slot => slot is not null);
 
-    /// <summary>The marker field no longer holds the decoded image's words.</summary>
+    /// <summary>The completion marker has been rewritten, so it no longer holds what the imported save left in it.</summary>
     private void MarkerRewritten() => importedEarthquakeDelay = null;
 
     /// <summary>A copy of <paramref name="saved"/> as slot <paramref name="slot"/>, sharing no array with it.</summary>

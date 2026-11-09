@@ -1,10 +1,9 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// What the three pose numbers past Samus's authored poses define (<see cref="UnauthoredPoseDefinitions{TPose, TDefinition}"/>).
+/// What the three pose numbers past Samus's authored poses define (<see cref="UnauthoredPoseReads{TPose, TDefinition}"/>).
 /// </summary>
 internal static class SamusUnauthoredPoseDefinitions
 {
@@ -14,7 +13,7 @@ internal static class SamusUnauthoredPoseDefinitions
     /// left, and has the front view's radius; the third faces neither way, places the flare at the muzzle aiming down
     /// facing right, and has a crouch's radius.
     /// </summary>
-    internal static readonly UnauthoredPoseDefinitions<SamusPoseId, SamusUnauthoredPoseDefinition> Poses = new(
+    internal static readonly UnauthoredPoseReads<SamusPoseId, SamusUnauthoredPoseDefinition> Poses = new(
         new Dictionary<SamusPoseId, SamusUnauthoredPoseDefinition>
         {
             [SamusPoseId.AdjacentCodePoseFD] = new(

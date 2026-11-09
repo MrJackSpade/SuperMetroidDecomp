@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TPose">A Samus pose.</typeparam>
 /// <typeparam name="TDefinition">What a pose defines: its facing, aim, radius and shot height.</typeparam>
 [CompatibilityService("Samus's pose numbers past her authored poses read the code stored after the pose definitions as their facing, aim, collision radius and shot height")]
-public sealed class UnauthoredPoseDefinitions<TPose, TDefinition>
+public sealed class UnauthoredPoseReads<TPose, TDefinition>
     where TPose : notnull
     where TDefinition : notnull
 {
@@ -27,7 +27,7 @@ public sealed class UnauthoredPoseDefinitions<TPose, TDefinition>
     /// <summary>Keeps what each pose number past the authored poses defines.</summary>
     /// <param name="definitions">What each such pose defines.</param>
     /// <exception cref="ArgumentException">No pose was given.</exception>
-    public UnauthoredPoseDefinitions(IReadOnlyDictionary<TPose, TDefinition> definitions)
+    public UnauthoredPoseReads(IReadOnlyDictionary<TPose, TDefinition> definitions)
     {
         Ensure.NotNull(definitions);
         if (definitions.Count == 0)

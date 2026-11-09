@@ -19,7 +19,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOrigins.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusUnauthoredPoseDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusUnauthoredPoseDefinition.cs"),
-             new("csharp/src/SuperMetroid.Core/Compatibility/UnauthoredPoseDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Compatibility/UnauthoredPoseReads.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseAim.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusFlareAim.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusTurningAim.cs"),

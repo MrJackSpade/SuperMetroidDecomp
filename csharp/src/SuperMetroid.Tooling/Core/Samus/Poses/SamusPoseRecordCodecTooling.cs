@@ -32,6 +32,15 @@ internal static class SamusPoseRecordCodecTooling
         [SamusPoseId.AdjacentCodePoseFF] = 0x12,
     }.ToFrozenDictionary();
 
+    /// <summary>The facing byte of a pose that faces neither way.</summary>
+    private const byte ForwardFacingByte = 0x00;
+
+    /// <summary>The facing byte of a pose that faces left.</summary>
+    private const byte LeftFacingByte = 0x04;
+
+    /// <summary>The facing byte of a pose that faces right.</summary>
+    private const byte RightFacingByte = 0x08;
+
     /// <summary>The aim byte of a pose that disables shooting.</summary>
     private const int ShootingDisabledByte = 0xff;
 
@@ -50,9 +59,9 @@ internal static class SamusPoseRecordCodecTooling
             ? irregular
             : SamusPoseMetadata.ReadFacingDirection(pose) switch
             {
-                SamusFacingDirection.ForwardOrSpecial => 0x00,
-                SamusFacingDirection.Left => 0x04,
-                SamusFacingDirection.Right => 0x08,
+                SamusFacingDirection.ForwardOrSpecial => ForwardFacingByte,
+                SamusFacingDirection.Left => LeftFacingByte,
+                SamusFacingDirection.Right => RightFacingByte,
                 var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusFacingDirection)} {undefined}."),
             };
 

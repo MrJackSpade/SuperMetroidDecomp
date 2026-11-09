@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// held charge's flare at that direction's muzzle. A turning pose fires nothing and places the flare at its turning
 /// placement. A pose that disables shooting fires nothing, draws no flare, cancels a fired Grapple and lands in the
 /// ordinary facing landing. A pose number past the authored poses
-/// (<see cref="Compatibility.UnauthoredPoseDefinitions{TPose, TDefinition}"/>) fires nothing and places the flare as its
+/// (<see cref="Compatibility.UnauthoredPoseReads{TPose, TDefinition}"/>) fires nothing and places the flare as its
 /// definition says.
 /// </summary>
 internal readonly record struct SamusPoseAim

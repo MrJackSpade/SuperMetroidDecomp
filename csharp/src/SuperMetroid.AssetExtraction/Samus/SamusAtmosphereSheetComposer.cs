@@ -13,10 +13,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusAtmosphereSheetComposer
 {
     /// <summary>The animation frames the diving splash shows.</summary>
-    internal static int DivingSplashFrameCount => SamusAtmosphericAnimations.FrameCount(SamusAtmosphericEffectType.DivingSplash);
+    internal static int DivingSplashFrameCount => SamusParticleAnimations.StepCount(SamusParticleKind.DivingSplash);
 
     /// <summary>The animation frames the bubbles show.</summary>
-    internal static int BubblesFrameCount => SamusAtmosphericAnimations.FrameCount(SamusAtmosphericEffectType.Bubbles);
+    internal static int BubblesFrameCount => SamusParticleAnimations.StepCount(SamusParticleKind.Bubbles);
 
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
@@ -25,11 +25,11 @@ internal static class SamusAtmosphereSheetComposer
             .Concat(Enumerable.Range(0, DivingSplashFrameCount).Select(SamusAtmosphereSheetDefinitions.DivingSplashFrame))
             .Concat(Enumerable.Range(0, BubblesFrameCount).Select(SamusAtmosphereSheetDefinitions.BubblesFrame));
 
-    /// <summary>The atmospheric type whose list the footstep splash draws.</summary>
-    private const int FootstepType = (int)SamusAtmosphericEffectType.FootstepSplash;
+    /// <summary>The cartridge's number of the atmospheric type whose list the footstep splash draws.</summary>
+    private const int FootstepType = 1;
 
-    /// <summary>The atmospheric type whose shared list the lava spray and dust draw.</summary>
-    private const int LavaAndDustType = (int)SamusAtmosphericEffectType.LavaSurfaceDamage;
+    /// <summary>The cartridge's number of the atmospheric type whose shared list the lava spray and dust draw.</summary>
+    private const int LavaAndDustType = 4;
 
     /// <summary>What the atmosphere sheet composes with the body's spritemaps and atmospheric attributes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs) =>

@@ -279,10 +279,11 @@ internal sealed class GameplayActorDrawing
                 }
 
                 // The shared drawing tail begins here for all three routes: ordinary, active grapple,
-                // and grapple teardown. Reverse atmospheric-slot order is therefore
-                // earlier in the sprite list than cannon/body, but later than either applicable
-                // flare. This exact overlap order is visible through transparent pixels.
-                _player.Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
+                // and grapple teardown. Samus's effects animate here, so this is where the waits her breath bubbles
+                // and lava spray keep count one update, and where her particles update and draw: earlier in the sprite
+                // list than cannon/body, but later than either applicable flare.
+                _player.Samus.LiquidPhysics.EffectWaits.Advance();
+                _player.Samus.Presentation.Particles.UpdateAndDraw(
                     _sprites,
                     _room.Camera.PixelPosition,
                     _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,

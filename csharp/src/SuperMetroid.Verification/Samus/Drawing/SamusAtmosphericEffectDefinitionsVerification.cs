@@ -78,7 +78,11 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             "Samus atmospheric definitions: 28 splash selectors, 10 running-contact flags, both 16-byte Crateria policy copies, and all production handoffs pass with source tables forbidden.");
     }
 
-    /// <summary>Invokes the production splash spawner for every movement type and checks grounded-pair versus diving slots.</summary>
+    /// <summary>The kinds of Samus's particles, oldest first.</summary>
+    private static string ParticleKinds(SamusState samus) =>
+        string.Join(",", samus.Presentation.Particles.All.Select(particle => particle.Kind));
+
+    /// <summary>Invokes the production splash spawner for every movement type and checks grounded-pair versus diving particles.</summary>
     private static void VerifyProductionWaterSplashSelection()
     {
         foreach (int movement in SamusMovementTypeNumbers.Named)
@@ -92,16 +96,12 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
             WaterSplashKind expected =
                 SamusAtmosphericEffects.WaterSplashFor(SamusMovementTypeNumbers.Of(movement));
-            AssertEqual(expected == WaterSplashKind.GroundedPair ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.DivingSplash,
-                samus.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
-                $"production water-splash type ${movement:X2}");
-            AssertEqual(expected == WaterSplashKind.GroundedPair ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
-                samus.LiquidPhysics.AtmosphericEffects.Slots[1].Type,
-                $"production second water-splash slot ${movement:X2}");
+            AssertEqual(expected == WaterSplashKind.GroundedPair ? "SurfaceSplash,SurfaceSplash" : "DivingSplash",
+                ParticleKinds(samus), $"production water-splash particles ${movement:X2}");
         }
     }
 
-    /// <summary>Advances each running animation frame to its foot-contact tick and checks emitted atmospheric slots.</summary>
+    /// <summary>Advances each running animation frame to its foot-contact tick and checks the particles emitted.</summary>
     private static void VerifyProductionRunningContacts(
         SamusPoseId pose)
     {
@@ -118,12 +118,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
 
-            SamusAtmosphericEffectType expectedType = SamusAtmosphericEffects.IsRunningFootContact(frame)
-                ? SamusAtmosphericEffectType.FootstepSplash
-                : SamusAtmosphericEffectType.Inactive;
-            AssertEqual(expectedType,
-                samus.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
-                $"production running contact frame {frame}");
+            AssertEqual(SamusAtmosphericEffects.IsRunningFootContact(frame) ? "SurfaceSplash,SurfaceSplash" : "",
+                ParticleKinds(samus), $"production running contact frame {frame}");
         }
     }
 
@@ -149,8 +145,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             SamusPresentation.InitializeAnimation(runner, initialFrame: 2);
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
-            AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
-                runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
+            AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),
                 $"production Crateria running policy ${room:X2}");
 
             var landing = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
@@ -168,8 +163,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 previousMovementType: SamusMovementType.Falling,
                 previousPose: pose,
                 impactYSpeed: new UnsignedSixteenSixteen(1, 1));
-            AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
-                landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+            AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(landing),
                 $"production Crateria landing policy ${room:X2}");
         }
     }

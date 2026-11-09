@@ -168,12 +168,18 @@ internal static class SamusBodyArtworkVerification
         // These two production owners call the same indexed bank-$92 OAM routine as
         // Samus's body, but do not call Samus.Draw. Exercise both rather than inferring
         // their binding from the generic catalog's all-index byte-parity test.
+        static SamusParticles OneParticle(int type, int step)
+        {
+            var particles = new SamusParticles();
+            particles.Add(new SamusParticle(SamusAtmosphericEffectWordCodec.KindNumbered(type)
+                ?? throw new InvalidDataException($"Effect number {type} names no particle."), step,
+                SamusParticleStart.Shown(2), new(128, 128), Offset16<RoomPixels>.Zero));
+            return particles;
+        }
         foreach (byte type in new byte[] { 3, 5 })
         {
-            var nativeEffects = new SamusAtmosphericEffectsState();
-            var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, (SamusAtmosphericEffectType)type, 0, 2, new(128, 128));
-            installedEffects.SetSlot(0, (SamusAtmosphericEffectType)type, 0, 2, new(128, 128));
+            SamusParticles nativeEffects = OneParticle(type, 0);
+            SamusParticles installedEffects = OneParticle(type, 0);
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame, new(0, 0), 128,
@@ -195,19 +201,17 @@ internal static class SamusBodyArtworkVerification
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
                 $"atmospheric type {type} frame {frame} imported the native character, palette row, priority and flips");
-            var nativeEffects = new SamusAtmosphericEffectsState();
-            var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, 2, new(128, 128));
-            installedEffects.SetSlot(0, (SamusAtmosphericEffectType)type, frame, 2, new(128, 128));
+            SamusParticles nativeEffects = OneParticle(type, frame);
+            SamusParticles installedEffects = OneParticle(type, frame);
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 SamusBodySheetFixtures.ForAtmosphere(atmosphere: stock.Atmosphere)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame,
                 Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam) &&
-                nativeEffects.Slots[0].Type == installedEffects.Slots[0].Type &&
-                nativeEffects.Slots[0].AnimationFrame == installedEffects.Slots[0].AnimationFrame &&
-                nativeEffects.Slots[0].AnimationTimer.RawValue == installedEffects.Slots[0].AnimationTimer.RawValue,
+                nativeEffects.All[0].Kind == installedEffects.All[0].Kind &&
+                nativeEffects.All[0].AnimationStep == installedEffects.All[0].AnimationStep &&
+                nativeEffects.All[0].StepUpdatesLeft == installedEffects.All[0].StepUpdatesLeft,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
         }
         AssertTrue(!stock.Atmosphere.Source.TryResolve(2, 0, out _),

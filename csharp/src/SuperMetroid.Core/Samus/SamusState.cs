@@ -132,7 +132,7 @@ public sealed class SamusState
     /// pose initialization intentionally share this object because the game shares
     /// room-FX words across all three phases.
     /// </summary>
-    public SamusLiquidPhysicsState LiquidPhysics { get; } = new();
+    public SamusLiquidPhysicsState LiquidPhysics { get; }
 
     /// <summary>
     /// Stored-shine palette countdown and the special shinespark movement-handler state.
@@ -539,6 +539,7 @@ public sealed class SamusState
         HudSelection = new SamusHudSelection();
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation();
+        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles);
         Kinematics = new SamusKinematicsState();
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.

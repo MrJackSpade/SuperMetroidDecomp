@@ -11,7 +11,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks the atmospheric dust produced by normal and grapple wall jumps.</summary>
 internal static class WallJumpDustVerification
 {
-    /// <summary>Compares facing, liquid suppression, timer, position, and slot preservation with native output.</summary>
+    /// <summary>Compares facing, liquid suppression, timer and position with native output, and checks the dust holds nothing up.</summary>
     internal static void VerifyWallJumpDust()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -31,25 +31,29 @@ internal static class WallJumpDustVerification
             liquid.WaterSurfaceY = medium is 1 or 3 ? 100 : medium == 4 ? 114 : null;
             liquid.LavaAcidSurfaceY = medium == 2 ? 100 : null;
             liquid.LiquidOptions = medium == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
-            liquid.AtmosphericEffects.SetSlot(3, SamusAtmosphericEffectType.FootstepSplash, 2, 7, new(33, 44));
-            liquid.AtmosphericEffects.SetSlot(2, SamusAtmosphericEffectType.FootstepSplash, 1, 9, new(55, 66));
+            var earlier = new SamusParticle(SamusParticleKind.SurfaceSplash, 1, SamusParticleStart.Shown(9), new(55, 66), Offset16<RoomPixels>.Zero);
+            samus.Presentation.Particles.Add(earlier);
             if (grapple) SamusAerialPoseTransitions.ApplyGrappleWallJump(samus);
             else SamusAerialPoseTransitions.ApplyWallJumpTrigger(samus);
 
             bool suppressed = medium is 1 or 2;
-            var dust = liquid.AtmosphericEffects.Slots[3];
+            IReadOnlyList<SamusParticle> particles = samus.Presentation.Particles.All;
             string context = $"wall dust grapple={grapple} right={facingRight} medium={medium}";
-            // These exact four native output words are independently checked by the
+            AssertEqual(suppressed ? 1 : 2, particles.Count, context + " particles");
+            AssertTrue(ReferenceEquals(earlier, particles[0]) && earlier.AnimationStep == 1, context + " leaves the earlier particle");
+            AssertTrue(liquid.EffectWaits.BubbleCanForm && liquid.EffectWaits.SprayCanStart, context + " holds nothing up");
+            if (suppressed)
+                continue;
+            // These exact native outputs are independently checked by the
             // cartridge-byte fixture: GrapplePoseAudit audit.exe ROM wall-jump-dust.
-            AssertEqual(suppressed ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Dust, dust.Type, context + " type");
-            AssertEqual(suppressed ? 2 : 0, dust.AnimationFrame, context + " frame");
-            AssertEqual(suppressed ? 7 : 3, dust.AnimationTimer.RawValue, context + " timer");
-            AssertEqual(suppressed ? 33 : facingRight ? 122 : 134, dust.Position.X, context + " X");
-            AssertEqual(suppressed ? 44 : 114, dust.Position.Y, context + " Y");
-            AssertEqual(SamusAtmosphericEffectType.FootstepSplash, liquid.AtmosphericEffects.Slots[2].Type, context + " preserves other slot's effect");
-            AssertEqual(1, liquid.AtmosphericEffects.Slots[2].AnimationFrame, context + " preserves other slot's frame");
+            SamusParticle dust = particles[1];
+            AssertEqual(SamusParticleKind.Dust, dust.Kind, context + " kind");
+            AssertEqual(0, dust.AnimationStep, context + " frame");
+            AssertEqual(3, dust.StepUpdatesLeft, context + " timer");
+            AssertEqual(facingRight ? 122 : 134, dust.Position.X, context + " X");
+            AssertEqual(114, dust.Position.Y, context + " Y");
         }
-        Console.WriteLine("Wall-jump dust: both launch paths match native facing, liquid boundary, timer and slot-preservation outputs.");
+        Console.WriteLine("Wall-jump dust: both launch paths match native facing, liquid boundary, timer and position outputs.");
     }
 
     /// <summary>Runs the focused wall-jump dust regression.</summary>

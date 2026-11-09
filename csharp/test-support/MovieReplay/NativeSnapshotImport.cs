@@ -244,22 +244,16 @@ internal static class NativeSnapshotImport
                 W(NativeSnapshotMemory.TrailRightXPosition + trail.SlotTableOffset), W(NativeSnapshotMemory.TrailRightYPosition + trail.SlotTableOffset));
         }
 
-        for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
+        // The native places become Samus's particles and the waits her breath bubbles and lava spray keep; an empty
+        // place's leftover timer and position are not state the port keeps.
+        samus.Presentation.Particles.Clear();
+        samus.LiquidPhysics.EffectWaits.Clear();
+        for (int place = 0; place < SamusAtmosphericEffectWordCodec.PlaceCount; place++)
         {
-            ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-            SamusAtmosphericEffectType effectType = SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeType(packed);
-            if (effectType == SamusAtmosphericEffectType.Inactive)
-            {
-                samus.LiquidPhysics.AtmosphericEffects.ClearEffect(index);
-                samus.LiquidPhysics.AtmosphericEffects.Slots[index].AnimationTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.AtmosphericTimer + index * 2));
-                samus.LiquidPhysics.AtmosphericEffects.Slots[index].Position =
-                    new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2));
-                continue;
-            }
-            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, effectType,
-                SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeFrame(packed),
-                W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
-                new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
+            SamusAtmosphericEffectWordCodec.Restore(samus.Presentation.Particles, samus.LiquidPhysics.EffectWaits, place,
+                W(NativeSnapshotMemory.AtmosphericFrameAndType + place * 2),
+                W(NativeSnapshotMemory.AtmosphericTimer + place * 2),
+                new(W(NativeSnapshotMemory.AtmosphericX + place * 2), W(NativeSnapshotMemory.AtmosphericY + place * 2)));
         }
         samus.AnimationFrameBuffer = W(NativeSnapshotMemory.AnimationFrameBuffer);
         samus.LiquidPhysics.LiquidPhysicsType = ClosedEnumWordDecoding.Decode<SamusLiquidMedium>(W(NativeSnapshotMemory.LiquidPhysicsType), "liquid physics type");

@@ -621,7 +621,11 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     if (recordedPhase != typedDoor.Phase)
                         mismatches.Add($"PLM {slotIndex} grey-door phase: native={recordedPhase} at $84:{recordedInstruction:X4} port={typedDoor.Phase}");
                     bool recordedRest = DoorObjectNativeProgramOracle.GreyDoorRestsAt(typedDoor.Variant, recordedInstruction);
-                    if (recordedRest != typedDoor.Resting)
+                    // The cartridge's list moves on to its sleep as it draws the locked look's last image, so the
+                    // recorded sleep also stands for that image's countdown, which the typed cap counts before it rests;
+                    // the countdown and the image drawn are compared below and with the level.
+                    bool holdingLastLockedImage = recordedRest && !typedDoor.Resting && typedDoor.Phase == GreyDoorPhase.Locked;
+                    if (recordedRest != typedDoor.Resting && !holdingLastLockedImage)
                         mismatches.Add($"PLM {slotIndex} grey-door rest: native={recordedRest} port={typedDoor.Resting}");
                     NativeGreyDoorLists greyLists = DoorObjectNativeListAddresses.Grey(typedDoor.Variant);
                     if (typedDoor.Waits != GreyDoorWait.Nothing)

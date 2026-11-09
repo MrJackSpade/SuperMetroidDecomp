@@ -68,8 +68,8 @@ internal static class OperationContractsVerification
 
         // Children that read a subset take that subset, not the parent's record.
         AssertEqual(typeof(PaletteFxConditions),
-            MetadataShape.ParameterTypes(typeof(RoomPaletteFxSystem), "RunFrameBehavior", instance)[1],
-            "palette pre-instructions take only their conditions; the power bomb stays with the step");
+            MetadataShape.ParameterTypes(typeof(RoomPaletteFxSystem), "CheckCondition", instance)[1],
+            "a colour effect's condition takes only the room's conditions; the power bomb stays with the step");
         AssertEqual(typeof(VerticalTerrainProbe),
             MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[3],
             "the vertical terrain scan takes its probe, not the whole vertical move");

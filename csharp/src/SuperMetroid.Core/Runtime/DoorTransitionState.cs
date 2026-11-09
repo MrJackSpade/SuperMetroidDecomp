@@ -192,7 +192,7 @@ internal sealed class DoorTransitionState
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceEffectsAndRandom(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope);
                 // Loading initializes enemy graphics, music, projectiles, animated tiles,
-                // PLMs, FX and backgrounds, and then waits one update at a time until the
+                // room objects, FX and backgrounds, and then waits one update at a time until the
                 // door's scroll finishes. The room constructor performs that setup
                 // atomically; the following updates run the scroll's real coordinate path.
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
@@ -228,10 +228,10 @@ internal sealed class DoorTransitionState
                 runtime.RunBlankGameplayFrame(controllerInput);
                 if (runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress))
                 {
-                    // The room's PLMs run on the scroll's final update, before the frame
-                    // that precedes the destination fade-in. Setup lists can alter visible
+                    // The room's objects run on the scroll's final update, before the frame
+                    // that precedes the destination fade-in. Their setup can alter visible
                     // room state here; deferring them to the first ordinary gameplay frame
-                    // exposes their pre-PLM state.
+                    // exposes the room as it was before they ran.
                     runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
                     runtime.DoorFade.WriteSamusColours(SuperMetroid.Core.Samus.Palettes.SamusShades.DoorCompletionVisor);
                     runtime.RoomObjectPhase.RunDoorTransitionObjectHandler(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
@@ -240,7 +240,7 @@ internal sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.FinishDoorLoading:
-                // The transition waits one update after PLM processing. This continues the
+                // The transition waits one update after the room objects run. This continues the
                 // same update's work, so it aligns X without another random draw.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.RoomLoader.AlignSamusAfterDoorLoading();
@@ -295,7 +295,7 @@ internal sealed class DoorTransitionState
                 runtime.RoomMains.RunAnimatedTilesObjectHandler(runtime.Room.LoadedScope);
                 runtime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Run, runtime.Room.LoadedScope);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
-                // The destination fades in toward the colours its owners show, which enemy instruction lists running
+                // The destination fades in toward the colours its owners show, which enemy scripts running
                 // during the fade change as their typed colour state changes (#1512).
                 if (FadeSteps.Step())
                 {

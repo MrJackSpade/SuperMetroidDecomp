@@ -43,85 +43,85 @@ internal interface IGameplayArtwork
     /// <summary>The installed terrain of every room level; not overridable.</summary>
     InstalledRoomLevelStreams? RoomLevelStreams { get; }
 
-    /// <summary>Room PLM shot block visuals.</summary>
+    /// <summary>Room-object shot block visuals.</summary>
     InstalledRoomObjectShotBlockVisuals? RoomObjectShotBlockVisuals { get; }
 
-    /// <summary>Room PLM grapple block visuals.</summary>
+    /// <summary>Room-object grapple block visuals.</summary>
     InstalledRoomObjectGrappleBlockVisuals? RoomObjectGrappleBlockVisuals { get; }
 
-    /// <summary>Room PLM station visuals.</summary>
+    /// <summary>Room-object station visuals.</summary>
     InstalledRoomObjectStationVisuals? RoomObjectStationVisuals { get; }
 
-    /// <summary>Room PLM blue door visuals.</summary>
+    /// <summary>Room-object blue door visuals.</summary>
     InstalledRoomObjectBlueDoorVisuals? RoomObjectBlueDoorVisuals { get; }
 
-    /// <summary>Room PLM colored door visuals.</summary>
+    /// <summary>Room-object colored door visuals.</summary>
     InstalledRoomObjectColoredDoorVisuals? RoomObjectColoredDoorVisuals { get; }
 
-    /// <summary>Room PLM grey door visuals.</summary>
+    /// <summary>Room-object grey door visuals.</summary>
     InstalledRoomObjectGreyDoorVisuals? RoomObjectGreyDoorVisuals { get; }
 
-    /// <summary>Room PLM eye door visuals.</summary>
+    /// <summary>Room-object eye door visuals.</summary>
     InstalledRoomObjectEyeDoorVisuals? RoomObjectEyeDoorVisuals { get; }
 
-    /// <summary>Room PLM mother brain glass visuals.</summary>
+    /// <summary>Room-object mother brain glass visuals.</summary>
     InstalledMotherBrainGlassFrames? RoomObjectMotherBrainGlassVisuals { get; }
 
-    /// <summary>Room PLM noob tube visuals.</summary>
+    /// <summary>Room-object noob tube visuals.</summary>
     InstalledRoomObjectNoobTubeVisuals? RoomObjectNoobTubeVisuals { get; }
 
-    /// <summary>Room PLM downward gate visuals.</summary>
+    /// <summary>Room-object downward gate visuals.</summary>
     InstalledRoomObjectDownwardGateVisuals? RoomObjectDownwardGateVisuals { get; }
 
-    /// <summary>Room PLM elevator platform visuals.</summary>
+    /// <summary>Room-object elevator platform visuals.</summary>
     InstalledRoomObjectElevatorPlatformVisuals? RoomObjectElevatorPlatformVisuals { get; }
 
-    /// <summary>Room PLM escape gate visuals.</summary>
+    /// <summary>Room-object escape gate visuals.</summary>
     InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; }
 
-    /// <summary>Room PLM bomb torizo hand visuals.</summary>
+    /// <summary>Room-object bomb torizo hand visuals.</summary>
     InstalledRoomObjectBombTorizoHandVisuals? RoomObjectBombTorizoHandVisuals { get; }
 
-    /// <summary>Room PLM draygon cannon visuals.</summary>
+    /// <summary>Room-object draygon cannon visuals.</summary>
     InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; }
 
-    /// <summary>Room PLM chozo statue visuals.</summary>
+    /// <summary>Room-object chozo statue visuals.</summary>
     InstalledRoomObjectChozoStatueVisuals? RoomObjectChozoStatueVisuals { get; }
 
-    /// <summary>Room PLM linked restore visuals.</summary>
+    /// <summary>Room-object linked restore visuals.</summary>
     InstalledRoomObjectLinkedRestoreVisuals? RoomObjectLinkedRestoreVisuals { get; }
 
-    /// <summary>Room PLM tourian access visuals.</summary>
+    /// <summary>Room-object tourian access visuals.</summary>
     RoomObjectTourianAccessVisuals? RoomObjectTourianAccessVisuals { get; }
 
-    /// <summary>Room PLM speed booster visuals.</summary>
+    /// <summary>Room-object speed booster visuals.</summary>
     InstalledRoomObjectSpeedBoosterVisuals? RoomObjectSpeedBoosterVisuals { get; }
 
-    /// <summary>Room PLM maridia elevatube visuals.</summary>
+    /// <summary>Room-object maridia elevatube visuals.</summary>
     InstalledRoomObjectMaridiaElevatubeVisuals? RoomObjectMaridiaElevatubeVisuals { get; }
 
-    /// <summary>Room PLM spore spawn ceiling visuals.</summary>
+    /// <summary>Room-object spore spawn ceiling visuals.</summary>
     InstalledRoomObjectSporeSpawnCeilingVisuals? RoomObjectSporeSpawnCeilingVisuals { get; }
 
-    /// <summary>Room PLM samus eater visuals.</summary>
+    /// <summary>Room-object samus eater visuals.</summary>
     InstalledRoomObjectSamusEaterVisuals? RoomObjectSamusEaterVisuals { get; }
 
-    /// <summary>Room PLM botwoon wall visuals.</summary>
+    /// <summary>Room-object botwoon wall visuals.</summary>
     InstalledRoomObjectBotwoonWallVisuals? RoomObjectBotwoonWallVisuals { get; }
 
-    /// <summary>Room PLM kraid visuals.</summary>
+    /// <summary>Room-object kraid visuals.</summary>
     InstalledRoomObjectKraidVisuals? RoomObjectKraidVisuals { get; }
 
-    /// <summary>Room PLM crocomire visuals.</summary>
+    /// <summary>Room-object crocomire visuals.</summary>
     InstalledRoomObjectCrocomireVisuals? RoomObjectCrocomireVisuals { get; }
 
-    /// <summary>Room PLM mother brain fake death visuals.</summary>
+    /// <summary>Room-object mother brain fake death visuals.</summary>
     InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; }
 
-    /// <summary>Room PLM collectible visuals.</summary>
+    /// <summary>Room-object collectible visuals.</summary>
     InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; }
 
-    /// <summary>Room PLM bombed-reveal, escape-passage, escape-shaft-wall and rescue-wall visuals.</summary>
+    /// <summary>Room-object bombed-reveal, escape-passage, escape-shaft-wall and rescue-wall visuals.</summary>
     InstalledRoomObjectRevealAndWallVisuals? RoomObjectRevealAndWallVisuals { get; }
 
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>

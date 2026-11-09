@@ -14648,6 +14648,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtworkAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/EnemyTileSourceArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtworkAccess.extension(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/AssetExtraction/Enemies/EnemyTileSourceArtworkAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.FrameColouring",
       "kind": "record",
       "scope": "product",
@@ -18207,6 +18239,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/EndingShootingStarParts.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Ending.EndingSpaceBackdropColours",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Ending/EndingSpaceBackdropColours.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -24639,6 +24684,240 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.CrateriaLightningColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/CrateriaLightningColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.CrateriaLightningColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/CrateriaLightningColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.EndingGunshipPaletteColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/EndingGunshipPaletteColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.EndingGunshipPaletteInk",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/EndingGunshipPaletteInk.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.EndingGunshipPaletteInputView",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/EndingGunshipPaletteInputView.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.EndingGunshipPaletteInputView.Channels",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/EndingGunshipPaletteInputView.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.HeatPaletteColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/HeatPaletteColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.HeatPaletteEndpoint",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/HeatPaletteEndpoint.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.HeatPaletteInputView",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/HeatPaletteInputView.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/IPaletteFxColorSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.LoadingPaletteColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.LoadingPaletteColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.LoadingPaletteInputView",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteInputView.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.LoadingPaletteInputView.Channels",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingPaletteInputView.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.LoadingSuitColor",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LoadingSuitColor.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.LogoGlarePaletteColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/LogoGlarePaletteColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.MaridiaEnvironmentalColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/MaridiaEnvironmentalColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.PlanetZebesTextColors",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/PlanetZebesTextColors.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomFxBlendColors",
       "kind": "class",
       "scope": "product",
@@ -24756,6 +25035,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxPresentation",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/RoomPaletteFxPresentation.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxPresentationFormat",
       "kind": "static class",
       "scope": "product",
@@ -24767,6 +25059,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.Artwork.TourianStatueGreyPaint",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/Artwork/TourianStatueGreyPaint.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Fx.Layer3ClearedCellDefinitions",
@@ -24928,6 +25233,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.CrateriaLightningPaletteOwner",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/CrateriaLightningPaletteOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.ExplodingZebesFadePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -24939,6 +25283,45 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.MaridiaEnvironmentalPaletteOwner",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/MaridiaEnvironmentalPaletteOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.NintendoLogoFadePaletteFxColorDefinitions",
@@ -25058,6 +25441,110 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxColorFrames",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxColorFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxColorKey",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxColorKey.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxHeatProgramDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxHeatProgramMechanicsDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PaletteFxHeatProgramMechanicsDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramOwner",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.RedBrinstarGlowPaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -25069,6 +25556,45 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramOwner",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramOwner.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.TitleLogoFadePaletteFxColorDefinitions",
@@ -25188,6 +25714,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.UnusedCinematicFadePaletteFxColorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -25290,6 +25829,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxColorDefinition",
@@ -41845,51 +42397,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Artwork.BossArtworkCatalog",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossArtworkCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Artwork.BossArtworkCatalogAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Artwork/BossArtworkCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Artwork.BossArtworkCatalogAccess.extension(SuperMetroid.Core.Bosses.Artwork.BossArtworkCatalog)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Artwork/BossArtworkCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Artwork.BossSpriteFrameDefinitionsConstants",
@@ -59608,6 +60115,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/CoreAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState)",
       "kind": "class",
       "scope": "test",
@@ -59689,22 +60212,6 @@
     },
     {
       "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Frontend.SuperMetroidGame)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/CoreAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -61667,19 +62174,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyGameplayArtworkParts",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyGameplayArtworkParts.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyInstructionBank",
       "kind": "enum",
       "scope": "tool",
@@ -61912,72 +62406,27 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalogAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/EnemyTileArtworkCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalogAccess.extension(SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalog)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/EnemyTileArtworkCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalogToolingExtensions",
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileSourceArtworkToolingExtensions",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyTileArtworkCatalogToolingExtensions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyTileSourceArtworkToolingExtensions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileArtworkCatalogToolingExtensions.extension(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork)",
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyTileSourceArtworkToolingExtensions.extension(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork)",
       "kind": "class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyTileArtworkCatalogToolingExtensions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyTileSourceArtworkToolingExtensions.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -86960,19 +87409,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingFontAtlas",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingFontAtlas.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingFontAtlasAccess",
       "kind": "static class",
       "scope": "test",
@@ -87116,6 +87552,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingSpaceBackdrops",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingSpaceBackdrops.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingSpriteColouring",
@@ -90126,19 +90575,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroFontAtlas",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroFontAtlas.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationCharacter",
       "kind": "record struct",
       "scope": "product",
@@ -92376,19 +92812,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.WorldMapArtwork",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/WorldMapArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.WorldMapArtworkAccess",
       "kind": "static class",
       "scope": "test",
@@ -92405,7 +92828,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Map.Artwork.WorldMapArtworkAccess.extension(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapArtwork)",
+      "type": "SuperMetroid.Core.Frontend.Map.Artwork.WorldMapArtworkAccess.extension(SuperMetroid.AssetExtraction.Frontend.Map.WorldMapCharacters)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -93212,22 +93635,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Menus.MenuScreenMemory.extension(SuperMetroid.Core.Frontend.Menus.MenuScreen)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Menus/MenuScreenMemory.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Menus.MenuSelectorTiming",
@@ -94741,19 +95148,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleGraphicsPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentationAccess",
       "kind": "static class",
       "scope": "test",
@@ -94770,7 +95164,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentationAccess.extension(SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentation)",
+      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentationAccess.extension(SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -94820,6 +95214,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteDrawing",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDrawing.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -95514,19 +95921,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.CrateriaLightningColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/CrateriaLightningColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.Artwork.CrateriaLightningColorDefinitionsAddressAccess",
       "kind": "static class",
       "scope": "test",
@@ -95543,7 +95937,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.CrateriaLightningColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.CrateriaLightningColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.CrateriaLightningColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.CrateriaLightningColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -95557,19 +95951,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.CrateriaLightningColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/CrateriaLightningColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteColorDefinitionsAddressAccess",
@@ -95588,7 +95969,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.EndingGunshipPaletteColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -95602,58 +95983,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/EndingGunshipPaletteColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteInk",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/EndingGunshipPaletteInk.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteInputView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/EndingGunshipPaletteInputView.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.EndingGunshipPaletteInputView.Channels",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/EndingGunshipPaletteInputView.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.FxOverlayPagePictures",
@@ -95685,7 +96014,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.HeatPaletteColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.HeatPaletteColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -95699,58 +96028,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/HeatPaletteColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteEndpoint",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/HeatPaletteEndpoint.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.HeatPaletteInputView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/HeatPaletteInputView.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/IPaletteFxColorSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteChannelsAccess",
@@ -95769,7 +96046,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteChannelsAccess.extension(SuperMetroid.Core.Fx.Artwork.LoadingPaletteInputView.Channels)",
+      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteChannelsAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.LoadingPaletteInputView.Channels)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -95783,19 +96060,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteColorDefinitionsAddressAccess",
@@ -95814,7 +96078,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.LoadingPaletteColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.LoadingPaletteColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -95828,58 +96092,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteInputView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteInputView.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.LoadingPaletteInputView.Channels",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingPaletteInputView.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.LoadingSuitColor",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/LoadingSuitColor.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.LogoGlarePaletteColorDefinitionsAddressAccess",
@@ -95898,7 +96110,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.LogoGlarePaletteColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.LogoGlarePaletteColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.LogoGlarePaletteColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.LogoGlarePaletteColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -95912,19 +96124,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.LogoGlarePaletteColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/LogoGlarePaletteColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.MaridiaEnvironmentalColorDefinitionsAddressAccess",
@@ -95943,7 +96142,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.MaridiaEnvironmentalColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.MaridiaEnvironmentalColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.MaridiaEnvironmentalColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.MaridiaEnvironmentalColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -95957,19 +96156,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.MaridiaEnvironmentalColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/MaridiaEnvironmentalColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxColorAddressAccess",
@@ -95988,7 +96174,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxColorAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource)",
+      "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxColorAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.IPaletteFxColorSource)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -96004,7 +96190,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxColorAddressAccess.extension(System.Collections.Generic.IReadOnlyDictionary\u003CSuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey, SuperMetroid.Core.Assets.RgbColor\u003E)",
+      "type": "SuperMetroid.Core.Fx.Artwork.PaletteFxColorAddressAccess.extension(System.Collections.Generic.IReadOnlyDictionary\u003CSuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxColorKey, SuperMetroid.Core.Assets.RgbColor\u003E)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -96052,7 +96238,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.PlanetZebesTextColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.PlanetZebesTextColors)",
+      "type": "SuperMetroid.Core.Fx.Artwork.PlanetZebesTextColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.PlanetZebesTextColors)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -96066,19 +96252,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.PlanetZebesTextColors",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/PlanetZebesTextColors.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomFxBlendColorsAccess",
@@ -96184,19 +96357,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/RoomPaletteFxPresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentationToolingExtensions",
       "kind": "static class",
       "scope": "tool",
@@ -96210,7 +96370,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentationToolingExtensions.extension(SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation)",
+      "type": "SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentationToolingExtensions.extension(SuperMetroid.AssetExtraction.Fx.Artwork.RoomPaletteFxPresentation)",
       "kind": "class",
       "scope": "tool",
       "assemblies": [
@@ -96239,7 +96399,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.Artwork.TourianStatueGreyColorDefinitionsAddressAccess.extension(SuperMetroid.Core.Fx.Artwork.TourianStatueGreyPaint)",
+      "type": "SuperMetroid.Core.Fx.Artwork.TourianStatueGreyColorDefinitionsAddressAccess.extension(SuperMetroid.AssetExtraction.Fx.Artwork.TourianStatueGreyPaint)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -96253,19 +96413,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.Artwork.TourianStatueGreyPaint",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/Artwork/TourianStatueGreyPaint.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture",
@@ -97094,17 +97241,17 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningDefinitions",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitionAccess",
@@ -97123,7 +97270,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitionAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97137,32 +97284,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteOwner",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteOwner.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.ExplodingZebesFadePaletteFxColorDefinitionsConstants",
@@ -97274,19 +97395,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
@@ -97303,7 +97411,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97317,19 +97425,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionsConstants",
@@ -97348,7 +97443,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97362,19 +97457,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteOwner",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/MaridiaEnvironmentalPaletteOwner.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.NativePaletteFxPreInstruction",
@@ -97720,32 +97802,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorFrames",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColorFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxColorKey.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess",
       "kind": "static class",
       "scope": "test",
@@ -97826,6 +97882,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
@@ -97843,6 +97931,38 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.OldTourianEscapeAccentPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -97907,70 +98027,6 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.ZebesExplosionLayerFadePaletteFxColorDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxColorLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98260,19 +98316,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxHeatProgramDefinition",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxHeatProgramDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxHeatProgramDefinitionConstants",
       "kind": "static class",
       "scope": "test",
@@ -98287,19 +98330,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxHeatProgramMechanicsDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PaletteFxHeatProgramMechanicsDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxHeatPrograms",
@@ -98437,6 +98467,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxObjectAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxObjectAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxObjectAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.TorizoBellyPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
@@ -98502,22 +98548,6 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxObjectAccess.extension(SuperMetroid.Core.Areas.Tourian.TourianStatueAnimatedTileProgramDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxObjectAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxObjectAccess.extension(SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98642,6 +98672,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxProgramLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxProgramLayoutAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
@@ -98674,7 +98736,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.CrateriaLightningPaletteFxColorDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxHeatProgramDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98690,7 +98752,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.MaridiaEnvironmentalPaletteFxColorDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98707,38 +98769,6 @@
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PaletteFxHeatAnimationScriptDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxProgramLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PaletteFxHeatProgramDefinition)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Fx/PaletteFx/PaletteFxProgramLayoutAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PaletteFxProgramLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98848,19 +98878,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
@@ -98877,7 +98894,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98891,19 +98908,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionsConstants",
@@ -98922,7 +98926,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitionsConstants.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.PlanetZebesTextPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -98936,32 +98940,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PlanetZebesTextPaletteFxProgramOwner",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PlanetZebesTextPaletteFxProgramOwner.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/PostCreditsIconGlarePaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitionsConstants",
@@ -98980,7 +98958,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitionsConstants.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -99012,7 +98990,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitionsLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitionsLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.PostCreditsIconGlarePaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -99092,19 +99070,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionAccess",
       "kind": "static class",
       "scope": "test",
@@ -99121,7 +99086,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionAccess.extension(SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -99135,19 +99100,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionsConstants",
@@ -99166,7 +99118,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitionsConstants.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -99180,19 +99132,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.SamusLoadingSuitPaletteFxProgramOwner",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/SamusLoadingSuitPaletteFxProgramOwner.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.PaletteFx.ShownPaletteFxRecord",
@@ -99625,19 +99564,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/TourianStatueGreyPaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -99654,7 +99580,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsConstants.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -99686,7 +99612,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitionsLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -100112,19 +100038,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/PaletteFx/ZebesExplosionGunshipPaletteFxColorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -100141,7 +100054,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -100173,7 +100086,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitionsLayoutAccess.extension(SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions)",
+      "type": "SuperMetroid.Core.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitionsLayoutAccess.extension(SuperMetroid.AssetExtraction.Fx.PaletteFx.ZebesExplosionGunshipPaletteFxColorDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -143480,27 +143393,27 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.TestSupport.VerificationOracles.EnemyPresentationNativeDrawAccess",
+      "type": "SuperMetroid.TestSupport.VerificationOracles.EnemySpritemapNativeDrawAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationOracles/EnemyPresentationNativeDrawAccess.cs"
+        "csharp/test-support/VerificationOracles/EnemySpritemapNativeDrawAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.TestSupport.VerificationOracles.EnemyPresentationNativeDrawAccess.extension(SuperMetroid.Core.World.RoomEnemySystem)",
+      "type": "SuperMetroid.TestSupport.VerificationOracles.EnemySpritemapNativeDrawAccess.extension(SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalog)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationOracles/EnemyPresentationNativeDrawAccess.cs"
+        "csharp/test-support/VerificationOracles/EnemySpritemapNativeDrawAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"

@@ -580,12 +580,12 @@ internal static class RoomObjectPopulationVerification
         const int width = 16;
         const int height = 16;
 
-        SeedObjectProgramWords(bus, 0xb8ae, RoomObjectNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry);
+        SeedObjectProgramWords(bus, 0xb8ae, RoomObjectNativeListAddresses.SpeedBoosterEscapeList);
         // Poison the old cartridge path: all three real handoffs must now use
         // the compiled list even when a synthetic address space disagrees.
         for (int index = 0; index < RoomObjectNativeListAddresses.SpeedBoosterEscapeWordCount; index++)
         {
-            SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeListAddresses.SpeedBoosterEscapeEntries[0].Entry + index * 2)),
+            SeedObjectProgramWords(bus, unchecked((ushort)(RoomObjectNativeListAddresses.SpeedBoosterEscapeList + index * 2)),
                 0xdead);
         }
         SeedRoomObjectPopulation(bus, population,

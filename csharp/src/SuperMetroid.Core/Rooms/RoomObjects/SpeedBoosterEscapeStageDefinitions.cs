@@ -16,7 +16,7 @@ internal static class SpeedBoosterEscapeStageDefinitions
 
     /// <summary>
     /// The escape's rises in the order they trigger; the escape is over once Samus has passed the last
-    /// (<see cref="SpeedBoosterEscapeObjectState.IsEscaped"/>).
+    /// (<see cref="SpeedBoosterEscapeObject.IsEscaped"/>).
     /// </summary>
     internal static readonly ImmutableArray<SpeedBoosterEscapeStageDefinition> Stages =
         [EasternCheckpoint, CentralCheckpoint, WesternCheckpoint];

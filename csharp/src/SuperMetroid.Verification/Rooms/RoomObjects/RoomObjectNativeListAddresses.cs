@@ -27,13 +27,8 @@ internal static class RoomObjectNativeListAddresses
         new NativeProgramEntry<RoomObjectSharedProgram>(RoomObjectSharedProgram.Sleep, 0xdb42),
     ];
 
-    /// <summary>The Speed Booster lavaquake's list (<c>InstList_PLM_SpeedBoosterEscape</c>, $84:B88A), one phase per sleep.</summary>
-    internal static IReadOnlyList<NativeProgramEntry<SpeedBoosterEscapeProgram>> SpeedBoosterEscapeEntries { get; } =
-    [
-        new NativeProgramEntry<SpeedBoosterEscapeProgram>(SpeedBoosterEscapeProgram.WaitForSpeedBooster, 0xb88a),
-        new NativeProgramEntry<SpeedBoosterEscapeProgram>(SpeedBoosterEscapeProgram.WaitForSamusLeft, 0xb890),
-        new NativeProgramEntry<SpeedBoosterEscapeProgram>(SpeedBoosterEscapeProgram.AdvanceLava, 0xb896),
-    ];
+    /// <summary>The Speed Booster lavaquake's list (<c>InstList_PLM_SpeedBoosterEscape</c>, $84:B88A), one wait per sleep.</summary>
+    internal const ushort SpeedBoosterEscapeList = 0xb88a;
 
     /// <summary>The Speed Booster blocks' lists ($84:C928 and $84:C951..C9F8).</summary>
     /// <summary>Every scripted room program's native entry.</summary>

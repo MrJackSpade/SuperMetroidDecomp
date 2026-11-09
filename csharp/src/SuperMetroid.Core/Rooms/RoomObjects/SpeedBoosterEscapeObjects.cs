@@ -2,17 +2,10 @@
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The Speed Booster escape PLMs: rising lava/acid FX and the earthquake the escape triggers.</summary>
+/// <summary>The Speed Booster escape: its setup and what its lavaquake does to the lava, the earthquake and the events.</summary>
 [RoomLifetime]
-internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
+internal sealed class SpeedBoosterEscapeObjects
 {
-    /// <summary>Registers the SpeedBoosterEscape family, which has no step of its own: its slot takes the shared path.</summary>
-    public void AddObjectFamilies(RoomObjectFamilyTable table)
-    {
-        Ensure.NotNull(table);
-        table.Add(RoomObjectFamily.SpeedBoosterEscape, static (_, _) => RoomObjectStepOutcome.Shared);
-    }
-
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The game's event flags.</summary>
@@ -22,7 +15,7 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter? _earthquake;
 
-    /// <summary>Binds the escape PLM behavior to its room-level state owners.</summary>
+    /// <summary>Binds the escape to its room-level state owners.</summary>
     internal SpeedBoosterEscapeObjects(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomFxMotion? roomFx, IRoomEarthquakeWriter? earthquake)
     {
         _samus = samus;
@@ -32,11 +25,12 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
     }
 
     /// <summary>
-    /// Sets up the Speed Booster escape PLM. Event 21 suppresses this actor on subsequent room loads; an
-    /// unset event starts the escape's program, before its first lava rise.
+    /// Sets up the Speed Booster escape. Once the lavaquake has been outrun the escape is gone on later room loads;
+    /// otherwise its lavaquake starts, before its first lava rise.
     /// </summary>
     internal void SetupSpeedBoosterEscapeSlot(RoomObjectSlot slot)
     {
+        Ensure.NotNull(slot);
         if (_events is null || _roomFx is null || _earthquake is null)
         {
             throw new InvalidOperationException(
@@ -46,53 +40,17 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
         if (_events.Has(StoryEvent.OutranSpeedBoosterLavaquake))
             slot.Clear();
         else
-        {
-            slot.StartAnimation(new SpeedBoosterEscapeObjectAnimation());
-            slot.Family = new SpeedBoosterEscapeObjectState();
-        }
+            slot.Become(new SpeedBoosterEscapeObject(this));
     }
 
-    /// <summary>Dispatches the exact callback pointer installed by the original game list.</summary>
-    internal void RunSpeedBoosterEscapeFrameBehavior(RoomObjectSlot slot, SpeedBoosterEscapeFrameBehavior frameBehavior)
+    /// <summary>
+    /// Starts the lavaquake when Samus has the Speed Booster and the lava has a target, and returns true; otherwise
+    /// returns false, having stopped the lava and the earthquake when she lacks it.
+    /// </summary>
+    internal bool TryStartLavaquake()
     {
-        IRoomFxMotion fx = _roomFx
-            ?? throw new InvalidOperationException(
-                "Resident Speed Booster escape PLM lost its room-FX owner.");
-        IRoomSamus samus = _samus?.Current
-            ?? throw new InvalidOperationException(
-                "Resident Speed Booster escape PLM has no live Samus owner.");
-
-        switch (frameBehavior)
-        {
-            case SpeedBoosterEscapeFrameBehavior.WaitForSpeedBooster:
-                RunWaitForSpeedBooster(slot, samus, fx);
-                return;
-
-            case SpeedBoosterEscapeFrameBehavior.WaitForSamusLeft:
-                if (samus.Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
-                    return;
-                fx.SetLiquidMotion(timer: 1);
-                WakeAtNextInstruction(slot);
-                return;
-
-            case SpeedBoosterEscapeFrameBehavior.AdvanceLava:
-                RunAdvanceLava(slot, samus, fx);
-                return;
-
-            case SpeedBoosterEscapeFrameBehavior.None:
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined Speed Booster escape pre-instruction {frameBehavior}.");
-        }
-    }
-
-    /// <summary>Starts the lavaquake when Speed Booster is owned, or removes a disabled escape PLM.</summary>
-    private void RunWaitForSpeedBooster(
-        RoomObjectSlot slot,
-        IRoomSamus samus,
-        IRoomFxMotion fx)
-    {
-        if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
+        IRoomFxMotion fx = RoomFx();
+        if (!LiveSamus().CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
             fx.RemoveLiquidTarget();
             fx.SetLiquidMotion(
@@ -100,55 +58,55 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
                 timer: 0);
             (_earthquake ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
-            slot.Clear();
-            return;
+            return false;
         }
 
-        // A liquid with no target deletes the actor.
+        // A liquid with no target ends the lavaquake.
         if (fx.TargetSurface is null)
-        {
-            slot.Clear();
-            return;
-        }
+            return false;
 
         fx.SetLiquidMotion(
             yVelocity: SpeedBoosterEscapeDefinitions.InitialLavaquakeVelocity);
-        WakeAtNextInstruction(slot);
+        return true;
     }
 
-    /// <summary>Advances one lavaquake stage when Samus reaches its X threshold and records escape on completion.</summary>
-    private void RunAdvanceLava(
-        RoomObjectSlot slot,
-        IRoomSamus samus,
-        IRoomFxMotion fx)
+    /// <summary>Starts the lava moving once Samus has run far enough left, and returns whether she has.</summary>
+    internal bool TryStartLavaMoving()
     {
-        SpeedBoosterEscapeObjectState escape = slot.Family as SpeedBoosterEscapeObjectState
-            ?? throw new InvalidOperationException("The Speed Booster escape advanced its lava without its escape state.");
-        if (escape.IsEscaped)
-        {
-            (_events ?? throw new InvalidOperationException(
-                "Speed Booster escape PLM lost its event writer.")).Set(
-                    StoryEvent.OutranSpeedBoosterLavaquake);
-            return;
-        }
-
-        // The rise waits while Samus remains right of its threshold.
-        SpeedBoosterEscapeStageDefinition stage = escape.NextRise;
-        if (stage.TargetSamusX < samus.Position.X.Whole)
-            return;
-
-        // A lava with no surface lies below every line, so the stage gives it its highest line.
-        fx.SetLiquidMotion(
-            baseYPosition: stage.MaximumFxY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole)
-                ? stage.MaximumFxY
-                : null,
-            yVelocity: stage.YVelocity);
-        escape.PassRise();
+        IRoomFxMotion fx = RoomFx();
+        if (LiveSamus().Position.X.Whole > SpeedBoosterEscapeDefinitions.StartFxMotionSamusX)
+            return false;
+        fx.SetLiquidMotion(timer: 1);
+        return true;
     }
 
-    /// <summary>
-    /// Both wake steps set frame hold one and advance past the sleeping step. The ordinary handler then consumes the
-    /// next install/sleep pair in the same frame, preserving the coroutine cadence.
-    /// </summary>
-    private static void WakeAtNextInstruction(RoomObjectSlot slot) => slot.WakePastSleep();
+    /// <summary>Raises the lava to <paramref name="rise"/> once Samus reaches its line, and returns whether she has.</summary>
+    internal bool TryRaiseLava(SpeedBoosterEscapeStageDefinition rise)
+    {
+        IRoomFxMotion fx = RoomFx();
+        // The rise waits while Samus remains right of its threshold.
+        if (rise.TargetSamusX < LiveSamus().Position.X.Whole)
+            return false;
+
+        // A lava with no surface lies below every line, so the rise gives it its highest line.
+        fx.SetLiquidMotion(
+            baseYPosition: rise.MaximumFxY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole)
+                ? rise.MaximumFxY
+                : null,
+            yVelocity: rise.YVelocity);
+        return true;
+    }
+
+    /// <summary>Marks the lavaquake outrun.</summary>
+    internal void MarkEscaped() =>
+        (_events ?? throw new InvalidOperationException(
+            "Speed Booster escape PLM lost its event writer.")).Set(StoryEvent.OutranSpeedBoosterLavaquake);
+
+    /// <summary>The room's lava.</summary>
+    private IRoomFxMotion RoomFx() => _roomFx
+        ?? throw new InvalidOperationException("Resident Speed Booster escape PLM lost its room-FX owner.");
+
+    /// <summary>The live Samus.</summary>
+    private IRoomSamus LiveSamus() => _samus?.Current
+        ?? throw new InvalidOperationException("Resident Speed Booster escape PLM has no live Samus owner.");
 }

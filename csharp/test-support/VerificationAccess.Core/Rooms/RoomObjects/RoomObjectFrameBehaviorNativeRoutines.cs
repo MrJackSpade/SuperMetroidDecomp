@@ -57,9 +57,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
         };
         foreach (GreyDoorFrameBehavior routine in Enum.GetValues<GreyDoorFrameBehavior>().Where(routine => routine != GreyDoorFrameBehavior.None))
             routines.Add(GreyDoorFrameBehaviors.Of(routine), DoorsNativeWords.GreyDoorFrameBehaviors.Word(routine));
-        foreach (SpeedBoosterEscapeFrameBehavior routine in Enum.GetValues<SpeedBoosterEscapeFrameBehavior>()
-                     .Where(routine => routine != SpeedBoosterEscapeFrameBehavior.None))
-            routines.Add(SpeedBoosterEscapeFrameBehaviors.Of(routine), RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Word(routine));
         return routines;
     }
 }

@@ -37,30 +37,24 @@ internal static class RoomObjectProgramsVerification
         Console.WriteLine($"  Shared PLM programs: {steps} typed steps match bank $84.");
     }
 
-    /// <summary>The lavaquake program equals its native list; each install names its phase's pre-instruction.</summary>
+    /// <summary>
+    /// The lavaquake's native list does what <see cref="SpeedBoosterEscapeObject"/> does (#1554): three waits in order,
+    /// each installed and slept on until it wakes the next, the last never waking.
+    /// </summary>
     internal static void VerifySpeedBoosterEscapePrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SpeedBoosterEscapeObjectProgramDefinitions.Programs,
-            SpeedBoosterEscapeEntries, draw => throw new InvalidOperationException($"The lavaquake program never draws; got {draw}."),
-            (IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterEscapeFrameBehavior cue, out int length) =>
-            {
-                bool installs = InstructionAt<RoomObjectInstruction>(cartridge, cursor) == RoomObjectInstruction.InstallFrameBehavior;
-                cue = installs
-                    ? RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Decode(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "lavaquake pre-instruction")
-                    : default;
-                length = 4;
-                return installs;
-            }, "Speed Booster lavaquake");
-        // A wake steps over the sleep that closes each phase, onto the next phase's list.
-        for (int phase = 0; phase < SpeedBoosterEscapeEntries.Count; phase++)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        SpeedBoosterEscapePhase[] waits =
+            [SpeedBoosterEscapePhase.WaitingForSpeedBooster, SpeedBoosterEscapePhase.WaitingForSamusLeft, SpeedBoosterEscapePhase.AdvancingLava];
+        for (int index = 0; index < waits.Length; index++)
         {
-            (SpeedBoosterEscapeProgram program, ushort entry) = SpeedBoosterEscapeEntries[phase];
-            SpeedBoosterEscapeProgram? expected = phase + 1 < SpeedBoosterEscapeEntries.Count ? SpeedBoosterEscapeEntries[phase + 1].Program : null;
-            if (expected is { } next)
-                AssertEqual(unchecked((ushort)(entry + 6)), SpeedBoosterEscapeEntries[phase + 1].Entry, $"lavaquake {next} follows {program}'s sleep");
-            AssertEqual(expected, SpeedBoosterEscapePhases.PhaseAfter(program), $"lavaquake phase after {program}");
+            int cursor = SpeedBoosterEscapeList + index * 6;
+            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionAt<RoomObjectInstruction>(cartridge, cursor), $"lavaquake wait {index} is installed");
+            AssertEqual(waits[index], RoomObjectFrameBehaviorNativeWords.SpeedBoosterEscape.Decode(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)),
+                "lavaquake wait"), $"lavaquake wait {index} is the typed object's");
+            AssertEqual(RoomObjectInstruction.Sleep, InstructionAt<RoomObjectInstruction>(cartridge, cursor + 4), $"lavaquake wait {index} sleeps until it wakes the next");
         }
-        Console.WriteLine($"  Speed Booster lavaquake program: {steps} typed steps match bank $84.");
+        Console.WriteLine($"  Speed Booster lavaquake list: {waits.Length} waits match bank $84.");
     }
 
     /// <summary>The block-reaction programs equal their native lists; the restore instruction draws the saved block.</summary>

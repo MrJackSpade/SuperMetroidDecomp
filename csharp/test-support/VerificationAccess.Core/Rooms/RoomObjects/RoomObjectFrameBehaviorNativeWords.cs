@@ -25,12 +25,11 @@ internal static class RoomObjectFrameBehaviorNativeWords
         [NoobTubeObjectFrameBehavior.Inactive] = 0x86d0,
     });
 
-    /// <summary>The bank-$84 routine word naming each <see cref="SpeedBoosterEscapeFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<SpeedBoosterEscapeFrameBehavior> SpeedBoosterEscape = new(new Dictionary<SpeedBoosterEscapeFrameBehavior, ushort>
+    /// <summary>The bank-$84 routine word of each wait of the lavaquake (<see cref="SpeedBoosterEscapePhase"/>).</summary>
+    internal static readonly NativeWordIdentities<SpeedBoosterEscapePhase> SpeedBoosterEscape = new(new Dictionary<SpeedBoosterEscapePhase, ushort>
     {
-        [SpeedBoosterEscapeFrameBehavior.None] = 0x0000,
-        [SpeedBoosterEscapeFrameBehavior.WaitForSpeedBooster] = 0xb7ef,
-        [SpeedBoosterEscapeFrameBehavior.WaitForSamusLeft] = 0xb82a,
-        [SpeedBoosterEscapeFrameBehavior.AdvanceLava] = 0xb846,
+        [SpeedBoosterEscapePhase.WaitingForSpeedBooster] = 0xb7ef,
+        [SpeedBoosterEscapePhase.WaitingForSamusLeft] = 0xb82a,
+        [SpeedBoosterEscapePhase.AdvancingLava] = 0xb846,
     });
 }

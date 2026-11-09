@@ -20,7 +20,4 @@ internal enum RoomObjectFamily
 
     /// <summary>One component of a mirrored eye-door assembly.</summary>
     EyeDoor,
-
-    /// <summary>The Speed Booster escape's lavaquake controller.</summary>
-    SpeedBoosterEscape,
 }

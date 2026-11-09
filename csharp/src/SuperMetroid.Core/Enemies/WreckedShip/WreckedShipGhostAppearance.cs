@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// <summary>A Wrecked Ship ghost appearance's colours and spawn position.</summary>
 public static class WreckedShipGhostAppearance
 {
+    /// <summary>The sixteen colours the Wrecked Ship ghosts' fades move toward as they materialize, colour zero first.</summary>
+    public static IReadOnlyList<RgbColor> Colours => OwnColours;
+
     /// <summary>One of the sixteen colours the Wrecked Ship ghosts' fades move toward as they materialize.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the sixteen colours.</exception>
     public static RgbColor Colour(int index) =>

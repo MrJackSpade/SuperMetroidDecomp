@@ -26,7 +26,8 @@ came from the hardware is incidental representation or a presentation quirk, and
   through generic keys. The sound services are generic over the library (`SoundAcceptanceClock<TLibrary, TSound>`):
   Audio's composition roots pass `SoundEffectLibraries.InQueueOrder`, the order each request check serves the
   libraries, and the library that reports a music load, and the clock finds a library by equality. The layer declares
-  no library count and never reads an identity's value.
+  no library count and never reads an identity's value. The one exception is the game's colour, which the colour
+  values count on the fade scale (`RgbColor`, `FadeLevelColour`, from Assets, which does not depend on the layer).
 
 ## What qualifies
 
@@ -130,13 +131,18 @@ extends the room's filled places, and on the update after the retreat they are t
 step makes them ignore Samus and her weapons. Evidence: the retreat spawns the two door-family enemies, whose
 instruction lists start with the intangibility instruction.
 
-`WreckedShipGhostFade` (Enemies, #1512, #1544) is the Wrecked Ship ghost's own colour value rather than a service of this module, because its colours are the ghost's and the import pre-colours its shades by running it: its brightening raises all three channels of each colour in one addition, so a channel passing full carries into the next, and its fades step all sixteen of the ghost's colours, colour zero too, which no picture draws; when each ends decides when the ghost's AI moves on. Its documentation states the behaviour, the phases that consult it and the evidence.
+The colour values whose step-wise changes gameplay reads back, `WreckedShipGhostFade` and `KraidEyeGlow` (#1552), are
+values of this module, owned directly by the entity whose colours they are (the ghost's state, Kraid's colours) and
+replaced by each step's result. They count their colours on the game's fade scale, so the layer uses the Assets
+module's plain colour and fade-scale types (`RgbColor`, `FadeLevelColour`) and nothing else of it. The import
+pre-colours the ghost's shades by running the same value along the ghost's one path, and the ghost names each step's
+shade from the effect that last changed its colours and the steps it took (`WreckedShipGhostFadeShade`, Enemies).
 
 The game's colours are plain colours (`RgbColor`, #1544). Every fade, flash, glow, ramp and pre-coloured faded shade is authored animation on the game's fade scale (`FadeLevelColour`, thirty-two levels a channel): it computes its steps on those levels exactly as the game's level arithmetic does and shows the plain colour of the level it reaches, so every colour between equals the game's step and every colour shown lies on the scale. That is presentation, not a compatibility service. Gameplay reads a step-wise colour change back only in these values, which own those changes:
 
 | Value | Gameplay behaviour reproduced | Consulted |
 | --- | --- | --- |
-| `WreckedShipGhostFade` (Enemies) | the ghost's brightening and fades move its colours a level at a time, as above; when each ends decides when its AI moves on | every update of the ghost's brightening, materializing and vanishing phases |
+| `WreckedShipGhostFade`, with `WreckedShipGhostFadeStep` (#1552, was in Enemies) | the ghost's brightening raises every colour whose red is below full a level in each channel in one addition, so a channel passing full carries into the next and blue's carry is lost, and its fades step every channel of all sixteen of its colours a level toward the target, colour zero too, which no picture draws; how many steps each takes and when each ends, on the first step that changes nothing, decide when its AI moves on; evidence: the original brightening and fade routines for the ghost; the Wrecked Ship ghost replays | every update of the ghost's brightening, materializing and vanishing phases, darkened by its initialization; a value the ghost's state owns, and the import runs it to pre-colour the ghost's shades |
 | `KraidEyeGlow` (#1552, was in Bosses) | Kraid's eyes glow up a level an update to full and fade back a level an update, a fading channel at none wrapping to full, toward his health band's eye colours; when the glow peaks and when the eyes show the band's again times his roar; evidence: the original glow and fade routines step and test the eye colours' channels and wrap a channel decremented from none; the Kraid replays | every update of his eye glow and its fade, the AI functions his head's instructions run after a body hit, and set by his health colour updates; a value his colours (`KraidColours`) own, holding each eye on the fade scale |
 | `MorphBallEyeBeamState.Color` (Enemies) | the Morph Ball eye's beam darkens a level a channel an update and is removed on the update its green is found at none, so its lifetime follows its brightness; evidence: the original beam fade tests the colour's green before darkening it | every update of the beam's fade, before the beam's cone is updated |
 

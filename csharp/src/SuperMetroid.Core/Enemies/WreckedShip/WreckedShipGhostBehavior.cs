@@ -66,14 +66,14 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // the 280-frame appearance delay expires. The ghost's fade is that already-settled
         // value, so darken both; otherwise the first white ramp would begin from the
         // graphics-set palette and carry between channels.
-        state.Fade.Darken();
+        state.Fade = WreckedShipGhostFade.Dark;
         ShowFade(slot, state);
         slot.SetSpeciesState(state);
     }
 
     /// <summary>Shows the ghost in the shade its fading colours are in (#1512).</summary>
     private static void ShowFade(RoomEnemySlot slot, WreckedShipGhostEnemyState state) =>
-        slot.Shading = PictureShading.Shaded(state.Fade.Shade);
+        slot.Shading = PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade));
 
     /// <summary>Runs the Wrecked Ship ghost's function dispatch.</summary>
     private static void RunWreckedShipGhostMain(
@@ -237,13 +237,15 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         // The brightening gates only on red and does not saturate the others: a full green or blue carries into the
         // next channel, as the fade value reproduces.
-        int colorsChanged = state.Fade.Brighten();
+        WreckedShipGhostFadeStep step = state.Fade.Brightened();
+        state.Fade = step.Next;
+        int colorsChanged = step.Changes;
         ShowFade(slot, state);
         if (colorsChanged != 0)
             return;
 
         state.Function = WreckedShipGhostAiFunction.FadingToGhostPalette;
-        state.Fade.BeginMaterializing();
+        state.Fade = state.Fade.Materializing(WreckedShipGhostAppearance.Colours);
     }
 
     /// <summary>Fades to the ghost palette, including the simultaneous flicker and per-component fade.</summary>
@@ -292,7 +294,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
         state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
-        state.Fade.BeginVanishing();
+        state.Fade = state.Fade.Vanishing();
     }
 
     /// <summary>Finishes whitening, hides, and restarts the 120-frame delay.</summary>
@@ -343,7 +345,9 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        int componentsChanged = state.Fade.StepTowardTarget();
+        WreckedShipGhostFadeStep step = state.Fade.SteppedTowardTarget();
+        state.Fade = step.Next;
+        int componentsChanged = step.Changes;
         ShowFade(slot, state);
         return componentsChanged;
     }

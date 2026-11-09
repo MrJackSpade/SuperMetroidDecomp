@@ -200,8 +200,8 @@ internal static class LookupStream2Verification
             for (int shift = 0; shift < 15; shift += 5)
                 if (31 - (tick - 1) > (native[color] >> shift & 31)) expectedChanges++;
             AssertEqual(expectedChanges, fade(slot, state), "Native component-change count preserves fade completion");
-            AssertEqual(PictureShading.Shaded(state.Fade.Shade), slot.Shading, "The ghost shows the shade of its fade's current step");
-            RgbColor[] installed = installedSteps[state.Fade.Shade];
+            AssertEqual(PictureShading.Shaded(WreckedShipGhostFadeShade.Of(state.Fade)), slot.Shading, "The ghost shows the shade of its fade's current step");
+            RgbColor[] installed = installedSteps[WreckedShipGhostFadeShade.Of(state.Fade)];
             for (int color = 0; color < native.Length; color++)
             {
                 int expected = 0;

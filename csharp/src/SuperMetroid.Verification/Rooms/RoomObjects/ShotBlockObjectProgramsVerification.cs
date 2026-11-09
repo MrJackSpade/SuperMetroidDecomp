@@ -1,3 +1,6 @@
+using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.Core;
@@ -308,27 +311,10 @@ internal static class ShotBlockObjectProgramsVerification
             } while (true);
             native.Add(pointer, runs.ToArray());
         }
-        var stock = InstalledRoomObjectShotBlockVisuals.Stock();
-        var loaded = RoomObjectShotBlockVisualFiles.Create(native.Select(pair => new RoomObjectVisualRunEntry(ShotId(pair.Key), pair.Value)));
-        string identity = SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomObjectShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value));
-        AssertEqual(identity, stock.ContentIdentity, "shot-block stock preserves original native content identity");
-        AssertEqual(identity, loaded.ContentIdentity, "shot-block imported stock preserves identity");
-        foreach (var pair in native)
-        for (int run = 0; run < pair.Value.Length; run++)
-        for (int word = 0; word < pair.Value[run].Length; word++)
-        {
-            AssertEqual(pair.Value[run][word], stock.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), run, word), "shot-block calculated native stock word");
-            AssertEqual(pair.Value[run][word], loaded.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), run, word), "shot-block imported native stock word");
-        }
-        foreach (var catalog in new[] {stock, loaded})
-        foreach (var pair in native)
-        {
-            foreach (int invalid in new[] {int.MinValue,-1,pair.Value.Length,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), invalid, 0), "shot-block visual run bounds");
-            foreach (int invalid in new[] {int.MinValue,-1,pair.Value[0].Length,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<ShotBlockObjectDraws.Draw>(pair.Key), 0, invalid), "shot-block visual word bounds");
-        }
-        AssertThrows<InvalidDataException>(() => RoomObjectShotBlockVisualFiles.Create(native.Skip(1).Select(pair => new RoomObjectVisualRunEntry(ShotId(pair.Key), pair.Value))), "shot-block imported stock still requires complete coverage");
+        LookupEscapeGateStockFrame[] frames = [.. pointers.Select(pointer => new LookupEscapeGateStockFrame(pointer, ShotId(pointer)))];
+        InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
+        AssertPicturedAsNative(rom, stock.Images, RoomObjectShotBlockVisualFiles.Family, frames, native.Values.Sum(runs => runs.Sum(run => run.Length)));
+        AssertImportAndRejections(rom, stock.Images, RoomObjectShotBlockVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectShotBlockVisualDirectory);
     }
 
     /// <summary>The artwork identity of the shot-block draw the cartridge stores at <paramref name="pointer"/>.</summary>
@@ -340,15 +326,8 @@ internal static class ShotBlockObjectProgramsVerification
 )
     {
         InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
-        RoomObjectVisualRunEntry[] entries = RoomObjectShotBlockVisualFiles.All
-            .Select(list => new RoomObjectVisualRunEntry(RoomObjectShotBlockVisualFiles.VisualId(list.Draw),
-                list.Runs.Span
-                    .SelectToArray(run => run.Blocks.Span
-                        .SelectToArray(terrain => terrain.Appearance))
-                    ))
-            .ToArray();
         AssertEqual(RoomBlockAppearance.Of(0x053),
-            stock.GetAppearance(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
+            stock.Image(ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0)).At(Offset16<RoomBlocks>.Zero),
             "stock visual catalog retains the native first break frame");
 
         const int width = 8;
@@ -374,10 +353,6 @@ internal static class ShotBlockObjectProgramsVerification
             "stock first break frame has its native physical level word");
         AssertEqual(RoomBlockAppearance.Of(0x053), native.Immediate,
             "stock draw reaches the immediate tilemap upload");
-
-        AssertThrows<InvalidDataException>(
-            () => RoomObjectShotBlockVisualFiles.Create(entries.Skip(1)),
-            "visual catalog rejects missing compiled draw lists");
     }
 
     /// <summary>Checks the installed stock art and that a corrupt installed visual file fails loudly where it is read.</summary>
@@ -388,8 +363,8 @@ internal static class ShotBlockObjectProgramsVerification
         RoomObjectShotBlockVisualFilesConstants.ValidateStock(
             installation.RoomObjectShotBlockVisualDirectory);
         AssertEqual(RoomBlockAppearance.Of(0x053),
-            installation.LoadRoomObjectShotBlockVisuals().GetAppearance(
-                ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0), 0, 0),
+            installation.LoadRoomObjectShotBlockVisuals().Image(
+                ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, 0)).At(Offset16<RoomBlocks>.Zero),
             "installed stock shot-block frame matches native visual block");
 
         string stockPath = Path.Combine(installation.RoomObjectShotBlockVisualDirectory,

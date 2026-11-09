@@ -130,9 +130,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var compiled })
         {
+            RoomObjectFrameImage shotBlock = Installed(ShotBlockVisuals, "shot-block").Image(draw);
             for (int run = 0; run < compiled.RunCount; run++)
                 for (int block = 0; block < compiled.BlocksPerRun; block++)
-                    DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.BlockAt(run, block), Installed(ShotBlockVisuals, "shot-block").GetAppearance(draw, run, block));
+                    DrawImageCell(level, draw, origin, shotBlock, new Offset16<RoomBlocks>(compiled.Vertical ? 0 : block, compiled.Vertical ? block : run), compiled.BlockAt(run, block).Collision);
             return;
         }
         if (draw == SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw)
@@ -336,14 +337,14 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             if (CollectibleObjectDraws.LiesUnderOwnPicture(draw))
                 DrawTerrainAt(level, draw, origin, collectible);
             else
-                DrawTerrainAt(level, draw, origin, collectible, Installed(CollectibleVisuals, "collectible").GetAppearance(draw));
+                DrawImageCell(level, draw, origin, Installed(CollectibleVisuals, "collectible").Image(draw), Offset16<RoomBlocks>.Zero, collectible.Collision);
             return;
         }
         if (GrappleBlockObjectDraws.TryGet(draw, out var grapple))
         {
             // All five draws are a single block at the PLM origin. The terrain retains Grapple/air collision
             // independently of art.
-            DrawTerrainAt(level, draw, origin, grapple.Terrain, Installed(GrappleBlockVisuals, "Grapple-block").GetAppearance(draw));
+            DrawImageCell(level, draw, origin, Installed(GrappleBlockVisuals, "Grapple-block").Image(draw), Offset16<RoomBlocks>.Zero, grapple.Terrain.Collision);
             return;
         }
 

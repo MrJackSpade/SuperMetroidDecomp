@@ -46,18 +46,8 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectCollectibleVisuals"/>.</summary>
     extension(InstalledRoomObjectCollectibleVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectCollectibleVisuals), content =>
-        {
-            Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[1];
-            foreach (var frame in RoomObjectCollectibleVisualFiles.Editable.OrderBy(frame => frame.Id, StringComparer.Ordinal))
-            {
-                content.AppendName("frame", frame.Id);
-                content.Append("runs", 1);
-                buffer[0] = visuals.GetAppearance(RoomObjectDraw.Of(frame.Draw));
-                content.AppendAppearances("blocks", buffer);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectCollectibleVisuals), visuals.Images, RoomObjectCollectibleVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectColoredDoorVisuals"/>.</summary>
@@ -84,18 +74,8 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectGrappleBlockVisuals"/>.</summary>
     extension(InstalledRoomObjectGrappleBlockVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectGrappleBlockVisuals), content =>
-        {
-            Span<RoomBlockAppearance> block = stackalloc RoomBlockAppearance[1];
-            foreach (var draw in RoomObjectGrappleBlockVisualFiles.All.OrderBy(draw => RoomObjectGrappleBlockVisualFiles.VisualId(draw.Frame), StringComparer.Ordinal))
-            {
-                content.AppendName("frame", RoomObjectGrappleBlockVisualFiles.VisualId(draw.Frame));
-                content.Append("runs", 1);
-                block[0] = visuals.GetAppearance(RoomObjectDraw.Of(draw.Frame));
-                content.AppendAppearances("blocks", block);
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectGrappleBlockVisuals), visuals.Images, RoomObjectGrappleBlockVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectGreyDoorVisuals"/>.</summary>
@@ -122,22 +102,8 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectShotBlockVisuals"/>.</summary>
     extension(InstalledRoomObjectShotBlockVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectShotBlockVisuals), content =>
-        {
-            Span<RoomBlockAppearance> row = stackalloc RoomBlockAppearance[2];
-            foreach (var draw in RoomObjectShotBlockVisualFiles.Calculated.OrderBy(RoomObjectShotBlockVisualFiles.VisualId, StringComparer.Ordinal))
-            {
-                content.AppendName("frame", RoomObjectShotBlockVisualFiles.VisualId(draw));
-                content.Append("runs", draw.RunCount);
-                for (int run = 0; run < draw.RunCount; run++)
-                {
-                    for (int block = 0; block < draw.BlocksPerRun; block++)
-                        row[block] = visuals.GetAppearance(RoomObjectDraw.Of(draw), run, block);
-                    content.AppendAppearances("blocks", row[..draw.BlocksPerRun]);
-                }
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectShotBlockVisuals), visuals.Images, RoomObjectShotBlockVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectStationVisuals"/>.</summary>

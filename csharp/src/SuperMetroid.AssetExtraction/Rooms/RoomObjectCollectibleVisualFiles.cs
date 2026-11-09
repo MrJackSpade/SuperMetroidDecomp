@@ -12,97 +12,38 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefini
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Installs named collectible block art while checking all 24 native draw records and the eight block-pair selectors
-/// against compiled physical definitions, and names each frame. The installed file holds the 16 editable frames: the
-/// eight block-pair frames lie under the item's own picture (#1538), so nothing they show is seen and they are not edited.
+/// The installed pictures of the collectibles' frames (#1557), and the published names that key them. The installed file
+/// holds the 16 frames whose picture is seen: the eight block-pair frames lie under the item's own picture (#1538) and
+/// write only their terrain, which the import checks against the cartridge with the block pairs' selectors.
 /// </summary>
 public static class RoomObjectCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the sixteen editable collectible frames.</summary>
     public const string VisualFileName = "collectibles.json";
-    /// <summary>Stock provenance manifest filename containing the format, source-cartridge identity, and visual-file digest.</summary>
-    public const string ManifestFileName = "manifest.json";
+    /// <summary>The collectibles as the import pictures them: every installed frame's geometry and published name.</summary>
+    internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
+        RoomObjectFrameImageFiles.DrawFamily(VisualFileName, "Collectible", Frames, draw => VisualId(RoomObjectDraw.FrameOf<Draw>(draw, "collectible")));
+
     /// <summary>
-    /// Schema revision required by stock collectible visuals and their manifest: revision 2 drops the eight block-pair
-    /// frames, which lie under the item's own picture (#1538).
+    /// Checks the block pairs' frame selectors and the frames lying under the item's own picture against the cartridge,
+    /// then pictures every installed frame from the cartridge's draw lists and writes the installed file (#1557).
     /// </summary>
-    private const int FormatVersion = 2;
-
-    /// <summary>Reads and writes collectible documents with stable camel-case JSON names.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        WriteIndented = true,
-        Converters = { new JsonStringEnumConverter() },
-    };
-
-    /// <summary>Verifies the native collectible selectors/draw lists and creates a new stock visual JSON plus provenance manifest.</summary>
-    /// <param name="bus">Validated supported-cartridge address space used only for extraction-time bank-$84 comparisons.</param>
-    /// <param name="directory">Destination directory; files must not already exist.</param>
-    /// <param name="sourceCartridgeSha256">SHA-256 identity recorded in the stock manifest.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
-    /// <exception cref="ArgumentException">A path or cartridge identity is blank.</exception>
-    /// <exception cref="InvalidDataException">Native selectors, draw geometry, or block differ from the compiled definitions.</exception>
-    public static void Extract(ISnesAddressSpace bus, string directory,
-        string sourceCartridgeSha256)
+    /// <param name="bus">The cartridge, whose selectors and draw lists are checked against the frames the game draws.</param>
+    /// <param name="directory">The installed directory, created if absent; the file must not already exist.</param>
+    /// <param name="sourceCartridgeSha256">The cartridge's identity, recorded in the file.</param>
+    /// <exception cref="InvalidDataException">A selector, a draw list's geometry or a block pair's terrain differs from what the game draws.</exception>
+    public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         Ensure.NotNull(bus);
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
-        Directory.CreateDirectory(directory);
-        RoomObjectVisualBlockEntry[] entries = ReadAndVerifyNative(bus);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new VisualDocument(FormatVersion, entries), JsonOptions);
-        using (var output = new FileStream(Path.Combine(directory, VisualFileName),
-                   FileMode.CreateNew, FileAccess.Write))
-            output.Write(json);
-        using var manifest = new FileStream(Path.Combine(directory, ManifestFileName),
-            FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new VisualManifest(FormatVersion, sourceCartridgeSha256), JsonOptions);
+        VerifyBlockPairs(bus);
+        RoomObjectFrameImageFiles.Extract(bus, directory, sourceCartridgeSha256, Family);
     }
 
-    /// <summary>Validates the installed collectible manifest's provenance and loads the installed collectible JSON as the player left it, without cartridge access.</summary>
-    /// <param name="directory">Installed family directory containing the version-two collectible JSON and its manifest.</param>
-    /// <returns>The immutable collectible visual catalog.</returns>
-    /// <exception cref="ArgumentException"><paramref name="directory"/> is blank.</exception>
-    /// <exception cref="InvalidDataException">The manifest provenance or the installed JSON is invalid.</exception>
-    public static InstalledRoomObjectCollectibleVisuals Load(
-        string directory)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        string manifestPath = Path.Combine(directory, ManifestFileName);
-        VisualManifest manifest = ReadJson<VisualManifest>(manifestPath);
-        if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException(
-                $"Collectible visual manifest {manifestPath} is incompatible.");
-        string path = Path.Combine(directory, VisualFileName);
-        return CreateCatalog(ReadJson<VisualDocument>(path), path);
-    }
-
-    /// <summary>Validates all sixteen editable one-cell frames and builds the visuals from every frame's picture as installed.</summary>
-    /// <param name="entries">Exactly one appearance for each editable collectible frame identity.</param>
-    /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
-    /// <exception cref="InvalidDataException">An entry is invalid, names a block-pair frame, repeats an identity, or leaves an editable frame uninstalled.</exception>
-    internal static InstalledRoomObjectCollectibleVisuals Create(IEnumerable<RoomObjectVisualBlockEntry> entries)
-    {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<Draw, RoomBlockAppearance>();
-        foreach (RoomObjectVisualBlockEntry entry in entries)
-        {
-            if (entry is null || !TryGetById(entry.Id, out var frame))
-                throw new InvalidDataException(
-                    "Collectible visuals changed a compiled frame identity.");
-            if (!selected.TryAdd(frame.Draw, entry.Appearance))
-                throw new InvalidDataException($"Collectible visuals repeat frame {entry.Id}.");
-        }
-        if (selected.Count != Editable.Count())
-            throw new InvalidDataException("Collectible visuals do not cover all editable frames.");
-        return new(selected);
-    }
+    /// <summary>Loads the installed collectible pictures as the player left them, without the cartridge.</summary>
+    /// <param name="directory">The installed directory.</param>
+    /// <exception cref="InvalidDataException">The file's format or source is not this importer's, or a frame's picture is missing or misshapen.</exception>
+    public static InstalledRoomObjectCollectibleVisuals Load(string directory) =>
+        new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>
     /// The artwork identifier of a draw: the installed file's name for an editable frame, and for a block-pair frame, which
@@ -128,19 +69,6 @@ public static class RoomObjectCollectibleVisualFiles
         _ => "power-bomb",
     };
 
-    /// <summary>Resolves an exact editable artwork identifier to its compiled collectible draw frame.</summary>
-    internal static bool TryGetById(string id, out RoomObjectCollectibleDrawFrame frame)
-    {
-        foreach (var candidate in Editable)
-        {
-            if (!string.Equals(candidate.Id, id, StringComparison.Ordinal)) continue;
-            frame = candidate;
-            return true;
-        }
-        frame = default;
-        return false;
-    }
-
     /// <summary>Whether the installed file holds <paramref name="draw"/>: every frame but a block pair's, which lies under the item's own picture (#1538).</summary>
     internal static bool IsEditable(Draw draw) => draw.Group != DrawGroup.OwnPicture;
 
@@ -164,11 +92,17 @@ public static class RoomObjectCollectibleVisualFiles
         }
     }
 
+    /// <summary>Every installed frame's one-cell draw list, built from the terrain the game writes.</summary>
+    internal static IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> Frames =>
+        Editable.Select(frame => RoomObjectDrawListExport.SingleRun(RoomObjectDraw.Of(frame.Draw), RoomObjectRunDirection.Horizontal, [frame.Terrain]));
+
     /// <summary>
-    /// Checks the eight selectors of the frames each block pair's collectible writes (<see cref="CollectibleBlockPairs"/>)
-    /// and all 24 one-cell native draws before extracting appearance.
+    /// Checks the eight selectors of the frames each block pair's collectible writes (<see cref="CollectibleBlockPairs"/>),
+    /// and that each frame lying under the item's own picture is one horizontal cell writing the terrain the game writes
+    /// there, appearance included, since the game shows that terrain as it is.
     /// </summary>
-    private static RoomObjectVisualBlockEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    /// <exception cref="InvalidDataException">A selector or a block pair's frame differs from the cartridge.</exception>
+    private static void VerifyBlockPairs(ISnesAddressSpace bus)
     {
         for (int pair = 0; pair < CollectibleBlockPairs.Count; pair++)
         for (int animation = 0; animation < CollectiblePicture.Frames; animation++)
@@ -183,9 +117,7 @@ public static class RoomObjectCollectibleVisualFiles
                 throw new InvalidDataException(
                     $"Collectible block pair selector $84:{table + pair * 2:X4} differs from the cartridge.");
         }
-
-        var entries = new List<RoomObjectVisualBlockEntry>();
-        foreach (RoomObjectCollectibleDrawFrame frame in All)
+        foreach (RoomObjectCollectibleDrawFrame frame in All.Where(frame => !IsEditable(frame.Draw)))
         {
             int address = RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(frame.Draw));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
@@ -193,47 +125,6 @@ public static class RoomObjectCollectibleVisualFiles
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
-            if (IsEditable(frame.Draw))
-                entries.Add(new RoomObjectVisualBlockEntry(frame.Id, frame.Terrain.Appearance));
-        }
-        return entries.ToArray();
-    }
-
-    /// <summary>Validates document version and entries, attaching the source path to any catalog error.</summary>
-    private static InstalledRoomObjectCollectibleVisuals CreateCatalog(
-        VisualDocument document, string path)
-    {
-        if (document.Version != FormatVersion || document.Entries is null)
-            throw new InvalidDataException(
-                $"Collectible visuals {path} have an incompatible format.");
-        try { return Create(document.Entries); }
-        catch (InvalidDataException error)
-        {
-            throw new InvalidDataException(
-                $"Invalid collectible visuals {path}: {error.Message}", error);
         }
     }
-
-    /// <summary>Reads a collectible document from an installed JSON path.</summary>
-    private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
-
-    /// <summary>Deserializes a collectible document and identifies malformed or empty content by path.</summary>
-    private static T ReadJson<T>(byte[] bytes, string path)
-    {
-        try
-        {
-            return JsonSerializer.Deserialize<T>(bytes, JsonOptions)
-                ?? throw new InvalidDataException($"Collectible JSON {path} is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid collectible JSON {path}.", error);
-        }
-    }
-
-    /// <summary>Records the supported cartridge revision and digest of the stock visual JSON.</summary>
-    private sealed record VisualManifest(int Version, string SourceCartridgeSha256);
-    /// <summary>Stores a versioned, complete set of named collectible visual references.</summary>
-    private sealed record VisualDocument(int Version,
-        RoomObjectVisualBlockEntry[] Entries);
 }

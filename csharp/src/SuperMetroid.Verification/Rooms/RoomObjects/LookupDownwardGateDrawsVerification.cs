@@ -49,10 +49,7 @@ internal static class LookupDownwardGateDrawsVerification
                 }
             }
             foreach (string invalid in new[] { "column-frame-6", "column-frame-00", "Blue-left-trigger", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectDownwardGateVisualFiles.TryGetByVisualId(invalid, out var missing), "Gate ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Gate missing ID output");
-            }
+                AssertTrue(!RoomObjectDownwardGateVisualFiles.Family.Ids.Values.Contains(invalid, StringComparer.Ordinal), "Gate ID domain");
         }
         int cells = 0;
         for (int index = 0; index < pointers.Length; index++)
@@ -62,8 +59,8 @@ internal static class LookupDownwardGateDrawsVerification
             RoomObjectDownwardGateVisualFiles.TryGet(NativeObjectDraws.At<DownwardGateDraw>(pointer), out var dto);
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Gate export order");
             AssertEqual(ids[index], RoomObjectDownwardGateVisualFiles.VisualId(NativeObjectDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");
-            AssertTrue(RoomObjectDownwardGateVisualFiles.TryGetByVisualId(ids[index], out var byId), "Gate ID ownership");
-            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Gate reverse ID mapping");
+            RoomObjectDraw byId = RoomObjectDownwardGateVisualFiles.Family.Ids.Single(pair => pair.Value == ids[index]).Key;
+            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId), "Gate reverse ID mapping");
             int cursor = pointer, run = 0;
             while (true)
             {

@@ -70,23 +70,8 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectDownwardGateVisuals"/>.</summary>
     extension(InstalledRoomObjectDownwardGateVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectDownwardGateVisuals), content =>
-        {
-            Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[5];
-            foreach (var frame in RoomObjectDownwardGateVisualFiles.All.OrderBy(item => RoomObjectDownwardGateVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                DownwardGateObjectDraws.TryDescribe(frame.Draw, out var draw);
-                content.AppendName("frame", RoomObjectDownwardGateVisualFiles.VisualId(frame.Draw));
-                content.Append("runs", draw.RunCount);
-                for (int run = 0; run < draw.RunCount; run++)
-                {
-                    int count = draw.BlockCount(run);
-                    for (int cell = 0; cell < count; cell++) buffer[cell] = visuals.GetAppearance(frame.Draw, run, cell);
-                    content.AppendAppearances("blocks", buffer[..count]);
-                }
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectDownwardGateVisuals), visuals.Images, RoomObjectDownwardGateVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectEyeDoorVisuals"/>.</summary>
@@ -158,23 +143,8 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectStationVisuals"/>.</summary>
     extension(InstalledRoomObjectStationVisuals visuals)
     {
-        /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
-        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectStationVisuals), content =>
-        {
-            Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[2];
-            foreach (var frame in RoomObjectStationVisualFiles.All.OrderBy(item => RoomObjectStationVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-            {
-                var shape = RoomObjectStationVisualFiles.Describe(frame.Draw);
-                content.AppendName("frame", RoomObjectStationVisualFiles.VisualId(frame.Draw));
-                content.Append("runs", shape.RunCount);
-                for (int run = 0; run < shape.RunCount; run++)
-                {
-                    int count = shape.BlockCount(run);
-                    for (int cell = 0; cell < count; cell++) buffer[cell] = visuals.GetAppearance(frame.Draw, run, cell);
-                    content.AppendAppearances("blocks", buffer[..count]);
-                }
-            }
-        });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectStationVisuals), visuals.Images, RoomObjectStationVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectKraidVisuals"/>.</summary>
@@ -295,24 +265,7 @@ internal static class RoomObjectContentIdentity
     /// <summary>The installed content identity of a <see cref="RoomObjectElevatorPlatformVisualCatalog"/>.</summary>
     extension(RoomObjectElevatorPlatformVisualCatalog visuals)
     {
-        /// <summary>Hashes each frame's selected appearances run by run, in visual-identity order.</summary>
-        public string ContentIdentity =>
-            SelectedPresentationHash.Create(nameof(RoomObjectElevatorPlatformVisualCatalog), content =>
-            {
-                var buffer = new RoomBlockAppearance[4];
-                foreach (var frame in RoomObjectElevatorPlatformVisualFiles.DrawLists.OrderBy(item => RoomObjectElevatorPlatformVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
-                {
-                    ElevatorPlatformDraws.TryDescribe(frame.Draw, out var shape);
-                    content.AppendName("frame", RoomObjectElevatorPlatformVisualFiles.VisualId(frame.Draw));
-                    content.Append("runs", shape.RunCount);
-                    for (int run = 0; run < shape.RunCount; run++)
-                    {
-                        int count = shape.BlockCount(run);
-                        for (int cell = 0; cell < count; cell++)
-                            buffer[cell] = visuals.GetAppearance(frame.Draw, run, cell);
-                        content.AppendAppearances("blocks", buffer.AsSpan(0, count));
-                    }
-                }
-            });
+        /// <summary>Hashes every frame's picture, in published-name order.</summary>
+        public string ContentIdentity => FrameImagesIdentity(nameof(RoomObjectElevatorPlatformVisualCatalog), visuals.Images, RoomObjectElevatorPlatformVisualFiles.Family);
     }
 }

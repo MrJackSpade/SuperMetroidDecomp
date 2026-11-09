@@ -29,16 +29,13 @@ internal static class LookupStationVisualIdsVerification
             var entry = expected[index];
             AssertEqual(entry.Pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Station original export order");
             AssertEqual(entry.Id, RoomObjectStationVisualFiles.VisualId(NativeObjectDraws.At<StationDraw>(entry.Pointer)), "Station original published ID");
-            AssertTrue(RoomObjectStationVisualFiles.TryGetByVisualId(entry.Id, out var resolved), "Station original reverse identity");
-            AssertEqual(RoomObjectDrawAddressCodec.Of(exported[index].Draw), RoomObjectDrawAddressCodec.Of(resolved.Draw), "Station reverse identity selects the complete original draw");
+            RoomObjectDraw resolved = RoomObjectStationVisualFiles.Family.Ids.Single(pair => pair.Value == entry.Id).Key;
+            AssertEqual(RoomObjectDrawAddressCodec.Of(exported[index].Draw), RoomObjectDrawAddressCodec.Of(resolved), "Station reverse identity selects the complete original draw");
             foreach (string invalid in new[] { entry.Id.ToUpperInvariant(), " " + entry.Id, entry.Id + " " })
-            {
-                AssertTrue(!RoomObjectStationVisualFiles.TryGetByVisualId(invalid, out var missing), "Station IDs remain ordinal and exact");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Station rejected ID output");
-            }
+                AssertTrue(!RoomObjectStationVisualFiles.Family.Ids.Values.Contains(invalid, StringComparer.Ordinal), "Station IDs remain ordinal and exact");
         }
         foreach (string invalid in new[] { "", "map-frame-3", "energy-frame--1", "missile-frame-01", "save-active-c" })
-            AssertTrue(!RoomObjectStationVisualFiles.TryGetByVisualId(invalid, out _), "Station unsupported named frame");
+            AssertTrue(!RoomObjectStationVisualFiles.Family.Ids.Values.Contains(invalid, StringComparer.Ordinal), "Station unsupported named frame");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!expected.Any(entry => entry.Pointer == raw))
                 AssertThrows<InvalidDataException>(() => RoomObjectStationVisualFiles.VisualId(NativeObjectDraws.At<StationDraw>((ushort)raw)), "Station full unsupported pointer domain");

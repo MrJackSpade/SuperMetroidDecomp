@@ -276,44 +276,26 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (StationObjectDraws.TryDescribe(draw, out var station))
         {
+            RoomObjectFrameImage stationImage = Installed(StationVisuals, "station").Image(draw);
             for (int run = 0; run < station.RunCount; run++)
-            {
-                Position16<RoomBlocks> stationRun = origin + station.Start(run);
                 for (int cell = 0; cell < station.BlockCount(run); cell++)
-                {
-                    RoomTerrainBlock physical = station.BlockAt(run, cell);
-                    RoomBlockAppearance visual = Installed(StationVisuals, "station").GetAppearance(draw, run, cell);
-                    DrawTerrainAt(level, draw, stationRun + new Offset16<RoomBlocks>(cell, 0), physical, visual);
-                }
-            }
+                    DrawImageCell(level, draw, origin, stationImage, station.Start(run) + new Offset16<RoomBlocks>(cell, 0), station.BlockAt(run, cell).Collision);
             return;
         }
         if (ElevatorPlatformDraws.TryDescribe(draw, out var elevator))
         {
+            RoomObjectFrameImage platform = Installed(ElevatorPlatformVisuals, "elevator-platform").Image(draw);
             for (int run = 0; run < elevator.RunCount; run++)
-            {
-                Position16<RoomBlocks> strip = origin + elevator.Start(run);
                 for (int cell = 0; cell < elevator.BlockCount(run); cell++)
-                {
-                    RoomTerrainBlock physical = elevator.BlockAt(run, cell);
-                    RoomBlockAppearance visual = Installed(ElevatorPlatformVisuals, "elevator-platform").GetAppearance(draw, run, cell);
-                    DrawTerrainAt(level, draw, strip + new Offset16<RoomBlocks>(cell, 0), physical, visual);
-                }
-            }
+                    DrawImageCell(level, draw, origin, platform, elevator.Start(run) + new Offset16<RoomBlocks>(cell, 0), elevator.BlockAt(run, cell).Collision);
             return;
         }
         if (DownwardGateObjectDraws.TryDescribe(draw, out var gate))
         {
+            RoomObjectFrameImage gatePicture = Installed(DownwardGateVisuals, "downward gate").Image(draw);
             for (int run = 0; run < gate.RunCount; run++)
-            {
-                Position16<RoomBlocks> gateRun = origin + gate.Start(run);
                 for (int word = 0; word < gate.BlockCount(run); word++)
-                {
-                    RoomTerrainBlock physical = gate.BlockAt(run, word);
-                    RoomBlockAppearance visual = Installed(DownwardGateVisuals, "downward gate").GetAppearance(draw, run, word);
-                    DrawTerrainAt(level, draw, gateRun + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), physical, visual);
-                }
-            }
+                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), gate.BlockAt(run, word).Collision);
             return;
         }
         if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))

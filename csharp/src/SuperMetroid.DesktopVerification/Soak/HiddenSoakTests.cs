@@ -63,7 +63,7 @@ internal static class HiddenSoakTests
                     double late = (clock.Elapsed.TotalSeconds - due) * 1000;
                     if (late > 250) throw new InvalidOperationException($"Soak host stalled {late:F1}ms; not silently rebasing evidence.");
                     latenessMs[tick] = late;
-                    bool isPaused = game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+                    bool isPaused = game.GameState is SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused;
                     Check(paused ? isPaused : game.GameState == SuperMetroidGameState.MainGameplay, "soak left requested scene");
                     long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
                     long began = Stopwatch.GetTimestamp();

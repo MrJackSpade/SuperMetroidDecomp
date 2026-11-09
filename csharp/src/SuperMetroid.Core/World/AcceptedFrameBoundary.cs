@@ -82,7 +82,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// Monotonic host sequence advanced only after a complete state-eight gameplay owner
+    /// Monotonic host sequence advanced only after a complete main-gameplay owner
     /// pass has published its per-frame audio requests.
     /// </summary>
     /// <remarks>

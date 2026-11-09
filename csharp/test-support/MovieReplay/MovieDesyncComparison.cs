@@ -131,7 +131,7 @@ internal static class MovieDesyncComparison
 
         Check("Game state", GameStateNumberCodec.Encode(game.GameState), MovieDesyncMemory.GameState);
         bool doorTransition = game.GameState is SuperMetroidGameState.HitDoorBlock or
-            SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB;
+            SuperMetroidGameState.BeginningDoorTransition or SuperMetroidGameState.DoorTransition;
         if (!doorTransition)
             Check("RNG", game.DispatcherRandomNumber, MovieDesyncMemory.Random);
 

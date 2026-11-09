@@ -30,11 +30,11 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.BeginPauseFade(0);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);
-        session.GameState = SuperMetroidGameState.PausedA;
+        session.GameState = SuperMetroidGameState.PauseScreenFadeIn;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedA"/>.</summary>
-    internal void DispatchPausedA(ControllerButton controllerInput)
+    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PauseScreenFadeIn"/>.</summary>
+    internal void DispatchPauseScreenFadeIn(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.AdvanceScreenFadeIn();
@@ -42,11 +42,11 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);
         if (session.PauseBrightness == PauseFadeTiming.FullyLit)
-            session.GameState = SuperMetroidGameState.PausedB;
+            session.GameState = SuperMetroidGameState.Paused;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedB"/>.</summary>
-    internal void DispatchPausedB(ControllerButton controllerInput)
+    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Paused"/>.</summary>
+    internal void DispatchPaused(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
@@ -68,23 +68,23 @@ internal sealed class PauseGamePhases(FrontendSession session)
         if (unpauseRequested)
         {
             session.BeginPauseFade(PauseFadeTiming.FullyLit);
-            session.GameState = SuperMetroidGameState.UnpausingA;
+            session.GameState = SuperMetroidGameState.PauseScreenFadeOut;
         }
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingA"/>.</summary>
-    internal void DispatchUnpausingA(ControllerButton controllerInput)
+    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PauseScreenFadeOut"/>.</summary>
+    internal void DispatchPauseScreenFadeOut(ControllerButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
         session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.ShortCounter, PauseAnimationPhase.FadingOut);
         session.display.PublishMenu(session.ActivePauseMenu);
         if (session.StepScreenFadeOut() == 0)
-            session.GameState = SuperMetroidGameState.UnpausingB;
+            session.GameState = SuperMetroidGameState.RestoringGameplayFromPause;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingB"/>.</summary>
-    internal void DispatchUnpausingB(ControllerButton controllerInput)
+    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.RestoringGameplayFromPause"/>.</summary>
+    internal void DispatchRestoringGameplayFromPause(ControllerButton controllerInput)
     {
         // Unpausing restores gameplay's layers, beam tiles, colours,
         // hooks, per-line effects and animated tiles on a blank display. Pause graphics live in a

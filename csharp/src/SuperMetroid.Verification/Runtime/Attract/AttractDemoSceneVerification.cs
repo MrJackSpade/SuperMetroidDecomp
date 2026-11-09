@@ -61,7 +61,7 @@ internal static class AttractDemoSceneVerification
         input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
         if (input.Script.Held != ControllerWordCodec.ToJoypadWord(ControllerButton.Left) || input.Script.FrameHold.RawValue != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
-        input.Step(SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
+        input.Step(SuperMetroidGameState.RoutingAfterDemo, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
         input = new ReferenceAttractInput(bus, expected);
@@ -147,7 +147,7 @@ internal static class AttractDemoSceneVerification
             for (int frame = 0; frame < 6000; frame++)
             {
                 var gameState = frame == leaveFrame
-                    ? SuperMetroidGameState.TransitionFromDemoB : SuperMetroidGameState.PlayingDemo;
+                    ? SuperMetroidGameState.RoutingAfterDemo : SuperMetroidGameState.PlayingDemo;
                 var movement = frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing;
                 reference.Step(gameState, movement);
                 compiled.StepStock(gameState, movement);

@@ -22,7 +22,7 @@ public static class HostViewportLayoutSmokeTest
         toolStrip.Items.Add(new ToolStripButton("Load State"));
         toolStrip.Items.Add(new ToolStripSeparator());
         ToolStripLabel status = HostToolbarLayout.CreateStatusLabel();
-        status.Text = "state $08 MainGameplay | Gameplay | frame 100";
+        status.Text = "state MainGameplay | Gameplay | frame 100";
         toolStrip.Items.Add(status);
 
         using var canvas = new Panel { Dock = DockStyle.Fill };
@@ -50,7 +50,7 @@ public static class HostViewportLayoutSmokeTest
         // the pause dispatcher. It must update text only; it must never resize the canvas
         // in which RuntimeCanvas horizontally centers the 4:3 presentation rectangle.
         status.Text =
-            "state $0C PausingDarkening | Pausing: gameplay darken (15) | frame 123456 " +
+            "state PausingDarkening | Pausing: gameplay darken (15) | frame 123456 " +
             "| pad: USB Gamepad Controller (Vendor-defined name) | replay 123456/123456";
         toolStrip.PerformLayout();
         host.PerformLayout();

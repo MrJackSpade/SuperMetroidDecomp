@@ -156,8 +156,8 @@ internal sealed class SamusFramePhases
     /// <remarks>
     /// HUD cursor movement is not yet a general runtime subsystem, so this narrow entry
     /// point represents only the already-selected item. It still requires equipped bit
-    /// for X-ray and passes the live dispatch game state (states 12 and 18 also run
-    /// this alpha pass but setup rejects them), bomb cooldown/count, power-bomb phase, current/previous
+    /// for X-ray and passes the live dispatch game state (the pause darkening and unpause brightening states
+    /// also run this alpha pass but setup rejects them), bomb cooldown/count, power-bomb phase, current/previous
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to the X-ray
     /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
     /// </remarks>

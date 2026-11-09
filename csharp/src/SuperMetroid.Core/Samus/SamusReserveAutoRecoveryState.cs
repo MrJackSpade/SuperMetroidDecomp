@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus;
 /// </summary>
 /// <remarks>
 /// This is an outer game-state owner, not an inventory convenience. It locks Samus, leaves
-/// ordinary state-eight gameplay running under the global time-freeze word, transfers one
+/// ordinary main gameplay running under the global time freeze, transfers one
 /// energy unit per frame, and publishes the library-three refill sound on
 /// every eighth frame of the frame counter.
 /// </remarks>
@@ -28,7 +28,7 @@ public sealed class SamusReserveAutoRecoveryState
         // The reserve-recovery Samus command conditionally installs the ordinary locked handler pair.
         // The pair suppresses animation as well as input/movement. A generic input
         // gate alone leaves AnimateSamus running during the frozen recovery frames.
-        // If X-Ray installed its own pair earlier in this state-eight frame, the reserve-recovery
+        // If X-Ray installed its own pair earlier in this gameplay frame, the reserve-recovery
         // command replaces those handlers without ending the independently running cone effect.
         // It leaves Mother Brain's rainbow-beam pair in place.
         bool rainbowBeam = samus.Control.Mode.Beta == SamusBetaHandler.RainbowBeam;

@@ -75,7 +75,7 @@ internal sealed class EnemyFramePhase
 
     /// <summary>Runs EnemyMain after Samus alpha and projectiles, then applies enemy-authored palette, scroll, escape, per-line effect, and player handoffs before beta movement.</summary>
     /// <param name="processingList">
-    /// True in game state eight, whose frame start already built the processing list. Door-transition
+    /// True in main gameplay, whose frame start already built the processing list. Door-transition
     /// enemy passes build the list immediately before EnemyMain instead.
     /// </param>
     /// <param name="samusPreviousPositionCheckpoint">

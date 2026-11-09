@@ -365,7 +365,7 @@ internal static class NativeSnapshotImport
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(runtime.Player.Colours, samus.EquippedItems);
         runtime.Artwork.UpdateBeamTilesAndPalette(runtime.Player.Colours, samus.EquippedBeams);
         ImportShownPaletteFxRecords(runtime);
-        if (game.GameState == SuperMetroidGameState.PausedB)
+        if (game.GameState == SuperMetroidGameState.Paused)
             ImportNativePauseMenu(game, runtime, W, memory);
         return new ImportNativeSnapshotResult(bus, runtime, samus, game);
     }

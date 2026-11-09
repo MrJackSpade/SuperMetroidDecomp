@@ -43,7 +43,7 @@ internal sealed class EnemyProcessingWindow
     /// decides which enemies to process.
     /// </summary>
     /// <remarks>
-    /// Game state eight builds the window first, before Samus's handlers. The grapple
+    /// Main gameplay builds the window first, before Samus's handlers. The grapple
     /// endpoint scan therefore sees this frame's interactive list, including an actor that
     /// a death explosion respawned at the end of the previous frame. The per-line display effects run
     /// earlier still, at the start of the update: that order is observable on spawn (one-frame pending

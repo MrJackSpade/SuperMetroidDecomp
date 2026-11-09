@@ -74,7 +74,7 @@ internal static class DesktopTimerSoakTests
                     // Only the production WinForms timer advances the game here.
                     await Task.Delay(25);
                     worker.ThrowIfFaulted();
-                    bool isPaused = game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+                    bool isPaused = game.GameState is SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused;
                     Check(paused ? isPaused : game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak left its requested scene");
                     if (clock.Elapsed.TotalSeconds >= nextReport)
                     {

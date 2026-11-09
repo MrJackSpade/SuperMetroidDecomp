@@ -111,13 +111,13 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         SuperMetroidGameState.LoadingGameData or
         SuperMetroidGameState.MainGameplayFadeIn or
         SuperMetroidGameState.MainGameplay or
-        SuperMetroidGameState.LoadingNextRoomA or
-        SuperMetroidGameState.LoadingNextRoomB or
+        SuperMetroidGameState.BeginningDoorTransition or
+        SuperMetroidGameState.DoorTransition or
         SuperMetroidGameState.Pausing or
-        SuperMetroidGameState.PausedA or
-        SuperMetroidGameState.PausedB or
-        SuperMetroidGameState.UnpausingA or
-        SuperMetroidGameState.UnpausingB or
+        SuperMetroidGameState.PauseScreenFadeIn or
+        SuperMetroidGameState.Paused or
+        SuperMetroidGameState.PauseScreenFadeOut or
+        SuperMetroidGameState.RestoringGameplayFromPause or
         SuperMetroidGameState.Unpausing or
         SuperMetroidGameState.DeathSequenceStart or
         SuperMetroidGameState.DeathBlackOutSurroundings or
@@ -137,11 +137,11 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         SuperMetroidGameState.CeresGoesBoomWithSamus or
         SuperMetroidGameState.SamusEscapesFromZebes or
         SuperMetroidGameState.EndingAndCredits or
-        SuperMetroidGameState.TransitionToDemoA or
-        SuperMetroidGameState.TransitionToDemoB or
+        SuperMetroidGameState.LoadingDemo or
+        SuperMetroidGameState.StartingDemo or
         SuperMetroidGameState.PlayingDemo or
-        SuperMetroidGameState.TransitionFromDemoA or
-        SuperMetroidGameState.TransitionFromDemoB =>
+        SuperMetroidGameState.UnloadingDemo or
+        SuperMetroidGameState.RoutingAfterDemo =>
             throw new InvalidOperationException($"The pause darkening cannot finish from {state}."),
         _ => throw new InvalidOperationException($"Undefined game state {state}."),
     };
@@ -206,7 +206,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.SamusEscapesFromZebes"/>.</summary>
     internal void DispatchSamusEscapesFromZebes(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // The Zebes-escape state calls the complete state-eight gameplay coroutine before
+        // The Zebes-escape state calls the complete main-gameplay coroutine before
         // HandleFadeOut. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });

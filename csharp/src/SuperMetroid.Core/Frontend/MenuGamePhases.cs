@@ -18,7 +18,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     internal void DispatchReset()
     {
         session.Demo.Reset();
-        // The soft reset ultimately stores state one and initializes
+        // The soft reset ultimately enters the opening cinematic and initializes
         // the cinematic function to the opening.
         session.audio.Reset();
         // A soft reset discards every gameplay
@@ -53,7 +53,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         else if (session.ActiveTitle.DemoRequested)
         {
             session.Demo.RequestFromTitle();
-            session.GameState = SuperMetroidGameState.TransitionToDemoA;
+            session.GameState = SuperMetroidGameState.LoadingDemo;
             session.display.PublishBlack();
         }
     }
@@ -233,7 +233,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 // The previous map update blanked the display and waited out this frame;
                 // continuing, it enters the game load. The map runs no more.
                 session.Close<FileSelectMapMenuState>();
-                session.RouteLoading(SaveLoadingGameState.MainGame);
+                session.RouteGameDataLoad(GameDataLoadRoute.SavedCheckpoint);
                 session.GameState = SuperMetroidGameState.LoadingGameData;
                 session.display.PublishBlack();
                 return;

@@ -32,10 +32,10 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             StepGameLoadingWait(controllerInput);
             return;
         }
-        // Loading branches on the save's loading state.
-        switch (session.StateSixLoadingRoute)
+        // The load branches on what it was routed to load.
+        switch (session.LoadingRoute)
         {
-            case SaveLoadingGameState.MainGame:
+            case GameDataLoadRoute.SavedCheckpoint:
                 // A save continued from the file-select map: the ordinary branch loads the
                 // game in one update, then holds for the same waits as a new game.
                 if (session.SetupSelectedGame())
@@ -43,7 +43,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
                 BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
-            case SaveLoadingGameState.CeresDestruction:
+            case GameDataLoadRoute.ZebesLanding:
                 // The Zebes landing, followed by its waits. The update's
                 // own frame counts in the gameplay owner kept from Ceres.
                 session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
@@ -51,10 +51,10 @@ internal sealed class LoadingGamePhases(FrontendSession session)
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
-            case SaveLoadingGameState.OpeningCinematic:
-            case SaveLoadingGameState.CeresElevatorArrival:
+            case null:
+                throw new InvalidOperationException("The game-data load was entered without a route.");
             default:
-                throw new InvalidOperationException($"State six has no loading branch for {session.StateSixLoadingRoute}.");
+                throw new InvalidOperationException($"The game-data load has no branch for {session.LoadingRoute}.");
         }
     }
 

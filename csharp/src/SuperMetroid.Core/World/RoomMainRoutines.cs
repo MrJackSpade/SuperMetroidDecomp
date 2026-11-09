@@ -51,7 +51,7 @@ internal sealed class RoomMainRoutines
     /// Reconstructs the one side effect still owned by the door-transition caller.
     /// This host resumes gameplay immediately after loading the destination, so the arriving
     /// downward actor can cross its pseudo-door while statuses two/three are visible to
-    /// state eight. Retain its moving beta handler, but permit its type-$9 handler to
+    /// main gameplay. Retain its moving beta handler, but permit its type-$9 handler to
     /// publish a real transition or elevator flag only for status one; otherwise a
     /// collapsed transition can immediately depart again.
     /// </summary>

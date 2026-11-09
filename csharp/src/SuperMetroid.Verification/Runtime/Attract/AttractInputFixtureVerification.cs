@@ -42,7 +42,7 @@ internal static class AttractInputFixtureVerification
             case NativeDemoFrameBehavior.Cleared:
                 break;
             case NativeDemoFrameBehavior.AttractCheckLeave:
-                if (gameState == SuperMetroidGameState.TransitionFromDemoB)
+                if (gameState == SuperMetroidGameState.RoutingAfterDemo)
                     state.Redirect(pointer, DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete));
                 break;
             case NativeDemoFrameBehavior.AttractShinespark:

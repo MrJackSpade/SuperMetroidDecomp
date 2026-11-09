@@ -108,7 +108,7 @@ internal static class AttractCaptureTestsVerification
         /// <summary>Steps both games one frame, pressing Start at the cancellation frame when <paramref name="cancel"/>.</summary>
         internal void Step(bool cancel)
         {
-            if (!bounded && legacy.GameState == SuperMetroidGameState.TransitionToDemoB)
+            if (!bounded && legacy.GameState == SuperMetroidGameState.StartingDemo)
             {
                 foreach (var game in new[] { legacy, captured })
                 {
@@ -123,8 +123,8 @@ internal static class AttractCaptureTestsVerification
             states.Add(expected.GameState);
             AssertEqual(expected.GameState, actual.Frame.GameState, "demo capture state");
             AssertSequenceEqual(legacy.AudioEventsForVerification, captured.AudioEventsForVerification, "demo capture audio event order");
-            bool demo = expected.GameState is SuperMetroidGameState.TransitionToDemoA or SuperMetroidGameState.TransitionToDemoB
-                or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
+            bool demo = expected.GameState is SuperMetroidGameState.LoadingDemo or SuperMetroidGameState.StartingDemo
+                or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.UnloadingDemo or SuperMetroidGameState.RoutingAfterDemo;
             if (demo || tick % 31 == 0)
             {
                 AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot),
@@ -137,7 +137,7 @@ internal static class AttractCaptureTestsVerification
                 held ??= legacy.GetRetainedDisplay();
                 AssertTrue(ScenePixels.Same(held, legacy.GetRetainedDisplay()), "demo final-image hold stays pixel-identical");
             }
-            if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
+            if (states.Contains(SuperMetroidGameState.RoutingAfterDemo) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
             {
                 AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot), "demo return title frame");
                 returned = true;
@@ -147,7 +147,7 @@ internal static class AttractCaptureTestsVerification
 
         /// <summary>Checks the case held the demo's final image, passed both black transitions and returned to the title.</summary>
         internal void AssertCovered() =>
-            AssertTrue(sawHold && returned && states.Contains(SuperMetroidGameState.TransitionToDemoB)
-                && states.Contains(SuperMetroidGameState.TransitionFromDemoA), "demo fixture exercises both black transitions and returns to title");
+            AssertTrue(sawHold && returned && states.Contains(SuperMetroidGameState.StartingDemo)
+                && states.Contains(SuperMetroidGameState.UnloadingDemo), "demo fixture exercises both black transitions and returns to title");
     }
 }

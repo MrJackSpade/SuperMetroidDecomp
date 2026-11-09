@@ -12,7 +12,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>
-/// Title-sequence state owned by game state one.
+/// Title-sequence state owned by the opening-cinematic game state.
 /// </summary>
 /// <remarks>
 /// This runs the visible title state chain. Installed sessions

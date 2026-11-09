@@ -26,27 +26,27 @@ public enum SuperMetroidGameState
     MainGameplayFadeIn,
     /// <summary>Runs the ordinary ordered Samus, enemy, projectile, room-object and room-update loop.</summary>
     MainGameplay,
-    /// <summary>Runs the door-entry step, including any downward-elevator delay, before <see cref="LoadingNextRoomA"/> in the same update.</summary>
+    /// <summary>Runs the door-entry step, including any downward-elevator delay, before <see cref="BeginningDoorTransition"/> in the same update.</summary>
     HitDoorBlock,
     /// <summary>
     /// Begins the door transition, pauses the source room's enemies, and cancels movement sounds before
-    /// <see cref="LoadingNextRoomB"/>; not a separately displayed ordinary-door frame.
+    /// <see cref="DoorTransition"/>; not a separately displayed ordinary-door frame.
     /// </summary>
-    LoadingNextRoomA,
+    BeginningDoorTransition,
     /// <summary>Runs the multi-update room-loading, scrolling, and fade transition until gameplay resumes.</summary>
-    LoadingNextRoomB,
+    DoorTransition,
     /// <summary>Continues ordinary gameplay while darkening for pause.</summary>
     PausingDarkening,
     /// <summary>Prepares the pause screen on a blank display, backing up gameplay graphics and cancelling effects.</summary>
     Pausing,
     /// <summary>Draws and brightens the prepared pause screen without resuming gameplay.</summary>
-    PausedA,
+    PauseScreenFadeIn,
     /// <summary>Accepts interactive pause-map and equipment input while gameplay remains paused.</summary>
-    PausedB,
+    Paused,
     /// <summary>Draws the pause screen during its fade to a blank display after Start requests unpause.</summary>
-    UnpausingA,
+    PauseScreenFadeOut,
     /// <summary>Restores gameplay graphics, reconciles equipped items, and runs the unpause hook on a blank display.</summary>
-    UnpausingB,
+    RestoringGameplayFromPause,
     /// <summary>Resumes ordinary gameplay while brightening, then restores <see cref="MainGameplay"/>.</summary>
     Unpausing,
     /// <summary>Runs the final frozen gameplay pass and prepares Samus and her colours for death.</summary>
@@ -91,13 +91,13 @@ public enum SuperMetroidGameState
     /// <summary>Runs Zebes destruction, ending results, staff credits, and the completion reward sequence.</summary>
     EndingAndCredits,
     /// <summary>Loads the next attract-demo room and its recorded initial gameplay state.</summary>
-    TransitionToDemoA,
+    LoadingDemo,
     /// <summary>Runs the demo's first gameplay pass, then makes the display fully bright and enters playback.</summary>
-    TransitionToDemoB,
+    StartingDemo,
     /// <summary>Runs recorded attract-demo gameplay until its timer or a newly pressed real input ends playback.</summary>
     PlayingDemo,
     /// <summary>Unloads demo gameplay while determining whether another scene should play.</summary>
-    TransitionFromDemoA,
+    UnloadingDemo,
     /// <summary>Routes completed demos to another demo load, a fresh title sequence, or the input-skipped title screen.</summary>
-    TransitionFromDemoB,
+    RoutingAfterDemo,
 }

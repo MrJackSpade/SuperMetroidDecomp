@@ -287,8 +287,8 @@ internal static class RidleyFullMovieVerification
         game.AdoptRuntime(runtime);
         // The recorded pause enters an already-running room HDMA callback.
         runtime.RoomFxOverlay.AdvanceLiquidMotion(runtime.System, false);
-        foreach (var state in new[] { SuperMetroidGameState.Pausing, SuperMetroidGameState.PausedA,
-            SuperMetroidGameState.PausedB, SuperMetroidGameState.UnpausingA, SuperMetroidGameState.UnpausingB,
+        foreach (var state in new[] { SuperMetroidGameState.Pausing, SuperMetroidGameState.PauseScreenFadeIn,
+            SuperMetroidGameState.Paused, SuperMetroidGameState.PauseScreenFadeOut, SuperMetroidGameState.RestoringGameplayFromPause,
             SuperMetroidGameState.PausingDarkening, SuperMetroidGameState.Unpausing })
         {
             runtime.System.SetRandomNumber(0x117d);
@@ -684,12 +684,12 @@ internal static class RidleyFullMovieVerification
         PauseMenuState pause = menu ?? throw new InvalidOperationException("Verification requires menu.");
         RgbColor[] initial = PauseShownColours.Of(pause);
         int fadeFrames = 0;
-        while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
+        while (game.GameState == SuperMetroidGameState.PauseScreenFadeIn && fadeFrames++ < 32)
         {
             game.Step(0);
             AssertTrue(PauseShownColours.Of(pause).SequenceEqual(initial), "pause fade-in retains all palette colors");
         }
-        AssertEqual(SuperMetroidGameState.PausedB, game.GameState, "pause fade-in completes");
+        AssertEqual(SuperMetroidGameState.Paused, game.GameState, "pause fade-in completes");
         AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Drawn(
                 SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteScreen.Pause, SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteColouring.Highlighted)),
             pause.paletteAnimation.Shading, "before the highlight cycle's first step the pause arrows show the pause screen's own colours");
@@ -697,15 +697,15 @@ internal static class RidleyFullMovieVerification
         AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(1)),
             pause.paletteAnimation.Shading, "the first stable pause step shows the highlight cycle's frame one");
         RgbColor[] animated = PauseShownColours.Of(pause);
-        game.GameState = SuperMetroidGameState.UnpausingA;
+        game.GameState = SuperMetroidGameState.PauseScreenFadeOut;
         game.Session.BeginPauseFade(15);
         fadeFrames = 0;
-        while (game.GameState == SuperMetroidGameState.UnpausingA && fadeFrames++ < 32)
+        while (game.GameState == SuperMetroidGameState.PauseScreenFadeOut && fadeFrames++ < 32)
         {
             game.Step(0);
             AssertTrue(PauseShownColours.Of(pause).SequenceEqual(animated), "unpause fade-out retains the last palette phase");
         }
-        AssertEqual(SuperMetroidGameState.UnpausingB, game.GameState, "unpause fade-out completes");
+        AssertEqual(SuperMetroidGameState.RestoringGameplayFromPause, game.GameState, "unpause fade-out completes");
         Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");
     }
 
@@ -849,7 +849,7 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertEqual((ushort)11, ridley.FrameHold.RawValue, "later fade updates continue enemy animation");
         int remainingFade = 0;
-        while (game.GameState == SuperMetroidGameState.LoadingNextRoomB && remainingFade++ < 32)
+        while (game.GameState == SuperMetroidGameState.DoorTransition && remainingFade++ < 32)
         {
             game.Step(0);
             AssertEqual(RidleyAiFunction.WaitForDoorTransition, (runtime.Enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).Function, "reveal timer remains gated through the final fade dispatch");

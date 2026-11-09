@@ -251,7 +251,7 @@ internal sealed class FrontendSession
         {
             // Door setup loads music data. The track is selected
             // only after the opening scroll and this data queue have completed.
-            if (GameState == SuperMetroidGameState.LoadingNextRoomB)
+            if (GameState == SuperMetroidGameState.DoorTransition)
                 audio.QueueRoomMusicData(roomState.Music.DataSet);
             else
                 audio.QueueRoomMusic(roomState.Music);
@@ -294,7 +294,7 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.CompletedGameplayAudioPublication;
 
         // Room-effect actors and palette objects run before Samus,
-        // projectiles, PLMs, and enemies in state eight. Queue their calls first so a full
+        // projectiles, PLMs, and enemies in main gameplay. Queue their calls first so a full
         // sound ring retains the same higher-priority request the game would retain
         // when several producers fire during one frame.
         gameplayAudio.PublishPrefix(runtime);
@@ -368,14 +368,14 @@ internal sealed class FrontendSession
             audio.ScheduleMusic(request.Request, request.Delay);
     }
     /// <summary>
-    /// Ports the state-publication half of <c>HandleSamusOutOfHealthAndGameTile</c>. Runtime
-    /// state eight has already completed its room-main and clock work when this is called.
+    /// Ports the state-publication half of <c>HandleSamusOutOfHealthAndGameTile</c>. The
+    /// runtime's main-gameplay update has already completed its room-main and clock work when this is called.
     /// </summary>
     /// <summary>
     /// The gunship writes the liftoff game state only after the top hull has crossed
     /// Y=256, zeroing ScreenFadeDelay/Counter. It does not freeze time: the liftoff state keeps
-    /// running full gameplay, so Samus and the RNG advance behind the fade. State eight has
-    /// already completed on this publication frame; the following call owns the fade.
+    /// running full gameplay, so Samus and the RNG advance behind the fade. The main-gameplay
+    /// update has already completed on this publication frame; the following call owns the fade.
     /// </summary>
     internal void BeginZebesEscapeFade()
     {
@@ -599,12 +599,12 @@ internal sealed class FrontendSession
     /// <summary>The waiting updates the current game load still owes.</summary>
     internal GameLoadingWait GameLoading { get; } = new();
     /// <summary>
-    /// The loading state state six branches on (the save's loading game state): a save continued
-    /// from the file-select map, or the Ceres destruction's Zebes landing.
+    /// What the game-data load loads: a save continued from the file-select map, or the Ceres destruction's Zebes
+    /// landing. Nothing until a load is routed.
     /// </summary>
-    internal SaveLoadingGameState StateSixLoadingRoute { get; private set; }
-    /// <summary>Selects the branch state six loads by.</summary>
-    internal void RouteLoading(SaveLoadingGameState route) => StateSixLoadingRoute = route;
+    internal GameDataLoadRoute? LoadingRoute { get; private set; }
+    /// <summary>Selects what the game-data load loads.</summary>
+    internal void RouteGameDataLoad(GameDataLoadRoute route) => LoadingRoute = route;
     /// <summary>
     /// True when the next update continues the load's wait rather
     /// than starting a new update of the loading phase, so the per-update random advance is absent.

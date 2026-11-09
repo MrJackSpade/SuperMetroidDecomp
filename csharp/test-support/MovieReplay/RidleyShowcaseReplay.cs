@@ -169,7 +169,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     mismatches.Add($"{area} map: native={nativeProgress.HasAreaMap(area)} port={portProgress.HasAreaMap(area)}");
             }
             if (game.GameState is not (SuperMetroidGameState.HitDoorBlock or
-                SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
+                SuperMetroidGameState.BeginningDoorTransition or SuperMetroidGameState.DoorTransition))
                 mismatches.AddRange(runtime.Hud.NativeRowDifferences(
                     [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(tile => W(NativeSnapshotMemory.HudTilemap + tile * 2))]));
             Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToWord(), NativeSnapshotMemory.PreviousHudSelection);
@@ -408,8 +408,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // DoorTransitionState installs a locked pair to suppress host control, while
             // native door dispatch retains ordinary alpha/beta pointers unused.
             bool nativeControlLock = samus.Control.AlphaLocked && game.GameState is not
-                (SuperMetroidGameState.HitDoorBlock or SuperMetroidGameState.LoadingNextRoomA or
-                 SuperMetroidGameState.LoadingNextRoomB);
+                (SuperMetroidGameState.HitDoorBlock or SuperMetroidGameState.BeginningDoorTransition or
+                 SuperMetroidGameState.DoorTransition);
             Check("Samus alpha handler", nativeControlLock
                 ? NativeSnapshotMemory.LockedAlphaHandler : NativeSnapshotMemory.NormalAlphaHandler,
                 NativeSnapshotMemory.SamusAlphaHandler);
@@ -446,7 +446,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // Align these owners at completed loading, not elapsed upload time.
             // Movement/input remain compared on EVERY IRQ interval. A stable owner
             // snapshot also proves the port does not run destination actors early.
-            bool nativeLoading = game.GameState == SuperMetroidGameState.LoadingNextRoomB &&
+            bool nativeLoading = game.GameState == SuperMetroidGameState.DoorTransition &&
                 W(NativeSnapshotMemory.DoorFunction) is NativeSnapshotMemory.PlaceSamusLoadTiles or NativeSnapshotMemory.LoadMoreThings;
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
                 DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
@@ -454,8 +454,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             // Gameplay holds no colour image (#1512): its pictures show the import's colours under the shadings it publishes.
             ReadOnlySpan<RgbColor> comparedPalette = GameplayShownColours.Of(runtime, InstalledFixtures.SamusShadeSources);
             IEnumerable<int> comparedColours = GameplayShownColours.ComparedIn(runtime);
-            if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
-                SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
+            if (game.GameState is SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused or
+                SuperMetroidGameState.PauseScreenFadeOut or SuperMetroidGameState.RestoringGameplayFromPause)
             {
                 // The pause screen holds no colours; its pictures show the import's colours under the shadings it names (#1512).
                 PauseMenuState menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");

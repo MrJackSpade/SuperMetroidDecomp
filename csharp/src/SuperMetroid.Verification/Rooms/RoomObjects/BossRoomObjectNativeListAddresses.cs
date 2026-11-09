@@ -89,21 +89,6 @@ internal static class BossRoomObjectNativeListAddresses
         new NativeProgramEntry<SporeSpawnCeilingMutation>(SporeSpawnCeilingMutation.Clear, 0xab21),
     ];
 
-    /// <summary>Draygon's cannon lists, right then left (<c>InstList_PLM_DraygonCannon..FacingRight/Left_0..2</c>).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<DraygonCannonProgram>> DraygonCannonEntries { get; } =
-    [
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.RightStart, 0xdcde),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.RightIdle, 0xdce6),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.RightHit, 0xdcf0),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.RightDestroy, 0xdd11),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.RightSmoke, 0xdd13),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.LeftStart, 0xddb9),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.LeftIdle, 0xddc1),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.LeftHit, 0xddcb),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.LeftDestroy, 0xddec),
-        new NativeProgramEntry<DraygonCannonProgram>(DraygonCannonProgram.LeftSmoke, 0xddee),
-    ];
-
     /// <summary>Mother Brain's glass lists (<c>InstList_PLM_MotherBrainsGlass_0..1</c>, the stages after, and the unused resolved states).</summary>
     internal static IReadOnlyList<NativeProgramEntry<MotherBrainGlassObjectProgram>> MotherBrainGlassEntries { get; } =
     [

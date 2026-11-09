@@ -43,7 +43,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
         var routines = new Dictionary<IRoomObjectFrameBehavior, ushort>
         {
             [RoomObjectFrameBehaviors.Inert] = RoomObjectFrameBehaviorDefinitions.SpawnDefault,
-            [DraygonCannonFrameBehaviors.MissileHit] = DraygonNativeWords.MissileHitFrameBehavior,
             [MotherBrainGlassFrameBehaviors.Hit] = MotherBrainGlassObjectProgramDefinitionsConstants.HitFrameBehavior,
             [BombTorizoHandFrameBehaviors.WakeIfSamusHasBombs] = BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior,
             [SamusEaterFrameBehaviors.Hold] = SamusEaterObjectDefinitionsConstants.HoldFrameBehavior,

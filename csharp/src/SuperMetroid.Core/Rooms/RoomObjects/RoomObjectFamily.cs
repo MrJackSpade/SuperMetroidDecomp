@@ -21,9 +21,6 @@ internal enum RoomObjectFamily
     /// <summary>One component of a mirrored eye-door assembly.</summary>
     EyeDoor,
 
-    /// <summary>One of Draygon's three retail cannons.</summary>
-    DraygonCannon,
-
     /// <summary>The Speed Booster escape's lavaquake controller.</summary>
     SpeedBoosterEscape,
 }

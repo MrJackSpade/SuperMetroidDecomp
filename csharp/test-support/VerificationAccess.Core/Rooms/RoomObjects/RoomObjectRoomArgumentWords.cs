@@ -116,11 +116,19 @@ internal static class RoomObjectRoomArgumentWords
     /// </summary>
     internal const ushort SpentMark = NeverPersists;
 
+    /// <summary>
+    /// The hit count the cartridge keeps in a cannon's or the glass's argument word: a typed cannon's count, or the word
+    /// the cartridge leaves once a counted hit destroyed it.
+    /// </summary>
+    private static int HitWord(RoomObjectSlot slot) => slot.Behaviour is DraygonCannonObject cannon
+        ? cannon.ShotDown ? ushort.MaxValue : cannon.Hits
+        : slot.HitCounter;
+
     /// <summary>The native room-argument word of a live slot.</summary>
     extension(RoomObjectSlot slot)
     {
         /// <summary>The word native work RAM holds for the slot's argument.</summary>
-        internal ushort NativeRoomArgument => Encode(slot.Header, slot.Argument, slot.HitCounter,
+        internal ushort NativeRoomArgument => Encode(slot.Header, slot.Argument, HitWord(slot),
             (slot.Behaviour as ScrollTriggerObject)?.Program);
     }
 

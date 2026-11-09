@@ -92,104 +92,66 @@ internal static class BossRoomObjectProgramsVerification
         return true;
     }
 
-    /// <summary>Draygon's cannon programs equal their native lists, each facing's links and branches staying on its side.</summary>
+    /// <summary>
+    /// Draygon's cannons play as their native lists do (#1554), each facing's links and branches staying on its side: a
+    /// whole cannon links its hit, arms the missile wake and rests on its shield; a hit counts to the destroying third,
+    /// flashes the shield and returns to it; the destroying hit or a destroyed setup destroys its own side and smokes for
+    /// good. Every image and how long it stays is compared with <see cref="DraygonCannonAnimationDefinitions"/>.
+    /// </summary>
     internal static void VerifyDraygonCannonPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DraygonCannonObjectProgramDefinitions.Programs, DraygonCannonEntries,
-            draw => RoomObjectDraw.Of(draw), DraygonCannonCueAt, "Draygon cannon");
-        Console.WriteLine($"  Draygon cannon programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        int frames = 0;
+        foreach ((RoomObjectHeaderId header, DraygonCannonSetup setup) in DraygonCannonDefinitions.Setups)
+        {
+            DraygonCannonLook look = DraygonCannonAnimationDefinitions.Looks[setup.Orientation];
+            string at = $"Draygon cannon {header}";
+            int entry = Word(RoomObjectNativeWords.Word(header) + 2);
+            int destroy = entry;
+            if (setup.Start == DraygonCannonStart.Whole)
+            {
+                AssertEqual(RoomObjectInstruction.LinkInstruction, At(entry), $"{at} first links its hit");
+                int hit = Word(entry + 2);
+                AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(entry + 4), $"{at} then arms its missile wake");
+                AssertEqual(DraygonNativeWords.MissileHitFrameBehavior, Word(entry + 6), $"{at} missile wake");
+                int idle = entry + 8;
+                frames += CompareCannonFrames(cartridge, idle, [look.Shield], out int afterShield, $"{at} shield");
+                AssertEqual(RoomObjectInstruction.Sleep, At(afterShield), $"{at} rests on its shield");
+                AssertEqual(RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual, At(hit), $"{at} hit is counted first");
+                AssertEqual(DraygonCannonDefinitions.HitsToDestroy, ReadOperandByte(cartridge, hit + 2), $"{at} hits to destroy");
+                destroy = Word(hit + 3);
+                frames += CompareCannonFrames(cartridge, hit + 5, look.HitFlash, out int afterFlash, $"{at} hit flash");
+                AssertEqual(RoomObjectInstruction.Goto, At(afterFlash), $"{at} returns after its flash");
+                AssertEqual(idle, (int)Word(afterFlash + 2), $"{at} returns to its shield");
+            }
+            AssertEqual(setup.Orientation == DraygonCannonOrientation.Right
+                    ? RoomObjectInstruction.DamageDraygonCannonFacingRight
+                    : RoomObjectInstruction.DamageDraygonCannonFacingLeft,
+                At(destroy), $"{at} destroys its own side");
+            int smoke = destroy + 2;
+            frames += CompareCannonFrames(cartridge, smoke, look.Smoke, out int afterSmoke, $"{at} smoke");
+            AssertEqual(RoomObjectInstruction.Goto, At(afterSmoke), $"{at} smoke repeats");
+            AssertEqual(smoke, (int)Word(afterSmoke + 2), $"{at} smoke loops to its first image");
+        }
+        Console.WriteLine($"  Draygon cannons: {frames} typed images match bank $84.");
     }
 
-    /// <summary>The cannon's link, missile-wake, hit-count and damage instructions with their operands.</summary>
-    private static bool DraygonCannonCueAt(IImportCartridgeSource cartridge, ushort cursor, out DraygonCannonCue cue, out int length)
+    /// <summary>Compares the native draws from <paramref name="cursor"/> with <paramref name="expected"/>, image for image.</summary>
+    private static int CompareCannonFrames(IImportCartridgeSource cartridge, int cursor, IReadOnlyList<TerrainChangeFrame> expected,
+        out int after, string at)
     {
-        ushort leftStart = DraygonCannonEntries.Single(entry => entry.Program == DraygonCannonProgram.LeftStart).Entry;
-        bool right = cursor < leftStart;
-        DraygonCannonProgram Entry(ushort address) => DraygonCannonEntries.Single(entry => entry.Entry == address).Program;
-        RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
-        (bool known, cue, length) = instruction switch
+        for (int index = 0; index < expected.Count; index++, cursor += 4)
         {
-            RoomObjectInstruction.LinkInstruction => new DraygonCannonCueAtCase(true, DraygonCannonCue.LinkHit, 4),
-            RoomObjectInstruction.InstallFrameBehavior => new DraygonCannonCueAtCase(true, DraygonCannonCue.ArmMissileWake, 4),
-            RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => new DraygonCannonCueAtCase(true, DraygonCannonCue.CountHit, 5),
-            RoomObjectInstruction.DamageDraygonCannonFacingRight or RoomObjectInstruction.DamageDraygonCannonFacingLeft => new DraygonCannonCueAtCase(true, DraygonCannonCue.Damage, 2),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.ClearFrameBehavior or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.GotoIfEventSet or
-                RoomObjectInstruction.SetEvent or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum6 or
-                RoomObjectInstruction.QueueSoundLibrary3Maximum6 or
-                RoomObjectInstruction.ClearDownwardGateTrigger or
-                RoomObjectInstruction.SpawnDownwardGateProjectile or
-                RoomObjectInstruction.WakeDownwardGateProjectile or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.EnableNoobTubeWaterPhysics or
-                RoomObjectInstruction.SpawnNoobTubeCrack or
-                RoomObjectInstruction.TriggerNoobTubeEarthquake or
-                RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles or
-                RoomObjectInstruction.LockSamus or
-                RoomObjectInstruction.UnlockSamus or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.SamusEaterDamage or
-                RoomObjectInstruction.SamusEaterReleaseImmunity or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new DraygonCannonCueAtCase(false, default, 0),
-            _ => new DraygonCannonCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        switch (cue)
-        {
-            case DraygonCannonCue.LinkHit:
-                AssertEqual(right ? DraygonCannonProgram.RightHit : DraygonCannonProgram.LeftHit,
-                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2))), "cannon links its own hit program");
-                break;
-            case DraygonCannonCue.ArmMissileWake:
-                AssertEqual(DraygonNativeWords.MissileHitFrameBehavior, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
-                break;
-            case DraygonCannonCue.CountHit:
-                AssertEqual(DraygonCannonDefinitions.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
-                AssertEqual(right ? DraygonCannonProgram.RightDestroy : DraygonCannonProgram.LeftDestroy,
-                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 3))), "cannon destroys its own side");
-                break;
-            case DraygonCannonCue.Damage:
-                AssertEqual(right ? RoomObjectInstruction.DamageDraygonCannonFacingRight : RoomObjectInstruction.DamageDraygonCannonFacingLeft,
-                    instruction, "cannon damage faces its own side");
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DraygonCannonCue)} {cue}.");
+            int updates = cartridge.ReadCartridgeWord(ProgramBank | cursor);
+            AssertTrue(updates < 0x8000, $"{at} image {index} is a draw");
+            AssertEqual(expected[index].Updates, updates, $"{at} image {index} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(expected[index].Draw),
+                (int)cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), $"{at} image {index} draw");
         }
-        return true;
+        after = cursor;
+        return expected.Count;
     }
 
     /// <summary>Mother Brain's glass programs equal their native lists, every stage repeating itself until its hits.</summary>

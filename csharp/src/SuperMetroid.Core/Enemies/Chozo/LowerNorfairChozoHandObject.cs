@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <summary>
 /// The Lower Norfair Chozo statue's hand (#1554). On its first update it checks whether the statue has already lowered
 /// the acid: if so it lowers the acid to its resting height, draws the cleared hand and leaves the room on its second
-/// update; otherwise, from its second update on, it waits until the hand's trigger block is blank air, makes that block
-/// the hand's special block again and leaves the room on that update.
+/// update; otherwise, from its second update on, it waits until the Power Bomb block at the hand's trigger block has
+/// broken open, makes that block the hand's special block and leaves the room on that update.
 /// </summary>
 /// <param name="statue">The room's Chozo statue objects, which hold the acid and the lowered-acid event.</param>
 [RoomLifetime]
@@ -37,7 +37,7 @@ internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : R
             case LowerNorfairChozoHandPhase.Waiting:
                 RoomLevelData level = context.Level;
                 int trigger = level.GetBlockIndex(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
-                if (level.GetCollisionBlockByIndex(trigger).Terrain != RoomTerrainBlocks.BlankAir)
+                if (!context.RoomObjects.BlockReactions.IsBrokenOpen(trigger))
                     return;
                 ChozoStatueObjects.WriteChozoBlock(level, trigger, RoomCollisionType.SpecialBlock, ChozoStatueRoomDefinitions.LowerNorfairHandBehavior);
                 context.RoomObjects.DeleteObject(place);

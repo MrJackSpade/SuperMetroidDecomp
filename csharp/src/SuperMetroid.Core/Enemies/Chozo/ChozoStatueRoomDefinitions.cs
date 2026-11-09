@@ -34,10 +34,10 @@ internal static class ChozoStatueRoomDefinitions
     public static readonly RoomTerrainBlock SpawnedCrumbleSetupBlock =
         RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
 
-    /// <summary>The column of the block whose blank air triggers the lowered Lower Norfair hand.</summary>
+    /// <summary>The column of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
     public const int LowerNorfairTriggerX = 4;
 
-    /// <summary>The row of the block whose blank air triggers the lowered Lower Norfair hand.</summary>
+    /// <summary>The row of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
     public const int LowerNorfairTriggerY = 8;
 
     /// <summary>The Wrecked Ship hand's trigger block, where the hand room object is also placed.</summary>

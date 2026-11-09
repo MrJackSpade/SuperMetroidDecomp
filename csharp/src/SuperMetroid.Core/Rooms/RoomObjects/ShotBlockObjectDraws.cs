@@ -29,6 +29,8 @@ internal static class ShotBlockObjectDraws
         internal int BlocksPerRun => Layout == Shape.Single ? 1 : 2;
         /// <summary>Whether the draw writes its blocks down a column.</summary>
         internal bool Vertical => Layout == Shape.Vertical;
+        /// <summary>Whether the draw is a breakup's last stage, which leaves the broken block open.</summary>
+        internal bool BreaksOpen => !Restore && Frame == BreakupFrameCount - 1;
 
         /// <summary>How the cell at a block position collides: breakup air, or a restored parent or linked child.</summary>
         internal RoomCollisionType CollisionAt(int run, int block)

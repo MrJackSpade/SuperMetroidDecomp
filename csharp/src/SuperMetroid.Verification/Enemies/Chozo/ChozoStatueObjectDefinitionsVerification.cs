@@ -9,6 +9,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.TestSupport.MovieReplay.NativeObjectListDefinitions;
 
@@ -22,6 +26,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
     internal static void VerifyChozoStatueObjectDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyChozoTerrainHeaders), () => VerifyChozoTerrainHeaders(rom));
+        Suite(nameof(VerifyLowerNorfairHandTrigger), () => VerifyLowerNorfairHandTrigger());
         Suite(nameof(VerifyChozoProgramControls), () => VerifyChozoProgramControls(rom));
         Suite(nameof(VerifyChozoProgramDraws), () => VerifyChozoProgramDraws(rom));
         Suite(nameof(VerifyChozoProgramTargets), () => VerifyChozoProgramTargets(rom));
@@ -32,7 +37,7 @@ internal static class ChozoStatueObjectDefinitionsVerification
         Suite(nameof(VerifyChozoLayoutVisuals), () => VerifyChozoLayoutVisuals(rom));
         Suite(nameof(VerifyChozoStatueVisualInstallation), () => VerifyChozoStatueVisualInstallation(rom));
         Console.WriteLine(
-            "Chozo statue objects: five headers, their native lists against their typed objects, native draws and visual-only terrain overrides pass.");
+            "Chozo statue objects: five headers, their native lists against their typed objects, the Lower Norfair hand's trigger, native draws and visual-only terrain overrides pass.");
     }
 
     /// <summary>
@@ -118,6 +123,71 @@ internal static class ChozoStatueObjectDefinitionsVerification
             () => ChozoStatueObjectHeaders.Require(RoomObjectHeaderId.CollisionWreckedShipChozoHandCheck),
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
     }
+
+    /// <summary>
+    /// The Lower Norfair hand waits for the Power Bomb block at its trigger block to break open (#1580). A Power Bomb
+    /// breaks the trigger block while the hand waits; the hand keeps waiting through every update before the block's
+    /// breakup shows its last stage, and on the first of its turns that follows that stage it makes the trigger block the
+    /// hand's special block and leaves the room. That is the update the cartridge's comparison fires on: the first turn of
+    /// the hand at which the trigger block shows blank air, which the stock breakup's last stage is the first to show.
+    /// </summary>
+    private static void VerifyLowerNorfairHandTrigger()
+    {
+        RoomLevelData level = CreateEmptyRoom(new(48, 32));
+        int trigger = level.GetBlockIndex(new(ChozoStatueRoomDefinitions.LowerNorfairTriggerX, ChozoStatueRoomDefinitions.LowerNorfairTriggerY));
+        level.SetTerrain(trigger, RoomTerrainBlock.Of(0x1f4, BlockMirroring.None, RoomCollisionType.ShootableBlock));
+        RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(
+            new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Norfair),
+            new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } },
+            RoomObjectFixtures.Unbound());
+        AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
+                new ChozoStatueObjectRequest(RoomObjectHeaderId.LowerNorfairChozoHand, Block: ChozoStatueRoomDefinitions.LowerNorfairHandBlock, IsHardcoded: true)),
+            "Lower Norfair hand allocates");
+
+        // The hand starts on its first update and waits from its second while the trigger block stands intact.
+        const int updatesBeforeBreak = 3;
+        for (int update = 0; update < updatesBeforeBreak; update++)
+            roomObjects.Step(level);
+        AssertTrue(LowerNorfairHand(roomObjects) is { Phase: LowerNorfairChozoHandPhase.Waiting },
+            "Lower Norfair hand waits while its trigger block stands intact");
+
+        // The trigger block is a permanent Power Bomb block: behaviour nine of the shootable table.
+        const byte permanentPowerBombBlock = 9;
+        AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, trigger, permanentPowerBombBlock,
+                SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), solidBlock: true),
+            "a Power Bomb breaks the trigger block");
+        AssertTrue(!roomObjects.BlockReactions.IsBrokenOpen(trigger), "the trigger block is not broken open as its breakup starts");
+        bool breakupRunsFirst = roomObjects.PopulationSlots.Single(slot => slot.BlockIndex == trigger).ProcessingPosition
+            < roomObjects.PopulationSlots.Single(slot => slot.Behaviour is LowerNorfairChozoHandObject).ProcessingPosition;
+        BlockReactionChange breakup = BlockReactionChangeDefinitions.PermanentPowerBombBlock;
+        int lastStageUpdate = breakup.FirstFrameDelay + breakup.Frames.SkipLast(1).Sum(frame => frame.Updates);
+        int firingUpdate = breakupRunsFirst ? lastStageUpdate : lastStageUpdate + 1;
+
+        for (int update = 1; update < firingUpdate; update++)
+        {
+            roomObjects.Step(level);
+            AssertTrue(LowerNorfairHand(roomObjects) is { Phase: LowerNorfairChozoHandPhase.Waiting },
+                $"Lower Norfair hand still waits on update {update} of the trigger block's breakup");
+            AssertEqual(update >= lastStageUpdate, roomObjects.BlockReactions.IsBrokenOpen(trigger),
+                $"the trigger block stands broken open from its breakup's last stage, update {update}");
+            // The stock breakup's last stage is the first to show blank air, so the cartridge's comparison could not fire
+            // before it.
+            AssertEqual(update >= lastStageUpdate, level.GetCollisionBlockByIndex(trigger).Terrain == RoomTerrainBlocks.BlankAir,
+                $"the trigger block first shows blank air on its breakup's last stage, update {update}");
+        }
+
+        roomObjects.Step(level);
+        AssertTrue(LowerNorfairHand(roomObjects) is null,
+            $"Lower Norfair hand leaves on update {firingUpdate}, its first turn after the breakup's last stage");
+        RoomCollisionBlock handBlock = level.GetCollisionBlockByIndex(trigger);
+        AssertEqual(RoomCollisionType.SpecialBlock, handBlock.CollisionType, "the triggered hand makes its trigger block special");
+        AssertEqual(ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, handBlock.Behavior,
+            "the triggered hand gives its trigger block the hand's behaviour");
+    }
+
+    /// <summary>The live Lower Norfair hand, or null once it has left the room.</summary>
+    private static LowerNorfairChozoHandObject? LowerNorfairHand(RoomObjectSystem roomObjects) =>
+        roomObjects.PopulationSlots.Select(slot => slot.Behaviour).OfType<LowerNorfairChozoHandObject>().SingleOrDefault();
 
     /// <summary>The comparison's name for the clear-slope access's ending.</summary>
     private const string SpikesBecomeSlopes = "spikes become slopes";

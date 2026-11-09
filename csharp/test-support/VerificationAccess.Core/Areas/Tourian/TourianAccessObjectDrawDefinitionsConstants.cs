@@ -16,14 +16,11 @@ internal static class TourianAccessObjectDrawDefinitionsConstants
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
-    /// <summary>The rows and air block of <paramref name="request"/> when it is a Tourian access draw.</summary>
-    internal static bool TryDescribe(RoomObjectDraw request, out int rows, out RoomTerrainBlock block)
+    /// <summary>The rows of <paramref name="request"/> when it is a Tourian access draw.</summary>
+    internal static bool TryDescribe(RoomObjectDraw request, out int rows)
     {
         bool found = RoomObjectDraw.TryFrame(request, out TourianAccessDraw frame);
-        rows = 0;
-        block = default;
-        if (found)
-            TourianAccessDraws.Describe(frame, out rows, out block);
+        rows = found ? TourianAccessDraws.Rows(frame) : 0;
         return found;
     }
 

@@ -184,11 +184,11 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (draw is RoomObjectFrameDraw<TourianAccessDraw> { Frame: var tourian })
         {
-            TourianAccessDraws.Describe(tourian, out int tourianRows, out RoomTerrainBlock tourianBlock);
+            int tourianRows = TourianAccessDraws.Rows(tourian);
             RoomObjectFrameImage floor = Installed(TourianAccessVisuals, "Tourian access").Image(draw);
             for (int row = 0; row < tourianRows; row++)
-                for (int column = 0; column < 4; column++)
-                    DrawImageCell(level, draw, origin, floor, new Offset16<RoomBlocks>(column, row), tourianBlock.Collision);
+                for (int column = 0; column < TourianAccessObjectDrawDefinitions.RowWidth; column++)
+                    DrawImageCell(level, draw, origin, floor, new Offset16<RoomBlocks>(column, row), TourianAccessObjectDrawDefinitions.Collision);
             return;
         }
         if (SporeSpawnCeilingDraws.TryGetBlock(draw, out RoomTerrainBlock sporeCeilingBlock))

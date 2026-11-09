@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
@@ -8,12 +6,9 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 internal static class TourianAccessDraws
 {
-    /// <summary>The rows and air block of one Tourian access draw (<see cref="TourianAccessObjectDrawDefinitions.Fills"/>).</summary>
-    internal static void Describe(TourianAccessDraw list, out int rows, out RoomTerrainBlock block)
-    {
-        TourianAccessDrawFill fill = TourianAccessObjectDrawDefinitions.Fills.TryGetValue(list, out TourianAccessDrawFill listed)
-            ? listed : throw new InvalidOperationException($"Undefined TourianAccessDraw {list}.");
-        rows = fill.Rows;
-        block = fill.Block;
-    }
+    /// <summary>The rows one Tourian access draw writes (<see cref="TourianAccessObjectDrawDefinitions.Rows"/>).</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="list"/> is not a defined Tourian access draw.</exception>
+    internal static int Rows(TourianAccessDraw list) =>
+        TourianAccessObjectDrawDefinitions.Rows.TryGetValue(list, out int rows)
+            ? rows : throw new InvalidOperationException($"Undefined TourianAccessDraw {list}.");
 }

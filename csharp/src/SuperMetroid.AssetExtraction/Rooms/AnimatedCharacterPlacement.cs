@@ -15,8 +15,11 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Bytes">The frame's characters, whole characters of the set.</param>
 internal sealed record AnimatedCharacterPlacement(ArtworkFrame Frame, BgCharacterSet Set, int FirstCharacter, ReadOnlyMemory<byte> Bytes)
 {
-    /// <summary>The frame's characters as artwork placed under the frame's identity, which pictures are composed over.</summary>
-    internal BgCharacterUpload Placement => new(BgArtworkIdentity.Frame(Frame), Set, FirstCharacter, Bytes);
+    /// <summary>
+    /// The frame's characters as artwork placed under the frame's identity, which pictures are composed over; made once,
+    /// since a body's composition reads it for every character it places (#1573).
+    /// </summary>
+    internal BgCharacterUpload Placement { get; } = new(BgArtworkIdentity.Frame(Frame), Set, FirstCharacter, Bytes);
 
     /// <summary>The frame as the value of its animation's appearance input, showing its characters.</summary>
     internal AppearanceOption Option => new(new AnimationAppearance(Frame.Animation), AnimationAppearance.ValueOf(Frame), Placement);

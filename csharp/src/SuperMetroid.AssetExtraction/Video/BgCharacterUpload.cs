@@ -14,8 +14,9 @@ internal sealed record BgCharacterUpload(BgArtworkIdentity Identity, BgCharacter
     /// <exception cref="InvalidDataException">The bytes are not whole characters of the set.</exception>
     internal int CharacterCount => Set.CharactersIn(Bytes.Length);
 
-    /// <summary>The binding Core makes of the artwork: its name, place and character count.</summary>
-    internal BgCharacterPlacement Placement => new(Identity, Set, FirstCharacter, CharacterCount);
+    /// <summary>The binding Core makes of the artwork: its name, place and character count, made once (#1573).</summary>
+    /// <exception cref="InvalidDataException">The bytes are not whole characters of the set.</exception>
+    internal BgCharacterPlacement Placement { get; } = new(Identity, Set, FirstCharacter, Set.CharactersIn(Bytes.Length));
 
     /// <summary>Whether the artwork covers <paramref name="character"/> of <paramref name="set"/>.</summary>
     internal bool Covers(BgCharacterSet set, int character) => Placement.Covers(set, character);

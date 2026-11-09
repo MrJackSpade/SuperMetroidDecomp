@@ -105,7 +105,7 @@ internal static class DoorTransitionAutosaveVerification
                     store, bus, game) is null, "ordinary gameplay does not replace auto");
             }
             AssertTrue(first.SequenceEqual(File.ReadAllBytes(autoPath)), "advancing gameplay preserves transition snapshot");
-            AssertTrue(DoorTransitionAutosave.TrySave(true, true, SuperMetroidGameState.LoadingNextRoomB,
+            AssertTrue(DoorTransitionAutosave.TrySave(true, true, SuperMetroidGameState.DoorTransition,
                 store, bus, game) is null, "replay does not overwrite recovery");
             PrepareDoor(RoomHeaderDefinitions.LandingSite, RoomHeaderDefinitions.Parlor);
             AssertEqual(1, FinishDoor(enabled: true), "second transition writes one replacement");
@@ -127,7 +127,7 @@ internal static class DoorTransitionAutosaveVerification
             // runs in the background, where it is reported and leaves the previous recovery state in place.
             using (var locked = new FileStream(autoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.LoadingNextRoomB, store, bus, game) is not null,
+                AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.DoorTransition, store, bus, game) is not null,
                     "door autosave returns its capture without waiting for the disk write");
                 store.WaitForPendingWrites();
             }
@@ -151,7 +151,7 @@ internal static class DoorTransitionAutosaveVerification
                     {
                         store.WaitForPendingWrites();
                         count++;
-                        AssertEqual(SuperMetroidGameState.LoadingNextRoomB, before, "capture comes from door phase");
+                        AssertEqual(SuperMetroidGameState.DoorTransition, before, "capture comes from door phase");
                         AssertEqual(DoorTransitionPhase.Complete, game.DoorTransitionPhaseForVerification, "capture waits for complete fade");
                     }
                     if (game.GameState == SuperMetroidGameState.MainGameplay) return count;

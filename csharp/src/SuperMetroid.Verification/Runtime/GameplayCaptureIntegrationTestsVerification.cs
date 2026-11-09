@@ -91,8 +91,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         var fadeFrames = new Dictionary<SuperMetroidGameState, int>
         {
             [SuperMetroidGameState.PausingDarkening] = 0,
-            [SuperMetroidGameState.PausedA] = 0,
-            [SuperMetroidGameState.UnpausingA] = 0,
+            [SuperMetroidGameState.PauseScreenFadeIn] = 0,
+            [SuperMetroidGameState.PauseScreenFadeOut] = 0,
             [SuperMetroidGameState.Unpausing] = 0,
         };
         // The cartridge fade counter adds a hold frame for each brightness step.
@@ -105,7 +105,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input);
             Compare(reference, actual);
-            sawPause |= legacy.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+            sawPause |= legacy.GameState is SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused;
             AssertEqual(legacy.GameplaySamusX, packets.GameplaySamusX, "capture preserves Samus X");
             AssertEqual(legacy.GameplaySamusY, packets.GameplaySamusY, "capture preserves Samus Y");
             AssertEqual(legacy.GameplaySamusPose, packets.GameplaySamusPose, "capture preserves pose");

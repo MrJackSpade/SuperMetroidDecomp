@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Runtime;
 /// the audio calls the frame makes at their usual positions, and host work immediately
 /// after the frame boundary. Nothing here is retained after the frame.
 /// </summary>
-/// <remarks>A default request is an ordinary state-eight frame: departure allowed, game time advancing, deferred audio, no boundary work.</remarks>
+/// <remarks>A default request is an ordinary main-gameplay frame: departure allowed, game time advancing, deferred audio, no boundary work.</remarks>
 public sealed record RuntimeFrameRequest
 {
     /// <summary>The outer dispatcher's state policy for this frame.</summary>

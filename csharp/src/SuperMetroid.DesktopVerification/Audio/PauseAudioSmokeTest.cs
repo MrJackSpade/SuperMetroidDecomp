@@ -43,12 +43,12 @@ public static class PauseAudioSmokeTest
             continuity.Observe(samples);
             frames++;
             if (next.GameState is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
-                SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or SuperMetroidGameState.UnpausingA or
-                SuperMetroidGameState.UnpausingB or SuperMetroidGameState.Unpausing)
+                SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused or SuperMetroidGameState.PauseScreenFadeOut or
+                SuperMetroidGameState.RestoringGameplayFromPause or SuperMetroidGameState.Unpausing)
             {
                 pauseFrames++;
                 // The driver starts the cancellations at a poll after the CPU writes them, so
-                // collect every start while the pause owns the frame, not only PausedA's.
+                // collect every start while the pause owns the frame, not only PauseScreenFadeIn's.
                 pauseSoundStarts.AddRange(game.AudioEventsForVerification
                     .OfType<AudioEvent.StartSoundEffect>()
                     .Select(audioEvent => audioEvent.SoundEffect));
@@ -88,7 +88,7 @@ public static class PauseAudioSmokeTest
         // Establish ordinary room music before measuring the exact pause sequence.
         for (int index = 0; index < 120; index++) frame = Step(0);
         frame = Step(ControllerButton.Start);
-        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.PausedB, 128);
+        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.Paused, 128);
         for (int index = 0; index < 120; index++) frame = Step(0);
         frame = Step(ControllerButton.Right);
         frame = Step(0);

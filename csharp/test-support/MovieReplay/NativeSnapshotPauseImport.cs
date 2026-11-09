@@ -22,7 +22,7 @@ internal static class NativeSnapshotPauseImport
     internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         Func<int, ushort> W, byte[] memory)
     {
-        VerificationAssertions.AssertEqual(SuperMetroidGameState.PausedB, GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState)),
+        VerificationAssertions.AssertEqual(SuperMetroidGameState.Paused, GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState)),
             "pause import covers the stable pause menu");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");

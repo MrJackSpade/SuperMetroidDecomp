@@ -85,7 +85,7 @@ public static class AudioInputReplaySmokeTest
                 started == Library1Sound.UnchargedPowerBeam);
             powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Library1].Acknowledges(Library1Sound.UnchargedPowerBeam);
 
-            if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
+            if (game.GameState == SuperMetroidGameState.DoorTransition)
                 firstDoorBegan = true;
             if (firstDoorBegan && activeRoom is { } room && room != sourceRoom)
                 destinationRoom = room;
@@ -200,8 +200,8 @@ public static class AudioInputReplaySmokeTest
         {
             FrontendFrame frame = game.Step(recording.InputAt(frameIndex));
             bool pauseOwned = frame.GameState is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
-                SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or SuperMetroidGameState.UnpausingA or
-                SuperMetroidGameState.UnpausingB or SuperMetroidGameState.Unpausing;
+                SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused or SuperMetroidGameState.PauseScreenFadeOut or
+                SuperMetroidGameState.RestoringGameplayFromPause or SuperMetroidGameState.Unpausing;
             game.CopyAudioFrame(samples);
 
             if (pauseOwned && active is null)
@@ -218,7 +218,7 @@ public static class AudioInputReplaySmokeTest
                     pause.RecordEvents(frameIndex, frame.GameState, events);
                 if (pauseOwned)
                     pause.PauseOwnedFrames++;
-                if (frame.GameState == SuperMetroidGameState.PausedB)
+                if (frame.GameState == SuperMetroidGameState.Paused)
                     pause.AddPausedFrame(samples);
 
                 if (!pauseOwned && frame.GameState == SuperMetroidGameState.MainGameplay)
@@ -292,7 +292,7 @@ public static class AudioInputReplaySmokeTest
         public RecordedPauseAudioResult Complete(int resumeFrame)
         {
             if (pausedFrames == 0)
-                throw new InvalidDataException($"Pause at recorded frame {EntryFrame} never reached PausedB.");
+                throw new InvalidDataException($"Pause at recorded frame {EntryFrame} never reached Paused.");
             return new RecordedPauseAudioResult(
                 EntryFrame,
                 resumeFrame,

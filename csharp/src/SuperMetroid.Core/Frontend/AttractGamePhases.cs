@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class AttractGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.TransitionToDemoA"/>, <see cref="SuperMetroidGameState.TransitionToDemoB"/>, <see cref="SuperMetroidGameState.PlayingDemo"/>, <see cref="SuperMetroidGameState.TransitionFromDemoA"/>, <see cref="SuperMetroidGameState.TransitionFromDemoB"/>.</summary>
+    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingDemo"/>, <see cref="SuperMetroidGameState.StartingDemo"/>, <see cref="SuperMetroidGameState.PlayingDemo"/>, <see cref="SuperMetroidGameState.UnloadingDemo"/>, <see cref="SuperMetroidGameState.RoutingAfterDemo"/>.</summary>
     internal void DispatchAttractDemo(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         StepAttractDemo(controllerInput, gameplayAudio);
@@ -21,7 +21,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
     {
         switch (session.GameState)
         {
-            case SuperMetroidGameState.TransitionToDemoA:
+            case SuperMetroidGameState.LoadingDemo:
                 if (session.Demo.AwaitsScene)
                 {
                     AttractDemoScene scene = session.Demo.NextScene
@@ -37,12 +37,12 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 {
                     session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
                     if (session.Demo.CountLoadFrame())
-                        session.GameState = SuperMetroidGameState.TransitionToDemoB;
+                        session.GameState = SuperMetroidGameState.StartingDemo;
                 }
                 session.display.PublishBlack();
                 break;
 
-            case SuperMetroidGameState.TransitionToDemoB:
+            case SuperMetroidGameState.StartingDemo:
                 // The demo's transition state runs one gameplay frame before revealing the room. Its
                 // extra frame does not decrement the demo-playing state's countdown.
                 session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.AttractFrameAudio(session.GameplayRuntime) });
@@ -73,18 +73,18 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 }
                 break;
 
-            case SuperMetroidGameState.TransitionFromDemoA:
+            case SuperMetroidGameState.UnloadingDemo:
                 session.Demo.AdvanceAfterScene(session.AvailableDemoSetCount());
                 session.ReleaseRuntime();
                 session.display.PublishBlack();
-                session.GameState = SuperMetroidGameState.TransitionFromDemoB;
+                session.GameState = SuperMetroidGameState.RoutingAfterDemo;
                 break;
 
-            case SuperMetroidGameState.TransitionFromDemoB:
+            case SuperMetroidGameState.RoutingAfterDemo:
                 if (session.Demo.HasNextScene)
                 {
                     session.Demo.LoadNextScene();
-                    session.GameState = SuperMetroidGameState.TransitionToDemoA;
+                    session.GameState = SuperMetroidGameState.LoadingDemo;
                 }
                 else
                 {
@@ -118,14 +118,14 @@ internal sealed class AttractGamePhases(FrontendSession session)
             case SuperMetroidGameState.MainGameplayFadeIn:
             case SuperMetroidGameState.MainGameplay:
             case SuperMetroidGameState.HitDoorBlock:
-            case SuperMetroidGameState.LoadingNextRoomA:
-            case SuperMetroidGameState.LoadingNextRoomB:
+            case SuperMetroidGameState.BeginningDoorTransition:
+            case SuperMetroidGameState.DoorTransition:
             case SuperMetroidGameState.PausingDarkening:
             case SuperMetroidGameState.Pausing:
-            case SuperMetroidGameState.PausedA:
-            case SuperMetroidGameState.PausedB:
-            case SuperMetroidGameState.UnpausingA:
-            case SuperMetroidGameState.UnpausingB:
+            case SuperMetroidGameState.PauseScreenFadeIn:
+            case SuperMetroidGameState.Paused:
+            case SuperMetroidGameState.PauseScreenFadeOut:
+            case SuperMetroidGameState.RestoringGameplayFromPause:
             case SuperMetroidGameState.Unpausing:
             case SuperMetroidGameState.DeathSequenceStart:
             case SuperMetroidGameState.DeathBlackOutSurroundings:
@@ -155,7 +155,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
     private void FinishAttractPlayback(AttractPlaybackEnd end)
     {
         session.Demo.Finish(cancelled: end == AttractPlaybackEnd.Cancelled);
-        session.GameState = SuperMetroidGameState.TransitionFromDemoA;
+        session.GameState = SuperMetroidGameState.UnloadingDemo;
         session.display.PublishBlack();
     }
 }

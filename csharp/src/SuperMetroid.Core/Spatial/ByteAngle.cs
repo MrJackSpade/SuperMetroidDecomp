@@ -59,5 +59,5 @@ public readonly record struct ByteAngle
     public RotationAngle ToAngle() => RotationAngle.FromTableIndex(RawValue);
 
     /// <inheritdoc />
-    public override string ToString() => $"${RawValue:X2}";
+    public override string ToString() => $"{RawValue}/256 turn";
 }

@@ -291,12 +291,12 @@ public sealed class PlayableGameControl : UserControl
         if (driver is null)
         {
             // The reset seed is captured after disk SRAM has been validated/copied but
-            // before the first dispatcher call. A crash in state zero is therefore just as
+            // before the first dispatcher call. A crash in the reset state is therefore just as
             // reproducible as a gameplay failure hours later.
             inputRecorder = StartInputRecorder();
             Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
         }
-        // Execute reset once so the first visible debugger frame is state one's native setup.
+        // Execute reset once so the first visible debugger frame is the opening cinematic's setup.
         FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: driver is null ? ControllerButton.None : null)
             ?? throw new InvalidDataException("The driven timeline contains no reset frame.");
         RefreshFrame(resetFrame);

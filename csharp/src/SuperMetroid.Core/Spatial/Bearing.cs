@@ -33,5 +33,5 @@ public readonly record struct Bearing
 
 
     /// <inheritdoc />
-    public override string ToString() => $"${RawValue:X2}";
+    public override string ToString() => $"{RawValue}/256 turn clockwise from up";
 }

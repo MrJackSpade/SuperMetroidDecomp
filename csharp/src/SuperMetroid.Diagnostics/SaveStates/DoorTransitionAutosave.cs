@@ -15,7 +15,7 @@ internal static class DoorTransitionAutosave
         SuperMetroidGameState previousState, DebuggerSaveStateStore store,
         SuperMetroidAddressSpace bus, SuperMetroidGame game)
     {
-        if (!enabled || replay || previousState != SuperMetroidGameState.LoadingNextRoomB ||
+        if (!enabled || replay || previousState != SuperMetroidGameState.DoorTransition ||
             game.GameState != SuperMetroidGameState.MainGameplay) return null;
         // Recovery I/O must not terminate a healthy emulation session. The store
         // replaces the previous state only after serialization and durable flush.

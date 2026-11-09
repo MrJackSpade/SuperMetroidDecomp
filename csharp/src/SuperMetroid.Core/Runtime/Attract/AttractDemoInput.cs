@@ -35,7 +35,7 @@ public sealed class AttractDemoInput
             case DemoInputFrameBehavior.ReturnOnly:
                 break;
             case DemoInputFrameBehavior.AttractCheckLeave:
-                if (gameState == SuperMetroidGameState.TransitionFromDemoB)
+                if (gameState == SuperMetroidGameState.RoutingAfterDemo)
                     Script.Redirect(frameBehavior, DemoInputProgram.AttractDelete);
                 break;
             case DemoInputFrameBehavior.AttractShinespark:

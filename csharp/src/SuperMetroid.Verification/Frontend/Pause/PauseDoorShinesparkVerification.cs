@@ -80,14 +80,14 @@ internal static class PauseDoorShinesparkVerification
             AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "horizontal shinespark actually touches the open door during the fade");
             AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "door contact does not crash the shinespark");
             var expected = scenario.Terminal
-                ? scenario.Brightening ? SuperMetroidGameState.MainGameplay : SuperMetroidGameState.LoadingNextRoomA
+                ? scenario.Brightening ? SuperMetroidGameState.MainGameplay : SuperMetroidGameState.BeginningDoorTransition
                 : SuperMetroidGameState.HitDoorBlock;
             AssertEqual(expected, game.GameState, "door publication retains native fade completion ordering");
             if (!scenario.Brightening || !scenario.Terminal)
             {
                 ushort contactX = samus.Position.X.Whole;
                 game.Step(0);
-                AssertEqual(SuperMetroidGameState.LoadingNextRoomB, game.GameState, "published door state starts the transition coroutine");
+                AssertEqual(SuperMetroidGameState.DoorTransition, game.GameState, "published door state starts the transition coroutine");
                 AssertEqual(contactX, samus.Position.X.Whole, "no additional source-room shinespark movement before transition");
             }
         }

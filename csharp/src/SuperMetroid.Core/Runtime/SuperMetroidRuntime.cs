@@ -692,7 +692,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// The remainder of gameplay state eight after the room-object handler. A frame whose PLM
+    /// The remainder of a main-gameplay update after the room-object handler. A frame whose PLM
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
     internal RuntimeFrameResult FinishGameplayFrame(
@@ -939,7 +939,7 @@ internal sealed class SuperMetroidRuntime
         // Execute the active room's room main at the same seam as Landing Site's
         // room main above: after gameplay drawing/HUD work and before global shaking. The
         // Ceres routine publishes a tilt for the following frame's presentation and may
-        // change the outer dispatcher to the Ceres elevator state only when its caller is state eight.
+        // change the outer dispatcher to the Ceres elevator state only when its caller is main gameplay.
         RoomMains.LastCeresElevatorShaftRoomMain = Room.LoadedScope.CeresElevatorShaft.Step(
             Player.Samus,
             Room.LoadedScope.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
@@ -1053,7 +1053,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Gameplay-frame state the remainder of state eight reads after the room-object handler.
+    /// Gameplay-frame state the remainder of a main-gameplay update reads after the room-object handler.
     /// The message routine runs inside that handler, so a PLM that opens a box
     /// suspends the frame; the port parks this state until the box closes.
     /// </summary>
@@ -1063,7 +1063,7 @@ internal sealed class SuperMetroidRuntime
         SamusControlMode Mode,
         FixedPosition<RoomPixels> PreviousCameraPoint);
 
-    /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
+    /// <summary>Main-gameplay tail parked when a PLM opens a message box during a gameplay frame.</summary>
     private SuspendedGameplayFrameTail? _suspendedFrameTail;
 
     /// <summary>

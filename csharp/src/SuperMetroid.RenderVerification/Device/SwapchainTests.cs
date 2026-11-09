@@ -372,7 +372,7 @@ internal static partial class SwapchainTests
             {
                 var actual = Step(tick is 10 or >= 100 and <= 105 ? ControllerButton.Start : ControllerButton.None);
                 worker.Publish(new RenderFrame(new(sequence, 1), actual.Snapshot));
-                paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+                paused |= actual.Frame.GameState is SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused;
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
             }
             var positions = new HashSet<OptionalScreenPosition>();

@@ -54,7 +54,7 @@ internal sealed class DeathSequenceRunner
             _room.Camera.PixelPosition);
 
         // The next frame boundary must see the death poses' definitions. The death game state
-        // draws once before setup and state 16 draws the new pose on its following call;
+        // draws once before setup and the pre-flashing state draws the new pose on its following call;
         // priming here preserves that same first-visible-frame contract in this thin host.
         _player.Samus.Presentation.PrimeGraphics(_player.Samus);
         return result;
@@ -63,7 +63,7 @@ internal sealed class DeathSequenceRunner
     /// <summary>
     /// Runs one fatal-display frame of the death sequence without advancing enemies, PLMs, scrolling,
     /// room main, or the gameplay clock. It draws Samus alone while she is neither animating nor dying,
-    /// not a shortened state-eight call.
+    /// not a shortened main-gameplay call.
     /// </summary>
     public void DrawFatalSamusFrame(ControllerButton controllerInput)
     {

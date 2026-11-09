@@ -33,7 +33,7 @@ internal static class UnpauseElevatorFlagsVerification
 
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
         AssertEqual(ElevatorJourneyFlag.DoorContact, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "the elevator is armed before the pause");
-        game.GameState = SuperMetroidGameState.UnpausingB;
+        game.GameState = SuperMetroidGameState.RestoringGameplayFromPause;
         game.Step(0);
 
         AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "state $11 hands off to the brightening state");

@@ -36,8 +36,8 @@ internal static class RetailAttractTests
                 if (expected.GameState != actual.Frame.GameState ||
                     expected.Phase != actual.Frame.Phase || !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                     throw new InvalidOperationException($"Attract state/audio/capture divergence at {tick}.");
-                bool demo = expected.GameState is SuperMetroidGameState.TransitionToDemoA or SuperMetroidGameState.TransitionToDemoB
-                    or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
+                bool demo = expected.GameState is SuperMetroidGameState.LoadingDemo or SuperMetroidGameState.StartingDemo
+                    or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.UnloadingDemo or SuperMetroidGameState.RoutingAfterDemo;
                 if (demo || tick % 31 == 0)
                 {
                     var packet = actual.Snapshot;
@@ -53,13 +53,13 @@ internal static class RetailAttractTests
                     held ??= legacy.PublishedPixels();
                     if (!held.SequenceEqual(legacy.PublishedPixels())) throw new InvalidOperationException("Demo held frame changed.");
                 }
-                if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
+                if (states.Contains(SuperMetroidGameState.RoutingAfterDemo) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
                     PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), renderer.RenderForReadback(actual.Snapshot), "attract return to title");
                     returned = true; break;
                 }
             }
-            if (!sawHold || !returned || !states.Contains(SuperMetroidGameState.TransitionToDemoB) || !states.Contains(SuperMetroidGameState.TransitionFromDemoA))
+            if (!sawHold || !returned || !states.Contains(SuperMetroidGameState.StartingDemo) || !states.Contains(SuperMetroidGameState.UnloadingDemo))
                 throw new InvalidOperationException("Attract fixture missed hold, transitions or return to title.");
         }
         Console.WriteLine($"{device.Kind}: {samples} exact attract samples; stock demo scenes, per-scene holds, completion/cancel and return to title passed.");

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session these phases run against.</param>
 internal sealed class DoorGamePhases(FrontendSession session)
 {
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.HitDoorBlock"/>, <see cref="SuperMetroidGameState.LoadingNextRoomA"/>.</summary>
+    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.HitDoorBlock"/>, <see cref="SuperMetroidGameState.BeginningDoorTransition"/>.</summary>
     internal void DispatchDoorCollisionAndLoading(ControllerButton controllerInput)
     {
         if (session.GameState == SuperMetroidGameState.HitDoorBlock &&
@@ -56,14 +56,14 @@ internal sealed class DoorGamePhases(FrontendSession session)
             priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         // The door's music step follows both entry cancellation commands, not precedes them.
         session.audio.DoorTransitionSoundsDisabled = true;
-        // The hit-door state calls the room-loading state synchronously for ordinary doors; the room-loading state
-        // publishes the second loading state before returning. Consequently neither intermediate
-        // numeric value owns a separately displayed frame.
-        session.GameState = SuperMetroidGameState.LoadingNextRoomB;
+        // For ordinary doors the door-collision state runs the transition's beginning in the same update, and the
+        // beginning enters the door transition before returning, so the beginning never owns a separately
+        // displayed frame.
+        session.GameState = SuperMetroidGameState.DoorTransition;
     }
 
-    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingNextRoomB"/>.</summary>
-    internal void DispatchLoadingNextRoomB(ControllerButton controllerInput)
+    /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
+    internal void DispatchDoorTransition(ControllerButton controllerInput)
     {
         session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress,
             publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(session.GameplayRuntime));

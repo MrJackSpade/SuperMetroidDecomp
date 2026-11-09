@@ -8,5 +8,5 @@ public static class RoomTilesets
     public static TilesetDefinition Get(int graphicsSet) =>
         (uint)graphicsSet < RoomTilesetDefinitions.Count
             ? RoomTilesetDefinitions.Tilesets[graphicsSet]
-            : throw new InvalidDataException($"Graphics set ${graphicsSet:X2} is outside the compiled retail tileset table.");
+            : throw new InvalidDataException($"Graphics set {graphicsSet} is outside the compiled retail tileset table.");
 }

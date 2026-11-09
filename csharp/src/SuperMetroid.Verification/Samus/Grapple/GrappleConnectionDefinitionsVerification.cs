@@ -187,7 +187,7 @@ internal static class GrappleConnectionDefinitionsVerification
         samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
         samus.Grapple.FlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
-        for (byte movement = 0; movement < 28; movement++)
+        foreach (int movement in SamusMovementTypeNumbers.Named)
         {
             bool banned = GrappleCancellationAndDropRomByte(rom, 0x9bb8b8 + movement) != 0;
             AssertEqual(banned, GrappleConnections.CancelsFiring(SamusMovementTypeNumbers.Of(movement)), "Every native cancellation byte");

@@ -22,8 +22,7 @@ internal static class GrappleConnections
     internal static bool CancelsFiring(SamusMovementType movement) => movement switch
     {
         SamusMovementType.Standing or SamusMovementType.Running or SamusMovementType.NormalJumping
-            or SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Unused0B
-            or SamusMovementType.Unused0C or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall
+            or SamusMovementType.Crouching or SamusMovementType.Falling or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall
             or SamusMovementType.Grappling or SamusMovementType.DraygonHeld => false,
         SamusMovementType.Standing or
             SamusMovementType.Running or
@@ -36,9 +35,7 @@ internal static class GrappleConnections
             SamusMovementType.MorphBallFalling or
             SamusMovementType.UnusedGlitchBallAlternate or
             SamusMovementType.Knockback or
-            SamusMovementType.Unused0B or
-            SamusMovementType.Unused0C or
-            SamusMovementType.Unused0D or
+            SamusMovementType.CompactAirborne or
             SamusMovementType.TurningOnGround or
             SamusMovementType.PostureTransition or
             SamusMovementType.Moonwalking or

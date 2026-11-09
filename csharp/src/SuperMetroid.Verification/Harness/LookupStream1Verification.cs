@@ -1383,7 +1383,7 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => LittleEndianBytes.Word(LookupStream1DeathDefinitionsRomByte(rom, address), LookupStream1DeathDefinitionsRomByte(rom, address + 1));
         SamusMovementType[] movements = Enum.GetValues<SamusMovementType>();
-        AssertEqual(28, movements.Length, "death retail movement domain");
+        AssertEqual(SamusMovementTypeNumbers.Named.Count(), movements.Length, "death retail movement domain: every movement type a pose selects");
         foreach (SamusMovementType movement in movements)
             AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + SamusMovementTypeNativeWords.Byte(movement)), SamusDeathSequenceFrames.InitialFrame(movement), "native movement death phase");
         // The cartridge uploads the explosion as five pages; the atlas keeps them in that upload order.

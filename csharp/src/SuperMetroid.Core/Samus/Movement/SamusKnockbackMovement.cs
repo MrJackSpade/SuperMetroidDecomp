@@ -96,15 +96,13 @@ public static class SamusKnockbackMovement
             SamusMovementType.SpinJumping or
             SamusMovementType.Crouching or
             SamusMovementType.Falling or
-            SamusMovementType.Unused0D or
+            SamusMovementType.CompactAirborne or
             SamusMovementType.Moonwalking or
             SamusMovementType.WallJumping or
             SamusMovementType.RanIntoWall;
         bool unusedMovementSeven = sourceMovementType == SamusMovementType.UnusedGlitchBall;
         bool suppressesKnockback = sourceMovementType is
             SamusMovementType.Knockback or
-            SamusMovementType.Unused0B or
-            SamusMovementType.Unused0C or
             SamusMovementType.TurningOnGround or
             SamusMovementType.PostureTransition or
             SamusMovementType.Grappling or

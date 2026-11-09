@@ -41,7 +41,11 @@ internal static class SamusIndexedSpeedsVerification
                     : () => SamusHorizontalSpeedState.ReadEntryAtRow(row);
                 int address = speed.ResolveEntryAddress(byteZero) + SpeedTableEntryConstants.ByteCount * movement;
                 SpeedTableEntry expected = Read(address);
-                bool authored = address is >= 0x909f55 and < 0x90a32d;
+                // The two records after knockback describe no movement type a pose selects, so the game holds no record for them.
+                int position = row < SamusHorizontalMotionDefinitions.AirRecordCount
+                    ? row
+                    : (row - SamusHorizontalMotionDefinitions.AirRecordCount) % SamusHorizontalMotionDefinitions.LiquidRecordCount;
+                bool authored = address is >= 0x909f55 and < 0x90a32d && !SamusMovementTypeNumbers.Unselected.Contains(position);
                 AssertEqual(authored, SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out var entry), "Native authored/overread boundary");
                 if (authored)
                 {
@@ -58,7 +62,7 @@ internal static class SamusIndexedSpeedsVerification
                 }
             }
         }
-        AssertEqual(166, compiledCount, "Air 82 + water 56 + lava 28 authored address outcomes");
-        Console.WriteLine("Indexed Samus speeds: all 492 authored words match native data through every table and movement type; compiled reads are forbidden, and overreads past the tables fail loudly.");
+        AssertEqual(154, compiledCount, "Air 76 + water 52 + lava 26 authored address outcomes, without the six records no movement type selects");
+        Console.WriteLine("Indexed Samus speeds: all 456 authored words match native data through every table and movement type; compiled reads are forbidden, and overreads past the tables fail loudly.");
     }
 }

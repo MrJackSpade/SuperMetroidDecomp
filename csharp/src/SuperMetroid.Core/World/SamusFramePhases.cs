@@ -208,9 +208,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             case SamusMovementType.MorphBallFalling:
             case SamusMovementType.UnusedGlitchBallAlternate:
             case SamusMovementType.Knockback:
-            case SamusMovementType.Unused0B:
-            case SamusMovementType.Unused0C:
-            case SamusMovementType.Unused0D:
+            case SamusMovementType.CompactAirborne:
             case SamusMovementType.TurningOnGround:
             case SamusMovementType.PostureTransition:
             case SamusMovementType.Moonwalking:

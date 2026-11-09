@@ -692,7 +692,7 @@ public sealed class SamusXrayState
             SamusMovementType.MorphBallGround or SamusMovementType.Falling or
             SamusMovementType.UnusedGlitchBall or SamusMovementType.MorphBallFalling or
             SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.Knockback or
-            SamusMovementType.Unused0B or SamusMovementType.Unused0C or SamusMovementType.Unused0D or
+            SamusMovementType.CompactAirborne or
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
             SamusMovementType.Moonwalking or SamusMovementType.SpringBallGround or
             SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling or

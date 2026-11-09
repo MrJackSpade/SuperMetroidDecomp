@@ -25,7 +25,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         const int crateriaFootstepTypes = 0x90edc9;
         const int crateriaLandingTypes = 0x91f0f3;
 
-        for (int movement = 0; movement < SamusMovementTypeNumbers.Count; movement++)
+        foreach (int movement in SamusMovementTypeNumbers.Named)
         {
             WaterSplashKind expected = rom.ReadCartridgeByte(waterSplashTypes + movement) == 0
                 ? WaterSplashKind.Diving
@@ -81,7 +81,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     /// <summary>Invokes the production splash spawner for every movement type and checks grounded-pair versus diving slots.</summary>
     private static void VerifyProductionWaterSplashSelection()
     {
-        for (int movement = 0; movement < SamusMovementTypeNumbers.Count; movement++)
+        foreach (int movement in SamusMovementTypeNumbers.Named)
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
             {

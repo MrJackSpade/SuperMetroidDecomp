@@ -1381,7 +1381,8 @@ internal static class LookupStream4Verification
         {
             if (!SamusMovementTypeNativeWords.Types.TryDecode(raw, out SamusMovementType movement))
             {
-                AssertTrue(raw >= SamusMovementTypeNumbers.Count, "Movement bytes name every movement type in the 28-entry table");
+                AssertTrue(raw >= SamusMovementTypeNumbers.Count || SamusMovementTypeNumbers.Unselected.Contains(raw),
+                    "Movement bytes name every movement type a pose selects in the 28-entry table");
                 continue;
             }
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);

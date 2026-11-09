@@ -28,12 +28,8 @@ public enum SamusMovementType
     UnusedGlitchBallAlternate,
     /// <summary>Damage knockback movement until the hurt trajectory returns control to a normal pose.</summary>
     Knockback,
-    /// <summary>The first unused movement type after knockback; preserved for pose identity.</summary>
-    Unused0B,
-    /// <summary>The second unused movement type after knockback; preserved for pose identity.</summary>
-    Unused0C,
-    /// <summary>The third unused movement type after knockback, referenced only by unused pose records.</summary>
-    Unused0D,
+    /// <summary>The movement of the compact airborne poses, which no retail transition enters.</summary>
+    CompactAirborne,
     /// <summary>Grounded turn animation that defers the facing reversal until its pose sequence advances.</summary>
     TurningOnGround,
     /// <summary>Short transition animations between standing, crouching, and morph-ball postures.</summary>

@@ -368,7 +368,7 @@ internal static class SamusPoseDispatch
         SamusPoseId.CompactAirborneRightPose or
         SamusPoseId.CompactAirborneLeftPose or
         SamusPoseId.CompactAirborneFallingRightPose or
-        SamusPoseId.CompactAirborneFallingLeftPose => SamusMovementType.Unused0D,
+        SamusPoseId.CompactAirborneFallingLeftPose => SamusMovementType.CompactAirborne,
         SamusPoseId.TurningRightToLeftPose or
         SamusPoseId.TurningLeftToRightPose or
         SamusPoseId.TurningRightToLeftCrouchingPose or

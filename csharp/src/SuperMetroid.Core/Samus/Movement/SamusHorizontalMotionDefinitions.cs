@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Pinned horizontal mechanics, separate from animation and palette definitions.</summary>
@@ -29,7 +27,7 @@ internal static class SamusHorizontalMotionDefinitions
     internal static SignedSixteenSixteen WaterBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(24);
     /// <summary>Maximum speed of a falling morph or spring ball in lava or acid.</summary>
     internal static SignedSixteenSixteen LavaBallFallingMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(22);
-    /// <summary>Maximum speed of the alternate unused glitch ball and the third unused movement type.</summary>
+    /// <summary>Maximum speed of the alternate unused glitch ball and the compact airborne poses.</summary>
     internal static SignedSixteenSixteen GlitchBallMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Maximum speed of knockback, Draygon's hold, special movement and an airborne damage boost.</summary>
     internal static SignedSixteenSixteen KnockbackMaximum { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(80);
@@ -55,25 +53,23 @@ internal static class SamusHorizontalMotionDefinitions
 
     /// <summary>
     /// The movement type each table's records describe, in record order. The air table stops after damage boost, so
-    /// selecting the air table's held or special record reads the water table's first records.
+    /// selecting the air table's held or special record reads the water table's first records. The two records after
+    /// knockback describe no movement type, since no pose selects them, but keep their places so every later record
+    /// stays where the selection reads it.
     /// </summary>
-    internal static readonly SamusMovementType[] RecordOrder =
+    internal static readonly SamusMovementType?[] RecordOrder =
     [
         SamusMovementType.Standing, SamusMovementType.Running, SamusMovementType.NormalJumping,
         SamusMovementType.SpinJumping, SamusMovementType.MorphBallGround, SamusMovementType.Crouching,
         SamusMovementType.Falling, SamusMovementType.UnusedGlitchBall, SamusMovementType.MorphBallFalling,
-        SamusMovementType.UnusedGlitchBallAlternate, SamusMovementType.Knockback, SamusMovementType.Unused0B,
-        SamusMovementType.Unused0C, SamusMovementType.Unused0D, SamusMovementType.TurningOnGround,
+        SamusMovementType.UnusedGlitchBallAlternate, SamusMovementType.Knockback, null,
+        null, SamusMovementType.CompactAirborne, SamusMovementType.TurningOnGround,
         SamusMovementType.PostureTransition, SamusMovementType.Moonwalking, SamusMovementType.SpringBallGround,
         SamusMovementType.SpringBallInAir, SamusMovementType.SpringBallFalling, SamusMovementType.WallJumping,
         SamusMovementType.RanIntoWall, SamusMovementType.Grappling, SamusMovementType.TurningWhileJumping,
         SamusMovementType.TurningWhileFalling, SamusMovementType.DamageBoost, SamusMovementType.DraygonHeld,
         SamusMovementType.Special,
     ];
-
-    /// <summary>Each movement type's position in <see cref="RecordOrder"/>.</summary>
-    internal static readonly FrozenDictionary<SamusMovementType, int> RecordPosition =
-        Enumerable.Range(0, RecordOrder.Length).ToFrozenDictionary(position => RecordOrder[position]);
 
     /// <summary>The diagonal bomb jump's acceleration, maximum and deceleration whole/fraction pairs.</summary>
     internal static readonly SpeedTableEntry DiagonalBombJump = new(

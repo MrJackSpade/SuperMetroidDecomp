@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using static SuperMetroid.Core.Samus.Movement.SamusHorizontalMotionDefinitions;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -5,6 +6,11 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>The horizontal speed record each medium and movement type selects.</summary>
 internal static class SamusHorizontalMotion
 {
+    /// <summary>Each movement type's position in <see cref="RecordOrder"/>; the records no movement type selects have none.</summary>
+    private static readonly FrozenDictionary<SamusMovementType, int> RecordPosition =
+        Enumerable.Range(0, RecordOrder.Length).Where(position => RecordOrder[position] is not null)
+            .ToFrozenDictionary(position => RecordOrder[position]!.Value);
+
     /// <summary>
     /// The row the horizontal speed-table selection picks for a movement type in a medium's table: the
     /// table's first row plus the movement type's record position, which for the air table's held and special
@@ -25,7 +31,8 @@ internal static class SamusHorizontalMotion
     /// <summary>
     /// Resolves exact records in the three adjacent speed tables by row. Table selection adds the
     /// movement type to the table's first row, so air movement types 26/27 deliberately read water rows
-    /// 0/1. Rows past the authored records are not treated as additional mechanics definitions.
+    /// 0/1. Rows past the authored records, and the two records no movement type selects, are not mechanics
+    /// definitions.
     /// </summary>
     internal static bool TryResolveRow(int row, out SpeedTableEntry entry)
     {
@@ -48,7 +55,11 @@ internal static class SamusHorizontalMotion
             if (!water) row -= LiquidRecordCount;
             deceleration = water ? WaterDeceleration : LavaDeceleration;
         }
-        SamusMovementType movement = RecordOrder[row];
+        if (RecordOrder[row] is not { } movement)
+        {
+            entry = default;
+            return false;
+        }
         SignedSixteenSixteen maximum = movement switch
         {
             SamusMovementType.Running => air || water ? RunningMaximum : LavaRunningMaximum,
@@ -59,12 +70,11 @@ internal static class SamusHorizontalMotion
             SamusMovementType.Falling or SamusMovementType.UnusedGlitchBall => FallingMaximum,
             SamusMovementType.MorphBallFalling or SamusMovementType.SpringBallFalling =>
                 air ? FallingMaximum : water ? WaterBallFallingMaximum : LavaBallFallingMaximum,
-            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.Unused0D => GlitchBallMaximum,
+            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.CompactAirborne => GlitchBallMaximum,
             SamusMovementType.Knockback or SamusMovementType.DraygonHeld or SamusMovementType.Special => KnockbackMaximum,
             SamusMovementType.Moonwalking => MoonwalkingMaximum,
             SamusMovementType.DamageBoost => air ? KnockbackMaximum : MoonwalkingMaximum,
-            SamusMovementType.Standing or SamusMovementType.Crouching or SamusMovementType.Unused0B or
-                SamusMovementType.Unused0C or SamusMovementType.TurningOnGround or SamusMovementType.RanIntoWall or
+            SamusMovementType.Standing or SamusMovementType.Crouching or SamusMovementType.TurningOnGround or SamusMovementType.RanIntoWall or
                 SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => SignedSixteenSixteen.Zero,
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {movement}."),
         };
@@ -79,8 +89,7 @@ internal static class SamusHorizontalMotion
                 SamusMovementType.SpringBallFalling when !air => LiquidGroundAcceleration,
             SamusMovementType.Standing or SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
                 SamusMovementType.MorphBallGround or SamusMovementType.Crouching or SamusMovementType.Falling or
-                SamusMovementType.MorphBallFalling or SamusMovementType.Unused0B or SamusMovementType.Unused0C or
-                SamusMovementType.Unused0D or SamusMovementType.TurningOnGround or
+                SamusMovementType.MorphBallFalling or SamusMovementType.CompactAirborne or SamusMovementType.TurningOnGround or
                 SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
                 SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
                 SamusMovementType.SpringBallFalling or SamusMovementType.WallJumping or

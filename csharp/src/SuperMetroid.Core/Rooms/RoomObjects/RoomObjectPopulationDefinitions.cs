@@ -5,13 +5,13 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The retail room PLM populations, each named for its room state. Each holds its placements
-/// in authored order: PLM header, block X and Y, and the room argument decoded into what the PLM reads; regenerate with
-/// tools/generate-room-plm-population-definitions.ps1.
+/// The retail room-object populations, each named for its room state. Each holds its placements
+/// in authored order: the object's header, block X and Y, and the room argument decoded into what the object reads; regenerate with
+/// tools/generate-room-object-population-definitions.ps1.
 /// </summary>
 internal static class RoomObjectPopulationDefinitions
 {
-    /// <summary>The LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs room PLM population.</summary>
+    /// <summary>The LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs room-object population.</summary>
     public static RoomObjectPopulation LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombs),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(30, 40), null, ScrollProgram: RoomScrollProgram.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsScroll0),
@@ -22,7 +22,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.YellowDoorFacingLeft, new(142, 22), new DoorBitArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsYellowDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The LandingSiteWhenZebesTimebombSet room PLM population.</summary>
+    /// <summary>The LandingSiteWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation LandingSiteWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(LandingSiteWhenZebesTimebombSet),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(30, 40), null, ScrollProgram: RoomScrollProgram.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsScroll0),
@@ -35,12 +35,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(142, 22), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.LandingSiteWhenZebesTimebombSetGreyDoorFacingLeftAt142x22, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The GauntletEntrance room PLM population.</summary>
+    /// <summary>The GauntletEntrance room-object population.</summary>
     public static RoomObjectPopulation GauntletEntrance { get; } = RoomObjectPopulation.FromRecords(nameof(GauntletEntrance),
     [
     ]);
 
-    /// <summary>The ParlorDefaultOrWhenZebesAwake room PLM population.</summary>
+    /// <summary>The ParlorDefaultOrWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation ParlorDefaultOrWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(ParlorDefaultOrWhenZebesAwake),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(63, 11), null, ScrollProgram: RoomScrollProgram.ParlorDefaultOrWhenZebesAwakeScroll0),
@@ -73,7 +73,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(30, 54), new DoorBitArgument(LockedDoorDefinitions.ParlorDefaultOrWhenZebesAwakeRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The ParlorWhenZebesTimebombSet room PLM population.</summary>
+    /// <summary>The ParlorWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation ParlorWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(ParlorWhenZebesTimebombSet),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(63, 11), null, ScrollProgram: RoomScrollProgram.ParlorDefaultOrWhenZebesAwakeScroll0),
@@ -111,19 +111,19 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingUp, new(22, 77), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ParlorWhenZebesTimebombSetGreyDoorFacingUp, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The CrateriaPowerBombs room PLM population.</summary>
+    /// <summary>The CrateriaPowerBombs room-object population.</summary>
     public static RoomObjectPopulation CrateriaPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaPowerBombs),
     [
         new(RoomObjectHeaderId.ExposedPowerBombTank, new(29, 7), new CollectedItemArgument(ItemLocationDefinitions.CrateriaPowerBombsExposedPowerBombTank)),
     ]);
 
-    /// <summary>The CrateriaSave room PLM population.</summary>
+    /// <summary>The CrateriaSave room-object population.</summary>
     public static RoomObjectPopulation CrateriaSave { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(1)),
     ]);
 
-    /// <summary>The WestOcean room PLM population.</summary>
+    /// <summary>The WestOcean room-object population.</summary>
     public static RoomObjectPopulation WestOcean { get; } = RoomObjectPopulation.FromRecords(nameof(WestOcean),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(94, 54), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.WestOceanGreyDoorFacingLeft, DoorOpeningPersistence.Transient))),
@@ -133,12 +133,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(1, 47), new CollectedItemArgument(ItemLocationDefinitions.WestOceanExposedMissileTankAt1x47)),
     ]);
 
-    /// <summary>The BowlingAlleyPath room PLM population.</summary>
+    /// <summary>The BowlingAlleyPath room-object population.</summary>
     public static RoomObjectPopulation BowlingAlleyPath { get; } = RoomObjectPopulation.FromRecords(nameof(BowlingAlleyPath),
     [
     ]);
 
-    /// <summary>The CrateriaKihunter room PLM population.</summary>
+    /// <summary>The CrateriaKihunter room-object population.</summary>
     public static RoomObjectPopulation CrateriaKihunter { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaKihunter),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(23, 15), null, ScrollProgram: RoomScrollProgram.CrateriaKihunterScroll0),
@@ -151,64 +151,64 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.YellowDoorFacingUp, new(22, 45), new DoorBitArgument(LockedDoorDefinitions.CrateriaKihunterYellowDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The ForgottenHighwayElev room PLM population.</summary>
+    /// <summary>The ForgottenHighwayElev room-object population.</summary>
     public static RoomObjectPopulation ForgottenHighwayElev { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwayElev),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(8, 13), null, ScrollProgram: RoomScrollProgram.ForgottenHighwayElevScroll0),
     ]);
 
-    /// <summary>The EastOcean room PLM population.</summary>
+    /// <summary>The EastOcean room-object population.</summary>
     public static RoomObjectPopulation EastOcean { get; } = RoomObjectPopulation.FromRecords(nameof(EastOcean),
     [
     ]);
 
-    /// <summary>The ForgottenHighwayKagos room PLM population.</summary>
+    /// <summary>The ForgottenHighwayKagos room-object population.</summary>
     public static RoomObjectPopulation ForgottenHighwayKagos { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwayKagos),
     [
     ]);
 
-    /// <summary>The CrabMaze room PLM population.</summary>
+    /// <summary>The CrabMaze room-object population.</summary>
     public static RoomObjectPopulation CrabMaze { get; } = RoomObjectPopulation.FromRecords(nameof(CrabMaze),
     [
     ]);
 
-    /// <summary>The ForgottenHighwayElbow room PLM population.</summary>
+    /// <summary>The ForgottenHighwayElbow room-object population.</summary>
     public static RoomObjectPopulation ForgottenHighwayElbow { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwayElbow),
     [
         new(RoomObjectHeaderId.YellowDoorFacingUp, new(6, 13), new DoorBitArgument(LockedDoorDefinitions.ForgottenHighwayElbowYellowDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The CrateriaTube room PLM population.</summary>
+    /// <summary>The CrateriaTube room-object population.</summary>
     public static RoomObjectPopulation CrateriaTube { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaTube),
     [
     ]);
 
-    /// <summary>The Moat room PLM population.</summary>
+    /// <summary>The Moat room-object population.</summary>
     public static RoomObjectPopulation Moat { get; } = RoomObjectPopulation.FromRecords(nameof(Moat),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(14, 9), new CollectedItemArgument(ItemLocationDefinitions.MoatExposedMissileTank)),
     ]);
 
-    /// <summary>The RedBinstarElev room PLM population.</summary>
+    /// <summary>The RedBinstarElev room-object population.</summary>
     public static RoomObjectPopulation RedBinstarElev { get; } = RoomObjectPopulation.FromRecords(nameof(RedBinstarElev),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(8, 13), null, ScrollProgram: RoomScrollProgram.RedBinstarElevScroll0),
         new(RoomObjectHeaderId.YellowDoorFacingDown, new(6, 2), new DoorBitArgument(LockedDoorDefinitions.RedBinstarElevYellowDoorFacingDown, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The GauntletETank room PLM population.</summary>
+    /// <summary>The GauntletETank room-object population.</summary>
     public static RoomObjectPopulation GauntletETank { get; } = RoomObjectPopulation.FromRecords(nameof(GauntletETank),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(84, 12), null, ScrollProgram: RoomScrollProgram.GauntletETankScroll0),
         new(RoomObjectHeaderId.ExposedEnergyTank, new(83, 8), new CollectedItemArgument(ItemLocationDefinitions.GauntletETankExposedEnergyTank)),
     ]);
 
-    /// <summary>The PreBowling room PLM population.</summary>
+    /// <summary>The PreBowling room-object population.</summary>
     public static RoomObjectPopulation PreBowling { get; } = RoomObjectPopulation.FromRecords(nameof(PreBowling),
     [
     ]);
 
-    /// <summary>The ClimbDefaultOrWhenZebesAwake room PLM population.</summary>
+    /// <summary>The ClimbDefaultOrWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation ClimbDefaultOrWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(ClimbDefaultOrWhenZebesAwake),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(29, 5), null, ScrollProgram: RoomScrollProgram.ClimbDefaultOrWhenZebesAwakeScroll0),
@@ -239,7 +239,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.YellowDoorFacingLeft, new(46, 118), new DoorBitArgument(LockedDoorDefinitions.ClimbDefaultOrWhenZebesAwakeYellowDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The ClimbWhenZebesTimebombSet room PLM population.</summary>
+    /// <summary>The ClimbWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation ClimbWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(ClimbWhenZebesTimebombSet),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(29, 5), null, ScrollProgram: RoomScrollProgram.ClimbDefaultOrWhenZebesAwakeScroll0),
@@ -272,7 +272,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 134), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.ClimbWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The PitDefault room PLM population.</summary>
+    /// <summary>The PitDefault room-object population.</summary>
     public static RoomObjectPopulation PitDefault { get; } = RoomObjectPopulation.FromRecords(nameof(PitDefault),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(4, 15), null, ScrollProgram: RoomScrollProgram.PitDefaultScroll0),
@@ -281,7 +281,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.PitDefaultGreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The PitWithMorphBallAndMissiles room PLM population.</summary>
+    /// <summary>The PitWithMorphBallAndMissiles room-object population.</summary>
     public static RoomObjectPopulation PitWithMorphBallAndMissiles { get; } = RoomObjectPopulation.FromRecords(nameof(PitWithMorphBallAndMissiles),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(4, 15), null, ScrollProgram: RoomScrollProgram.PitDefaultScroll0),
@@ -292,13 +292,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(5, 26), new CollectedItemArgument(ItemLocationDefinitions.PitWithMorphBallAndMissilesExposedMissileTank)),
     ]);
 
-    /// <summary>The ElevToBlueBrinstar room PLM population.</summary>
+    /// <summary>The ElevToBlueBrinstar room-object population.</summary>
     public static RoomObjectPopulation ElevToBlueBrinstar { get; } = RoomObjectPopulation.FromRecords(nameof(ElevToBlueBrinstar),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 13), null, ScrollProgram: RoomScrollProgram.ElevToBlueBrinstarScroll0),
     ]);
 
-    /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDead room PLM population.</summary>
+    /// <summary>The BombTorizoDefaultOrWhenAreaTorizoDead room-object population.</summary>
     public static RoomObjectPopulation BombTorizoDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromRecords(nameof(BombTorizoDefaultOrWhenAreaTorizoDead),
     [
         new(RoomObjectHeaderId.BombTorizoGreyDoor, new(1, 6), new GreyDoorArgument(2, new DoorBitArgument(LockedDoorDefinitions.BombTorizoDefaultOrWhenAreaTorizoDeadBombTorizoGreyDoor, DoorOpeningPersistence.Persistent))),
@@ -306,54 +306,54 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.BombTorizoHand, new(13, 11), null),
     ]);
 
-    /// <summary>The BombTorizoWhenZebesTimebombSet room PLM population.</summary>
+    /// <summary>The BombTorizoWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation BombTorizoWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(BombTorizoWhenZebesTimebombSet),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(7)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(6, new DoorBitArgument(LockedDoorDefinitions.BombTorizoWhenZebesTimebombSetGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The FlywayDefaultOrWhenAreaTorizoDead room PLM population.</summary>
+    /// <summary>The FlywayDefaultOrWhenAreaTorizoDead room-object population.</summary>
     public static RoomObjectPopulation FlywayDefaultOrWhenAreaTorizoDead { get; } = RoomObjectPopulation.FromRecords(nameof(FlywayDefaultOrWhenAreaTorizoDead),
     [
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(LockedDoorDefinitions.FlywayDefaultOrWhenAreaTorizoDeadRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The FlywayWhenZebesTimebombSet room PLM population.</summary>
+    /// <summary>The FlywayWhenZebesTimebombSet room-object population.</summary>
     public static RoomObjectPopulation FlywayWhenZebesTimebombSet { get; } = RoomObjectPopulation.FromRecords(nameof(FlywayWhenZebesTimebombSet),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(8)),
     ]);
 
-    /// <summary>The PreMapFlyway room PLM population.</summary>
+    /// <summary>The PreMapFlyway room-object population.</summary>
     public static RoomObjectPopulation PreMapFlyway { get; } = RoomObjectPopulation.FromRecords(nameof(PreMapFlyway),
     [
     ]);
 
-    /// <summary>The Terminator room PLM population.</summary>
+    /// <summary>The Terminator room-object population.</summary>
     public static RoomObjectPopulation Terminator { get; } = RoomObjectPopulation.FromRecords(nameof(Terminator),
     [
         new(RoomObjectHeaderId.ExposedEnergyTank, new(7, 42), new CollectedItemArgument(ItemLocationDefinitions.TerminatorExposedEnergyTank)),
     ]);
 
-    /// <summary>The GreenBrinstarElev room PLM population.</summary>
+    /// <summary>The GreenBrinstarElev room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarElev { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarElev),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 13), null, ScrollProgram: RoomScrollProgram.GreenBrinstarElevScroll0),
     ]);
 
-    /// <summary>The LowerMushrooms room PLM population.</summary>
+    /// <summary>The LowerMushrooms room-object population.</summary>
     public static RoomObjectPopulation LowerMushrooms { get; } = RoomObjectPopulation.FromRecords(nameof(LowerMushrooms),
     [
     ]);
 
-    /// <summary>The CrateriaMap room PLM population.</summary>
+    /// <summary>The CrateriaMap room-object population.</summary>
     public static RoomObjectPopulation CrateriaMap { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaMap),
     [
         new(RoomObjectHeaderId.MapStation, new(11, 10), null),
     ]);
 
-    /// <summary>The GreenPiratesShaft room PLM population.</summary>
+    /// <summary>The GreenPiratesShaft room-object population.</summary>
     public static RoomObjectPopulation GreenPiratesShaft { get; } = RoomObjectPopulation.FromRecords(nameof(GreenPiratesShaft),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 67), null, ScrollProgram: RoomScrollProgram.GreenPiratesShaftScroll0),
@@ -365,34 +365,34 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 102), new DoorBitArgument(LockedDoorDefinitions.GreenPiratesShaftRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The CrateriaSuper room PLM population.</summary>
+    /// <summary>The CrateriaSuper room-object population.</summary>
     public static RoomObjectPopulation CrateriaSuper { get; } = RoomObjectPopulation.FromRecords(nameof(CrateriaSuper),
     [
         new(RoomObjectHeaderId.ExposedSuperMissileTank, new(59, 9), new CollectedItemArgument(ItemLocationDefinitions.CrateriaSuperExposedSuperMissileTank)),
     ]);
 
-    /// <summary>The FinalMissileBombwayDefault room PLM population.</summary>
+    /// <summary>The FinalMissileBombwayDefault room-object population.</summary>
     public static RoomObjectPopulation FinalMissileBombwayDefault { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileBombwayDefault),
     [
     ]);
 
-    /// <summary>The FinalMissileBombwayWhenZebesAwake room PLM population.</summary>
+    /// <summary>The FinalMissileBombwayWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation FinalMissileBombwayWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileBombwayWhenZebesAwake),
     [
     ]);
 
-    /// <summary>The FinalMissileDefault room PLM population.</summary>
+    /// <summary>The FinalMissileDefault room-object population.</summary>
     public static RoomObjectPopulation FinalMissileDefault { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileDefault),
     [
     ]);
 
-    /// <summary>The FinalMissileWhenZebesAwake room PLM population.</summary>
+    /// <summary>The FinalMissileWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation FinalMissileWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(FinalMissileWhenZebesAwake),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(4, 7), new CollectedItemArgument(ItemLocationDefinitions.FinalMissileWhenZebesAwakeExposedMissileTank)),
     ]);
 
-    /// <summary>The GreenBrinstarMainShaft room PLM population.</summary>
+    /// <summary>The GreenBrinstarMainShaft room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMainShaft { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarMainShaft),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 113), null, ScrollProgram: RoomScrollProgram.GreenBrinstarMainShaftScroll0),
@@ -409,7 +409,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(14, 118), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.GreenBrinstarMainShaftGreyDoorFacingLeft, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The SporeSpawnSuper room PLM population.</summary>
+    /// <summary>The SporeSpawnSuper room-object population.</summary>
     public static RoomObjectPopulation SporeSpawnSuper { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawnSuper),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(23, 11), null, ScrollProgram: RoomScrollProgram.SporeSpawnSuperScroll0),
@@ -417,13 +417,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ChozoSuperMissileTank, new(26, 135), new CollectedItemArgument(ItemLocationDefinitions.SporeSpawnSuperChozoSuperMissileTank)),
     ]);
 
-    /// <summary>The BrinstarPreMap room PLM population.</summary>
+    /// <summary>The BrinstarPreMap room-object population.</summary>
     public static RoomObjectPopulation BrinstarPreMap { get; } = RoomObjectPopulation.FromRecords(nameof(BrinstarPreMap),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.BrinstarPreMapGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The EarlySupers room PLM population.</summary>
+    /// <summary>The EarlySupers room-object population.</summary>
     public static RoomObjectPopulation EarlySupers { get; } = RoomObjectPopulation.FromRecords(nameof(EarlySupers),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(41, 14), null, ScrollProgram: RoomScrollProgram.EarlySupersScroll0),
@@ -436,7 +436,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedSuperMissileTank, new(4, 6), new CollectedItemArgument(ItemLocationDefinitions.EarlySupersExposedSuperMissileTank)),
     ]);
 
-    /// <summary>The BrinstarReserveTank room PLM population.</summary>
+    /// <summary>The BrinstarReserveTank room-object population.</summary>
     public static RoomObjectPopulation BrinstarReserveTank { get; } = RoomObjectPopulation.FromRecords(nameof(BrinstarReserveTank),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(14, 11), null, ScrollProgram: RoomScrollProgram.BrinstarReserveTankScroll0),
@@ -445,25 +445,25 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(25, 7), new CollectedItemArgument(ItemLocationDefinitions.BrinstarReserveTankExposedMissileTank)),
     ]);
 
-    /// <summary>The GreenBrinstarMap room PLM population.</summary>
+    /// <summary>The GreenBrinstarMap room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMap { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarMap),
     [
         new(RoomObjectHeaderId.MapStation, new(5, 10), null),
     ]);
 
-    /// <summary>The GreenBrinstarFirefleas room PLM population.</summary>
+    /// <summary>The GreenBrinstarFirefleas room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarFirefleas { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarFirefleas),
     [
         new(RoomObjectHeaderId.GreenDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.GreenBrinstarFirefleasGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The GreenBrinstarMissileRefill room PLM population.</summary>
+    /// <summary>The GreenBrinstarMissileRefill room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarMissileRefill { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarMissileRefill),
     [
         new(RoomObjectHeaderId.MissileStation, new(4, 10), new StationArgument(20)),
     ]);
 
-    /// <summary>The Dachora room PLM population.</summary>
+    /// <summary>The Dachora room-object population.</summary>
     public static RoomObjectPopulation Dachora { get; } = RoomObjectPopulation.FromRecords(nameof(Dachora),
     [
         new(RoomObjectHeaderId.DownwardsScrollExtension, new(69, 14), null),
@@ -491,7 +491,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ScrollTrigger, new(68, 11), null, ScrollProgram: RoomScrollProgram.DachoraScroll1),
     ]);
 
-    /// <summary>The BigPink room PLM population.</summary>
+    /// <summary>The BigPink room-object population.</summary>
     public static RoomObjectPopulation BigPink { get; } = RoomObjectPopulation.FromRecords(nameof(BigPink),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(46, 107), null, ScrollProgram: RoomScrollProgram.BigPinkScroll0),
@@ -509,20 +509,20 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingRight, new(1, 150), new DoorBitArgument(LockedDoorDefinitions.BigPinkRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The SporeSpawnKihunters room PLM population.</summary>
+    /// <summary>The SporeSpawnKihunters room-object population.</summary>
     public static RoomObjectPopulation SporeSpawnKihunters { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawnKihunters),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.GreyDoorFacingDown, new(54, 3), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.SporeSpawnKihuntersGreyDoorFacingDown, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The SporeSpawn room PLM population.</summary>
+    /// <summary>The SporeSpawn room-object population.</summary>
     public static RoomObjectPopulation SporeSpawn { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawn),
     [
         new(RoomObjectHeaderId.GreenDoorFacingUp, new(6, 46), new DoorBitArgument(LockedDoorDefinitions.SporeSpawnGreenDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The PinkBrinstarPowerBombs room PLM population.</summary>
+    /// <summary>The PinkBrinstarPowerBombs room-object population.</summary>
     public static RoomObjectPopulation PinkBrinstarPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(PinkBrinstarPowerBombs),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(8, 14), null, ScrollProgram: RoomScrollProgram.PinkBrinstarPowerBombsScroll0),
@@ -531,7 +531,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedPowerBombTank, new(6, 23), new CollectedItemArgument(ItemLocationDefinitions.PinkBrinstarPowerBombsExposedPowerBombTank)),
     ]);
 
-    /// <summary>The GreenHillZone room PLM population.</summary>
+    /// <summary>The GreenHillZone room-object population.</summary>
     public static RoomObjectPopulation GreenHillZone { get; } = RoomObjectPopulation.FromRecords(nameof(GreenHillZone),
     [
         new(RoomObjectHeaderId.DownwardGate, new(100, 55), null),
@@ -540,7 +540,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(61, 24), new CollectedItemArgument(ItemLocationDefinitions.GreenHillZoneExposedMissileTank)),
     ]);
 
-    /// <summary>The MorphBallDefault room PLM population.</summary>
+    /// <summary>The MorphBallDefault room-object population.</summary>
     public static RoomObjectPopulation MorphBallDefault { get; } = RoomObjectPopulation.FromRecords(nameof(MorphBallDefault),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(31, 43), null, ScrollProgram: RoomScrollProgram.MorphBallDefaultScroll0),
@@ -562,7 +562,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMorphBall, new(69, 41), new CollectedItemArgument(ItemLocationDefinitions.MorphBallDefaultExposedMorphBall)),
     ]);
 
-    /// <summary>The MorphBallWhenZebesAwake room PLM population.</summary>
+    /// <summary>The MorphBallWhenZebesAwake room-object population.</summary>
     public static RoomObjectPopulation MorphBallWhenZebesAwake { get; } = RoomObjectPopulation.FromRecords(nameof(MorphBallWhenZebesAwake),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(31, 43), null, ScrollProgram: RoomScrollProgram.MorphBallDefaultScroll0),
@@ -585,7 +585,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedPowerBombTank, new(40, 42), new CollectedItemArgument(ItemLocationDefinitions.MorphBallWhenZebesAwakeExposedPowerBombTank)),
     ]);
 
-    /// <summary>The ConstructionZone room PLM population.</summary>
+    /// <summary>The ConstructionZone room-object population.</summary>
     public static RoomObjectPopulation ConstructionZone { get; } = RoomObjectPopulation.FromRecords(nameof(ConstructionZone),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(4, 11), null, ScrollProgram: RoomScrollProgram.ConstructionZoneScroll0),
@@ -599,7 +599,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 6), new DoorBitArgument(LockedDoorDefinitions.ConstructionZoneRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The BlueBrinstarETank room PLM population.</summary>
+    /// <summary>The BlueBrinstarETank room-object population.</summary>
     public static RoomObjectPopulation BlueBrinstarETank { get; } = RoomObjectPopulation.FromRecords(nameof(BlueBrinstarETank),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(39, 11), null, ScrollProgram: RoomScrollProgram.BlueBrinstarETankScroll0),
@@ -608,18 +608,18 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ShotBlockEnergyTank, new(28, 34), new CollectedItemArgument(ItemLocationDefinitions.BlueBrinstarETankShotBlockEnergyTank)),
     ]);
 
-    /// <summary>The NoobBridge room PLM population.</summary>
+    /// <summary>The NoobBridge room-object population.</summary>
     public static RoomObjectPopulation NoobBridge { get; } = RoomObjectPopulation.FromRecords(nameof(NoobBridge),
     [
         new(RoomObjectHeaderId.GreenDoorFacingLeft, new(94, 6), new DoorBitArgument(LockedDoorDefinitions.NoobBridgeGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The GreenBrinstarBeetoms room PLM population.</summary>
+    /// <summary>The GreenBrinstarBeetoms room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarBeetoms { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarBeetoms),
     [
     ]);
 
-    /// <summary>The EtecoonETank room PLM population.</summary>
+    /// <summary>The EtecoonETank room-object population.</summary>
     public static RoomObjectPopulation EtecoonETank { get; } = RoomObjectPopulation.FromRecords(nameof(EtecoonETank),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 11), null, ScrollProgram: RoomScrollProgram.EtecoonETankScroll0),
@@ -629,25 +629,25 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.EtecoonETankGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The EtecoonSuper room PLM population.</summary>
+    /// <summary>The EtecoonSuper room-object population.</summary>
     public static RoomObjectPopulation EtecoonSuper { get; } = RoomObjectPopulation.FromRecords(nameof(EtecoonSuper),
     [
         new(RoomObjectHeaderId.ExposedSuperMissileTank, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.EtecoonSuperExposedSuperMissileTank)),
     ]);
 
-    /// <summary>The DachoraEnergyRefill room PLM population.</summary>
+    /// <summary>The DachoraEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation DachoraEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(DachoraEnergyRefill),
     [
         new(RoomObjectHeaderId.EnergyStation, new(4, 10), new StationArgument(32)),
     ]);
 
-    /// <summary>The SporeSpawnFarming room PLM population.</summary>
+    /// <summary>The SporeSpawnFarming room-object population.</summary>
     public static RoomObjectPopulation SporeSpawnFarming { get; } = RoomObjectPopulation.FromRecords(nameof(SporeSpawnFarming),
     [
         new(RoomObjectHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.SporeSpawnFarmingGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The WaterwayETank room PLM population.</summary>
+    /// <summary>The WaterwayETank room-object population.</summary>
     public static RoomObjectPopulation WaterwayETank { get; } = RoomObjectPopulation.FromRecords(nameof(WaterwayETank),
     [
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(15, 9), null),
@@ -656,13 +656,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedEnergyTank, new(4, 9), new CollectedItemArgument(ItemLocationDefinitions.WaterwayETankExposedEnergyTank)),
     ]);
 
-    /// <summary>The FirstMissile room PLM population.</summary>
+    /// <summary>The FirstMissile room-object population.</summary>
     public static RoomObjectPopulation FirstMissile { get; } = RoomObjectPopulation.FromRecords(nameof(FirstMissile),
     [
         new(RoomObjectHeaderId.ChozoMissileTank, new(4, 7), new CollectedItemArgument(ItemLocationDefinitions.FirstMissileChozoMissileTank)),
     ]);
 
-    /// <summary>The PinkBrinstarHoppers room PLM population.</summary>
+    /// <summary>The PinkBrinstarHoppers room-object population.</summary>
     public static RoomObjectPopulation PinkBrinstarHoppers { get; } = RoomObjectPopulation.FromRecords(nameof(PinkBrinstarHoppers),
     [
         new(RoomObjectHeaderId.DownwardGate, new(17, 4), null),
@@ -671,43 +671,43 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.PinkBrinstarHoppersGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The HopperETank room PLM population.</summary>
+    /// <summary>The HopperETank room-object population.</summary>
     public static RoomObjectPopulation HopperETank { get; } = RoomObjectPopulation.FromRecords(nameof(HopperETank),
     [
         new(RoomObjectHeaderId.ExposedEnergyTank, new(11, 9), new CollectedItemArgument(ItemLocationDefinitions.HopperETankExposedEnergyTank)),
     ]);
 
-    /// <summary>The BigPinkSaveRoom room PLM population.</summary>
+    /// <summary>The BigPinkSaveRoom room-object population.</summary>
     public static RoomObjectPopulation BigPinkSaveRoom { get; } = RoomObjectPopulation.FromRecords(nameof(BigPinkSaveRoom),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(0)),
     ]);
 
-    /// <summary>The BlueBrinstarBoulders room PLM population.</summary>
+    /// <summary>The BlueBrinstarBoulders room-object population.</summary>
     public static RoomObjectPopulation BlueBrinstarBoulders { get; } = RoomObjectPopulation.FromRecords(nameof(BlueBrinstarBoulders),
     [
     ]);
 
-    /// <summary>The BillyMays room PLM population.</summary>
+    /// <summary>The BillyMays room-object population.</summary>
     public static RoomObjectPopulation BillyMays { get; } = RoomObjectPopulation.FromRecords(nameof(BillyMays),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.BillyMaysExposedMissileTank)),
         new(RoomObjectHeaderId.ShotBlockMissileTank, new(5, 12), new CollectedItemArgument(ItemLocationDefinitions.BillyMaysShotBlockMissileTank)),
     ]);
 
-    /// <summary>The GreenBrinstarSave room PLM population.</summary>
+    /// <summary>The GreenBrinstarSave room-object population.</summary>
     public static RoomObjectPopulation GreenBrinstarSave { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBrinstarSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(1)),
     ]);
 
-    /// <summary>The EtecoonSave room PLM population.</summary>
+    /// <summary>The EtecoonSave room-object population.</summary>
     public static RoomObjectPopulation EtecoonSave { get; } = RoomObjectPopulation.FromRecords(nameof(EtecoonSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(2)),
     ]);
 
-    /// <summary>The RedTower room PLM population.</summary>
+    /// <summary>The RedTower room-object population.</summary>
     public static RoomObjectPopulation RedTower { get; } = RoomObjectPopulation.FromRecords(nameof(RedTower),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(9, 106), null, ScrollProgram: RoomScrollProgram.RedTowerScroll0),
@@ -716,24 +716,24 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.YellowDoorFacingRight, new(1, 102), new DoorBitArgument(LockedDoorDefinitions.RedTowerYellowDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The RedBrinstarFirefleas room PLM population.</summary>
+    /// <summary>The RedBrinstarFirefleas room-object population.</summary>
     public static RoomObjectPopulation RedBrinstarFirefleas { get; } = RoomObjectPopulation.FromRecords(nameof(RedBrinstarFirefleas),
     [
         new(RoomObjectHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.RedBrinstarFirefleasRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The XrayScope room PLM population.</summary>
+    /// <summary>The XrayScope room-object population.</summary>
     public static RoomObjectPopulation XrayScope { get; } = RoomObjectPopulation.FromRecords(nameof(XrayScope),
     [
         new(RoomObjectHeaderId.ChozoXrayScope, new(5, 7), new CollectedItemArgument(ItemLocationDefinitions.XrayScopeChozoXrayScope)),
     ]);
 
-    /// <summary>The Hellway room PLM population.</summary>
+    /// <summary>The Hellway room-object population.</summary>
     public static RoomObjectPopulation Hellway { get; } = RoomObjectPopulation.FromRecords(nameof(Hellway),
     [
     ]);
 
-    /// <summary>The Caterpillar room PLM population.</summary>
+    /// <summary>The Caterpillar room-object population.</summary>
     public static RoomObjectPopulation Caterpillar { get; } = RoomObjectPopulation.FromRecords(nameof(Caterpillar),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(5, 94), null, ScrollProgram: RoomScrollProgram.CaterpillarScroll0),
@@ -748,7 +748,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingRight, new(1, 118), new DoorBitArgument(LockedDoorDefinitions.CaterpillarGreenDoorFacingRightAt1x118, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The BetaPowerBomb room PLM population.</summary>
+    /// <summary>The BetaPowerBomb room-object population.</summary>
     public static RoomObjectPopulation BetaPowerBomb { get; } = RoomObjectPopulation.FromRecords(nameof(BetaPowerBomb),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 14), null, ScrollProgram: RoomScrollProgram.BetaPowerBombScroll0),
@@ -757,7 +757,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.BetaPowerBombGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The AlphaPowerBomb room PLM population.</summary>
+    /// <summary>The AlphaPowerBomb room-object population.</summary>
     public static RoomObjectPopulation AlphaPowerBomb { get; } = RoomObjectPopulation.FromRecords(nameof(AlphaPowerBomb),
     [
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(15, 4), null),
@@ -773,12 +773,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(2, 8), new CollectedItemArgument(ItemLocationDefinitions.AlphaPowerBombExposedMissileTank)),
     ]);
 
-    /// <summary>The SkreeBoost room PLM population.</summary>
+    /// <summary>The SkreeBoost room-object population.</summary>
     public static RoomObjectPopulation SkreeBoost { get; } = RoomObjectPopulation.FromRecords(nameof(SkreeBoost),
     [
     ]);
 
-    /// <summary>The BelowSpazer room PLM population.</summary>
+    /// <summary>The BelowSpazer room-object population.</summary>
     public static RoomObjectPopulation BelowSpazer { get; } = RoomObjectPopulation.FromRecords(nameof(BelowSpazer),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(16, 17), null, ScrollProgram: RoomScrollProgram.BelowSpazerScroll0),
@@ -796,13 +796,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingLeft, new(30, 6), new DoorBitArgument(LockedDoorDefinitions.BelowSpazerGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The Spazer room PLM population.</summary>
+    /// <summary>The Spazer room-object population.</summary>
     public static RoomObjectPopulation Spazer { get; } = RoomObjectPopulation.FromRecords(nameof(Spazer),
     [
         new(RoomObjectHeaderId.ChozoSpazerBeam, new(11, 9), new CollectedItemArgument(ItemLocationDefinitions.SpazerChozoSpazerBeam)),
     ]);
 
-    /// <summary>The WarehouseZeela room PLM population.</summary>
+    /// <summary>The WarehouseZeela room-object population.</summary>
     public static RoomObjectPopulation WarehouseZeela { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseZeela),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(2, 11), null, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll0),
@@ -812,14 +812,14 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.WarehouseZeelaGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The WarehouseETank room PLM population.</summary>
+    /// <summary>The WarehouseETank room-object population.</summary>
     public static RoomObjectPopulation WarehouseETank { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseETank),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.WarehouseETankGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.ShotBlockEnergyTank, new(5, 4), new CollectedItemArgument(ItemLocationDefinitions.WarehouseETankShotBlockEnergyTank)),
     ]);
 
-    /// <summary>The WarehouseKihunter room PLM population.</summary>
+    /// <summary>The WarehouseKihunter room-object population.</summary>
     public static RoomObjectPopulation WarehouseKihunter { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseKihunter),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(23, 11), null, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll0),
@@ -837,14 +837,14 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ShotBlockMissileTank, new(46, 8), new CollectedItemArgument(ItemLocationDefinitions.WarehouseKihunterShotBlockMissileTank)),
     ]);
 
-    /// <summary>The MiniKraid room PLM population.</summary>
+    /// <summary>The MiniKraid room-object population.</summary>
     public static RoomObjectPopulation MiniKraid { get; } = RoomObjectPopulation.FromRecords(nameof(MiniKraid),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.MiniKraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The KraidEyeDoor room PLM population.</summary>
+    /// <summary>The KraidEyeDoor room-object population.</summary>
     public static RoomObjectPopulation KraidEyeDoor { get; } = RoomObjectPopulation.FromRecords(nameof(KraidEyeDoor),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(3, 18), null, ScrollProgram: RoomScrollProgram.KraidEyeDoorScroll0),
@@ -856,38 +856,38 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.EyeDoorEyeFacingLeft, new(30, 23), new DoorBitArgument(LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The Kraid room PLM population.</summary>
+    /// <summary>The Kraid room-object population.</summary>
     public static RoomObjectPopulation Kraid { get; } = RoomObjectPopulation.FromRecords(nameof(Kraid),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.KraidGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.KraidGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The StatuesHallway room PLM population.</summary>
+    /// <summary>The StatuesHallway room-object population.</summary>
     public static RoomObjectPopulation StatuesHallway { get; } = RoomObjectPopulation.FromRecords(nameof(StatuesHallway),
     [
     ]);
 
-    /// <summary>The RedTowerRefill room PLM population.</summary>
+    /// <summary>The RedTowerRefill room-object population.</summary>
     public static RoomObjectPopulation RedTowerRefill { get; } = RoomObjectPopulation.FromRecords(nameof(RedTowerRefill),
     [
         new(RoomObjectHeaderId.EnergyStation, new(4, 10), new StationArgument(45)),
     ]);
 
-    /// <summary>The KraidRefill room PLM population.</summary>
+    /// <summary>The KraidRefill room-object population.</summary>
     public static RoomObjectPopulation KraidRefill { get; } = RoomObjectPopulation.FromRecords(nameof(KraidRefill),
     [
         new(RoomObjectHeaderId.MissileStation, new(9, 10), new StationArgument(46)),
         new(RoomObjectHeaderId.EnergyStation, new(7, 10), new StationArgument(47)),
     ]);
 
-    /// <summary>The Statues room PLM population.</summary>
+    /// <summary>The Statues room-object population.</summary>
     public static RoomObjectPopulation Statues { get; } = RoomObjectPopulation.FromRecords(nameof(Statues),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(5, new DoorBitArgument(LockedDoorDefinitions.StatuesGreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The WarehouseEntrance room PLM population.</summary>
+    /// <summary>The WarehouseEntrance room-object population.</summary>
     public static RoomObjectPopulation WarehouseEntrance { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseEntrance),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 12), null, ScrollProgram: RoomScrollProgram.WarehouseEntranceScroll0),
@@ -910,43 +910,43 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(20, 4), null),
     ]);
 
-    /// <summary>The VariaSuit room PLM population.</summary>
+    /// <summary>The VariaSuit room-object population.</summary>
     public static RoomObjectPopulation VariaSuit { get; } = RoomObjectPopulation.FromRecords(nameof(VariaSuit),
     [
         new(RoomObjectHeaderId.ChozoVariaSuit, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.VariaSuitChozoVariaSuit)),
     ]);
 
-    /// <summary>The WarehouseSave room PLM population.</summary>
+    /// <summary>The WarehouseSave room-object population.</summary>
     public static RoomObjectPopulation WarehouseSave { get; } = RoomObjectPopulation.FromRecords(nameof(WarehouseSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(3)),
     ]);
 
-    /// <summary>The RedBrinstarSave room PLM population.</summary>
+    /// <summary>The RedBrinstarSave room-object population.</summary>
     public static RoomObjectPopulation RedBrinstarSave { get; } = RoomObjectPopulation.FromRecords(nameof(RedBrinstarSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(4)),
     ]);
 
-    /// <summary>The IceBeamAcid room PLM population.</summary>
+    /// <summary>The IceBeamAcid room-object population.</summary>
     public static RoomObjectPopulation IceBeamAcid { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamAcid),
     [
     ]);
 
-    /// <summary>The Cathedral room PLM population.</summary>
+    /// <summary>The Cathedral room-object population.</summary>
     public static RoomObjectPopulation Cathedral { get; } = RoomObjectPopulation.FromRecords(nameof(Cathedral),
     [
         new(RoomObjectHeaderId.ShotBlockMissileTank, new(34, 28), new CollectedItemArgument(ItemLocationDefinitions.CathedralShotBlockMissileTank)),
         new(RoomObjectHeaderId.GreenDoorFacingLeft, new(46, 22), new DoorBitArgument(LockedDoorDefinitions.CathedralGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The CathedralEntrance room PLM population.</summary>
+    /// <summary>The CathedralEntrance room-object population.</summary>
     public static RoomObjectPopulation CathedralEntrance { get; } = RoomObjectPopulation.FromRecords(nameof(CathedralEntrance),
     [
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(LockedDoorDefinitions.CathedralEntranceRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The BusinessCenter room PLM population.</summary>
+    /// <summary>The BusinessCenter room-object population.</summary>
     public static RoomObjectPopulation BusinessCenter { get; } = RoomObjectPopulation.FromRecords(nameof(BusinessCenter),
     [
         new(RoomObjectHeaderId.ElevatorPlatform, new(6, 44), null),
@@ -955,25 +955,25 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingRight, new(1, 86), new DoorBitArgument(LockedDoorDefinitions.BusinessCenterRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The IceBeamGate room PLM population.</summary>
+    /// <summary>The IceBeamGate room-object population.</summary>
     public static RoomObjectPopulation IceBeamGate { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamGate),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(55, 45), null, ScrollProgram: RoomScrollProgram.IceBeamGateScroll0),
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(56, 45), null),
     ]);
 
-    /// <summary>The IceBeamTutorial room PLM population.</summary>
+    /// <summary>The IceBeamTutorial room-object population.</summary>
     public static RoomObjectPopulation IceBeamTutorial { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamTutorial),
     [
     ]);
 
-    /// <summary>The IceBeam room PLM population.</summary>
+    /// <summary>The IceBeam room-object population.</summary>
     public static RoomObjectPopulation IceBeam { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeam),
     [
         new(RoomObjectHeaderId.ChozoIceBeam, new(12, 7), new CollectedItemArgument(ItemLocationDefinitions.IceBeamChozoIceBeam)),
     ]);
 
-    /// <summary>The IceBeamSnake room PLM population.</summary>
+    /// <summary>The IceBeamSnake room-object population.</summary>
     public static RoomObjectPopulation IceBeamSnake { get; } = RoomObjectPopulation.FromRecords(nameof(IceBeamSnake),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(15, 23), null, ScrollProgram: RoomScrollProgram.IceBeamSnakeScroll0),
@@ -982,13 +982,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ScrollTrigger, new(19, 23), null, ScrollProgram: RoomScrollProgram.IceBeamSnakeScroll3),
     ]);
 
-    /// <summary>The CrumbleShaft room PLM population.</summary>
+    /// <summary>The CrumbleShaft room-object population.</summary>
     public static RoomObjectPopulation CrumbleShaft { get; } = RoomObjectPopulation.FromRecords(nameof(CrumbleShaft),
     [
         new(RoomObjectHeaderId.ShotBlockMissileTank, new(1, 8), new CollectedItemArgument(ItemLocationDefinitions.CrumbleShaftShotBlockMissileTank)),
     ]);
 
-    /// <summary>The CrocomireSpeedway room PLM population.</summary>
+    /// <summary>The CrocomireSpeedway room-object population.</summary>
     public static RoomObjectPopulation CrocomireSpeedway { get; } = RoomObjectPopulation.FromRecords(nameof(CrocomireSpeedway),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(158, 40), null, ScrollProgram: RoomScrollProgram.CrocomireSpeedwayScroll0),
@@ -1006,20 +1006,20 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingUp, new(198, 45), new DoorBitArgument(LockedDoorDefinitions.CrocomireSpeedwayGreenDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The Crocomire room PLM population.</summary>
+    /// <summary>The Crocomire room-object population.</summary>
     public static RoomObjectPopulation Crocomire { get; } = RoomObjectPopulation.FromRecords(nameof(Crocomire),
     [
         new(RoomObjectHeaderId.GreyDoorFacingDown, new(54, 2), new GreyDoorArgument(1, new DoorBitArgument(LockedDoorDefinitions.CrocomireGreyDoorFacingDown, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.ExposedEnergyTank, new(125, 6), new CollectedItemArgument(ItemLocationDefinitions.CrocomireExposedEnergyTank)),
     ]);
 
-    /// <summary>The HiJumpBoots room PLM population.</summary>
+    /// <summary>The HiJumpBoots room-object population.</summary>
     public static RoomObjectPopulation HiJumpBoots { get; } = RoomObjectPopulation.FromRecords(nameof(HiJumpBoots),
     [
         new(RoomObjectHeaderId.ChozoHiJumpBoots, new(3, 10), new CollectedItemArgument(ItemLocationDefinitions.HiJumpBootsChozoHiJumpBoots)),
     ]);
 
-    /// <summary>The CrocomireEscape room PLM population.</summary>
+    /// <summary>The CrocomireEscape room-object population.</summary>
     public static RoomObjectPopulation CrocomireEscape { get; } = RoomObjectPopulation.FromRecords(nameof(CrocomireEscape),
     [
         new(RoomObjectHeaderId.DownwardGate, new(6, 5), null),
@@ -1027,7 +1027,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(13, 9), new CollectedItemArgument(ItemLocationDefinitions.CrocomireEscapeExposedMissileTank)),
     ]);
 
-    /// <summary>The HiJumpETank room PLM population.</summary>
+    /// <summary>The HiJumpETank room-object population.</summary>
     public static RoomObjectPopulation HiJumpETank { get; } = RoomObjectPopulation.FromRecords(nameof(HiJumpETank),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(16, 12), null, ScrollProgram: RoomScrollProgram.HiJumpETankScroll0),
@@ -1039,80 +1039,80 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedEnergyTank, new(23, 8), new CollectedItemArgument(ItemLocationDefinitions.HiJumpETankExposedEnergyTank)),
     ]);
 
-    /// <summary>The PostCrocFarming room PLM population.</summary>
+    /// <summary>The PostCrocFarming room-object population.</summary>
     public static RoomObjectPopulation PostCrocFarming { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocFarming),
     [
         new(RoomObjectHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.PostCrocFarmingRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The PostCrocSave room PLM population.</summary>
+    /// <summary>The PostCrocSave room-object population.</summary>
     public static RoomObjectPopulation PostCrocSave { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(0)),
     ]);
 
-    /// <summary>The PostCrocPowerBombs room PLM population.</summary>
+    /// <summary>The PostCrocPowerBombs room-object population.</summary>
     public static RoomObjectPopulation PostCrocPowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocPowerBombs),
     [
         new(RoomObjectHeaderId.ExposedPowerBombTank, new(7, 8), new CollectedItemArgument(ItemLocationDefinitions.PostCrocPowerBombsExposedPowerBombTank)),
     ]);
 
-    /// <summary>The PostCrocShaft room PLM population.</summary>
+    /// <summary>The PostCrocShaft room-object population.</summary>
     public static RoomObjectPopulation PostCrocShaft { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocShaft),
     [
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 54), new DoorBitArgument(LockedDoorDefinitions.PostCrocShaftRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The PostCrocMissile room PLM population.</summary>
+    /// <summary>The PostCrocMissile room-object population.</summary>
     public static RoomObjectPopulation PostCrocMissile { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocMissile),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(60, 9), new CollectedItemArgument(ItemLocationDefinitions.PostCrocMissileExposedMissileTank)),
     ]);
 
-    /// <summary>The GrappleTutorial3 room PLM population.</summary>
+    /// <summary>The GrappleTutorial3 room-object population.</summary>
     public static RoomObjectPopulation GrappleTutorial3 { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleTutorial3),
     [
         new(RoomObjectHeaderId.DownwardGate, new(42, 5), null),
         new(RoomObjectHeaderId.DownwardGateShotBlock, new(42, 5), new GateTriggerArgument(4)),
     ]);
 
-    /// <summary>The PostCrocJump room PLM population.</summary>
+    /// <summary>The PostCrocJump room-object population.</summary>
     public static RoomObjectPopulation PostCrocJump { get; } = RoomObjectPopulation.FromRecords(nameof(PostCrocJump),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(67, 9), new CollectedItemArgument(ItemLocationDefinitions.PostCrocJumpExposedMissileTank)),
     ]);
 
-    /// <summary>The GrappleTutorial2 room PLM population.</summary>
+    /// <summary>The GrappleTutorial2 room-object population.</summary>
     public static RoomObjectPopulation GrappleTutorial2 { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleTutorial2),
     [
     ]);
 
-    /// <summary>The GrappleTutorial1 room PLM population.</summary>
+    /// <summary>The GrappleTutorial1 room-object population.</summary>
     public static RoomObjectPopulation GrappleTutorial1 { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleTutorial1),
     [
     ]);
 
-    /// <summary>The GrappleBeam room PLM population.</summary>
+    /// <summary>The GrappleBeam room-object population.</summary>
     public static RoomObjectPopulation GrappleBeam { get; } = RoomObjectPopulation.FromRecords(nameof(GrappleBeam),
     [
         new(RoomObjectHeaderId.ChozoGrappleBeam, new(4, 39), new CollectedItemArgument(ItemLocationDefinitions.GrappleBeamChozoGrappleBeam)),
     ]);
 
-    /// <summary>The NorfairReserveTank room PLM population.</summary>
+    /// <summary>The NorfairReserveTank room-object population.</summary>
     public static RoomObjectPopulation NorfairReserveTank { get; } = RoomObjectPopulation.FromRecords(nameof(NorfairReserveTank),
     [
         new(RoomObjectHeaderId.ChozoReserveTank, new(2, 7), new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankChozoReserveTank)),
         new(RoomObjectHeaderId.ShotBlockMissileTank, new(7, 11), new CollectedItemArgument(ItemLocationDefinitions.NorfairReserveTankShotBlockMissileTank)),
     ]);
 
-    /// <summary>The GreenBubblesMissiles room PLM population.</summary>
+    /// <summary>The GreenBubblesMissiles room-object population.</summary>
     public static RoomObjectPopulation GreenBubblesMissiles { get; } = RoomObjectPopulation.FromRecords(nameof(GreenBubblesMissiles),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(16, 5), null, ScrollProgram: RoomScrollProgram.GreenBubblesMissilesScroll0),
         new(RoomObjectHeaderId.ExposedMissileTank, new(20, 10), new CollectedItemArgument(ItemLocationDefinitions.GreenBubblesMissilesExposedMissileTank)),
     ]);
 
-    /// <summary>The BubbleMountain room PLM population.</summary>
+    /// <summary>The BubbleMountain room-object population.</summary>
     public static RoomObjectPopulation BubbleMountain { get; } = RoomObjectPopulation.FromRecords(nameof(BubbleMountain),
     [
         new(RoomObjectHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.BubbleMountainGreenDoorFacingRight, DoorOpeningPersistence.Persistent)),
@@ -1120,7 +1120,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(20, 60), new CollectedItemArgument(ItemLocationDefinitions.BubbleMountainExposedMissileTank)),
     ]);
 
-    /// <summary>The SpeedBoosterHall room PLM population.</summary>
+    /// <summary>The SpeedBoosterHall room-object population.</summary>
     public static RoomObjectPopulation SpeedBoosterHall { get; } = RoomObjectPopulation.FromRecords(nameof(SpeedBoosterHall),
     [
         new(RoomObjectHeaderId.SpeedBoosterEscape, new(0, 0), null),
@@ -1128,13 +1128,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(190, 22), new DoorBitArgument(LockedDoorDefinitions.SpeedBoosterHallRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The SpeedBooster room PLM population.</summary>
+    /// <summary>The SpeedBooster room-object population.</summary>
     public static RoomObjectPopulation SpeedBooster { get; } = RoomObjectPopulation.FromRecords(nameof(SpeedBooster),
     [
         new(RoomObjectHeaderId.ChozoSpeedBooster, new(11, 6), new CollectedItemArgument(ItemLocationDefinitions.SpeedBoosterChozoSpeedBooster)),
     ]);
 
-    /// <summary>The SingleChamber room PLM population.</summary>
+    /// <summary>The SingleChamber room-object population.</summary>
     public static RoomObjectPopulation SingleChamber { get; } = RoomObjectPopulation.FromRecords(nameof(SingleChamber),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(13, 8), null, ScrollProgram: RoomScrollProgram.SingleChamberScroll0),
@@ -1145,7 +1145,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(LockedDoorDefinitions.SingleChamberRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The DoubleChamber room PLM population.</summary>
+    /// <summary>The DoubleChamber room-object population.</summary>
     public static RoomObjectPopulation DoubleChamber { get; } = RoomObjectPopulation.FromRecords(nameof(DoubleChamber),
     [
         new(RoomObjectHeaderId.DownwardGate, new(26, 5), null),
@@ -1154,18 +1154,18 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(62, 6), new DoorBitArgument(LockedDoorDefinitions.DoubleChamberRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The WaveBeam room PLM population.</summary>
+    /// <summary>The WaveBeam room-object population.</summary>
     public static RoomObjectPopulation WaveBeam { get; } = RoomObjectPopulation.FromRecords(nameof(WaveBeam),
     [
         new(RoomObjectHeaderId.ChozoWaveBeam, new(11, 6), new CollectedItemArgument(ItemLocationDefinitions.WaveBeamChozoWaveBeam)),
     ]);
 
-    /// <summary>The SpikyPlatformsTunnel room PLM population.</summary>
+    /// <summary>The SpikyPlatformsTunnel room-object population.</summary>
     public static RoomObjectPopulation SpikyPlatformsTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyPlatformsTunnel),
     [
     ]);
 
-    /// <summary>The Volcano room PLM population.</summary>
+    /// <summary>The Volcano room-object population.</summary>
     public static RoomObjectPopulation Volcano { get; } = RoomObjectPopulation.FromRecords(nameof(Volcano),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(32, 41), null, ScrollProgram: RoomScrollProgram.VolcanoScroll0),
@@ -1182,7 +1182,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ScrollTrigger, new(38, 41), null, ScrollProgram: RoomScrollProgram.VolcanoScroll3),
     ]);
 
-    /// <summary>The KronicBoost room PLM population.</summary>
+    /// <summary>The KronicBoost room-object population.</summary>
     public static RoomObjectPopulation KronicBoost { get; } = RoomObjectPopulation.FromRecords(nameof(KronicBoost),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(15, 23), null, ScrollProgram: RoomScrollProgram.KronicBoostScroll0),
@@ -1196,12 +1196,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.YellowDoorFacingRight, new(17, 38), new DoorBitArgument(LockedDoorDefinitions.KronicBoostYellowDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The MagdolliteTunnel room PLM population.</summary>
+    /// <summary>The MagdolliteTunnel room-object population.</summary>
     public static RoomObjectPopulation MagdolliteTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(MagdolliteTunnel),
     [
     ]);
 
-    /// <summary>The PurpleShaft room PLM population.</summary>
+    /// <summary>The PurpleShaft room-object population.</summary>
     public static RoomObjectPopulation PurpleShaft { get; } = RoomObjectPopulation.FromRecords(nameof(PurpleShaft),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(2, 11), null, ScrollProgram: RoomScrollProgram.PurpleShaftScroll0),
@@ -1212,51 +1212,51 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(13, 11), null),
     ]);
 
-    /// <summary>The LavaDive room PLM population.</summary>
+    /// <summary>The LavaDive room-object population.</summary>
     public static RoomObjectPopulation LavaDive { get; } = RoomObjectPopulation.FromRecords(nameof(LavaDive),
     [
     ]);
 
-    /// <summary>The LowerNorfairElev room PLM population.</summary>
+    /// <summary>The LowerNorfairElev room-object population.</summary>
     public static RoomObjectPopulation LowerNorfairElev { get; } = RoomObjectPopulation.FromRecords(nameof(LowerNorfairElev),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(8, 11), null, ScrollProgram: RoomScrollProgram.LowerNorfairElevScroll0),
     ]);
 
-    /// <summary>The UpperNorfairFarming room PLM population.</summary>
+    /// <summary>The UpperNorfairFarming room-object population.</summary>
     public static RoomObjectPopulation UpperNorfairFarming { get; } = RoomObjectPopulation.FromRecords(nameof(UpperNorfairFarming),
     [
         new(RoomObjectHeaderId.DownwardGate, new(6, 21), null),
         new(RoomObjectHeaderId.DownwardGateShotBlock, new(6, 21), new GateTriggerArgument(0)),
     ]);
 
-    /// <summary>The RisingTide room PLM population.</summary>
+    /// <summary>The RisingTide room-object population.</summary>
     public static RoomObjectPopulation RisingTide { get; } = RoomObjectPopulation.FromRecords(nameof(RisingTide),
     [
     ]);
 
-    /// <summary>The AcidSnakesTunnel room PLM population.</summary>
+    /// <summary>The AcidSnakesTunnel room-object population.</summary>
     public static RoomObjectPopulation AcidSnakesTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(AcidSnakesTunnel),
     [
     ]);
 
-    /// <summary>The SpikyAcidSnakesTunnel room PLM population.</summary>
+    /// <summary>The SpikyAcidSnakesTunnel room-object population.</summary>
     public static RoomObjectPopulation SpikyAcidSnakesTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyAcidSnakesTunnel),
     [
     ]);
 
-    /// <summary>The UpperNorfairRefill room PLM population.</summary>
+    /// <summary>The UpperNorfairRefill room-object population.</summary>
     public static RoomObjectPopulation UpperNorfairRefill { get; } = RoomObjectPopulation.FromRecords(nameof(UpperNorfairRefill),
     [
         new(RoomObjectHeaderId.EnergyStation, new(7, 10), new StationArgument(69)),
     ]);
 
-    /// <summary>The PurpleFarming room PLM population.</summary>
+    /// <summary>The PurpleFarming room-object population.</summary>
     public static RoomObjectPopulation PurpleFarming { get; } = RoomObjectPopulation.FromRecords(nameof(PurpleFarming),
     [
     ]);
 
-    /// <summary>The BatCave room PLM population.</summary>
+    /// <summary>The BatCave room-object population.</summary>
     public static RoomObjectPopulation BatCave { get; } = RoomObjectPopulation.FromRecords(nameof(BatCave),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(9, 12), null, ScrollProgram: RoomScrollProgram.BatCaveScroll0),
@@ -1269,54 +1269,54 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(9, 19), null),
     ]);
 
-    /// <summary>The NorfairMap room PLM population.</summary>
+    /// <summary>The NorfairMap room-object population.</summary>
     public static RoomObjectPopulation NorfairMap { get; } = RoomObjectPopulation.FromRecords(nameof(NorfairMap),
     [
         new(RoomObjectHeaderId.MapStation, new(5, 10), null),
     ]);
 
-    /// <summary>The BubbleMountainSave room PLM population.</summary>
+    /// <summary>The BubbleMountainSave room-object population.</summary>
     public static RoomObjectPopulation BubbleMountainSave { get; } = RoomObjectPopulation.FromRecords(nameof(BubbleMountainSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(1)),
     ]);
 
-    /// <summary>The FrogSpeedway room PLM population.</summary>
+    /// <summary>The FrogSpeedway room-object population.</summary>
     public static RoomObjectPopulation FrogSpeedway { get; } = RoomObjectPopulation.FromRecords(nameof(FrogSpeedway),
     [
     ]);
 
-    /// <summary>The RedPirateShaft room PLM population.</summary>
+    /// <summary>The RedPirateShaft room-object population.</summary>
     public static RoomObjectPopulation RedPirateShaft { get; } = RoomObjectPopulation.FromRecords(nameof(RedPirateShaft),
     [
     ]);
 
-    /// <summary>The FrogSave room PLM population.</summary>
+    /// <summary>The FrogSave room-object population.</summary>
     public static RoomObjectPopulation FrogSave { get; } = RoomObjectPopulation.FromRecords(nameof(FrogSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(2)),
     ]);
 
-    /// <summary>The CrocomireSave room PLM population.</summary>
+    /// <summary>The CrocomireSave room-object population.</summary>
     public static RoomObjectPopulation CrocomireSave { get; } = RoomObjectPopulation.FromRecords(nameof(CrocomireSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(3)),
     ]);
 
-    /// <summary>The LNElevSave room PLM population.</summary>
+    /// <summary>The LNElevSave room-object population.</summary>
     public static RoomObjectPopulation LNElevSave { get; } = RoomObjectPopulation.FromRecords(nameof(LNElevSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(4)),
     ]);
 
-    /// <summary>The AcidStatue room PLM population.</summary>
+    /// <summary>The AcidStatue room-object population.</summary>
     public static RoomObjectPopulation AcidStatue { get; } = RoomObjectPopulation.FromRecords(nameof(AcidStatue),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(12, 30), null, ScrollProgram: RoomScrollProgram.AcidStatueScroll0),
         new(RoomObjectHeaderId.ScrollTrigger, new(12, 35), null, ScrollProgram: RoomScrollProgram.AcidStatueScroll1),
     ]);
 
-    /// <summary>The MainHall room PLM population.</summary>
+    /// <summary>The MainHall room-object population.</summary>
     public static RoomObjectPopulation MainHall { get; } = RoomObjectPopulation.FromRecords(nameof(MainHall),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(71, 8), null, ScrollProgram: RoomScrollProgram.MainHallScroll0),
@@ -1328,7 +1328,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ElevatorPlatform, new(70, 42), null),
     ]);
 
-    /// <summary>The GoldenTorizo room PLM population.</summary>
+    /// <summary>The GoldenTorizo room-object population.</summary>
     public static RoomObjectPopulation GoldenTorizo { get; } = RoomObjectPopulation.FromRecords(nameof(GoldenTorizo),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(4, 12), null, ScrollProgram: RoomScrollProgram.GoldenTorizoScroll0),
@@ -1344,27 +1344,27 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(2, new DoorBitArgument(LockedDoorDefinitions.GoldenTorizoGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The FastRipper room PLM population.</summary>
+    /// <summary>The FastRipper room-object population.</summary>
     public static RoomObjectPopulation FastRipper { get; } = RoomObjectPopulation.FromRecords(nameof(FastRipper),
     [
         new(RoomObjectHeaderId.DownwardGate, new(52, 5), null),
         new(RoomObjectHeaderId.DownwardGateShotBlock, new(52, 5), new GateTriggerArgument(4)),
     ]);
 
-    /// <summary>The GTEnergyRefill room PLM population.</summary>
+    /// <summary>The GTEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation GTEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(GTEnergyRefill),
     [
         new(RoomObjectHeaderId.EnergyStation, new(8, 10), new StationArgument(72)),
     ]);
 
-    /// <summary>The Ridley room PLM population.</summary>
+    /// <summary>The Ridley room-object population.</summary>
     public static RoomObjectPopulation Ridley { get; } = RoomObjectPopulation.FromRecords(nameof(Ridley),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.RidleyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.RidleyGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The LNFarming room PLM population.</summary>
+    /// <summary>The LNFarming room-object population.</summary>
     public static RoomObjectPopulation LNFarming { get; } = RoomObjectPopulation.FromRecords(nameof(LNFarming),
     [
         new(RoomObjectHeaderId.EyeDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.LNFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent)),
@@ -1372,7 +1372,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.EyeDoorEyeFacingRight, new(1, 7), new DoorBitArgument(LockedDoorDefinitions.LNFarmingEyeDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The FastPillarsSetup room PLM population.</summary>
+    /// <summary>The FastPillarsSetup room-object population.</summary>
     public static RoomObjectPopulation FastPillarsSetup { get; } = RoomObjectPopulation.FromRecords(nameof(FastPillarsSetup),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 33), null, ScrollProgram: RoomScrollProgram.FastPillarsSetupScroll0),
@@ -1381,12 +1381,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(8, 27), null),
     ]);
 
-    /// <summary>The UnusedNorfairRoom room PLM population.</summary>
+    /// <summary>The UnusedNorfairRoom room-object population.</summary>
     public static RoomObjectPopulation UnusedNorfairRoom { get; } = RoomObjectPopulation.FromRecords(nameof(UnusedNorfairRoom),
     [
     ]);
 
-    /// <summary>The MickeyMouse room PLM population.</summary>
+    /// <summary>The MickeyMouse room-object population.</summary>
     public static RoomObjectPopulation MickeyMouse { get; } = RoomObjectPopulation.FromRecords(nameof(MickeyMouse),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(48, 22), null, ScrollProgram: RoomScrollProgram.MickeyMouseScroll0),
@@ -1407,17 +1407,17 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(39, 27), new CollectedItemArgument(ItemLocationDefinitions.MickeyMouseExposedMissileTank)),
     ]);
 
-    /// <summary>The Pillar room PLM population.</summary>
+    /// <summary>The Pillar room-object population.</summary>
     public static RoomObjectPopulation Pillar { get; } = RoomObjectPopulation.FromRecords(nameof(Pillar),
     [
     ]);
 
-    /// <summary>The Plowerhouse room PLM population.</summary>
+    /// <summary>The Plowerhouse room-object population.</summary>
     public static RoomObjectPopulation Plowerhouse { get; } = RoomObjectPopulation.FromRecords(nameof(Plowerhouse),
     [
     ]);
 
-    /// <summary>The WorstRoomInTheGame room PLM population.</summary>
+    /// <summary>The WorstRoomInTheGame room-object population.</summary>
     public static RoomObjectPopulation WorstRoomInTheGame { get; } = RoomObjectPopulation.FromRecords(nameof(WorstRoomInTheGame),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(3, 16), null, ScrollProgram: RoomScrollProgram.WorstRoomInTheGameScroll0),
@@ -1432,12 +1432,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(12, 16), null),
     ]);
 
-    /// <summary>The Amphitheatre room PLM population.</summary>
+    /// <summary>The Amphitheatre room-object population.</summary>
     public static RoomObjectPopulation Amphitheatre { get; } = RoomObjectPopulation.FromRecords(nameof(Amphitheatre),
     [
     ]);
 
-    /// <summary>The LNSpringBallMaze room PLM population.</summary>
+    /// <summary>The LNSpringBallMaze room-object population.</summary>
     public static RoomObjectPopulation LNSpringBallMaze { get; } = RoomObjectPopulation.FromRecords(nameof(LNSpringBallMaze),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(12, 9), null, ScrollProgram: RoomScrollProgram.LNSpringBallMazeScroll0),
@@ -1456,13 +1456,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(43, 7), new CollectedItemArgument(ItemLocationDefinitions.LNSpringBallMazeExposedMissileTank)),
     ]);
 
-    /// <summary>The LNEscapePowerBombs room PLM population.</summary>
+    /// <summary>The LNEscapePowerBombs room-object population.</summary>
     public static RoomObjectPopulation LNEscapePowerBombs { get; } = RoomObjectPopulation.FromRecords(nameof(LNEscapePowerBombs),
     [
         new(RoomObjectHeaderId.ExposedPowerBombTank, new(12, 8), new CollectedItemArgument(ItemLocationDefinitions.LNEscapePowerBombsExposedPowerBombTank)),
     ]);
 
-    /// <summary>The RedKihunterShaft room PLM population.</summary>
+    /// <summary>The RedKihunterShaft room-object population.</summary>
     public static RoomObjectPopulation RedKihunterShaft { get; } = RoomObjectPopulation.FromRecords(nameof(RedKihunterShaft),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(17, 72), null, ScrollProgram: RoomScrollProgram.RedKihunterShaftScroll0),
@@ -1482,7 +1482,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.YellowDoorFacingUp, new(38, 77), new DoorBitArgument(LockedDoorDefinitions.RedKihunterShaftYellowDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The Wasteland room PLM population.</summary>
+    /// <summary>The Wasteland room-object population.</summary>
     public static RoomObjectPopulation Wasteland { get; } = RoomObjectPopulation.FromRecords(nameof(Wasteland),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(23, 13), null, ScrollProgram: RoomScrollProgram.WastelandScroll0),
@@ -1511,13 +1511,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedPowerBombTank, new(7, 8), new CollectedItemArgument(ItemLocationDefinitions.WastelandExposedPowerBombTank)),
     ]);
 
-    /// <summary>The MetalPirates room PLM population.</summary>
+    /// <summary>The MetalPirates room-object population.</summary>
     public static RoomObjectPopulation MetalPirates { get; } = RoomObjectPopulation.FromRecords(nameof(MetalPirates),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.MetalPiratesGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The ThreeMusketeers room PLM population.</summary>
+    /// <summary>The ThreeMusketeers room-object population.</summary>
     public static RoomObjectPopulation ThreeMusketeers { get; } = RoomObjectPopulation.FromRecords(nameof(ThreeMusketeers),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(11, 42), null, ScrollProgram: RoomScrollProgram.ThreeMusketeersScroll0),
@@ -1531,19 +1531,19 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(8, 41), new CollectedItemArgument(ItemLocationDefinitions.ThreeMusketeersExposedMissileTank)),
     ]);
 
-    /// <summary>The RidleyETank room PLM population.</summary>
+    /// <summary>The RidleyETank room-object population.</summary>
     public static RoomObjectPopulation RidleyETank { get; } = RoomObjectPopulation.FromRecords(nameof(RidleyETank),
     [
         new(RoomObjectHeaderId.ShotBlockEnergyTank, new(14, 11), new CollectedItemArgument(ItemLocationDefinitions.RidleyETankShotBlockEnergyTank)),
     ]);
 
-    /// <summary>The ScrewAttack room PLM population.</summary>
+    /// <summary>The ScrewAttack room-object population.</summary>
     public static RoomObjectPopulation ScrewAttack { get; } = RoomObjectPopulation.FromRecords(nameof(ScrewAttack),
     [
         new(RoomObjectHeaderId.ChozoScrewAttack, new(11, 40), new CollectedItemArgument(ItemLocationDefinitions.ScrewAttackChozoScrewAttack)),
     ]);
 
-    /// <summary>The LNFireflea room PLM population.</summary>
+    /// <summary>The LNFireflea room-object population.</summary>
     public static RoomObjectPopulation LNFireflea { get; } = RoomObjectPopulation.FromRecords(nameof(LNFireflea),
     [
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(31, 54), null),
@@ -1567,13 +1567,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedEnergyTank, new(42, 81), new CollectedItemArgument(ItemLocationDefinitions.LNFirefleaExposedEnergyTank)),
     ]);
 
-    /// <summary>The LNSave room PLM population.</summary>
+    /// <summary>The LNSave room-object population.</summary>
     public static RoomObjectPopulation LNSave { get; } = RoomObjectPopulation.FromRecords(nameof(LNSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(5)),
     ]);
 
-    /// <summary>The BowlingAlleyDefault room PLM population.</summary>
+    /// <summary>The BowlingAlleyDefault room-object population.</summary>
     public static RoomObjectPopulation BowlingAlleyDefault { get; } = RoomObjectPopulation.FromRecords(nameof(BowlingAlleyDefault),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(31, 45), null, ScrollProgram: RoomScrollProgram.BowlingAlleyDefaultScroll0),
@@ -1582,12 +1582,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ScrollTrigger, new(65, 40), null, ScrollProgram: RoomScrollProgram.BowlingAlleyDefaultScroll1),
     ]);
 
-    /// <summary>The WreckedShipEntranceDefault room PLM population.</summary>
+    /// <summary>The WreckedShipEntranceDefault room-object population.</summary>
     public static RoomObjectPopulation WreckedShipEntranceDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipEntranceDefault),
     [
     ]);
 
-    /// <summary>The AtticDefault room PLM population.</summary>
+    /// <summary>The AtticDefault room-object population.</summary>
     public static RoomObjectPopulation AtticDefault { get; } = RoomObjectPopulation.FromRecords(nameof(AtticDefault),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.AtticDefaultGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
@@ -1595,12 +1595,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.WreckedShipAttic, new(8, 8), null),
     ]);
 
-    /// <summary>The AssemblyLineDefault room PLM population.</summary>
+    /// <summary>The AssemblyLineDefault room-object population.</summary>
     public static RoomObjectPopulation AssemblyLineDefault { get; } = RoomObjectPopulation.FromRecords(nameof(AssemblyLineDefault),
     [
     ]);
 
-    /// <summary>The WreckedShipMainShaft room PLM population.</summary>
+    /// <summary>The WreckedShipMainShaft room-object population.</summary>
     public static RoomObjectPopulation WreckedShipMainShaft { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipMainShaft),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(62, 87), null, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll0),
@@ -1614,24 +1614,24 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingUp, new(70, 125), new DoorBitArgument(LockedDoorDefinitions.WreckedShipMainShaftGreenDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The SpikyDeathDefault room PLM population.</summary>
+    /// <summary>The SpikyDeathDefault room-object population.</summary>
     public static RoomObjectPopulation SpikyDeathDefault { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyDeathDefault),
     [
     ]);
 
-    /// <summary>The ElectricDeathDefault room PLM population.</summary>
+    /// <summary>The ElectricDeathDefault room-object population.</summary>
     public static RoomObjectPopulation ElectricDeathDefault { get; } = RoomObjectPopulation.FromRecords(nameof(ElectricDeathDefault),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 16), null, ScrollProgram: RoomScrollProgram.ElectricDeathDefaultScroll0),
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(8, 16), null),
     ]);
 
-    /// <summary>The WreckedShipETankDefault room PLM population.</summary>
+    /// <summary>The WreckedShipETankDefault room-object population.</summary>
     public static RoomObjectPopulation WreckedShipETankDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipETankDefault),
     [
     ]);
 
-    /// <summary>The BasementDefault room PLM population.</summary>
+    /// <summary>The BasementDefault room-object population.</summary>
     public static RoomObjectPopulation BasementDefault { get; } = RoomObjectPopulation.FromRecords(nameof(BasementDefault),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(64, 12), null, ScrollProgram: RoomScrollProgram.BasementDefaultScroll0),
@@ -1641,45 +1641,45 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.EyeDoorEyeFacingLeft, new(78, 7), new DoorBitArgument(LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The WreckedShipMapDefault room PLM population.</summary>
+    /// <summary>The WreckedShipMapDefault room-object population.</summary>
     public static RoomObjectPopulation WreckedShipMapDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipMapDefault),
     [
     ]);
 
-    /// <summary>The Phantoon room PLM population.</summary>
+    /// <summary>The Phantoon room-object population.</summary>
     public static RoomObjectPopulation Phantoon { get; } = RoomObjectPopulation.FromRecords(nameof(Phantoon),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.PhantoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The SpongeBathDefault room PLM population.</summary>
+    /// <summary>The SpongeBathDefault room-object population.</summary>
     public static RoomObjectPopulation SpongeBathDefault { get; } = RoomObjectPopulation.FromRecords(nameof(SpongeBathDefault),
     [
     ]);
 
-    /// <summary>The WSWestSuperDefault room PLM population.</summary>
+    /// <summary>The WSWestSuperDefault room-object population.</summary>
     public static RoomObjectPopulation WSWestSuperDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WSWestSuperDefault),
     [
     ]);
 
-    /// <summary>The WSEastSuperDefault room PLM population.</summary>
+    /// <summary>The WSEastSuperDefault room-object population.</summary>
     public static RoomObjectPopulation WSEastSuperDefault { get; } = RoomObjectPopulation.FromRecords(nameof(WSEastSuperDefault),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(47, 7), null, ScrollProgram: RoomScrollProgram.WSEastSuperDefaultScroll0),
     ]);
 
-    /// <summary>The GravitySuitOrWreckedShipSaveDefault room PLM population.</summary>
+    /// <summary>The GravitySuitOrWreckedShipSaveDefault room-object population.</summary>
     public static RoomObjectPopulation GravitySuitOrWreckedShipSaveDefault { get; } = RoomObjectPopulation.FromRecords(nameof(GravitySuitOrWreckedShipSaveDefault),
     [
     ]);
 
-    /// <summary>The WreckedShipSaveWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The WreckedShipSaveWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipSaveWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipSaveWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(0)),
     ]);
 
-    /// <summary>The BowlingAlleyWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The BowlingAlleyWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation BowlingAlleyWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(BowlingAlleyWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(31, 45), null, ScrollProgram: RoomScrollProgram.BowlingAlleyDefaultScroll0),
@@ -1691,12 +1691,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.BowlingAlleyWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The WreckedShipEntranceWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The WreckedShipEntranceWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipEntranceWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipEntranceWhenAreaBossDead),
     [
     ]);
 
-    /// <summary>The AtticWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The AtticWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation AtticWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(AtticWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.AtticWhenAreaBossDeadGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
@@ -1705,18 +1705,18 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.WreckedShipAttic, new(8, 8), null),
     ]);
 
-    /// <summary>The AssemblyLineWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The AssemblyLineWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation AssemblyLineWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(AssemblyLineWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(45, 8), new CollectedItemArgument(ItemLocationDefinitions.AssemblyLineWhenAreaBossDeadExposedMissileTank)),
     ]);
 
-    /// <summary>The SpikyDeathWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The SpikyDeathWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation SpikyDeathWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(SpikyDeathWhenAreaBossDead),
     [
     ]);
 
-    /// <summary>The ElectricDeathWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The ElectricDeathWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation ElectricDeathWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(ElectricDeathWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 16), null, ScrollProgram: RoomScrollProgram.ElectricDeathDefaultScroll0),
@@ -1724,56 +1724,56 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(LockedDoorDefinitions.ElectricDeathWhenAreaBossDeadRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The WreckedShipETankWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The WreckedShipETankWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipETankWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipETankWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ExposedEnergyTank, new(3, 6), new CollectedItemArgument(ItemLocationDefinitions.WreckedShipETankWhenAreaBossDeadExposedEnergyTank)),
     ]);
 
-    /// <summary>The BasementWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The BasementWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation BasementWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(BasementWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(64, 12), null, ScrollProgram: RoomScrollProgram.BasementDefaultScroll0),
         new(RoomObjectHeaderId.ScrollTrigger, new(70, 12), null, ScrollProgram: RoomScrollProgram.BasementDefaultScroll1),
     ]);
 
-    /// <summary>The WreckedShipMapWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The WreckedShipMapWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WreckedShipMapWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WreckedShipMapWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.MapStation, new(5, 10), null),
     ]);
 
-    /// <summary>The SpongeBathWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The SpongeBathWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation SpongeBathWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(SpongeBathWhenAreaBossDead),
     [
     ]);
 
-    /// <summary>The WSWestSuperWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The WSWestSuperWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WSWestSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WSWestSuperWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ExposedSuperMissileTank, new(2, 7), new CollectedItemArgument(ItemLocationDefinitions.WSWestSuperWhenAreaBossDeadExposedSuperMissileTank)),
     ]);
 
-    /// <summary>The WSEastSuperWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The WSEastSuperWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation WSEastSuperWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(WSEastSuperWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(47, 7), null, ScrollProgram: RoomScrollProgram.WSEastSuperDefaultScroll0),
         new(RoomObjectHeaderId.ExposedSuperMissileTank, new(56, 9), new CollectedItemArgument(ItemLocationDefinitions.WSEastSuperWhenAreaBossDeadExposedSuperMissileTank)),
     ]);
 
-    /// <summary>The GravitySuitWhenAreaBossDead room PLM population.</summary>
+    /// <summary>The GravitySuitWhenAreaBossDead room-object population.</summary>
     public static RoomObjectPopulation GravitySuitWhenAreaBossDead { get; } = RoomObjectPopulation.FromRecords(nameof(GravitySuitWhenAreaBossDead),
     [
         new(RoomObjectHeaderId.ChozoGravitySuit, new(7, 9), new CollectedItemArgument(ItemLocationDefinitions.GravitySuitWhenAreaBossDeadChozoGravitySuit)),
     ]);
 
-    /// <summary>The GlassTunnelSave room PLM population.</summary>
+    /// <summary>The GlassTunnelSave room-object population.</summary>
     public static RoomObjectPopulation GlassTunnelSave { get; } = RoomObjectPopulation.FromRecords(nameof(GlassTunnelSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(0)),
     ]);
 
-    /// <summary>The GlassTunnel room PLM population.</summary>
+    /// <summary>The GlassTunnel room-object population.</summary>
     public static RoomObjectPopulation GlassTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(GlassTunnel),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(3, 20), null, ScrollProgram: RoomScrollProgram.GlassTunnelScroll0),
@@ -1794,12 +1794,12 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 38), new DoorBitArgument(LockedDoorDefinitions.GlassTunnelRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The WestTunnel room PLM population.</summary>
+    /// <summary>The WestTunnel room-object population.</summary>
     public static RoomObjectPopulation WestTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(WestTunnel),
     [
     ]);
 
-    /// <summary>The EastTunnel room PLM population.</summary>
+    /// <summary>The EastTunnel room-object population.</summary>
     public static RoomObjectPopulation EastTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(EastTunnel),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(5, 9), null, ScrollProgram: RoomScrollProgram.EastTunnelScroll0),
@@ -1816,7 +1816,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.DownwardGateShotBlock, new(22, 5), new GateTriggerArgument(5)),
     ]);
 
-    /// <summary>The MainStreet room PLM population.</summary>
+    /// <summary>The MainStreet room-object population.</summary>
     public static RoomObjectPopulation MainStreet { get; } = RoomObjectPopulation.FromRecords(nameof(MainStreet),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(37, 41), null, ScrollProgram: RoomScrollProgram.MainStreetScroll0),
@@ -1825,7 +1825,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedSuperMissileTank, new(22, 40), new CollectedItemArgument(ItemLocationDefinitions.MainStreetExposedSuperMissileTank)),
     ]);
 
-    /// <summary>The FishTank room PLM population.</summary>
+    /// <summary>The FishTank room-object population.</summary>
     public static RoomObjectPopulation FishTank { get; } = RoomObjectPopulation.FromRecords(nameof(FishTank),
     [
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(31, 38), null),
@@ -1839,33 +1839,33 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(62, 38), new DoorBitArgument(LockedDoorDefinitions.FishTankRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The MamaTurtle room PLM population.</summary>
+    /// <summary>The MamaTurtle room-object population.</summary>
     public static RoomObjectPopulation MamaTurtle { get; } = RoomObjectPopulation.FromRecords(nameof(MamaTurtle),
     [
         new(RoomObjectHeaderId.ExposedEnergyTank, new(31, 10), new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleExposedEnergyTank)),
         new(RoomObjectHeaderId.ShotBlockMissileTank, new(44, 29), new CollectedItemArgument(ItemLocationDefinitions.MamaTurtleShotBlockMissileTank)),
     ]);
 
-    /// <summary>The CrabTunnel room PLM population.</summary>
+    /// <summary>The CrabTunnel room-object population.</summary>
     public static RoomObjectPopulation CrabTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(CrabTunnel),
     [
         new(RoomObjectHeaderId.DownwardGate, new(14, 7), null),
         new(RoomObjectHeaderId.DownwardGateShotBlock, new(14, 7), new GateTriggerArgument(4)),
     ]);
 
-    /// <summary>The MtEverest room PLM population.</summary>
+    /// <summary>The MtEverest room-object population.</summary>
     public static RoomObjectPopulation MtEverest { get; } = RoomObjectPopulation.FromRecords(nameof(MtEverest),
     [
     ]);
 
-    /// <summary>The RedFish room PLM population.</summary>
+    /// <summary>The RedFish room-object population.</summary>
     public static RoomObjectPopulation RedFish { get; } = RoomObjectPopulation.FromRecords(nameof(RedFish),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(32, 6), null, ScrollProgram: RoomScrollProgram.RedFishScroll0),
         new(RoomObjectHeaderId.ScrollTrigger, new(30, 6), null, ScrollProgram: RoomScrollProgram.RedFishScroll1),
     ]);
 
-    /// <summary>The WateringHole room PLM population.</summary>
+    /// <summary>The WateringHole room-object population.</summary>
     public static RoomObjectPopulation WateringHole { get; } = RoomObjectPopulation.FromRecords(nameof(WateringHole),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 31), null, ScrollProgram: RoomScrollProgram.WateringHoleScroll0),
@@ -1873,7 +1873,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(11, 39), new CollectedItemArgument(ItemLocationDefinitions.WateringHoleExposedMissileTank)),
     ]);
 
-    /// <summary>The NWestMaridiaBug room PLM population.</summary>
+    /// <summary>The NWestMaridiaBug room-object population.</summary>
     public static RoomObjectPopulation NWestMaridiaBug { get; } = RoomObjectPopulation.FromRecords(nameof(NWestMaridiaBug),
     [
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(32, 22), null),
@@ -1886,7 +1886,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ScrollTrigger, new(15, 25), null, ScrollProgram: RoomScrollProgram.NWestMaridiaBugScroll0),
     ]);
 
-    /// <summary>The CrabShaft room PLM population.</summary>
+    /// <summary>The CrabShaft room-object population.</summary>
     public static RoomObjectPopulation CrabShaft { get; } = RoomObjectPopulation.FromRecords(nameof(CrabShaft),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(7, 45), null, ScrollProgram: RoomScrollProgram.CrabShaftScroll0),
@@ -1894,7 +1894,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingLeft, new(30, 54), new DoorBitArgument(LockedDoorDefinitions.CrabShaftGreenDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The PseudoPlasmaSpark room PLM population.</summary>
+    /// <summary>The PseudoPlasmaSpark room-object population.</summary>
     public static RoomObjectPopulation PseudoPlasmaSpark { get; } = RoomObjectPopulation.FromRecords(nameof(PseudoPlasmaSpark),
     [
         new(RoomObjectHeaderId.UpwardsScrollExtension, new(31, 38), null),
@@ -1908,7 +1908,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedMissileTank, new(44, 40), new CollectedItemArgument(ItemLocationDefinitions.PseudoPlasmaSparkExposedMissileTank)),
     ]);
 
-    /// <summary>The CrabHole room PLM population.</summary>
+    /// <summary>The CrabHole room-object population.</summary>
     public static RoomObjectPopulation CrabHole { get; } = RoomObjectPopulation.FromRecords(nameof(CrabHole),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(8, 14), null, ScrollProgram: RoomScrollProgram.CrabHoleScroll0),
@@ -1916,75 +1916,75 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(LockedDoorDefinitions.CrabHoleRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The WestSandHallTunnel room PLM population.</summary>
+    /// <summary>The WestSandHallTunnel room-object population.</summary>
     public static RoomObjectPopulation WestSandHallTunnel { get; } = RoomObjectPopulation.FromRecords(nameof(WestSandHallTunnel),
     [
     ]);
 
-    /// <summary>The PlasmaTutorial room PLM population.</summary>
+    /// <summary>The PlasmaTutorial room-object population.</summary>
     public static RoomObjectPopulation PlasmaTutorial { get; } = RoomObjectPopulation.FromRecords(nameof(PlasmaTutorial),
     [
     ]);
 
-    /// <summary>The Plasma room PLM population.</summary>
+    /// <summary>The Plasma room-object population.</summary>
     public static RoomObjectPopulation Plasma { get; } = RoomObjectPopulation.FromRecords(nameof(Plasma),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.PlasmaGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.ChozoPlasmaBeam, new(25, 38), new CollectedItemArgument(ItemLocationDefinitions.PlasmaChozoPlasmaBeam)),
     ]);
 
-    /// <summary>The ThreadTheNeedle room PLM population.</summary>
+    /// <summary>The ThreadTheNeedle room-object population.</summary>
     public static RoomObjectPopulation ThreadTheNeedle { get; } = RoomObjectPopulation.FromRecords(nameof(ThreadTheNeedle),
     [
     ]);
 
-    /// <summary>The MaridiaElev room PLM population.</summary>
+    /// <summary>The MaridiaElev room-object population.</summary>
     public static RoomObjectPopulation MaridiaElev { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaElev),
     [
         new(RoomObjectHeaderId.ElevatorPlatform, new(6, 44), null),
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 70), new DoorBitArgument(LockedDoorDefinitions.MaridiaElevRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The PlasmaSpark room PLM population.</summary>
+    /// <summary>The PlasmaSpark room-object population.</summary>
     public static RoomObjectPopulation PlasmaSpark { get; } = RoomObjectPopulation.FromRecords(nameof(PlasmaSpark),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(46, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.PlasmaSparkGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
         new(RoomObjectHeaderId.GreenDoorFacingUp, new(6, 45), new DoorBitArgument(LockedDoorDefinitions.PlasmaSparkGreenDoorFacingUp, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The Kassiuz room PLM population.</summary>
+    /// <summary>The Kassiuz room-object population.</summary>
     public static RoomObjectPopulation Kassiuz { get; } = RoomObjectPopulation.FromRecords(nameof(Kassiuz),
     [
     ]);
 
-    /// <summary>The MaridiaMap room PLM population.</summary>
+    /// <summary>The MaridiaMap room-object population.</summary>
     public static RoomObjectPopulation MaridiaMap { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaMap),
     [
         new(RoomObjectHeaderId.MapStation, new(11, 10), null),
     ]);
 
-    /// <summary>The ForgottenHighwaySave room PLM population.</summary>
+    /// <summary>The ForgottenHighwaySave room-object population.</summary>
     public static RoomObjectPopulation ForgottenHighwaySave { get; } = RoomObjectPopulation.FromRecords(nameof(ForgottenHighwaySave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(1)),
     ]);
 
-    /// <summary>The Toilet room PLM population.</summary>
+    /// <summary>The Toilet room-object population.</summary>
     public static RoomObjectPopulation Toilet { get; } = RoomObjectPopulation.FromRecords(nameof(Toilet),
     [
     ]);
 
-    /// <summary>The BugSandHole room PLM population.</summary>
+    /// <summary>The BugSandHole room-object population.</summary>
     public static RoomObjectPopulation BugSandHole { get; } = RoomObjectPopulation.FromRecords(nameof(BugSandHole),
     [
     ]);
 
-    /// <summary>The WestSandHall room PLM population.</summary>
+    /// <summary>The WestSandHall room-object population.</summary>
     public static RoomObjectPopulation WestSandHall { get; } = RoomObjectPopulation.FromRecords(nameof(WestSandHall),
     [
     ]);
 
-    /// <summary>The Oasis room PLM population.</summary>
+    /// <summary>The Oasis room-object population.</summary>
     public static RoomObjectPopulation Oasis { get; } = RoomObjectPopulation.FromRecords(nameof(Oasis),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(3, 20), null, ScrollProgram: RoomScrollProgram.OasisScroll0),
@@ -2000,36 +2000,36 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingDown, new(6, 2), new DoorBitArgument(LockedDoorDefinitions.OasisGreenDoorFacingDown, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The EastSandHall room PLM population.</summary>
+    /// <summary>The EastSandHall room-object population.</summary>
     public static RoomObjectPopulation EastSandHall { get; } = RoomObjectPopulation.FromRecords(nameof(EastSandHall),
     [
     ]);
 
-    /// <summary>The WestSandHole room PLM population.</summary>
+    /// <summary>The WestSandHole room-object population.</summary>
     public static RoomObjectPopulation WestSandHole { get; } = RoomObjectPopulation.FromRecords(nameof(WestSandHole),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(6, 4), new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleExposedMissileTank)),
         new(RoomObjectHeaderId.ChozoReserveTank, new(15, 4), new CollectedItemArgument(ItemLocationDefinitions.WestSandHoleChozoReserveTank)),
     ]);
 
-    /// <summary>The EastSandHole room PLM population.</summary>
+    /// <summary>The EastSandHole room-object population.</summary>
     public static RoomObjectPopulation EastSandHole { get; } = RoomObjectPopulation.FromRecords(nameof(EastSandHole),
     [
         new(RoomObjectHeaderId.ExposedMissileTank, new(3, 7), new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedMissileTank)),
         new(RoomObjectHeaderId.ExposedPowerBombTank, new(25, 16), new CollectedItemArgument(ItemLocationDefinitions.EastSandHoleExposedPowerBombTank)),
     ]);
 
-    /// <summary>The WestAqueductQuicksand room PLM population.</summary>
+    /// <summary>The WestAqueductQuicksand room-object population.</summary>
     public static RoomObjectPopulation WestAqueductQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(WestAqueductQuicksand),
     [
     ]);
 
-    /// <summary>The EastAqueductQuicksand room PLM population.</summary>
+    /// <summary>The EastAqueductQuicksand room-object population.</summary>
     public static RoomObjectPopulation EastAqueductQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(EastAqueductQuicksand),
     [
     ]);
 
-    /// <summary>The Aqueduct room PLM population.</summary>
+    /// <summary>The Aqueduct room-object population.</summary>
     public static RoomObjectPopulation Aqueduct { get; } = RoomObjectPopulation.FromRecords(nameof(Aqueduct),
     [
         new(RoomObjectHeaderId.RedDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.AqueductRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
@@ -2037,18 +2037,18 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ExposedSuperMissileTank, new(92, 8), new CollectedItemArgument(ItemLocationDefinitions.AqueductExposedSuperMissileTank)),
     ]);
 
-    /// <summary>The Butterfly room PLM population.</summary>
+    /// <summary>The Butterfly room-object population.</summary>
     public static RoomObjectPopulation Butterfly { get; } = RoomObjectPopulation.FromRecords(nameof(Butterfly),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.ButterflyGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The BotwoonHallway room PLM population.</summary>
+    /// <summary>The BotwoonHallway room-object population.</summary>
     public static RoomObjectPopulation BotwoonHallway { get; } = RoomObjectPopulation.FromRecords(nameof(BotwoonHallway),
     [
     ]);
 
-    /// <summary>The Pants room PLM population.</summary>
+    /// <summary>The Pants room-object population.</summary>
     public static RoomObjectPopulation Pants { get; } = RoomObjectPopulation.FromRecords(nameof(Pants),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(6, 50), null, ScrollProgram: RoomScrollProgram.PantsScroll0),
@@ -2077,7 +2077,7 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(23, 43), null),
     ]);
 
-    /// <summary>The EastPants room PLM population.</summary>
+    /// <summary>The EastPants room-object population.</summary>
     public static RoomObjectPopulation EastPants { get; } = RoomObjectPopulation.FromRecords(nameof(EastPants),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(5, 34), null, ScrollProgram: RoomScrollProgram.EastPantsScroll0),
@@ -2091,18 +2091,18 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.RightwardsScrollExtension, new(7, 27), null),
     ]);
 
-    /// <summary>The Springball room PLM population.</summary>
+    /// <summary>The Springball room-object population.</summary>
     public static RoomObjectPopulation Springball { get; } = RoomObjectPopulation.FromRecords(nameof(Springball),
     [
         new(RoomObjectHeaderId.ChozoSpringBall, new(24, 22), new CollectedItemArgument(ItemLocationDefinitions.SpringballChozoSpringBall)),
     ]);
 
-    /// <summary>The BelowBotwoonETank room PLM population.</summary>
+    /// <summary>The BelowBotwoonETank room-object population.</summary>
     public static RoomObjectPopulation BelowBotwoonETank { get; } = RoomObjectPopulation.FromRecords(nameof(BelowBotwoonETank),
     [
     ]);
 
-    /// <summary>The Colosseum room PLM population.</summary>
+    /// <summary>The Colosseum room-object population.</summary>
     public static RoomObjectPopulation Colosseum { get; } = RoomObjectPopulation.FromRecords(nameof(Colosseum),
     [
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(110, 6), new DoorBitArgument(LockedDoorDefinitions.ColosseumRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
@@ -2110,13 +2110,13 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreenDoorFacingLeft, new(110, 22), new DoorBitArgument(LockedDoorDefinitions.ColosseumGreenDoorFacingLeftAt110x22, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The AqueductSave room PLM population.</summary>
+    /// <summary>The AqueductSave room-object population.</summary>
     public static RoomObjectPopulation AqueductSave { get; } = RoomObjectPopulation.FromRecords(nameof(AqueductSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(2)),
     ]);
 
-    /// <summary>The ThePrecious room PLM population.</summary>
+    /// <summary>The ThePrecious room-object population.</summary>
     public static RoomObjectPopulation ThePrecious { get; } = RoomObjectPopulation.FromRecords(nameof(ThePrecious),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(4, 14), null, ScrollProgram: RoomScrollProgram.ThePreciousScroll0),
@@ -2133,40 +2133,40 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.ShotBlockMissileTank, new(28, 6), new CollectedItemArgument(ItemLocationDefinitions.ThePreciousShotBlockMissileTank)),
     ]);
 
-    /// <summary>The BotwoonETank room PLM population.</summary>
+    /// <summary>The BotwoonETank room-object population.</summary>
     public static RoomObjectPopulation BotwoonETank { get; } = RoomObjectPopulation.FromRecords(nameof(BotwoonETank),
     [
         new(RoomObjectHeaderId.ExposedEnergyTank, new(50, 5), new CollectedItemArgument(ItemLocationDefinitions.BotwoonETankExposedEnergyTank)),
     ]);
 
-    /// <summary>The DraygonSave room PLM population.</summary>
+    /// <summary>The DraygonSave room-object population.</summary>
     public static RoomObjectPopulation DraygonSave { get; } = RoomObjectPopulation.FromRecords(nameof(DraygonSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(3)),
     ]);
 
-    /// <summary>The MaridiaMissileRefill room PLM population.</summary>
+    /// <summary>The MaridiaMissileRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaMissileRefill { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaMissileRefill),
     [
         new(RoomObjectHeaderId.MissileStation, new(8, 10), new StationArgument(153)),
     ]);
 
-    /// <summary>The PlasmaBeachQuicksand room PLM population.</summary>
+    /// <summary>The PlasmaBeachQuicksand room-object population.</summary>
     public static RoomObjectPopulation PlasmaBeachQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(PlasmaBeachQuicksand),
     [
     ]);
 
-    /// <summary>The BotwoonQuicksand room PLM population.</summary>
+    /// <summary>The BotwoonQuicksand room-object population.</summary>
     public static RoomObjectPopulation BotwoonQuicksand { get; } = RoomObjectPopulation.FromRecords(nameof(BotwoonQuicksand),
     [
     ]);
 
-    /// <summary>The Shaktool room PLM population.</summary>
+    /// <summary>The Shaktool room-object population.</summary>
     public static RoomObjectPopulation Shaktool { get; } = RoomObjectPopulation.FromRecords(nameof(Shaktool),
     [
     ]);
 
-    /// <summary>The HalfieClimb room PLM population.</summary>
+    /// <summary>The HalfieClimb room-object population.</summary>
     public static RoomObjectPopulation HalfieClimb { get; } = RoomObjectPopulation.FromRecords(nameof(HalfieClimb),
     [
         new(RoomObjectHeaderId.ScrollTrigger, new(16, 41), null, ScrollProgram: RoomScrollProgram.HalfieClimbScroll0),
@@ -2178,35 +2178,35 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.HalfieClimbGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The Botwoon room PLM population.</summary>
+    /// <summary>The Botwoon room-object population.</summary>
     public static RoomObjectPopulation Botwoon { get; } = RoomObjectPopulation.FromRecords(nameof(Botwoon),
     [
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(1, new DoorBitArgument(LockedDoorDefinitions.BotwoonGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The SpaceJump room PLM population.</summary>
+    /// <summary>The SpaceJump room-object population.</summary>
     public static RoomObjectPopulation SpaceJump { get; } = RoomObjectPopulation.FromRecords(nameof(SpaceJump),
     [
         new(RoomObjectHeaderId.ChozoSpaceJump, new(4, 8), new CollectedItemArgument(ItemLocationDefinitions.SpaceJumpChozoSpaceJump)),
     ]);
 
-    /// <summary>The MaridiaEnergyRefill room PLM population.</summary>
+    /// <summary>The MaridiaEnergyRefill room-object population.</summary>
     public static RoomObjectPopulation MaridiaEnergyRefill { get; } = RoomObjectPopulation.FromRecords(nameof(MaridiaEnergyRefill),
     [
         new(RoomObjectHeaderId.EnergyStation, new(8, 10), new StationArgument(155)),
     ]);
 
-    /// <summary>The WestCactusAlley room PLM population.</summary>
+    /// <summary>The WestCactusAlley room-object population.</summary>
     public static RoomObjectPopulation WestCactusAlley { get; } = RoomObjectPopulation.FromRecords(nameof(WestCactusAlley),
     [
     ]);
 
-    /// <summary>The EastCactusAlley room PLM population.</summary>
+    /// <summary>The EastCactusAlley room-object population.</summary>
     public static RoomObjectPopulation EastCactusAlley { get; } = RoomObjectPopulation.FromRecords(nameof(EastCactusAlley),
     [
     ]);
 
-    /// <summary>The Draygon room PLM population.</summary>
+    /// <summary>The Draygon room-object population.</summary>
     public static RoomObjectPopulation Draygon { get; } = RoomObjectPopulation.FromRecords(nameof(Draygon),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(0, new DoorBitArgument(LockedDoorDefinitions.DraygonGreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
@@ -2217,78 +2217,78 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.DraygonCannonFacingLeft, new(29, 21), null, DraygonWallCannon.LowerRight),
     ]);
 
-    /// <summary>The TourianFirst room PLM population.</summary>
+    /// <summary>The TourianFirst room-object population.</summary>
     public static RoomObjectPopulation TourianFirst { get; } = RoomObjectPopulation.FromRecords(nameof(TourianFirst),
     [
         new(RoomObjectHeaderId.ElevatorPlatform, new(6, 44), null),
     ]);
 
-    /// <summary>The Metroids1 room PLM population.</summary>
+    /// <summary>The Metroids1 room-object population.</summary>
     public static RoomObjectPopulation Metroids1 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids1),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(9)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids1GreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The Metroids2 room PLM population.</summary>
+    /// <summary>The Metroids2 room-object population.</summary>
     public static RoomObjectPopulation Metroids2 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids2),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(10)),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(14, 22), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids2GreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The Metroids3 room PLM population.</summary>
+    /// <summary>The Metroids3 room-object population.</summary>
     public static RoomObjectPopulation Metroids3 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids3),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(11)),
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids3GreyDoorFacingLeft, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The Metroids4 room PLM population.</summary>
+    /// <summary>The Metroids4 room-object population.</summary>
     public static RoomObjectPopulation Metroids4 { get; } = RoomObjectPopulation.FromRecords(nameof(Metroids4),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(12)),
         new(RoomObjectHeaderId.GreyDoorFacingUp, new(6, 30), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.Metroids4GreyDoorFacingUp, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The BlueHopper room PLM population.</summary>
+    /// <summary>The BlueHopper room-object population.</summary>
     public static RoomObjectPopulation BlueHopper { get; } = RoomObjectPopulation.FromRecords(nameof(BlueHopper),
     [
     ]);
 
-    /// <summary>The DustTorizo room PLM population.</summary>
+    /// <summary>The DustTorizo room-object population.</summary>
     public static RoomObjectPopulation DustTorizo { get; } = RoomObjectPopulation.FromRecords(nameof(DustTorizo),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingLeft, DoorOpeningPersistence.Transient))),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(LockedDoorDefinitions.DustTorizoGreyDoorFacingRight, DoorOpeningPersistence.Persistent))),
     ]);
 
-    /// <summary>The BigBoy room PLM population.</summary>
+    /// <summary>The BigBoy room-object population.</summary>
     public static RoomObjectPopulation BigBoy { get; } = RoomObjectPopulation.FromRecords(nameof(BigBoy),
     [
         new(RoomObjectHeaderId.GreyDoorFacingLeft, new(62, 6), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.BigBoyGreyDoorFacingLeft, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The Seaweed room PLM population.</summary>
+    /// <summary>The Seaweed room-object population.</summary>
     public static RoomObjectPopulation Seaweed { get; } = RoomObjectPopulation.FromRecords(nameof(Seaweed),
     [
         new(RoomObjectHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(LockedDoorDefinitions.SeaweedRedDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The TourianRecharge room PLM population.</summary>
+    /// <summary>The TourianRecharge room-object population.</summary>
     public static RoomObjectPopulation TourianRecharge { get; } = RoomObjectPopulation.FromRecords(nameof(TourianRecharge),
     [
         new(RoomObjectHeaderId.MissileStation, new(8, 10), new StationArgument(156)),
         new(RoomObjectHeaderId.EnergyStation, new(6, 10), new StationArgument(157)),
     ]);
 
-    /// <summary>The MotherBrain room PLM population.</summary>
+    /// <summary>The MotherBrain room-object population.</summary>
     public static RoomObjectPopulation MotherBrain { get; } = RoomObjectPopulation.FromRecords(nameof(MotherBrain),
     [
         new(RoomObjectHeaderId.MotherBrainGlass, new(9, 5), null),
     ]);
 
-    /// <summary>The TourianEyeDoor room PLM population.</summary>
+    /// <summary>The TourianEyeDoor room-object population.</summary>
     public static RoomObjectPopulation TourianEyeDoor { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEyeDoor),
     [
         new(RoomObjectHeaderId.EyeDoorFacingLeft, new(62, 6), new DoorBitArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent)),
@@ -2296,78 +2296,78 @@ internal static class RoomObjectPopulationDefinitions
         new(RoomObjectHeaderId.EyeDoorEyeFacingLeft, new(62, 7), new DoorBitArgument(LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The RinkaShaft room PLM population.</summary>
+    /// <summary>The RinkaShaft room-object population.</summary>
     public static RoomObjectPopulation RinkaShaft { get; } = RoomObjectPopulation.FromRecords(nameof(RinkaShaft),
     [
         new(RoomObjectHeaderId.RedDoorFacingRight, new(1, 38), new DoorBitArgument(LockedDoorDefinitions.RinkaShaftRedDoorFacingRight, DoorOpeningPersistence.Persistent)),
     ]);
 
-    /// <summary>The MotherBrainSave room PLM population.</summary>
+    /// <summary>The MotherBrainSave room-object population.</summary>
     public static RoomObjectPopulation MotherBrainSave { get; } = RoomObjectPopulation.FromRecords(nameof(MotherBrainSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(5, 11), new StationArgument(0)),
     ]);
 
-    /// <summary>The TourianEscape1 room PLM population.</summary>
+    /// <summary>The TourianEscape1 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape1 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape1),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(0)),
         new(RoomObjectHeaderId.MotherBrainEscapeRoomGate, new(31, 6), null),
     ]);
 
-    /// <summary>The TourianEscape2 room PLM population.</summary>
+    /// <summary>The TourianEscape2 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape2 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape2),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(1)),
         new(RoomObjectHeaderId.GreyDoorFacingDown, new(6, 3), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape2GreyDoorFacingDown, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The TourianEscape3 room PLM population.</summary>
+    /// <summary>The TourianEscape3 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape3 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape3),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(2)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape3GreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The TourianEscape4 room PLM population.</summary>
+    /// <summary>The TourianEscape4 room-object population.</summary>
     public static RoomObjectPopulation TourianEscape4 { get; } = RoomObjectPopulation.FromRecords(nameof(TourianEscape4),
     [
         new(RoomObjectHeaderId.MetroidRoomClearance, new(8, 8), new MetroidRoomArgument(3)),
         new(RoomObjectHeaderId.GreyDoorFacingRight, new(1, 54), new GreyDoorArgument(4, new DoorBitArgument(LockedDoorDefinitions.TourianEscape4GreyDoorFacingRight, DoorOpeningPersistence.Transient))),
     ]);
 
-    /// <summary>The UpperTourianSave room PLM population.</summary>
+    /// <summary>The UpperTourianSave room-object population.</summary>
     public static RoomObjectPopulation UpperTourianSave { get; } = RoomObjectPopulation.FromRecords(nameof(UpperTourianSave),
     [
         new(RoomObjectHeaderId.SaveStation, new(7, 11), new StationArgument(1)),
     ]);
 
-    /// <summary>The CeresElev room PLM population.</summary>
+    /// <summary>The CeresElev room-object population.</summary>
     public static RoomObjectPopulation CeresElev { get; } = RoomObjectPopulation.FromRecords(nameof(CeresElev),
     [
     ]);
 
-    /// <summary>The FallingTile room PLM population.</summary>
+    /// <summary>The FallingTile room-object population.</summary>
     public static RoomObjectPopulation FallingTile { get; } = RoomObjectPopulation.FromRecords(nameof(FallingTile),
     [
     ]);
 
-    /// <summary>The MagnetStairs room PLM population.</summary>
+    /// <summary>The MagnetStairs room-object population.</summary>
     public static RoomObjectPopulation MagnetStairs { get; } = RoomObjectPopulation.FromRecords(nameof(MagnetStairs),
     [
     ]);
 
-    /// <summary>The DeadScientist room PLM population.</summary>
+    /// <summary>The DeadScientist room-object population.</summary>
     public static RoomObjectPopulation DeadScientist { get; } = RoomObjectPopulation.FromRecords(nameof(DeadScientist),
     [
     ]);
 
-    /// <summary>The Room58Escape room PLM population.</summary>
+    /// <summary>The Room58Escape room-object population.</summary>
     public static RoomObjectPopulation Room58Escape { get; } = RoomObjectPopulation.FromRecords(nameof(Room58Escape),
     [
     ]);
 
-    /// <summary>The CeresRidley room PLM population.</summary>
+    /// <summary>The CeresRidley room-object population.</summary>
     public static RoomObjectPopulation CeresRidley { get; } = RoomObjectPopulation.FromRecords(nameof(CeresRidley),
     [
     ]);

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Explicit ordered room-scroll state writes; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>
+/// <summary>Explicit ordered room-scroll state writes; regenerate with tools/generate-room-object-population-definitions.ps1.</summary>
 internal static partial class RoomObjectScrollProgramDefinitions
 {
     /// <summary>Each retail scroll program's ordered writes.</summary>

@@ -123,10 +123,10 @@ internal static class RoomMainCodeCatalogVerification
                 false,
                 false));
         }
-        for (int eventIndex = 0; eventIndex < PersistentProgress.EventCount; eventIndex++)
+        foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
         {
-            var events = new NumberedFlagSet(PersistentProgress.EventCount);
-            events.Add(eventIndex);
+            ProgressSet<StoryEvent> events = new PersistentProgress().Events;
+            events.Add(storyEvent);
             contexts.Add(new RoomStateSelectionContext(events, BossBits.None, false, false));
         }
         return contexts.ToArray();

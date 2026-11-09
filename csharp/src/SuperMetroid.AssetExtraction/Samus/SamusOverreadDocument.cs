@@ -120,7 +120,6 @@ internal sealed record SamusOverreadDocument(
     /// <summary>What the copy turns on or off in progress, and the loading state it leaves when it reaches it (#1475).</summary>
     /// <param name="Events">The story events, by number, the copy decides.</param>
     /// <param name="AreaBosses">The defeated bosses the copy leaves, by area name, each as the names of its boss flags.</param>
-    /// <param name="ChozoOrbs">The Chozo orbs, by room-data number, the copy decides.</param>
     /// <param name="CollectedItems">The item locations, by room-data number, the copy decides.</param>
     /// <param name="OpenedDoors">The doors, by room-data number, the copy decides.</param>
     /// <param name="UsedStations">The used stations, by station number, the copy decides, by area name.</param>
@@ -129,7 +128,6 @@ internal sealed record SamusOverreadDocument(
     internal sealed record Overwrite(
         FlagOverwrite Events,
         IReadOnlyDictionary<string, IReadOnlyList<string>> AreaBosses,
-        FlagOverwrite ChozoOrbs,
         FlagOverwrite CollectedItems,
         FlagOverwrite OpenedDoors,
         IReadOnlyDictionary<string, FlagOverwrite> UsedStations,

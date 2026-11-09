@@ -31,7 +31,7 @@ internal static class TourianStatueWaterVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(EventNumber.ZebesAwake);
+        runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
         AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomFxOverlay.Type, "Actual four-statues room owns special FX 26");
         AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.NamedBaseY.Whole, "Retail statues water begins at Y=B0");

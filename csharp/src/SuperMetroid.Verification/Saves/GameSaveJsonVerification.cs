@@ -46,10 +46,8 @@ internal static class GameSaveJsonVerification
             EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
         };
         var system = new SharedGameState(new SharedRandom());
-        system.SetEvent(EventNumber.ZebesAwake);
-        system.Progress.Events.Add(63);
+        system.SetEvent(StoryEvent.ZebesAwake);
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaMiniBoss);
-        system.SetRoomChozoBit(17);
         system.SetCollectedItemBit(23);
         system.SetOpenedDoorBit(31);
         system.MarkSaveStationUsed(AreaId.Norfair, 3);
@@ -94,9 +92,9 @@ internal static class GameSaveJsonVerification
             "JSON collected equipment flags");
         SuperMetroidSaveSlot savedSlot = saveRam.ReadSlot(1) ?? throw new InvalidOperationException("The saved slot 1 failed.");
         AssertTrue(restoredSlot.Progression.SameAs(savedSlot.Progression),
-            "JSON events, bosses, orbs, items, doors, stations, maps and explored cells");
-        AssertTrue(restoredSlot.Progression.Events.Contains(63) && restoredSlot.Progression.HasEvent(EventNumber.ZebesAwake),
-            "JSON keeps named and unnamed events");
+            "JSON events, bosses, items, doors, stations, maps and explored cells");
+        AssertTrue(restoredSlot.Progression.Events.Members.SequenceEqual([StoryEvent.ZebesAwake]),
+            "JSON keeps the story events by name");
         AssertEqual(bindings, restoredSlot.ControllerBindings, "JSON controller bindings");
         AssertEqual(7, restoredSlot.GameTimeHours, "JSON game-time hours");
 

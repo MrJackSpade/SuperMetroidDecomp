@@ -279,7 +279,8 @@ internal static class ChainsawFiringVerification
     /// </summary>
     private static TestAddressSpace CreateChainsawInterferenceCartridge(ushort population)
     {
-        const ushort yellowDoorArgument = 0xffff;
+        // A cap whose opening never persists; the door it names, the game's first, is never consulted.
+        const ushort yellowDoorArgument = 0x8000;
         var interferenceBus = new TestAddressSpace();
         WriteTestWord(
             interferenceBus,

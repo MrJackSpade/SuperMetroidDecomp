@@ -27,7 +27,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     public required TourianGreyStatues Statue { get; init; }
 
     /// <summary>The event set once this statue has turned grey, and tested to skip straight to the grey picture.</summary>
-    public required EventNumber GreyEvent { get; init; }
+    public required StoryEvent GreyEvent { get; init; }
 
     /// <summary>The updates the first idle frame lasts after the statue spawns.</summary>
     public required int FirstFrameDuration { get; init; }

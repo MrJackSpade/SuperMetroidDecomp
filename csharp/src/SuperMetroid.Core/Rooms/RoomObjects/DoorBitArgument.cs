@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The opened-door bit a door cap records, and whether opening the cap records it.</summary>
-/// <param name="DoorBit">The bit's index in the opened-doors record.</param>
-/// <param name="Persistence">Whether opening the cap sets the bit and an already set bit keeps the cap open.</param>
-public sealed record DoorBitArgument(int DoorBit, DoorOpeningPersistence Persistence) : RoomObjectRoomArgument
+/// <summary>The door a cap stands for, and whether opening the cap opens the door for good.</summary>
+/// <param name="Door">The door the cap stands for.</param>
+/// <param name="Persistence">Whether opening the cap records the door as opened and an opened door keeps the cap open.</param>
+public sealed record DoorBitArgument(LockedDoor Door, DoorOpeningPersistence Persistence) : RoomObjectRoomArgument
 {
-    /// <summary>Whether opening the cap sets the bit and an already set bit keeps the cap open.</summary>
+    /// <summary>Whether opening the cap records the door as opened and an opened door keeps the cap open.</summary>
     public bool Persists => Persistence == DoorOpeningPersistence.Persistent;
 }

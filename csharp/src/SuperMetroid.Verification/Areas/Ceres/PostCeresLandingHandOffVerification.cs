@@ -25,7 +25,7 @@ internal static class PostCeresLandingHandOffVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
+        runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         ScrollBoundaryCamera ceresCamera = runtime.Room.LoadedCamera;
         ceresCamera.SetDoorTransitionPosition(ceresCamera.PixelPosition, FixedPosition<RoomPixels>.FromWords(0, 0xa000, 0, 0x1234));
         // The escape ends with Samus running: the 13% capture enters the load carrying

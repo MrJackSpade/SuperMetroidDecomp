@@ -188,16 +188,15 @@ internal static class SpacetimeBeamVerification
 
     /// <summary>
     /// The progress a whole persistent-progress slice stores, read table by table through the cartridge's table codec;
-    /// the padding after the doors, the eighth area slot and the map-station padding hold nothing the game reads.
+    /// the Chozo orbs, the padding after the doors, the eighth area slot and the map-station padding hold nothing the game reads.
     /// </summary>
     private static PersistentProgress DecodeSlice(byte[] slice)
     {
         var progress = new PersistentProgress();
         ProgressionTableCodec.ReadEvents(slice.AsSpan(ProgressionSliceLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress);
         ProgressionTableCodec.ReadAreaBosses(slice.AsSpan(ProgressionSliceLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount), progress);
-        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.ChozoOrbs);
-        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
-        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
+        ProgressionTableCodec.ReadCollectedItems(slice.AsSpan(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress);
+        ProgressionTableCodec.ReadOpenedDoors(slice.AsSpan(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress);
         ProgressionTableCodec.ReadUsedStations(slice.AsSpan(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount), progress);
         ProgressionTableCodec.ReadAreaMaps(slice.AsSpan(ProgressionSliceLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount), progress);
         return progress;
@@ -226,8 +225,7 @@ internal static class SpacetimeBeamVerification
                 CollectedItems = SamusEquipmentFlags.GravitySuit,
                 StartupRoute = SaveLoadingGameState.OpeningCinematic,
             };
-            for (int number = 0; number < PersistentProgress.EventCount; number++)
-                snapshot.Progress.Events.Add(number);
+            snapshot.Progress.Events.AddAll();
             return snapshot;
         }
 

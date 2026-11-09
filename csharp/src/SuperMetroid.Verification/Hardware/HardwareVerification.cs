@@ -121,30 +121,28 @@ internal static void VerifyTimedHeldInputTimeline()
 }
 
 /// <summary>
-/// Exercises every story event number: each is set and cleared on its own, without touching another (#1475).
+/// Exercises every story event: each is set and cleared on its own, without touching another (#1475, #1553).
 /// </summary>
 internal static void VerifyEventBitfield()
 {
     var state = new SharedGameState(new SharedRandom());
-    NumberedFlagSet events = state.Progress.Events;
-    for (int eventNumber = 0; eventNumber < PersistentProgress.EventCount; eventNumber++)
+    ProgressSet<StoryEvent> events = state.Progress.Events;
+    foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
     {
-        events.Add(eventNumber);
-        AssertTrue(events.Contains(eventNumber), $"event ${eventNumber:X2} set");
-        AssertTrue(events.Members.SequenceEqual([eventNumber]), $"event ${eventNumber:X2} alone");
-        events.Remove(eventNumber);
-        AssertTrue(!events.Contains(eventNumber), $"event ${eventNumber:X2} clear");
+        events.Add(storyEvent);
+        AssertTrue(events.Contains(storyEvent), $"event {storyEvent} set");
+        AssertTrue(events.Members.SequenceEqual([storyEvent]), $"event {storyEvent} alone");
+        events.Remove(storyEvent);
+        AssertTrue(!events.Contains(storyEvent), $"event {storyEvent} clear");
     }
 
-    AssertThrows<ArgumentOutOfRangeException>(() => events.Add(-1), "negative event number rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => events.Add(PersistentProgress.EventCount), "event number past the game's rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => state.SetEvent((EventNumber)(-1)),
+        () => state.SetEvent((StoryEvent)(-1)),
         "unnamed event rejected by named API");
-    state.SetEvent(EventNumber.TourianUnlocked);
-    AssertTrue(state.HasEvent(EventNumber.TourianUnlocked), "named retail event set");
-    state.ClearEvent(EventNumber.TourianUnlocked);
-    Console.WriteLine("  Events: all 64 event numbers set and clear on their own.");
+    state.SetEvent(StoryEvent.TourianUnlocked);
+    AssertTrue(state.HasEvent(StoryEvent.TourianUnlocked), "named retail event set");
+    state.ClearEvent(StoryEvent.TourianUnlocked);
+    Console.WriteLine("  Events: every story event sets and clears on its own.");
 }
 
 /// <summary>

@@ -41,7 +41,7 @@ internal static class RoomEnemyLoadContractsVerification
 
         AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");
         AssertThrows<InvalidOperationException>(() => services.Random.Read(), "an uninstalled RNG read fails at the dependency");
-        AssertThrows<InvalidOperationException>(() => services.Events.Has(EventNumber.ZebesAwake), "uninstalled event bits fail at the dependency");
+        AssertThrows<InvalidOperationException>(() => services.Events.Has(StoryEvent.ZebesAwake), "uninstalled event bits fail at the dependency");
         int seed = 0;
         var seeded = new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => seed, SeedRandom = value => seed = value };
         seeded.Random.Seed(0x0017);

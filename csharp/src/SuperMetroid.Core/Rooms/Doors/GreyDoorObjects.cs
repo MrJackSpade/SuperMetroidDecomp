@@ -66,7 +66,7 @@ internal sealed class GreyDoorObjects : IRoomObjectFamilySource
                     return;
                 }
                 if (frameBehavior == GreyDoorFrameBehavior.WakeIfEnemiesDead)
-                    RequireSystem().SetEvent(EventNumber.ZebesAwake);
+                    RequireSystem().SetEvent(StoryEvent.ZebesAwake);
                 slot.ProjectileHit = null;
                 slot.WakeAtLink();
                 return;
@@ -114,7 +114,7 @@ internal sealed class GreyDoorObjects : IRoomObjectFamilySource
             GreyDoorFrameBehavior.WakeIfAreaTorizoDead => system.HasAnyBossBits(_area, BossBits.AreaTorizo),
             GreyDoorFrameBehavior.WakeIfEnemiesDead => enemyDeaths >= enemyDeathQuota,
             GreyDoorFrameBehavior.WakeIfTourianStatueFinished => _tourianStatue?.IsFinished == true,
-            GreyDoorFrameBehavior.WakeIfCrittersEscaped => system.HasEvent(EventNumber.CrittersEscaped),
+            GreyDoorFrameBehavior.WakeIfCrittersEscaped => system.HasEvent(StoryEvent.CrittersEscaped),
             GreyDoorFrameBehavior.None or
                 GreyDoorFrameBehavior.WakeWhenShot or
                 GreyDoorFrameBehavior.PlayDudSound => throw new InvalidOperationException($"{frameBehavior} is not an unlock check."),

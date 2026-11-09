@@ -70,7 +70,7 @@ internal static class SamusHudDefinitionsVerification
                 if (!SamusPoseNumbering.NamesPose(pose)) continue;
                 metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
                 if (locked) samus.Control.LockHandlers(); else samus.Control.Unlock();
-                samus.SelectedHudItem = HudItems.Decode(selected); setTurn(samus, turn);
+                samus.SelectedHudItem = SuperMetroid.Core.Saves.SaveSlotNumbering.SavedHudItem(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
                     (handler is SamusHudHandler.Standard or SamusHudHandler.Grapple or SamusHudHandler.DraygonHeld ||
                         handler == SamusHudHandler.Turning && turn != 0 ||

@@ -16,7 +16,7 @@ public static class NoobTubeObjectDefinitions
         RoomTerrainBlock.Of(68, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
     /// <summary>The story event set after the tube has finished breaking.</summary>
-    public const EventNumber BrokenEvent = EventNumber.MaridiaNoobTubeBroken;
+    public const StoryEvent BrokenEvent = StoryEvent.MaridiaNoobTubeBroken;
 
     /// <summary>The sound queued for an ineffective shot.</summary>
     public static readonly SoundEffectId IneffectiveShotSound = EnemySound.DudShotOnDoor;

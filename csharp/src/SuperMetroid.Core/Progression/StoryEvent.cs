@@ -1,15 +1,14 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The story and progression events the original game names. Its values are arbitrary; the game's own number for each
-/// event, which room data and saves use, is <see cref="EventNumberCodec"/>'s.
+/// The story and progression events the game keeps, in the order it lists them. Their values are arbitrary and nothing
+/// reads them; the number the original game gives each event is known only to the import pipeline's progression codec.
 /// </summary>
 /// <remarks>
 /// These are story events, not composable masks: <see cref="PersistentProgress.Events"/> records which have happened,
-/// by the number the game gives each (<see cref="EventNumberCodec"/>), and saves keep them independently of the area
-/// bosses.
+/// and saves keep them, by name, independently of the area bosses.
 /// </remarks>
-public enum EventNumber
+public enum StoryEvent
 {
     /// <summary>Zebes is awake, set when the initial enemy-death quota unlocks its grey door and used by room progression.</summary>
     ZebesAwake,

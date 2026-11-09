@@ -43,7 +43,7 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
                 "Speed Booster escape PLM requires event, room-FX, and earthquake owners.");
         }
 
-        if (_events.Has(EventNumber.OutranSpeedBoosterLavaquake))
+        if (_events.Has(StoryEvent.OutranSpeedBoosterLavaquake))
             slot.Clear();
         else
         {
@@ -128,7 +128,7 @@ internal sealed class SpeedBoosterEscapeObjects : IRoomObjectFamilySource
         {
             (_events ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its event writer.")).Set(
-                    EventNumber.OutranSpeedBoosterLavaquake);
+                    StoryEvent.OutranSpeedBoosterLavaquake);
             return;
         }
 

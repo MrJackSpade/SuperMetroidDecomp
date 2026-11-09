@@ -6,7 +6,8 @@ namespace SuperMetroid.AssetExtraction.Progression;
 
 /// <summary>
 /// The cartridge's stored form of persistent progress (#1475): the event, boss, Chozo-orb, item, door, station and
-/// map-station tables of its save mirror, and each area's explored-map plane. The import pipeline reads SpaceTime's copy
+/// map-station tables of its save mirror, and each area's explored-map plane. Story events, doors and item locations
+/// are numbered through <see cref="StoryEventNumbers"/> and <see cref="RoomPlacementNumbers"/>. The import pipeline reads SpaceTime's copy
 /// through it, and the hosts' legacy save-image codec and the checks' snapshot imports read and write saves through it;
 /// nothing in the game knows this form.
 /// </summary>
@@ -15,7 +16,9 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// eight slots for seven areas; the station table holds a little-endian word per area slot, station <c>n</c> in its bit
 /// <c>n</c>; the map-station table holds a nonzero byte for each area whose map is acquired, then padding. Reading keeps
 /// what the game reads: the eighth area slot, boss bits no routine tests and map-station padding hold nothing the game
-/// can observe and are not kept, and writing leaves them clear. An explored-map plane stores an area's 64-by-32 cells as
+/// can observe and are not kept, and writing leaves them clear; so do the event table's bits no story event uses
+/// (<see cref="StoryEventNumbers"/>), the door and item tables' bits no retail door or item location has, and the whole
+/// Chozo-orb table, which only unused room objects write and nothing reads. An explored-map plane stores an area's 64-by-32 cells as
 /// two 32-column pages, most significant bit first. The event table keeps the Zebetite count as a three-bit counter in
 /// the bits of events three, four and five, lowest bit first (#1527); reading takes those bits out of the story events
 /// into <see cref="PersistentProgress.ZebetitesDestroyed"/>, and writing puts the count back into them.
@@ -24,13 +27,13 @@ namespace SuperMetroid.AssetExtraction.Progression;
 public static class ProgressionTableCodec
 {
     /// <summary>Bytes of the story-event table.</summary>
-    public const int EventByteCount = PersistentProgress.EventCount / BitsPerByte;
+    public const int EventByteCount = StoryEventNumbers.NumberCount / BitsPerByte;
 
     /// <summary>Bytes of the area-boss table: one per area slot.</summary>
     public const int AreaBossByteCount = 8;
 
     /// <summary>Bytes of each Chozo-orb, item and door table.</summary>
-    public const int RoomFlagByteCount = PersistentProgress.RoomFlagCount / BitsPerByte;
+    public const int RoomFlagByteCount = RoomPlacementNumbers.NumberCount / BitsPerByte;
 
     /// <summary>Bytes of the used-station table: a word per area slot.</summary>
     public const int UsedStationByteCount = AreaBossByteCount * sizeof(ushort);
@@ -56,26 +59,66 @@ public static class ProgressionTableCodec
     /// <summary>The proven boss flags in the order of their bits, lowest first.</summary>
     private static readonly BossBits[] BossFlagBits = [BossBits.AreaBoss, BossBits.AreaMiniBoss, BossBits.AreaTorizo];
 
-    /// <summary>Turns on exactly the flags <paramref name="table"/> stores.</summary>
-    /// <exception cref="ArgumentException">The table's size does not match the flags' range.</exception>
-    public static void ReadFlags(ReadOnlySpan<byte> table, NumberedFlagSet flags)
+    /// <summary>Records exactly the item locations the collected-item <paramref name="table"/> stores as collected.</summary>
+    /// <exception cref="ArgumentException">The table is not sixty-four bytes.</exception>
+    public static void ReadCollectedItems(ReadOnlySpan<byte> table, PersistentProgress progress)
     {
-        Ensure.NotNull(flags);
-        Ensure.LengthEqual(table, flags.Capacity / BitsPerByte);
-        for (int number = 0; number < flags.Capacity; number++)
-            flags.Set(number, IsBitSet(table, number));
+        Ensure.NotNull(progress);
+        Ensure.LengthEqual(table, RoomFlagByteCount);
+        foreach (ItemLocation location in ItemLocationDefinitions.All)
+            progress.CollectedItems.Set(location, IsBitSet(table, location.Number()));
     }
 
-    /// <summary>Stores <paramref name="flags"/> in <paramref name="table"/>.</summary>
-    /// <exception cref="ArgumentException">The table's size does not match the flags' range.</exception>
-    public static void WriteFlags(NumberedFlagSet flags, Span<byte> table)
+    /// <summary>Stores <paramref name="progress"/>'s collected item locations in the collected-item <paramref name="table"/>.</summary>
+    /// <exception cref="ArgumentException">The table is not sixty-four bytes.</exception>
+    public static void WriteCollectedItems(PersistentProgress progress, Span<byte> table)
     {
-        Ensure.NotNull(flags);
-        Ensure.LengthEqual(table, flags.Capacity / BitsPerByte);
+        Ensure.NotNull(progress);
+        Ensure.LengthEqual(table, RoomFlagByteCount);
         table.Clear();
-        foreach (int number in flags.Members)
-            table[number / BitsPerByte] |= (byte)(1 << (number % BitsPerByte));
+        foreach (ItemLocation location in progress.CollectedItems.Members)
+            SetBit(table, location.Number());
     }
+
+    /// <summary>Records exactly the doors the opened-door <paramref name="table"/> stores as opened.</summary>
+    /// <exception cref="ArgumentException">The table is not sixty-four bytes.</exception>
+    public static void ReadOpenedDoors(ReadOnlySpan<byte> table, PersistentProgress progress)
+    {
+        Ensure.NotNull(progress);
+        Ensure.LengthEqual(table, RoomFlagByteCount);
+        foreach (LockedDoor door in LockedDoorDefinitions.All)
+            progress.OpenedDoors.Set(door, IsBitSet(table, door.Number()));
+    }
+
+    /// <summary>Stores <paramref name="progress"/>'s opened doors in the opened-door <paramref name="table"/>.</summary>
+    /// <exception cref="ArgumentException">The table is not sixty-four bytes.</exception>
+    public static void WriteOpenedDoors(PersistentProgress progress, Span<byte> table)
+    {
+        Ensure.NotNull(progress);
+        Ensure.LengthEqual(table, RoomFlagByteCount);
+        table.Clear();
+        foreach (LockedDoor door in progress.OpenedDoors.Members)
+            SetBit(table, door.Number());
+    }
+
+    /// <summary>The item locations <paramref name="itemTable"/>, an overwrite of the collected-item table, decides: those whose bits it reaches.</summary>
+    public static DecidedFlags<ItemLocation> CollectedItemsOf(FlagOverwrite itemTable) =>
+        Decided(Ensure.NotNull(itemTable), ItemLocationDefinitions.All, location => location.Number());
+
+    /// <summary>The doors <paramref name="doorTable"/>, an overwrite of the opened-door table, decides: those whose bits it reaches.</summary>
+    public static DecidedFlags<LockedDoor> OpenedDoorsOf(FlagOverwrite doorTable) =>
+        Decided(Ensure.NotNull(doorTable), LockedDoorDefinitions.All, door => door.Number());
+
+    /// <summary>The members of a kind whose numbered bits <paramref name="table"/> reaches, and those it sets.</summary>
+    private static DecidedFlags<T> Decided<T>(FlagOverwrite table, IReadOnlyList<T> kind, Func<T, int> number)
+        where T : notnull
+    {
+        T[] decided = [.. kind.Where(member => number(member) < table.Decided)];
+        return new DecidedFlags<T>(decided.ToHashSet(), decided.Where(member => table.Set.Contains(number(member))).ToHashSet());
+    }
+
+    /// <summary>Sets bit <paramref name="number"/> of a bit table.</summary>
+    private static void SetBit(Span<byte> table, int number) => table[number / BitsPerByte] |= (byte)(1 << (number % BitsPerByte));
 
     /// <summary>What writing <paramref name="copied"/> over a bit table's leading bytes decides.</summary>
     public static FlagOverwrite PrefixOverwrite(ReadOnlySpan<byte> copied)
@@ -97,14 +140,14 @@ public static class ProgressionTableCodec
     public static void ReadEvents(ReadOnlySpan<byte> table, PersistentProgress progress)
     {
         Ensure.NotNull(progress);
-        ReadFlags(table, progress.Events);
+        Ensure.LengthEqual(table, EventByteCount);
+        foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
+            progress.Events.Set(storyEvent, IsBitSet(table, storyEvent.Number()));
         int counter = 0;
         for (int bit = 0; bit < ZebetiteCounterBits; bit++)
         {
-            int counterEvent = FirstZebetiteCounterEvent + bit;
-            if (progress.Events.Contains(counterEvent))
+            if (IsBitSet(table, FirstZebetiteCounterEvent + bit))
                 counter |= 1 << bit;
-            progress.Events.Remove(counterEvent);
         }
         progress.ZebetitesDestroyed = ZebetitesDestroyed(counter);
     }
@@ -114,17 +157,16 @@ public static class ProgressionTableCodec
     /// events three through five.
     /// </summary>
     /// <exception cref="ArgumentException">The table is not eight bytes.</exception>
-    /// <exception cref="InvalidDataException">The story events hold a number the table keeps for the Zebetite counter.</exception>
     public static void WriteEvents(PersistentProgress progress, Span<byte> table)
     {
         Ensure.NotNull(progress);
-        for (int bit = 0; bit < ZebetiteCounterBits; bit++)
+        Ensure.LengthEqual(table, EventByteCount);
+        table.Clear();
+        foreach (StoryEvent storyEvent in progress.Events.Members)
         {
-            int counterEvent = FirstZebetiteCounterEvent + bit;
-            if (progress.Events.Contains(counterEvent))
-                throw new InvalidDataException($"Story event {counterEvent} is where the game keeps the Zebetite count, which progress holds as a count.");
+            int number = storyEvent.Number();
+            table[number / BitsPerByte] |= (byte)(1 << (number % BitsPerByte));
         }
-        WriteFlags(progress.Events, table);
         for (int bit = 0; bit < ZebetiteCounterBits; bit++)
         {
             if ((progress.ZebetitesDestroyed & (1 << bit)) != 0)
@@ -135,12 +177,18 @@ public static class ProgressionTableCodec
         }
     }
 
-    /// <summary>The story events <paramref name="eventTable"/>, an overwrite of the event table, decides, without the Zebetite counter's bits.</summary>
-    public static FlagOverwrite StoryEventsOf(FlagOverwrite eventTable)
+    /// <summary>
+    /// The story events <paramref name="eventTable"/>, an overwrite of the event table, decides: those whose bits it
+    /// reaches. The Zebetite counter's bits are <see cref="ZebetitesDestroyedOf"/>'s, and bits no story event uses hold
+    /// nothing the game reads.
+    /// </summary>
+    public static DecidedFlags<StoryEvent> StoryEventsOf(FlagOverwrite eventTable)
     {
         Ensure.NotNull(eventTable);
-        return new FlagOverwrite(eventTable.Decided, [.. eventTable.Set.Where(number =>
-            number is < FirstZebetiteCounterEvent or >= FirstZebetiteCounterEvent + ZebetiteCounterBits)]);
+        StoryEvent[] decided = [.. Enum.GetValues<StoryEvent>().Where(storyEvent => storyEvent.Number() < eventTable.Decided)];
+        return new DecidedFlags<StoryEvent>(
+            decided.ToHashSet(),
+            decided.Where(storyEvent => eventTable.Set.Contains(storyEvent.Number())).ToHashSet());
     }
 
     /// <summary>

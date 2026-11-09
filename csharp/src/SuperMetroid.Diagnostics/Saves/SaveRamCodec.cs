@@ -105,18 +105,18 @@ public static class SaveRamCodec
             CollectedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.CollectedItemsOffset)),
             EquippedBeams: SamusEquipmentWordCodec.FromSavedBeamWord(ReadWord(payload, SaveRamLayout.EquippedBeamsOffset)),
             CollectedBeams: SamusEquipmentWordCodec.FromSavedBeamWord(ReadWord(payload, SaveRamLayout.CollectedBeamsOffset)),
-            ReserveMode: ReserveTankModes.Decode(ReadWord(payload, SaveRamLayout.ReserveModeOffset)),
-            Health: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.HealthOffset)),
-            MaxHealth: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.MaxHealthOffset)),
-            Missiles: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.MissilesOffset)),
-            MaxMissiles: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.MaxMissilesOffset)),
-            SuperMissiles: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.SuperMissilesOffset)),
-            MaxSuperMissiles: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.MaxSuperMissilesOffset)),
-            PowerBombs: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.PowerBombsOffset)),
-            MaxPowerBombs: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.MaxPowerBombsOffset)),
-            HudItem: HudItems.Decode(ReadWord(payload, SaveRamLayout.HudItemOffset)),
-            MaxReserveEnergy: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.MaxReserveEnergyOffset)),
-            ReserveEnergy: SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.ReserveEnergyOffset)),
+            ReserveMode: SaveSlotNumbering.SavedReserveMode(ReadWord(payload, SaveRamLayout.ReserveModeOffset)),
+            Health: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.HealthOffset)),
+            MaxHealth: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxHealthOffset)),
+            Missiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MissilesOffset)),
+            MaxMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxMissilesOffset)),
+            SuperMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.SuperMissilesOffset)),
+            MaxSuperMissiles: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxSuperMissilesOffset)),
+            PowerBombs: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.PowerBombsOffset)),
+            MaxPowerBombs: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxPowerBombsOffset)),
+            HudItem: SaveSlotNumbering.SavedHudItem(ReadWord(payload, SaveRamLayout.HudItemOffset)),
+            MaxReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.MaxReserveEnergyOffset)),
+            ReserveEnergy: SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveEnergyOffset)),
             GameTimeFrames: ReadWord(payload, SaveRamLayout.GameTimeFramesOffset),
             GameTimeSeconds: ReadWord(payload, SaveRamLayout.GameTimeSecondsOffset),
             GameTimeMinutes: ReadWord(payload, SaveRamLayout.GameTimeMinutesOffset),
@@ -131,7 +131,7 @@ public static class SaveRamCodec
             DebugFlag = ReadWord(payload, SaveRamLayout.DebugFlagOffset),
             NewFileMarker = ReadWord(payload, SaveRamLayout.NewFileMarkerOffset),
             IconCancelEnabled = ReadWord(payload, SaveRamLayout.IconCancelOffset) != 0,
-            ReserveMissiles = SamusQuantity.Decode(ReadWord(payload, SaveRamLayout.ReserveMissilesOffset)),
+            ReserveMissiles = SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveMissilesOffset)),
             JapaneseText = ReadWord(payload, SaveRamLayout.JapaneseTextOffset) != 0,
             LoadedItemCount = ReadWord(payload, SaveRamLayout.LoadedItemCountOffset),
         };
@@ -159,41 +159,41 @@ public static class SaveRamCodec
         for (int index = 0; index < buttons.Length; index++)
             WriteWord(payload, SaveRamLayout.ButtonConfigOffset + index * 2, buttons[index]);
 
-        WriteWord(payload, SaveRamLayout.ReserveModeOffset, snapshot.ReserveMode.ToWord());
-        WriteWord(payload, SaveRamLayout.HealthOffset, SamusQuantity.Encode(snapshot.Health));
-        WriteWord(payload, SaveRamLayout.MaxHealthOffset, SamusQuantity.Encode(snapshot.MaxHealth));
-        WriteWord(payload, SaveRamLayout.MissilesOffset, SamusQuantity.Encode(snapshot.Missiles));
-        WriteWord(payload, SaveRamLayout.MaxMissilesOffset, SamusQuantity.Encode(snapshot.MaxMissiles));
-        WriteWord(payload, SaveRamLayout.SuperMissilesOffset, SamusQuantity.Encode(snapshot.SuperMissiles));
-        WriteWord(payload, SaveRamLayout.MaxSuperMissilesOffset, SamusQuantity.Encode(snapshot.MaxSuperMissiles));
-        WriteWord(payload, SaveRamLayout.PowerBombsOffset, SamusQuantity.Encode(snapshot.PowerBombs));
-        WriteWord(payload, SaveRamLayout.MaxPowerBombsOffset, SamusQuantity.Encode(snapshot.MaxPowerBombs));
-        WriteWord(payload, SaveRamLayout.HudItemOffset, snapshot.HudItem.ToWord());
-        WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, SamusQuantity.Encode(snapshot.MaxReserveEnergy));
-        WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, SamusQuantity.Encode(snapshot.ReserveEnergy));
-        WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, SamusQuantity.Encode(snapshot.ReserveMissiles));
+        WriteWord(payload, SaveRamLayout.ReserveModeOffset, FieldWord(snapshot.ReserveMode.SavedNumber(), nameof(snapshot.ReserveMode)));
+        WriteWord(payload, SaveRamLayout.HealthOffset, SamusCountWords.Encode(snapshot.Health));
+        WriteWord(payload, SaveRamLayout.MaxHealthOffset, SamusCountWords.Encode(snapshot.MaxHealth));
+        WriteWord(payload, SaveRamLayout.MissilesOffset, SamusCountWords.Encode(snapshot.Missiles));
+        WriteWord(payload, SaveRamLayout.MaxMissilesOffset, SamusCountWords.Encode(snapshot.MaxMissiles));
+        WriteWord(payload, SaveRamLayout.SuperMissilesOffset, SamusCountWords.Encode(snapshot.SuperMissiles));
+        WriteWord(payload, SaveRamLayout.MaxSuperMissilesOffset, SamusCountWords.Encode(snapshot.MaxSuperMissiles));
+        WriteWord(payload, SaveRamLayout.PowerBombsOffset, SamusCountWords.Encode(snapshot.PowerBombs));
+        WriteWord(payload, SaveRamLayout.MaxPowerBombsOffset, SamusCountWords.Encode(snapshot.MaxPowerBombs));
+        WriteWord(payload, SaveRamLayout.HudItemOffset, FieldWord(snapshot.HudItem.SavedNumber(), nameof(snapshot.HudItem)));
+        WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, SamusCountWords.Encode(snapshot.MaxReserveEnergy));
+        WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, SamusCountWords.Encode(snapshot.ReserveEnergy));
+        WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, SamusCountWords.Encode(snapshot.ReserveMissiles));
         WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
         WriteWord(payload, SaveRamLayout.LoadedItemCountOffset,
-            SaveFieldValue.Encode(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount)));
+            FieldWord(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount)));
         WriteWord(payload, SaveRamLayout.GameTimeFramesOffset,
-            SaveFieldValue.Encode(snapshot.GameTimeFrames, nameof(snapshot.GameTimeFrames)));
+            FieldWord(snapshot.GameTimeFrames, nameof(snapshot.GameTimeFrames)));
         WriteWord(payload, SaveRamLayout.GameTimeSecondsOffset,
-            SaveFieldValue.Encode(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds)));
+            FieldWord(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds)));
         WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset,
-            SaveFieldValue.Encode(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes)));
+            FieldWord(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes)));
         WriteWord(payload, SaveRamLayout.GameTimeHoursOffset,
-            SaveFieldValue.Encode(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours)));
+            FieldWord(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours)));
         WriteWord(payload, SaveRamLayout.MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
-        WriteWord(payload, SaveRamLayout.DebugFlagOffset, SaveFieldValue.Encode(snapshot.DebugFlag, nameof(snapshot.DebugFlag)));
+        WriteWord(payload, SaveRamLayout.DebugFlagOffset, FieldWord(snapshot.DebugFlag, nameof(snapshot.DebugFlag)));
         WriteWord(payload, SaveRamLayout.NewFileMarkerOffset,
-            SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker)));
+            FieldWord(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker)));
         WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
         EncodeProgression(snapshot.Progress, payload);
         WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,
-            SaveFieldValue.Encode(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Word(snapshot.StartupRoute), nameof(snapshot.StartupRoute)));
-        WriteWord(payload, SaveRamLayout.SaveStationOffset, SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation)));
-        WriteWord(payload, SaveRamLayout.AreaOffset, SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area)));
+            FieldWord(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Word(snapshot.StartupRoute), nameof(snapshot.StartupRoute)));
+        WriteWord(payload, SaveRamLayout.SaveStationOffset, FieldWord(snapshot.SaveStation, nameof(snapshot.SaveStation)));
+        WriteWord(payload, SaveRamLayout.AreaOffset, FieldWord(snapshot.Area, nameof(snapshot.Area)));
         SaveRamMapPacking.Pack(snapshot.Progress, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
         return payload;
     }
@@ -244,9 +244,9 @@ public static class SaveRamCodec
         var progress = new PersistentProgress();
         ProgressionTableCodec.ReadEvents(payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress);
         ProgressionTableCodec.ReadAreaBosses(payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount), progress);
-        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.ChozoOrbs);
-        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
-        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
+        // The Chozo-orb table is not read: only unused room objects write it and nothing reads it.
+        ProgressionTableCodec.ReadCollectedItems(payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress);
+        ProgressionTableCodec.ReadOpenedDoors(payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress);
         ProgressionTableCodec.ReadUsedStations(payload.Slice(SaveRamLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount), progress);
         ProgressionTableCodec.ReadAreaMaps(payload.Slice(SaveRamLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount), progress);
         SaveRamMapPacking.Unpack(payload.Slice(SaveRamLayout.CompressedMapDataOffset, SaveRamLayout.CompressedMapDataByteCount), maps, progress);
@@ -258,9 +258,9 @@ public static class SaveRamCodec
     {
         ProgressionTableCodec.WriteEvents(progress, payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount));
         ProgressionTableCodec.WriteAreaBosses(progress, payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount));
-        ProgressionTableCodec.WriteFlags(progress.ChozoOrbs, payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
-        ProgressionTableCodec.WriteFlags(progress.CollectedItems, payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
-        ProgressionTableCodec.WriteFlags(progress.OpenedDoors, payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
+        // The Chozo-orb table is left clear, as a new file leaves it.
+        ProgressionTableCodec.WriteCollectedItems(progress, payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
+        ProgressionTableCodec.WriteOpenedDoors(progress, payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
         ProgressionTableCodec.WriteUsedStations(progress, payload.Slice(SaveRamLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount));
         ProgressionTableCodec.WriteAreaMaps(progress, payload.Slice(SaveRamLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount));
     }
@@ -410,6 +410,10 @@ public static class SaveRamCodec
         ControllerWordCodec.ToJoypadWord(bindings.AimDown),
         ControllerWordCodec.ToJoypadWord(bindings.AimUp),
     ];
+
+    /// <summary>A save field's value as the word its slot stores, rejected when the field cannot keep it.</summary>
+    /// <exception cref="InvalidOperationException">The value is outside the field's range.</exception>
+    private static ushort FieldWord(int value, string field) => checked((ushort)SaveFieldValue.Require(value, field));
 
     /// <summary>Reads one little-endian word.</summary>
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) => LittleEndianBytes.Word(bytes[offset], bytes[offset + 1]);

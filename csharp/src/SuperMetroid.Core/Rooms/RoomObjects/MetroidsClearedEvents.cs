@@ -22,19 +22,19 @@ internal static class MetroidsClearedEvents
     /// Resolves the event written after the enemy death quota is met, or null for one of the nine intentional no-op
     /// entries.
     /// </summary>
-    public static EventNumber? ResolveEvent(int entry)
+    public static StoryEvent? ResolveEvent(int entry)
     {
         ValidateEntry(entry);
         return entry < NoOpEntryCount ? null : QuotaObserverEvents[entry - NoOpEntryCount];
     }
 
     /// <summary>The events the four quota observers mark, in entry order.</summary>
-    private static readonly EventNumber[] QuotaObserverEvents =
+    private static readonly StoryEvent[] QuotaObserverEvents =
     [
-        EventNumber.FirstMetroidHallCleared,
-        EventNumber.FirstMetroidShaftCleared,
-        EventNumber.SecondMetroidHallCleared,
-        EventNumber.SecondMetroidShaftCleared,
+        StoryEvent.FirstMetroidHallCleared,
+        StoryEvent.FirstMetroidShaftCleared,
+        StoryEvent.SecondMetroidHallCleared,
+        StoryEvent.SecondMetroidShaftCleared,
     ];
 
     /// <summary>Rejects an entry outside the thirteen.</summary>

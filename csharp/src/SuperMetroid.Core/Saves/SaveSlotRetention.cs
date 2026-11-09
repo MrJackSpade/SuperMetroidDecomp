@@ -6,11 +6,10 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>
-/// What a saved slot keeps of a snapshot (#1421): saving stores and loading reads back the
-/// snapshot's fields as their saved words, so every value is checked as the save stores it, and the explored map keeps
-/// only the Zebes areas' runs of cells the stock map occupies (<see cref="ExploredMapStorage"/>, <see cref="SavedMapExplorationRuns"/>).
+/// What a saved slot keeps of a snapshot (#1421): every value is checked against the range its save field keeps, so a
+/// slot never holds what a save could not, and the explored map keeps only the Zebes areas' runs of cells the stock map
+/// occupies (<see cref="ExploredMapStorage"/>, <see cref="SavedMapExplorationRuns"/>).
 /// </summary>
-[EncodingOwner("save slot words")]
 internal static class SaveSlotRetention
 {
     /// <summary>The slot <paramref name="snapshot"/> saves as in <paramref name="slot"/>.</summary>
@@ -18,24 +17,24 @@ internal static class SaveSlotRetention
     {
         Ensure.NotNull(snapshot);
         ControllerBindings bindings = snapshot.ControllerBindings.RequireRetailPermutation();
-        ReserveTankMode reserveMode = ReserveTankModes.Decode(snapshot.ReserveMode.ToWord());
+        ReserveTankMode reserveMode = Defined(snapshot.ReserveMode, nameof(snapshot.ReserveMode));
         int health = Kept(snapshot.Health), maxHealth = Kept(snapshot.MaxHealth);
         int missiles = Kept(snapshot.Missiles), maxMissiles = Kept(snapshot.MaxMissiles);
         int superMissiles = Kept(snapshot.SuperMissiles), maxSuperMissiles = Kept(snapshot.MaxSuperMissiles);
         int powerBombs = Kept(snapshot.PowerBombs), maxPowerBombs = Kept(snapshot.MaxPowerBombs);
-        HudItem hudItem = HudItems.Decode(snapshot.HudItem.ToWord());
+        HudItem hudItem = Defined(snapshot.HudItem, nameof(snapshot.HudItem));
         int maxReserveEnergy = Kept(snapshot.MaxReserveEnergy), reserveEnergy = Kept(snapshot.ReserveEnergy);
         int reserveMissiles = Kept(snapshot.ReserveMissiles);
-        ushort loadedItemCount = SaveFieldValue.Encode(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount));
-        ushort gameTimeFrames = SaveFieldValue.Encode(snapshot.GameTimeFrames, nameof(snapshot.GameTimeFrames));
-        ushort gameTimeSeconds = SaveFieldValue.Encode(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds));
-        ushort gameTimeMinutes = SaveFieldValue.Encode(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes));
-        ushort gameTimeHours = SaveFieldValue.Encode(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours));
-        ushort debugFlag = SaveFieldValue.Encode(snapshot.DebugFlag, nameof(snapshot.DebugFlag));
-        ushort newFileMarker = SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker));
+        int loadedItemCount = SaveFieldValue.Require(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount));
+        int gameTimeFrames = SaveFieldValue.Require(snapshot.GameTimeFrames, nameof(snapshot.GameTimeFrames));
+        int gameTimeSeconds = SaveFieldValue.Require(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds));
+        int gameTimeMinutes = SaveFieldValue.Require(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes));
+        int gameTimeHours = SaveFieldValue.Require(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours));
+        int debugFlag = SaveFieldValue.Require(snapshot.DebugFlag, nameof(snapshot.DebugFlag));
+        int newFileMarker = SaveFieldValue.Require(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker));
 
-        ushort saveStation = SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation));
-        ushort area = SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area));
+        int saveStation = SaveFieldValue.Require(snapshot.SaveStation, nameof(snapshot.SaveStation));
+        int area = SaveFieldValue.Require(snapshot.Area, nameof(snapshot.Area));
         PersistentProgress progression = ExploredMapStorage.Retained(snapshot.Progress, maps);
 
         return new SuperMetroidSaveSlot(
@@ -76,6 +75,11 @@ internal static class SaveSlotRetention
         };
     }
 
-    /// <summary>A quantity as the save keeps it: checked against the saved word's range.</summary>
-    private static int Kept(int quantity) => SamusQuantity.Decode(SamusQuantity.Encode(quantity));
+    /// <summary>A quantity as the save keeps it: checked against the range a count holds.</summary>
+    private static int Kept(int quantity) => SamusQuantity.Require(quantity);
+
+    /// <summary>A selection the save keeps, rejected when it names no member of its kind.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is undefined.</exception>
+    private static T Defined<T>(T value, string field) where T : struct, Enum =>
+        Enum.IsDefined(value) ? value : throw new ArgumentOutOfRangeException(field, value, $"Undefined {typeof(T).Name}.");
 }

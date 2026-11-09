@@ -133,8 +133,8 @@ public static class GameSaveJsonCodec
             slot.ControllerBindings.ItemCancel,
             slot.ControllerBindings.AimUp,
             slot.ControllerBindings.AimDown),
-        ReserveMode = slot.ReserveMode.ToWord(),
-        HudItem = slot.HudItem.ToWord(),
+        ReserveMode = slot.ReserveMode.SavedNumber(),
+        HudItem = slot.HudItem.SavedNumber(),
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
         JapaneseText = slot.JapaneseText,
@@ -148,14 +148,11 @@ public static class GameSaveJsonCodec
     /// <summary>Lists each set of <paramref name="progress"/> by its identities.</summary>
     private static SaveProgressionJsonDocument CaptureProgression(PersistentProgress progress) => new()
     {
-        Events = [.. progress.Events.Members.Select(number => EventNumberCodec.TryFromEventNumber(number, out EventNumber named)
-            ? named.ToString()
-            : $"0x{number:X2}")],
+        Events = [.. progress.Events.Members.Select(storyEvent => storyEvent.ToString())],
         ZebetitesDestroyed = progress.ZebetitesDestroyed,
         DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.DefeatedBosses(area)))],
-        BrokenChozoOrbs = [.. progress.ChozoOrbs.Members],
-        CollectedItems = [.. progress.CollectedItems.Members],
-        OpenedDoors = [.. progress.OpenedDoors.Members],
+        CollectedItems = [.. progress.CollectedItems.Members.Select(location => location.Name)],
+        OpenedDoors = [.. progress.OpenedDoors.Members.Select(door => door.Name)],
         UsedStations = [.. RetailAreas.Select(area => new SaveAreaStationsJsonDocument(area, [.. progress.UsedStations(area).Members]))],
         AcquiredMaps = [.. RetailAreas.Where(progress.HasAreaMap)],
         ExploredAreas = [.. RetailAreas.Select(area => new ExploredAreaJsonDocument(area,
@@ -189,7 +186,7 @@ public static class GameSaveJsonCodec
             CollectedItems = slot.Inventory.CollectedItems,
             EquippedBeams = slot.Inventory.EquippedBeams,
             CollectedBeams = slot.Inventory.CollectedBeams,
-            ReserveMode = ReserveTankModes.Decode(SaveFieldValue.Encode(slot.ReserveMode, "reserveMode")),
+            ReserveMode = SaveSlotNumbering.SavedReserveMode(slot.ReserveMode),
             Health = slot.Resources.Health,
             MaxHealth = slot.Resources.MaxHealth,
             Missiles = slot.Resources.Missiles,
@@ -198,7 +195,7 @@ public static class GameSaveJsonCodec
             MaxSuperMissiles = slot.Resources.MaxSuperMissiles,
             PowerBombs = slot.Resources.PowerBombs,
             MaxPowerBombs = slot.Resources.MaxPowerBombs,
-            HudItem = HudItems.Decode(SaveFieldValue.Encode(slot.HudItem, "hudItem")),
+            HudItem = SaveSlotNumbering.SavedHudItem(slot.HudItem),
             MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
             ReserveEnergy = slot.Resources.ReserveEnergy,
             ReserveMissiles = slot.Resources.ReserveMissiles,
@@ -330,18 +327,17 @@ public static class GameSaveJsonCodec
     /// <param name="property">The document's path, named in errors.</param>
     private static PersistentProgress DecodeProgression(SaveProgressionJsonDocument progression, string property)
     {
-        if (progression.Events is null || progression.DefeatedBosses is null || progression.BrokenChozoOrbs is null ||
+        if (progression.Events is null || progression.DefeatedBosses is null ||
             progression.CollectedItems is null || progression.OpenedDoors is null || progression.UsedStations is null ||
             progression.AcquiredMaps is null || progression.ExploredAreas is null)
             throw new InvalidDataException($"{property} is incomplete");
         var progress = new PersistentProgress();
-        DecodeNumbers(DecodeEvents(progression.Events, $"{property}.events"), progress.Events, $"{property}.events");
+        DecodeEvents(progression.Events, progress.Events, $"{property}.events");
         if (progression.ZebetitesDestroyed is < 0 or > PersistentProgress.ZebetiteCount)
             throw new InvalidDataException($"{property}.zebetitesDestroyed must be 0 through {PersistentProgress.ZebetiteCount}");
         progress.ZebetitesDestroyed = progression.ZebetitesDestroyed;
-        DecodeNumbers(progression.BrokenChozoOrbs, progress.ChozoOrbs, $"{property}.brokenChozoOrbs");
-        DecodeNumbers(progression.CollectedItems, progress.CollectedItems, $"{property}.collectedItems");
-        DecodeNumbers(progression.OpenedDoors, progress.OpenedDoors, $"{property}.openedDoors");
+        DecodeNamed(progression.CollectedItems, ItemLocationDefinitions.All, location => location.Name, progress.CollectedItems, $"{property}.collectedItems");
+        DecodeNamed(progression.OpenedDoors, LockedDoorDefinitions.All, door => door.Name, progress.OpenedDoors, $"{property}.openedDoors");
         foreach (AreaId area in DecodeAreaOrder(progression.DefeatedBosses.Select(entry => entry?.Area), $"{property}.defeatedBosses"))
         {
             BossBits bosses = progression.DefeatedBosses[AreaIds.ToIndex(area)].Bosses;
@@ -398,24 +394,52 @@ public static class GameSaveJsonCodec
         return listed;
     }
 
-    /// <summary>The event numbers validated symbolic event names list.</summary>
-    private static int[] DecodeEvents(string[] events, string property)
+    /// <summary>
+    /// Records the story events <paramref name="events"/> names as happened, rejecting an unknown name, a duplicate and
+    /// any name out of the order <see cref="StoryEvent"/> declares.
+    /// </summary>
+    private static void DecodeEvents(string[] events, ProgressSet<StoryEvent> happened, string property)
     {
-        var numbers = new int[events.Length];
+        StoryEvent[] order = Enum.GetValues<StoryEvent>();
+        int previous = -1;
         for (int index = 0; index < events.Length; index++)
         {
             string value = events[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
-            if (Enum.TryParse(value, ignoreCase: true, out EventNumber named) && Enum.IsDefined(named))
-                numbers[index] = named.ToEventNumber();
-            else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) &&
-                     int.TryParse(value[2..], NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out int raw))
-                numbers[index] = raw >= PersistentProgress.EventCount || EventNumberCodec.IsStoryEventNumber(raw)
-                    ? raw // A number past the event range is rejected with the range check of DecodeNumbers.
-                    : throw new InvalidDataException($"{property}[{index}] '{value}' numbers no story event; the Zebetite count is zebetitesDestroyed");
-            else
-                throw new InvalidDataException($"{property}[{index}] '{value}' is not a known name or 0xNN event number");
+            if (!Enum.TryParse(value, ignoreCase: true, out StoryEvent storyEvent) || !Enum.IsDefined(storyEvent) ||
+                int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                throw new InvalidDataException($"{property}[{index}] '{value}' names no story event");
+            int place = Array.IndexOf(order, storyEvent);
+            if (place <= previous)
+                throw new InvalidDataException($"{property} must list each event once, in the order the game lists them");
+            happened.Add(storyEvent);
+            previous = place;
         }
-        return numbers;
+    }
+
+    /// <summary>
+    /// Records the members of <paramref name="kind"/> that <paramref name="names"/> lists as happened, rejecting an unknown
+    /// name, a duplicate and any name out of the kind's order.
+    /// </summary>
+    private static void DecodeNamed<T>(string[] names, IReadOnlyList<T> kind, Func<T, string> nameOf, ProgressSet<T> happened, string property)
+        where T : notnull
+    {
+        int previous = -1;
+        for (int index = 0; index < names.Length; index++)
+        {
+            string name = names[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
+            int place = -1;
+            for (int candidate = 0; candidate < kind.Count; candidate++)
+            {
+                if (string.Equals(nameOf(kind[candidate]), name, StringComparison.Ordinal))
+                    place = candidate;
+            }
+            if (place < 0)
+                throw new InvalidDataException($"{property}[{index}] '{name}' names nothing the game places");
+            if (place <= previous)
+                throw new InvalidDataException($"{property} must list each once, in the order room data lists them");
+            happened.Add(kind[place]);
+            previous = place;
+        }
     }
 
     /// <summary>Turns on the listed flags, rejecting duplicates, disorder and numbers outside the range.</summary>

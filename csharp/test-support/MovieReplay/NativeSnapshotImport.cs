@@ -61,10 +61,10 @@ internal static class NativeSnapshotImport
         runtime.Options.MoonwalkEnabled = W(NativeSnapshotMemory.MoonwalkOption) != 0;
         // The initial import reads the native progression tables through the cartridge's table codec.
         PersistentProgress progress = runtime.System.Progress;
-        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
+        ProgressionTableCodec.ReadCollectedItems(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), progress);
         ProgressionTableCodec.ReadAreaBosses(memory.AsSpan(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), progress);
         ProgressionTableCodec.ReadEvents(memory.AsSpan(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), progress);
-        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
+        ProgressionTableCodec.ReadOpenedDoors(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), progress);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(W(NativeSnapshotMemory.Room)), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
@@ -114,7 +114,7 @@ internal static class NativeSnapshotImport
         runtime.PaletteFxSession.SamusInHeatPaletteIndex = W(NativeSnapshotMemory.HeatPalettePhase);
         runtime.PaletteFxSession.PreviousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
         ushort[] hudWords = [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
-        HudItem highlightedHudItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
+        HudItem highlightedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.PreviousHudSelection));
         // Each recorded scroll byte becomes the cell the camera reads it as.
         for (int cell = 0; cell < RoomScrollGrid.KeptCellCount; cell++)
             runtime.Room.LoadedCamera.Scrolls.SetCell(cell, RoomScrollStates.FromStorageByte(memory[NativeSnapshotMemory.ScrollStorage + cell]));
@@ -173,27 +173,27 @@ internal static class NativeSnapshotImport
         samus.InputSnapshot.PreviousDrawHeldInput = ControllerWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredHeld), "native Samus filtered held input");
         samus.InputSnapshot.PreviousDrawNewInput = ControllerWordCodec.FromJoypadWord(W(NativeSnapshotMemory.SamusFilteredNew), "native Samus filtered new input");
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);
-        samus.PreviousHealthForHurtCheck = SamusQuantity.Decode(W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
+        samus.PreviousHealthForHurtCheck = SamusCountWords.Decode(W(NativeSnapshotMemory.SamusPreviousHealthForFlash));
         VerificationAssertions.AssertTrue(W(NativeSnapshotMemory.SamusInputHandler) is
             NativeSnapshotMemory.SamusNormalInputHandler or NativeSnapshotMemory.SamusAutoJumpInputHandler,
             "initial movie input handler has a verified semantic mapping");
         samus.InputSnapshot.AutoJumpInputPending = W(NativeSnapshotMemory.SamusInputHandler) == NativeSnapshotMemory.SamusAutoJumpInputHandler;
         samus.EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.Items));
         samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(W(NativeSnapshotMemory.Beams));
-        samus.Health = SamusQuantity.Decode(W(NativeSnapshotMemory.Health));
-        samus.MaxHealth = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxHealth));
+        samus.Health = SamusCountWords.Decode(W(NativeSnapshotMemory.Health));
+        samus.MaxHealth = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxHealth));
         samus.InvincibilityTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.InvincibilityTimer));
         samus.KnockbackTimer = W(NativeSnapshotMemory.KnockbackTimer);
         samus.KnockbackDirection = (SamusKnockbackDirection)W(NativeSnapshotMemory.KnockbackDirection);
         samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlash.HoldAt(W(NativeSnapshotMemory.HurtFlashCounter));
         samus.SubunitHealth = W(NativeSnapshotMemory.SubunitHealth);
-        samus.SelectedHudItem = HudItems.Decode(W(NativeSnapshotMemory.SelectedHudItem));
+        samus.SelectedHudItem = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.SelectedHudItem));
         samus.ArmCannon.PreviousSelectedHudItem = samus.SelectedHudItem;
-        samus.AutoCancelHudItemIndex = HudItems.Decode(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
-        samus.ReserveTankMode = ReserveTankModes.Decode(W(NativeSnapshotMemory.ReserveMode));
-        samus.MaxReserveEnergy = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxReserve));
-        samus.ReserveEnergy = SamusQuantity.Decode(W(NativeSnapshotMemory.Reserve));
+        samus.AutoCancelHudItemIndex = SaveSlotNumbering.SavedHudItem(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
+        samus.ReserveTankMode = SaveSlotNumbering.SavedReserveMode(W(NativeSnapshotMemory.ReserveMode));
+        samus.MaxReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxReserve));
+        samus.ReserveEnergy = SamusCountWords.Decode(W(NativeSnapshotMemory.Reserve));
         samus.Pose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose));
         samus.Position = samus.Position.WithWhole(new(W(NativeSnapshotMemory.X), W(NativeSnapshotMemory.Y)));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
@@ -348,9 +348,9 @@ internal static class NativeSnapshotImport
             ImportNativeMotherBrain(runtime, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         runtime.Clock.Import(memory[NativeSnapshotMemory.NmiCounterByte], W(NativeSnapshotMemory.NmiCounter));
         samus.CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.CollectedItems)); samus.CollectedBeams = SamusEquipmentWordCodec.FromBeamWord(W(NativeSnapshotMemory.CollectedBeams));
-        samus.Missiles = SamusQuantity.Decode(W(NativeSnapshotMemory.Missiles)); samus.MaxMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxMissiles));
-        samus.SuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.SuperMissiles)); samus.MaxSuperMissiles = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxSuperMissiles));
-        samus.PowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxPowerBombs));
+        samus.Missiles = SamusCountWords.Decode(W(NativeSnapshotMemory.Missiles)); samus.MaxMissiles = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxMissiles));
+        samus.SuperMissiles = SamusCountWords.Decode(W(NativeSnapshotMemory.SuperMissiles)); samus.MaxSuperMissiles = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxSuperMissiles));
+        samus.PowerBombs = SamusCountWords.Decode(W(NativeSnapshotMemory.PowerBombs)); samus.MaxPowerBombs = SamusCountWords.Decode(W(NativeSnapshotMemory.MaxPowerBombs));
         // The HUD imports as the values its native rows show, once Samus's inventory has imported (#1466).
         runtime.Hud.ImportNative(hudWords, samus, highlightedHudItem, (runtime.Artwork.MapPresentation ?? throw new InvalidDataException(
             "The native checkpoint requires the installed HUD artwork.")).GameplayHud);

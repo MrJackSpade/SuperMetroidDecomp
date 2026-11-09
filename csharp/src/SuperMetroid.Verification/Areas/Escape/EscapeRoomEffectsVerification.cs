@@ -36,7 +36,7 @@ internal static class EscapeRoomEffectsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
+        runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
         runtime.Player.IntroducedSamus.Control.LockHandlers();
         int explosionFrames = 0;
@@ -89,7 +89,7 @@ internal static class EscapeRoomEffectsVerification
             AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "retail room loader installs rescue wall");
             runtime.RoomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), true);
             for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
-            AssertTrue(runtime.System.HasEvent(EventNumber.CrittersEscaped), "live rescue room publishes escaped event");
+            AssertTrue(runtime.System.HasEvent(StoryEvent.CrittersEscaped), "live rescue room publishes escaped event");
             var door = runtime.RoomObjects.GreyDoorSnapshots.Single();
             AssertEqual(SuperMetroid.Core.Rooms.Doors.GreyDoorPhase.Flashing, door.Phase, "rescue unlocks exit door");
             runtime.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(door.BlockIndex, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));

@@ -44,7 +44,7 @@ internal sealed class TourianObjects
     /// handlers compare the complete enemy-death word with the room's required-kill byte and
     /// repeatedly mark their idempotent event once the quota is reached.
     /// </summary>
-    internal void RunMetroidsClearedObserver(EventNumber eventNumber, int enemyDeaths, int enemyDeathQuota)
+    internal void RunMetroidsClearedObserver(StoryEvent eventNumber, int enemyDeaths, int enemyDeathQuota)
     {
         if (enemyDeaths < enemyDeathQuota)
             return;

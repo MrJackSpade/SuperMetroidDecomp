@@ -92,7 +92,7 @@ widening commit records the result for each field:
    fails when the guard is violated (`SamusQuantity.DecrementPositive`), never through storage width.
 
 Words exist only at the boundaries (SRAM, JSON saves, native snapshot import and word-level parity checks), which
-convert through a named codec that rejects out-of-range words (`SamusQuantity.Decode`/`Encode`). A wrap that is part
+convert through a named codec that rejects out-of-range words (`SamusCountWords.Decode`/`Encode` at the save and native-trace boundaries). A wrap that is part
 of the behavior stays explicit: `WrappingCounter` for counters, or a named operation on the owning type.
 `SubunitHealth` stays a word because its borrow into `Health` is load-bearing.
 

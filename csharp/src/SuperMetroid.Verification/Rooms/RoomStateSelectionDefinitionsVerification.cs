@@ -97,9 +97,12 @@ internal static class RoomStateSelectionDefinitionsVerification
                     if (matches) { expected = clause.Target; break; }
                 }
                 // Events stored past the supplied bytes are clear, as truncated storage read them.
-                var storedEvents = new NumberedFlagSet(PersistentProgress.EventCount);
-                for (int number = 0; number < events.Length * 8; number++)
-                    storedEvents.Set(number, (events[number / 8] & (1 << (number % 8))) != 0);
+                ProgressSet<StoryEvent> storedEvents = new PersistentProgress().Events;
+                foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
+                {
+                    int number = SuperMetroid.AssetExtraction.Progression.StoryEventNumbers.Number(storyEvent);
+                    storedEvents.Set(storyEvent, number / 8 < events.Length && (events[number / 8] & (1 << (number % 8))) != 0);
+                }
                 var context = new RoomStateSelectionContext(storedEvents, ProgressionTableCodec.StoredBosses(bosses), morph, powerBombs);
                 AssertEqual(expected, RoomStateSelection.Select(RoomHeaderDefinitions.Get(room), context).Pointer,
                     $"Room {room:X4} native first-match/default selection");

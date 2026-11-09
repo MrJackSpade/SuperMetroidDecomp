@@ -47,8 +47,8 @@ internal static class XrayOverlaysVerification
         var system = new SharedGameState(new SharedRandom());
         var items = new[]
         {
-            new CollectibleObjectSnapshot(33, 1, InWorldCollectibleKind.Bombs),
-            new CollectibleObjectSnapshot(33, 2, InWorldCollectibleKind.EnergyTank),
+            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(1), InWorldCollectibleKind.Bombs),
+            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(2), InWorldCollectibleKind.EnergyTank),
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.
@@ -67,7 +67,7 @@ internal static class XrayOverlaysVerification
         AssertEqual(new RevealedBlock(4, RevealedBlockArrangement.RowsSwapped), map[2],
             "an overlay flipped both ways only swaps the block's rows");
         Array.Clear(map);
-        items[0] = items[0] with { ItemBit = null };
+        items[0] = items[0] with { Location = null };
         system.SetCollectedItemBit(2);
         XrayRevealOverlays.Apply(level, map, items, system, null, new(16, 16), visuals);
         AssertTrue(map.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");

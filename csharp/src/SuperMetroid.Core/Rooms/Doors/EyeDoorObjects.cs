@@ -346,7 +346,7 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
         SharedGameState system = _system ??
             throw new InvalidOperationException("Eye-door setup has no persistence owner.");
         if (slot.Argument is DoorBitArgument { Persists: true } openedEye &&
-            system.HasOpenedDoorBit(openedEye.DoorBit))
+            system.HasOpenedDoor(openedEye.Door))
         {
             // Setup routines deliberately leave already-open terrain untouched. Their first
             // bytecode instruction takes the persistent branch and either deletes this
@@ -377,7 +377,7 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
         {
             case EyeDoorFrameBehavior.WakeWhenDoorBitSet:
                 if (slot.Argument is DoorBitArgument { Persists: true } wakingEye &&
-                    system.HasOpenedDoorBit(wakingEye.DoorBit))
+                    system.HasOpenedDoor(wakingEye.Door))
                 {
                     slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
                     slot.WakeAtLink();
@@ -509,7 +509,7 @@ internal sealed class EyeDoorObjects : IRoomObjectFamilySource
             definition,
             facing,
             slot.BlockIndex,
-            (slot.Argument as DoorBitArgument)?.DoorBit));
+            (slot.Argument as DoorBitArgument)?.Door));
     }
 
     /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>

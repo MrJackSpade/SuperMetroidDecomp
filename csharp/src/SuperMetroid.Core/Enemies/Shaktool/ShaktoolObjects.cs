@@ -51,7 +51,7 @@ internal sealed class ShaktoolObjects
             for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
                 scrolls.SetCell(cell, RoomScrollState.Blue);
         if (samus.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary) return;
-        _events.Set(EventNumber.ShaktoolClearedPath);
+        _events.Set(StoryEvent.ShaktoolClearedPath);
         // Retiring clears only the identity; inactive instruction/timer words remain in place.
         slot.Header = 0;
         slot.Delete();

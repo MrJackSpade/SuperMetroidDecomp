@@ -63,8 +63,8 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(2, SamusEaterObjectDefinitions.ChewDamage, "plant chew damage");
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SpecialBlock).Deactivated(), "plant trigger deactivation leaves a solid block solid with its appearance");
         AssertEqual(null, MetroidsClearedEvents.ResolveEvent(8), "ninth metroids-cleared entry is a no-op");
-        AssertEqual((EventNumber?)EventNumber.FirstMetroidHallCleared, MetroidsClearedEvents.ResolveEvent(9), "first quota observer");
-        AssertEqual((EventNumber?)EventNumber.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(12), "last quota observer");
+        AssertEqual((StoryEvent?)StoryEvent.FirstMetroidHallCleared, MetroidsClearedEvents.ResolveEvent(9), "first quota observer");
+        AssertEqual((StoryEvent?)StoryEvent.SecondMetroidShaftCleared, MetroidsClearedEvents.ResolveEvent(12), "last quota observer");
 
         // Terrain blocks keep the collision kind and appearance of the former literal words.
         AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), MaridiaElevatubeObjectDefinitions.Terrain, "elevatube block");

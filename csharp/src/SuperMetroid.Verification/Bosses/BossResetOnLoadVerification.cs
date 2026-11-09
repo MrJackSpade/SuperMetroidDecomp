@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
@@ -35,23 +36,22 @@ internal static class BossResetOnLoadVerification
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = SamusEquipmentFlags.MorphBall,
         };
-        // Every boss of every area, every event and door, and alternating pickups and orbs.
+        // Every boss of every area, every event and door, and every third pickup.
         for (int area = 0; area < AreaIds.RetailCount; area++)
             snapshot.Progress.SetDefeatedBosses(AreaIds.At(area), BossBitMasks.AllKnown);
-        PersistentProgressAccess.FillAll(snapshot.Progress.Events);
-        PersistentProgressAccess.FillAll(snapshot.Progress.OpenedDoors);
-        for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
-        {
-            snapshot.Progress.CollectedItems.Set(location, location % 3 == 0);
-            snapshot.Progress.ChozoOrbs.Set(location, location % 3 == 1);
-        }
+        snapshot.Progress.Events.AddAll();
+        snapshot.Progress.OpenedDoors.AddAll();
+        for (int place = 0; place < ItemLocationDefinitions.All.Count; place++)
+            snapshot.Progress.CollectedItems.Set(ItemLocationDefinitions.All[place], place % 3 == 0);
         // Escape is outside this tester option's scope. Keep this particular save
         // out of escape so room selection can demonstrate both Torizo encounters.
-        snapshot.Progress.ClearEvent(EventNumber.ZebesTimebombSet);
+        snapshot.Progress.ClearEvent(StoryEvent.ZebesTimebombSet);
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
-        ushort[] eyeBits = [0x45, 0x5c, 0x85, 0x9b, 0xa8];
+        LockedDoor[] eyeDoors = [LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LNFarmingEyeDoorFacingRight,
+            LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
+            LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft];
         foreach (bool enabled in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture(
@@ -63,18 +63,17 @@ internal static class BossResetOnLoadVerification
                 AssertEqual(resetArea ? BossBits.None : BossBitMasks.AllKnown, runtime.System.GetBossBits(area),
                     $"boss/miniboss/Torizo load policy area {area}, enabled={enabled}");
             }
-            for (int number = 0; number < PersistentProgress.EventCount; number++)
+            foreach (StoryEvent storyEvent in Enum.GetValues<StoryEvent>())
             {
-                bool expected = snapshot.Progress.Events.Contains(number) &&
-                    !(enabled && number == EventNumber.ShaktoolClearedPath.ToEventNumber());
-                AssertEqual(expected, runtime.System.Progress.Events.Contains(number),
-                    $"only Shaktool's encounter event resets; event {number}, enabled={enabled}");
+                bool expected = snapshot.Progress.Events.Contains(storyEvent) &&
+                    !(enabled && storyEvent == StoryEvent.ShaktoolClearedPath);
+                AssertEqual(expected, runtime.System.Progress.Events.Contains(storyEvent),
+                    $"only Shaktool's encounter event resets; event {storyEvent}, enabled={enabled}");
             }
-            for (int bit = 0; bit < PersistentProgress.RoomFlagCount; bit++)
-                AssertEqual(!(enabled && eyeBits.Contains((ushort)bit)), runtime.System.HasOpenedDoorBit(bit),
-                    $"only eye-door deaths reset; door {bit}, enabled={enabled}");
+            foreach (LockedDoor door in LockedDoorDefinitions.All)
+                AssertEqual(!(enabled && eyeDoors.Contains(door)), runtime.System.HasOpenedDoor(door),
+                    $"only eye-door deaths reset; door {door}, enabled={enabled}");
             AssertTrue(snapshot.Progress.CollectedItems.SetEquals(runtime.System.Progress.CollectedItems), "pickups preserved");
-            AssertTrue(snapshot.Progress.ChozoOrbs.SetEquals(runtime.System.Progress.ChozoOrbs), "Chozo orbs preserved");
             AssertEqual(slot.CollectedItems, runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
             AssertEqual(slot.EquippedItems, runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
             AssertEqual(slot.Health, runtime.Player.IntroducedSamus.Health, "health preserved");

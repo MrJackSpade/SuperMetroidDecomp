@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 internal abstract record RoomStateCondition
 {
     /// <summary>Satisfied once <paramref name="eventNumber"/> is set.</summary>
-    internal static RoomStateCondition Event(EventNumber eventNumber) => new EventSet(eventNumber);
+    internal static RoomStateCondition Event(StoryEvent eventNumber) => new EventSet(eventNumber);
 
     /// <summary>Satisfied once any boss of <paramref name="bosses"/> in the room's area is dead.</summary>
     internal static RoomStateCondition BossDead(BossBits bosses) => new BossesDead(bosses);
@@ -25,7 +25,7 @@ internal abstract record RoomStateCondition
     internal abstract bool IsMet(RoomStateSelectionContext selection);
 
     /// <summary>A persistent event test.</summary>
-    private sealed record EventSet(EventNumber Number) : RoomStateCondition
+    private sealed record EventSet(StoryEvent Number) : RoomStateCondition
     {
         /// <inheritdoc/>
         internal override bool IsMet(RoomStateSelectionContext selection) => selection.IsEventSet(Number);

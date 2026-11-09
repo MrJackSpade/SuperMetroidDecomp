@@ -220,8 +220,8 @@ internal sealed class EyeDoorBehavior
             EyeDoorOrientation.Right => EyeDoorEffectDefinitions.RightShotOrigin,
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
-        projectile.State = new EyeDoorShotState(request.DoorBit ?? throw new InvalidOperationException(
-            $"The eye-door attack at block {request.RoomObjectBlockIndex} was spawned without its door bit."));
+        projectile.State = new EyeDoorShotState(request.Door ?? throw new InvalidOperationException(
+            $"The eye-door attack at block {request.RoomObjectBlockIndex} was spawned without its door."));
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
     }
 
@@ -283,8 +283,8 @@ internal sealed class EyeDoorBehavior
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ReadEyeDoorAcceleration(angle - 64));
 
         SharedGameState system = _eyeDoorProjectileSystem ??
-            throw new InvalidOperationException("A live eye-door projectile has no door-bit owner.");
-        if (system.HasOpenedDoorBit(shot.DoorBit))
+            throw new InvalidOperationException("A live eye-door projectile has no opened-door owner.");
+        if (system.HasOpenedDoor(shot.Door))
             StartEyeDoorProjectileImpact(projectile);
     }
 

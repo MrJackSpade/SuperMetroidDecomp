@@ -112,7 +112,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectibleObjectState { } item
-            ? [new CollectibleObjectSnapshot(slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.ItemBit, item.Kind)]
+            ? [new CollectibleObjectSnapshot(slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.Location, item.Kind)]
             : Array.Empty<CollectibleObjectSnapshot>())
         .ToArray();
 
@@ -186,7 +186,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         SharedGameState system = room.System;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = slot.Argument is CollectedItemArgument placedItem &&
-            system.HasCollectedItemBit(placedItem.ItemBit);
+            system.HasCollectedItem(placedItem.Location);
         int? blockPair = ShowsOwnPicture(kind) ? _blockPairs.Take() : null;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
@@ -442,7 +442,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
             ?? throw new InvalidOperationException("A live collectible has no persistence owner.");
 
         if (slot.Argument is CollectedItemArgument collectedItem)
-            system.SetCollectedItemBit(collectedItem.ItemBit);
+            system.CollectItem(collectedItem.Location);
         ApplyCollectibleEffect(samus, item.Kind);
 
         var pickup = new CollectiblePickupEvent(

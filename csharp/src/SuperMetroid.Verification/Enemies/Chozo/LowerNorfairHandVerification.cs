@@ -49,7 +49,7 @@ internal static class LowerNorfairHandVerification
             samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
             var rejected = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(2 << 16), ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
             AssertTrue(rejected.Collided, "hand remains solid for ineligible contact");
-            AssertTrue(!runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid),
+            AssertTrue(!runtime.System.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid),
                 "standing or missing Space Jump must not activate statue");
         }
         samus.CollectedItems |= SamusEquipmentFlags.SpaceJump;
@@ -64,7 +64,7 @@ internal static class LowerNorfairHandVerification
         AssertTrue(collision.Collided && leftColumn == hand.Index % level.Size.X &&
             rightColumn == hand.Index % level.Size.X,
             "downward morph contact lands on the actual hand tile");
-        AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
+        AssertTrue(runtime.System.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
         AssertTrue((runtime.Enemies.SlotTable.Slots[0].SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException("Verification requires the statue state.")).HandTriggered, "hand wakes statue");
         AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "statue takes control on hand contact");
         ushort startingAcidY = runtime.RoomFxOverlay.NamedBaseY.Whole;

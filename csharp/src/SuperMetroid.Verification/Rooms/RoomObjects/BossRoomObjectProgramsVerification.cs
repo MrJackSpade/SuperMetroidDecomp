@@ -208,7 +208,7 @@ internal static class BossRoomObjectProgramsVerification
                 length = 5;
                 return true;
             case RoomObjectInstruction.GotoIfEventSet:
-                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed.ToEventNumber(), Word(2), "glass destroyed event");
+                AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(2), "glass destroyed event");
                 AssertEqual(MotherBrainGlassObjectProgram.NoGlass, Entry(Word(4)), "glass no-glass target");
                 cue = MotherBrainGlassObjectCue.Of(MotherBrainGlassObjectCueKind.SkipIfGlassDestroyed);
                 length = 6;
@@ -229,7 +229,7 @@ internal static class BossRoomObjectProgramsVerification
                 length = 10;
                 return true;
             case RoomObjectInstruction.SetEvent:
-                AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed.ToEventNumber(), Word(2), "glass sets its destroyed event");
+                AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(2), "glass sets its destroyed event");
                 cue = MotherBrainGlassObjectCue.Of(MotherBrainGlassObjectCueKind.SetGlassDestroyed);
                 length = 4;
                 return true;

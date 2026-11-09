@@ -35,7 +35,7 @@ internal sealed class ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram prog
                 return null;
             case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.SetAnimalsEscapedEvent }:
                 (context.RoomObjects.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))
-                    .Set(EventNumber.CrittersEscaped);
+                    .Set(StoryEvent.CrittersEscaped);
                 return null;
             case ScriptedRoomObjectCue.Command { Kind: ScriptedRoomObjectCueKind.MoveRightFourBlocks }:
                 context.MoveOrigin(slot, 4, 0);

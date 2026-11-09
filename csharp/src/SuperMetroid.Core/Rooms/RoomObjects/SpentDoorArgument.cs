@@ -1,33 +1,25 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// A cap that has been opened for good: its door is recorded as opened, and the cap keeps which of the sixteen doors of
-/// its window were open at the opening. The window starts at the first door of the opened door's group of eight. It is
-/// never checked again.
+/// A cap that has been opened for good: its door is recorded as opened, and the cap keeps which doors were open at the
+/// opening. It is never checked again.
 /// </summary>
 public sealed record SpentDoorArgument : RoomObjectRoomArgument
 {
-    /// <summary>The doors a spent cap's window covers.</summary>
-    internal const int WindowDoorCount = 16;
+    /// <summary>The door the cap stood for.</summary>
+    internal readonly LockedDoor Door;
 
-    /// <summary>The doors of each group a window starts at the first of.</summary>
-    private const int WindowGroupDoorCount = 8;
+    /// <summary>The doors open at the opening, this one included, in the order room data lists doors.</summary>
+    internal readonly IReadOnlyList<LockedDoor> OpenedDoors;
 
-    /// <summary>The first door of the window, the first of the opened door's group of eight.</summary>
-    internal readonly int FirstDoor;
-
-    /// <summary>The window's doors that were open at the opening, ascending.</summary>
-    internal readonly IReadOnlyList<int> OpenedDoors;
-
-    /// <summary>Keeps the window's opened doors as the opening left them.</summary>
-    /// <param name="firstDoor">The first door of the window.</param>
-    /// <param name="openedDoors">The window's doors open at the opening, ascending.</param>
-    internal SpentDoorArgument(int firstDoor, IReadOnlyList<int> openedDoors)
+    /// <summary>Keeps the doors open as the opening left them.</summary>
+    /// <param name="door">The door the cap stood for.</param>
+    /// <param name="openedDoors">The doors open at the opening.</param>
+    internal SpentDoorArgument(LockedDoor door, IReadOnlyList<LockedDoor> openedDoors)
     {
-        FirstDoor = Ensure.AtLeastZero(firstDoor);
+        Door = Ensure.NotNull(door);
         OpenedDoors = Ensure.NotNull(openedDoors);
     }
-
-    /// <summary>The first door of the window a cap for <paramref name="door"/> keeps.</summary>
-    internal static int FirstDoorOfWindow(int door) => Ensure.AtLeastZero(door) / WindowGroupDoorCount * WindowGroupDoorCount;
 }

@@ -178,7 +178,7 @@ internal sealed class EnemyRoomEffects
             if (death.MotherBrainBossBitRequested)
                 _system.SetBossBits(_room.LoadedRoom.AreaIndex, BossBits.AreaMiniBoss);
             if (death.ZebesTimebombEventRequested)
-                _system.SetEvent(EventNumber.ZebesTimebombSet);
+                _system.SetEvent(StoryEvent.ZebesTimebombSet);
         }
         if (requests.MotherBrainAcidChange is { } acidChange)
         {

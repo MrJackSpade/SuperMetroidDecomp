@@ -111,7 +111,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
         session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
         session.display.PublishBlack();
-        if (session.Runtime.System.HasEvent(EventNumber.ZebesTimebombSet))
+        if (session.Runtime.System.HasEvent(StoryEvent.ZebesTimebombSet))
         {
             BeginBlackDeathBlackOut();
             return;

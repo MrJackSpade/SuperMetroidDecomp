@@ -59,7 +59,7 @@ internal static class GoldenTorizoCodeVerification
         static ushort[] Snapshot(SamusState samus) =>
             [.. new[] { samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
                 samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
-                samus.PowerBombs, samus.MaxPowerBombs }.Select(SamusQuantity.Encode),
+                samus.PowerBombs, samus.MaxPowerBombs }.Select(SamusCountWords.Encode),
              samus.EquippedItems.ToEquipmentWord(), samus.CollectedItems.ToEquipmentWord(),
              samus.EquippedBeams.ToEquipmentWord(), samus.CollectedBeams.ToEquipmentWord()];
     }

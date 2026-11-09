@@ -625,7 +625,7 @@ internal static class RoomObjectPopulationVerification
         }
 
         var completedSystem = new SharedGameState(new SharedRandom());
-        completedSystem.SetEvent(EventNumber.OutranSpeedBoosterLavaquake);
+        completedSystem.SetEvent(StoryEvent.OutranSpeedBoosterLavaquake);
         RoomLevelData completedLevel = CreateLevel();
         RoomObjectSystem completed = Load(
             completedSystem,
@@ -723,7 +723,7 @@ internal static class RoomObjectPopulationVerification
         AssertEqual(0x0100, activeFx.NamedBaseY.Whole,
             "third lava stage clamps maximum FX Y");
         active.Step(activeLevel);
-        AssertTrue(activeSystem.HasEvent(EventNumber.OutranSpeedBoosterLavaquake),
+        AssertTrue(activeSystem.HasEvent(StoryEvent.OutranSpeedBoosterLavaquake),
             "passing the last rise marks the escape's event");
         AssertEqual(1, active.SlotTable.ActiveCount,
             "the finished escape leaves B8AC resident until room reload");
@@ -750,9 +750,9 @@ internal static class RoomObjectPopulationVerification
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
             new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), new DoorBitArgument(0x27, DoorOpeningPersistence.Persistent)),
+                new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(0x27), DoorOpeningPersistence.Persistent)),
             new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.GreenDoorFacingLeft),
-                new(inRoomX, inRoomY), new DoorBitArgument(0x28, DoorOpeningPersistence.Persistent)),
+                new(inRoomX, inRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
 
         RoomLevelData level = CreateRoom(new(width, height),
@@ -972,12 +972,12 @@ internal static class RoomObjectPopulationVerification
             "Metroids-cleared population loads all argument families");
 
         roomObjects.Step(level, enemyDeaths: 2, enemyDeathQuota: 3);
-        foreach (EventNumber eventNumber in new[]
+        foreach (StoryEvent eventNumber in new[]
                  {
-                     EventNumber.FirstMetroidHallCleared,
-                     EventNumber.FirstMetroidShaftCleared,
-                     EventNumber.SecondMetroidHallCleared,
-                     EventNumber.SecondMetroidShaftCleared,
+                     StoryEvent.FirstMetroidHallCleared,
+                     StoryEvent.FirstMetroidShaftCleared,
+                     StoryEvent.SecondMetroidHallCleared,
+                     StoryEvent.SecondMetroidShaftCleared,
                  })
         {
             AssertTrue(!system.HasEvent(eventNumber),
@@ -985,12 +985,12 @@ internal static class RoomObjectPopulationVerification
         }
 
         roomObjects.Step(level, enemyDeaths: 3, enemyDeathQuota: 3);
-        foreach (EventNumber eventNumber in new[]
+        foreach (StoryEvent eventNumber in new[]
                  {
-                     EventNumber.FirstMetroidHallCleared,
-                     EventNumber.FirstMetroidShaftCleared,
-                     EventNumber.SecondMetroidHallCleared,
-                     EventNumber.SecondMetroidShaftCleared,
+                     StoryEvent.FirstMetroidHallCleared,
+                     StoryEvent.FirstMetroidShaftCleared,
+                     StoryEvent.SecondMetroidHallCleared,
+                     StoryEvent.SecondMetroidShaftCleared,
                  })
         {
             AssertTrue(system.HasEvent(eventNumber),
@@ -1075,7 +1075,7 @@ internal static class RoomObjectPopulationVerification
 
         samus.Position = samus.Position.WithWholeX(checked(ShaktoolRoomDefinitions.ClearedPathXBoundary + 1));
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
-        AssertTrue(system.HasEvent(EventNumber.ShaktoolClearedPath),
+        AssertTrue(system.HasEvent(StoryEvent.ShaktoolClearedPath),
             "Shaktool path event follows the native X threshold");
         AssertEqual(0, roomObjects.SlotTable.ActiveCount,
             "Shaktool controller deletes itself when the path event is set");

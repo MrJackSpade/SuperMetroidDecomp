@@ -54,9 +54,9 @@ internal sealed class ActiveAssists
         if (Current.EncounterResetOnLoad is not { } reset) return;
         foreach (AreaId area in reset.BossAreas)
             _system.ClearBossBits(area, BossBitMasks.AllKnown);
-        foreach (EventNumber eventNumber in reset.ClearedEvents)
+        foreach (StoryEvent eventNumber in reset.ClearedEvents)
             _system.ClearEvent(eventNumber);
-        foreach (int door in reset.ClearedDoorFlags)
+        foreach (LockedDoor door in reset.ClearedDoors)
             _system.Progress.OpenedDoors.Remove(door);
     }
 
@@ -96,10 +96,7 @@ internal sealed class ActiveAssists
         samus.SuperMissiles = samus.MaxSuperMissiles = loadout.SuperMissiles;
         samus.PowerBombs = samus.MaxPowerBombs = loadout.PowerBombs;
         if (loadout.CollectsEveryItemLocation)
-        {
-            for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
-                _system.SetCollectedItemBit(location);
-        }
+            _system.Progress.CollectedItems.AddAll();
         SuperMetroid.Core.Samus.Palettes.SamusNormalSuitPalette.Load(_player.Colours, samus.EquippedItems);
     }
 }

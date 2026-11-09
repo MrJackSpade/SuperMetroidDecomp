@@ -103,7 +103,7 @@ internal sealed class MotherBrainGlassObjects
     internal bool IsBossDead() => _bosses?.IsDefeated(BossBits.AreaBoss) == true;
 
     /// <summary>Whether the glass was destroyed on an earlier visit.</summary>
-    internal bool IsGlassDestroyed() => _events?.Has(EventNumber.MotherBrainGlassDestroyed) == true;
+    internal bool IsGlassDestroyed() => _events?.Has(StoryEvent.MotherBrainGlassDestroyed) == true;
 
     /// <summary>
     /// Queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
@@ -121,7 +121,7 @@ internal sealed class MotherBrainGlassObjects
 
     /// <summary>Sets the glass-destroyed event.</summary>
     internal void SetGlassDestroyed() =>
-        (_events ?? throw new InvalidOperationException("Mother Brain glass has no event writer.")).Set(EventNumber.MotherBrainGlassDestroyed);
+        (_events ?? throw new InvalidOperationException("Mother Brain glass has no event writer.")).Set(StoryEvent.MotherBrainGlassDestroyed);
 
     /// <summary>The shatter sound's request priority.</summary>
     private static readonly SoundRequestPriority ShatterSoundPriority = SoundRequestPriority.Essential;

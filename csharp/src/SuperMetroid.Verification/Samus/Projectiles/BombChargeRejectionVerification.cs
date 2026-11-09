@@ -59,7 +59,7 @@ internal static class BombChargeRejectionVerification
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                SelectedHudItem = HudItems.Decode(selection), PowerBombs = 2,
+                SelectedHudItem = SuperMetroid.Core.Saves.SaveSlotNumbering.SavedHudItem(selection), PowerBombs = 2,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) }.WithBeamChargeCount(charge);
             var bombs = CreateBombFixture();
             var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, ControllerButton.Down, 0);

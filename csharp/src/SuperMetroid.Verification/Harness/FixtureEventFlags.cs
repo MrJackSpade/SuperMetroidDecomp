@@ -9,16 +9,16 @@ namespace SuperMetroid.Verification.Harness;
 internal sealed class FixtureEventFlags : IGlobalEventFlags
 {
     /// <summary>Answers event queries.</summary>
-    public Func<EventNumber, bool>? HasEvent { get; init; }
+    public Func<StoryEvent, bool>? HasEvent { get; init; }
 
     /// <summary>Receives event sets.</summary>
-    public Action<EventNumber>? SetEvent { get; init; }
+    public Action<StoryEvent>? SetEvent { get; init; }
 
     /// <summary>Delegates an event query or fails at the missing fixture dependency.</summary>
-    public bool Has(EventNumber eventNumber) => (HasEvent ?? throw Missing("read"))(eventNumber);
+    public bool Has(StoryEvent eventNumber) => (HasEvent ?? throw Missing("read"))(eventNumber);
 
     /// <summary>Delegates an event set or fails at the missing fixture dependency.</summary>
-    public void Set(EventNumber eventNumber) => (SetEvent ?? throw Missing("set"))(eventNumber);
+    public void Set(StoryEvent eventNumber) => (SetEvent ?? throw Missing("set"))(eventNumber);
 
     /// <summary>Reports which event operation the fixture did not install.</summary>
     private static InvalidOperationException Missing(string operation) =>

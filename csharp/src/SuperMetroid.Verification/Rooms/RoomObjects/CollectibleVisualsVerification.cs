@@ -64,7 +64,8 @@ internal static class CollectibleVisualsVerification
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
-            CollectibleFixture fixture = LoadCollectible(bus, checked((ushort)(0xeed7 + kind * 4)), checked((ushort)kind), precollected: false);
+            // Each kind stands at its own retail item location, numbered from the first of the contiguous run 128 through 152.
+            CollectibleFixture fixture = LoadCollectible(bus, checked((ushort)(0xeed7 + kind * 4)), checked((ushort)(128 + kind)), precollected: false);
             RoomObjectFixtures.VisualsOf(fixture.RoomObjects).RoomObjectCollectibleVisuals = stock;
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,

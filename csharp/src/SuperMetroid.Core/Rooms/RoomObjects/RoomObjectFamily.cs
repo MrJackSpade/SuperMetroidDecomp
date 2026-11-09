@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>The PLM families whose semantic state a slot carries beside its words.</summary>
 internal enum RoomObjectFamily
 {
-    /// <summary>One's permanent-item headers.</summary>
-    Collectible,
-
     /// <summary>The resident scroll trigger.</summary>
     Scroll,
 

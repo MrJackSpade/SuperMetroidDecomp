@@ -4,17 +4,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>In-world collectibles: item and tank setup, pickup, fanfare, and each collectible's picture where it lies.</summary>
+/// <summary>
+/// The room's in-world collectibles' service (#1554): item and tank setup, the touches and shots that trigger them, the
+/// pickup with its message, fanfare and inventory, and each collectible's picture where it lies. Each item is a typed
+/// room object (<see cref="CollectibleObject"/>) that holds and advances its own state.
+/// </summary>
 [RoomLifetime]
-internal sealed class CollectibleObjects : IRoomObjectFamilySource
+internal sealed class CollectibleObjects
 {
-    /// <summary>Registers the Collectible family's step.</summary>
-    public void AddObjectFamilies(RoomObjectFamilyTable table)
-    {
-        Ensure.NotNull(table);
-        table.Add(RoomObjectFamily.Collectible, (slot, context) =>
-            TryStepCollectible(context.Level, slot) ? RoomObjectStepOutcome.Consumed : RoomObjectStepOutcome.Shared);
-    }
 
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
@@ -26,18 +23,14 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     private readonly IRoomObjectDrawing _drawing;
     /// <summary>Enumerates active item PLMs by slot ordinal.</summary>
     private readonly RoomObjectSlotTable _slotTable;
-    /// <summary>Receives item instruction sound requests.</summary>
-    private readonly RoomObjectSoundQueue _sounds;
-
-    /// <summary>Connects permanent-item PLMs to room state, drawing, and sound services.</summary>
-    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
+    /// <summary>Connects the collectibles to room state and drawing.</summary>
+    internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable)
     {
         _system = system;
         _samus = samus;
         _roomFx = roomFx;
         _drawing = drawing;
         _slotTable = slotTable;
-        _sounds = sounds;
     }
 
     /// <summary>Pickup events published by the current PLM handler pass.</summary>
@@ -55,7 +48,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         get
         {
             foreach (RoomObjectSlot slot in _slotTable.Slots)
-                if (slot.Active && (slot.Family as CollectibleObjectState)?.Phase == CollectiblePhase.AwaitingMessage)
+                if (slot.Active && (slot.Behaviour as CollectibleObject)?.Phase == CollectiblePhase.AwaitingMessage)
                     return true;
             return false;
         }
@@ -69,10 +62,10 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     {
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.Family is not CollectibleObjectState { Phase: CollectiblePhase.AwaitingMessage } item)
+            if (!slot.Active || slot.Behaviour is not CollectibleObject { Phase: CollectiblePhase.AwaitingMessage } item)
                 continue;
             item.Phase = CollectiblePhase.ResumeAfterMessage;
-            FinishCollectiblePickup(level, slot);
+            item.FinishPickup(_drawing, level, slot);
         }
         CompleteSpeedBoosterPickupContinuation();
     }
@@ -111,7 +104,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     /// <summary>Every currently allocated permanent-item PLM, by slot ordinal.</summary>
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
-        .SelectMany(slot => slot.Family is CollectibleObjectState { } item
+        .SelectMany(slot => slot.Behaviour is CollectibleObject { } item
             ? [new CollectibleObjectSnapshot(slot.BlockIndex, (slot.Argument as CollectedItemArgument)?.Location, item.Kind)]
             : Array.Empty<CollectibleObjectSnapshot>())
         .ToArray();
@@ -125,7 +118,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     {
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectibleObjectState item)
+            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not CollectibleObject item)
                 continue;
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before the room-object update runs
@@ -154,7 +147,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
     {
         foreach (RoomObjectSlot slot in _slotTable.Slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectibleObjectState item)
+            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Behaviour is not CollectibleObject item)
                 continue;
             if (item.Phase is not (
                     CollectiblePhase.ChozoOrb or
@@ -210,7 +203,7 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
             };
         // Both item setup paths increment the saved load counter, even for collected items.
         system.LoadedItemCount = WrappingCounter.IncrementWord(system.LoadedItemCount);
-        slot.Family = new CollectibleObjectState(kind, presentation, blockPair, phase);
+        slot.Become(new CollectibleObject(kind, presentation, blockPair, phase));
     }
 
     /// <summary>
@@ -235,206 +228,14 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         return found;
     }
 
-    /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
-    internal bool TryStepCollectible(RoomLevelData level, RoomObjectSlot slot)
-    {
-        CollectibleObjectState? item = slot.Family as CollectibleObjectState;
-        if (item is null)
-            return false;
-
-        // Collision runs before the room-object update. The shared item trigger written by setup
-        // for touch and shot must therefore pre-empt an outstanding animation timer in this same
-        // handler pass; otherwise touching an item can leave Samus embedded in its solid
-        // type-$B word for up to four extra frames.
-        bool triggerPreemptsTimer = item.Triggered && item.Phase is
-            CollectiblePhase.Visible or
-            CollectiblePhase.ShotBlockVisible or
-            CollectiblePhase.ChozoOrb or
-            CollectiblePhase.ShotBlock or
-            CollectiblePhase.CollectedShotBlock;
-        if (!triggerPreemptsTimer && item.Timer > 0)
-        {
-            item.Timer--;
-            if (item.Timer > 0)
-                return true;
-        }
-
-        switch (item.Phase)
-        {
-            case CollectiblePhase.AwaitingMessage:
-                return true;
-
-            case CollectiblePhase.ResumeAfterMessage:
-                FinishCollectiblePickup(level, slot);
-                return true;
-
-            case CollectiblePhase.EmptyAwaitingDelete:
-                // The empty item's program ends by deleting the item.
-                slot.Delete();
-                slot.Header = 0;
-                return true;
-
-            case CollectiblePhase.CollectedEmpty:
-                DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.Empty);
-                slot.Delete();
-                slot.Header = 0;
-                return true;
-
-            case CollectiblePhase.Visible:
-                if (item.Triggered)
-                {
-                    AcquireCollectible(slot);
-                    return true;
-                }
-                DrawVisibleCollectible(level, slot, item);
-                item.AnimationIndex ^= 1;
-                item.Timer = 4;
-                return true;
-
-            case CollectiblePhase.ShotBlockVisible:
-                if (item.Triggered)
-                {
-                    AcquireCollectible(slot);
-                    return true;
-                }
-                DrawVisibleCollectible(level, slot, item);
-                if (item.AnimationIndex == 1 && --item.VisibleFramePairsRemaining == 0)
-                {
-                    item.Phase = CollectiblePhase.ShotBlockReconceal;
-                    item.AnimationIndex = 2;
-                    item.Timer = 4;
-                    return true;
-                }
-                item.AnimationIndex ^= 1;
-                item.Timer = 4;
-                return true;
-
-            case CollectiblePhase.ChozoOrb:
-                if (item.Triggered)
-                {
-                    // Breaking the shell persists nothing. The chozo-block-destroyed step
-                    // belongs only to the unused chozo-block PLMs.
-                    item.Triggered = false;
-                    item.Phase = CollectiblePhase.ChozoOrbBurst;
-                    item.AnimationIndex = 0;
-                    DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.Empty);
-                    item.Timer = 3;
-                    return true;
-                }
-                DrawCollectible(level, slot, CollectibleObjectDraws.OrbFrame(item.AnimationIndex));
-                item.Timer = item.AnimationIndex is 0 or 2 ? 20 : 10;
-                item.AnimationIndex = (item.AnimationIndex + 1) & 3;
-                return true;
-
-            case CollectiblePhase.ChozoOrbBurst:
-                item.AnimationIndex++;
-                if (item.AnimationIndex == 1)
-                {
-                    DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.OrbBurst);
-                    item.Timer = 3;
-                    return true;
-                }
-                if (item.AnimationIndex == 2)
-                {
-                    DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.Empty);
-                    item.Timer = 3;
-                    return true;
-                }
-                item.Phase = CollectiblePhase.Visible;
-                item.AnimationIndex = 0;
-                goto case CollectiblePhase.Visible;
-
-            case CollectiblePhase.ShotBlock:
-            case CollectiblePhase.CollectedShotBlock:
-                if (!item.Triggered)
-                    return true;
-                item.Triggered = false;
-                item.WasCollectedBeforeReveal = item.Phase == CollectiblePhase.CollectedShotBlock;
-                item.Phase = CollectiblePhase.ShotBlockReveal;
-                item.AnimationIndex = 0;
-                DrawCollectible(level, slot, CollectibleObjectDraws.ShotRevealFrame(0));
-                _sounds.Queue(EnemySound.BlockCrumble, SoundRequestPriority.Normal);
-                item.Timer = 4;
-                return true;
-
-            case CollectiblePhase.ShotBlockReveal:
-                item.AnimationIndex++;
-                if (item.AnimationIndex < 3)
-                {
-                    DrawCollectible(level, slot, CollectibleObjectDraws.ShotRevealFrame(item.AnimationIndex));
-                    item.Timer = 4;
-                    return true;
-                }
-                if (item.WasCollectedBeforeReveal)
-                {
-                    item.Phase = CollectiblePhase.CollectedShotBlockEmpty;
-                    item.AnimationIndex = 0;
-                    DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.Empty);
-                    item.Timer = 8 * 22;
-                    return true;
-                }
-                item.Phase = CollectiblePhase.ShotBlockVisible;
-                item.AnimationIndex = 0;
-                item.VisibleFramePairsRemaining = 22;
-                goto case CollectiblePhase.ShotBlockVisible;
-
-            case CollectiblePhase.ShotBlockReconceal:
-                DrawCollectible(level, slot, CollectibleObjectDraws.ShotRevealFrame(item.AnimationIndex));
-                item.AnimationIndex--;
-                if (item.AnimationIndex >= 0)
-                {
-                    item.Timer = 4;
-                    return true;
-                }
-                RoomObjectLevelWrites.DrawTerrain(level, slot.BlockIndex, slot.RestoreTerrain);
-                item.Phase = CollectiblePhase.ShotBlock;
-                return true;
-
-            case CollectiblePhase.CollectedShotBlockEmpty:
-                item.Phase = CollectiblePhase.CollectedShotBlockRespawn;
-                item.AnimationIndex = 2;
-                DrawCollectible(level, slot, ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
-                item.Timer = 4;
-                return true;
-
-            case CollectiblePhase.CollectedShotBlockRespawn:
-                item.AnimationIndex--;
-                if (item.AnimationIndex >= 0)
-                {
-                    DrawCollectible(level, slot, ShotBlockObjectDraws.Breakup(RoomObjectShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
-                    item.Timer = 4;
-                    return true;
-                }
-                RoomObjectLevelWrites.DrawTerrain(level, slot.BlockIndex, slot.RestoreTerrain);
-                item.Phase = CollectiblePhase.CollectedShotBlock;
-                return true;
-
-            default:
-                throw new InvalidDataException(
-                    $"Collectible {item.Kind} reached unsupported phase {item.Phase}.");
-        }
-    }
-
     /// <summary>
-    /// Draws an item's visible frame: the terrain its kind and block pair write, and over it, for an item that shows its
-    /// own picture, its kind's picture of that frame (#1538).
+    /// Collects <paramref name="item"/>, placed at <paramref name="slot"/>: sets persistence and inventory before publishing
+    /// the synchronous message and fanfare request.
     /// </summary>
-    private void DrawVisibleCollectible(RoomLevelData level, RoomObjectSlot slot, CollectibleObjectState item)
+    internal void Acquire(CollectibleObject item, RoomObjectSlot slot)
     {
-        DrawCollectible(level, slot, CollectibleObjectDraws.VisibleFrame(item.Kind, item.AnimationIndex, item.BlockPair));
-        if (item.BlockPair is not null)
-            level.ShowCollectible(slot.BlockIndex, new CollectiblePicture(item.Kind, item.AnimationIndex));
-    }
-
-    /// <summary>Executes a compiled item draw instruction against the level.</summary>
-    private void DrawCollectible(RoomLevelData level, RoomObjectSlot slot, RoomObjectDraw draw) =>
-        _drawing.Draw(level, slot.BlockIndex, draw);
-
-    /// <summary>Sets persistence and inventory before publishing the synchronous message and fanfare request.</summary>
-    private void AcquireCollectible(RoomObjectSlot slot)
-    {
-        CollectibleObjectState item = (slot.Family as CollectibleObjectState)
-            ?? throw new InvalidOperationException("A non-item PLM attempted acquisition.");
+        Ensure.NotNull(item);
+        Ensure.NotNull(slot);
         IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
@@ -460,31 +261,6 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         item.Triggered = false;
         item.Timer = 0;
         item.Phase = CollectiblePhase.AwaitingMessage;
-    }
-
-    /// <summary>Draws the empty item after message return or begins the shot block's delayed respawn.</summary>
-    private void FinishCollectiblePickup(RoomLevelData level, RoomObjectSlot slot)
-    {
-        CollectibleObjectState item = (slot.Family as CollectibleObjectState)
-            ?? throw new InvalidOperationException("A non-item PLM resumed a pickup message.");
-        if (item.Presentation == CollectiblePresentation.ShotBlock)
-        {
-            // After the message, the shot-block list draws empty for 22 eight-frame
-            // iterations before the three four-frame respawn images and saved block.
-            item.Triggered = false;
-            item.WasCollectedBeforeReveal = true;
-            item.Phase = CollectiblePhase.CollectedShotBlockEmpty;
-            item.AnimationIndex = 0;
-            DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.Empty);
-            item.Timer = 8 * 22;
-            return;
-        }
-
-        // The empty item draws for one frame; its delete runs on the
-        // following room-object update.
-        DrawCollectible(level, slot, RoomObjectCollectibleDrawDefinitions.Empty);
-        item.Phase = CollectiblePhase.EmptyAwaitingDelete;
-        item.Timer = 1;
     }
 
     /// <summary>Applies tank capacity, equipment, or beam ownership, including Spazer/Plasma exclusion.</summary>
@@ -636,38 +412,4 @@ internal sealed class CollectibleObjects : IRoomObjectFamilySource
         InWorldCollectibleKind.ReserveTank => GameplayMessageIds.ReserveTank,
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
-
-    /// <summary>Tracks one physical item's presentation, terrain block pair, and instruction phase.</summary>
-    internal sealed class CollectibleObjectState(
-        InWorldCollectibleKind kind,
-        CollectiblePresentation presentation,
-        int? blockPair,
-        CollectiblePhase phase) : RoomObjectFamilyState
-    {
-        /// <inheritdoc/>
-        internal override RoomObjectFamily Family => RoomObjectFamily.Collectible;
-
-        /// <summary>Inventory or capacity item granted when this PLM is acquired.</summary>
-        public InWorldCollectibleKind Kind { get; } = kind;
-        /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>
-        public CollectiblePresentation Presentation { get; } = presentation;
-        /// <summary>
-        /// The terrain block pair an item that shows its own picture writes its frames into (<see cref="CollectibleBlockPairs"/>);
-        /// null for a tank, whose frames are its kind's own blocks.
-        /// </summary>
-        public int? BlockPair { get; } = blockPair;
-        /// <summary>Current reveal, visible, message, empty, or respawn instruction phase.</summary>
-        public CollectiblePhase Phase { get; set; } = phase;
-        /// <summary>Frames remaining in the current item instruction hold.</summary>
-        public int Timer { get; set; }
-        /// <summary>Current visible or respawn animation frame index.</summary>
-        [IntegerQuantity("animation frame index")]
-        public int AnimationIndex { get; set; }
-        /// <summary>Remaining paired visible frames in the item's animation loop.</summary>
-        public int VisibleFramePairsRemaining { get; set; }
-        /// <summary>Contact or projectile reaction pending for the next PLM handler pass.</summary>
-        public bool Triggered { get; set; }
-        /// <summary>Distinguishes a previously acquired concealed item during its reveal list.</summary>
-        public bool WasCollectedBeforeReveal { get; set; }
-    }
 }

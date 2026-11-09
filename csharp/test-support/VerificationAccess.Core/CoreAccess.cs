@@ -421,6 +421,6 @@ internal static class CoreAccess
         roomObjects.SlotTable.Slots.Where(slot => slot.Active);
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
-    private static IEnumerable<CollectibleObjects.CollectibleObjectState> Group4CollectibleItems(RoomObjectSystem roomObjects) =>
-        Group4ActiveObjectSlots(roomObjects).Select(slot => slot.Family).OfType<CollectibleObjects.CollectibleObjectState>();
+    private static IEnumerable<CollectibleObject> Group4CollectibleItems(RoomObjectSystem roomObjects) =>
+        Group4ActiveObjectSlots(roomObjects).Select(slot => slot.Behaviour).OfType<CollectibleObject>();
 }

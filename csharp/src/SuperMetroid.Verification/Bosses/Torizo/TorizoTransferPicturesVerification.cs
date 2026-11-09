@@ -16,34 +16,34 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// </summary>
 internal static class TorizoTransferPicturesVerification
 {
+    /// <summary>Bomb Torizo's and Golden Torizo's rooms, each a suite of its own.</summary>
+    internal static FullRunSuitesVerification.RegisteredSuite[] TorizoTransferPicturesSuites() =>
+    [
+        new($"{nameof(VerifyTorizoTransferPictures)}BombTorizo", () => VerifyTorizoTransferPictures(RoomHeaderDefinitions.BombTorizo, EncounterArtwork.BombTorizo)),
+        new($"{nameof(VerifyTorizoTransferPictures)}GoldenTorizo", () => VerifyTorizoTransferPictures(RoomHeaderDefinitions.GoldenTorizo, EncounterArtwork.GoldenTorizo)),
+    ];
+
     /// <summary>
-    /// In Bomb Torizo's and Golden Torizo's rooms, every frame of the room's sheets each Torizo's looks change shows, in each
+    /// In <paramref name="room"/>, every frame of the room's sheets <paramref name="torizo"/>'s looks change shows, in each
     /// look it is drawn in, its finished picture of that look.
     /// </summary>
-    internal static void VerifyTorizoTransferPictures()
+    private static void VerifyTorizoTransferPictures(RoomHeaderDefinition room, EncounterArtwork torizo)
     {
-        int frames = 0;
-        foreach ((RoomHeaderDefinition room, EncounterArtwork torizo) in new[]
-                 {
-                     (RoomHeaderDefinitions.BombTorizo, EncounterArtwork.BombTorizo),
-                     (RoomHeaderDefinitions.GoldenTorizo, EncounterArtwork.GoldenTorizo),
-                 })
-        {
-            SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
-            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(room);
-            frames += UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet.LoadedSet, torizo, $"{room.Name}'s swaps");
-        }
-        Console.WriteLine($"Torizo transfer pictures: {frames} frames of both Torizos' rooms follow every look of their swaps.");
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(room);
+        int frames = UploadedPictureChecks.AssertFramesFollowLooks(runtime.Enemies.GraphicsSet.LoadedSet, torizo, $"{room.Name}'s swaps");
+        Console.WriteLine($"Torizo transfer pictures: {frames} frames of {room.Name} follow every look of its swaps.");
     }
 
-    /// <summary>Runs the Torizo transfer picture check.</summary>
+    /// <summary>Runs the Torizo transfer picture checks, one suite per room.</summary>
     [VerificationCommand("--torizo-transfer-pictures")]
     internal static int TorizoTransferPicturesCommand()
     {
-        Suite(nameof(VerifyTorizoTransferPictures), VerifyTorizoTransferPictures);
+        foreach (FullRunSuitesVerification.RegisteredSuite suite in TorizoTransferPicturesSuites())
+            Suite(suite.Name, suite.Body);
         return 0;
     }
 }

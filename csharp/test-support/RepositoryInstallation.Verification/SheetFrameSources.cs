@@ -100,12 +100,17 @@ internal static class SheetFrameSources
         FrameKey key = Key(draw.Image);
         FrameSource source = Find(key) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
         CharacterSpriteDraw built = Build(draw, source, characters);
-        if (characters is not null && alternates.TryGetValue(key, out FrameSource[]? others))
+        // Whether a shared picture's compositions agree over a page depends only on the frame and the page, so each pair
+        // is decided once.
+        if (characters is not null && alternates.TryGetValue(key, out FrameSource[]? others) &&
+            agreedAlternates.GetValue(characters, _ => new()).TryAdd(key, 0))
         {
             Dictionary<(int X, int Y), int> inks = Inks(built);
-            foreach (FrameSource other in others)
+            // Over the given page, compositions that differ only in the page they were composed over draw alike, so each
+            // distinct composition is compared once and the frame's own is not compared at all.
+            foreach (FrameSource other in others.Where(other => !CompositionOverPage.Instance.Equals(other, source)).Distinct(CompositionOverPage.Instance))
             {
-                if (!Inks(Build(draw, other, characters)).OrderBy(pixel => pixel.Key).SequenceEqual(inks.OrderBy(pixel => pixel.Key)))
+                if (!SameInks(Inks(Build(draw, other, characters)), inks))
                     throw new InvalidOperationException(
                         $"{draw} shows a picture sheet {draw.Image.Sheet.Name} lays out once for frames {source.Frame.Name} and {other.Frame.Name}, whose compositions show different pictures over the given characters.");
             }
@@ -126,6 +131,39 @@ internal static class SheetFrameSources
         FrameSource source = Find(key) ?? throw new InvalidOperationException($"{draw} shows a frame no sheet was composed with.");
         return [Build(draw, source, null), .. (alternates.TryGetValue(key, out FrameSource[]? others) ? others : []).Select(other => Build(draw, other, null))];
     }
+
+    /// <summary>Compares two sources as compositions placed over another page: their parts and rows, whatever page each indexed.</summary>
+    private sealed class CompositionOverPage : IEqualityComparer<FrameSource>
+    {
+        /// <summary>The comparer.</summary>
+        internal static CompositionOverPage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        public bool Equals(FrameSource? first, FrameSource? second) =>
+            ReferenceEquals(first, second) || first is not null && second is not null && first.PaletteBits == second.PaletteBits
+            && first.FramePalette == second.FramePalette && first.PartsKeepOwnRows == second.PartsKeepOwnRows
+            && first.Frame.Parts.SequenceEqual(second.Frame.Parts);
+
+        /// <inheritdoc/>
+        public int GetHashCode(FrameSource source)
+        {
+            var hash = new HashCode();
+            hash.Add(source.PaletteBits);
+            hash.Add(source.FramePalette);
+            hash.Add(source.PartsKeepOwnRows);
+            foreach (SpriteFramePart part in source.Frame.Parts)
+                hash.Add(part);
+            return hash.ToHashCode();
+        }
+    }
+
+    /// <summary>The frames whose shared picture's compositions were found to agree over each page.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SpriteArtwork, System.Collections.Concurrent.ConcurrentDictionary<FrameKey, byte>>
+        agreedAlternates = [];
+
+    /// <summary>Whether two compositions ink the same pixels with the same palette entries.</summary>
+    private static bool SameInks(Dictionary<(int X, int Y), int> left, Dictionary<(int X, int Y), int> right) =>
+        left.Count == right.Count && left.All(pixel => right.TryGetValue(pixel.Key, out int entry) && entry == pixel.Value);
 
     /// <summary>Each screen pixel <paramref name="draw"/> inks, with its palette entry; an earlier part's pixel stays over a later one's.</summary>
     private static Dictionary<(int X, int Y), int> Inks(CharacterSpriteDraw draw)

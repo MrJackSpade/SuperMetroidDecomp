@@ -41,7 +41,10 @@ internal static class UploadedPictureChecks
     internal static int AssertSameInks(IReadOnlyList<ImageSpriteDraw> images, IReadOnlyList<CharacterSpriteDraw> parts, string message,
         bool requirePixels = true)
     {
-        Dictionary<(int X, int Y), int> expected = [], actual = [];
+        // Each worker thread reuses its two screen buffers, so a comparison allocates nothing per pixel.
+        ScreenInks expected = expectedInks ??= new(), actual = actualInks ??= new();
+        expected.Clear();
+        actual.Clear();
         foreach (CharacterSpriteDraw draw in parts)
         {
             for (int part = 0; part < draw.Frame.Parts.Length; part++)
@@ -53,7 +56,7 @@ internal static class UploadedPictureChecks
                     int character = placed.CharacterAt(new(x, y), out Position16<CharacterPixels> within);
                     int colour = draw.Artwork.ColorIndex(character, within);
                     if (colour != 0)
-                        Ink(expected, placed.Position.X + x, placed.Position.Y + y, placed.Palette * 16 + colour);
+                        expected.Ink(placed.Position.X + x, placed.Position.Y + y, placed.Palette * 16 + colour);
                 }
             }
         }
@@ -63,12 +66,13 @@ internal static class UploadedPictureChecks
             // row is the one the draw's composition places it in under that selection.
             Dictionary<(int X, int Y), int>? selectedRows = image.Shading is { } shading && SpriteColouringAccess.SelectedRow(shading) is not null
                 ? RowsOf(SheetFrameSources.CharacterDraw(image)) : null;
+            Offset16<ScreenPixels> corner = image.Corner;
             for (ushort y = 0; y < image.Image.Size.Y; y++)
             for (ushort x = 0; x < image.Image.Size.X; x++)
             {
                 var cell = new Position16<ScreenPixels>(x, y);
                 int entry = image.PaletteIndexAt(cell);
-                int screenX = image.Corner.X + x, screenY = image.Corner.Y + y;
+                int screenX = corner.X + x, screenY = corner.Y + y;
                 if (entry != 0 && selectedRows is not null)
                 {
                     int row = selectedRows.TryGetValue((screenX, screenY), out int placed) ? placed
@@ -83,19 +87,22 @@ internal static class UploadedPictureChecks
                             $"{message}: {image} inks palette index {entry}, none of its sheet's colours.")) - GameplayColourPositionDefinitions.SpriteSetsFirst;
                 }
                 if (entry != 0)
-                    Ink(actual, screenX, screenY, entry);
+                    actual.Ink(screenX, screenY, entry);
             }
         }
-        foreach ((int X, int Y) pixel in expected.Keys.Union(actual.Keys))
-        {
-            int? want = expected.TryGetValue(pixel, out int e) ? e : null, got = actual.TryGetValue(pixel, out int g) ? g : null;
-            if (want != got)
-                throw new InvalidOperationException($"{message}: the picture differs from the frame over the live characters at screen pixel " +
-                    $"({pixel.X},{pixel.Y}): ink {got?.ToString() ?? "none"} for {want?.ToString() ?? "none"}.");
-        }
+        foreach (int pixel in expected.Inked)
+            if (actual.At(pixel) != expected.At(pixel))
+                throw Differs(pixel);
+        foreach (int pixel in actual.Inked)
+            if (expected.At(pixel) is null)
+                throw Differs(pixel);
         if (requirePixels)
             AssertTrue(expected.Count > 0, $"{message}: paints pixels");
         return expected.Count;
+
+        InvalidOperationException Differs(int pixel) =>
+            new($"{message}: the picture differs from the frame over the live characters at screen pixel " +
+                $"({ScreenInks.XOf(pixel)},{ScreenInks.YOf(pixel)}): ink {actual.At(pixel)?.ToString() ?? "none"} for {expected.At(pixel)?.ToString() ?? "none"}.");
 
         // The palette row of the frontmost inked part at each screen pixel the draw covers.
         static Dictionary<(int X, int Y), int> RowsOf(CharacterSpriteDraw draw)
@@ -116,11 +123,55 @@ internal static class UploadedPictureChecks
         }
 
         // The frontmost ink at an on-screen pixel; a later, further-back draw does not replace it.
-        static void Ink(Dictionary<(int X, int Y), int> inks, int x, int y, int entry)
+    }
+
+    /// <summary>This thread's buffers of the inks a comparison expects and the inks its pictures show.</summary>
+    [ThreadStatic]
+    private static ScreenInks? expectedInks, actualInks;
+
+    /// <summary>The palette entry inked at each on-screen pixel, the first ink at a pixel staying over later ones.</summary>
+    private sealed class ScreenInks
+    {
+        /// <summary>Each screen pixel's entry plus one, or zero while nothing inks it.</summary>
+        private readonly int[] entries = new int[ScreenGeometry.ScreenWidthPixels * ScreenGeometry.ScreenHeightPixels];
+
+        /// <summary>The pixels inked, in the order they were first inked.</summary>
+        private readonly List<int> inked = [];
+
+        /// <summary>How many pixels are inked.</summary>
+        internal int Count => inked.Count;
+
+        /// <summary>The pixels inked, by screen index.</summary>
+        internal IReadOnlyList<int> Inked => inked;
+
+        /// <summary>The screen column of a pixel index.</summary>
+        internal static int XOf(int pixel) => pixel % ScreenGeometry.ScreenWidthPixels;
+
+        /// <summary>The screen row of a pixel index.</summary>
+        internal static int YOf(int pixel) => pixel / ScreenGeometry.ScreenWidthPixels;
+
+        /// <summary>Forgets every ink.</summary>
+        internal void Clear()
         {
-            if (x is >= 0 and < ScreenGeometry.ScreenWidthPixels && y is >= 0 and < ScreenGeometry.ScreenHeightPixels)
-                inks.TryAdd((x, y), entry);
+            foreach (int pixel in inked)
+                entries[pixel] = 0;
+            inked.Clear();
         }
+
+        /// <summary>Inks the pixel at (<paramref name="x"/>, <paramref name="y"/>) unless it is off screen or already inked.</summary>
+        internal void Ink(int x, int y, int entry)
+        {
+            if (x is < 0 or >= ScreenGeometry.ScreenWidthPixels || y is < 0 or >= ScreenGeometry.ScreenHeightPixels)
+                return;
+            int pixel = (y * ScreenGeometry.ScreenWidthPixels) + x;
+            if (entries[pixel] != 0)
+                return;
+            entries[pixel] = entry + 1;
+            inked.Add(pixel);
+        }
+
+        /// <summary>The entry inked at a pixel index, or null where nothing inks it.</summary>
+        internal int? At(int pixel) => entries[pixel] == 0 ? null : entries[pixel] - 1;
     }
 
     /// <summary>
@@ -206,6 +257,9 @@ internal static class UploadedPictureChecks
     {
         var origin = new Position16<ScreenPixels>(ScreenGeometry.ScreenWidthPixels / 2, ScreenGeometry.ScreenHeightPixels / 2);
         ComposedEncounter composed = Enum.GetValues<ComposedEncounter>().Single(candidate => EncounterLookUploads.ShownAs(candidate) == encounter);
+        // Each look's live characters are the same for every frame, so each is composed once.
+        Dictionary<string, SpriteArtwork> pages = EncounterLookUploads.Looks(composed)
+            .ToDictionary(name => name, name => EnemySheetFixtures.LivePage(set, [new EncounterLook(encounter, name)]), StringComparer.Ordinal);
         int frames = 0;
         foreach ((string frame, EncounterArtwork[] encounters) in changed.Where(entry => entry.Value.Contains(encounter)))
         {
@@ -227,7 +281,7 @@ internal static class UploadedPictureChecks
                 if (showsNothing(picture))
                     continue;
                 var draw = new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.Enemy, 0), pictureOf(picture), origin, SpriteMirror.None);
-                AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, EnemySheetFixtures.LivePage(set, [look]))],
+                AssertSameInks([draw], [SheetFrameSources.CharacterDraw(draw, pages[name])],
                     $"{message} frame {frame} in {look}", requirePixels: false);
             }
             AssertTrue(drawnLooks > 1, $"{message} frame {frame} has a picture of more than one of {encounter}'s looks");

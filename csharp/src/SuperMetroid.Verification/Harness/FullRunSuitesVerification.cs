@@ -828,6 +828,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRefillStationLock), () => VerifyRefillStationLock()),
         new(nameof(VerifyMagdolliteApexThreshold), () => VerifyMagdolliteApexThreshold()),
         new(nameof(VerifyGoldenTorizoAttackChoice), () => VerifyGoldenTorizoAttackChoice()),
+        .. SuperMetroid.Verification.Bosses.Torizo.TorizoTransferPicturesVerification.TorizoTransferPicturesSuites(),
         new(nameof(VerifyWallProbeBombBlock), () => VerifyWallProbeBombBlock()),
         new(nameof(VerifyPuromiArcPosition), () => VerifyPuromiArcPosition()),
         new(nameof(VerifySpringBallBounce), () => VerifySpringBallBounce()),

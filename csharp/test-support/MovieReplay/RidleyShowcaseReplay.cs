@@ -810,7 +810,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // graphics word that stores them.
                 Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics, runtime.Enemies, projectile.Graphics.PaletteRowIn(runtime.Enemies)),
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
-                Check(owner + " Timer", projectile.GeneralTimer, NativeSnapshotMemory.EnemyProjectileTimer + index);
+                // The showcase's projectiles keep only their program's loop count in the native timer word.
+                Check(owner + " Timer", projectile.LoopCountdown.RemainingFrames, NativeSnapshotMemory.EnemyProjectileTimer + index);
                 EnemyProjectileFrameBehavior nativeFrameBehavior = EnemyProjectileFrameBehaviorAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectileFrameBehavior + index));
                 if (projectile.FrameBehavior != nativeFrameBehavior)
                     mismatches.Add($"{owner} FrameBehavior: native={nativeFrameBehavior} port={projectile.FrameBehavior}");

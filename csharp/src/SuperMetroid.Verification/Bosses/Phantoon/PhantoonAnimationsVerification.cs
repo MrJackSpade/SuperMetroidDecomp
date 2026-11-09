@@ -213,7 +213,7 @@ internal static class PhantoonAnimationsVerification
                     break;
                 AssertEqual(native.Timer, flame.FrameHold.RawValue, $"{at}: timer");
                 AssertEqual(native.Operand, flame.PresentationOperandAddress, $"{at}: frame");
-                AssertEqual(native.Counter, flame.GeneralTimer, $"{at}: loop counter");
+                AssertEqual(native.Counter, flame.LoopCountdown.RemainingFrames, $"{at}: loop counter");
             }
             AssertEqual(drops, enemies.PhantoonFlameDropRequests.Count, $"Phantoon flame {program}: drop requests");
             bool deletes = program is PhantoonFlameProgram.CasualResting or PhantoonFlameProgram.Dying or PhantoonFlameProgram.RainImpact

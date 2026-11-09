@@ -101,16 +101,17 @@ internal sealed class DownwardGateBehavior
     /// <summary>Moves the gate one block at a time with signed 8.8 motion.</summary>
     internal static void RunDownwardGateProjectileMovement(RoomEnemyProjectileSlot projectile)
     {
+        DownwardGateState gate = projectile.StateOf<DownwardGateState>();
         int speedMagnitude = Math.Abs(projectile.Velocity.Y.SignedRawValue);
-        int accumulated = projectile.GeneralTimer + speedMagnitude;
-        if (accumulated >= DownwardGateDefinitions.OneBlockDistance)
+        int travelled = gate.TravelSinceBlock + speedMagnitude;
+        if (travelled >= DownwardGateDefinitions.OneBlockDistance)
         {
             // Steps the list two bytes past its sleep, which wakes the next visual frame
             // on this same projectile-handler pass.
             ResumeDownwardGate(projectile);
-            accumulated = 0;
+            travelled = 0;
         }
-        projectile.GeneralTimer = accumulated;
+        gate.TravelSinceBlock = travelled;
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 

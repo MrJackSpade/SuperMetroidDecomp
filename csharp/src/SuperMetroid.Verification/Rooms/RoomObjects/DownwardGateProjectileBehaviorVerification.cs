@@ -28,6 +28,8 @@ internal static class DownwardGateProjectileBehaviorVerification
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(gate, RoomEnemyProjectileKind.DownwardGateMoving,
             SuperMetroid.Core.Enemies.SpriteGraphics.Emptied);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { Cursor.Program: DownwardGateProjectileProgram.Moving }, "the moving gate starts its program");
+        // The gate's spawn gives it its state; this fixture initializes the projectile directly, so it gives it here.
+        gate.State = new DownwardGateState(0);
 
         DownwardGateProjectileProgram current = DownwardGateProjectileProgram.Moving;
         int resumes = 0;
@@ -40,7 +42,7 @@ internal static class DownwardGateProjectileBehaviorVerification
             current = gate.Animation is DownwardGateProjectileAnimation sleeping
                 ? sleeping.Cursor.Program
                 : throw new InvalidOperationException("The gate lost its typed program.");
-            gate.GeneralTimer = DownwardGateDefinitions.OneBlockDistance - 1;
+            gate.StateOf<DownwardGateState>().TravelSinceBlock = DownwardGateDefinitions.OneBlockDistance - 1;
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
             DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
             DownwardGateProjectileProgram resumed = DownwardGateProjectileAnimations.Resumption[current];

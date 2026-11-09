@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// families whose lists run on into, or jump between, one another. Each cue goes to the handler its family
 /// registered with <see cref="EnemyProjectileHandlerTable.AddCue{TCue}"/>, or with
 /// <see cref="EnemyProjectileHandlerTable.AddBranchingCue{TProgram, TCue}"/> when a cue may redirect the program,
-/// as a conditional goto does. Counter steps count the projectile's general timer.
+/// as a conditional goto does. Counter steps count the projectile's <see cref="RoomEnemyProjectileSlot.LoopCountdown"/>.
 /// </summary>
 /// <typeparam name="TProgram">The family's program identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
@@ -35,15 +35,13 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
     {
         RoomEnemyProjectileSlot projectile = context.Projectile;
         AnimationProgramCursor<TProgram> cursor = Cursor;
-        // Counter steps use the projectile's general timer, as the original's timer-setting and timer-decrementing instructions do.
-        int timerBefore = projectile.GeneralTimer;
-        WrappingCountdown counter = WrappingCountdown.FromRaw(timerBefore);
+        WrappingCountdown counter = projectile.LoopCountdown;
         AnimationProgramAdvance<TFrame> advance = Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => handlers.PublishProgramCue<TProgram, TCue>(context, cue));
         Cursor = cursor;
-        // Only a counter step changes the counter; a deleted projectile keeps its cleared timer.
-        if (projectile.Animation == this && !counter.IsAt(timerBefore))
-            projectile.GeneralTimer = counter.RemainingFrames;
+        // A projectile a cue deleted keeps its cleared countdown.
+        if (projectile.Animation == this)
+            projectile.LoopCountdown = counter;
         switch (advance)
         {
             case AnimationProgramAdvance<TFrame>.Show shown:

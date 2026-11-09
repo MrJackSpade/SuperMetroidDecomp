@@ -78,9 +78,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int XrayRevealWord = BossBodyWord + 1;
     /// <summary>
     /// Header word of a library background's image (#1392), or zero without one: the image picture's offset, the area its
-    /// pages cover, x below y (#1514), then each 16x16 cell's picture offset, zero where the image shows.
+    /// rectangles lie on, x below y (#1514), the count of its rectangles, three words for each (#1555: the area pixel its
+    /// corner lies on, the image pixel that corner shows, and its size, each x below y), then each 16x16 cell's picture
+    /// offset, row by row across the image, zero where the image shows.
     /// </summary>
     private const int LibraryBackgroundImageWord = XrayRevealWord + 1;
+    /// <summary>Words of a background image's rectangle: its corner on the area, the image pixel it shows there, and its size.</summary>
+    private const int ImagePieceWords = 3;
     /// <summary>Header word of the scrolling sky's image, laid out as <see cref="LibraryBackgroundImageWord"/>'s, or zero without one (#1392).</summary>
     private const int SkyImageWord = LibraryBackgroundImageWord + 1;
     /// <summary>Header word of the image of the message box the frame shows, or zero without one (#1392).</summary>
@@ -230,10 +234,10 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += 1 + reveal.Blocks.Length;
         int imageOffset = image is null ? 0 : words;
         if (image is not null)
-            words += 2 + image.CellCount;
+            words += 3 + image.Pieces.Length * ImagePieceWords + image.CellCount;
         int skyImageOffset = skyImage is null ? 0 : words;
         if (skyImage is not null)
-            words += 2 + skyImage.CellCount;
+            words += 3 + skyImage.Pieces.Length * ImagePieceWords + skyImage.CellCount;
         int hudOffset = hud is null ? 0 : words;
         if (hud is not null)
             words += 1 + hud.Pictures.Length * HudPictureWords;
@@ -332,8 +336,18 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 continue;
             upload[offset] = (uint)pictureWords[new(plane.Picture, D3D11PictureColouring.Room)];
             upload[offset + 1] = D3D11ConstantPacking.Halves(plane.Area.X, plane.Area.Y);
+            upload[offset + 2] = (uint)plane.Pieces.Length;
+            for (int index = 0; index < plane.Pieces.Length; index++)
+            {
+                RoomBackgroundImagePiece piece = plane.Pieces[index];
+                int record = offset + 3 + index * ImagePieceWords;
+                upload[record] = D3D11ConstantPacking.Halves(piece.Corner.X, piece.Corner.Y);
+                upload[record + 1] = D3D11ConstantPacking.Halves(piece.Source.X, piece.Source.Y);
+                upload[record + 2] = D3D11ConstantPacking.Halves(piece.Size.X, piece.Size.Y);
+            }
+            int cells = offset + 3 + plane.Pieces.Length * ImagePieceWords;
             for (int cell = 0; cell < plane.CellCount; cell++)
-                upload[offset + 2 + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] : 0;
+                upload[cells + cell] = plane.Cell(cell) is { } picture ? (uint)pictureWords[new(picture, D3D11PictureColouring.Room)] : 0;
         }
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);

@@ -206,7 +206,7 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The room backgrounds this frame boundary displays (#1346, #1555): foreground from the level plane, background from the
-    /// background plane when that layer streams (otherwise the background shows the tilemap its owner loaded), the source screen of a
+    /// background plane when that layer streams (otherwise the background shows what its owner places there), the source screen of a
     /// door's opening scroll, and the text shown over the foreground. The planes are shared until gameplay changes level data.
     /// </summary>
     private RoomBackgrounds? CaptureRoomBackgrounds()
@@ -257,17 +257,17 @@ internal sealed class AcceptedFrameBoundary
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
-            sky = new SkyPictures(skyImage.Resolve(appearance, skyImage.Image.PagesInOneColumn), scrollingSky.Variant);
+            sky = new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)), scrollingSky.Variant);
         }
-        // Where background shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
+        // Where background shows the room's library background, it draws the background's image (#1392): not over a
         // streaming background plane, the sky's rows or a boss body that owns the background.
         RoomBackgroundImagePlane? image = null;
         if (rooms.Background is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
         {
-            // The Tourian entrance's statues descend through a background whose pages lie one above the other; every other
-            // room shows its library background's pages side by side.
+            // The Tourian entrance's statues descend through a background whose halves lie one above the other; every other
+            // room shows its library background's halves side by side.
             image = background.Resolve(appearance, latched.Scene.FxType == RoomFxType.TourianEntranceStatue
-                ? background.Image.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
+                ? RoomBackgroundImagePlacement.Whole(background.Image) : RoomBackgroundImagePlacement.HalvesSideBySide(background.Image));
         }
         // A boss body shows each part's whole picture (#1466, #1513).
         ShownBossBody? shownBody = latched.Bosses.Body?.Show(BossBodyExtent(latched.Bosses));

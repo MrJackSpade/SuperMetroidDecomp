@@ -123,7 +123,7 @@ internal static class RoomBlockPicturesVerification
             {
                 // Whether the pixel line's band shows does not depend on the column.
                 AssertTrue(shown.BandsShown[y / SkyPictures.BandPixels], $"{room.Name}: the sky shows row {row}");
-                for (int x = 0; x < RoomBackgroundImage.PagePixels; x++)
+                for (int x = 0; x < RoomBackgroundImageGeometry.PagePixels; x++)
                 {
                     var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
                     (SpriteSheetFrame picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
@@ -142,7 +142,7 @@ internal static class RoomBlockPicturesVerification
     private static (SpriteSheetFrame Picture, Position16<ImagePixels> Pixel) PictureAt(RoomBackgroundImagePlane image, int x, int y)
     {
         const int cell = 16;
-        return image.Cell(y / cell * (RoomBackgroundImage.PagePixels / cell) + x / cell) is { } picture
+        return image.Cell(y / cell * (RoomBackgroundImageGeometry.PagePixels / cell) + x / cell) is { } picture
             ? (picture, new Position16<ImagePixels>((ushort)(x % cell), (ushort)(y % cell)))
             : (image.Picture, new Position16<ImagePixels>((ushort)x, (ushort)y));
     }
@@ -454,10 +454,10 @@ internal static class RoomBlockPicturesVerification
         ushort[] words = UploadsOf(runtime).Backgrounds.Single(background => background.Name == name).Words;
         // A 32x64 map lays the two pages out one above the other, as the image does. Each tile's character is read once
         // for the eight rows of eight pixels it paints.
-        for (int tileY = 0; tileY < RoomBackgroundImageGeometry.Pages * RoomBackgroundImage.PagePixels / CharacterPixels; tileY++)
-        for (int tileX = 0; tileX < RoomBackgroundImage.PagePixels / CharacterPixels; tileX++)
+        for (int tileY = 0; tileY < RoomBackgroundImageGeometry.Pages * RoomBackgroundImageGeometry.PagePixels / CharacterPixels; tileY++)
+        for (int tileX = 0; tileX < RoomBackgroundImageGeometry.PagePixels / CharacterPixels; tileX++)
         {
-            var word = new SnesBgTilemapWord(words[tileY * RoomBackgroundImage.PageTiles + tileX]);
+            var word = new SnesBgTilemapWord(words[tileY * RoomBackgroundImageGeometry.PageTiles + tileX]);
             // A character an animation paints shows the frame it selected (#1406), which the composed VRAM never holds.
             ReadOnlySpan<byte> bytes = animations.Bytes(latched, word.CharacterIndex, vram, out _);
             AssertBackgroundTilePaints(plane, word, bytes, tileX, tileY, where);

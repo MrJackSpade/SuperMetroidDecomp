@@ -97,7 +97,7 @@ internal static class RoomBlockSheetComposer
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.GroupBy(placement => placement.Identity)
             .ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, checked((ushort)(background.Words.Length / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels))));
+        var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(RoomBackgroundImageGeometry.PagePixels, checked((ushort)(background.Words.Length / RoomBackgroundImageGeometry.PageTiles * RoomTileCanvas.CharacterPixels))));
         ImageColourGroups groups = ImageColourGroups.None;
         for (int index = 0; index < background.Words.Length; index++)
         {
@@ -105,8 +105,8 @@ internal static class RoomBlockSheetComposer
             int character = word.CharacterIndex;
             if (!background.Content.TryShowing(BgCharacterSet.Tiles, character, 1, out BgArtworkShown shown))
                 throw new InvalidDataException($"Room background {background.Name} reads tile character {character}, which its room loads nothing over.");
-            groups = groups.Union(canvas.PaintTile(index % RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels,
-                index / RoomBackgroundImage.PageTiles * RoomTileCanvas.CharacterPixels, word,
+            groups = groups.Union(canvas.PaintTile(index % RoomBackgroundImageGeometry.PageTiles * RoomTileCanvas.CharacterPixels,
+                index / RoomBackgroundImageGeometry.PageTiles * RoomTileCanvas.CharacterPixels, word,
                 bytes[shown.Artwork].Span.Slice(shown.WordOffset * sizeof(ushort), RoomTileCanvas.CharacterBytes), colours));
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
@@ -289,8 +289,8 @@ internal static class RoomBlockSheetComposer
         for (int cell = 0; cell < tiles.Length / RoomBackgroundImageGeometry.CellTiles; cell++)
         {
             // Sixteen cells to a pair of 32-tile rows.
-            int first = cell / (RoomBackgroundImage.PageTiles / 2) * 2 * RoomBackgroundImage.PageTiles + cell % (RoomBackgroundImage.PageTiles / 2) * 2;
-            yield return [tiles[first], tiles[first + 1], tiles[first + RoomBackgroundImage.PageTiles], tiles[first + RoomBackgroundImage.PageTiles + 1]];
+            int first = cell / (RoomBackgroundImageGeometry.PageTiles / 2) * 2 * RoomBackgroundImageGeometry.PageTiles + cell % (RoomBackgroundImageGeometry.PageTiles / 2) * 2;
+            yield return [tiles[first], tiles[first + 1], tiles[first + RoomBackgroundImageGeometry.PageTiles], tiles[first + RoomBackgroundImageGeometry.PageTiles + 1]];
         }
     }
 

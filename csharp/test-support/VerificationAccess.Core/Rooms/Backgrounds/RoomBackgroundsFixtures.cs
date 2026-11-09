@@ -93,7 +93,7 @@ internal static class RoomBackgroundsFixtures
     /// cell in four drawn from a seeded block picture in its place (#1392).
     /// </summary>
     internal static RoomBackgroundImagePlane SeededBackground(Random random, RgbColor[] scene) =>
-        SeededImage(random, scene, RoomBackgroundImageGeometry.Words / RoomBackgroundImage.PageTiles);
+        SeededImage(random, scene, RoomBackgroundImageGeometry.Words / RoomBackgroundImageGeometry.PageTiles);
 
     /// <summary>
     /// A seeded boss body of <paramref name="rows"/> eight-pixel rows (#1466, #1514, #1515, #1540) whose screens of rows cover
@@ -261,14 +261,14 @@ internal static class RoomBackgroundsFixtures
     private static RoomBackgroundImagePlane SeededImage(Random random, RgbColor[] scene, int tileRows, bool sky = false)
     {
         RoomBlockPictureTable blocks = SeededPictures(random, scene);
-        var size = new Extent16<ImagePixels>(RoomBackgroundImage.PagePixels, (ushort)(tileRows * 8));
+        var size = new Extent16<ImagePixels>(RoomBackgroundImageGeometry.PagePixels, (ushort)(tileRows * 8));
         SpriteSheet sheet = SeededSheet(random, scene, size, new Dictionary<string, Position16<ImagePixels>> { [RoomBackgroundImage.FrameName] = default },
             size, "seeded background");
         var image = new RoomBackgroundImage("seeded background", sheet, []);
         var cells = new SpriteSheetFrame?[image.CellCount];
         for (int cell = 0; cell < cells.Length; cell++)
             cells[cell] = random.Next(4) == 0 ? blocks.Picture(random.Next(Definitions)) : null;
-        return new RoomBackgroundImagePlane(image, cells, sky ? image.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
+        return new RoomBackgroundImagePlane(image, cells, sky ? RoomBackgroundImagePlacement.Whole(image) : RoomBackgroundImagePlacement.HalvesSideBySide(image));
     }
 
     /// <summary>Block pictures on one seeded sheet.</summary>

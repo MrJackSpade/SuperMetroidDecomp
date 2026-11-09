@@ -266,7 +266,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage tube = Installed(NoobTubeVisuals, "n00b tube").Image(draw);
             for (int run = 0; run < noobTube.RunCount; run++)
                 for (int cell = 0; cell < noobTube.BlockCount(run); cell++)
-                    DrawImageCell(level, draw, origin, tube, noobTube.Start(run) + new Offset16<RoomBlocks>(cell, 0), noobTube.BlockAt(run, cell).Collision);
+                    DrawImageCell(level, draw, origin, tube, noobTube.Start(run) + new Offset16<RoomBlocks>(cell, 0), noobTube.CollisionAt(run, cell));
             return;
         }
         if (StationObjectDraws.TryDescribe(draw, out var station))

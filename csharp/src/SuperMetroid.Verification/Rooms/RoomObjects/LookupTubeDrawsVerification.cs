@@ -25,6 +25,7 @@ internal static class LookupTubeDrawsVerification
         string[] ids = ["intact","damaged","opened","cleared","broken-late","opened-rows","broken-full"];
         var exported = RoomObjectNoobTubeVisualFiles.All.ToArray();
         AssertEqual(7, exported.Length, "Tube export count");
+        InstalledRoomObjectNoobTubeVisuals? pictures = field == 2 ? InstalledRoomObjectNoobTubeVisuals.Stock() : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -59,7 +60,7 @@ internal static class LookupTubeDrawsVerification
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Tube run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Tube start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Tube word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Tube word run bounds");
                 }
             }
             int cursor = 0x840000 | pointer;
@@ -85,15 +86,21 @@ internal static class LookupTubeDrawsVerification
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Tube cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Tube cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
                 {
-
                     RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
-                    AssertEqual(expected, shape.BlockAt(run, cell), "Tube original calculated field");
-                    foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
-                        AssertEqual(expected, frame.Runs.Span[run].Blocks.Span[cell], "Tube original DTO field");
+                    if (field == 1)
+                    {
+                        AssertEqual(expected.Collision, shape.CollisionAt(run, cell), "Tube original calculated collision");
+                        foreach (var frame in new[] {dto,exported[index],exported.Single(entry => entry.Draw == byId)})
+                            AssertEqual(expected.Collision, frame.Runs.Span[run].Collisions.Span[cell], "Tube original DTO collision");
+                    }
+                    else
+                        // Core holds no appearance: what the cell shows is the tube's installed picture.
+                        AssertEqual(expected.Appearance, pictures!.Image(NativeObjectDraws.At<NoobTubeDraw>(pointer)).At(dto.Runs.Span[run].CellAt(cell)),
+                            "Tube installed picture shows the cartridge's block");
                 }
                 cells += count;
                 run++;

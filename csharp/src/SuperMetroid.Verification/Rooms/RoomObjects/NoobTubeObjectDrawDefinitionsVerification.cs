@@ -32,7 +32,8 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             RoomObjectNoobTubeVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomObjectShotBlockDrawDefinitions.DrawList cleared = lists.Single(draw => RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw) == "cleared");
-        AssertEqual(cleared.Runs.Span[2].Blocks.Span[0].Appearance,
+        AssertEqual(0x98e3, RoomObjectDrawAddressCodec.Of(cleared.Draw), "the cleared tube is the draw the cartridge stores at $98E3");
+        AssertEqual(InstalledFramePictureAssertions.NativePicture(rom, 0x98e3, out _)[cleared.Runs.Span[2].Start],
             InstalledRoomObjectNoobTubeVisuals.Stock().Image(NativeObjectDraws.At<NoobTubeDraw>(0x98e3)).At(cleared.Runs.Span[2].Start),
             "stock n00b-tube catalog retains the native row tile");
         AssertEqual(7, lists.Length,
@@ -73,6 +74,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
             $"n00b tube loads for draw ${RoomObjectDrawAddressCodec.Of(selected.Draw):X4}");
         roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<NoobTubeDraw>(RoomObjectDrawAddressCodec.Of(selected.Draw)));
 
+        RoomObjectFrameImage picture = InstalledRoomObjectNoobTubeVisuals.Stock().Image(selected.Draw);
         var expected = new Dictionary<int, RoomTerrainBlock>();
         foreach (RoomObjectShotBlockDrawDefinitions.Run run in selected.Runs.Span)
         {
@@ -83,7 +85,9 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
             {
                 int x = entryX + (vertical ? 0 : block);
                 int y = entryY + (vertical ? block : 0);
-                expected.Add(y * width + x, run.Blocks.Span[block]);
+                // Each cell collides as the draw's geometry says and shows the tube's installed picture there.
+                expected.Add(y * width + x, new RoomTerrainBlock(picture.At(run.CellAt(block)), run.Collisions.Span[block]));
+
             }
         }
         foreach ((int index, RoomTerrainBlock block) in expected)

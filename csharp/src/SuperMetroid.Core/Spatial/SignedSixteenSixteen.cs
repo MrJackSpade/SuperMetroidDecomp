@@ -102,11 +102,14 @@ public readonly record struct SignedSixteenSixteen
     /// <summary>Whether the displacement points forward along its axis: it is neither backward nor zero.</summary>
     public bool IsPositive => RawValue > 0;
 
+    /// <summary>The fraction bits finer than a 256th of a pixel, which lie below a displacement's reading in 256ths.</summary>
+    private const int NearReadingShift = 8;
+
     /// <summary>
     /// The displacement counted in 256ths of a pixel, the finer part of the fraction dropped toward negative infinity:
     /// the precision at which the game compares Samus's speed with the quicksand surface's upward cap.
     /// </summary>
-    public int InTwoFiftySixths => RawValue >> 8;
+    public int InTwoFiftySixths => RawValue >> NearReadingShift;
 
     /// <summary>
     /// The displacement scaled by <paramref name="twoFiftySixths"/>/256, as grounded slope movement scales Samus's
@@ -121,7 +124,7 @@ public readonly record struct SignedSixteenSixteen
     /// Samus's probe: its whole pixels below 256 above its fraction's 256ths. Whole pixels of 256 or more, the sign and
     /// the fraction's finest part do not take part.
     /// </summary>
-    public int NearTwoFiftySixths => unchecked((ushort)(RawValue >> 8));
+    public int NearTwoFiftySixths => unchecked((ushort)(RawValue >> NearReadingShift));
 
     /// <summary>
     /// The displacement with its near reading in 256ths of a pixel (<see cref="NearTwoFiftySixths"/>) replaced by
@@ -129,7 +132,7 @@ public readonly record struct SignedSixteenSixteen
     /// fraction's finest part kept, as a quicksand surface limits a stationary Samus's probe.
     /// </summary>
     public SignedSixteenSixteen WithNearTwoFiftySixths(int nearTwoFiftySixths) =>
-        new((RawValue & ~0x00FFFF00) | (Ensure.BetweenInclusive(0, ushort.MaxValue, nearTwoFiftySixths) << 8));
+        new((RawValue & ~(ushort.MaxValue << NearReadingShift)) | (Ensure.BetweenInclusive(0, ushort.MaxValue, nearTwoFiftySixths) << NearReadingShift));
 
     /// <summary>
     /// The displacement with its whole pixels clamped to <paramref name="minimumWhole"/> through

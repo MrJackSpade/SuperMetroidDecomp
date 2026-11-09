@@ -202,10 +202,10 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
     private WrappingCountdown introCrossfadeCounter;
     /// <summary>
-    /// Updates the cinematic has run, counted from zero at its creation; the shared Samus systems receive it through
-    /// <see cref="FrameCounterWord"/> as their frame-counter word.
+    /// The shared Samus systems' frame-counter word: the updates the cinematic has run, counted from zero at its creation,
+    /// returning to zero every 65536 updates exactly as the game's sixteen-bit counter does.
     /// </summary>
-    private int elapsedUpdates;
+    private int frameCounterWord;
     /// <summary>How bright the narration screen is; the intro starts blanked and fades each narration page in and out.</summary>
     private ScreenBrightness brightness = ScreenBrightness.Blanked;
     /// <summary>How bright the narration screen the cinematic publishes is.</summary>
@@ -278,7 +278,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
         bool explosionsExistedBeforeThisFrame = FlashbackMotherBrainExplosions is not null;
-        elapsedUpdates = unchecked(elapsedUpdates + 1);
+        frameCounterWord = WrappingCounter.IncrementWord(frameCounterWord);
         switch (Phase)
         {
             case IntroCinematicPhase.Initial:
@@ -549,7 +549,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (CurrentFlashbackMotherBrain is not null)
         {
             CurrentFlashbackMotherBrain.RunFrameBehavior(
-                FrameCounterWord(elapsedUpdates),
+                frameCounterWord,
                 crossfadeCounter.RemainingFrames);
             // Deleting Mother Brain after the page-two crossfade hides Samus from
             // the next dispatch on.
@@ -583,7 +583,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The cinematic sprite handler runs after the cinematic function, so the
         // actors a scene setup spawns take their first step in that same dispatch.
-        CurrentBabyDiscovery?.Step(FrameCounterWord(elapsedUpdates), crossfadeCounter.RemainingFrames);
+        CurrentBabyDiscovery?.Step(frameCounterWord, crossfadeCounter.RemainingFrames);
         CurrentScientistCutscene?.Step(crossfadeCounter.RemainingFrames, introCrossfadeCounter.RemainingFrames);
     }
 
@@ -951,12 +951,12 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             // The intro-demo handler dispatches the installed knockback movement handler. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
-            SamusKnockbackMovement.Step(level, samus, FrameCounterWord(elapsedUpdates));
+            SamusKnockbackMovement.Step(level, samus, frameCounterWord);
         }
         else if (samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose)
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-level, samus, FrameCounterWord(elapsedUpdates));
+level, samus, frameCounterWord);
         }
         else if (CurrentFlashbackDemoInput?.Enabled == true &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
@@ -964,18 +964,18 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // The demo's later run/jump records use the same alpha/beta order as the
             // discovery scene. This coordinator already animates and commits its pose.
             IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
-                CurrentFlashbackDemoInput.NewlyPressed, FrameCounterWord(elapsedUpdates), Random);
+                CurrentFlashbackDemoInput.NewlyPressed, frameCounterWord, Random);
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
             fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
-                demoInput, FrameCounterWord(elapsedUpdates), CurrentFlashbackDemoInput?.NewlyPressed ?? 0);
+                demoInput, frameCounterWord, CurrentFlashbackDemoInput?.NewlyPressed ?? 0);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
             fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
-                demoInput, FrameCounterWord(elapsedUpdates));
+                demoInput, frameCounterWord);
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
@@ -987,13 +987,13 @@ level, samus, FrameCounterWord(elapsedUpdates));
                 level,
                 samus,
                 demoInput,
-                FrameCounterWord(elapsedUpdates));
+                frameCounterWord);
         }
 
         // Intro-demo state is not an animation shortcut. The intro-demo handler advances the same
         // animation delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = FrameCounterWord(elapsedUpdates), Random = Random });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, FrameCounter = frameCounterWord, Random = Random });
 
         // The delay list's pose-transition opcodes publish a prospective pose; they are not ordinary frame
         // delays. The intro-demo handler consumes that publication before the byte following the opcode
@@ -1005,7 +1005,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), FrameCounterWord(elapsedUpdates));
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), frameCounterWord);
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -1102,10 +1102,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // cinematic objects; once deleting Mother Brain clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, cameraPosition: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
+            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounterWord);
             // The flashback's artwork holds the power beam's characters whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(projectileSheets, EquippedBeams: 0);
-            flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates), projectileArtwork);
+            flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, frameCounterWord, projectileArtwork);
             flashbackProjectiles.AdvanceTrails(timeIsFrozen: false);
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
             flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
@@ -1159,7 +1159,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         // This cinematic deliberately keeps the camera's X at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // second room page shows different art, not a hidden +$100 camera coordinate.
-        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, FrameCounterWord(elapsedUpdates));
+        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, cameraPosition: Position16<RoomPixels>.Zero, frameCounterWord);
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
@@ -1311,12 +1311,6 @@ level, samus, FrameCounterWord(elapsedUpdates));
         }, Brightness.Level);
     }
 
-
-    /// <summary>
-    /// The shared Samus systems' frame-counter word after <paramref name="elapsedUpdates"/> updates: its low sixteen
-    /// bits, which return to zero every 65536 updates exactly as the game's sixteen-bit counter does.
-    /// </summary>
-    internal static int FrameCounterWord(int elapsedUpdates) => Ensure.AtLeastZero(elapsedUpdates) % FrameClock.CounterPeriod;
 
     /// <summary>
     /// The colour the opening shows where nothing is drawn (#1512): the installed backdrop at the narration's level, as the

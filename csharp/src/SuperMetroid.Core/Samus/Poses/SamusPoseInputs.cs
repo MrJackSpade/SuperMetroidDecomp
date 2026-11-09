@@ -12,7 +12,7 @@ internal static class SamusPoseInputs
     internal static bool TryGetInputList(SamusPoseId pose, out SamusPoseInputList inputList)
     {
         // The poses past the 253 pose records read adjacent code, not a graph.
-        if (pose is SamusPoseId.AdjacentCodePoseFD or SamusPoseId.AdjacentCodePoseFE or SamusPoseId.AdjacentCodePoseFF)
+        if (pose is SamusPoseId.FirstUnauthoredPose or SamusPoseId.SecondUnauthoredPose or SamusPoseId.LastUnauthoredPose)
         {
             inputList = default;
             return false;
@@ -98,9 +98,9 @@ internal static class SamusPoseInputs
             SamusPoseId.MoonwalkTurnJumpAimUpRightPose => MoonwalkTurnJumpAimUpRightPoseList,
             SamusPoseId.MoonwalkTurnJumpAimDownLeftPose => MoonwalkTurnJumpAimDownLeftPoseList,
             SamusPoseId.MoonwalkTurnJumpAimDownRightPose => MoonwalkTurnJumpAimDownRightPoseList,
-            SamusPoseId.AdjacentCodePoseFD or
-                SamusPoseId.AdjacentCodePoseFE or
-                SamusPoseId.AdjacentCodePoseFF => throw new InvalidOperationException($"Pose {pose} has no compiled input graph."),
+            SamusPoseId.FirstUnauthoredPose or
+                SamusPoseId.SecondUnauthoredPose or
+                SamusPoseId.LastUnauthoredPose => throw new InvalidOperationException($"Pose {pose} has no compiled input graph."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
         return true;

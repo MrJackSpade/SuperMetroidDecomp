@@ -738,11 +738,11 @@ public enum SamusPoseId
     DraygonGrabbingLeftPose,
 
     /// <summary>The first pose number past the definition table: its records read whatever follows the table.</summary>
-    AdjacentCodePoseFD,
+    FirstUnauthoredPose,
 
     /// <summary>The second pose number past the definition table: its records read whatever follows the table.</summary>
-    AdjacentCodePoseFE,
+    SecondUnauthoredPose,
 
     /// <summary>The last pose number, past the definition table: its records read whatever follows the table.</summary>
-    AdjacentCodePoseFF,
+    LastUnauthoredPose,
 }

@@ -980,9 +980,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 // The glitch-ball knockback's movement type has an empty normal entry: once its knockback
                 // ends, Samus holds still in it (#1535).
                 break;
-            case SamusPoseId.AdjacentCodePoseFD:
-            case SamusPoseId.AdjacentCodePoseFE:
-            case SamusPoseId.AdjacentCodePoseFF:
+            case SamusPoseId.FirstUnauthoredPose:
+            case SamusPoseId.SecondUnauthoredPose:
+            case SamusPoseId.LastUnauthoredPose:
             case SamusPoseId.CompactAirborneFallingRightPose:
             case SamusPoseId.CompactAirborneFallingLeftPose:
             case SamusPoseId.ShinesparkWindupRightPose:

@@ -251,22 +251,23 @@ internal static class SamusPoseDispatch
         SamusPoseId.StandingTransitionAimUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose => SamusFacingDirection.Right,
-        SamusPoseId.AdjacentCodePoseFD or
-        SamusPoseId.AdjacentCodePoseFE or
-        SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(
+        SamusPoseId.FirstUnauthoredPose or
+        SamusPoseId.SecondUnauthoredPose or
+        SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(
             nameof(pose), pose, "A pose number past the authored poses reads its facing from what follows the definitions."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
     /// <summary>
     /// The pose's movement type, from the PoseDefinitions movement byte, which selects the movement handler.
-    /// The adjacent-code records FD and FF read bytes beyond the retail dispatcher, which is corrupt metadata and fails
-    /// here; FE reads a standing byte.
+    /// The first and last pose numbers past the authored poses read movement bytes beyond every movement type, which is
+    /// corrupt metadata and fails here; the second reads the special movement type.
     /// </summary>
-    /// <exception cref="InvalidDataException">The pose is FD or FF.</exception>
+    /// <exception cref="InvalidDataException">The pose is <see cref="SamusPoseId.FirstUnauthoredPose"/> or
+    /// <see cref="SamusPoseId.LastUnauthoredPose"/>.</exception>
     internal static SamusMovementType ReadMovement(SamusPoseId pose) => pose switch
     {
-        SamusPoseId.AdjacentCodePoseFE or
+        SamusPoseId.SecondUnauthoredPose or
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.FacingRightNormalPose or
         SamusPoseId.FacingLeftNormalPose or
@@ -501,13 +502,16 @@ internal static class SamusPoseDispatch
         SamusPoseId.DrainedStandingRightPose or
         SamusPoseId.DrainedStandingLeftPose => SamusMovementType.Special,
         // The three poses past the tables read the X-ray cone's off-screen table builder as data.
-        SamusPoseId.AdjacentCodePoseFD or
-        SamusPoseId.AdjacentCodePoseFF => throw new InvalidDataException(
-            $"Pose {pose} reads adjacent code as its movement type, beyond the retail dispatcher's {nameof(SamusMovementType.Special)}."),
+        SamusPoseId.FirstUnauthoredPose or
+        SamusPoseId.LastUnauthoredPose => throw new InvalidDataException(
+            $"Pose {pose} reads what follows the pose definitions as its movement type, beyond {nameof(SamusMovementType.Special)}."),
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
-    /// <summary>PoseDefinitions NoInputPose selection, record stride eight; FD..FF are bounded adjacent code observations.</summary>
+    /// <summary>
+    /// The pose a pose falls back to with no input; the three pose numbers past the authored poses read theirs from what
+    /// follows the definitions.
+    /// </summary>
     internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) => pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
@@ -744,9 +748,9 @@ internal static class SamusPoseDispatch
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
         // The three poses past the tables read the X-ray cone's off-screen table builder as data.
-        SamusPoseId.AdjacentCodePoseFD => SamusPoseId.NeutralJumpTransitionRightPose,
-        SamusPoseId.AdjacentCodePoseFE => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
-        SamusPoseId.AdjacentCodePoseFF => SamusPoseId.LandingAimDiagonalDownLeftPose,
+        SamusPoseId.FirstUnauthoredPose => SamusPoseId.NeutralJumpTransitionRightPose,
+        SamusPoseId.SecondUnauthoredPose => SamusMovementDefinitions.Poses.RetainCurrentPoseFallback,
+        SamusPoseId.LastUnauthoredPose => SamusPoseId.LandingAimDiagonalDownLeftPose,
         var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 }

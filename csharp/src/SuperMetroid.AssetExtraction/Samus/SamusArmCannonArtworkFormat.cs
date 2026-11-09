@@ -267,9 +267,9 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.CrouchingAimUpLeftPose => ArmCannonDescriptorDefinitions.FacingLeftCrouchingAimingUp,
             SamusPoseId.NormalLandingRightPose => ArmCannonDescriptorDefinitions.FacingRightLandingFromNormalJump,
             SamusPoseId.SpinLandingRightPose => ArmCannonDescriptorDefinitions.FacingRightLandingFromSpinJump,
-            SamusPoseId.AdjacentCodePoseFD or
-                SamusPoseId.AdjacentCodePoseFE or
-                SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(nameof(pose)),
+            SamusPoseId.FirstUnauthoredPose or
+                SamusPoseId.SecondUnauthoredPose or
+                SamusPoseId.LastUnauthoredPose => throw new ArgumentOutOfRangeException(nameof(pose)),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }

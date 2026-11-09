@@ -28,7 +28,7 @@ public static class WreckedShipDoorDefinitions
     /// <summary>The Attic room's door 2.</summary>
     public static DoorDefinition Attic2 { get; } = DoorDefinitions.Find(nameof(Attic2));
 
-    /// <summary>The Assembly Line room's door 0.</summary>
+    /// <summary>Wrecked Ship's Assembly Line room's door 0.</summary>
     public static DoorDefinition AssemblyLine0 { get; } = DoorDefinitions.Find(nameof(AssemblyLine0));
 
     /// <summary>The Wrecked Ship Main Shaft room's door 0.</summary>

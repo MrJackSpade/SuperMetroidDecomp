@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Where each retail scroll program is stored in bank $8F, for verification; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>
+/// <summary>Where each retail scroll program is stored in bank $8F, for verification; regenerate with tools/generate-room-object-population-definitions.ps1.</summary>
 internal static class RoomScrollProgramNative
 {
     /// <summary>The bank-$8F address of each scroll program.</summary>

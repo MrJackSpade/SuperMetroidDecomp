@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// Reachable Kraid ceiling and spike draws. The first is also used by the Maridia elevatube, but its collision is the
-/// same for either PLM owner. What each frame shows is its installed picture (#1557).
+/// same for either room-object owner. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class KraidRoomObjectDrawDefinitions
 {

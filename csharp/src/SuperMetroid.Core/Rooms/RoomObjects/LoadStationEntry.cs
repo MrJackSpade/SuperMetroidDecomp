@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>One fourteen-byte entry consumed by <c>LoadFromLoadStation</c>.</summary>
+/// <summary>One load station's entry, which loading the game at that station reads.</summary>
 /// <param name="Room">The room, or null for an unused slot.</param>
 /// <param name="Door">The door through which the room is entered, or null for an unused slot.</param>
 /// <param name="CameraPosition">Initial camera top-left (entry words 6 and 8).</param>

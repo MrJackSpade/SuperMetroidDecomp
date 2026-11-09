@@ -12,23 +12,23 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The PLM phase of a gameplay frame and the door-transition PLM handler.
+/// The room-object phase of a gameplay frame and the door-transition room-object handler.
 /// </summary>
 internal sealed class RoomObjectFramePhase
 {
     /// <summary>Installed beam artwork staged when a collected beam changes projectile graphics.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Current and newly pressed buttons passed to PLM and message handlers.</summary>
+    /// <summary>Current and newly pressed buttons passed to room-object and message handlers.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Applies gate projectiles requested during the PLM pass.</summary>
+    /// <summary>Applies gate projectiles requested during the room-object pass.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
-    /// <summary>Suppresses ordinary PLM updates while gameplay time is frozen.</summary>
+    /// <summary>Suppresses ordinary room-object updates while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Owns the active synchronous item or station message.</summary>
     private readonly GameplayMessageBoxState _messageBox;
     /// <summary>Retains pending save-station and suit-pickup handoffs.</summary>
     private readonly MessageBoxFlow _messageBoxes;
-    /// <summary>Supplies Samus and the X-ray PLM-suspension flag.</summary>
+    /// <summary>Supplies Samus and the X-ray room-object-suspension flag.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Supplies active level data, camera, and scroll state.</summary>
     private readonly ActiveRoomState _room;
@@ -36,7 +36,7 @@ internal sealed class RoomObjectFramePhase
     private readonly SamusSuitPickupState _suitPickup;
 
 
-    /// <summary>Binds the shared PLM handler to live runtime state and its presentation effects.</summary>
+    /// <summary>Binds the shared room-object handler to live runtime state and its presentation effects.</summary>
     internal RoomObjectFramePhase(RoomObjectFramePhaseDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -51,31 +51,31 @@ internal sealed class RoomObjectFramePhase
 
     }
     /// <summary>
-    /// Runs the PLMs once for the door transition, on the door scroll's final update and
+    /// Runs the room objects once for the door transition, on the door scroll's final update and
     /// before the following frame boundary.
     /// </summary>
     /// <remarks>
-    /// The ordinary frame dispatcher intentionally suppresses PLMs while the shared
+    /// The ordinary frame dispatcher intentionally suppresses room objects while the shared
     /// door/elevator freeze flag is set. This call is the game's one exception: it
     /// advances freshly loaded room setup lists once before the destination fades in.
     /// </remarks>
     internal void RunDoorTransitionObjectHandler(RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         // The explicit transition-time call still enters the common handler,
-        // whose first step returns while the PLM handler is disabled.
+        // whose first step returns while the room-object handler is disabled.
         // Indirect G-Mode deliberately carries that disabled word across the door.
         if (_player.Samus?.Xray.AreObjectsSuspended == true)
             return;
 
         RunObjectHandlerCore(controllerNewInput: 0, roomObjects, bombProjectiles, room);
 
-        // Setup-time PLMs do not have Samus contact/input available. If a future
+        // Setup-time room objects do not have Samus contact/input available. If a future
         // translation publishes a player-facing event here, fail at the exact ownership
         // boundary instead of silently discarding it.
         if (roomObjects.CollectibleObjects.CollectiblePickupEvents.Count != 0 || roomObjects.Stations.StationActivationEvents.Count != 0)
         {
             throw new InvalidDataException(
-                "A door-transition PLM handler unexpectedly published a player interaction.");
+                "A door-transition room-object handler unexpectedly published a player interaction.");
         }
         foreach (MotherBrainGlassProjectileRequest request in roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests)
             room.Enemies.RoomObjectSpawns.SpawnMotherBrainGlassProjectile(request);
@@ -93,18 +93,18 @@ internal sealed class RoomObjectFramePhase
         if (_room.LevelData is null || _room.Camera is null || _player.Samus is null)
         {
             throw new InvalidOperationException(
-                "The PLM handler requires an active room, camera, and Samus.");
+                "The room-object handler requires an active room, camera, and Samus.");
         }
 
         roomObjects.Step(_room.LevelData, new RoomObjectFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = room.Enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = room.Enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive });
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, room.Enemies);
     }
 
-    /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
+    /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
     internal void RunObjectPhase(bool deathOwnsSamus, SamusState samus, RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         // Main gameplay reaches the room-object update after Samus's new-state and
-        // enemy-projectile passes but before MainScrollingRoutine. A grapple block
+        // enemy-projectile passes but before the main scrolling. A grapple block
         // acquired above therefore consumes its initial timer and draws its first frame in this
         // same frame; when it later becomes air, anchor validation has already run and
         // sees that mutation on the following Samus frame.
@@ -112,7 +112,7 @@ internal sealed class RoomObjectFramePhase
         {
             RunObjectHandlerCore(_controller1.NewlyPressed, roomObjects, bombProjectiles, room);
 
-            // Item PLMs publish acquisition only after their trigger and
+            // Item room objects publish acquisition only after their trigger and
             // handler pass. Apply the hardware-facing consequences at that same seam:
             // beam combinations replace the projectile character/palette staging, and
             // suit changes defer their visible palette reveal until stage
@@ -147,7 +147,7 @@ internal sealed class RoomObjectFramePhase
                 {
                     throw new InvalidDataException(
                         "Multiple permanent items attempted to enter the synchronous " +
-                        "message box during one PLM pass.");
+                        "message box during one room-object pass.");
                 }
                 _messageBox.Begin(pickup.MessageBoxIndex, _controller1.Current);
             }
@@ -161,7 +161,7 @@ internal sealed class RoomObjectFramePhase
                             _messageBox.IsActive)
                         {
                             throw new InvalidDataException(
-                                "A save station attempted to replace an active PLM message owner.");
+                                "A save station attempted to replace an active room-object message owner.");
                         }
                         _messageBoxes.AwaitSaveConfirmation(station);
                         _messageBox.Begin(GameplayMessageIds.SaveConfirmation,
@@ -186,7 +186,7 @@ internal sealed class RoomObjectFramePhase
                 if (_messageBox.IsActive)
                 {
                     throw new InvalidDataException(
-                        "Multiple PLMs attempted to open the synchronous message box " +
+                        "Multiple room objects attempted to open the synchronous message box " +
                         "during one handler pass.");
                 }
                 _messageBox.Begin(station.MessageBoxIndex, _controller1.Current);

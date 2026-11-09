@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>The escape critters' shot reaction a block hands on to (#1395). The escape-animal PLM family implements it.</summary>
+/// <summary>The escape critters' shot reaction a block hands on to (#1395). The escape-animal room-object family implements it.</summary>
 internal interface ICrittersEscapeReaction
 {
     /// <summary>Runs the critters' escape-block shot reaction for the block at <paramref name="blockIndex"/>, or returns false when the shot does not trigger it.</summary>

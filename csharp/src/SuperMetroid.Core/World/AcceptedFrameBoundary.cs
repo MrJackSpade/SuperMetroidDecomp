@@ -87,7 +87,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     /// <remarks>
     /// Door transitions and other frontend sequences can run frame boundaries without
-    /// running enemy, projectile, or PLM owners. Consumers must distinguish those waits
+    /// running enemy, projectile, or room-object owners. Consumers must distinguish those waits
     /// from a fresh gameplay publication; otherwise the last request is re-enqueued on
     /// every transition update and the door's sound-queue drain can never finish.
     /// </remarks>

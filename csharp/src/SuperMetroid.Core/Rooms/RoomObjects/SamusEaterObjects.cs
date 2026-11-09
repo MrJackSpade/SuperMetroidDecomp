@@ -8,16 +8,16 @@ internal sealed class SamusEaterObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>Descending PLM slot allocation table.</summary>
+    /// <summary>Descending room-object slot allocation table.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds the active room and its PLM slot population.</summary>
+    /// <summary>Binds the active room and its room-object slot population.</summary>
     internal SamusEaterObjects(IRoomSamusAccess? samus, RoomObjectSlotTable slotTable)
     {
         _samus = samus;
         _slotTable = slotTable;
     }
-    /// <summary>Runs the feet/head alignment gate and allocates the ordinary plant PLM.</summary>
+    /// <summary>Runs the feet/head alignment gate and allocates the ordinary plant room object.</summary>
     internal void TrySpawnSamusEater(RoomLevelData level,
         RoomCollisionBlock block, RoomObjectHeaderId header, IRoomSamus samus)
     {
@@ -42,18 +42,18 @@ internal sealed class SamusEaterObjects
     internal static SamusEaterObjectDefinition Plant(RoomObjectHeaderId header) =>
         SamusEaterObjectDefinitions.ByHeader.TryGetValue(header, out SamusEaterObjectDefinition? plant)
             ? plant
-            : throw new InvalidDataException($"Unsupported Samus Eater PLM {header}.");
+            : throw new InvalidDataException($"Unsupported Samus Eater room object {header}.");
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>
     internal IRoomSamus RequirePlantSamus() => _samus?.Current
-        ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
+        ?? throw new InvalidOperationException("Samus Eater room object requires the live Samus owner.");
 
     /// <summary>Holds Samus at <paramref name="held"/> after her normal movement and ORs in the invincibility bit.</summary>
     internal void HoldSamus(Position16<RoomPixels> held)
     {
         var samus = RequirePlantSamus();
         samus.Position = samus.Position.WithWhole(new(held.X, held.Y));
-        // TSB is bitwise OR, not a clamp or an input lock. Samus's normal
+        // The hold sets a bit of the invincibility timer, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving interactions.
         samus.InvincibilityTimer = samus.InvincibilityTimer.MergedWith(SamusEaterObjectDefinitions.HeldInvincibilityBit);
     }

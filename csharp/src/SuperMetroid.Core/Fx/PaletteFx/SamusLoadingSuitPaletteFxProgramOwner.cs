@@ -13,7 +13,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
     /// owns calculated sharing/shades and the specific base-ink disposition;
     /// LoadingPaletteInputView documents independent tint components. Production
-    /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
+    /// reads only records 0..8 and colors 0..15.
     /// </remarks>
     PowerSuit,
     /// <summary>Varia-suit colors.</summary>
@@ -26,7 +26,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
     /// owns calculated sharing/shades and the specific base-ink disposition;
     /// LoadingPaletteInputView documents independent tint components. Production
-    /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
+    /// reads only records 0..8 and colors 0..15.
     /// </remarks>
     VariaSuit,
     /// <summary>Gravity-suit colors.</summary>
@@ -39,7 +39,7 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
     /// owns calculated sharing/shades and the specific base-ink disposition;
     /// LoadingPaletteInputView documents independent tint components. Production
-    /// indexes only records 0..8 and colors 0..15 through <c>ColorPointer</c>.
+    /// reads only records 0..8 and colors 0..15.
     /// </remarks>
     GravitySuit,
 }

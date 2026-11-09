@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Phase of one permanent-item PLM.</summary>
+/// <summary>Phase of one permanent-item room object.</summary>
 public enum CollectiblePhase
 {
     /// <summary>A previously collected exposed or orb item awaits its empty draw and immediate slot deletion.</summary>
@@ -29,6 +29,6 @@ public enum CollectiblePhase
     AwaitingMessage,
     /// <summary>The pickup message has returned and the suspended item list is ready for its empty draw or shot-block continuation.</summary>
     ResumeAfterMessage,
-    /// <summary>The empty draw has run; the instruction list deletes the PLM next pass.</summary>
+    /// <summary>The empty draw has run; the script deletes the room object next pass.</summary>
     EmptyAwaitingDelete,
 }

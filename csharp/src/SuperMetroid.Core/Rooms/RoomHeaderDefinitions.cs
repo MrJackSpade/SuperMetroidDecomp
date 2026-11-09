@@ -618,7 +618,7 @@ public static class RoomHeaderDefinitions
     public static RoomHeaderDefinition WreckedShipEntrance { get; } = Find(nameof(WreckedShipEntrance));
     /// <summary>The Attic room.</summary>
     public static RoomHeaderDefinition Attic { get; } = Find(nameof(Attic));
-    /// <summary>The Assembly Line room.</summary>
+    /// <summary>Wrecked Ship's Assembly Line room.</summary>
     public static RoomHeaderDefinition AssemblyLine { get; } = Find(nameof(AssemblyLine));
     /// <summary>The Wrecked Ship Main Shaft room.</summary>
     public static RoomHeaderDefinition WreckedShipMainShaft { get; } = Find(nameof(WreckedShipMainShaft));

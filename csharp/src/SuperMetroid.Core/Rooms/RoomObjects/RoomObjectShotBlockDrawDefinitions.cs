@@ -24,7 +24,7 @@ internal static class RoomObjectShotBlockDrawDefinitions
         internal int Count => Collisions.Length;
     }
 
-    /// <summary>One PLM draw with its ordered, immutable runs.</summary>
+    /// <summary>One room-object draw with its ordered, immutable runs.</summary>
     internal readonly record struct DrawList(RoomObjectDraw Draw, ReadOnlyMemory<Run> Runs)
     {
     }

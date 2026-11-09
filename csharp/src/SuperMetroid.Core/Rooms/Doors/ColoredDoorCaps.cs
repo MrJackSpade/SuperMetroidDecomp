@@ -23,7 +23,7 @@ internal static class ColoredDoorCaps
         }
     }
 
-    /// <summary>Decodes only the forty-eight aligned twelve-byte cap pointers into color, orientation, and frame.</summary>
+    /// <summary>Describes a coloured door cap's draw: its colour, orientation and one of its four frames.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
         if (request is RoomObjectFrameDraw<Draw> { Frame: { Frame: >= 0 and < 4 } cap })

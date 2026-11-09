@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="BandsShown">False on a frozen frame, whose terminated table leaves every band unshifted.</param>
 public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> BandOffsets, bool BandsShown)
 {
-    /// <summary>The world rows a sixteen-bit row position covers before it wraps.</summary>
+    /// <summary>The world rows a row position covers before it wraps to row 0.</summary>
     private const int WorldRows = ushort.MaxValue + 1;
 
-    /// <summary>The world row the first gameplay scanline shows, before it wraps at sixteen bits.</summary>
+    /// <summary>The world row the first gameplay scanline shows, before it wraps past row 65535.</summary>
     public int FirstGameplayRow => VerticalScroll + ScrollingSkyBandDefinitions.GameplayFirstScanline;
 
     /// <summary>
@@ -28,7 +28,7 @@ public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> B
 
     /// <summary>
     /// The world row after <paramref name="worldY"/> where the band covering it ends: the next band's top, the end of the
-    /// sky, or the wrap of the sixteen-bit row below the sky's bands.
+    /// sky, or the wrap past row 65535 below the sky's bands.
     /// </summary>
     /// <param name="worldY">A world row, 0 through 65535.</param>
     public static int NextBandRow(int worldY) => BandAt(worldY) switch

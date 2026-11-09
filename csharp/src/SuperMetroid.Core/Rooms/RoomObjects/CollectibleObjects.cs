@@ -20,7 +20,7 @@ internal sealed class CollectibleObjects
     private readonly IRoomFxMotion? _roomFx;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>
     private readonly IRoomObjectDrawing _drawing;
-    /// <summary>Enumerates active item PLMs by slot ordinal.</summary>
+    /// <summary>Enumerates active item room objects by slot ordinal.</summary>
     private readonly RoomObjectSlotTable _slotTable;
     /// <summary>Connects the collectibles to room state and drawing.</summary>
     internal CollectibleObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable)
@@ -32,7 +32,7 @@ internal sealed class CollectibleObjects
         _slotTable = slotTable;
     }
 
-    /// <summary>Pickup events published by the current PLM handler pass.</summary>
+    /// <summary>Pickup events published by the current room-object handler pass.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     /// <summary>The terrain block pairs the room's collectibles that show their own picture take in turn.</summary>
     private readonly CollectibleBlockPairs _blockPairs = new();
@@ -41,7 +41,7 @@ internal sealed class CollectibleObjects
     /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
     private bool _pendingSpeedBoosterPickupContinuation;
 
-    /// <summary>Whether the PLM handler is waiting for its synchronous pickup message.</summary>
+    /// <summary>Whether the room-object handler is waiting for its synchronous pickup message.</summary>
     internal bool HasPendingCollectibleMessage
     {
         get
@@ -54,7 +54,7 @@ internal sealed class CollectibleObjects
     }
 
     /// <summary>
-    /// The message returns into the item's suspended instruction list, which draws
+    /// The message returns into the item's suspended script, which draws
     /// the empty block and deletes itself within the same room-object update.
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
@@ -81,7 +81,7 @@ internal sealed class CollectibleObjects
         _pendingSpeedBoosterPickupContinuation = false;
     }
 
-    /// <summary>Pickup publications produced during the most recent PLM handler pass.</summary>
+    /// <summary>Pickup publications produced during the most recent room-object handler pass.</summary>
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
         _collectiblePickupEvents;
 
@@ -100,7 +100,7 @@ internal sealed class CollectibleObjects
         return requested;
     }
 
-    /// <summary>Every currently allocated permanent-item PLM, by slot ordinal.</summary>
+    /// <summary>Every currently allocated permanent-item room object, by slot ordinal.</summary>
     public IReadOnlyList<CollectibleObjectSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Behaviour is CollectibleObject { } item
@@ -110,8 +110,8 @@ internal sealed class CollectibleObjects
 
     /// <summary>
     /// Publishes Samus contact with a visible item block. The item's touch setup
-    /// finds the item PLM sharing this block and arms its trigger timer;
-    /// acquisition remains owned by the following PLM handler pass.
+    /// finds the item room object sharing this block and arms its trigger timer;
+    /// acquisition remains owned by the following room-object handler pass.
     /// </summary>
     public bool TryNotifyCollectibleTouch(int blockIndex)
     {
@@ -161,7 +161,7 @@ internal sealed class CollectibleObjects
         return false;
     }
 
-    /// <summary>Clears pickup publications at the start of a PLM handler frame.</summary>
+    /// <summary>Clears pickup publications at the start of a room-object handler frame.</summary>
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
     /// <summary>
@@ -213,7 +213,7 @@ internal sealed class CollectibleObjects
         or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or InWorldCollectibleKind.PowerBombTank);
 
     /// <summary>
-    /// Names the item and presentation of a permanent-item PLM; false for every other PLM. This public read-only seam
+    /// Names the item and presentation of a permanent-item room object; false for every other room object. This public read-only seam
     /// lets audits inventory room populations without duplicating the permanent-item catalog.
     /// </summary>
     public static bool TryIdentifyPermanentCollectible(
@@ -254,8 +254,8 @@ internal sealed class CollectibleObjects
             item.Kind == InWorldCollectibleKind.SpeedBooster &&
             item.Presentation == CollectiblePresentation.ChozoOrb;
 
-        // The item instruction grants inventory before DisplayMessageBox, but its
-        // following draw/delete instructions cannot run until that synchronous call
+        // The item's script grants inventory before the message box opens, but its
+        // following draw/delete steps cannot run until that synchronous call
         // returns. Keep the existing tile and slot throughout the fanfare.
         item.Triggered = false;
         item.Timer = 0;
@@ -305,7 +305,7 @@ internal sealed class CollectibleObjects
                 samus.EquippedItems |= equipmentMask;
                 samus.CollectedItems |= equipmentMask;
                 // Every Varia/Gravity presentation clears the suit-pickup state immediately before
-                // PickUpEquipment and the synchronous message. It is not part of the later
+                // The equipment pickup and the synchronous message. It is not part of the later
                 // transformation and therefore must already be clear throughout the fanfare.
                 if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
                     samus.BeamChargeCount.Clear();

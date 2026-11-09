@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// The runtime's state as the services one room's enemy AI calls (#633): the shared
 /// RNG, event and boss bits, the room's scroll zones, Samus's control lock, Mother Brain's room
-/// effects and the active PLM population. Boss bits address the room's area.
+/// effects and the active room-object population. Boss bits belong to the room's area.
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomEnemyRuntimeServices(
@@ -33,7 +33,7 @@ internal sealed class RoomEnemyRuntimeServices(
     public IZebetiteProgress ZebetiteProgress => progress;
     /// <summary>Exposes boss bits for the active room's area.</summary>
     public IAreaBossFlags Bosses => progress;
-    /// <summary>Exposes active PLM-header presence to enemy AI.</summary>
+    /// <summary>Exposes active room-object-header presence to enemy AI.</summary>
     public IRoomObjectPresence RoomObjects => this;
     /// <summary>Exposes the room camera's scroll-zone storage.</summary>
     public IRoomScrollZoneAccess RoomScroll => this;
@@ -75,7 +75,7 @@ internal sealed class RoomEnemyRuntimeServices(
     private SamusState ControlledSamus => player.Samus ?? throw new InvalidOperationException(
         "Chozo control command requires an active Samus actor.");
 
-    /// <summary>Advances the Mother Brain glass PLM argument after an enemy-driven phase event.</summary>
+    /// <summary>Advances the Mother Brain glass room-object argument after an enemy-driven phase event.</summary>
     public void IncrementGlassRoomArgument() => roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
 
     /// <inheritdoc />
@@ -83,6 +83,6 @@ internal sealed class RoomEnemyRuntimeServices(
         (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a Ceres room has a turning floor to draw over."))
             .Draw(frame);
 
-    /// <summary>Checks whether a requested Bomb Torizo hand PLM header remains active.</summary>
+    /// <summary>Checks whether a requested Bomb Torizo hand room-object header remains active.</summary>
     public bool HasActiveHeader(RoomObjectHeaderId header) => roomObjects.BombTorizoHand.HasActiveHeader(header);
 }

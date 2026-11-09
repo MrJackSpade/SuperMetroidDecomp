@@ -13,12 +13,12 @@ internal sealed class DoorObjects
 {
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
-    /// <summary>Allocates fallback closing and blue-door actors from the PLM pool.</summary>
+    /// <summary>Allocates fallback closing and blue-door actors from the room-object pool.</summary>
     private readonly RoomObjectSlotTable _slotTable;
     /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Binds door PLM logic to room persistence, drawing, allocation, and sound owners.</summary>
+    /// <summary>Binds door room-object logic to room persistence, drawing, allocation, and sound owners.</summary>
     internal DoorObjects(SharedGameState? system, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
     {
         _system = system;
@@ -85,16 +85,16 @@ internal sealed class DoorObjects
 
     /// <summary>
     /// The deactivating setup: a solid block stays solid and any other block becomes air, keeping its appearance.
-    /// Despite its historical name, the routine does not delete or deactivate the PLM slot.
+    /// Despite its historical name, the routine does not delete or deactivate the room-object slot.
     /// </summary>
     internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, RoomObjectSlot slot) =>
         level.SetTerrain(slot.BlockIndex, level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.Deactivated());
 
-    /// <summary>Installs shootable-solid collision and the resident-PLM projectile behaviour at a colored cap.</summary>
+    /// <summary>Installs shootable-solid collision and the resident room-object projectile behaviour at a colored cap.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)
     {
         // The colored-door setup keeps the block's appearance, installs shootable-solid collision, and selects the
-        // resident-PLM projectile trigger so subsequent projectiles find this resident PLM.
+        // resident room-object projectile trigger so subsequent projectiles find this resident room object.
         level.SetObjectTerrain(
             blockIndex,
             level.GetObjectCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
@@ -147,8 +147,8 @@ internal sealed class DoorObjects
         _system ?? throw new InvalidOperationException("A resident door has no persistence owner.");
 
     /// <summary>
-    /// Names the color and facing of a colored-door PLM (#1414: each of the twelve doors is matched by member, replacing
-    /// the color ranges and six-byte header stride the PLM headers implied).
+    /// Names the color and facing of a colored-door room object (#1414: each of the twelve doors is matched by member, replacing
+    /// the color ranges and six-byte header stride the room-object headers implied).
     /// </summary>
     internal static bool TryIdentifyColoredDoor(
         RoomObjectHeaderId header,
@@ -185,7 +185,7 @@ internal sealed class DoorObjects
                 "The shootable block's behaviour is not a blue-door facing.");
         }
 
-        // A power-bomb collision deletes the just-allocated PLM without touching the cap.
+        // A power-bomb collision deletes the just-allocated room object without touching the cap.
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The five one-block draws used by breakable-Grapple-block PLMs: the initial frame installs Grapple collision and the
+/// The five one-block draws used by breakable-Grapple-block room objects: the initial frame installs Grapple collision and the
 /// later frames install air collision. What each shows is its installed picture (#1557).
 /// </summary>
 internal static class RoomObjectGrappleBlockDrawDefinitions

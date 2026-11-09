@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The draw of the hardcoded elevatube PLM spawned by Maridia's door setup.
+/// The draw of the hardcoded elevatube room object spawned by Maridia's door setup.
 /// </summary>
 internal static class MaridiaElevatubeObjectDefinitions
 {

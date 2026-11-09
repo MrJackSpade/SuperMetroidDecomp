@@ -3,12 +3,12 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Direct load-station placement selection for LoadFromLoadStation.</summary>
-/// <remarks>Area lists are consecutive fourteen-byte records starting.
+/// <summary>Direct load-station placement selection for loading the game at a load station.</summary>
+/// <remarks>
 /// Named area/station cases select active room, door, behaviour and placement settings;
 /// valid unused slots select the inert placeholder. Ceres repeats one
-/// placement with Y offset72 for station0 and64 for stations1..16. Debug-area data
-/// beginning atCC19 is outside the accepted domain. No record or pointer array is stored.</remarks>
+/// placement with Y offset72 for station0 and64 for stations1..16. The debug area's
+/// stations are outside the accepted domain. No record table is stored.</remarks>
 public static class LoadStationDefinitions
 {
     /// <summary>List lengths, including inert placeholders.</summary>

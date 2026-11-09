@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>Where X-ray's setup copies the room's blocks into its reveal: CanXrayShowBlocks.</summary>
+/// <summary>Where X-ray's setup copies the room's blocks into its reveal: whether X-ray can show a block.</summary>
 public static class XrayBlockRevealRules
 {
     /// <summary>

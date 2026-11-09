@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// those parameters under #1165's nonsense exception; a numeric index fit would only
 /// recite this drawing. Shared channel/shade rules and temporal fades are calculated.
 /// The exact18 retained components and source-art evidence are recorded in the review
-/// inventory's endingGunshipIndependentInkReview.</remarks>
+/// inventory's independent gunship ink entry.</remarks>
 internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<PaletteFxColorKey, RgbColor>
 {
     /// <summary>Ordinary stored fade colors after the thirteen final-frame painted inks are separated.</summary>
@@ -55,30 +55,30 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<Palett
     internal EndingGunshipPaletteInputView(Dictionary<PaletteFxColorKey, RgbColor> colors)
     {
         this.colors = colors;
-        RgbColor Word(EndingGunshipPaletteInk ink) => colors[Key(ink)];
-        int Red(EndingGunshipPaletteInk ink) => Word(ink).FadeLevels.Red;
-        Channels Gold(EndingGunshipPaletteInk ink) => new(Word(ink), null, Math.Max(0, Red(ink) - 1), null);
-        Channels Hull(EndingGunshipPaletteInk ink, int? red = null) => new(Word(ink), red, Math.Max(0, Red(ink) - 3), 0);
+        RgbColor InkColor(EndingGunshipPaletteInk ink) => colors[Key(ink)];
+        int Red(EndingGunshipPaletteInk ink) => InkColor(ink).FadeLevels.Red;
+        Channels Gold(EndingGunshipPaletteInk ink) => new(InkColor(ink), null, Math.Max(0, Red(ink) - 1), null);
+        Channels Hull(EndingGunshipPaletteInk ink, int? red = null) => new(InkColor(ink), red, Math.Max(0, Red(ink) - 3), 0);
         highlight = Gold(EndingGunshipPaletteInk.Highlight);
         hullLight = Gold(EndingGunshipPaletteInk.HullLight);
         deepShadow = Hull(EndingGunshipPaletteInk.DeepShadow);
-        blackDetail = new(Word(EndingGunshipPaletteInk.BlackDetail), 0, 0, 0);
+        blackDetail = new(InkColor(EndingGunshipPaletteInk.BlackDetail), 0, 0, 0);
         hullShadeLight = Hull(EndingGunshipPaletteInk.HullShadeLight);
         hullShadeDark = Hull(EndingGunshipPaletteInk.HullShadeDark);
         hullShadeMiddle = Hull(EndingGunshipPaletteInk.HullShadeMiddle,
             (Red(EndingGunshipPaletteInk.HullShadeLight) + Red(EndingGunshipPaletteInk.HullShadeDark) + 1) / 2);
 
-        RgbColor cockpit = Word(EndingGunshipPaletteInk.CockpitLight);
+        RgbColor cockpit = InkColor(EndingGunshipPaletteInk.CockpitLight);
         int green = cockpit.FadeLevels.Green, blue = cockpit.FadeLevels.Blue;
-        Channels Cockpit(EndingGunshipPaletteInk ink) => new(Word(ink), 0, null,
-            green == 0 ? null : Math.Min(31, (Word(ink).FadeLevels.Green) * blue / green));
+        Channels Cockpit(EndingGunshipPaletteInk ink) => new(InkColor(ink), 0, null,
+            green == 0 ? null : Math.Min(31, (InkColor(ink).FadeLevels.Green) * blue / green));
         cockpitLight = new(cockpit, 0, null, null);
         cockpitMiddle = Cockpit(EndingGunshipPaletteInk.CockpitMiddle);
         cockpitDark = Cockpit(EndingGunshipPaletteInk.CockpitDark);
 
-        RgbColor underside = Word(EndingGunshipPaletteInk.UndersideLight);
+        RgbColor underside = InkColor(EndingGunshipPaletteInk.UndersideLight);
         undersideBlueOffset = (underside.FadeLevels.Blue) - (underside.FadeLevels.Red);
-        Channels Underside(EndingGunshipPaletteInk ink) => new(Word(ink), null, Red(ink), Math.Clamp(Red(ink) + undersideBlueOffset, 0, 31));
+        Channels Underside(EndingGunshipPaletteInk ink) => new(InkColor(ink), null, Red(ink), Math.Clamp(Red(ink) + undersideBlueOffset, 0, 31));
         undersideLight = Underside(EndingGunshipPaletteInk.UndersideLight);
         undersideMiddle = Underside(EndingGunshipPaletteInk.UndersideMiddle);
         undersideDark = Underside(EndingGunshipPaletteInk.UndersideDark);

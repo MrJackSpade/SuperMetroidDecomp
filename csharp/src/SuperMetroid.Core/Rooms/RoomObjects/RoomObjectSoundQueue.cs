@@ -1,9 +1,9 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>PLM sound requests for the frame, each stamped with the power-bomb guard at the moment the PLM queued it.</summary>
+/// <summary>Room-object sound requests for the frame, each stamped with the power-bomb guard at the moment the room object queued it.</summary>
 internal sealed class RoomObjectSoundQueue
 {
-    /// <summary>Retains PLM sound requests from the current handler pass until frame publication.</summary>
+    /// <summary>Retains room-object sound requests from the current handler pass until frame publication.</summary>
     private readonly List<SoundRequest> _soundRequests = new();
 
     /// <summary>Queues <paramref name="soundEffect"/> at <paramref name="Priority"/>.</summary>
@@ -25,7 +25,7 @@ internal sealed class RoomObjectSoundQueue
     public void BindPowerBombAudio(IActivePowerBomb powerBomb) => _audioPowerBomb = powerBomb;
 
     /// <summary>
-    /// Captures the explosion guard when the PLM queues a sound, as QueueSfx does;
+    /// Captures the explosion guard when the room object queues a sound, as the game's sound queue does;
     /// a later change to that guard cannot alter the pending gate sound.
     /// </summary>
     internal SoundRequest CreateSoundRequest(SoundEffectId soundEffect, SoundRequestPriority Priority) =>

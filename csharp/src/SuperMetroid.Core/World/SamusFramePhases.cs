@@ -39,7 +39,7 @@ internal sealed class SamusFramePhases
     private readonly ActiveRoomState _room;
     /// <summary>Supplies the shared game state consulted by movement handlers.</summary>
     private readonly SharedGameState _system;
-    /// <summary>UpdateSamusPose after normal beta's animation.</summary>
+    /// <summary>The pose update after normal beta's animation.</summary>
     private readonly SamusPoseTransitionPhase _transitions;
 
     /// <summary>Binds the frame owners required to preserve Samus's alpha, beta, and presentation ordering.</summary>
@@ -159,7 +159,7 @@ internal sealed class SamusFramePhases
     /// for X-ray and passes the live dispatch game state (the pause darkening and unpause brightening states
     /// also run this alpha pass but setup rejects them), bomb cooldown/count, power-bomb phase, current/previous
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to the X-ray
-    /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
+    /// setup logic. The debug runner uses it without substituting a host pose or art frame.
     /// </remarks>
     public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusBombProjectileSystem bombProjectiles)
     {
@@ -244,7 +244,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     }
 
     /// <summary>
-    /// Runs the frame handler's alpha (SamusCurrentStateHandler): the head, then, when Samus movement is enabled,
+    /// Runs the frame handler's alpha: the head, then, when Samus movement is enabled,
     /// the tail. The enable flag is captured once here for every later gate of the frame.
     /// </summary>
     internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
@@ -257,7 +257,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     }
 
     /// <summary>
-    /// Runs the frame handler's beta (SamusNewStateHandler): beta movement when Samus movement is enabled, then
+    /// Runs the frame handler's beta: beta movement when Samus movement is enabled, then
     /// the tail.
     /// </summary>
     internal void RunBeta(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, ISamusFrameAudio audio, RoomScope room)
@@ -285,7 +285,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         if (_room.ActiveRoom is null)
             throw new InvalidOperationException("Live Samus terrain reactions require an active room.");
-        // Block-inside detection samples the body after alpha's SetSamusRadius: a pose whose
+        // Block-inside detection samples the body after alpha's radius update: a pose whose
         // radius grew in last frame's beta reaches air spikes with its new body now.
         // Samus command zero replaces the ordinary alpha handler with a locked one,
         // which never dispatches block-inside detection. Automatic Reserve recovery
@@ -305,10 +305,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _system.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), room.RoomObjects);
 
         // Alpha order is cooldown -> movement-type HUD projectile producer ->
-        // HandleProjectile. The outer gameplay loop then runs overlap
+        // projectile handling. The outer gameplay loop then runs overlap
         // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
         // selects its first art record in the placement frame itself.
-        // The door fade's EnemyMain/draw pass does not execute normal alpha.
+        // The door fade's enemy and draw pass does not execute normal alpha.
         // In particular its draw-only zero input must not release a held charge.
         // X-ray's freeze leaves the normal state handler installed, so the normal handler
         // still runs cooldown, HUD switching and the HUD handler; only its
@@ -348,7 +348,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 _player.ProspectiveSamusFallbackPose = null;
             }
 
-            // X-ray's freeze disables enemy room.Projectiles, PLMs, animated tiles,
+            // X-ray's freeze disables enemy room.Projectiles, room objects, animated tiles,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
             // advanced through this translated producer during the X-ray interval.
             BombProjectileFrameResult bombFrame = room.BombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, _controller1.Current, _controller1.NewlyPressed, overlap: BombJumpOverlapPublication.Deferred, explosion: PowerBombExplosionStep.Skip);
@@ -368,10 +368,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         {
             // The bomb half above has already decremented the shared projectile cooldown.
             // The humanoid handler then dispatches the HUD producer before the same
-            // HandleProjectile pass. Passing the live camera position also gives
+            // projectile pass. Passing the live camera position also gives
             // the projectile deletion check its exact off-screen deletion window.
-            // A malformed callback-table entry (SpaceTime) stores raw bytes straight
-            // into 's progression owners during this pass, so later
+            // The Spacetime beam's malformed callback entry writes straight into
+            // Samus's progression owners during this pass, so later
             // consumers this frame, and saves, observe them.
             room.Projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects,
                 Progression = _system }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, room.BombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus), producerSoundSuppressed: room.BombProjectiles.SoundSuppressedBeforeProjectileHandling);
@@ -399,7 +399,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
     }
 
     /// <summary>
-    /// Re-samples what EnemyMain can change before beta dispatches: a cancelled prospective pose, the
+    /// Re-samples what the enemy pass can change before beta dispatches: a cancelled prospective pose, the
     /// stationary-script lock, updated beam hits and the contact-damage index beta clears.
     /// </summary>
     internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
@@ -419,7 +419,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
             room.Enemies.Ceres.ResolveCeresRidleyProjectileHits(projectiles, bombProjectiles);
 
-        // EnemyMain consumes the preceding frame's contact-damage index.
+        // The enemy pass consumes the preceding frame's contact-damage index.
         // Only beta clears it, before movement republishes the current value.
         if (frame.Mode.Beta != SamusBetaHandler.SuitPickup)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
@@ -503,7 +503,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             _player.ProspectiveSamusFallbackPose = null;
         }
         // Command zero installs an empty beta handler independently of the
-        // movement pointer that was active beforehand. Automatic Reserve can
+        // movement handler that was active beforehand. Automatic Reserve can
         // therefore freeze an in-progress hurt launch; special owners such as
         // knockback's handler must not outrank this explicitly installed handler.
         else if (frame.Mode.Beta == SamusBetaHandler.ScriptLocked)
@@ -635,7 +635,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // beta dispatcher is empty. Only the drained-fall animation instruction replaces the handler
         // with the drained-falling mover; the other phases stay motionless while enemy AI controls
         // pose/timing. This branch is reached only when no independently retained
-        // Crystal Flash pointer still owns the physical movement-handler word.
+        // Crystal Flash handler still owns Samus's movement handler.
         // Controller zero changes only the pose, so a crashing spark keeps
         // its handler and finishes below; the drained-fall instruction relinquishes the spark itself.
         // The rainbow-beam lock is the beta lock itself: once command one restores
@@ -1164,18 +1164,18 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // match selected for the old pose to the newly installed one.
         _attractDemo.BeginAttractSamusInput();
         frame.SampleFrameStartPose(samus.Pose);
-        // Beta dispatches on the pose installed when it runs, which EnemyMain can have
+        // Beta dispatches on the pose installed when it runs, which the enemy pass can have
         // replaced since alpha: Draygon's death releases a sparking Samus to facing right normally,
         // and standing movement runs. The pose update then reads that pose's type.
         // Ordinary alpha publishes the current pose's live radius before input
         // and collision. Prospective transitions later in beta can retain the
         // previous radius until this point in the following frame. The locked
-        // alpha has no SetSamusRadius, so e.g. an elevator ride keeps
+        // alpha has no radius update, so e.g. an elevator ride keeps
         // the boarding pose's radius.
         if (_player.GroundedSamusMovementEnabled && !_freeze.TimeIsFrozen && !frame.AlphaInputLocked(samus) &&
             !samus.DeathSequence.IsActive && !room.Enemies.Elevator.ElevatorDoorTransitionActive)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-        // Samus beta precedes PLMs. A lock/unlock issued by a PLM
+        // Samus beta precedes room objects. A lock/unlock issued by a room object
         // affects the next beta, not the animation already owned this frame.
         // The suit pickup lock installs an empty beta, not just locked pose input:
         // the suspended movement and all of its timers survive, so the unlock
@@ -1187,8 +1187,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
         // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;
         // the winning pose is not installed until after animation below.
         // The front-view poses get one special input rule: a
-        // nonzero elevator status returns immediately, before the transition-table
-        // pointer is even read. Pose zero's pointer bytes otherwise overlap legitimate
+        // nonzero elevator status returns immediately, before the transition table
+        // is even read. Pose zero's transitions otherwise overlap other poses'
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
@@ -1260,7 +1260,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         // Every ordinary downward collision calls the landing-effects update inside movement, before
         // the timer hack, liquid animation, prospective-pose selection, and velocity
-        // cleanup. Knockback clears its live vertical speed in DF6E before this
+        // cleanup. Knockback clears its live vertical speed on landing before this
         // consumer; do not restore its diagnostic pre-impact magnitude for effects.
         // Drained movement retains its separately modeled impact publication.
         bool ordinaryOrBallLanded =
@@ -1328,8 +1328,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
 
         if (frame.Mode.Beta is not (SamusBetaHandler.Fatal or SamusBetaHandler.TitleDemo or SamusBetaHandler.SuitPickup))
         {
-            // Normal beta ends with HandlePeriodicDamageToSamus, PauseCheck and
-            // LowEnergyCheck, before the enemy-projectile and PLM handlers. Damage those
+            // Normal beta ends with the periodic damage, the pause check and
+            // the low-energy check, before the enemy-projectile and room-object handlers. Damage those
             // handlers accumulate this frame therefore lands next frame.
             // Demo beta omits these calls, and so does the suit pickup lock's empty beta:
             // damage pending during the transformation stays accumulated
@@ -1340,7 +1340,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
             samus.LiquidPhysics.ApplyPeriodicDamage(
                 samus,
                 timeIsFrozen: _freeze.TimeIsFrozen);
-            // Locked/elevator/appearance handlers omit LowEnergyCheck; the gunship command
+            // Locked/elevator/appearance handlers omit the low-energy check; the gunship command
             // installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
             if (frame.Mode.Beta is SamusBetaHandler.Normal or SamusBetaHandler.Gunship && !samus.Xray.OwnsSamusControl)
@@ -1369,7 +1369,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, roomObject
                 "outlived the 360-frame load appearance.");
         }
 
-        // PlaySamusFanfare publishes its same-pose history shift only on the
+        // The item fanfare publishes its same-pose history shift only on the
         // completion call, before the ordinary handlers regain control.
         samus.CommitPoseHistory();
         samus.Control.Unlock();

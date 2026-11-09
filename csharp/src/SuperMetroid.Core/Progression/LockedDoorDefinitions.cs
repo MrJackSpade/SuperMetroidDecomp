@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// <summary>
 /// Every door of the retail room populations that a cap keeps shut: each coloured, grey and eye door, named for the
 /// first room-state population that places it and its cap and, where two would share that name, its block; an eye
-/// door's three parts are one door. Regenerate with tools/generate-room-plm-population-definitions.ps1.
+/// door's three parts are one door. Regenerate with tools/generate-room-object-population-definitions.ps1.
 /// </summary>
 [NumberedIdentities("Each door named with its block is one distinct door of its population, told apart by where it stands; no caller indexes them.")]
 public static class LockedDoorDefinitions

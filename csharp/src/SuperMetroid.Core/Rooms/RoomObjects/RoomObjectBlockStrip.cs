@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// One horizontal strip of a PLM block draw: where the strip starts and its cells. A draw's strips are a list whose end
+/// One horizontal strip of a room-object block draw: where the strip starts and its cells. A draw's strips are a list whose end
 /// is its last strip (#1546).
 /// </summary>
 /// <param name="Start">Where the strip's first cell lies, in blocks from the draw's origin; the first strip starts at the origin.</param>

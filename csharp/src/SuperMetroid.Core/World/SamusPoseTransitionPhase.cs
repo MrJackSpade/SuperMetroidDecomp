@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// UpdateSamusPose after normal beta's animation: animation command three, the interruptions, the collision
+/// The pose update after normal beta's animation: animation command three, the interruptions, the collision
 /// transitions, the input transition alpha selected or its lookup-failure command, and the pose-history commit.
 /// </summary>
 internal sealed class SamusPoseTransitionPhase
@@ -47,8 +47,8 @@ internal sealed class SamusPoseTransitionPhase
             frame.Mode.Beta is SamusBetaHandler.Fatal or SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked)
             return;
 
-        // Hit interruption observes the old movement type before UpdateSamusPose.
-        // Its carry-clear bomb rejection still occurs when an animation transition
+        // Hit interruption observes the old movement type before the pose update.
+        // Its bomb rejection still occurs when an animation transition
         // wins pose selection; otherwise a stale request survives unmorph/morph.
         if (samus.KnockbackTimer == 0 && samus.KnockbackDirection == SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None)
             SamusPoseMetadata.RejectUnsupportedPublishedBombJump(samus, _freeze.TimeIsFrozen);
@@ -100,7 +100,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Falling)
             SamusAerialPoseTransitions.ApplyFallingInputFallback(samus);
 
-        // F433's normal-jump initializer publishes the fresh Shoot direction
+        // The normal-jump initializer publishes the fresh Shoot direction
         // for every accepted route, including aim changes within a jump. The
         // earlier projectile epilogue cleared the previous update's handoff.
         if (samus.Pose != samus.PoseHistory.PreviousPose)
@@ -130,7 +130,7 @@ internal sealed class SamusPoseTransitionPhase
         bool hitInterruptionExpiryPending, ISamusRoomObjects roomObjects)
     {
         bool animationTransitionApplied = alreadyApplied;
-        // C8C5 queues a transitional pose rather than replacing beta movement.
+        // The animation's transition queues a transitional pose rather than replacing beta movement.
         // Commit after animation, suppressing the lower-priority input/grounding
         // pose. Its speed clears already happened before movement.
         if (!animationTransitionApplied && _player.LastGrappleMovement is { PendingDropPose: SamusPoseId dropPose })
@@ -156,7 +156,7 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // Crash movement queues a transitional pose; it must not replace the
-        // body seen by AnimateSamus earlier in this frame. Command-three
+        // body Samus's animation saw earlier in this frame. Command-three
         // animation transitions retain their higher priority.
         if (!animationTransitionApplied && _player.LastShinesparkMovement is { CrashSequenceFinished: true })
         {
@@ -181,11 +181,11 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // The pose interruption runs after AnimateSamus and before UpdateSamusPose. Terrain
+        // The pose interruption runs after Samus's animation and before the pose update. Terrain
         // spike reactions only publish their damage request; this common interruption
         // converts that request into the same hurt pose and special movement handler
         // used by every damage producer. Animation command three retains
-        // its higher UpdateSamusPose priority and therefore suppresses this branch.
+        // its higher pose-update priority and therefore suppresses this branch.
         if (!animationTransitionApplied &&
             SamusKnockbackMovement.TryStartPendingHitInterruption(
 
@@ -226,7 +226,7 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // Windup expiry installs vertical movement immediately, but publishes
-        // an interrupted pose for this later phase. AnimateSamus must still see
+        // an interrupted pose for this later phase. Samus's animation must still see
         // the windup body; otherwise the launch animation loses its first tick.
         if (!animationTransitionApplied &&
             _player.LastShinesparkMovement is { PendingLaunchPose: SamusPoseId launchPose })
@@ -305,15 +305,15 @@ internal sealed class SamusPoseTransitionPhase
             animationTransitionApplied = true;
         }
 
-        // The wall-stop check runs inside UpdateSamusPose after beta movement/animation and
+        // The wall-stop check runs inside the pose update after beta movement/animation and
         // only when no super-special animation command has already won. Its first
         // branch consumes the X-speed-killed flag produced by CURRENT type-one
         // running movement. This creates a wall-stop pose even with no input match.
         // An unobstructed upward platform carry leaves the prospective input
         // pose intact too. Requiring a vertical collision here wrongly skipped
         // the one-pixel run check while a Kamer was carrying Samus upward.
-        // A special movement pointer can also retain a standing/running pose
-        // (suit-interrupted windup). EADE does not require normal grounded beta.
+        // A special movement handler can also retain a standing/running pose
+        // (suit-interrupted windup). The wall-stop check does not require normal grounded beta.
         if (!animationTransitionApplied &&
             _player.LastGroundedSamusMovement is not
                 { Vertical.IsUnobstructedDownwardMovement: true })
@@ -349,7 +349,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, wallCollisionPose);
             animationTransitionApplied = true;
             // The wall-stop check replaces only ProspectivePose. When alpha's table lookup
-            // failed, UpdateSamusPose still runs the command
+            // failed, the pose update still runs the command
             // selected for the pre-wall movement type.
             if (_player.ProspectiveSamusPose is null && _player.ProspectiveSamusFallbackPose is not null)
             {
@@ -967,12 +967,12 @@ internal sealed class SamusPoseTransitionPhase
                  _player.ProspectiveSamusFallbackPose is
                      SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
         {
-            // Definition byte two leaves the launch animation for ordinary spin
-            // art. The wall-jumping movement type selects command six. HandleSamusPoseChange
-            //  sets carry only when InitializeSamusPose itself replaces the
-            // installed pose; then UpdateSamusPose skips the command. So
+            // The pose definition leaves the launch animation for ordinary spin
+            // art. The wall-jumping movement type selects command six. The pose change
+            // reports a replacement only when the pose's initialization itself replaces the
+            // installed pose; then the pose update skips the command. So
             // a spin jump keeps its launch speed only when initialization promotes it
-            // to Space Jump or Screw Attack; otherwise EC85 clears base/extra speed.
+            // to Space Jump or Screw Attack; otherwise the command clears base/extra speed.
             SamusPoseId spinFallback = unchecked(_player.ProspectiveSamusFallbackPose.Value);
             SamusAerialPoseTransitions.ApplySpinJumpDirectionTransition(samus, spinFallback);
             if (samus.Pose == spinFallback)

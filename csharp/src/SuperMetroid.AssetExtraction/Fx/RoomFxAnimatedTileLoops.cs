@@ -14,7 +14,7 @@ public static class RoomFxAnimatedTileLoops
     public const int TreadmillFrameByteCount = 32;
 
     /// <summary>The Tourian statue strip's length in bytes.</summary>
-    public const int TourianStatueStripByteCount = RoomFxAnimatedTileAtlasFormat.StatueTileCount * TourianStatueTileStripDefinitions.BytesPerTile;
+    public const int TourianStatueStripByteCount = RoomFxAnimatedTileAtlasFormat.StatueTileCount * TourianStatueTileStripDefinitions.CharacterArtworkSize;
 
     /// <summary>The loop of an object the atlas holds.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="animatedObject"/> is not one of the simple loops.</exception>

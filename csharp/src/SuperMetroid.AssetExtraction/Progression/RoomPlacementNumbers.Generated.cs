@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Progression;
 
-/// <summary>The number room data gives each door and item location; regenerate with tools/generate-room-plm-population-definitions.ps1.</summary>
+/// <summary>The number room data gives each door and item location; regenerate with tools/generate-room-object-population-definitions.ps1.</summary>
 public static partial class RoomPlacementNumbers
 {
     /// <summary>Each door and the number room data gives it, ascending.</summary>

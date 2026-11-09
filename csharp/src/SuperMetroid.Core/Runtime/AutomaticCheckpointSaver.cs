@@ -58,7 +58,7 @@ internal static class AutomaticCheckpointSaver
                 "Gunship landing completed without a live Samus actor.");
 
         // The gunship sets the ship-landed marker before changing load station 18 to
-        // station zero and calling SaveToSram. The marker controls ship/save-point display
+        // station zero and saving the game. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedStartupRoute(SaveLoadingGameState.MainGame);
         runtime.System.MarkSaveStationUsed(area: AreaId.Crateria, stationBitIndex: 0);

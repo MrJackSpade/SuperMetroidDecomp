@@ -62,7 +62,7 @@ internal sealed class GameplayActorDrawing
         if (_player.Samus is null || _room.Camera is null) return;
         _artwork.BindGrapplePresentation();
         // The frame draws bomb/projectile explosions before reaching the enemy-layer
-        // phase that calls DrawSamusAndProjectiles. Preserve that sprite ordering.
+        // phase that draws Samus and her projectiles. Preserve that sprite ordering.
         if (!deathOwnsSamus)
         {
             room.BombProjectiles.Draw(_sprites, _room.Camera.PixelPosition, ProjectileArtwork);
@@ -86,7 +86,7 @@ internal sealed class GameplayActorDrawing
         }
 
         // The global layer loop emits layers zero through two before its phase-three
-        // call to DrawSamusAndProjectiles. Landing Site's gunship definition selects
+        // drawing of Samus and her projectiles. Landing Site's gunship definition selects
         // layer two, so its hull correctly precedes (and can sit behind) Samus's sprites.
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
@@ -124,7 +124,7 @@ internal sealed class GameplayActorDrawing
                     _player.Samus,
                     room.FxOverlay.VisorAnimation);
                 LastVisorPaletteStep = room.Projectiles.LastVisorPaletteStep;
-                // Carry from HandleBeamChargePalettes bypasses the entire special
+                // A restored suit from the beam-charge palette step bypasses the entire special
                 // dispatcher on glow expiry. In particular, stored shine must not tick
                 // or overwrite the restored suit on this frame.
                 chargeGlowRestoredNormalPalette =
@@ -137,14 +137,14 @@ internal sealed class GameplayActorDrawing
                         _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) });
             }
             // Palette handlers one and six run at the same palette-update dispatch point. They
-            // execute only when charge handling returned carry clear.
+            // execute only when charge handling did not restore the suit.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 _player.Samus.Shinespark.UpdatePalette(
                     _player.Colours,
                     _player.Samus.EquippedItems);
             }
-            // Handler seven owns all sixteen colors of sprite palette six during Crystal
+            // Handler seven owns all sixteen of Samus's projectile colours during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
             // intentionally runs at the same palette-update dispatch point.
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
@@ -192,7 +192,7 @@ internal sealed class GameplayActorDrawing
         }
         else
         {
-            // `DrawSamusSprites` begins with the arm-cannon cover update before dispatching the default
+            // Drawing Samus begins with the arm-cannon cover update before dispatching the default
             // drawing handler. HUD-selection stability, cover transition, and the
             // pose-authored before/after-body mode must therefore settle before charge
             // flare, atmospheric, or body sprites are appended.
@@ -205,7 +205,7 @@ internal sealed class GameplayActorDrawing
             // deliberately bypasses ordinary invincibility flicker and every auxiliary
             // Samus layer: atmosphere, charge flare, cannon sprite, speed/shinespark
             // echoes, and grapple graphics. Projectile drawing remains in the shared
-            // tail below, exactly as `DrawSamusAndProjectiles` does after this handler.
+            // tail below, exactly as the game draws them after this handler.
             bool elevatorOwnsSamusDrawing =
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
             if (elevatorOwnsSamusDrawing)
@@ -363,7 +363,7 @@ internal sealed class GameplayActorDrawing
             // The demo input handler is never replaced with auto-jump.
             if (_attractSession.IsAttractDemo) _player.Samus.InputSnapshot.AutoJumpInputPending = false;
 
-            // The charge-sound latch follows DrawSamusAndProjectiles. A counter-forty hurt update
+            // The charge-sound latch follows the drawing of Samus and her projectiles. A counter-forty hurt update
             // may have armed this latch above; consuming it here preserves both the
             // same-frame charging sound and ordering after projectile drawing.
             SamusPostDrawAudio.Step(
@@ -410,7 +410,7 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus && room.Enemies.IsLoaded)
         {
-            // Ceres Ridley's main step installs his graphics-drawn hook as EnemyGraphicsDrawnHook. It runs
+            // Ceres Ridley's main step installs his graphics-drawn hook as the enemies' graphics-drawn hook. It runs
             // after every ordinary enemy layer and is the only producer of the Baby
             // Metroid sprite (plus the arena-door overlay). Keeping this after layer seven
             // preserves the hook's actual sprite position instead of inventing a Baby slot.
@@ -423,7 +423,7 @@ internal sealed class GameplayActorDrawing
     /// <summary>
     /// Most recent beam-charge/post-shot body-palette branch. This remains
     /// distinct from the global Hyper Beam projectile palette object above: it owns Samus's
-    /// sprite palette four rather than projectile sprite palette six.
+    /// body colours rather than her projectiles' colours.
     /// </summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; internal set; }
 

@@ -10,8 +10,8 @@ public enum EyeDoorProjectileDefinition
     Projectile = 1,
     /// <summary>The falling sweat actor, launched toward the side the eye faces, with a floor-impact animation.</summary>
     Sweat = 2,
-    /// <summary>One of the randomly placed smoke puffs of the shared PLM dust actor, scattered in a box around the eye.</summary>
+    /// <summary>One of the randomly placed smoke puffs of the shared room-object dust actor, scattered in a box around the eye.</summary>
     ScatteredSmoke = 3,
-    /// <summary>The smoke puff of the shared PLM dust actor centred on the eye.</summary>
+    /// <summary>The smoke puff of the shared room-object dust actor centred on the eye.</summary>
     CenteredSmoke = 4,
 }

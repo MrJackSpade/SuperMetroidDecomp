@@ -12,7 +12,7 @@ using SuperMetroid.Core.Enemies.OldTourianWall;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>The PLM-triggered spawns over the species that own them.</summary>
+/// <summary>The room-object-triggered spawns over the species that own them.</summary>
 /// <param name="noobTube">The n00b tube.</param>
 /// <param name="eyeDoor">The eye door.</param>
 /// <param name="oldTourianWall">The old Tourian escape-shaft wall.</param>

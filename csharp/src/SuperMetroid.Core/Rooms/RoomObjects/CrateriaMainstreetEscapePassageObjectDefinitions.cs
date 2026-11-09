@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Definitions for the PLM that clears the Crateria mainstreet escape
+/// Definitions for the room object that clears the Crateria mainstreet escape
 /// passage when the critters escaped. The room's setup spawns it during the escape.
 /// </summary>
 internal static class CrateriaMainstreetEscapePassageObjectDefinitions

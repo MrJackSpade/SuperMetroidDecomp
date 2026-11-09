@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class OldTourianEscapeShaftWallDraws
 {
     /// <summary>
-    /// A vertical run of three air cells at the PLM, then another one block to
+    /// A vertical run of three air cells at the room object, then another one block to
     /// its right.
     /// </summary>
     internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)

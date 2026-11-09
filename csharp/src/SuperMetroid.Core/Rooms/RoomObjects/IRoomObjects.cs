@@ -6,13 +6,13 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The room's PLM owners that the room module and the domains below the room composition reach (#1395): the room-level
+/// The room's room-object owners that the room module and the domains below the room composition reach (#1395): the room-level
 /// families, the shared sound queue and drawing, and the hooks a scripted program uses. The room composition implements
 /// it over every family; a domain above the room module reaches its own families through its own view.
 /// </summary>
 internal interface IRoomObjects
 {
-    /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>
+    /// <summary>Creates collision-triggered block room objects from Samus and projectile reactions.</summary>
     BlockReactionObjects BlockReactions { get; }
 
     /// <summary>The game's event flags, which scripted room objects set.</summary>
@@ -21,7 +21,7 @@ internal interface IRoomObjects
     /// <summary>Queues sound requests emitted by room object instructions.</summary>
     RoomObjectSoundQueue Sounds { get; }
 
-    /// <summary>Turns PLM draw-list commands into level changes and background picture updates.</summary>
+    /// <summary>Turns room-object draw-list commands into level changes and background picture updates.</summary>
     IRoomObjectDrawing Drawing { get; }
 
     /// <summary>Handles collectible item reveals, pickup, and persistence.</summary>
@@ -45,7 +45,7 @@ internal interface IRoomObjects
     /// <summary>Runs Samus Eater plant damage, release, and room object state.</summary>
     SamusEaterObjects SamusEater { get; }
 
-    /// <summary>Applies PLM-driven room scroll grid changes.</summary>
+    /// <summary>Applies room-object-driven room scroll grid changes.</summary>
     ScrollObjects Scrolls { get; }
 
     /// <summary>Releases the slot.</summary>

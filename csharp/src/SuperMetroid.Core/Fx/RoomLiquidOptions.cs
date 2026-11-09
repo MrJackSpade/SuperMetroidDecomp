@@ -22,7 +22,7 @@ public enum RoomLiquidOptions
     BackgroundWave = 1 << 1,
 
     /// <summary>
-    /// Water: Samus's movement ignores the water surface until a PLM clears this option (the n00b tube's glass).
+    /// Water: Samus's movement ignores the water surface until a room object clears this option (the n00b tube's glass).
     /// Lava and acid: background ripples with the horizontal heat wave when the vertical one is not selected.
     /// </summary>
     WaterPhysicsDisabledOrHorizontalHeatWave = 1 << 2,

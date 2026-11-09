@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Sand-family portion of LoadFxHeader's animated-tile object population. Selection comes
+/// Sand-family portion of the animated-tile objects a room's FX record starts as the room loads. Selection comes
 /// from the selected FX record's animated tiles, never from a particular room number.
 /// Other animated-tile families retain their existing independent owners.
 /// </summary>

@@ -334,7 +334,7 @@ internal static class RoomBlockUploads
         RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.FrameCount; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(frame),
-                mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
+                mechanics.FrameArtworkSize, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
     /// <summary>Bindings holding the HUD's characters and what a room of <paramref name="tileset"/> binds as it loads.</summary>
@@ -401,7 +401,7 @@ internal static class RoomBlockUploads
         RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTileLoops.Require(animatedObject);
         for (int frame = 0; frame < mechanics.FrameCount; frame++)
             yield return Animated(inputs, animatedObject, frame, mechanics.Image(frame),
-                mechanics.FrameByteCount, AnimatedTileVramDestinations.WordOf(animatedObject));
+                mechanics.FrameArtworkSize, AnimatedTileVramDestinations.WordOf(animatedObject));
     }
 
     /// <summary>Frame <paramref name="frame"/> of <paramref name="animatedObject"/>'s animation, pictured from its installed characters.</summary>

@@ -2,7 +2,7 @@ using static SuperMetroid.Core.Rooms.RoomObjects.StationAccessObjectDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Which station an access PLM resolves to.</summary>
+/// <summary>Which station an access room object resolves to.</summary>
 internal static class StationAccessObjects
 {
     /// <summary>Resolves the access actor selected by one station-special-block behaviour.</summary>

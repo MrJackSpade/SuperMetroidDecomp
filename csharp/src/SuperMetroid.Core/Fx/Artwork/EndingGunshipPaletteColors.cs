@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// rounding. Both have seven intervals. Dim channels are floor(bright*2/7), except
 /// frame7's final color, an independent boundary input. All256 original words confirm
 /// these rules. Supplied bright colors and independent edits remain presentation data.</summary>
-/// <remarks>The ending map uses its first 768 source bytes and blank tile8C
-/// elsewhere. The character pixels selected by that map never reference
-/// palette5 slots0 or15. Retain only their specific source payloads (bright0000/0000,
+/// <remarks>The ending picture draws the first part of its source artwork and a blank tile
+/// elsewhere. The pixels that picture selects never use the first or last colour of its
+/// palette. Retain only their specific source payloads (bright0000/0000,
 /// first-stage boundary0404) under #1165's nonsense exception: no visible color rule
 /// determines them, and reciting them would disguise the same data. Their temporal
 /// values remain calculated. Visible shared channels and shade arithmetic are calculated

@@ -34,7 +34,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
                 int source = AnimatedTileImageSources.OfCursor(
                     definition, cursor);
                 byte[] native = RomDataReader.ReadFixedBank(rom, source,
-                    definition.FrameByteCount);
+                    definition.FrameArtworkSize);
                 AssertTrue(atlas.TryResolve(source, native.Length, out ReadOnlyMemory<byte> installed) &&
                     installed.Span.SequenceEqual(native),
                     $"room-FX frame $87:{cursor:X4} preserves every native art byte");

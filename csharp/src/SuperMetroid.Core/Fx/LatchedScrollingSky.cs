@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <param name="BackgroundScroll">
 /// The background scroll the sky latches. Only <see cref="Position16{TSpace}.Y"/> is the sky's: the
-/// camera Y it copies, kept with its sixteen-bit wrap. X is zero because the sky never sets a
+/// camera Y it copies, wrapping past row 65535 to row 0. X is zero because the sky never sets a
 /// uniform horizontal scroll; its bands scroll instead.
 /// </param>
 public readonly record struct LatchedScrollingSky(Position16<BackgroundPixels> BackgroundScroll)

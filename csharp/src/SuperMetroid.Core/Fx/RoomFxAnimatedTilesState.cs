@@ -73,12 +73,12 @@ internal sealed class RoomFxAnimatedTilesState
         frameHold = 1;
         IsActive = true;
 
-        if (compiledMechanics.FrameByteCount == 0)
-            throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has no transfer bytes.");
+        if (compiledMechanics.FrameArtworkSize == 0)
+            throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has no character artwork.");
     }
 
     /// <summary>
-    /// Executes one <c>AnimtilesHandler</c> pass (#1406). When the timer expires the next frame is shown for its duration,
+    /// Runs one animated-tile pass (#1406). When the timer expires the next frame is shown for its duration,
     /// selected in <paramref name="frames"/> at this update, as this update's frame boundary shows it; the loop
     /// returns from the last frame to the first.
     /// </summary>

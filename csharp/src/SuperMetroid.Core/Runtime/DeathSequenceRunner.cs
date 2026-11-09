@@ -61,7 +61,7 @@ internal sealed class DeathSequenceRunner
     }
 
     /// <summary>
-    /// Runs one fatal-display frame of the death sequence without advancing enemies, PLMs, scrolling,
+    /// Runs one fatal-display frame of the death sequence without advancing enemies, room objects, scrolling,
     /// room main, or the gameplay clock. It draws Samus alone while she is neither animating nor dying,
     /// not a shortened main-gameplay call.
     /// </summary>

@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Fx;
 /// animated-tile objects.
 /// </summary>
 /// <remarks>
-/// Frame source pointers deliberately are not stored here. They identify replaceable
+/// Where each frame's artwork comes from is deliberately not stored here: the frames are replaceable
 /// installed character artwork. This catalog owns
-/// only the instruction cursor, transfer geometry, duration, and loop control required
+/// only each object's script position, artwork size, duration, and loop control required
 /// to schedule that artwork.
 /// </remarks>
 public static class RoomFxAnimatedTileMechanicsDefinitions
@@ -23,25 +23,25 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
         new Dictionary<AnimatedTileObject, RoomFxAnimatedTileLoop>
     {
         [AnimatedTileObject.HorizontalSpikes] = new(AnimatedTileObject.HorizontalSpikes,
-            frameByteCount: 128,
+            frameArtworkSize: 128,
             frameCount: 4, frameDuration: 8),
         [AnimatedTileObject.MaridiaSandCeiling] = new(AnimatedTileObject.MaridiaSandCeiling,
-            frameByteCount: 64,
+            frameArtworkSize: 64,
             frameCount: 4, frameDuration: 10),
         [AnimatedTileObject.MaridiaSandFalling] = new(AnimatedTileObject.MaridiaSandFalling,
-            frameByteCount: 32,
+            frameArtworkSize: 32,
             frameCount: 4, frameDuration: 10),
         [AnimatedTileObject.Lava] = new(AnimatedTileObject.Lava,
-            frameByteCount: 64,
+            frameArtworkSize: 64,
             frameCount: 5, frameDuration: 13),
         [AnimatedTileObject.Acid] = new(AnimatedTileObject.Acid,
-            frameByteCount: 64,
+            frameArtworkSize: 64,
             frameCount: 5, frameDuration: 10),
         [AnimatedTileObject.Rain] = new(AnimatedTileObject.Rain,
-            frameByteCount: 80,
+            frameArtworkSize: 80,
             frameCount: 5, frameDuration: 10),
         [AnimatedTileObject.Spores] = new(AnimatedTileObject.Spores,
-            frameByteCount: 48,
+            frameArtworkSize: 48,
             frameCount: 3, frameDuration: 10),
     };
 

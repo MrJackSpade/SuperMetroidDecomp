@@ -118,7 +118,7 @@ public sealed class BackgroundScrollState
 
     /// <summary>
     /// Copies, freezes, or parallax-scales one background axis as the room state's scroll selects. The foreground
-    /// coordinate is a sixteen-bit word and so is the result: the parallax product keeps its own wrap.
+    /// coordinate wraps past 65535 to 0 and so does the result: the parallax product keeps its own wrap.
     /// </summary>
     private static bool TryCalculateBackgroundPosition(int foregroundPosition, BackgroundAxisScroll scroll, out int result)
     {

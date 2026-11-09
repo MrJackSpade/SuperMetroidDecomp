@@ -34,7 +34,7 @@ internal sealed class SpeedBoosterEscapeObjects
         if (_events is null || _roomFx is null || _earthquake is null)
         {
             throw new InvalidOperationException(
-                "Speed Booster escape PLM requires event, room-FX, and earthquake owners.");
+                "Speed Booster escape room object requires event, room-FX, and earthquake owners.");
         }
 
         if (_events.Has(StoryEvent.OutranSpeedBoosterLavaquake))
@@ -57,7 +57,7 @@ internal sealed class SpeedBoosterEscapeObjects
                 yVelocity: SignedEightEight.Zero,
                 timer: 0);
             (_earthquake ?? throw new InvalidOperationException(
-                "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
+                "Speed Booster escape room object lost its earthquake owner.")).SetTimer(0);
             return false;
         }
 
@@ -100,13 +100,13 @@ internal sealed class SpeedBoosterEscapeObjects
     /// <summary>Marks the lavaquake outrun.</summary>
     internal void MarkEscaped() =>
         (_events ?? throw new InvalidOperationException(
-            "Speed Booster escape PLM lost its event writer.")).Set(StoryEvent.OutranSpeedBoosterLavaquake);
+            "Speed Booster escape room object lost its event writer.")).Set(StoryEvent.OutranSpeedBoosterLavaquake);
 
     /// <summary>The room's lava.</summary>
     private IRoomFxMotion RoomFx() => _roomFx
-        ?? throw new InvalidOperationException("Resident Speed Booster escape PLM lost its room-FX owner.");
+        ?? throw new InvalidOperationException("Resident Speed Booster escape room object lost its room-FX owner.");
 
     /// <summary>The live Samus.</summary>
     private IRoomSamus LiveSamus() => _samus?.Current
-        ?? throw new InvalidOperationException("Resident Speed Booster escape PLM has no live Samus owner.");
+        ?? throw new InvalidOperationException("Resident Speed Booster escape room object has no live Samus owner.");
 }

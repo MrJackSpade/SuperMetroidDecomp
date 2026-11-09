@@ -10,6 +10,6 @@ internal sealed class GameplayFrameContext(FixedPosition<RoomPixels>? samusCamer
     /// <summary>The frame handler's state for this frame.</summary>
     internal Samus.SamusHandlerFrame Samus { get; } = new();
 
-    /// <summary>The tail a PLM message box suspends; set once Samus's section has run.</summary>
+    /// <summary>The tail a room object's message box suspends; set once Samus's section has run.</summary>
     internal SuperMetroidRuntime.SuspendedGameplayFrameTail? Tail { get; set; }
 }

@@ -192,7 +192,7 @@ public static class GameplayDisplayCapture
     private static RgbColor FirefleaTint(GameplayDisplayLatch latched) =>
         latched.Tints.Fireflea ?? throw new InvalidOperationException("A Fireflea room's frame latched no Fireflea shade.");
 
-    /// <summary>Adds signed quake displacement to a 16-bit layer scroll with sixteen-bit wrapping.</summary>
+    /// <summary>Adds signed quake displacement to a layer scroll, wrapping past 65535 to 0.</summary>
     private static int Add(int scroll, int shake) => CoordinateAxis.Wrap(scroll + shake);
 
     /// <summary>
@@ -223,7 +223,7 @@ public static class GameplayDisplayCapture
         RoomShakeFrameResult shake = scrolls.RoomShake;
         PerspectiveFloor perspective = latched.PerspectiveFloor
             ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
-        // Room shake moves the floor with the foreground, wrapping as a sixteen-bit scroll.
+        // Room shake moves the floor with the foreground, wrapping as the scroll does.
         FloorView transform = perspective.Transform with
         {
             Scroll = new Offset16<FloorPixels>(

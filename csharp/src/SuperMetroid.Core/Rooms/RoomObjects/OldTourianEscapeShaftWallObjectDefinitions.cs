@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// Definitions for the old Tourian escape shaft fake wall PLM that the room's
+/// Definitions for the old Tourian escape shaft fake wall room object that the room's
 /// setup spawns in the Climb during the escape.
 /// </summary>
 internal static class OldTourianEscapeShaftWallObjectDefinitions

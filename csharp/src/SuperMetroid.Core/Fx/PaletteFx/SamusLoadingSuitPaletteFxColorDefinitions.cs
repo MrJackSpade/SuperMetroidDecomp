@@ -4,15 +4,10 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <remarks>
 /// Issue #855 / #625: the Power, Varia and Gravity definitions
 /// share one layout.
-/// Each starts with <c>SetColorIndex(384)</c>, then
-/// four <c>SetTimer(byte)</c> groups, whose
-/// timers <c>36,3,3,2</c> replay each
-/// group's pair of <c>3, colors[16], Wait</c> records via
-/// <c>DecrementTimerAndGoto(group start)</c>. One final
-/// <c>1, colors[16], Wait</c> record follows, and
-/// <c>Delete</c> ends the program. Thus
-/// <c>(36 + 3 + 3 + 2)*2*3 + 1 = 265</c> frames elapse. All 99
-/// control words and 12 timer bytes match the original programs. The 432 colours
+/// Each runs four groups, repeated 36, 3, 3 and 2 times, of two records of sixteen
+/// colours held for three frames each. One final record, held for one frame, follows,
+/// and the program ends. Thus
+/// <c>(36 + 3 + 3 + 2)*2*3 + 1 = 265</c> frames elapse. The 432 colours
 /// remain live presentation data supplied by the presentation compiler;
 /// this catalog owns only placement, timing, replay, and deletion.
 /// </remarks>

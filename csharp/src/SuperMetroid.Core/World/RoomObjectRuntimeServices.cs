@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The runtime's Samus, Tourian statue, room shake and enemy pool as the services resident room
-/// PLMs call (#633). Every member reads the runtime when called, never a load-time snapshot.
+/// room objects call (#633). Every member reads the runtime when called, never a load-time snapshot.
 /// </summary>
 internal sealed class RoomObjectRuntimeServices(
     RoomScopeConstruction destination,
@@ -18,19 +18,19 @@ internal sealed class RoomObjectRuntimeServices(
     IRoomSamusAccess, ITourianStatueProgress, IRoomEarthquakeWriter, IRoomObjectEnemyEffects
 {
     /// <summary>
-    /// The destination room's enemies. PLM population runs before the enemy step builds them; a PLM that reached them
+    /// The destination room's enemies. The room-object population runs before the enemy step builds them; a room object that reached them
     /// during setup would be writing enemy state the enemy load replaces, so that fails here.
     /// </summary>
     private RoomEnemySystem Enemies => destination.Enemies ?? throw new InvalidOperationException(
-        "A room PLM reached the room's enemies before the enemy step built them.");
+        "A room object reached the room's enemies before the enemy step built them.");
 
-    /// <summary>Reads the current player state each time a PLM asks, including after a room transition.</summary>
+    /// <summary>Reads the current player state each time a room object asks, including after a room transition.</summary>
     public IRoomSamus? Current => player.Samus?.RoomView;
 
     /// <summary>Reads the live Tourian entrance statue completion state.</summary>
     public bool IsFinished => Enemies.TourianStatue.Finished;
 
-    /// <summary>Publishes a PLM-triggered quake countdown to the shared room earthquake.</summary>
+    /// <summary>Publishes a room-object-triggered quake countdown to the shared room earthquake.</summary>
     public void SetTimer(int timer) => Enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
 
     /// <summary>Publishes the quake selector alongside the shared countdown.</summary>
@@ -48,6 +48,6 @@ internal sealed class RoomObjectRuntimeServices(
     public void SpawnOldTourianEscapeShaftWallExplosion() =>
         Enemies.RoomObjectSpawns.SpawnOldTourianEscapeShaftWallExplosion();
 
-    /// <summary>Lets a PLM disable the Draygon cannon identified by its enemy variable pointer.</summary>
+    /// <summary>Lets a room object disable the Draygon wall cannon it controls.</summary>
     public void DisableDraygonCannon(DraygonWallCannon cannon) => Enemies.RoomObjectSpawns.DisableDraygonCannon(cannon);
 }

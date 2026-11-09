@@ -40,11 +40,11 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor RawAngleRule = new(
         RawAngleId,
         "Angle held as a raw byte or word",
-        "'{0}' holds an angle as {1}; use RotationAngle, ByteAngle or Bearing",
+        "'{0}' holds an angle as {1}; use RotationAngle, TrigonometryAngle or Bearing",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Angles carry their convention in their type: RotationAngle (8.8), ByteAngle (table) or Bearing (#1326).");
+        description: "Angles carry their convention in their type: RotationAngle (8.8), TrigonometryAngle (table) or Bearing (#1326).");
 
     private static readonly DiagnosticDescriptor CarryProtocolRule = new(
         CarryProtocolId,

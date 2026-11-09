@@ -48,12 +48,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// The program's own vocabulary in prose (#1558): its addresses, pointers, opcodes, the processor's registers (the noun;
-    /// registering a handler is the game's own code), instruction lists and pre-instructions, PLMs, word widths and extension words, its assembly code, and numbered palettes and priorities.
+    /// registering a handler is the game's own code), instruction lists and pre-instructions, PLMs, word widths and extension words, its assembly code (not Wrecked Ship's Assembly Line room), and numbered palettes and priorities.
     /// </summary>
     private static readonly Regex ProgramProse = new(
         @"\b(Address|Pointer|Opcode|PLM)(s|es|ed|ing)?\b|\b(?:[AXY]|index|accumulator|status|processor|CPU|hardware|display|data|bank)\s+registers?\b|\bpre-?instructions?\b|\binstruction[-\s]+lists?\b" +
         @"|\b(?:eight|sixteen|8|16)-bit\b|\bextension\s+words?\b|\baccumulator\s+mode\b" +
-        @"|\bassembly\s+(?:code|language|listing|routine|source)s?\b|\bthe\s+(?:original\s+)?assembly\b" +
+        @"|\bassembly\s+(?:code|language|listing|routine|source)s?\b|\bthe\s+(?:original\s+)?assembly\b(?!\s+line)" +
         @"|\bpalette\s+(?:zero|one|two|three|four|five|six|seven|[0-7])\b|\bpriority\s+(?:zero|one|two|three|[0-3])\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -99,8 +99,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static readonly Regex RoutineLabel = new(@"\b(?=[A-Za-z0-9_]*[A-Z])[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]*", RegexOptions.CultureInvariant);
 
-    /// <summary>The analyzers' same-line allowance markers: enforcement syntax, not prose, so their words are not read.</summary>
-    private static readonly Regex AllowanceMarker = new(@"(cartridge-encoding|magic-number-audit): allow\(", RegexOptions.CultureInvariant);
+    /// <summary>The analyzers' same-line allowance markers with their category: enforcement syntax, not prose, so their words are not read.</summary>
+    private static readonly Regex AllowanceMarker = new(@"(cartridge-encoding|magic-number-audit): allow\([^)]*\)", RegexOptions.CultureInvariant);
 
     /// <summary>The attributes whose types may describe the hardware.</summary>
     private static readonly ImmutableHashSet<string> HardwareOwners =

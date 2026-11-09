@@ -230,7 +230,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
         if (parent.Health == 0)
         {
-            follower.Properties = follower.Properties.With(EnemyProperties.Deleted);
+            follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
             return;
         }
         ValidateNorfairRioParent(follower);
@@ -240,7 +240,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         if (parent.FrozenTimer != 0 ||
             parentState.InstalledProgram == NorfairRioProgram.Idle)
         {
-            follower.Properties = follower.Properties.With(EnemyProperties.Invisible);
+            follower.Presence = follower.Presence.With(EnemyPresence.Hidden);
             return;
         }
 
@@ -252,7 +252,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             ? NorfairRioProgram.FlamesDescending
             : NorfairRioProgram.FlamesAscending;
         InstallNorfairRioAnimationScript(follower, followerState, followerList);
-        follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
+        follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWhole(parent.Position.Whole + parentState.FollowerOffset);
     }
 

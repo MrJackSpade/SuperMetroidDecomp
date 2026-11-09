@@ -102,7 +102,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every Ki-Hunter list is interpreted by the common enemy bytecode engine. The
         // original name calls this property "disable Samus collision", but the live engine
         // proves it is the animation-script flag.
-        body.Properties = body.Properties.With(EnemyProperties.RunsAnimationScript);
+        body.Processing = body.Processing.With(EnemyProcessing.AnimationScript);
         state.HasLostWings = false;
         InstallKiHunterInstruction(body, state, KiHunterProgram.FlyingLeft);
         state.SwoopAngle = 0;
@@ -129,13 +129,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = GetKiHunterBody(wings);
         KiHunterEnemyState state = CreateKiHunterState(wings);
 
-        wings.Properties = wings.Properties.With(EnemyProperties.RunsAnimationScript);
+        wings.Processing = wings.Processing.With(EnemyProcessing.AnimationScript);
         InstallKiHunterInstruction(wings, state, KiHunterProgram.WingsLeft);
         wings.Position = wings.Position.WithWhole(body.Position.Whole);
         state.Function = KiHunterEnemyFunction.FollowBody;
         wings.Shading = body.Shading;
         if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
-            wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
+            wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
     }
 
     /// <summary>Dispatches the body's and wings' main behaviours.</summary>
@@ -533,7 +533,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 wings,
                 SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(desiredY, wings.Position.Y.Whole))))
         {
-            wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
+            wings.Presence = wings.Presence.With(EnemyPresence.Deleted);
             wings.Position = wings.Position.WithWhole(state.SavedWingPosition);
             DecrementKiHunterDetachedSpeedIndex(state);
             return;
@@ -561,7 +561,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The routine assigns exactly the deletion property, stripping processing and any other
             // population flags rather than merely ORing the deleted bit.
-            wings.Properties = EnemyProperties.Deleted;
+            wings.Contact = EnemyContact.None;
+            wings.Processing = EnemyProcessing.None;
+            wings.Presence = EnemyPresence.Deleted;
             return;
         }
 
@@ -608,7 +610,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state,
             KiHunterProgram.DetachedWings);
         wings.Frame = EnemyFrameId.Empty;
-        wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
+        wings.Processing = wings.Processing.With(EnemyProcessing.OffScreen);
     }
 
     /// <summary>

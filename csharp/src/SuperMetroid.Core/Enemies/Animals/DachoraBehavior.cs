@@ -97,7 +97,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The animation-script property both disables Samus collision and admits enemy animation scripts.
         // The population's tangibility property already excludes these actors from host interaction.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -462,13 +462,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             bool visible = state.ShowsOnOddFrames
                 ? (frameCounterByte & 1) != 0
                 : (frameCounterByte & 1) == 0;
-            slot.Properties = visible
-                ? slot.Properties.Without(EnemyProperties.Invisible)
-                : slot.Properties.With(EnemyProperties.Invisible);
+            slot.Presence = visible
+                ? slot.Presence.Without(EnemyPresence.Hidden)
+                : slot.Presence.With(EnemyPresence.Hidden);
             return;
         }
 
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Runs the four-frame shine glow.</summary>

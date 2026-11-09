@@ -224,9 +224,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             solid = state.Behavior is not (YardBehavior.Dropped or YardBehavior.BeamLaunched);
         }
 
-        slot.Properties = solid
-            ? slot.Properties.With(EnemyProperties.SolidToSamus)
-            : slot.Properties.Without(EnemyProperties.SolidToSamus);
+        slot.Contact = solid
+            ? slot.Contact.With(EnemyContact.SolidToSamus)
+            : slot.Contact.Without(EnemyContact.SolidToSamus);
     }
 
     /// <summary>Runs the hidden-list movement owner.</summary>

@@ -60,7 +60,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         state.TargetAngle = RotationAngle.Zero;
         state.ResetOrientation();
-        slot.Properties = slot.Properties.With(definition.PropertyMask);
+        slot.Processing = slot.Processing.With(definition.Processing);
+        slot.Contact = slot.Contact.With(definition.Contact);
         // The segment's definition names how far after the chain's leading saw the room lists it. A kill empties the
         // struck segment's owner to the first enemy, and the chain's death then deletes the seven enemies from the
         // first. Both retail Shaktool room states list the chain first, so those are its own segments; a chain
@@ -485,7 +486,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // The generic death clears the entire common slot, which empties the segment's owner to the first enemy.
         _killedSegment.RecordKill(struckSegment);
         foreach (RoomEnemySlot segment in _chains.Of(struckSegment).Chain)
-            segment.Properties = EnemyProperties.Deleted;
+        {
+            segment.Contact = EnemyContact.None;
+            segment.Processing = EnemyProcessing.None;
+            segment.Presence = EnemyPresence.Deleted;
+        }
     }
 
     /// <summary>Runs the post-common lethal-shot tail for bomb hits.</summary>

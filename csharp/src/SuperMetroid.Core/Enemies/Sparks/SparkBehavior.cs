@@ -44,12 +44,12 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             case SparkCueKind.BecomeIntangible:
                 // Flicker-out: the intangibility property removes the actor from every ordinary Samus, beam and grapple
                 // collision pass.
-                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 break;
             case SparkCueKind.BecomeTangible:
                 // Flicker-on runs this before the first visible activation frame, so collision and art become live
                 // together.
-                slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SparkCueKind)} {cue.Kind}.");

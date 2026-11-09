@@ -32,10 +32,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBoyonBounce(state);
                 break;
             case BoyonCueKind.ProcessOffScreen:
-                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
                 break;
             case BoyonCueKind.StopProcessingOffScreen:
-                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BoyonCueKind)} {cue.Kind}.");

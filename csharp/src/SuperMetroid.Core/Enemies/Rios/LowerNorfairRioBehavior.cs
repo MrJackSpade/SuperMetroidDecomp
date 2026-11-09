@@ -216,7 +216,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
         if (parent.Health == 0)
         {
-            follower.Properties = follower.Properties.With(EnemyProperties.Deleted);
+            follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
             return;
         }
         ValidateLowerNorfairRioParent(follower);
@@ -225,14 +225,14 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         follower.FrozenTimer = parent.FrozenTimer;
         if (parent.FrozenTimer != 0 || !parentState.FollowerVisible)
         {
-            follower.Properties = follower.Properties.With(EnemyProperties.Invisible);
+            follower.Presence = follower.Presence.With(EnemyPresence.Hidden);
             return;
         }
 
         // The follower again reads the preceding parent's visibility switch, a Boolean here
         // rather than a signed offset. The follower takes the parent's live position and
         // this variant adds 12 pixels.
-        follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
+        follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
         follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, CoordinateAxis.Wrap(parent.Position.Y.Whole + 12)));
     }
 

@@ -94,10 +94,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer sets two named properties and the otherwise unnamed high bit. Keep the high bit raw:
         // no translated caller has proved a stable semantic name for that property yet.
-        statue.Properties = statue.Properties.With(
-            EnemyProperties.SolidToSamus |
-            EnemyProperties.RunsAnimationScript |
-            EnemyProperties.ProcessOffScreen);
+        statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
+        statue.Processing = statue.Processing.With(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
         statue.Frame = EnemyFrameId.Empty;
         statue.FrameHold = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);

@@ -523,8 +523,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (actor.Health == 0)
         {
-            firstRelative.Properties = firstRelative.Properties.With(EnemyProperties.Deleted);
-            secondRelative.Properties = secondRelative.Properties.With(EnemyProperties.Deleted);
+            firstRelative.Presence = firstRelative.Presence.With(EnemyPresence.Deleted);
+            secondRelative.Presence = secondRelative.Presence.With(EnemyPresence.Deleted);
         }
 
         if (actor.FrozenTimer == 0)

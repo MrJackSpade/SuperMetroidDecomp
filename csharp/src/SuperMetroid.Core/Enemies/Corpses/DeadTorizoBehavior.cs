@@ -56,8 +56,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Dead Torizo requires enemy slot zero, not slot {slot.SlotIndex}.");
         }
 
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         program = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -77,7 +77,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The custom detector remains enabled while the intact corpse is solid. Rotting
         // disables interaction separately, after publishing Samus's external displacement.
-        if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
+        if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus) &&
             samus is not null &&
             DeadTorizoCustomHitboxOverlaps(slot, samus))
         {
@@ -95,7 +95,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.PreRotDelayCounter++;
                 if (state.PreRotDelayCounter >= 16)
                 {
-                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                    slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                     state.Function = DeadTorizoFunction.Rotting;
                     RunDeadTorizoRotting(slot, state);
                 }
@@ -134,7 +134,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void TriggerDeadTorizoRotting(RoomEnemySlot slot)
     {
         DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
-        slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         state.Function = DeadTorizoFunction.Rotting;
     }
 
@@ -142,7 +142,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void TriggerDeadTorizoPowerBomb(RoomEnemySlot slot)
     {
         RequireDeadTorizoState(slot);
-        if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
+        if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTorizoRotting(slot);
     }
 

@@ -51,10 +51,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case BeetomCueKind.ProcessOffScreen:
-                slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
                 break;
             case BeetomCueKind.StopProcessingOffScreen:
-                slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+                slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
                 break;
             case BeetomCueKind.Nothing:
                 // Beetom's initial drain animation calls a cue that does nothing before it falls through into the looping

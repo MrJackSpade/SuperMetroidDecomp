@@ -46,5 +46,5 @@ internal readonly record struct EnemyShotContext(
     /// blocks plasma.
     /// </summary>
     internal bool MarksCollision =>
-        Enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) || !Projectile.Type.BeamCombination.HasPlasma;
+        Enemy.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) || !Projectile.Type.BeamCombination.HasPlasma;
 }

@@ -22,7 +22,7 @@ internal static class EnemyProgramAnimation
         slot.FrameHold = frameStep.Remaining;
         if (frameStep.IsZero)
             return true;
-        slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+        slot.NewInstructionFrame = false;
         return false;
     }
 
@@ -164,7 +164,7 @@ internal static class EnemyProgramAnimation
             case AnimationProgramAdvance<TFrame>.Show shown:
                 slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 slot.Frame = frame(shown.Frame);
-                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                slot.NewInstructionFrame = true;
                 return;
             case AnimationProgramAdvance<TFrame>.Wait waiting:
                 slot.FrameHold = WrappingCountdown.FromRaw(waiting.Duration);
@@ -173,7 +173,7 @@ internal static class EnemyProgramAnimation
                 return;
             case AnimationProgramAdvance<TFrame>.Stop:
                 // The common stop deletes the enemy.
-                slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 return;
             default:
                 throw new InvalidOperationException($"Enemy {slot.DefinitionId}'s programs have no {advance} step.");

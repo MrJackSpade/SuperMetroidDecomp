@@ -217,7 +217,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
             if (state.Roll == BoulderRoll.LeftBreakingOnImpact)
             {
-                slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 _projectiles.SpawnRoomGraphicsDustExplosion(
                     slot.Position.Whole,
                     BoulderDustAnimationIndex);
@@ -262,8 +262,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Setting the hidden and deleted properties both hides and deletes the record. The inert function is
             // still written before DetermineWhichEnemiesToProcess clears it next frame.
-            slot.Properties = slot.Properties.With(
-                EnemyProperties.Invisible | EnemyProperties.Deleted);
+            slot.Presence = slot.Presence.With(EnemyPresence.Hidden | EnemyPresence.Deleted);
             state.Function = BoulderAiFunction.Inert;
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
             _projectiles.SpawnRoomGraphicsDustExplosion(

@@ -149,7 +149,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The population already supplies the animation-script property, but the initializer explicitly sets it again.
         // Spell that write out because animation processing is essential to leaving shell.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -258,7 +258,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.AsleepFlag == 0)
         {
             state.Function = MamaTurtleAiFunction.LeavingShell;
-            mama.Properties = mama.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+            mama.Contact = mama.Contact.Without(EnemyContact.IgnoresSamus);
             return;
         }
 
@@ -272,7 +272,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
         int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(CoordinateAxis.Wrap(-contourOffset));
-        mama.Properties = mama.Properties.With(EnemyProperties.SolidToSamus);
+        mama.Contact = mama.Contact.With(EnemyContact.SolidToSamus);
 
         if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
             return;
@@ -717,7 +717,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus)
     {
-        if (mama.Properties.HasAny(EnemyProperties.SolidToSamus))
+        if (mama.Contact.HasAny(EnemyContact.SolidToSamus))
             return;
         _collision.ResolveNormalEnemyTouch(mama, samus);
         state.Function = MamaTurtleAiFunction.Falling;

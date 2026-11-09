@@ -50,7 +50,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Kago's population word already carries the other authored property bits. The
         // initializer sets only the animation-script property so the common animation interpreter animates the shell.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
@@ -96,9 +96,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Common shot AI can theoretically kill the 1600-health shell first with a
             // debug-edited projectile. Do not count the same death request twice.
-            if (!slot.Properties.HasAny(EnemyProperties.Deleted))
+            if (!slot.Presence.HasAny(EnemyPresence.Deleted))
             {
-                slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 _roomStatus.RecordKill();
             }
             state.DeathAnimationStarted = true;

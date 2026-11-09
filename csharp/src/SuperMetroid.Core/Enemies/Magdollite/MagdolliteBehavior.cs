@@ -132,7 +132,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallMagdolliteAnimationScript(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.BodyDormant;
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Hides the projectile-throwing overlay below its origin and starts its pillar-cap list.</summary>
@@ -147,7 +147,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallMagdolliteAnimationScript(slot, state);
         slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Runs the Magdollite's main AI and its indirect functions.</summary>
@@ -588,8 +588,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 Position16<RoomPixels> sunk = state.Origin + new Offset16<RoomPixels>(0, 24);
                 slot.Position = slot.Position.WithWholeY(sunk.Y);
                 body.Position = body.Position.WithWholeY(sunk.Y);
-                body.Properties = body.Properties.Without(EnemyProperties.Invisible);
-                overlay.Properties = overlay.Properties.Without(EnemyProperties.Invisible);
+                body.Presence = body.Presence.Without(EnemyPresence.Hidden);
+                overlay.Presence = overlay.Presence.Without(EnemyPresence.Hidden);
                 break;
             }
             case MagdolliteCueKind.RestoreOrigins:
@@ -605,8 +605,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 Position16<RoomPixels> surfaced = state.Origin + new Offset16<RoomPixels>(0, 4);
                 slot.Position = slot.Position.WithWholeY(surfaced.Y);
                 body.Position = body.Position.WithWholeY(surfaced.Y);
-                body.Properties = body.Properties.With(EnemyProperties.Invisible);
-                overlay.Properties = overlay.Properties.With(EnemyProperties.Invisible);
+                body.Presence = body.Presence.With(EnemyPresence.Hidden);
+                overlay.Presence = overlay.Presence.With(EnemyPresence.Hidden);
                 break;
             }
             case MagdolliteCueKind.SpawnLava:
@@ -650,9 +650,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (current.Health == 0)
         {
             if (following is not null)
-                following.Properties = following.Properties.With(EnemyProperties.Deleted);
+                following.Presence = following.Presence.With(EnemyPresence.Deleted);
             if (secondFollowing is not null)
-                secondFollowing.Properties = secondFollowing.Properties.With(EnemyProperties.Deleted);
+                secondFollowing.Presence = secondFollowing.Presence.With(EnemyPresence.Deleted);
         }
 
         if (current.FrozenTimer == 0)

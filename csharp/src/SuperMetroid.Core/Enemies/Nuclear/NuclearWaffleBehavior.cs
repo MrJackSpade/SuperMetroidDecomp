@@ -103,7 +103,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;
         Array.Clear(state.ProjectileOrientationStates);
         Array.Clear(state.SpriteOrientationStates);
-        slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
+        slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
     }
 
     /// <summary>Runs a sweep.</summary>
@@ -131,7 +131,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = NuclearWaffleEnemyFunction.Waiting;
-        slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.OffScreen);
     }
 
     /// <summary>Allocates the four damaging projectile links in association order.</summary>

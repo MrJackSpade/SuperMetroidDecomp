@@ -82,7 +82,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         _ = _norfairPlaces.Add(slot);
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         SignedSixteenSixteen flightSpeed = slot.SpawnSettings<NorfairPipeBugSpawnSettings>().Speed;
         state.FlightSpeeds = new EnemyLinearSpeedRow(flightSpeed, SignedSixteenSixteen.Zero - flightSpeed);
         state.FormationCounter = 0;
@@ -239,7 +239,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Function = PipeBugEnemyFunction.BrinstarEmerge;
-        slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         slot.Timer = WrappingCountdown.Start(0);
         state.RequestedAnimation = PipeBugPrograms.Rising(
             state.BrinstarFliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
@@ -289,7 +289,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
         state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         SelectBrinstarPipeBugAnimation(slot, state);
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         state.RespawnDelay = BrinstarPipeBugRespawnFrames;
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
@@ -373,7 +373,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus)
     {
-        slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, OnePixelPerFrame.Negative);
         if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
             return;
@@ -446,7 +446,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(slot, camera))
             return;
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
     }
@@ -490,7 +490,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
         state.EmergenceDelay = YellowPipeBugEmergenceDelayFrames;
         state.Function = PipeBugEnemyFunction.YellowEmergenceDelay;
     }
@@ -610,7 +610,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
                 ? PipeBugProgram.GeegaFlyingLeft
                 : PipeBugProgram.GeegaFlyingRight);
-        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         return true;
     }
 

@@ -89,23 +89,6 @@ internal static class BossRoomObjectNativeListAddresses
         new NativeProgramEntry<SporeSpawnCeilingMutation>(SporeSpawnCeilingMutation.Clear, 0xab21),
     ];
 
-    /// <summary>Mother Brain's glass lists (<c>InstList_PLM_MotherBrainsGlass_0..1</c>, the stages after, and the unused resolved states).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<MotherBrainGlassObjectProgram>> MotherBrainGlassEntries { get; } =
-    [
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Entry, 0xd202),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage0, 0xd211),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage1, 0xd21b),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage2, 0xd225),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage3, 0xd247),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage4, 0xd251),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage5, 0xd25b),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage6, 0xd27d),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage7, 0xd29f),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.Stage8, 0xd2c1),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.BossDead, 0xd2ed),
-        new NativeProgramEntry<MotherBrainGlassObjectProgram>(MotherBrainGlassObjectProgram.NoGlass, 0xd2f3),
-    ];
-
     /// <summary>The Bomb Torizo hand's list (<c>InstList_PLM_BombTorizosCrumblingChozo</c>) and its continuation after the sleep.</summary>
     internal static IReadOnlyList<NativeProgramEntry<BombTorizoHandProgram>> BombTorizoHandEntries { get; } =
     [

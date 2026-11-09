@@ -53,11 +53,11 @@ internal static class MotherBrainGlassObjectProgramVerification
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
         roomObjects.Step(level);
-        AssertTrue(roomObjects.MotherBrainGlassAnimation is MotherBrainGlassObjectAnimation { Cursor: { Program: MotherBrainGlassObjectProgram.Stage0, Position: 1 } },
-            "intact glass first draw advances to the hit threshold");
+        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage: 0, HitCountArmed: true },
+            "intact glass first draw holds at the first stage's hit threshold");
         roomObjects.Step(level);
-        AssertTrue(roomObjects.MotherBrainGlassAnimation is MotherBrainGlassObjectAnimation { Cursor: { Program: MotherBrainGlassObjectProgram.Stage0, Position: 1 } },
-            "zero head hits loop at the first glass stage");
+        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage: 0 },
+            "zero head hits hold the first glass stage");
         AssertTrue(!eventSet && roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count == 0,
             "unhit glass emits neither event nor shards");
 
@@ -74,8 +74,7 @@ internal static class MotherBrainGlassObjectProgramVerification
         }
         AssertTrue(eventSet && !roomObjects.BombTorizoHand.HasActiveHeader(RoomObjectHeaderId.MotherBrainGlass),
             $"all glass stages end by setting the event and deleting the PLM; " +
-            $"program={roomObjects.MotherBrainGlassAnimation?.RunningProgram}, " +
-            $"timer={roomObjects.MotherBrainGlassFrameHold}");
+            $"phase={roomObjects.LiveMotherBrainGlass?.Phase}, stage={roomObjects.LiveMotherBrainGlass?.Stage}");
         AssertEqual(40, emitted,
             "five authored shatter stages emit four shards twice each");
         AssertEqual(18, roomObjects.MotherBrainGlassRoomArgument,

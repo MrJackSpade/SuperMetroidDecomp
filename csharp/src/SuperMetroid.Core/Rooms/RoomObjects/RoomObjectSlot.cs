@@ -38,8 +38,6 @@ internal sealed class RoomObjectSlot
     internal IRoomObjectFrameBehavior FrameBehavior { get; set; } = RoomObjectFrameBehaviors.Inert;
     /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
     public RoomObjectRoomArgument? Argument { get; set; }
-    /// <summary>The hits a Draygon cannon or Mother Brain's glass has taken.</summary>
-    public int HitCounter { get; set; }
     /// <summary>
     /// The slot's loop countdown, distinct from the instruction countdown: a counted program loop repeats until it
     /// reaches zero. A downward gate keeps its trigger in it (nonzero once shot), stepped by the gate's owner.
@@ -74,7 +72,6 @@ internal sealed class RoomObjectSlot
         FrameHold = 0;
         FrameBehavior = RoomObjectFrameBehaviors.Inert;
         Argument = null;
-        HitCounter = 0;
         LoopTimer = WrappingCountdown.Start(0);
         ProjectileHit = null;
         Family = null;

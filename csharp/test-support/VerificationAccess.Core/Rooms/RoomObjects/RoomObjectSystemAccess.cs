@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -129,13 +130,13 @@ internal static class RoomObjectSystemAccess
         /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
         internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass.MotherBrainGlassWasLoaded;
 
-        /// <summary>Current native room argument, retained after the header deletes itself.</summary>
-        internal int MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
-            ? slot.HitCounter
+        /// <summary>The glass's hit count, kept after the glass leaves the room.</summary>
+        internal int MotherBrainGlassRoomArgument => LiveGlass(self) is { } glass
+            ? glass.Hits
             : self.MotherBrainGlass.MotherBrainGlassLastRoomArgument;
 
-        /// <summary>The glass's typed program, or null after deletion.</summary>
-        internal RoomObjectAnimation? MotherBrainGlassAnimation => MotherBrainGlassSlot(self)?.Animation;
+        /// <summary>The live glass, or null once it has left the room.</summary>
+        internal MotherBrainGlassObject? LiveMotherBrainGlass => LiveGlass(self);
 
         /// <summary>
         /// Runs the production timed-frame draw for the sole live PLM, exactly as the `$84`
@@ -165,11 +166,6 @@ internal static class RoomObjectSystemAccess
             start.StartOn(active[0]);
             active[0].FrameHold = 1;
         }
-
-        /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
-        internal ushort MotherBrainGlassFrameHold => MotherBrainGlassSlot(self) is { } slot
-            ? checked((ushort)slot.FrameHold)
-            : (ushort)0;
 
         /// <summary>
         /// Publishes the projectile word to the resident eye controller at a type-$C/BTS-$44
@@ -483,9 +479,9 @@ internal static class RoomObjectSystemAccess
     private static IEnumerable<RoomObjectSlot> ActiveSlots(RoomObjectSystem roomObjects) =>
         roomObjects.SlotTable.Slots.Where(slot => slot.Active);
 
-    /// <summary>The live Mother Brain glass PLM slot, as the system's own slot search finds it.</summary>
-    private static RoomObjectSlot? MotherBrainGlassSlot(RoomObjectSystem roomObjects) =>
-        roomObjects.MotherBrainGlass.TryGetMotherBrainGlassSlot(out RoomObjectSlot? slot) ? slot : null;
+    /// <summary>The live Mother Brain glass, as the system's own search finds it.</summary>
+    private static MotherBrainGlassObject? LiveGlass(RoomObjectSystem roomObjects) =>
+        roomObjects.MotherBrainGlass.TryGetMotherBrainGlass(out MotherBrainGlassObject? glass) ? glass : null;
 
     /// <summary>The test view of a coloured cap's phase, from the program its typed animation runs.</summary>
     private static ColoredDoorPhase ColoredPhase(RoomObjectSlot slot) => slot.Animation switch

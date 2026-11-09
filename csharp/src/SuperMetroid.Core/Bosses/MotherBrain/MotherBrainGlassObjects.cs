@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's glass PLM: its setup, shatter projectiles and the room argument it keeps after deletion.</summary>
+/// <summary>Mother Brain's glass: its setup, its shatter projectiles and the hit count it keeps after the glass is gone.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainGlassObjects
 {
@@ -25,8 +25,7 @@ internal sealed class MotherBrainGlassObjects
         _events = events;
         _sounds = sounds;
     }
-    /// <summary>Only pre-instruction accepted from the installed Mother Brain glass header.</summary>
-    /// <summary>Four shard spawns emitted by the most recent shatter instruction.</summary>
+    /// <summary>Four shard spawns emitted by the most recent shatter.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
     /// <summary>The slot of the live glass PLM, or null after deletion.</summary>
@@ -34,8 +33,8 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Whether the current room loaded the glass PLM before head damage can update it.</summary>
     internal bool MotherBrainGlassWasLoaded { get; private set; }
     /// <summary>
-    /// Glass hit count retained after the glass PLM's slot has been deleted. Only glass-phase head hits
-    /// add to it, so it stays far below the slot word's range; nothing in play reads it back.
+    /// Glass hit count retained after the glass has left the room. Only glass-phase head hits add to it, so it stays far
+    /// below the word's range; nothing in play reads it back.
     /// </summary>
     internal int MotherBrainGlassLastRoomArgument { get; private set; }
 
@@ -57,8 +56,7 @@ internal sealed class MotherBrainGlassObjects
                 $"block=({record.Block.X},{record.Block.Y}), argument={record.Argument}.");
         }
 
-        slot.StartAnimation(new MotherBrainGlassObjectAnimation());
-        slot.HitCounter = 0;
+        slot.Become(new MotherBrainGlassObject(this));
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         level.SetTerrain(slot.BlockIndex, original.Terrain.WithCollision(RoomCollisionType.SolidBlock));
         level.SetBehavior(slot.BlockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
@@ -70,10 +68,9 @@ internal sealed class MotherBrainGlassObjects
     }
 
     /// <summary>
-    /// Implements Mother Brain head shot AI's direct increment of the glass PLM's hit count. This is intentionally
-    /// separate from the block-hit frame behaviour: a missile can overlap the brain record
-    /// before its terrain probe reaches the glass block, and code counts that hit
-    /// immediately in the enemy collision pass.
+    /// Mother Brain's head shot counts a hit on the glass at once. This is separate from the glass's own count of strikes
+    /// on its block: a missile can overlap the brain before its terrain probe reaches the glass block, and the head shot
+    /// counts that hit immediately in the enemy collision pass.
     /// </summary>
     public void IncrementMotherBrainGlassRoomArgument()
     {
@@ -83,8 +80,8 @@ internal sealed class MotherBrainGlassObjects
                 "Mother Brain head damage requires Mother Brain's glass PLM to be loaded.");
         }
 
-        if (TryGetMotherBrainGlassSlot(out RoomObjectSlot? slot))
-            slot.HitCounter = WrappingCounter.IncrementWord(slot.HitCounter);
+        if (TryGetMotherBrainGlass(out MotherBrainGlassObject? glass))
+            glass.CountHeadShot();
         else
             MotherBrainGlassLastRoomArgument++;
     }
@@ -92,13 +89,6 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Clears shard spawn requests before processing the next room frame.</summary>
     internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
-    /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
-    internal static void RunMotherBrainGlassFrameBehavior(RoomObjectSlot slot)
-    {
-        if (slot.ProjectileHit?.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-            slot.HitCounter = WrappingCounter.IncrementWord(slot.HitCounter);
-        slot.ProjectileHit = null;
-    }
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
     internal bool IsBossDead() => _bosses?.IsDefeated(BossBits.AreaBoss) == true;
 
@@ -129,28 +119,27 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Room width in blocks used to turn the glass block index into shard spawn coordinates.</summary>
     private int _motherBrainGlassRoomWidth;
 
-    /// <summary>Finds the original live glass slot without accepting a later PLM that reused it.</summary>
-    internal bool TryGetMotherBrainGlassSlot([NotNullWhen(true)] out RoomObjectSlot? slot)
+    /// <summary>Finds the live glass, without accepting a later object that took its place.</summary>
+    internal bool TryGetMotherBrainGlass([NotNullWhen(true)] out MotherBrainGlassObject? glass)
     {
-        if (_motherBrainGlassSlot is { Active: true, Header: RoomObjectHeaderId.MotherBrainGlass } candidate)
+        if (_motherBrainGlassSlot is { Active: true, Header: RoomObjectHeaderId.MotherBrainGlass, Behaviour: MotherBrainGlassObject live })
         {
-            slot = candidate;
+            glass = live;
             return true;
         }
-        slot = null;
+        glass = null;
         return false;
     }
 
-    /// <summary>Retains the glass hit count and clears the deleted slot's glass-only instruction identity.</summary>
+    /// <summary>Keeps the glass's hit count once it leaves the room, and clears its identity from its place.</summary>
     internal void OnObjectDeleted(RoomObjectSlot slot)
     {
+        Ensure.NotNull(slot);
         if (slot.Header != RoomObjectHeaderId.MotherBrainGlass)
             return;
-        MotherBrainGlassLastRoomArgument = slot.HitCounter;
+        MotherBrainGlassLastRoomArgument = (slot.Behaviour as MotherBrainGlassObject
+            ?? throw new InvalidOperationException("Mother Brain's glass left the room without its typed object.")).Hits;
         _motherBrainGlassSlot = null;
-        // Deleted slots are reusable. Clear the family discriminator now so a
-        // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.
         slot.Header = 0;
-        slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
     }
 }

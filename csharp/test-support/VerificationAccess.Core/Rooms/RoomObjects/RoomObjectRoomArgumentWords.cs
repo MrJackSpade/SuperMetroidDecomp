@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -120,9 +121,12 @@ internal static class RoomObjectRoomArgumentWords
     /// The hit count the cartridge keeps in a cannon's or the glass's argument word: a typed cannon's count, or the word
     /// the cartridge leaves once a counted hit destroyed it.
     /// </summary>
-    private static int HitWord(RoomObjectSlot slot) => slot.Behaviour is DraygonCannonObject cannon
-        ? cannon.ShotDown ? ushort.MaxValue : cannon.Hits
-        : slot.HitCounter;
+    private static int? HitWord(RoomObjectSlot slot) => slot.Behaviour switch
+    {
+        DraygonCannonObject cannon => cannon.ShotDown ? ushort.MaxValue : cannon.Hits,
+        MotherBrainGlassObject glass => glass.Hits,
+        _ => null,
+    };
 
     /// <summary>The native room-argument word of a live slot.</summary>
     extension(RoomObjectSlot slot)

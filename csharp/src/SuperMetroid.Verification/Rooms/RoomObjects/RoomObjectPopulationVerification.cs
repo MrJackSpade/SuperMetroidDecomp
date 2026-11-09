@@ -22,6 +22,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Shaktool;
@@ -58,11 +59,31 @@ internal static class RoomObjectPopulationVerification
         Suite(nameof(VerifyElevatorPlatformControls), () => VerifyElevatorPlatformControls(rom));
         Suite(nameof(VerifyElevatorPlatformDrawSelection), () => VerifyElevatorPlatformDrawSelection(rom));
         Suite(nameof(VerifyElevatorPlatformLoopTarget), () => VerifyElevatorPlatformLoopTarget(rom));
+        Suite(nameof(VerifyElevatorPlatformCycle), () => VerifyElevatorPlatformCycle(rom));
 
         Suite(nameof(VerifyElevatorPlatformLayoutGeometry), () => VerifyElevatorPlatformLayoutGeometry(rom));
         Suite(nameof(VerifyElevatorPlatformLayoutCollision), () => VerifyElevatorPlatformLayoutCollision(rom));
         Suite(nameof(VerifyElevatorPlatformLayoutVisuals), () => VerifyElevatorPlatformLayoutVisuals(rom));
         Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
+    }
+
+    /// <summary>
+    /// The typed platform's loop plays as its native list does (#1554): each layout's updates and draw in order, then the
+    /// goto back to the list's start.
+    /// </summary>
+    private static void VerifyElevatorPlatformCycle(SuperMetroidAddressSpace rom)
+    {
+        const ushort loop = 0xafb6;
+        var cartridge = CartridgeImportSource.Require(rom);
+        ushort cursor = loop;
+        foreach (TerrainChangeFrame frame in ElevatorPlatformObjectDefinitions.Cycle)
+        {
+            AssertEqual((ushort)frame.Updates, cartridge.ReadCartridgeWord(0x840000 | cursor), $"elevator platform image at $84:{cursor:X4} stays its updates");
+            AssertEqual(RoomObjectDrawAddressCodec.Of(frame.Draw), cartridge.ReadCartridgeWord(0x840000 | (cursor + 2)), $"elevator platform image at $84:{cursor:X4} draws its layout");
+            cursor = unchecked((ushort)(cursor + 4));
+        }
+        AssertEqual((ushort)RoomObjectInstruction.Goto, cartridge.ReadCartridgeWord(0x840000 | cursor), "elevator platform loop goes back");
+        AssertEqual(loop, cartridge.ReadCartridgeWord(0x840000 | (cursor + 2)), "elevator platform loop goes back to its first image");
     }
 
     /// <summary>Compares every closing-door orientation's compiled header against the bank-$8F table.</summary>

@@ -177,8 +177,8 @@ internal sealed class StationObjects : IRoomObjectFamilySource
         if (slot.Header == RoomObjectHeaderId.ElevatorPlatform)
         {
             // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
-            // platform then runs its idle loop.
-            slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.ElevatorPlatform));
+            // platform then plays its loop.
+            slot.Become(new ElevatorPlatformObject());
             level.SetTerrain(slot.BlockIndex, level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.Deactivated());
             return true;
         }

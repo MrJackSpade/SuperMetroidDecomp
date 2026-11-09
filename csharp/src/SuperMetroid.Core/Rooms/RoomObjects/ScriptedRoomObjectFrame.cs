@@ -3,12 +3,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>What a scripted room PLM draws at its block.</summary>
 internal enum ScriptedRoomObjectFrame
 {
-    /// <summary>The elevator platform, first image.</summary>
-    ElevatorPlatform0,
-    /// <summary>The elevator platform, second image.</summary>
-    ElevatorPlatform1,
-    /// <summary>The elevator platform, third image.</summary>
-    ElevatorPlatform2,
     /// <summary>The Maridia elevatube.</summary>
     MaridiaElevatube,
     /// <summary>The old Tourian escape wall, opened.</summary>

@@ -6,9 +6,6 @@ internal static class ScriptedRoomObjectDrawDefinitions
     /// <summary>Each image's draw.</summary>
     internal static IReadOnlyDictionary<ScriptedRoomObjectFrame, RoomObjectDraw> DrawLists { get; } = new Dictionary<ScriptedRoomObjectFrame, RoomObjectDraw>
     {
-        [ScriptedRoomObjectFrame.ElevatorPlatform0] = RoomObjectDraw.Of(ElevatorPlatformDraw.First),
-        [ScriptedRoomObjectFrame.ElevatorPlatform1] = RoomObjectDraw.Of(ElevatorPlatformDraw.Second),
-        [ScriptedRoomObjectFrame.ElevatorPlatform2] = RoomObjectDraw.Of(ElevatorPlatformDraw.Third),
         [ScriptedRoomObjectFrame.MaridiaElevatube] = MaridiaElevatubeObjectDefinitions.BlockDraw,
         [ScriptedRoomObjectFrame.OldTourianWallOpen] = OldTourianEscapeShaftWallObjectDefinitions.OpenWallDraw,
         [ScriptedRoomObjectFrame.EscapeAnimal0] = RoomObjectDraw.Of(EscapeAnimalDraw.Frame0),

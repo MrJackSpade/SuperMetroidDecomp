@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
@@ -15,12 +14,6 @@ public readonly record struct SamusTerrain
 
     /// <summary>Optional current-room room-object owner receiving block reactions during spark movement.</summary>
     internal ISamusRoomObjects? RoomObjects { get; init; }
-
-    /// <summary>
-    /// What the room's objects show, for a scan that runs without <see cref="RoomObjects"/>: a bomb block it breaks
-    /// shows its parent's installed picture (#1580). Null when the scan has neither, and such a scan cannot break one.
-    /// </summary>
-    internal IRoomObjectDrawing? RoomObjectDrawing { get; init; }
 
     /// <summary>
     /// The session's progression, which Spacetime's malformed palette copy overwrites as raw bytes (#1318, #1330). Only

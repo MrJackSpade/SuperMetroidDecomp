@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -28,8 +27,7 @@ public static class SamusBlockCollision
         SamusKinematicsState state,
         SamusState? owner,
         SignedSixteenSixteen signedDistance,
-        ISamusRoomObjects? roomObjects = null,
-        IRoomObjectDrawing? roomObjectDrawing = null)
+        ISamusRoomObjects? roomObjects = null)
     {
         Ensure.NotNull(state);
         SamusKinematicsState probe = state.CreateCollisionProbe();
@@ -39,7 +37,7 @@ public static class SamusBlockCollision
         // but collision side effects are not observational: touching a scroll
         // trigger still wakes its owner. Pass that shared owner through rather
         // than treating an extension-resolved trigger as an orphan during wall-jump checks.
-        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects, RoomObjectDrawing = roomObjectDrawing }, probe, owner, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, probe, owner, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion words even through wall observation.
         state.YSpeed = probe.YSpeed;
         state.YAcceleration = probe.YAcceleration;
@@ -323,12 +321,10 @@ public static class SamusBlockCollision
                             throw new InvalidDataException(
                                 $"Collision bomb block {block.Index} has invalid behaviour ({block.Behavior}).");
                         }
-                        // Movement supplies the active room-object owner, matching the collision's immediate
-                        // room-object spawn. A scan without it, such as the grapple wall-jump probe, performs only the
-                        // bomb block's synchronous clear and omits the later independent animation lifecycle.
-                        bool spawned = terrain.RoomObjects is null
-                            ? ClearCollisionTypeWithoutLifecycle(terrain, block.Index)
-                            : terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
+                        // Every contact that breaks a bomb block starts its block reaction, which runs the breakup
+                        // and grows the block back (#1582).
+                        bool spawned = RoomObjectsBreaking(terrain, block.Index).BlockReactions
+                            .TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
                         if (spawned)
                             brokenBombBlock ??= block;
                         break;
@@ -711,10 +707,8 @@ public static class SamusBlockCollision
                         throw new InvalidDataException(
                             $"Collision bomb block {block.Index} has invalid behaviour ({block.Behavior}).");
                     }
-                    if (terrain.RoomObjects is null)
-                        ClearCollisionTypeWithoutLifecycle(terrain, block.Index);
-                    else
-                        terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
+                    RoomObjectsBreaking(terrain, block.Index).BlockReactions
+                        .TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
                     break;
 
                 case RoomCollisionType.HorizontalExtension:
@@ -760,22 +754,13 @@ public static class SamusBlockCollision
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }
 
-    /// <summary>
-    /// Executes collision-bomb setup without installing its independent room-object handler: the block becomes its
-    /// parent's installed picture as air.
-    /// </summary>
-    /// <remarks>
-    /// Taken by a scan that runs without <see cref="ISamusRoomObjects"/>, such as the grapple wall-jump probe.
-    /// </remarks>
-    /// <exception cref="InvalidOperationException">The scan has no installed pictures to show the parent with.</exception>
-    private static bool ClearCollisionTypeWithoutLifecycle(SamusTerrain terrain, int blockIndex)
-    {
-        IRoomObjectDrawing drawing = terrain.RoomObjectDrawing ?? throw new InvalidOperationException(
-            $"Bomb block {blockIndex} broke without its room object and without the installed pictures to show its parent.");
-        terrain.Level.SetTerrain(blockIndex,
-            new RoomTerrainBlock(drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent), RoomCollisionType.Air));
-        return true;
-    }
+    /// <summary>The room objects that run the reaction of the bomb block at <paramref name="blockIndex"/> a scan breaks.</summary>
+    /// <exception cref="InvalidOperationException">
+    /// The scan runs without the room's objects, as the scans of rooms with no bomb blocks do, so it cannot start one.
+    /// </exception>
+    private static ISamusRoomObjects RoomObjectsBreaking(SamusTerrain terrain, int blockIndex) =>
+        terrain.RoomObjects ?? throw new InvalidOperationException(
+            $"A scan without the room's objects broke bomb block {blockIndex}, whose reaction only the room's objects can run.");
 
     /// <summary>
     /// Runs the shared bomb-block setup for non-solid cells without consuming carry.
@@ -788,10 +773,7 @@ public static class SamusBlockCollision
         // must never turn this non-solid cell into a movement obstruction.
         if (block.Behavior.Reaction.IsAreaSpecific || !CanBreakCollisionBombBlock(owner, explicitAdmission))
             return;
-        if (terrain.RoomObjects is { } roomObjects)
-            roomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
-        else
-            ClearCollisionTypeWithoutLifecycle(terrain, block.Index);
+        RoomObjectsBreaking(terrain, block.Index).BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Behavior);
     }
 
     /// <summary>

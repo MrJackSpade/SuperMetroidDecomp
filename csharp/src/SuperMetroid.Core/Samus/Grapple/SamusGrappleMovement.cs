@@ -567,13 +567,13 @@ public static class SamusGrappleMovement
         // square slopes, behaviour dispatch, available distance, and enemy identity.
         SignedSixteenSixteen signedProbe = SignedSixteenSixteen.FromParts(
             SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? -WallJumpProbePixels : WallJumpProbePixels, 0);
-        // The probe spawns no room object; a bomb block it breaks shows its parent's installed picture.
+        // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
 
             terrain.Level,
             samus.Kinematics, samus,
             signedProbe,
-            roomObjectDrawing: terrain.RoomObjects?.Drawing);
+            terrain.RoomObjects);
         bool jumpNew = (newlyPressedInput & ControllerButton.A) != ControllerButton.None;
         if (wall.Collided && jumpNew)
         {

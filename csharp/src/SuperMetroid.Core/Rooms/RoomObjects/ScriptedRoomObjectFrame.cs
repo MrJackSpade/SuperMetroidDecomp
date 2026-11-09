@@ -23,12 +23,6 @@ internal enum ScriptedRoomObjectFrame
     EscapeAnimal3,
     /// <summary>The Crateria escape passage opening.</summary>
     CrateriaPassage,
-    /// <summary>Mother Brain's escape gate, open.</summary>
-    MotherBrainGateOpen,
-    /// <summary>Half closed.</summary>
-    MotherBrainGateHalfClosed,
-    /// <summary>Closed.</summary>
-    MotherBrainGateClosed,
     /// <summary>A one-block breakup, first image.</summary>
     SingleBreakup0,
     /// <summary>Second image.</summary>

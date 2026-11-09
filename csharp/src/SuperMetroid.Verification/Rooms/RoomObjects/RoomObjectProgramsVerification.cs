@@ -504,232 +504,25 @@ internal static class RoomObjectProgramsVerification
         Console.WriteLine($"  Wrecked Ship attic program: {steps} typed steps match bank $84.");
     }
 
-    /// <summary>The blue caps' programs equal their native lists.</summary>
+    /// <summary>The blue caps play as their native lists do (#1554).</summary>
     internal static void VerifyBlueDoorPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BlueDoorObjectProgramDefinitions.Programs, DoorObjectNativeListAddresses.BlueEntries,
-            BlueDoorDrawList, BlueDoorCueAt, "blue door");
-        Console.WriteLine($"  Blue door programs: {steps} typed steps match bank $84.");
+        int images = DoorObjectNativeProgramOracle.CompareBlueCaps(CartridgeImportSource.Require(rom));
+        Console.WriteLine($"  Blue door caps: {images} typed images match bank $84.");
     }
 
-    /// <summary>The draw list a blue program's frame draws: the program names the facing.</summary>
-    private static RoomObjectDraw BlueDoorDrawList(BlueDoorProgram program, BlueDoorFrame frame)
-    {
-        ColoredDoorOrientation orientation = BlueDoorObjectProgramDefinitions.Orientations[program];
-        return frame switch
-        {
-            BlueDoorFrame.Clear => DoorCaps.Clear(orientation),
-            BlueDoorFrame.Blue0 => DoorCaps.Blue(orientation, 0),
-            BlueDoorFrame.Blue1 => DoorCaps.Blue(orientation, 1),
-            BlueDoorFrame.Blue2 => DoorCaps.Blue(orientation, 2),
-            BlueDoorFrame.Blue3 => DoorCaps.Blue(orientation, 3),
-            _ => throw new InvalidOperationException($"Undefined {nameof(BlueDoorFrame)} {frame}."),
-        };
-    }
-
-    /// <summary>The blue caps' sound and BTS-restore instructions.</summary>
-    private static bool BlueDoorCueAt(IImportCartridgeSource cartridge, ushort cursor, out BlueDoorCue cue, out int length)
-    {
-        (bool known, cue, length) = InstructionAt<RoomObjectInstruction>(cartridge, cursor) switch
-        {
-            RoomObjectInstruction.QueueSoundLibrary3Maximum6 => new BlueDoorCueAtCase(true, DoorObjectNativeProgramOracle.DoorSoundCue(DoorObjectNativeProgramOracle.QueuedLibrary3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
-            RoomObjectInstruction.SetObjectBtsFromByte => new BlueDoorCueAtCase(true, BlueDoorCue.RestoreBlueBehavior, 3),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.InstallFrameBehavior or
-                RoomObjectInstruction.ClearFrameBehavior or
-                RoomObjectInstruction.LinkInstruction or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.GotoIfEventSet or
-                RoomObjectInstruction.SetEvent or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum6 or
-                RoomObjectInstruction.ClearDownwardGateTrigger or
-                RoomObjectInstruction.SpawnDownwardGateProjectile or
-                RoomObjectInstruction.WakeDownwardGateProjectile or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.DamageDraygonCannonFacingRight or
-                RoomObjectInstruction.DamageDraygonCannonFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.EnableNoobTubeWaterPhysics or
-                RoomObjectInstruction.SpawnNoobTubeCrack or
-                RoomObjectInstruction.TriggerNoobTubeEarthquake or
-                RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles or
-                RoomObjectInstruction.LockSamus or
-                RoomObjectInstruction.UnlockSamus or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.SamusEaterDamage or
-                RoomObjectInstruction.SamusEaterReleaseImmunity or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new BlueDoorCueAtCase(false, default, 0),
-            _ => new BlueDoorCueAtCase(false, default, 0),
-        };
-        return known;
-    }
-
-    /// <summary>Every coloured cap's programs equal their native lists.</summary>
+    /// <summary>Every coloured cap plays, counts its hits and takes its shot as its native lists do (#1554).</summary>
     internal static void VerifyColoredDoorPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        int steps = 0;
-        foreach (ColoredDoorColor color in Enum.GetValues<ColoredDoorColor>())
-        foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
-        {
-            var entries = DoorObjectNativeListAddresses.ColoredEntries(color, orientation);
-            steps += CompareProgramSet(cartridge, ColoredDoorObjectProgramDefinitions.Sets[new(color, orientation)], entries,
-                frame => ColoredCapDraw(color, orientation, frame),
-                (IImportCartridgeSource source, ushort cursor, out ColoredDoorCue cue, out int length) =>
-                    ColoredDoorCueAt(source, cursor, color, orientation, entries, out cue, out length),
-                $"{color} {orientation} door");
-        }
-        Console.WriteLine($"  Coloured door programs: {steps} typed steps match bank $84.");
+        int images = DoorObjectNativeProgramOracle.CompareColoredCaps(CartridgeImportSource.Require(rom));
+        Console.WriteLine($"  Coloured door caps: {images} typed images match bank $84.");
     }
 
-    /// <summary>The draw list a coloured cap's frame draws.</summary>
-    private static RoomObjectDraw ColoredCapDraw(ColoredDoorColor color, ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
-    {
-        DoorCapFrame.Clear => DoorCaps.Clear(orientation),
-        DoorCapFrame.Closed0 => DoorCaps.Colored(color, orientation, 0),
-        DoorCapFrame.Closed1 => DoorCaps.Colored(color, orientation, 1),
-        DoorCapFrame.Closed2 => DoorCaps.Colored(color, orientation, 2),
-        DoorCapFrame.Closed3 => DoorCaps.Colored(color, orientation, 3),
-        DoorCapFrame.BlueFlash => DoorCaps.Blue(orientation, 0),
-        _ => throw new InvalidOperationException($"Undefined {nameof(DoorCapFrame)} {frame}."),
-    };
-
-    /// <summary>A coloured cap's branch, link, wake, hit-count and sound instructions with their operands.</summary>
-    private static bool ColoredDoorCueAt(IImportCartridgeSource cartridge, ushort cursor, ColoredDoorColor color, ColoredDoorOrientation orientation,
-        IReadOnlyList<NativeProgramEntry<ColoredDoorProgram>> entries, out ColoredDoorCue cue, out int length)
-    {
-        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
-        ushort EntryOf(ColoredDoorProgram program) => entries.Single(entry => entry.Program == program).Entry;
-        switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
-        {
-            case RoomObjectInstruction.GotoIfDoorBitSet:
-                AssertEqual(DoorObjectNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorObjectProgramDefinitions.ClosedPrograms[orientation]).Entry,
-                    Word(2), $"{color} {orientation} door becomes its blue cap");
-                cue = ColoredDoorCue.BranchIfOpened;
-                length = 4;
-                return true;
-            case RoomObjectInstruction.LinkInstruction:
-                AssertEqual(EntryOf(ColoredDoorProgram.Hit), Word(2), $"{color} {orientation} door links its hit");
-                cue = ColoredDoorCue.LinkHit;
-                length = 4;
-                return true;
-            case RoomObjectInstruction.InstallFrameBehavior:
-                AssertEqual(DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorObjectProgramDefinitions.Wakes[color]), Word(2), $"{color} {orientation} door shot wake");
-                cue = ColoredDoorCue.ArmWake;
-                length = 4;
-                return true;
-            case RoomObjectInstruction.IncrementDoorHitCounterAndGoto:
-                AssertEqual(ColoredDoorObjectProgramDefinitions.HitThresholds[color], ReadOperandByte(cartridge, cursor + 2), $"{color} door hit threshold");
-                AssertEqual(EntryOf(ColoredDoorProgram.Open), Word(3), $"{color} {orientation} door opens at its threshold");
-                cue = ColoredDoorCue.CountHit;
-                length = 5;
-                return true;
-            case RoomObjectInstruction.QueueSoundLibrary3Maximum6:
-                SoundEffectId sound = DoorObjectNativeProgramOracle.QueuedLibrary3Sound(cartridge, cursor);
-                cue = sound == ColoredDoorObjectProgramDefinitions.RedHitSound
-                    ? ColoredDoorCue.QueueHitSound
-                    : DoorObjectNativeProgramOracle.DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound);
-                length = 3;
-                return true;
-            case RoomObjectInstruction.SetGreyDoorFrameBehavior:
-            case RoomObjectInstruction.Sleep:
-            case RoomObjectInstruction.Delete:
-            case RoomObjectInstruction.ClearFrameBehavior:
-            case RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomObjectInstruction.GotoIfSamusNear:
-            case RoomObjectInstruction.Goto:
-            case RoomObjectInstruction.DecrementTimerAndGoto:
-            case RoomObjectInstruction.SetEightBitTimer:
-            case RoomObjectInstruction.CopyFromRamToVram:
-            case RoomObjectInstruction.GotoIfAreaBossBitSet:
-            case RoomObjectInstruction.GotoIfEventSet:
-            case RoomObjectInstruction.SetEvent:
-            case RoomObjectInstruction.SetObjectBtsFromByte:
-            case RoomObjectInstruction.DrawObjectBlock:
-            case RoomObjectInstruction.DrawObjectBlockClone:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-            case RoomObjectInstruction.ClearDownwardGateTrigger:
-            case RoomObjectInstruction.SpawnDownwardGateProjectile:
-            case RoomObjectInstruction.WakeDownwardGateProjectile:
-            case RoomObjectInstruction.ShootEyeDoorProjectile:
-            case RoomObjectInstruction.SpawnEyeDoorSweat:
-            case RoomObjectInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomObjectInstruction.SpawnEyeDoorSmoke:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomObjectInstruction.DamageDraygonCannonFacingRight:
-            case RoomObjectInstruction.DamageDraygonCannonFacingLeft:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-            case RoomObjectInstruction.GotoIfSamusHasNoBombs:
-            case RoomObjectInstruction.SetObjectBtsToOne:
-            case RoomObjectInstruction.GotoIfRoomArgumentLess:
-            case RoomObjectInstruction.SpawnFourMotherBrainGlassShards:
-            case RoomObjectInstruction.SpawnTorizoStatueBreaking:
-            case RoomObjectInstruction.QueueSongOneMusicTrack:
-            case RoomObjectInstruction.EnableNoobTubeWaterPhysics:
-            case RoomObjectInstruction.SpawnNoobTubeCrack:
-            case RoomObjectInstruction.TriggerNoobTubeEarthquake:
-            case RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomObjectInstruction.LockSamus:
-            case RoomObjectInstruction.UnlockSamus:
-            case RoomObjectInstruction.MoveRightFourBlocks:
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-            case RoomObjectInstruction.SamusEaterDamage:
-            case RoomObjectInstruction.SamusEaterReleaseImmunity:
-            case RoomObjectInstruction.MoveTourianAccessDown:
-            case RoomObjectInstruction.TransformSpikesToSlopes:
-            case RoomObjectInstruction.RevertSlopesToSpikes:
-            case RoomObjectInstruction.SetLoweredAcidHeight:
-            default:
-                cue = default;
-                length = 0;
-                return false;
-        }
-    }
-
-    /// <summary>Every grey cap's programs, Bomb Torizo's included, equal their native lists.</summary>
+    /// <summary>Every grey cap, Bomb Torizo's included, plays and counts its hit as its native lists do (#1554).</summary>
     internal static void VerifyGreyDoorPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        int steps = 0;
-        foreach (GreyDoorVariant variant in DoorObjectNativeListAddresses.GreyVariants)
-            steps += CompareProgramSet(cartridge, GreyDoorObjectProgramDefinitions.Sets[variant], DoorObjectNativeListAddresses.GreyEntries(variant),
-                frame => DoorObjectNativeProgramOracle.GreyCapDraw(variant.Orientation, frame),
-                (IImportCartridgeSource source, ushort cursor, out GreyDoorCue cue, out int length) =>
-                    DoorObjectNativeProgramOracle.GreyDoorCueAt(source, cursor, variant, out cue, out length),
-                variant.BombTorizo ? "Bomb Torizo door" : $"grey {variant.Orientation} door");
-        Console.WriteLine($"  Grey door programs: {steps} typed steps match bank $84.");
+        int images = DoorObjectNativeProgramOracle.CompareGreyCaps(CartridgeImportSource.Require(rom));
+        Console.WriteLine($"  Grey door caps: {images} typed images match bank $84.");
     }
 
     /// <summary>Every eye-door component's programs, both facings, equal their native lists.</summary>
@@ -870,7 +663,7 @@ internal static class RoomObjectProgramsVerification
                 return true;
             case RoomObjectInstruction.Goto:
                 ColoredDoorOrientation facing = orientation == EyeDoorOrientation.Right ? ColoredDoorOrientation.Right : ColoredDoorOrientation.Left;
-                AssertEqual(DoorObjectNativeListAddresses.BlueEntries.Single(e => e.Program == BlueDoorObjectProgramDefinitions.ClosedPrograms[facing]).Entry,
+                AssertEqual(DoorObjectNativeListAddresses.Blue(facing).Closed,
                     Word(2), $"{at}: the eye becomes its blue cap");
                 cue = EyeDoorObjectCue.BecomeBlueDoor;
                 length = 4;

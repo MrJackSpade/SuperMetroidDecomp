@@ -11,4 +11,4 @@ internal readonly record struct GreyDoorObjectSnapshot(
     GreyDoorCondition Condition,
     GreyDoorPhase Phase,
     byte HitCounter,
-    RoomObjectAnimation? Animation);
+    GreyDoorObject Door);

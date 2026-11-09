@@ -141,7 +141,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                     $"opened grey door {header} reloads");
                 // The closed blue list shows the blue cap for one frame and deletes on the next pass.
                 reopened.Step(reopenedLevel);
-                AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorObjectAnimation,
+                AssertTrue(reopened.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
                     $"opened grey door {header} converts to blue cap");
                 reopened.Step(reopenedLevel);
                 AssertEqual(0, reopened.SlotTable.ActiveCount,
@@ -219,7 +219,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             "opened Bomb Torizo grey door reloads");
         // The closed blue list shows the blue cap for one frame and deletes on the next pass.
         reopened.Step(reopenedLevel);
-        AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorObjectAnimation,
+        AssertTrue(reopened.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closed },
             "opened Bomb Torizo grey door converts to a blue cap");
         reopened.Step(reopenedLevel);
         AssertEqual(0, reopened.SlotTable.ActiveCount,

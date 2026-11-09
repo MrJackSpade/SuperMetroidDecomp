@@ -153,12 +153,12 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
         DoorObjects = new DoorObjects(room.System, SlotTable, Sounds);
-        GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds, DoorObjects);
+        GreyDoors = new GreyDoorObjects(room.System, room.AreaIndex, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Events, services.Enemies, SlotTable);
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
-        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectibleObjects, DoorObjects, GreyDoors, Gates, EyeDoors, DraygonCannons, SpeedBoosterEscape])
+        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectibleObjects, Gates, EyeDoors, DraygonCannons, SpeedBoosterEscape])
             source.AddObjectFamilies(_families);
         _families.RequireEveryFamily();
     }

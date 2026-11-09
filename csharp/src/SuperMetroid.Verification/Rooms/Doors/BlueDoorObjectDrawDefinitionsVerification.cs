@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -33,7 +34,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
                 draw.Runs.Span[0].Blocks.Span
                     .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomObjectBlueDoorVisuals stock = InstalledRoomObjectBlueDoorVisuals.Stock();
-        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorObjectProgramDefinitions.OpeningPrograms[ColoredDoorOrientation.Left]) + 5)));
+        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
         AssertEqual(entries.Single(entry => entry.Id == "left-frame-1").Blocks[0], stock.GetAppearance(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
@@ -42,7 +43,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
 
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
-            ushort openingList = BlueEntry(BlueDoorObjectProgramDefinitions.OpeningPrograms[orientation]);
+            ushort openingList = DoorObjectNativeListAddresses.Blue(orientation).Opening;
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
             AssertTrue(RoomObjectBlueDoorVisualFiles.TryGet(NativeObjectDraws.At<BlueDoorCaps.Draw>(firstDraw), out var selected),
                 $"{orientation} opening program selects a compiled draw");
@@ -72,20 +73,34 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             AssertEqual(0, roomObjects.SlotTable.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
-            foreach (BlueDoorProgram program in new[] { BlueDoorObjectProgramDefinitions.ClosingPrograms[orientation], BlueDoorObjectProgramDefinitions.ClosedPrograms[orientation] })
-            {
-                AssertTrue(roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, origin, behavior,
-                    SamusProjectileType.None),
-                    $"{orientation} allocates actor for {program}");
-                roomObjects.StartSoleProgramForVerification(RoomObjectProgramStart.Typed(program));
-                for (int frame = 0; frame < 20 && roomObjects.SlotTable.ActiveCount != 0; frame++)
-                    roomObjects.Step(level);
-                AssertEqual(0, roomObjects.SlotTable.ActiveCount,
-                    $"{orientation} {program} reaches its deletion");
-                AssertEqual(RoomBlockBehaviorCodec.Encode(behavior),
-                    RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(origin).Behavior),
-                    $"{orientation} {program} restores the blue-door BTS");
-            }
+            // The cap closing behind Samus, placed by the door transition, closes, is made shootable again and leaves.
+            level.SetBehavior(origin, RoomBlockBehavior.None);
+            var closingDoor = new DoorDefinition(
+                Name: "fixture door",
+                DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
+                Orientation: new(orientation switch
+                {
+                    ColoredDoorOrientation.Left => DoorDirection.Left,
+                    ColoredDoorOrientation.Right => DoorDirection.Right,
+                    ColoredDoorOrientation.Up => DoorDirection.Up,
+                    ColoredDoorOrientation.Down => DoorDirection.Down,
+                    _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorOrientation)} {orientation}."),
+                }, DoorClosingBehavior.BlueDoorCloses),
+                RoomObjectBlock: new(4, 4),
+                DestinationScreen: new(0, 0),
+                SamusSpeed: DoorSamusSpeed.None,
+                SetupCode: DoorSetupCode.None);
+            AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, closingDoor, new SharedGameState(new SharedRandom())),
+                $"{orientation} places the blue cap closing behind Samus");
+            AssertTrue(roomObjects.PopulationSlots.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing } closer && closer.Orientation == orientation,
+                $"{orientation} closing cap faces the travel direction");
+            for (int frame = 0; frame < 20 && roomObjects.SlotTable.ActiveCount != 0; frame++)
+                roomObjects.Step(level);
+            AssertEqual(0, roomObjects.SlotTable.ActiveCount,
+                $"{orientation} closing cap reaches its deletion");
+            AssertEqual(RoomBlockBehaviorCodec.Encode(behavior),
+                RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(origin).Behavior),
+                $"{orientation} closed cap restores the blue-door BTS");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{orientation} complete blue-door lists avoid all compiled ROM sources");
         }
@@ -98,10 +113,6 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
     /// <summary>Compares the blue caps' typed programs with their bank-$84 lists.</summary>
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom) =>
         Suite(nameof(RoomObjectProgramsVerification.VerifyBlueDoorPrograms), () => RoomObjectProgramsVerification.VerifyBlueDoorPrograms(rom));
-
-    /// <summary>The native list a blue program begins at.</summary>
-    private static ushort BlueEntry(BlueDoorProgram program) =>
-        DoorObjectNativeListAddresses.BlueEntries.Single(entry => entry.Program == program).Entry;
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyBlueDoorVisualInstallation(SuperMetroidAddressSpace rom)

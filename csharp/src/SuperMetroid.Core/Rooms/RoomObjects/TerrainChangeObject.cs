@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
 {
     /// <summary>The change's authored timing.</summary>
-    internal TerrainChange Change { get; } = Ensure.NotNull(change);
+    internal TerrainChange Change { get; private set; } = Ensure.NotNull(change);
 
     /// <summary>How many of the change's frames have drawn.</summary>
     private int _framesDrawn;
@@ -42,6 +42,17 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
             context.QueueSound(sound, frame.SoundPriority);
         context.Draw(place, frame.Draw);
         _updatesBeforeNextStep = frame.Updates;
+    }
+
+    /// <summary>
+    /// Makes <paramref name="change"/> the change the object makes, from its first delay: an object that turns into
+    /// another change, such as a gate that closes again.
+    /// </summary>
+    private protected void Restart(TerrainChange change)
+    {
+        Change = Ensure.NotNull(change);
+        _framesDrawn = 0;
+        _updatesBeforeNextStep = Ensure.BetweenInclusive(1, int.MaxValue, change.FirstFrameDelay);
     }
 
     /// <summary>Runs as the change draws its first frame, before that frame's move, sound and draw; nothing by default.</summary>

@@ -76,13 +76,12 @@ internal sealed class EyeDoorObjectAnimation(EyeDoorOrientation orientation, Eye
                 EyeDoorObjects.ConvertEyeToBlueDoor(context.Level, slot, Orientation);
                 return null;
             case EyeDoorObjectCue.BecomeBlueDoor:
-                slot.Family = null;
-                slot.StartAnimation(new BlueDoorObjectAnimation(BlueDoorObjectProgramDefinitions.ClosedPrograms[Orientation switch
+                BlueDoorCapObject.TakeOver(slot, context, Orientation switch
                 {
                     EyeDoorOrientation.Left => ColoredDoorOrientation.Left,
                     EyeDoorOrientation.Right => ColoredDoorOrientation.Right,
                     _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {Orientation}."),
-                }]));
+                });
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EyeDoorObjectCue)} {cue}.");

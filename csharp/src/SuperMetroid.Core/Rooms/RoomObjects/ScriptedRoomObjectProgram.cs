@@ -11,10 +11,6 @@ internal enum ScriptedRoomObjectProgram
     OldTourianWallWait,
     /// <summary>The old Tourian escape wall opens once Samus passes.</summary>
     OldTourianWallOpen,
-    /// <summary>Mother Brain's escape gate.</summary>
-    MotherBrainEscapeGate,
-    /// <summary>Mother Brain's escape gate closing.</summary>
-    MotherBrainEscapeGateClosing,
     /// <summary>The Lower Norfair Chozo room plug crumbling.</summary>
     ChozoCrumblePlug,
     /// <summary>The Lower Norfair Chozo hand: waits for Samus, or continues to the lowered-acid program.</summary>

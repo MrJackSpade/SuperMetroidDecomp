@@ -9,12 +9,6 @@ internal enum RoomObjectFamily
     /// <summary>The resident scroll trigger.</summary>
     Scroll,
 
-    /// <summary>A yellow, green or red door cap.</summary>
-    ColoredDoor,
-
-    /// <summary>A condition-gated grey door cap.</summary>
-    GreyDoor,
-
     /// <summary>A map, refill or save station.</summary>
     Station,
 

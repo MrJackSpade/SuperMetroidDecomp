@@ -28013,7 +28013,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomObjectCrocomireVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.Crocomire.Artwork.InstalledRoomObjectCrocomireVisuals)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28026,7 +28026,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.Draygon.Artwork.RoomObjectDraygonCannonVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.Draygon.Artwork.InstalledDraygonCannonFrames)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28039,7 +28039,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectEscapeGateVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledEscapeGateFrames)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28052,7 +28052,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainFakeDeathVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledMotherBrainFakeDeathFrames)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28065,7 +28065,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainGlassVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledMotherBrainGlassFrames)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28078,7 +28078,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomObjectSporeSpawnCeilingVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.SporeSpawn.Artwork.InstalledRoomObjectSporeSpawnCeilingVisuals)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28091,7 +28091,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.Torizo.Artwork.RoomObjectBombTorizoHandVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Bosses.Torizo.Artwork.InstalledRoomObjectBombTorizoHandVisuals)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28104,7 +28104,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Enemies.Chozo.Artwork.RoomObjectChozoStatueVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Enemies.Chozo.Artwork.InstalledRoomObjectChozoStatueVisuals)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28117,7 +28117,7 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Enemies.Elevator.Artwork.RoomObjectElevatorPlatformVisualCatalog)",
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Enemies.Elevator.Artwork.InstalledRoomObjectElevatorPlatformVisuals)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -28274,6 +28274,19 @@
     },
     {
       "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectNoobTubeVisuals)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/RoomObjectContentIdentity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.RoomObjectContentIdentity.extension(SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectRevealAndWallVisuals)",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -30159,32 +30172,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectCollectibleVisualFiles.VisualDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectCollectibleVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectCollectibleVisualFiles.VisualManifest",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectCollectibleVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectCollectibleVisualFilesConstants",
       "kind": "static class",
       "scope": "test",
@@ -30272,58 +30259,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDoorVisualFileCodec",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDoorVisualFileCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDoorVisualFileCodec.Entry",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDoorVisualFileCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDoorVisualFileCodec.VisualDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDoorVisualFileCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDoorVisualFileCodec.VisualManifest",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDoorVisualFileCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDownwardGateVisualFiles",
       "kind": "static class",
       "scope": "product",
@@ -30335,32 +30270,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDownwardGateVisualFiles.VisualDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDownwardGateVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDownwardGateVisualFiles.VisualManifest",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDownwardGateVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDownwardGateVisualFilesConstants",
@@ -30403,32 +30312,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawListExport.DrawListLookup",
-      "kind": "delegate",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDrawListExport.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawListExport.VisualLookup",
-      "kind": "delegate",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectDrawListExport.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawSourceDefinitions",
@@ -30526,32 +30409,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectElevatorPlatformVisualFiles.VisualDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectElevatorPlatformVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectElevatorPlatformVisualFiles.VisualManifest",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectElevatorPlatformVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectElevatorPlatformVisualFilesConstants",
       "kind": "static class",
       "scope": "test",
@@ -30626,6 +30483,84 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameFamily\u003CTFrame\u003E",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameFamily.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameImageFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameCell",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameImageFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameImageFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameEntry",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameImageFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameLayout",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectFrameLayout.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles",
       "kind": "static class",
       "scope": "product",
@@ -30637,32 +30572,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles.VisualDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectGrappleBlockVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFiles.VisualManifest",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectGrappleBlockVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectGrappleBlockVisualFilesConstants",
@@ -30929,6 +30838,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectRevealAndWallVisualFiles",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectRevealAndWallVisualFiles.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectRunContinuationCodec",
       "kind": "static class",
       "scope": "product",
@@ -30937,6 +30859,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectRunContinuationCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectRunContinuationCodecConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjectRunContinuationCodecConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31011,32 +30949,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectShotBlockVisualFiles.VisualDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectShotBlockVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectShotBlockVisualFiles.VisualManifest",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectShotBlockVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectShotBlockVisualFilesConstants",
@@ -31126,32 +31038,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectStationVisualFiles.VisualDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectStationVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectStationVisualFiles.VisualManifest",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectStationVisualFiles.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectStationVisualFilesConstants",
       "kind": "static class",
       "scope": "test",
@@ -31197,19 +31083,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualBlockEntry",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectVisualBlockEntry.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualCatalogSet",
       "kind": "record",
       "scope": "product",
@@ -31227,32 +31100,6 @@
       "justified": true
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualEntry",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectVisualEntry.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualFamily\u003CTCatalog\u003E",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectVisualFamily.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualIdDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -31264,32 +31111,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualOverrideReader",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectVisualOverrideReader.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Rooms.RoomObjectVisualRunEntry",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Rooms/RoomObjectVisualRunEntry.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Rooms.RoomPresentationIdentity",
@@ -38851,19 +38672,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianAccessDrawFill",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessDrawFill.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianAccessDraws",
       "kind": "static class",
       "scope": "product",
@@ -42787,19 +42595,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireArenaArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomireArenaArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireBg2FrameDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -43039,14 +42834,14 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomObjectCrocomireVisualCatalog",
+      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.InstalledRoomObjectCrocomireVisuals",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/RoomObjectCrocomireVisualCatalog.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/InstalledRoomObjectCrocomireVisuals.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -44254,19 +44049,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonCannonArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/Artwork/DraygonCannonArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -44396,14 +44178,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.RoomObjectDraygonCannonVisualCatalog",
+      "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.InstalledDraygonCannonFrames",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/Artwork/RoomObjectDraygonCannonVisualCatalog.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/Artwork/InstalledDraygonCannonFrames.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -44679,7 +44461,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonObjectDrawDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonObjects",
@@ -47826,17 +47608,43 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.EscapeGateArtwork",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledEscapeGateFrames",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/EscapeGateArtwork.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/InstalledEscapeGateFrames.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledMotherBrainFakeDeathFrames",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/InstalledMotherBrainFakeDeathFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledMotherBrainGlassFrames",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/InstalledMotherBrainGlassFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainBodyVisualDefinitions",
@@ -47937,32 +47745,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainFakeDeathArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainFakeDeathArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainGlassArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainGlassArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainGlassVisualDefinitions",
@@ -48069,19 +47851,6 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainRainbowPalettePresentation.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRainbowPalettePresentation.BeamColors",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -48247,45 +48016,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectEscapeGateVisualCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RoomObjectEscapeGateVisualCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainFakeDeathVisualCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RoomObjectMotherBrainFakeDeathVisualCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainGlassVisualCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RoomObjectMotherBrainGlassVisualCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.ShitroidShades",
@@ -49922,7 +49652,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathObjectDrawDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFakeDeathObjectDrawDefinitionsAccess",
@@ -55467,30 +55197,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomObjectSporeSpawnCeilingVisualCatalog",
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.InstalledRoomObjectSporeSpawnCeilingVisuals",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/RoomObjectSporeSpawnCeilingVisualCatalog.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/InstalledRoomObjectSporeSpawnCeilingVisuals.cs"
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.SporeSpawnCeilingArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/Artwork/SporeSpawnCeilingArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.SporeSpawnFrameDefinitions",
@@ -56209,19 +55926,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Torizo.Artwork.BombTorizoHandArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/BombTorizoHandArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Torizo.Artwork.GoldenTorizoStrideGeometryDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -56254,14 +55958,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Torizo.Artwork.RoomObjectBombTorizoHandVisualCatalog",
+      "type": "SuperMetroid.Core.Bosses.Torizo.Artwork.InstalledRoomObjectBombTorizoHandVisuals",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/RoomObjectBombTorizoHandVisualCatalog.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/InstalledRoomObjectBombTorizoHandVisuals.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -64737,19 +64441,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Chozo.Artwork.ChozoStatueArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Chozo/Artwork/ChozoStatueArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Chozo.Artwork.ChozoStatueFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -64821,14 +64512,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Chozo.Artwork.RoomObjectChozoStatueVisualCatalog",
+      "type": "SuperMetroid.Core.Enemies.Chozo.Artwork.InstalledRoomObjectChozoStatueVisuals",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Chozo/Artwork/RoomObjectChozoStatueVisualCatalog.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/Artwork/InstalledRoomObjectChozoStatueVisuals.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -67561,27 +67252,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Elevator.Artwork.ElevatorPlatformArtwork",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/ElevatorPlatformArtwork.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Elevator.Artwork.RoomObjectElevatorPlatformVisualCatalog",
+      "type": "SuperMetroid.Core.Enemies.Elevator.Artwork.InstalledRoomObjectElevatorPlatformVisuals",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/RoomObjectElevatorPlatformVisualCatalog.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/InstalledRoomObjectElevatorPlatformVisuals.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -108438,12 +108116,15 @@
     {
       "type": "SuperMetroid.Core.Rooms.Doors.BlueDoorObjectDrawDefinitionsTooling",
       "kind": "static class",
-      "scope": "tool",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Rooms/Doors/BlueDoorObjectDrawDefinitionsTooling.cs"
+        "csharp/test-support/VerificationAccess.Core/Rooms/Doors/BlueDoorObjectDrawDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -111904,19 +111585,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectDrawDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/DownwardGateObjectDrawDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectDraws",
       "kind": "static class",
       "scope": "product",
@@ -112441,6 +112109,134 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledDraygonCannonFramesAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledDraygonCannonFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledDraygonCannonFramesAccess.extension(SuperMetroid.Core.Bosses.Draygon.Artwork.InstalledDraygonCannonFrames)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledDraygonCannonFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledEscapeGateFramesAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledEscapeGateFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledEscapeGateFramesAccess.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledEscapeGateFrames)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledEscapeGateFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledMotherBrainFakeDeathFramesAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledMotherBrainFakeDeathFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledMotherBrainFakeDeathFramesAccess.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledMotherBrainFakeDeathFrames)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledMotherBrainFakeDeathFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledMotherBrainGlassFramesAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledMotherBrainGlassFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledMotherBrainGlassFramesAccess.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.InstalledMotherBrainGlassFrames)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledMotherBrainGlassFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectBlueDoorVisuals",
@@ -112978,6 +112774,51 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledRoomObjectNoobTubeVisualsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectRevealAndWallVisuals",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/InstalledRoomObjectRevealAndWallVisuals.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectRevealAndWallVisualsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledRoomObjectRevealAndWallVisualsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectRevealAndWallVisualsAccess.extension(SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectRevealAndWallVisuals)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/InstalledRoomObjectRevealAndWallVisualsAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -113590,19 +113431,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjectDrawDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/NoobTubeObjectDrawDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.NoobTubeObjectDraws",
       "kind": "static class",
       "scope": "product",
@@ -114020,7 +113848,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectBombTorizoHandVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.Torizo.Artwork.RoomObjectBombTorizoHandVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectBombTorizoHandVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.Torizo.Artwork.InstalledRoomObjectBombTorizoHandVisuals)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -114126,7 +113954,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectChozoStatueVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Chozo.Artwork.RoomObjectChozoStatueVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectChozoStatueVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Chozo.Artwork.InstalledRoomObjectChozoStatueVisuals)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -114183,12 +114011,15 @@
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCollectibleDrawDefinitionsTooling",
       "kind": "static class",
-      "scope": "tool",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Rooms/RoomObjects/RoomObjectCollectibleDrawDefinitionsTooling.cs"
+        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectCollectibleDrawDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -114274,7 +114105,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCrocomireVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomObjectCrocomireVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectCrocomireVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.Crocomire.Artwork.InstalledRoomObjectCrocomireVisuals)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -114301,38 +114132,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraygonCannonVisualCatalogAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectDraygonCannonVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDraygonCannonVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.Draygon.Artwork.RoomObjectDraygonCannonVisualCatalog)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectDraygonCannonVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectDynamicCollectibleGraphicsNative",
@@ -114399,7 +114198,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectElevatorPlatformVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Elevator.Artwork.RoomObjectElevatorPlatformVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectElevatorPlatformVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Elevator.Artwork.InstalledRoomObjectElevatorPlatformVisuals)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -114410,38 +114209,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectElevatorPlatformVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectEscapeGateVisualCatalogAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectEscapeGateVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectEscapeGateVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectEscapeGateVisualCatalog)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectEscapeGateVisualCatalogAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -114522,6 +114289,32 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFrameImage",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFrameImages\u003CTFrame\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectFrameImages.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFrameInputs",
@@ -114771,70 +114564,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectMotherBrainFakeDeathVisualCatalogAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectMotherBrainFakeDeathVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectMotherBrainFakeDeathVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainFakeDeathVisualCatalog)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectMotherBrainFakeDeathVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectMotherBrainGlassVisualCatalogAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectMotherBrainGlassVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectMotherBrainGlassVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomObjectMotherBrainGlassVisualCatalog)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectMotherBrainGlassVisualCatalogAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectNativeWords",
@@ -115143,6 +114872,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectRuns",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectRuns.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectScrollProgramDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -115251,38 +114993,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitionsDrawListAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectShotBlockDrawDefinitionsDrawListAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitionsDrawListAccess.extension(SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefinitions.DrawList)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectShotBlockDrawDefinitionsDrawListAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockProgramDefinitions",
@@ -115462,7 +115172,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSporeSpawnCeilingVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomObjectSporeSpawnCeilingVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectSporeSpawnCeilingVisualCatalogAccess.extension(SuperMetroid.Core.Bosses.SporeSpawn.Artwork.InstalledRoomObjectSporeSpawnCeilingVisuals)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -115476,19 +115186,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectStationDrawDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectStationDrawDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectStepContext",
@@ -115579,19 +115276,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomObjectVisualOverrides",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectVisualOverrides.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Rooms.RoomObjects.RoomScrollProgram",
@@ -115738,19 +115422,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/SamusEaterObjectDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObjectDrawDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/RoomObjects/SamusEaterObjectDrawDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -139024,84 +138695,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomObjectActorClosedContractDefinitions",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomObjectActorClosedContractDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomObjectClosedContractDefinitions",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomObjectClosedContractDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomObjectDoorClosedContractDefinitions",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomObjectDoorClosedContractDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomObjectDoorPresentationContractChecks",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomObjectDoorPresentationContractChecks.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomObjectPresentationContractChecks",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomObjectPresentationContractChecks.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomObjectProgressionClosedContractDefinitions",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/ClosedContracts/Rooms/RoomObjectProgressionClosedContractDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.ResourceAudit.ClosedContracts.Rooms.RoomPictureClosedContractDefinitions",
       "kind": "static class",
       "scope": "tool",
@@ -139750,32 +139343,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.RoomObjectPrograms.RoomObjectVisualDomainAudit",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/RoomObjectPrograms/RoomObjectVisualDomainAudit.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.ResourceAudit.RoomObjectPrograms.RoomObjectVisualDomainDefinitions",
-      "kind": "static class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.ResourceAudit"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.ResourceAudit/RoomObjectPrograms/RoomObjectVisualDomainDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.ResourceAudit.VramBytes",
@@ -168306,6 +167873,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/InstalledFramePictureAssertions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Rooms.RoomObjects.LoadStationDefinitionsVerification",
       "kind": "static class",
       "scope": "test",
@@ -168618,6 +168198,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Verification.Rooms.RoomObjects.RevealAndWallVisualsVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/RevealAndWallVisualsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Rooms.RoomObjects.RightFacingGateGlitchVerification",
       "kind": "static class",
       "scope": "test",
@@ -168655,32 +168248,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectContentIdentityDefinition",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/RoomObjectContentIdentityDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectContentIdentityFrame",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Rooms/RoomObjects/RoomObjectContentIdentityFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectContentIdentityVerification",

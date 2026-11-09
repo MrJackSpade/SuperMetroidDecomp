@@ -38,12 +38,11 @@ internal static class SamusSpritemapNative
     {
         if (half == SamusBodyHalf.Bottom && index == 0)
             return null;
-        SamusSpritemapSources source = spritemaps;
         IEnumerable<SamusPoseId> candidates = [pose, .. Enumerable.Range(0, SamusBodySources.PoseCount).Where(SamusPoseNumbering.NamesPose).Select(SamusPoseNumbering.FromNumber)
-            .OrderByDescending(other => source.EntryIndex(new SamusBodyHalfFrame(other, half, 0)))];
+            .OrderByDescending(other => spritemaps.EntryIndex(new SamusBodyHalfFrame(other, half, 0)))];
         foreach (SamusPoseId candidate in candidates)
         {
-            var frame = new SamusBodyHalfFrame(candidate, half, index - source.EntryIndex(new SamusBodyHalfFrame(candidate, half, 0)));
+            var frame = new SamusBodyHalfFrame(candidate, half, index - spritemaps.EntryIndex(new SamusBodyHalfFrame(candidate, half, 0)));
             if (frame.AnimationFrame >= 0 && spritemaps.Covers(frame))
                 return frame;
         }

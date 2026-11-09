@@ -124,7 +124,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpikeTimers[FakeKraidSpikeRow.Bottom] = seedDelay + 48;
         state.NextSpikeRow = FakeKraidSpikeRow.Top;
 
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.WalkDelta = -4;

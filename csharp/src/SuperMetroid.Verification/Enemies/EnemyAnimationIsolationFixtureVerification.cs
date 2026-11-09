@@ -84,7 +84,9 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Layer = Actor.Definition.Layer;
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
-            Actor.Properties = (EnemyProperties.RunsAnimationScript | EnemyProperties.ProcessOffScreen);
+            Actor.Contact = EnemyContact.None;
+            Actor.Processing = EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen;
+            Actor.Presence = EnemyPresence.None;
             Actor.FrameHold = WrappingCountdown.Start(1);
             if (graphicsSet is not null)
             {

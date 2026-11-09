@@ -38,14 +38,16 @@ internal static class NorfairLavaJumpDefinitionsVerification
             advances = 0;
             state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
             state.YVelocity = default;
-            slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0);
+            slot.Contact = EnemyContact.None;
+            slot.Processing = EnemyProcessing.None;
+            slot.Presence = EnemyPresence.None;
             runMain(slot, state);
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch,
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");
-            AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
+            AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"Norfair lava jumper off-screen processing {random:X4}");
             AssertEqual((SoundEffectId?)Library2Sound.SplashIn, enemies.Audio.PublishedSoundFrom(EnemySoundSource.NorfairLavaJumpingEnemy),
                 $"Norfair lava jumper sound {random:X4}");

@@ -54,18 +54,16 @@ internal sealed class NorfairRidleyCombat
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
         {
-            slot.Properties = slot.Properties.With(
-                EnemyProperties.IgnoreSamusCollision |
-                EnemyProperties.Deleted |
-                EnemyProperties.Invisible);
+            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
         }
-        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
+        slot.DrawsExtendedFrames = true;
 
         // One property bit blocks Plasma Beam penetration. Its meaning is established
         // only for this boss, so preserve the raw bit instead of widening the shared enum.
-        slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
-        slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        slot.Contact = slot.Contact.With(EnemyContact.BlocksPlasmaBeam);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         slot.Position = slot.Position.WithWhole(new(96, 394));
         slot.Layer = EnemyDrawLayer.Of(5);
 
@@ -415,7 +413,7 @@ internal sealed class NorfairRidleyCombat
         state.GrabOffset = samus.Position.Whole - new Position16<RoomPixels>(GetNorfairRidleyClawX(slot, state), GetNorfairRidleyClawY(slot, state));
         state.GrabState = RidleyGrabState.CarryingSamus;
         samus.Control.LockStationary();
-        slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         if (slot.Health == 0)
         {
             StartNorfairRidleyDeathSequence(slot, state);
@@ -546,7 +544,7 @@ internal sealed class NorfairRidleyCombat
             return;
 
         state.FightMode = RidleyFightMode.Dying;
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.Function = RidleyAiFunction.NorfairReleaseSamus;
     }
 

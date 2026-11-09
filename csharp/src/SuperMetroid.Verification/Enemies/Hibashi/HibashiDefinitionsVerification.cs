@@ -123,9 +123,9 @@ internal static class HibashiDefinitionsVerification
             "Hibashi finished program clears hitbox X radius");
         AssertEqual((ushort)0, programHitbox.Radius.Y,
             "Hibashi finished program clears hitbox Y radius");
-        AssertTrue(programGraphics.Properties.HasAny(EnemyProperties.Invisible),
+        AssertTrue(programGraphics.Presence.HasAny(EnemyPresence.Hidden),
             "Hibashi finished program hides graphics actor");
-        AssertTrue(programHitbox.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
+        AssertTrue(programHitbox.Contact.HasAny(EnemyContact.IgnoresSamus),
             "Hibashi finished program disables collision actor");
         HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
         HibashiEnemyState hitboxState = programSystem.HibashiStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");

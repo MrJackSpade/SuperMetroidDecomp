@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Hardware.SignedSineFixtureVerification;
 using static SuperMetroid.Verification.Harness.SyntheticSamusAnimationDelaysVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Samus;
@@ -79,7 +80,10 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
-    AssertEqual(0x3800, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(baby.Properties), "Baby population/init property OR");
+    // The population's animation and off-screen processing, plus initialization's Plasma Beam block (native $3800).
+    AssertEqual(EnemyContact.BlocksPlasmaBeam, baby.Contact, "Baby population/init contact OR");
+    AssertEqual(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen, baby.Processing, "Baby population/init processing OR");
+    AssertEqual(EnemyPresence.None, baby.Presence, "Baby population/init presence OR");
     AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
     // their own palette rows (#1422, #1513).

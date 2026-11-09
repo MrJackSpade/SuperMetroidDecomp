@@ -341,23 +341,30 @@ internal static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x3c12, new MapTileWord(0x2812).WithLocationBlink().Raw,
         "HUD location blink applies native palette bits");
 
-    // Every independently composable enemy property is an explicit flag.
-    EnemyProperties enemyProperties = EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
-        EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus;
-    AssertTrue(enemyProperties.HasAll(EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
-            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus),
+    // Every independently composable enemy property is an explicit flag of its concern.
+    EnemyContact enemyContact = EnemyContact.IgnoresSamus | EnemyContact.BlocksPlasmaBeam | EnemyContact.SolidToSamus;
+    EnemyPresence enemyPresence = EnemyPresence.Hidden;
+    EnemyProcessing enemyProcessing = EnemyProcessing.None;
+    AssertTrue(enemyContact.HasAny(EnemyContact.IgnoresSamus) && enemyContact.HasAny(EnemyContact.BlocksPlasmaBeam) &&
+            enemyContact.HasAny(EnemyContact.SolidToSamus) && enemyPresence.HasAny(EnemyPresence.Hidden),
         "enemy visibility, collision, plasma, and platform flags round trip");
-    enemyProperties = enemyProperties.With(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
-        EnemyProperties.RunsAnimationScript);
-    AssertTrue(enemyProperties.HasAll(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
-            EnemyProperties.RunsAnimationScript),
+    enemyPresence = enemyPresence.With(EnemyPresence.Deleted);
+    enemyProcessing = enemyProcessing.With(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript);
+    AssertTrue(enemyPresence.HasAny(EnemyPresence.Deleted) && enemyProcessing.HasAny(EnemyProcessing.OffScreen) &&
+            enemyProcessing.HasAny(EnemyProcessing.AnimationScript),
         "enemy deletion and processing flags round trip");
-    enemyProperties = enemyProperties.Without(EnemyProperties.Invisible | EnemyProperties.Deleted |
-        EnemyProperties.ProcessOffScreen | EnemyProperties.RunsAnimationScript);
-    AssertEqual(EnemyProperties.IgnoreSamusCollision | EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus,
-        enemyProperties, "enemy flag operations clear only the named flags");
+    enemyPresence = enemyPresence.Without(EnemyPresence.Hidden | EnemyPresence.Deleted);
+    enemyProcessing = enemyProcessing.Without(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript);
+    AssertEqual(EnemyContact.IgnoresSamus | EnemyContact.BlocksPlasmaBeam | EnemyContact.SolidToSamus,
+        enemyContact, "enemy flag operations clear only the named flags");
+    AssertEqual(EnemyPresence.None, enemyPresence, "enemy presence operations clear the named flags");
+    AssertEqual(EnemyProcessing.None, enemyProcessing, "enemy processing operations clear the named flags");
+    var enemyProperties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
+        enemyContact, enemyProcessing, enemyPresence, DrawsExtendedFrames: true, NewInstructionFrame: false);
     AssertEqual(enemyProperties, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(
-        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(enemyProperties)), "enemy properties round trip their native word");
+        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(enemyProperties),
+        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(enemyProperties)),
+        "enemy properties round trip their native words");
 
     // The import's level-word codec: $E selects the grapple collision kind, $C supplies both
     // mirrorings, and $02A is the block. The typed block holds each field by name.

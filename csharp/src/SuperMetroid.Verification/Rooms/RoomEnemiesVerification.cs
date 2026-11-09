@@ -466,8 +466,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             foreach (bool intangible in new[] { false, true })
             foreach (ushort initial in new ushort[] { 0, 1, 2, 10, ushort.MaxValue })
             {
-                ripper.Properties = EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
-                    (intangible ? EnemyProperties.IgnoreSamusCollision : EnemyProperties.None);
+                ripper.Contact = intangible ? EnemyContact.IgnoresSamus : EnemyContact.None;
+                ripper.Processing = EnemyProcessing.OffScreen;
+                ripper.Presence = EnemyPresence.Hidden;
                 ripper.InvincibilityTimer = initial;
                 ripper.FlashTimer = 16;
                 ripper.FrozenTimer = 400;
@@ -502,11 +503,11 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             AssertEqual(initialFrame, ripper.Frame, "X-ray holds the enemy's animation frame");
             AssertEqual(initialFrameHold, ripper.FrameHold, "X-ray holds the enemy's animation timer");
         }
-        ripper.Properties = ripper.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        ripper.Contact = ripper.Contact.With(EnemyContact.IgnoresSamus);
         ripper.InvincibilityTimer = 10;
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
         AssertEqual(10, ripper.InvincibilityTimer, "intangible actor bypasses native invincibility clock");
-        ripper.Properties = ripper.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        ripper.Contact = ripper.Contact.Without(EnemyContact.IgnoresSamus);
         ripper.InvincibilityTimer = 1;
         ripper.FrozenTimer = 0;
         ripper.FlashTimer = 0;
@@ -741,7 +742,7 @@ internal static void VerifyCeresDoorBossBranch()
 
     for (int frame = 0; frame < 4; frame++)
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-    AssertTrue(!door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
+    AssertTrue(!door.Contact.HasAny(EnemyContact.IgnoresSamus),
         "living Ceres boss keeps Ridley-room door tangible");
 
     areaBossDefeated = true;
@@ -749,15 +750,15 @@ internal static void VerifyCeresDoorBossBranch()
     // that current record to expire, then require the very next `$F66A` visit to leave the
     // loop; the generous bound is diagnostic and does not alter actor state.
     for (int frame = 0;
-        frame < 40 && !door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision);
+        frame < 40 && !door.Contact.HasAny(EnemyContact.IgnoresSamus);
         frame++)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     }
-    AssertTrue(door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
+    AssertTrue(door.Contact.HasAny(EnemyContact.IgnoresSamus),
         $"defeated Ceres boss advances door bytecode to intangible setup " +
         $"(timer=${door.FrameHold.RawValue:X4}, " +
-        $"properties=${SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(door.Properties):X4}, bossReads={areaBossReads})");
+        $"contact={door.Contact}, processing={door.Processing}, presence={door.Presence}, bossReads={areaBossReads})");
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }
 
@@ -875,7 +876,10 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(AnimationProgramCursor<RidleyBodyProgram>.Start(RidleyBodyProgram.Initial), state.BodyProgram, "Ceres Ridley starts its initial program");
     AssertEqual(state.Colours.SpriteShading(flashing: false), state.CommonDrawShading, "Ceres Ridley's own colours");
     AssertEqual(7, ridley.PaletteRowIn(enemies), "Ceres Ridley dedicated OBJ palette row");
-    AssertEqual(0x3c00, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(ridley.Properties), "Ceres Ridley native initialized properties");
+    // Native $3C00: ignores Samus, blocks the Plasma Beam, and processes off screen with its animation script.
+    AssertEqual(EnemyContact.IgnoresSamus | EnemyContact.BlocksPlasmaBeam, ridley.Contact, "Ceres Ridley native initialized contact");
+    AssertEqual(EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript, ridley.Processing, "Ceres Ridley native initialized processing");
+    AssertEqual(EnemyPresence.None, ridley.Presence, "Ceres Ridley native initialized presence");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
     AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
         "Ceres Ridley initial dispatcher function");
@@ -924,7 +928,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, Shown()[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
-    AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
+    AssertTrue(!ridley.Contact.HasAny(EnemyContact.IgnoresSamus),
         "Ceres Ridley becomes tangible after body fade");
     AssertTrue(enemies.Audio.MusicRequests.Contains(new DelayedMusicRequest(
             MusicRequest.SelectTrack(5),
@@ -1114,13 +1118,13 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(CeresEscapeStatus.RidleyEscaped, enemies.RidleyEncounter.CeresStatus, "Ceres Ridley publishes escape handoff status");
     AssertEqual((ushort)RidleyAiFunction.CeresInactive, (ushort)state.Function,
         "Ceres Ridley installs null dispatcher after battle");
-    AssertTrue(ridley.Properties.HasAny(EnemyProperties.Invisible),
+    AssertTrue(ridley.Presence.HasAny(EnemyPresence.Hidden),
         "Ceres Ridley ordinary actor yields to getaway presentation");
     RoomEnemySlot[] mode7Walls = enemies.SlotTable.Slots
         .Where(slot => slot.DefinitionId == ceresDoorDefinitionPointer &&
             slot.SpawnSettings<CeresDoorSpawnSettings>().Variant is CeresDoorVariant.RidleyEscapeFloorLeftWall or CeresDoorVariant.RidleyEscapeFloorRightWall)
         .ToArray();
-    AssertTrue(mode7Walls.All(wall => wall.Properties.HasAny(EnemyProperties.Invisible)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
+    AssertTrue(mode7Walls.All(wall => wall.Presence.HasAny(EnemyPresence.Hidden)), "the getaway wall actors draw nothing; the getaway scene shows the walls");
     AssertEqual(2, mode7Walls.Length,
         "Ceres Ridley's retreat places both getaway wall actors, which hold their enemy places");
     AssertEqual((RgbColor?)RgbColor.FromWord(0x6100), retreatBackgroundColor,

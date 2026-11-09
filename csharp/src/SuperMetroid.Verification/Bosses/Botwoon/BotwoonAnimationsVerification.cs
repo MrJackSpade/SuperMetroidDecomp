@@ -248,7 +248,7 @@ internal static class BotwoonAnimationsVerification
             if (native.NewFrame)
                 drawn?.Add(head.SpritemapPointer);
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
-            AssertEqual(native.NewFrame, head.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
+            AssertEqual(native.NewFrame, head.NewInstructionFrame, $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
             AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Botwoon), $"{at}: spit sound");
         }

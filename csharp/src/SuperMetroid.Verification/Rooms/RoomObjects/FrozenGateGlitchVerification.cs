@@ -87,7 +87,7 @@ internal static class FrozenGateGlitchVerification
         RoomEnemySlot zero = zeros[0];
         AssertEqual((ushort)8, zero.Radius.X, "retail Zero horizontal collision radius");
         AssertEqual((ushort)8, zero.Radius.Y, "retail Zero vertical collision radius");
-        AssertTrue(!zero.Properties.HasAny(EnemyProperties.SolidToSamus),
+        AssertTrue(!zero.Contact.HasAny(EnemyContact.SolidToSamus),
             "unfrozen retail Zero does not use the always-solid property route");
 
         for (int warm = 0; warm < 2; warm++)
@@ -119,7 +119,7 @@ internal static class FrozenGateGlitchVerification
                 new(expected.EnemyX, FrozenGateY),
                 new(zero.Radius.X, zero.Radius.Y),
                 expected.Frozen ||
-                zero.Properties.HasAny(EnemyProperties.SolidToSamus)),
+                zero.Contact.HasAny(EnemyContact.SolidToSamus)),
         ];
 
         BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(expected.Distance)) });

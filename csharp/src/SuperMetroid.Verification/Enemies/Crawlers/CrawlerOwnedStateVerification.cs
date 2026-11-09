@@ -18,7 +18,9 @@ internal static class CrawlerOwnedStateVerification
         slot.Bind(EnemyDefinitionId.Zoomer, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnParameter1(EnemyDefinitionId.Zoomer, 2);
-        slot.Properties = EnemyProperties.None;
+        slot.Contact = EnemyContact.None;
+        slot.Processing = EnemyProcessing.None;
+        slot.Presence = EnemyPresence.None;
         CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared, null);
         CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
         int speed = CrawlerSpeeds.ForParameter(2);

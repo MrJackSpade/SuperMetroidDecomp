@@ -140,10 +140,12 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         RoomEnemySystem system, RoomEnemySlot slot, Dictionary<SporeSpawnBodyProgram, ushort[]> steps)
     {
         SporeSpawnEnemyState state = (system.SporeSpawn ?? throw new InvalidOperationException("Verification requires system.SporeSpawn."));
+        var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
+            slot.Contact, slot.Processing, slot.Presence, slot.DrawsExtendedFrames, slot.NewInstructionFrame);
         return new SporeSpawnProgramFrame(
             NativeBodyInstruction(steps, state), slot.FrameHold.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
-            checked((ushort)slot.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.ExtraProperties)),
+            checked((ushort)slot.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
             state.Function, state.Angle.TableIndex, checked((ushort)state.MaximumXRadius),
             state.DeathStarted, state.DeathDropRequested);
     }

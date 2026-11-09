@@ -32,7 +32,7 @@ internal static class ChootBehaviorVerification
         ushort[] idle = ChootAnimationsConstants.Spritemaps(ChootProgram.Idle).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([idle[0], idle[0]], [1, 1]),
             EnemyInstructionRunner.ShownFrames(slot, 3), "Choot idle pose");
-        AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Choot idle program disables off-screen processing");
+        AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), "Choot idle program disables off-screen processing");
 
         state.JumpDelayTimer = 0;
         ChootBehavior.PrepareChootJump(slot, state);
@@ -41,7 +41,7 @@ internal static class ChootBehaviorVerification
         ushort[] jumping = ChootAnimationsConstants.Spritemaps(ChootProgram.Jumping).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([jumping[0], jumping[1], jumping[1]], [8, 1, 1]),
             EnemyInstructionRunner.ShownFrames(slot, 10), "Choot jumping animation");
-        AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Choot jumping program enables off-screen processing");
+        AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), "Choot jumping program enables off-screen processing");
 
         state.YSpeedTableIndex = 1;
         ChootBehavior.RunChootJump(slot, state);

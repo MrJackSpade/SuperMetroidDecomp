@@ -12,11 +12,20 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>The live encounter stage, which the sequence's shot reactions and footsteps branch on.</summary>
     public required MotherBrainForm Form { get; init; }
 
-    /// <summary>Exact body enemy property set touched by the death and its fade. Keeping the raw flags avoids guessing names for engine-wide enemy-property bits before enemy processing is fully translated: death makes the body intangible, then fade completion hides it and clears its processing property with the game's literal OR/AND sequence.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyProperties BodyProperties { get; init; }
+    /// <summary>How the body meets Samus and her shots; death makes it ignore Samus.</summary>
+    public required SuperMetroid.Core.Enemies.EnemyContact BodyContact { get; init; }
 
-    /// <summary>Second body property word cleared when the faded body becomes non-interactive.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyExtraProperties BodyExtraProperties { get; init; }
+    /// <summary>What the enemy passes run for the body; fade completion stops its animation script.</summary>
+    public required SuperMetroid.Core.Enemies.EnemyProcessing BodyProcessing { get; init; }
+
+    /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
+    public required SuperMetroid.Core.Enemies.EnemyPresence BodyPresence { get; init; }
+
+    /// <summary>Whether the body draws extended frames; cleared when the faded body becomes non-interactive.</summary>
+    public required bool BodyDrawsExtendedFrames { get; init; }
+
+    /// <summary>Whether the body's animation just installed a frame; cleared when the faded body becomes non-interactive.</summary>
+    public required bool BodyNewInstructionFrame { get; init; }
 
     /// <summary>Mother Brain brain-slot room position used by the final beam's aim vector.</summary>
     public required Position16<RoomPixels> Brain { get; init; }
@@ -24,11 +33,20 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
     public required int BrainHealth { get; init; }
 
-    /// <summary>Exact brain enemy property set; death/rotting makes it intangible and hidden.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyProperties BrainProperties { get; init; }
+    /// <summary>How the brain meets Samus and her shots; death makes it ignore Samus.</summary>
+    public required SuperMetroid.Core.Enemies.EnemyContact BrainContact { get; init; }
 
-    /// <summary>Second brain property word cleared when the rot animation completes.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyExtraProperties BrainExtraProperties { get; init; }
+    /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation script.</summary>
+    public required SuperMetroid.Core.Enemies.EnemyProcessing BrainProcessing { get; init; }
+
+    /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>
+    public required SuperMetroid.Core.Enemies.EnemyPresence BrainPresence { get; init; }
+
+    /// <summary>Whether the brain draws extended frames; cleared when the rot animation completes.</summary>
+    public required bool BrainDrawsExtendedFrames { get; init; }
+
+    /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
+    public required bool BrainNewInstructionFrame { get; init; }
 
     /// <summary>Lower neck angle updated by the brain-slot handler. The final beam has already lowered it to three sixteenths of a turn before the Baby interrupts the body.</summary>
     public required RotationAngle LowerNeckAngle { get; init; }

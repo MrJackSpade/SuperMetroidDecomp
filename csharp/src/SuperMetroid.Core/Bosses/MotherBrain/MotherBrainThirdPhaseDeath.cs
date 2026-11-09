@@ -19,22 +19,35 @@ internal sealed class MotherBrainThirdPhaseDeath
         _state = state;
     }
 
-    /// <summary>
-    /// Exact body enemy property set touched by the death and its fade. Keeping the raw
-    /// flags avoids guessing names for engine-wide enemy-property bits before enemy processing is
-    /// fully translated: death makes the body intangible, then fade completion hides it and clears
-    /// its processing property with the game's literal OR/AND sequence.
-    /// </summary>
-    public EnemyProperties BodyProperties { get; internal set; }
+    /// <summary>How the body meets Samus and her shots; death makes it ignore Samus.</summary>
+    public EnemyContact BodyContact { get; internal set; }
 
-    /// <summary>Exact brain enemy property set; death/rotting makes it intangible and hidden.</summary>
-    public EnemyProperties BrainProperties { get; internal set; }
+    /// <summary>What the enemy passes run for the body; fade completion stops its animation script.</summary>
+    public EnemyProcessing BodyProcessing { get; internal set; }
 
-    /// <summary>Second brain property word cleared when the rot animation completes.</summary>
-    public EnemyExtraProperties BrainProperties2 { get; internal set; }
+    /// <summary>Whether the body is drawn and still occupies its slot; fade completion hides it.</summary>
+    public EnemyPresence BodyPresence { get; internal set; }
 
-    /// <summary>Second body property word cleared when the faded body becomes non-interactive.</summary>
-    public EnemyExtraProperties BodyProperties2 { get; internal set; }
+    /// <summary>Whether the body draws extended frames; cleared when the faded body becomes non-interactive.</summary>
+    public bool BodyDrawsExtendedFrames { get; internal set; }
+
+    /// <summary>Whether the body's animation just installed a frame; cleared when the faded body becomes non-interactive.</summary>
+    public bool BodyNewInstructionFrame { get; internal set; }
+
+    /// <summary>How the brain meets Samus and her shots; death makes it ignore Samus.</summary>
+    public EnemyContact BrainContact { get; internal set; }
+
+    /// <summary>What the enemy passes run for the brain; the end of rotting stops its animation script.</summary>
+    public EnemyProcessing BrainProcessing { get; internal set; }
+
+    /// <summary>Whether the brain is drawn and still occupies its slot; the end of rotting hides it.</summary>
+    public EnemyPresence BrainPresence { get; internal set; }
+
+    /// <summary>Whether the brain draws extended frames; cleared when the rot animation completes.</summary>
+    public bool BrainDrawsExtendedFrames { get; internal set; }
+
+    /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
+    public bool BrainNewInstructionFrame { get; internal set; }
 
     /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
     public bool HitboxesEnabled { get; internal set; } = true;
@@ -212,8 +225,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         // hitboxes on every call, then reuses the ordinary medium-speed backward
         // walk producer. Carry means X 40 has been reached/overshot; the new 128
         // timer falls through so the first smoky explosion and decrement happen now.
-        BodyProperties = BodyProperties.With(EnemyProperties.IgnoreSamusCollision);
-        BrainProperties = BrainProperties.With(EnemyProperties.IgnoreSamusCollision);
+        BodyContact = BodyContact.With(EnemyContact.IgnoresSamus);
+        BrainContact = BrainContact.With(EnemyContact.IgnoresSamus);
         HitboxesEnabled = false;
         MotherBrainWalkResult dyingRetreat = _state.RequestWalkBackward(40, animationDelay: 6);
         requests.BodyWalkRequested = dyingRetreat.Requested;
@@ -332,10 +345,10 @@ internal sealed class MotherBrainThirdPhaseDeath
             if (paletteIndex >= 16)
             {
                 BodyClearRequested = true;
-                BodyProperties = BodyProperties
-                    .With(EnemyProperties.Invisible)
-                    .Without(EnemyProperties.RunsAnimationScript);
-                BodyProperties2 = default;
+                BodyPresence = BodyPresence.With(EnemyPresence.Hidden);
+                BodyProcessing = BodyProcessing.Without(EnemyProcessing.AnimationScript);
+                BodyDrawsExtendedFrames = false;
+                BodyNewInstructionFrame = false;
                 _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions;
                 _state.FunctionTimer = 16;
             }
@@ -464,7 +477,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (--_state.FunctionTimer < 0)
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway;
-            BrainProperties = BrainProperties.With(EnemyProperties.IgnoreSamusCollision);
+            BrainContact = BrainContact.With(EnemyContact.IgnoresSamus);
             HitboxesEnabled = false;
         }
         return false;
@@ -488,10 +501,10 @@ internal sealed class MotherBrainThirdPhaseDeath
         // second property word, and queues stop + escape music through the ordinary
         // eight-frame-delay music queue. Twenty is loaded and immediately decremented
         // by the fallthrough into the next step, leaving observable timer nineteen now.
-        BrainProperties = BrainProperties
-            .With(EnemyProperties.Invisible)
-            .Without(EnemyProperties.RunsAnimationScript);
-        BrainProperties2 = default;
+        BrainPresence = BrainPresence.With(EnemyPresence.Hidden);
+        BrainProcessing = BrainProcessing.Without(EnemyProcessing.AnimationScript);
+        BrainDrawsExtendedFrames = false;
+        BrainNewInstructionFrame = false;
         requests.MusicStopQueued = true;   // Queue the music stop.
         requests.EscapeMusicQueued = true; // Queue the escape music.
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay;

@@ -82,9 +82,9 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             // ADF41C flickers the body and the background together on every call, not just palette ticks.
             state.DeathHidesBodyLayer = (state.Body.FrameCounter & 1) == 0;
-            state.Body.Properties = state.DeathHidesBodyLayer
-                ? state.Body.Properties.With(EnemyProperties.Invisible)
-                : state.Body.Properties.Without(EnemyProperties.Invisible);
+            state.Body.Presence = state.DeathHidesBodyLayer
+                ? state.Body.Presence.With(EnemyPresence.Hidden)
+                : state.Body.Presence.Without(EnemyPresence.Hidden);
             if (step.PaletteRequested)
                 state.Colours.LayOverBodyAndBrain(MotherBrainShades.DeathBody(sequence.State.GreyTransitionCounter - 1));
         }
@@ -92,7 +92,9 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             state.DeathBodyLayerCleared = true;
             state.DeathHidesBodyLayer = false;
-            state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
+            state.Body.Contact = sequence.ThirdPhaseDeath.BodyContact;
+            state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
+            state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;
             _presentation.RequireBossBody().Clear();
         }
         if (sequence.ThirdPhaseDeath.BrainDrawSetupRequested)
@@ -216,7 +218,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence)
     {
         RoomEnemySlot head = state.Head;
-        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
+        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyContact = state.Body.Contact, BodyProcessing = state.Body.Processing, BodyPresence = state.Body.Presence, BodyDrawsExtendedFrames = state.Body.DrawsExtendedFrames, BodyNewInstructionFrame = state.Body.NewInstructionFrame, Brain = head.Position.Whole, BrainHealth = head.Health, BrainContact = head.Contact, BrainProcessing = head.Processing, BrainPresence = head.Presence, BrainDrawsExtendedFrames = head.DrawsExtendedFrames, BrainNewInstructionFrame = head.NewInstructionFrame, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovement = state.LowerNeckMovement, UpperNeckMovement = state.UpperNeckMovement, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
     }
 
     /// <summary>
@@ -270,11 +272,17 @@ internal sealed class MotherBrainRainbowAndDeath
         }
         state.Form = sequence.State.Body.Form;
         state.BodySubFunctionTimer = sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex;
-        state.Body.Properties = sequence.ThirdPhaseDeath.BodyProperties;
-        state.Body.ExtraProperties = sequence.ThirdPhaseDeath.BodyProperties2;
+        state.Body.Contact = sequence.ThirdPhaseDeath.BodyContact;
+        state.Body.Processing = sequence.ThirdPhaseDeath.BodyProcessing;
+        state.Body.Presence = sequence.ThirdPhaseDeath.BodyPresence;
+        state.Body.DrawsExtendedFrames = sequence.ThirdPhaseDeath.BodyDrawsExtendedFrames;
+        state.Body.NewInstructionFrame = sequence.ThirdPhaseDeath.BodyNewInstructionFrame;
         head.Health = sequence.State.BrainHealth;
-        head.Properties = sequence.ThirdPhaseDeath.BrainProperties;
-        head.ExtraProperties = sequence.ThirdPhaseDeath.BrainProperties2;
+        head.Contact = sequence.ThirdPhaseDeath.BrainContact;
+        head.Processing = sequence.ThirdPhaseDeath.BrainProcessing;
+        head.Presence = sequence.ThirdPhaseDeath.BrainPresence;
+        head.DrawsExtendedFrames = sequence.ThirdPhaseDeath.BrainDrawsExtendedFrames;
+        head.NewInstructionFrame = sequence.ThirdPhaseDeath.BrainNewInstructionFrame;
         // The live word begins at two, while the reusable sequence needs only its Boolean
         // branch meaning. Preserve every nonzero value; only a translated clear
         // is allowed to collapse it to zero.

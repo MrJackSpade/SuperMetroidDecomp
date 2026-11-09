@@ -46,11 +46,11 @@ internal static class SkreeMetareeBehaviorVerification
             start(dive);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Programs, diveLoop, SkreeMetareeFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Programs, diveLoop)), $"{species} dive loop");
-            AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), $"{species} dive processes off screen");
+            AssertTrue(slot.Processing.HasAny(EnemyProcessing.OffScreen), $"{species} dive processes off screen");
 
             start(program(SkreeMetareeAnimationPhase.StopAnimating));
             EnemyInstructionRunner.ShownFrames(slot, 1);
-            AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), $"{species} stop animation ends off-screen processing");
+            AssertTrue(!slot.Processing.HasAny(EnemyProcessing.OffScreen), $"{species} stop animation ends off-screen processing");
         }
         Console.WriteLine("  Skree/Metaree behavior: idle loops, wind-ups with their attack-ready cue, dives and the stop animation pass.");
     }

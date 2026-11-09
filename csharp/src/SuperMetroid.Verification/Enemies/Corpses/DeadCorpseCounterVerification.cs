@@ -26,15 +26,15 @@ internal static class DeadCorpseCounterVerification
         AssertEqual(DeadSidehopperEnemyState.LargestPreRotDelayCount, state.PreRotDelayCounter,
             "a retained count below the wrap advances to the largest count");
         AssertEqual(DeadSidehopperAiFunction.Rotting, state.Function, "the largest count passes the sixteen-call threshold");
-        AssertTrue(slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "rotting stops further Samus collision");
+        AssertTrue(slot.Contact.HasAny(EnemyContact.IgnoresSamus), "rotting stops further Samus collision");
 
-        slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         state.Function = DeadSidehopperAiFunction.PreRotDelay;
         state.PreRotDelayCounter = DeadSidehopperEnemyState.LargestPreRotDelayCount;
         enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);
         AssertEqual(0, state.PreRotDelayCounter, "the largest retained count wraps to zero");
         AssertEqual(DeadSidehopperAiFunction.PreRotDelay, state.Function, "the wrapped count restarts the pre-rot delay");
-        AssertTrue(!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "the restarted delay keeps Samus collision");
+        AssertTrue(!slot.Contact.HasAny(EnemyContact.IgnoresSamus), "the restarted delay keeps Samus collision");
 
         for (int call = 1; call < 16; call++)
             enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState(slot, state, null, null, default);

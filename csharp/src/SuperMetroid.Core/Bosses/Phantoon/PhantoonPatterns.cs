@@ -250,7 +250,7 @@ internal sealed class PhantoonPatterns
                 state.BodyState.Function = PhantoonAiFunction.NoOperation;
                 PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
                 PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeCloseAndPickNewPattern);
-                body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
                 // This flag makes PickNewPhantoonPattern choose the initial flame-rain
                 // branch after the eye-close list invokes its flame-rain callback.
@@ -294,7 +294,7 @@ internal sealed class PhantoonPatterns
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         RoomEnemySlot eye = state.Eye;
         PhantoonPresentation.InstallPhantoonProgram(state, eye, PhantoonPartProgram.EyeClose);
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.EyeState.FadeComplete = false;
         state.TentaclesState.RoundDamage = 0;
     }
@@ -380,7 +380,7 @@ internal sealed class PhantoonPatterns
         if (!state.EyeState.FadeComplete)
             return;
 
-        body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.BodyState.Function = PhantoonAiFunction.TrackSamusDuringFlameRain;
         state.BodyState.FunctionTimer = 90;
     }
@@ -406,7 +406,7 @@ internal sealed class PhantoonPatterns
         state.EyeState.FadeComplete = false;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.InvulnerableBody);
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeClose);
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.Translucent = true;
     }
 

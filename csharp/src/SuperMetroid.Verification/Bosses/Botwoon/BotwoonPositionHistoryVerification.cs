@@ -33,14 +33,14 @@ internal static class BotwoonPositionHistoryVerification
 
         // $B3:961B and $B3:96F5 are ORA #$0400 (ignore Samus collision), never $8000. The
         // dying head must leave the shot pass or a late hit interrupts its fall.
-        AssertTrue(head.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
-            !head.Properties.HasAny(EnemyProperties.SolidToSamus),
+        AssertTrue(head.Contact.HasAny(EnemyContact.IgnoresSamus) &&
+            !head.Contact.HasAny(EnemyContact.SolidToSamus),
             "InitAI_Botwoon hides the head from collision with property $0400");
-        head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
         head.Health = 0;
         runtime.Enemies.BotwoonBehavior.ResolveBotwoonCombatAfterCommon(head);
-        AssertTrue(head.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
-            !head.Properties.HasAny(EnemyProperties.SolidToSamus),
+        AssertTrue(head.Contact.HasAny(EnemyContact.IgnoresSamus) &&
+            !head.Contact.HasAny(EnemyContact.SolidToSamus),
             "a lethal hit makes the head intangible with property $0400");
         Console.WriteLine("Botwoon position history and collision bit: ring starts zeroed; $0400 hides the head.");
     }

@@ -80,7 +80,9 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
-            Actor.Properties = (EnemyProperties.RunsAnimationScript);
+            Actor.Contact = EnemyContact.None;
+            Actor.Processing = EnemyProcessing.AnimationScript;
+            Actor.Presence = EnemyPresence.None;
             Enemies.Drawing.Enqueue(EnemyDrawLayer.Of(0), Actor);
             // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
@@ -114,8 +116,8 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.ExtraProperties = EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : EnemyExtraProperties.None);
+            Actor.DrawsExtendedFrames = true;
+            Actor.NewInstructionFrame = fresh;
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>

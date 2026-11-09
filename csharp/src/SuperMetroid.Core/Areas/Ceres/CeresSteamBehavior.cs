@@ -46,8 +46,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         switch (cue)
         {
             case CeresSteamCue.Command { Kind: CeresSteamCueKind.Vanish }:
-                slot.Properties = slot.Properties.With(
-                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
+                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
                 return null;
             case CeresSteamCue.CountDownToActivation countDown:
             {
@@ -57,13 +57,13 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 state.ActivationDelay = step.Remaining;
                 if (!step.IsZero)
                     return countDown.Target;
-                slot.Properties = slot.Properties.Without(
-                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 return countDown.Alternate;
             }
             case CeresSteamCue.Command { Kind: CeresSteamCueKind.Appear }:
-                slot.Properties = slot.Properties.Without(
-                    EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
@@ -80,9 +80,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
         // Both property changes are literal ORs performed by the initializer: normal instructions animate visibility,
         // while extended maps supply per-frame art and collision boxes whose geometry cannot be represented by header radii.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
-        slot.ExtraProperties = slot.ExtraProperties.With(
-            EnemyExtraProperties.UsesExtendedSpritemap);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.DrawsExtendedFrames = true;
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         // The initializer selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).

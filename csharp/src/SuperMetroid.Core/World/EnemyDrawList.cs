@@ -101,7 +101,7 @@ internal sealed class EnemyDrawList
                     slot.ShakeTimer--;
                 }
                 PictureShading drawShading = SelectCommonEnemyDrawShading(slot);
-                if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
+                if (!slot.DrawsExtendedFrames)
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy {slot.DefinitionId} draws before showing a frame.");

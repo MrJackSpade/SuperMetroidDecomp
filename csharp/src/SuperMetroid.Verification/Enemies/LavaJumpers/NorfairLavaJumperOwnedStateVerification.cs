@@ -34,10 +34,10 @@ internal static class NorfairLavaJumperOwnedStateVerification
 
         parentState.YVelocity = SignedEightEight.FromSignedRaw(-512);
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(follower, followerState);
-        AssertTrue(!follower.Properties.HasAny(EnemyProperties.Invisible), "the follower shows while its parent rises");
+        AssertTrue(!follower.Presence.HasAny(EnemyPresence.Hidden), "the follower shows while its parent rises");
         parentState.YVelocity = SignedEightEight.FromSignedRaw(256);
         enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain(follower, followerState);
-        AssertTrue(follower.Properties.HasAny(EnemyProperties.Invisible), "the follower hides while its parent falls");
+        AssertTrue(follower.Presence.HasAny(EnemyPresence.Hidden), "the follower hides while its parent falls");
         Console.WriteLine("Norfair lava jumper owned state: the gravity wrap and the follower's parent velocity read match.");
     }
 

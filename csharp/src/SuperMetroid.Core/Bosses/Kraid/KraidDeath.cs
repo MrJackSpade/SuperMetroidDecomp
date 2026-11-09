@@ -98,7 +98,7 @@ internal sealed class KraidDeath
                 _ = _head.ProcessKraidHeadInstruction(state);
                 state.BodyState.Function = KraidAiFunction.DeathSink;
                 state.DeathSoundTimer = 43;
-                body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
+                body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
                 _earthquake.EarthquakeType = 1;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
                 _access.StartKraidPartProgram(_parts.Arm, KraidPartProgram.ArmRisingOrSinking);
@@ -223,7 +223,7 @@ internal sealed class KraidDeath
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
         foreach (RoomEnemySlot nail in _parts.Nails)
-            nail.Properties = nail.Properties.Without(EnemyProperties.RespawnIfKilled);
+            nail.Presence = nail.Presence.Without(EnemyPresence.RespawnsIfKilled);
         foreach (RoomEnemySlot nail in _parts.Nails)
             _deathsAndDrops.StartGenericEnemyDeath(nail, deathAnimation: EnemyDeathExplosion.Small);
         foreach (RoomEnemySlot lint in _parts.Lints)
@@ -247,18 +247,23 @@ internal sealed class KraidDeath
         if (CoordinateAxis.Difference(body.Position.Y.Whole, 608) < 0)
             return;
 
-        body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        EnemyProperties armProperties = _parts.Arm.Properties.With(
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
-        _parts.Arm.Properties = armProperties;
-        EnemyProperties otherProperties = armProperties.Replace(
-            EnemyProperties.SolidToSamus |
-                EnemyProperties.RunsAnimationScript |
-                EnemyProperties.ProcessOffScreen,
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
+        body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
+        RoomEnemySlot arm = _parts.Arm;
+        arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
+        arm.Presence = arm.Presence.With(EnemyPresence.Deleted);
+        // The lints and the foot take the arm's new properties, no longer solid and without animation or off-screen
+        // processing.
+        EnemyContact otherContact = arm.Contact.Without(EnemyContact.SolidToSamus);
+        EnemyProcessing otherProcessing = arm.Processing.Without(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
         foreach (RoomEnemySlot lint in _parts.Lints)
-            lint.Properties = otherProperties;
-        _parts.Foot.Properties = otherProperties;
+        {
+            lint.Contact = otherContact;
+            lint.Processing = otherProcessing;
+            lint.Presence = arm.Presence;
+        }
+        _parts.Foot.Contact = otherContact;
+        _parts.Foot.Processing = otherProcessing;
+        _parts.Foot.Presence = arm.Presence;
         state.BodyState.Function = KraidAiFunction.DeathHideUpperBody;
         // The death returns the camera to distance index zero before the death drop.
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.NormalTracking;

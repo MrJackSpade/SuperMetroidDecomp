@@ -186,11 +186,9 @@ internal static class CrocomireBodyVisualsVerification
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.GraphicsSet.LoadGraphicsSet(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             slot.Shading = PictureShading.Standard;
-            slot.ExtraProperties = slot.ExtraProperties.With(
-                EnemyExtraProperties.UsesExtendedSpritemap);
+            slot.DrawsExtendedFrames = true;
             if (newFrame)
-                slot.ExtraProperties = slot.ExtraProperties.With(
-                    EnemyExtraProperties.NewInstructionFrame);
+                slot.NewInstructionFrame = true;
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();

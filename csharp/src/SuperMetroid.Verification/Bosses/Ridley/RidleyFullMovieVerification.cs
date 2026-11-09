@@ -74,7 +74,9 @@ internal static class RidleyFullMovieVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 158));
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(139, 282));
-        body.SpritemapPointer = 0xe9e9; body.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x3800);
+        body.SpritemapPointer = 0xe9e9; body.Contact = EnemyContact.BlocksPlasmaBeam;
+        body.Processing = EnemyProcessing.OffScreen | EnemyProcessing.AnimationScript;
+        body.Presence = EnemyPresence.None;
         (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
         state.Velocity = state.Velocity.WithX(new SignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SignedEightEight(0x0300));
@@ -127,7 +129,7 @@ internal static class RidleyFullMovieVerification
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = 0;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
-        AssertTrue(body.Properties.HasAny(EnemyProperties.Deleted), "death finish publishes deletion");
+        AssertTrue(body.Presence.HasAny(EnemyPresence.Deleted), "death finish publishes deletion");
         AssertTrue(state.BossDefeatPublished && runtime.Enemies.RidleyBehavior.Death.RidleyDeathDropRequested, "death finish publishes boss defeat and drops");
         int random = runtime.System.RandomNumber;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
@@ -472,13 +474,13 @@ internal static class RidleyFullMovieVerification
         var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = 3 };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
-        AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
+        AssertTrue(body.Contact.HasAny(EnemyContact.IgnoresSamus), "native above-camera Ridley disables collision");
         AssertEqual(3, state.IntangibilityTimer, "offscreen return preserves release timer");
         // At the next AI call Y257 is inside. EnemyMain already tested the old
         // collision bit; the cleared gate is consumed by the following update.
         body.Position = body.Position.WithWholeY(257);
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
-        AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
+        AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "native reentry clears collision gate");
         AssertEqual(2, state.IntangibilityTimer, "onscreen AI resumes release timer");
         AssertTrue(RidleyCollision.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
         AssertTrue(!RidleyCollision.IsOutsideInteractionWindow(new(64, 255), new(0, 287)), "native upper edge is admitted");

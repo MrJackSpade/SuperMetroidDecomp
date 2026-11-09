@@ -377,7 +377,7 @@ internal sealed class RidleyTail
         // The tail composition checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.
         if (state is null || state.GrabState != RidleyGrabState.Released || !samus.InvincibilityTimer.IsZero ||
-            body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
+            body.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.MovementAnimationEnabled || state.TailSegments.Length != 7)
             return false;
         RidleyTailSegment tip = state.TailSegments[6];
@@ -438,7 +438,7 @@ internal sealed class RidleyTail
         RidleyEnemyState state,
         SamusProjectileSystem projectiles)
     {
-        if (body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
+        if (body.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             state.TailSegments.Length != 7)
         {
             return;

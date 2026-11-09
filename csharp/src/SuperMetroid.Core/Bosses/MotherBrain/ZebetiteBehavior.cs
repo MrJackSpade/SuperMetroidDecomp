@@ -98,8 +98,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // One more property bit is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
-        slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
-        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
+        slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+        slot.Contact = slot.Contact.With(EnemyContact.SolidToSamus);
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         slot.Shading = PulseShading;
@@ -111,7 +111,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Generation = generation;
         if (generation == PersistentProgress.ZebetiteCount)
         {
-            slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+            slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
@@ -291,7 +291,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            slot.NewInstructionFrame = false;
             return;
         }
 
@@ -306,7 +306,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             case AnimationProgramAdvance<ZebetiteFrame>.Show shown:
                 slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(shown.Frame);
-                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                slot.NewInstructionFrame = true;
                 return;
             case AnimationProgramAdvance<ZebetiteFrame>.Hold:
                 // The script's sleep: the timer wraps from zero and the pose stays.

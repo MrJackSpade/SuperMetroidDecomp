@@ -52,7 +52,9 @@ internal static class MamaTurtleShellContourVerification
         for (short difference = -30; difference <= 30; difference++)
         {
             mama.Radius = mama.Radius.WithY(0xffff);
-            mama.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0);
+            mama.Contact = EnemyContact.None;
+            mama.Processing = EnemyProcessing.None;
+            mama.Presence = EnemyPresence.None;
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(mama.Position.X.Whole - difference)));
             runAsleep(mama, state, samus);
 
@@ -60,7 +62,7 @@ internal static class MamaTurtleShellContourVerification
             {
                 AssertEqual((ushort)0, mama.Radius.Y,
                     $"sleeping Mama ignores out-of-contour difference {difference}");
-                AssertEqual(0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(mama.Properties),
+                AssertTrue(mama.Contact == EnemyContact.None && mama.Processing == EnemyProcessing.None && mama.Presence == EnemyPresence.None,
                     $"sleeping Mama remains nonsolid outside contour at {difference}");
             }
             else
@@ -68,7 +70,7 @@ internal static class MamaTurtleShellContourVerification
                 int offset = MamaTurtleShell.GetOffset(difference);
                 AssertEqual(unchecked((ushort)-offset), mama.Radius.Y,
                     $"sleeping Mama production radius at difference {difference}");
-                AssertTrue(mama.Properties.HasAny(EnemyProperties.SolidToSamus),
+                AssertTrue(mama.Contact.HasAny(EnemyContact.SolidToSamus),
                     $"sleeping Mama production solidity at difference {difference}");
             }
             productionCases++;

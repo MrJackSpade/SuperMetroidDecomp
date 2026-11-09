@@ -62,7 +62,7 @@ internal sealed class DraygonGrab
         // collision pass to ignore Samus. Draygon's claw-window test below replaces the
         // ordinary body collision while he is deliberately chasing the gooped player.
         RoomEnemySlot body = state.Body;
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
         int clawOffset = state.FacingRight ? 8 : -8;
         bool insideGrabWindow =
@@ -136,7 +136,7 @@ internal sealed class DraygonGrab
                 state.FacingRight
                     ? DraygonProgram.BodyFacingRightRoar
                     : DraygonProgram.BodyFacingLeftRoar);
-            body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+            body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
             return;
         }
 
@@ -260,7 +260,7 @@ internal sealed class DraygonGrab
         }
 
         state.Function = DraygonAiFunction.FlyStraightUp;
-        state.Body.Properties = state.Body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         _parts.StartDraygonProgram(
             state.Tail,
             state.FacingRight

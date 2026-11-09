@@ -38,13 +38,19 @@ internal static class ShaktoolSegmentDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
-            slot.Properties = EnemyProperties.BlocksPlasmaBeam;
+            slot.Contact = EnemyContact.BlocksPlasmaBeam;
+            slot.Processing = EnemyProcessing.None;
+            slot.Presence = EnemyPresence.None;
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
 
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
-            AssertEqual(EnemyProperties.BlocksPlasmaBeam | definition.PropertyMask,
-                slot.Properties, $"Shaktool production properties {index}");
+            AssertEqual(EnemyContact.BlocksPlasmaBeam | definition.Contact,
+                slot.Contact, $"Shaktool production contact {index}");
+            AssertEqual(definition.Processing,
+                slot.Processing, $"Shaktool production processing {index}");
+            AssertEqual(EnemyPresence.None,
+                slot.Presence, $"Shaktool production presence {index}");
             AssertEqual(definition.FrameBehavior, state.FrameBehavior,
                 $"Shaktool production callback {index}");
             AssertEqual(definition.AngularVelocity, state.AngularVelocity,
@@ -85,7 +91,9 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Matches each segment's added property bits with the native lookup table.</summary>
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
-            definition => checked((ushort)EnemyPropertyWordCodec.Encode(definition.PropertyMask)), "property selection"));
+            definition => checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(
+                definition.Contact, definition.Processing, EnemyPresence.None, DrawsExtendedFrames: false, NewInstructionFrame: false))),
+            "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
     internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>

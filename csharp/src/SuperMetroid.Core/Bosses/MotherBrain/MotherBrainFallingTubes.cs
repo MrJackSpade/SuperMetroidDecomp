@@ -20,9 +20,10 @@ internal static class MotherBrainFallingTubes
         int x = main ? CenterX : CenterX + ((index & 1) == 0 ? -horizontalOffset : horizontalOffset);
         int compositionBottom = main ? MainBottom : outer ? OuterBottom : InnerBottom;
         Position16<RoomPixels> position = new(x, BottomBaseline - compositionBottom);
-        EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.RunsAnimationScript;
-        if (main) properties |= EnemyProperties.ProcessOffScreen;
-        return new(EnemyDefinitionId.MotherBrainTubes, position, properties, EnemyExtraProperties.None,
-            new MotherBrainTubeSpawnSettings(piece, main ? MainFallDelay : 0));
+        EnemyProcessing processing = main
+            ? EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen
+            : EnemyProcessing.AnimationScript;
+        return new(EnemyDefinitionId.MotherBrainTubes, position, EnemyContact.SolidToSamus, processing, EnemyPresence.None,
+            DrawsExtendedFrames: false, new MotherBrainTubeSpawnSettings(piece, main ? MainFallDelay : 0));
     }
 }

@@ -108,12 +108,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Mother Brain variant is always processed off-screen but never uses generic death
         // respawn; ordinary room Rinkas retain the respawn property so their death explosion resurrects
         // the physical slot from its population snapshot.
-        EnemyProperties resetMask =
-            EnemyProperties.RespawnIfKilled |
-            EnemyProperties.RunsAnimationScript |
-            EnemyProperties.ProcessOffScreen |
-            EnemyProperties.IgnoreSamusCollision;
-        slot.Properties = slot.Properties.Without(resetMask);
+        slot.Presence = slot.Presence.Without(EnemyPresence.RespawnsIfKilled);
+        slot.Processing = slot.Processing.Without(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+        slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
         if (IsSpecialRinka(slot))
         {
             // The spawn selection tests its spawn points against the foreground. A door's loader runs this
@@ -123,17 +120,14 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 _deferredRinkaSpawnSlots.Add(slot);
             else
                 ReserveSpecialRinkaSpawn(slot, state);
-            slot.Properties = slot.Properties.With(
-                EnemyProperties.RunsAnimationScript |
-                EnemyProperties.ProcessOffScreen |
-                EnemyProperties.IgnoreSamusCollision);
+            slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript | EnemyProcessing.OffScreen);
+            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         }
         else
         {
-            slot.Properties = slot.Properties.With(
-                EnemyProperties.RespawnIfKilled |
-                EnemyProperties.RunsAnimationScript |
-                EnemyProperties.IgnoreSamusCollision);
+            slot.Presence = slot.Presence.With(EnemyPresence.RespawnsIfKilled);
+            slot.Processing = slot.Processing.With(EnemyProcessing.AnimationScript);
+            slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         }
 
         // Both ordinary and Mother Brain variants draw in the Rinka's own colours, which every graphics set holding
@@ -166,7 +160,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (_rinkaTerminationFlag)
             {
-                slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 return;
             }
             state.Program = AnimationProgramCursor<RinkaProgram>.Start(RinkaProgram.Special);
@@ -235,9 +229,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // Special and ordinary branches have different source masks in code,
                 // but both observable results make the Rinka tangible and set its processing property here.
-                slot.Properties = slot.Properties
-                    .Without(EnemyProperties.IgnoreSamusCollision)
-                    .With(EnemyProperties.ProcessOffScreen);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
 
                 ByteAngle velocityAngle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn);
@@ -288,8 +281,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Special Mother Brain Rinkas do not clear their enemy slot. They hide, emit the
         // room-graphics dust/explosion with parameter three, wait for
         // the 1, 0, -1 countdown, restore ten health, and select a spawn.
-        slot.Properties = slot.Properties.With(
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+        slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+        slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
         SpawnRinkaDustExplosion(slot.Position.Whole);
         state.Function = RinkaEnemyFunction.DeathRespawnDelay;
         state.DelayTimer = 1;
@@ -314,14 +307,17 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case RinkaCueKind.Hide:
-                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 break;
             case RinkaCueKind.HideAndProcessOffScreen:
-                slot.Properties = slot.Properties.With(
-                    EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+                slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
+                slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
+                slot.Presence = slot.Presence.With(EnemyPresence.Hidden);
                 break;
             case RinkaCueKind.Fire:
-                slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+                slot.Contact = slot.Contact.Without(EnemyContact.IgnoresSamus);
+                slot.Presence = slot.Presence.Without(EnemyPresence.Hidden);
                 state.Function = RinkaEnemyFunction.AimDelay;
                 break;
             default:
@@ -340,7 +336,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             ReleaseSpecialRinkaSpawn(state);
             if (_rinkaTerminationFlag)
             {
-                slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
+                slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
                 return;
             }
         }
@@ -492,7 +488,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Rinka &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.RinkaPowerBomb)
         {
-            SkipsEnemy = enemy => enemy.Properties.HasAny(EnemyProperties.Invisible),
+            SkipsEnemy = enemy => enemy.Presence.HasAny(EnemyPresence.Hidden),
             ExemptFromGenericDeath = true,
             AfterCommon = (enemy, _) => ResolveRinkaCombatAfterCommon(enemy),
         });
@@ -541,7 +537,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
         _deathsAndDrops.RecordKill(slot);
-        bool respawns = slot.Properties.HasAny(EnemyProperties.RespawnIfKilled);
+        bool respawns = slot.Presence.HasAny(EnemyPresence.RespawnsIfKilled);
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 
         // The shared spawn helper initially carries the dying enemy's graphics word, but

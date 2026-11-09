@@ -36,7 +36,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
                 $"Tourian entrance-statue initializer parameter {parameter}");
 
             EnemyInstructionInterpreter.RunsAnimationScript(slot, null, null, Position16<RoomPixels>.Zero, 0);
-            AssertTrue(slot.Properties.HasAny(EnemyProperties.Deleted),
+            AssertTrue(slot.Presence.HasAny(EnemyPresence.Deleted),
                 $"Tourian entrance-statue parameter {parameter} executes native delete");
         }
         Suite(nameof(TourianEntranceStatueAnimationsVerification.VerifyTourianEntranceStatueAnimations),

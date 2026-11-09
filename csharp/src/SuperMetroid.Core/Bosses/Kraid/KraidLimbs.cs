@@ -149,8 +149,8 @@ internal sealed class KraidLimbs
         RoomEnemySlot arm = _parts.Arm;
         _access.StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
         foreach (RoomEnemySlot lint in _parts.Lints)
-            lint.Properties = lint.Properties.With(EnemyProperties.Invisible);
-        arm.Properties = arm.Properties.With(EnemyProperties.IgnoreSamusCollision);
+            lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
+        arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
         return true;
     }
 
@@ -179,9 +179,9 @@ internal sealed class KraidLimbs
         // viewport. This is actor visibility, not background priority, so preserve the hide-drawing property.
         bool onScreen = CoordinateAxis.Difference(arm.Position.Y.Whole, cameraY) >= 0 &&
             CoordinateAxis.Difference(arm.Position.Y.Whole - cameraY, 224) < 0;
-        arm.Properties = onScreen
-            ? arm.Properties.Without(EnemyProperties.Invisible)
-            : arm.Properties.With(EnemyProperties.Invisible);
+        arm.Presence = onScreen
+            ? arm.Presence.Without(EnemyPresence.Hidden)
+            : arm.Presence.With(EnemyPresence.Hidden);
 
         // While mouth reopens are pending, incrementing the timer here cancels the common
         // interpreter's later decrement and freezes the selected arm map.
@@ -197,9 +197,9 @@ internal sealed class KraidLimbs
         foot.Position = foot.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 100)));
         bool onScreen = CoordinateAxis.Difference(foot.Position.Y.Whole, cameraY) >= 0 &&
             CoordinateAxis.Difference(foot.Position.Y.Whole - 224, cameraY) < 0;
-        foot.Properties = onScreen
-            ? foot.Properties.Without(EnemyProperties.Invisible)
-            : foot.Properties.With(EnemyProperties.Invisible);
+        foot.Presence = onScreen
+            ? foot.Presence.Without(EnemyPresence.Hidden)
+            : foot.Presence.With(EnemyPresence.Hidden);
 
         KraidFootState part = state.FootState;
         switch (state.FootState.Function)

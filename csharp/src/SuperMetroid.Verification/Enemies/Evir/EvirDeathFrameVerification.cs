@@ -29,7 +29,9 @@ internal static class EvirDeathFrameVerification
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Health = slot.Definition.Health;
             slot.SpritemapPointer = 0x8b59;
-            slot.Properties = index == 6 ? EnemyProperties.None : EnemyProperties.IgnoreSamusCollision;
+            slot.Contact = index == 6 ? EnemyContact.None : EnemyContact.IgnoresSamus;
+            slot.Processing = EnemyProcessing.None;
+            slot.Presence = EnemyPresence.None;
             slot.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
             // The body bobs at half a pixel per update, one of the two speeds retail Evirs use.
             if (index == 6) slot.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
@@ -45,7 +47,7 @@ internal static class EvirDeathFrameVerification
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.None, body.DefinitionId, "Screw Attack clears Evir body during contact");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
-        AssertTrue(arms.Properties.HasAny(EnemyProperties.Deleted) && projectile.Properties.HasAny(EnemyProperties.Deleted),
+        AssertTrue(arms.Presence.HasAny(EnemyPresence.Deleted) && projectile.Presence.HasAny(EnemyPresence.Deleted),
             "Evir contact tail marks both following physical slots deleted");
         AssertEqual(1, arms.FrameCounter, "already-selected arms still receive their native final AI call");
         AssertEqual((ushort)0xfffc, arms.Position.X.Whole, "arms read cleared body X and facing rather than stale pre-death values");

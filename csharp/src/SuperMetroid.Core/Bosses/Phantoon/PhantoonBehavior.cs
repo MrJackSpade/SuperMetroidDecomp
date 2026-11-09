@@ -81,7 +81,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.FunctionTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
         bodyState.StartingFlameIndex = 0;
         bodyState.StartingFlamesActive = false;
-        body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         StartPhantoonPart(body, PhantoonPartProgram.InvulnerableBody);
         bodyState.StartPart();
         body.SetSpeciesState(bodyState);
@@ -382,7 +382,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TentaclesState.SwoopRequested = false;
         RoomEnemySlot body = state.Body;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.EyeHitboxBody);
-        body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         state.BodyState.FunctionTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Next(PhantoonRandomDefinitions.VulnerableWindowChoice)];
         state.BodyState.Function = PhantoonAiFunction.EyeTracksSamus;
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeballCentered);

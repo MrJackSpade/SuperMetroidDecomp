@@ -346,7 +346,7 @@ internal sealed class MotherBrainFakeDeath
         // Hiding the tube and moving the brain are independent branches.
         // The brain follows the tube throughout its descent, including before hiding.
         if (tube.Position.Y.Whole >= 244)
-            tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
+            tube.Presence = tube.Presence.With(EnemyPresence.Hidden);
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
             throw new InvalidOperationException("A falling main tube has no Mother Brain encounter state.");
         state.Head.Position = state.Head.Position.WithWrappedWholeY(tube.Position.Y.Whole - 56);
@@ -395,7 +395,7 @@ internal sealed class MotherBrainFakeDeath
     private void ExplodeMotherBrainTube(RoomEnemySlot tube)
     {
         Position16<RoomPixels> position = tube.Position.Whole;
-        tube.Properties = tube.Properties.With(EnemyProperties.Deleted);
+        tube.Presence = tube.Presence.With(EnemyPresence.Deleted);
         _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
         if (_motherBrainEncounter.MotherBrain is not null)
             _motherBrainEncounter.RequestBodySound(Library2Sound.SmallExplosion);

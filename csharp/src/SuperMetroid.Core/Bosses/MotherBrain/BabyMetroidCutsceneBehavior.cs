@@ -77,7 +77,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // SpawnEnemy installs the canonical empty map after init when the Baby's hide-drawing property is set.
         // The actor's list is still live and produces its first visible map on its first
         // scheduled turn; the active-index array was frozen before this allocation.
-        babySlot.Frame = babySlot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
+        babySlot.Frame = babySlot.Processing.HasAny(EnemyProcessing.AnimationScript)
             ? EnemyFrameId.Empty
             : null;
         _slotTable.CoverSpawn(babySlot);
@@ -95,7 +95,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         }
 
         var baby = new BabyMetroidCutsceneState();
-        baby.Initialize(slot.Position, slot.Properties);
+        baby.Initialize(slot.Position, slot.Contact, slot.Processing, slot.Presence);
         state.BabyMetroidSlot = slot;
         state.BabyMetroid = baby;
         state.BabyAppliedProgram = baby.Program;
@@ -188,7 +188,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         MotherBrainColours colours)
     {
         slot.Position = baby.Position;
-        slot.Properties = baby.Properties;
+        slot.Contact = baby.Contact;
+        slot.Processing = baby.Processing;
+        slot.Presence = baby.Presence;
         slot.Shading = baby.HitFlashPaletteShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
         slot.Health = baby.Health;
     }
@@ -267,7 +269,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         slot.FrameHold = frameHold.Remaining;
         if (!frameHold.IsZero)
         {
-            slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            slot.NewInstructionFrame = false;
             return;
         }
 
@@ -282,7 +284,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             case AnimationProgramAdvance<BabyMetroidFrame>.Show shown:
                 slot.FrameHold = WrappingCountdown.FromRaw(shown.Duration);
                 slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
-                slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+                slot.NewInstructionFrame = true;
                 return;
             case AnimationProgramAdvance<BabyMetroidFrame>.Hold:
                 // The script's sleep: the timer wraps from zero and the last frame stays.

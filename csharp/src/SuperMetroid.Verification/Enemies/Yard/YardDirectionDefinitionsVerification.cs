@@ -69,7 +69,9 @@ internal static class YardDirectionDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(direction, 0, 0, 0, 0));
-            slot.Properties = EnemyProperties.RespawnIfKilled;
+            slot.Contact = EnemyContact.None;
+            slot.Processing = EnemyProcessing.None;
+            slot.Presence = EnemyPresence.RespawnsIfKilled;
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
 

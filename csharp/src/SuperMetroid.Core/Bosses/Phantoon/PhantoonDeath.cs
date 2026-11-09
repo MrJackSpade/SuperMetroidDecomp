@@ -126,12 +126,18 @@ internal sealed class PhantoonDeath
 
         // The body remains the background producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as the death step does.
-        EnemyProperties hiddenPartProperties = body.Properties.Replace(
-            EnemyProperties.RunsAnimationScript,
-            EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        state.Eye.Properties = hiddenPartProperties;
-        state.Tentacles.Properties = hiddenPartProperties;
-        mouth.Properties = hiddenPartProperties;
+        EnemyContact hiddenPartContact = body.Contact.With(EnemyContact.IgnoresSamus);
+        EnemyProcessing hiddenPartProcessing = body.Processing.Without(EnemyProcessing.AnimationScript);
+        EnemyPresence hiddenPartPresence = body.Presence.With(EnemyPresence.Hidden);
+        state.Eye.Contact = hiddenPartContact;
+        state.Eye.Processing = hiddenPartProcessing;
+        state.Eye.Presence = hiddenPartPresence;
+        state.Tentacles.Contact = hiddenPartContact;
+        state.Tentacles.Processing = hiddenPartProcessing;
+        state.Tentacles.Presence = hiddenPartPresence;
+        mouth.Contact = hiddenPartContact;
+        mouth.Processing = hiddenPartProcessing;
+        mouth.Presence = hiddenPartPresence;
         _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.DyingCry);
     }
 
@@ -212,11 +218,17 @@ internal sealed class PhantoonDeath
             yBase: 96,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         state.ItemDropRequested = true;
-        EnemyProperties deletedProperties = body.Properties.With(EnemyProperties.Deleted);
-        body.Properties = deletedProperties;
-        state.Eye.Properties = deletedProperties;
-        state.Tentacles.Properties = deletedProperties;
-        state.Mouth.Properties = deletedProperties;
+        // The body is deleted, and every other part takes the body's properties.
+        body.Presence = body.Presence.With(EnemyPresence.Deleted);
+        state.Eye.Contact = body.Contact;
+        state.Eye.Processing = body.Processing;
+        state.Eye.Presence = body.Presence;
+        state.Tentacles.Contact = body.Contact;
+        state.Tentacles.Processing = body.Processing;
+        state.Tentacles.Presence = body.Presence;
+        state.Mouth.Contact = body.Contact;
+        state.Mouth.Processing = body.Processing;
+        state.Mouth.Presence = body.Presence;
         if (!state.BossDefeatPersisted)
         {
             _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);

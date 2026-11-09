@@ -57,7 +57,7 @@ internal static class CrocomirePresentation1193Verification
         if (!spikes)
         {
             (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathPhase = CrocomireDeathPhase.RumbleHiddenWall;
-            boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
+            boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
             boss.RumbleStep = 1;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
             death.RumbleCooldown = 10;
@@ -134,11 +134,11 @@ internal static class CrocomirePresentation1193Verification
             AssertEqual((ushort)99, scroll.ForegroundScroll.Y, "Native rumble includes BG1's ordinary Y offset");
             AssertEqual(bg2, scroll.BackgroundScroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
             AssertEqual((ushort)100, scroll.ForegroundPosition.Y, "Rumble does not move the camera or streaming origin");
-            (boss ?? throw new InvalidOperationException("Verification requires boss.")).Body.Properties = boss.Body.Properties.With(EnemyProperties.Invisible);
+            (boss ?? throw new InvalidOperationException("Verification requires boss.")).Body.Presence = boss.Body.Presence.With(EnemyPresence.Hidden);
             scroll.CalculateLayerScrolls();
             runtime.RoomMains.RunCrocomireComebackRoomMain(runtime.Room.LoadedScope);
             AssertEqual((ushort)103, scroll.ForegroundScroll.Y, "Invisible body suppresses the native room callback");
-            boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
+            boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
             boss.DeathPhase = CrocomireDeathPhase.BreakSpikeWall;
             death.RumbleYOffset = 0x8080;
             scroll.CalculateLayerScrolls();

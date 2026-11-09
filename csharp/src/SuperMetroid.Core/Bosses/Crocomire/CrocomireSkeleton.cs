@@ -67,12 +67,12 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomireObject(new Position16<RoomBlocks>(48, 3), CrocomireArenaMutation.CreateInvisibleWall);
         _zebetiteBehavior.CameraDistance = CameraDistanceMode.RightEdge;
         RoomEnemySlot body = state.Body;
-        body.Properties = body.Properties.Replace(
-            EnemyProperties.SolidToSamus | EnemyProperties.IgnoreSamusCollision,
-            EnemyProperties.IgnoreSamusCollision);
+        body.Contact = body.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
         if (state.Tongue is { } tongue)
-            tongue.Properties = tongue.Properties.With(
-                EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
+        {
+            tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
+            tongue.Presence = tongue.Presence.With(EnemyPresence.Hidden);
+        }
         state.RumbleStep = CrocomireRumble.FirstStep;
 
         CrocomireDeathState death = _access.RequireCrocomireDeath();

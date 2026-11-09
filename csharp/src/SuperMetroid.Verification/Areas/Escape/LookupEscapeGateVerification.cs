@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
-using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 /// <summary>Checks Mother Brain escape-gate PLM program and draw fields against native data.</summary>
@@ -51,73 +51,29 @@ internal static class LookupEscapeGateVerification
     /// <summary>Reads a native escape-gate program byte for independent field comparison.</summary>
     private static byte EscapeGateProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks three draw identities, vertical run geometry, and lookup bounds.</summary>
-    internal static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 0);
-    /// <summary>Checks collision bits of the four cells in each escape-gate frame.</summary>
-    internal static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 1);
-    /// <summary>Checks visual tile bits of the four cells in each escape-gate frame.</summary>
-    internal static void VerifyEscapeGateDrawVisuals(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 2);
+    /// <summary>The three gate frames' draw-list addresses and published names.</summary>
+    private static readonly LookupEscapeGateStockFrame[] Frames = [new(0x9473, "open"), new(0x947f, "half-closed"), new(0x948b, "closed")];
 
-    /// <summary>Compares geometry, collision, or visuals across open, half-closed, and closed layouts.</summary>
-    private static void VerifyEscapeGateDrawField(SuperMetroidAddressSpace rom, int field)
+    /// <summary>Checks which draws are the gate's, each frame's one vertical run against the cartridge, and the row bounds.</summary>
+    internal static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom)
     {
-        ushort[] pointers = [0x9473,0x947f,0x948b];
-        string[] ids = ["open","half-closed","closed"];
-        var exported = RoomObjectEscapeGateVisualFiles.All.ToArray();
-        AssertEqual(3, exported.Length, "Escape gate export count");
-        if (field == 0)
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            {
-                ushort pointer = (ushort)raw;
-                bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape), "Escape gate descriptor domain");
-                AssertEqual(owned, RoomObjectEscapeGateVisualFiles.TryGet(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto), "Escape gate DTO domain");
-                if (!owned)
-                {
-                    AssertEqual(default(MotherBrainEscapeGateDraws.Draw), shape, "Escape gate missing descriptor");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Escape gate missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate missing ID");
-                }
-            }
-            foreach (string id in new[] { "OPEN", "half", "", "unknown" })
-            {
-                AssertTrue(!RoomObjectEscapeGateVisualFiles.TryGetByVisualId(id, out var missing), "Escape gate ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Escape gate missing ID output");
-            }
+            bool owned = Frames.Any(frame => frame.Pointer == raw);
+            AssertEqual(owned, MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(raw), out var shape), "Escape gate descriptor domain");
+            if (!owned) AssertEqual(default(MotherBrainEscapeGateDraws.Draw), shape, "Escape gate missing descriptor");
         }
-        for (int index = 0; index < pointers.Length; index++)
+        AssertLayoutsAsNative(rom, RoomObjectEscapeGateVisualFiles.Family, Frames, collision: false);
+        foreach (LookupEscapeGateStockFrame frame in Frames)
         {
-            ushort pointer = pointers[index];
-            MotherBrainEscapeGateDraws.TryDescribe(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape);
-            RoomObjectEscapeGateVisualFiles.TryGet(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto);
-            if (field == 0)
-            {
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Escape gate original order");
-                AssertEqual(ids[index], RoomObjectEscapeGateVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate published ID");
-                AssertTrue(RoomObjectEscapeGateVisualFiles.TryGetByVisualId(ids[index], out var byId), "Escape gate reverse ID");
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Escape gate ID identity");
-                AssertEqual((ushort)0x8004, ReadSamusEaterObjectWord(rom, 0x840000 | pointer), "Escape gate native vertical geometry");
-                AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 10)), "Escape gate native final offset");
-                foreach (var frame in new[] {dto,exported[index],byId})
-                {
-                    AssertEqual(1, frame.Runs.Length, "Escape gate one run");
-                    AssertEqual(RoomObjectRunDirection.Vertical, frame.Runs.Span[0].Direction, "Escape gate DTO runs down its column");
-                    AssertEqual(4, frame.Runs.Span[0].Count, "Escape gate DTO block count");
-                    AssertEqual(4, frame.Runs.Span[0].Blocks.Length, "Escape gate DTO width");
-                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.X(frame, 0), "Escape gate DTO final X");
-                    AssertEqual((sbyte)0, RoomObjectRunContinuationCodec.Y(frame, 0), "Escape gate DTO final Y");
-                }
-                foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Escape gate calculated row bounds");
-            }
-            else for (int row = 0; row < 4; row++)
-            {
-                RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + row * 2)));
-                AssertTerrainField(field, expected, shape.BlockAt(row), "Escape gate original calculated field");
-                AssertTerrainField(field, expected, dto.Runs.Span[0].Blocks.Span[row], "Escape gate original DTO field");
-                AssertTerrainField(field, expected, exported[index].Runs.Span[0].Blocks.Span[row], "Escape gate original export field");
-            }
+            AssertEqual((ushort)0x8004, ReadSamusEaterObjectWord(rom, 0x840000 | frame.Pointer), "Escape gate native vertical geometry");
+            AssertEqual((ushort)0, ReadSamusEaterObjectWord(rom, 0x840000 | (frame.Pointer + 10)), "Escape gate native final offset");
         }
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeGateDraws.Draw.CollisionAt(invalid), "Escape gate row bounds");
     }
+
+    /// <summary>Checks that every cell of every gate frame collides as the cartridge's does.</summary>
+    internal static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) =>
+        AssertLayoutsAsNative(rom, RoomObjectEscapeGateVisualFiles.Family, Frames, collision: true);
 }

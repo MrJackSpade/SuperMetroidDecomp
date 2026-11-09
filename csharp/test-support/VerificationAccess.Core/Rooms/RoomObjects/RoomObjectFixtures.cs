@@ -1,4 +1,6 @@
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -14,10 +16,17 @@ internal static class RoomObjectFixtures
     private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals> visualsByFixture = [];
 
     /// <summary>A PLM system bound to no room: families that need room services fail at that dependency.</summary>
-    /// <param name="visuals">The installed artwork, or none.</param>
+    /// <param name="visuals">
+    /// The installed artwork, or none. The frame pictures of the objects that have no compiled appearance (#1557) are
+    /// bound from the repository installation where the fixture names none, as a host binds every installed picture.
+    /// </param>
     internal static RoomObjectSystem Unbound(RoomObjectVisuals? visuals = null)
     {
         visuals ??= new RoomObjectVisuals();
+        visuals.RoomObjectDraygonCannonVisuals ??= InstalledDraygonCannonFrames.Stock();
+        visuals.RoomObjectMotherBrainGlassVisuals ??= InstalledMotherBrainGlassFrames.Stock();
+        visuals.RoomObjectEscapeGateVisuals ??= InstalledEscapeGateFrames.Stock();
+        visuals.RoomObjectMotherBrainFakeDeathVisuals ??= InstalledMotherBrainFakeDeathFrames.Stock();
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals);

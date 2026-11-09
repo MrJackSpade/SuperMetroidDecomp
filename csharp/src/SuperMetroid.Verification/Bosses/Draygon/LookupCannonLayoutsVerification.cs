@@ -1,113 +1,50 @@
-using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
-using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
-/// <summary>Checks Draygon cannon draw layouts against their native geometry and cell words.</summary>
+/// <summary>Checks Draygon cannon draw geometry and collision against the cartridge's draw lists; their pictures are installed (#1557).</summary>
 internal static class LookupCannonLayoutsVerification
 {
-    /// <summary>Checks the twelve compiled cannon layouts, native run offsets, and visual ID order.</summary>
-    internal static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 0);
-    /// <summary>Compares the collision nibble of every shield and damaged-layout cell to the cartridge.</summary>
-    internal static void VerifyCannonLayoutCollision(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 1);
-    /// <summary>Compares the visual tile bits of every shield and damaged-layout cell to the cartridge.</summary>
-    internal static void VerifyCannonLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 2);
+    /// <summary>The twelve reachable cannon frames' draw-list addresses and published names.</summary>
+    private static readonly LookupEscapeGateStockFrame[] Frames = [new(0x9fcd, "right-shield-a"), new(0x9fdd, "right-shield-b"),
+        new(0xa02d, "right-damaged-a"), new(0xa03d, "right-damaged-b"), new(0xa04d, "right-damaged-c"), new(0xa05d, "right-damaged-d"),
+        new(0xa0ed, "left-shield-a"), new(0xa101, "left-shield-b"), new(0xa165, "left-damaged-a"), new(0xa179, "left-damaged-b"),
+        new(0xa18d, "left-damaged-c"), new(0xa1a1, "left-damaged-d")];
 
-    /// <summary>Walks the native draw lists and selects shape, collision, or visual assertions by field.</summary>
-    private static void VerifyCannonLayoutDrawField(SuperMetroidAddressSpace rom, int field)
+    /// <summary>Checks which draws are the cannon's, each frame's runs and continuations against the cartridge, and the shape bounds.</summary>
+    internal static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom)
     {
-        ushort[] pointers = [0x9fcd,0x9fdd,0xa02d,0xa03d,0xa04d,0xa05d,0xa0ed,0xa101,0xa165,0xa179,0xa18d,0xa1a1];
-        string[] ids = ["right-shield-a","right-shield-b","right-damaged-a","right-damaged-b","right-damaged-c","right-damaged-d","left-shield-a","left-shield-b","left-damaged-a","left-damaged-b","left-damaged-c","left-damaged-d"];
-        var exported = RoomObjectDraygonCannonVisualFiles.All.ToArray();
-        AssertEqual(12, exported.Length, "Cannon layout export count");
-        if (field == 0)
+        for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            bool owned = Frames.Any(frame => frame.Pointer == raw);
+            AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(raw), out var shape), "Cannon layout shape domain");
+            if (!owned) AssertEqual(default(DraygonCannonDraws.Draw), shape, "Cannon layout missing shape");
+        }
+        AssertLayoutsAsNative(rom, RoomObjectDraygonCannonVisualFiles.Family, Frames, collision: false);
+        foreach (LookupEscapeGateStockFrame frame in Frames)
+        {
+            DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(frame.Pointer), out var shape);
+            foreach (int invalid in new[] { int.MinValue, -1, shape.RunCount, int.MaxValue })
             {
-                ushort pointer = (ushort)raw;
-                bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var shape), "Cannon layout shape domain");
-                AssertEqual(owned, RoomObjectDraygonCannonVisualFiles.TryGet(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var dto), "Cannon layout DTO domain");
-                if (!owned)
-                {
-                    AssertEqual(default(DraygonCannonDraws.Draw), shape, "Cannon layout missing shape");
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Cannon layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomObjectDraygonCannonVisualFiles.VisualId(NativeObjectDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout missing ID");
-                }
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Cannon layout run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Cannon layout start bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Cannon layout collision run bounds");
             }
-            foreach (string id in new[] { "RIGHT-SHIELD-A", "broken", "", "unknown" })
+            for (int run = 0; run < shape.RunCount; run++)
             {
-                AssertTrue(!RoomObjectDraygonCannonVisualFiles.TryGetByVisualId(id, out var missing), "Cannon layout ordinal ID domain");
-                AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), missing, "Cannon layout rejected ID output");
+                int selectedRun = run;
+                foreach (int invalid in new[] { int.MinValue, -1, shape.BlockCount(run), int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Cannon layout cell bounds");
             }
         }
-        int cells = 0;
-        for (int index = 0; index < pointers.Length; index++)
-        {
-            ushort pointer = pointers[index];
-            DraygonCannonDraws.TryDescribe(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var shape);
-            RoomObjectDraygonCannonVisualFiles.TryGet(NativeObjectDraws.At<DraygonCannonDraw>(pointer), out var dto);
-            RoomObjectDraygonCannonVisualFiles.TryGetByVisualId(ids[index], out var byId);
-            if (field == 0)
-            {
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Cannon layout original export order");
-                AssertEqual(ids[index], RoomObjectDraygonCannonVisualFiles.VisualId(NativeObjectDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout published ID");
-                AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(byId.Draw), "Cannon layout reverse ID");
-                foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
-                {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Cannon layout run bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Cannon layout start bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Cannon layout word run bounds");
-                }
-            }
-            int cursor = 0x840000 | pointer;
-            int run = 0;
-            while (true)
-            {
-                ushort header = ReadSamusEaterObjectWord(rom, cursor);
-                int count = header & 0x7fff;
-                ushort offset = ReadSamusEaterObjectWord(rom, cursor + 2 + count * 2);
-                if (field == 0)
-                {
-                    AssertEqual((ushort)count, header, "Cannon layout native direction");
-                    AssertEqual(count, shape.BlockCount(run), "Cannon layout native calculated count");
-                    // The cartridge ends each run with the next run's start, and the last with no offset.
-                    Offset16<RoomBlocks> continuation = run + 1 < shape.RunCount ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
-                    AssertEqual(LittleEndianBytes.Word(unchecked((byte)continuation.X), unchecked((byte)continuation.Y)), offset, "Cannon layout native calculated continuation");
-                    foreach (var frame in new[] {dto,exported[index],byId})
-                    {
-                        var part = frame.Runs.Span[run];
-                        AssertRunHeader(header, part, "Cannon layout native DTO geometry");
-                        AssertEqual(count, part.Blocks.Length, "Cannon layout native DTO count");
-                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "Cannon layout native DTO offset");
-                    }
-                    int selectedRun = run;
-                    foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Cannon layout cell bounds");
-                }
-                else for (int cell = 0; cell < count; cell++)
-                {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2));
-                    AssertTerrainField(field, expected, shape.BlockAt(run, cell), "Cannon layout original calculated field");
-                    foreach (var frame in new[] {dto,exported[index],byId})
-                        AssertTerrainField(field, expected, frame.Runs.Span[run].Blocks.Span[cell], "Cannon layout original DTO field");
-                }
-                cells += count;
-                run++;
-                cursor += 4 + count * 2;
-                if (offset == 0) break;
-                AssertTrue(run < 5, "Cannon layout native run termination");
-            }
-            AssertEqual(run, shape.RunCount, "Cannon layout native run count");
-            AssertEqual(run, dto.Runs.Length, "Cannon layout native DTO run count");
-        }
-        AssertEqual(48, cells, "Cannon layout independent physical cell count");
     }
+
+    /// <summary>Compares how every shield and damaged-frame cell collides with the cartridge.</summary>
+    internal static void VerifyCannonLayoutCollision(SuperMetroidAddressSpace rom) =>
+        AssertLayoutsAsNative(rom, RoomObjectDraygonCannonVisualFiles.Family, Frames, collision: true);
 }

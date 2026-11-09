@@ -949,7 +949,6 @@ internal static class RoomObjectPopulationVerification
         Suite(nameof(VerifyEscapeGateProgramDraws), () => VerifyEscapeGateProgramDraws(rom));
         Suite(nameof(VerifyEscapeGateDrawGeometry), () => VerifyEscapeGateDrawGeometry(rom));
         Suite(nameof(VerifyEscapeGateDrawCollision), () => VerifyEscapeGateDrawCollision(rom));
-        Suite(nameof(VerifyEscapeGateDrawVisuals), () => VerifyEscapeGateDrawVisuals(rom));
     }
 
     /// <summary>The escape gate's shut and closing changes play as their native lists do (#1554).</summary>

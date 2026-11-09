@@ -1,107 +1,47 @@
-using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
-using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
-/// <summary>Cross-checks Mother Brain fake-death wall and door draw records against bank $84.</summary>
+/// <summary>Cross-checks Mother Brain fake-death wall and door geometry and collision against bank $84; their pictures are installed (#1557).</summary>
 internal static class LookupMotherBrainBoundaryVerification
 {
-    /// <summary>Checks pointer ownership, two-run geometry, and bounds for the wall and door boundary records.</summary>
+    /// <summary>The wall-fill and escape-door draw-list addresses and published names.</summary>
+    private static readonly LookupEscapeGateStockFrame[] Boundaries = [new(0x94a3, "fill-wall"), new(0x94b1, "escape-door")];
+
+    /// <summary>Checks pointer ownership, the two vertical runs against the cartridge, and the shape bounds.</summary>
     internal static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
     {
-        var exports = RoomObjectMotherBrainFakeDeathVisualFiles.All.Take(2).ToArray();
-        ushort[] pointers = [0x94a3,0x94b1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            int index = Array.IndexOf(pointers, (ushort)raw);
-            AssertEqual(index >= 0, MotherBrainFakeDeathDraws.TryDescribeBoundary(NativeObjectDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var shape),
+            bool owned = Boundaries.Any(frame => frame.Pointer == raw);
+            AssertEqual(owned, MotherBrainFakeDeathDraws.TryDescribeBoundary(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(raw), out var shape),
                 "Mother Brain wall/door ownership");
-            if (index < 0)
+            if (!owned)
             {
                 AssertEqual(default(MotherBrainFakeDeathDraws.BoundaryDraw), shape, "Mother Brain missing wall/door descriptor");
                 continue;
             }
-            AssertEqual((ushort)raw, RoomObjectDrawAddressCodec.Of(exports[index].Draw), "Mother Brain boundary export order");
-            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>((ushort)raw), out var dto);
-            int cursor = raw;
-            for (int run = 0; run < 2; run++)
+            foreach (int bad in new[] { int.MinValue, -1, MotherBrainFakeDeathDraws.BoundaryDraw.RunCount, int.MaxValue })
             {
-                ushort direction = ReadSamusEaterObjectWord(rom, 0x840000 | cursor);
-                int count = direction & 0x7fff;
-                AssertEqual((ushort)(0x8000 | shape.Count(run)), direction, "Mother Brain vertical boundary run");
-                cursor += 2 + count * 2;
-                sbyte x = unchecked((sbyte)MotherBrainBoundaryGeometryRomByte(rom, 0x840000 | cursor++));
-                sbyte y = unchecked((sbyte)MotherBrainBoundaryGeometryRomByte(rom, 0x840000 | cursor++));
-                // The cartridge ends each run with the next run's start, and the last with no offset.
-                Offset16<RoomBlocks> continuation = run + 1 < MotherBrainFakeDeathDraws.BoundaryDraw.RunCount
-                    ? shape.Start(run + 1) : Offset16<RoomBlocks>.Zero;
-                AssertEqual(x, continuation.X, "Mother Brain native boundary X");
-                AssertEqual(y, continuation.Y, "Mother Brain native boundary Y");
-                foreach (var draw in new[] {dto,exports[index]})
-                {
-                    AssertEqual(2, draw.Runs.Length, "Mother Brain two boundary runs");
-                    AssertRunHeader(direction, draw.Runs.Span[run], "Mother Brain DTO direction/count");
-                    AssertEqual(count, draw.Runs.Span[run].Blocks.Length, "Mother Brain DTO run width");
-                    AssertEqual(x, RoomObjectRunContinuationCodec.X(draw, run), "Mother Brain DTO X");
-                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(draw, run), "Mother Brain DTO Y");
-                }
-                foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run,bad), "Mother Brain boundary cell bounds");
-            }
-            AssertEqual(index == 0 ? 0x94b1 : 0x94c9, cursor, "Mother Brain exact boundary record end");
-            foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad,0), "Mother Brain boundary run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(bad, 0), "Mother Brain boundary run bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(bad), "Mother Brain boundary start bounds");
             }
-        }
-    }
-
-    /// <summary>Reads native boundary bytes for the geometry comparison.</summary>
-    private static byte MotherBrainBoundaryGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
-    /// <summary>Compares the collision kinds in both boundary records with the decoded native blocks.</summary>
-    internal static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 0));
-
-    /// <summary>Compares the appearances of the fake-death wall record with the decoded native blocks.</summary>
-    internal static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 1));
-
-    /// <summary>Compares the appearances of the fake-death door record with the decoded native blocks.</summary>
-    internal static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 2));
-
-    /// <summary>Checks the selected collision or visual field of each native boundary cell.</summary>
-    private static void VerifyMotherBrainBoundaryCells(SuperMetroidAddressSpace rom, int field)
-    {
-        foreach (ushort pointer in new ushort[] {0x94a3,0x94b1})
-        {
-            if (field == 1 && pointer != 0x94a3 || field == 2 && pointer != 0x94b1) continue;
-            MotherBrainFakeDeathDraws.TryDescribeBoundary(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
-            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
-            int cursor = pointer;
-            int compared = field == 0 ? CollisionField : field;
-            for (int run = 0; run < 2; run++)
+            for (int run = 0; run < MotherBrainFakeDeathDraws.BoundaryDraw.RunCount; run++)
             {
-                int count = ReadSamusEaterObjectWord(rom, 0x840000 | cursor) & 0x7fff;
-                cursor += 2;
-                for (int block = 0; block < count; block++, cursor += 2)
-                {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor));
-                    AssertTerrainField(compared, expected, shape.BlockAt(run,block), "Mother Brain native boundary field");
-                    AssertTerrainField(compared, expected, dto.Runs.Span[run].Blocks.Span[block], "Mother Brain DTO boundary field");
-                }
-                cursor += 2;
+                int selectedRun = run;
+                foreach (int bad in new[] { int.MinValue, -1, shape.Count(run), int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, bad), "Mother Brain boundary cell bounds");
             }
         }
+        AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Boundaries, collision: false);
     }
+
+    /// <summary>Compares how every cell of both boundary records collides with the decoded native blocks.</summary>
+    internal static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
+        AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Boundaries, collision: true);
 }

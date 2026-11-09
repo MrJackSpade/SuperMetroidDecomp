@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
-
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
@@ -15,12 +13,4 @@ internal sealed record RoomObjectFrameFamily<TFrame>(
     string FileName,
     string Name,
     IReadOnlyDictionary<TFrame, RoomObjectFrameLayout> Layouts,
-    IReadOnlyDictionary<TFrame, string> Ids) where TFrame : struct, Enum
-{
-    /// <summary>The geometry of <paramref name="draw"/>, which must be one of this object's frames.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not one of this object's frames.</exception>
-    internal RoomObjectFrameLayout LayoutOf(RoomObjectDraw draw) =>
-        Layouts.TryGetValue(RoomObjectDraw.FrameOf<TFrame>(draw, Name), out RoomObjectFrameLayout layout)
-            ? layout
-            : throw new InvalidDataException($"{Name} has no frame {draw}.");
-}
+    IReadOnlyDictionary<TFrame, string> Ids) where TFrame : struct, Enum;

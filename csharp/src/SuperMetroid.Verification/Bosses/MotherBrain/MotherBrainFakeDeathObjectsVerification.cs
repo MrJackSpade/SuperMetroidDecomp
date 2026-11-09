@@ -31,27 +31,26 @@ internal static class MotherBrainFakeDeathObjectsVerification
         Suite(nameof(VerifyMotherBrainBackgroundCollision), () => VerifyMotherBrainBackgroundCollision(rom));
         Suite(nameof(VerifyMotherBrainBoundaryGeometry), () => VerifyMotherBrainBoundaryGeometry(rom));
         Suite(nameof(VerifyMotherBrainBoundaryCollision), () => VerifyMotherBrainBoundaryCollision(rom));
-        Suite(nameof(VerifyMotherBrainWallVisuals), () => VerifyMotherBrainWallVisuals(rom));
-        Suite(nameof(VerifyMotherBrainDoorVisuals), () => VerifyMotherBrainDoorVisuals(rom));
 
-        RoomObjectShotBlockDrawDefinitions.DrawList[] draws =
-            RoomObjectMotherBrainFakeDeathVisualFiles.All.ToArray();
-        AssertEqual(22, draws.Length,
+        AssertEqual(22, RoomObjectMotherBrainFakeDeathVisualFiles.Family.Layouts.Count,
             "Mother Brain fake death owns twenty-two physical draws");
         foreach (MotherBrainRoomMutation mutation in Enum.GetValues<MotherBrainRoomMutation>())
         {
             TerrainChange change = MotherBrainRoomMutationDefinitions.Changes[mutation];
             AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out _),
                 $"Mother Brain mutation {mutation} draws a compiled layout");
-            VerifyMotherBrainFakeDeathMutation(mutation, change);
+            VerifyMotherBrainFakeDeathMutation(rom, mutation, change);
         }
 
         Console.WriteLine(
             "Mother Brain fake-death room objects: 22 full draws and 20 production mutations match ROM without source reads.");
     }
 
-    /// <summary>Checks one spawned PLM's exact collision blocks, draw-frame lifetime, deletion, and source-read guard.</summary>
-    private static void VerifyMotherBrainFakeDeathMutation(
+    /// <summary>
+    /// Checks one spawned PLM's exact blocks, drawn from its installed picture, against the terrain the cartridge's draw
+    /// list writes, and its draw-frame lifetime, deletion and source-read guard.
+    /// </summary>
+    private static void VerifyMotherBrainFakeDeathMutation(SuperMetroidAddressSpace rom,
         MotherBrainRoomMutation mutation, TerrainChange change)
     {
         const int width = 32;
@@ -69,16 +68,9 @@ internal static class MotherBrainFakeDeathObjectsVerification
             $"Mother Brain mutation {mutation} starts its terrain change");
         AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out var draw),
             $"Mother Brain mutation {mutation} has a physical draw");
-        for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
-        {
-            RoomObjectShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
-            int x = 5 + run.Start.X;
-            int y = 3 + run.Start.Y;
-            bool vertical = run.Direction == RoomObjectRunDirection.Vertical;
-            for (int block = 0; block < run.Blocks.Length; block++)
-                expected[(y + (vertical ? block : 0)) * width +
-                    x + (vertical ? 0 : block)] = run.Blocks.Span[block];
-        }
+        foreach (KeyValuePair<Offset16<RoomBlocks>, RoomTerrainBlock> cell in
+                 InstalledFramePictureAssertions.NativeTerrain(rom, RoomObjectDrawAddressCodec.Of(draw.Draw), out _))
+            expected[(3 + cell.Key.Y) * width + 5 + cell.Key.X] = cell.Value;
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         AssertEqual(1, roomObjects.SlotTable.ActiveCount,
@@ -101,10 +93,10 @@ internal static class MotherBrainFakeDeathObjectsVerification
             int pointer = SnesAddressMath.OffsetInBank(address);
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 (BossRoomObjectNativeListAddresses.IsTypedProgramByte(pointer) ||
-                 RoomObjectMotherBrainFakeDeathVisualFiles.All.Any(draw =>
+                 RoomObjectMotherBrainFakeDeathVisualFiles.Family.Layouts.Values.Any(draw =>
                      pointer >= RoomObjectDrawAddressCodec.Of(draw.Draw) && pointer < RoomObjectDrawAddressCodec.Of(draw.Draw) +
                          draw.Runs.Span.Sum(run =>
-                             4 + run.Blocks.Length * 2)));
+                             4 + run.Count * 2)));
         }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");
 
     /// <summary>Runs the focused Mother Brain terrain mutation comparison against the retail ROM.</summary>

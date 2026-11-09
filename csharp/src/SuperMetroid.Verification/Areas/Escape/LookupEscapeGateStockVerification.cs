@@ -1,54 +1,20 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
-using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Areas.Escape;
 
-/// <summary>Checks the three escape-gate block drawings and catalog identity against native PLM words.</summary>
+/// <summary>Checks the installed pictures of the escape gate's frames against the cartridge's draw lists (#1557).</summary>
 internal static class LookupEscapeGateStockVerification
 {
-    /// <summary>Compares open, half-closed, and closed rows with stock and installed art, then checks bounds, and invalid imports.</summary>
-    internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
-        RoomObjectEscapeGateVisualCatalog installed)
+    /// <summary>Compares the open, half-closed and closed frames' pictures with the cartridge, then the import and its rejections.</summary>
+    internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom, InstalledEscapeGateFrames installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9473,"open"),new LookupEscapeGateStockFrame(0x947f,"half-closed"),new LookupEscapeGateStockFrame(0x948b,"closed")];
-        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
-        foreach (var frame in frames)
-        {
-            var appearances = new RoomBlockAppearance[4];
-            for (int row = 0; row < appearances.Length; row++)
-                appearances[row] = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (frame.Pointer + 2 + row * 2))).Appearance;
-            native.Add(frame.Pointer, appearances);
-        }
-        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = RoomObjectEscapeGateVisualCatalog.Stock();
-        var imported = RoomObjectEscapeGateVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomObjectEscapeGateVisualCatalog), appearances.ToDictionary(pair => RoomObjectEscapeGateVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
-        foreach (var catalog in new[] {stock,imported,installed})
-        {
-            AssertEqual(Hash(native), catalog.ContentIdentity, "Escape gate original stock identity");
-            foreach (var frame in frames)
-            {
-                for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetAppearance(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),row), "Escape gate native stock visual");
-                foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),bad), "Escape gate stock row bounds");
-            }
-        }
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            if (!native.ContainsKey((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<MotherBrainEscapeGateDraw>((ushort)raw),0), "Escape gate unknown stock pointer");
-        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(entries[..2]), "Escape gate missing frame");
-        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(entries.Append(entries[0])), "Escape gate duplicate frame");
-        var invalid = entries.ToArray();
-        invalid[0] = new("OPEN", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(invalid), "Escape gate ordinal identity");
-        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[3]);
-        AssertThrows<InvalidDataException>(() => RoomObjectEscapeGateVisualFiles.Create(invalid), "Escape gate exact shape");
+        LookupEscapeGateStockFrame[] frames = [new(0x9473, "open"), new(0x947f, "half-closed"), new(0x948b, "closed")];
+        foreach (InstalledEscapeGateFrames pictures in new[] { InstalledEscapeGateFrames.Stock(), installed })
+            AssertPicturedAsNative(rom, pictures.Images, RoomObjectEscapeGateVisualFiles.Family, frames, 12);
+        AssertImportAndRejections(rom, installed.Images, RoomObjectEscapeGateVisualFiles.Family);
     }
 }

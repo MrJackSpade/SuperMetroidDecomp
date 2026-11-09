@@ -1,27 +1,28 @@
-using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
-/// <summary>Checks Mother Brain fake-death background draw geometry and collision words.</summary>
+/// <summary>Checks Mother Brain fake-death mural-row geometry and collision against the cartridge; their pictures are installed (#1557).</summary>
 internal static class LookupMotherBrainBackgroundVerification
 {
-    /// <summary>Checks the 12 native background rows, descriptor ownership, dimensions, offsets, and column bounds.</summary>
+    /// <summary>The twelve mural rows' draw-list addresses and published names, top to bottom.</summary>
+    private static readonly LookupEscapeGateStockFrame[] Rows = [new(0x9505, "background-row-2"), new(0x9523, "background-row-3"),
+        new(0x9541, "background-row-4"), new(0x955f, "background-row-5"), new(0x957d, "background-row-6"), new(0x959b, "background-row-7"),
+        new(0x95b9, "background-row-8"), new(0x95d7, "background-row-9"), new(0x95f5, "background-row-a"), new(0x9613, "background-row-b"),
+        new(0x9631, "background-row-c"), new(0x964f, "background-row-d")];
+
+    /// <summary>Checks the twelve rows' ownership and order, their one thirteen-cell run against the cartridge, and the column bounds.</summary>
     internal static void VerifyMotherBrainBackgroundGeometry(SuperMetroidAddressSpace rom)
     {
-        ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
-        var exports = RoomObjectMotherBrainFakeDeathVisualFiles.All.Where(draw => pointers.Contains(RoomObjectDrawAddressCodec.Of(draw.Draw))).ToArray();
-        AssertEqual(12, exports.Length, "Mother Brain background export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
-            int row = Array.IndexOf(pointers, (ushort)value);
-            AssertEqual(row >= 0, MotherBrainFakeDeathDraws.TryDescribeBackground(NativeObjectDraws.At<MotherBrainFakeDeathDraw>((ushort)value), out var shape),
+            int row = Array.FindIndex(Rows, frame => frame.Pointer == value);
+            AssertEqual(row >= 0, MotherBrainFakeDeathDraws.TryDescribeBackground(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(value), out var shape),
                 "Mother Brain background ownership");
             if (row < 0)
             {
@@ -29,39 +30,13 @@ internal static class LookupMotherBrainBackgroundVerification
                 continue;
             }
             AssertEqual(row, shape.Row, "Mother Brain native row order");
-            AssertEqual((ushort)value, RoomObjectDrawAddressCodec.Of(exports[row].Draw), "Mother Brain background export order");
-            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>((ushort)value), out var dto);
-            foreach (var draw in new[] {dto, exports[row]})
-            {
-                AssertEqual(1, draw.Runs.Length, "Mother Brain single background row");
-                var run = draw.Runs.Span[0];
-                AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x840000 | value), run, "Mother Brain native background count/direction");
-                AssertEqual(13, run.Blocks.Length, "Mother Brain background width");
-                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 28))), RoomObjectRunContinuationCodec.X(draw, 0), "Mother Brain background native X");
-                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 29))), RoomObjectRunContinuationCodec.Y(draw, 0), "Mother Brain background native Y");
-            }
-            foreach (int bad in new[] {int.MinValue,-1,13,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad), "Mother Brain background column bounds");
+            foreach (int bad in new[] { int.MinValue, -1, MotherBrainFakeDeathObjectDrawDefinitions.BackgroundWidth, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(bad), "Mother Brain background column bounds");
         }
+        AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Rows, collision: false);
     }
 
-    /// <summary>Reads one cartridge byte as the independent row-offset oracle.</summary>
-    private static byte MotherBrainBackgroundGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
-    /// <summary>Checks that every background cell matches the decoded ROM block: its collision kind and appearance.</summary>
-    internal static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom)
-    {
-        ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
-        foreach (ushort pointer in pointers)
-        {
-            MotherBrainFakeDeathDraws.TryDescribeBackground(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
-            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
-            for (int column = 0; column < 13; column++)
-            {
-                RoomTerrainBlock original = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + column * 2)));
-                AssertEqual(original, shape.BlockAt(column), "Mother Brain decoded original background block");
-                AssertEqual(original, dto.Runs.Span[0].Blocks.Span[column], "Mother Brain DTO complete native cell");
-            }
-        }
-    }
+    /// <summary>Checks that every mural cell collides as the cartridge's does: slopes on the border rows, air between.</summary>
+    internal static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom) =>
+        AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Rows, collision: true);
 }

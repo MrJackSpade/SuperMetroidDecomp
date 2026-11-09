@@ -20,6 +20,8 @@ using SuperMetroid.AssetExtraction.Video;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -33,34 +35,30 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
         Suite(nameof(VerifyMotherBrainGlassObjectProgram), () => VerifyMotherBrainGlassObjectProgram(rom));
         Suite(nameof(VerifyGlassLayoutGeometry), () => VerifyGlassLayoutGeometry(rom));
         Suite(nameof(VerifyGlassLayoutCollision), () => VerifyGlassLayoutCollision(rom));
-        Suite(nameof(VerifyGlassLayoutVisuals), () => VerifyGlassLayoutVisuals(rom));
 
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
-            RoomObjectMotherBrainGlassVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomObjectVisualEntry[] entries = lists.Select(draw =>
-            new RoomObjectVisualEntry(
-                RoomObjectMotherBrainGlassVisualFiles.VisualId(draw.Draw),
-                draw.Appearances())).ToArray();
-        AssertEqual(entries.Single(entry => entry.Id == "shatter-1").Blocks[6],
-            RoomObjectMotherBrainGlassVisualCatalog.Stock().GetAppearance(NativeObjectDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
-            "stock glass visual catalog retains the native shatter tile");
+        RoomObjectFrameLayout[] lists =
+            RoomObjectMotherBrainGlassVisualFiles.Family.Layouts.Values.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
         AssertEqual(11, lists.Length,
             "Mother Brain glass program selects eleven distinct physical draw lists");
         var bank84 = new byte[0x8000];
         for (int index = 0; index < bank84.Length; index++)
             bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
-        foreach (RoomObjectShotBlockDrawDefinitions.DrawList list in lists)
-            VerifyMotherBrainGlassNativeDrawPath(bank84, lists, list);
+        foreach (RoomObjectFrameLayout list in lists)
+            VerifyMotherBrainGlassNativeDrawPath(rom, bank84, lists, list);
         Suite(nameof(VerifyMotherBrainGlassVisualInstallation), () => VerifyMotherBrainGlassVisualInstallation(rom));
         Console.WriteLine(
             "  Mother Brain glass PLM: 11 guarded native layouts preserve physical blocks.");
     }
 
-    /// <summary>Draws one selected glass layout in a synthetic room while denying reads of its original cartridge payload.</summary>
+    /// <summary>
+    /// Draws one selected glass layout from its installed picture in a synthetic room while denying reads of its original
+    /// cartridge payload, and requires the room to hold the terrain the cartridge's draw list writes.
+    /// </summary>
     private static void VerifyMotherBrainGlassNativeDrawPath(
+        SuperMetroidAddressSpace rom,
         byte[] bank84,
-        RoomObjectShotBlockDrawDefinitions.DrawList[] lists,
-        RoomObjectShotBlockDrawDefinitions.DrawList selected)
+        RoomObjectFrameLayout[] lists,
+        RoomObjectFrameLayout selected)
     {
         const int width = 32;
         const int height = 16;
@@ -85,18 +83,9 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
         roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<MotherBrainGlassDraw>(RoomObjectDrawAddressCodec.Of(selected.Draw)));
 
         var expected = new Dictionary<int, RoomTerrainBlock>();
-        foreach (RoomObjectShotBlockDrawDefinitions.Run run in selected.Runs.Span)
-        {
-            int entryX = originX + run.Start.X;
-            int entryY = originY + run.Start.Y;
-            bool vertical = run.Direction == RoomObjectRunDirection.Vertical;
-            for (int block = 0; block < run.Blocks.Length; block++)
-            {
-                int x = entryX + (vertical ? 0 : block);
-                int y = entryY + (vertical ? block : 0);
-                expected.Add(y * width + x, run.Blocks.Span[block]);
-            }
-        }
+        foreach (KeyValuePair<Offset16<RoomBlocks>, RoomTerrainBlock> cell in
+                 InstalledFramePictureAssertions.NativeTerrain(rom, RoomObjectDrawAddressCodec.Of(selected.Draw), out _))
+            expected.Add((originY + cell.Key.Y) * width + originX + cell.Key.X, cell.Value);
         foreach ((int index, RoomTerrainBlock block) in expected)
             AssertEqual(block, level.GetCollisionBlockByIndex(index).Terrain,
                 $"glass draw ${RoomObjectDrawAddressCodec.Of(selected.Draw):X4} writes native physical block {index}");
@@ -127,12 +116,12 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
 
     /// <summary>Blocks cartridge reads across every compiled glass draw list's run headers and tile words.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassDrawReadGuard(
-        ISnesAddressSpace source, RoomObjectShotBlockDrawDefinitions.DrawList[] lists) =>
+        ISnesAddressSpace source, RoomObjectFrameLayout[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>
             {
                 int first = 0x840000 | RoomObjectDrawAddressCodec.Of(list.Draw);
                 int length = list.Runs.Span.Sum(run =>
-                    4 + run.Blocks.Length * 2);
+                    4 + run.Count * 2);
                 return address >= first && address < first + length;
             }),
             address => $"Mother Brain glass reread draw payload ${address:X6}.");

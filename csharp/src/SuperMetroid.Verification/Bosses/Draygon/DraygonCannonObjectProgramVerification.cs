@@ -30,7 +30,6 @@ internal static class DraygonCannonObjectProgramVerification
         BossRoomObjectProgramsVerification.VerifyDraygonCannonPrograms(rom);
         VerifyCannonLayoutGeometry(rom);
         VerifyCannonLayoutCollision(rom);
-        VerifyCannonLayoutVisuals(rom);
         VerifyDraygonCannonVisualInstallation(rom);
 
         var source = new TestAddressSpace();
@@ -112,11 +111,11 @@ internal static class DraygonCannonObjectProgramVerification
             .Forbid(address =>
                     (address >= 0x84dcde && address <= 0x84dd26) ||
                     (address >= 0x84ddb9 && address <= 0x84de01) ||
-                    RoomObjectDraygonCannonVisualFiles.All.Any(draw =>
+                    RoomObjectDraygonCannonVisualFiles.Family.Layouts.Values.Any(draw =>
                     {
                         int start = 0x840000 | RoomObjectDrawAddressCodec.Of(draw.Draw);
                         int size = draw.Runs.Span.Sum(run =>
-                            4 + run.Blocks.Length * 2);
+                            4 + run.Count * 2);
                         return address >= start && address < start + size;
                     }),
                 address => $"Draygon cannon reread compiled program byte ${address:X6}.");

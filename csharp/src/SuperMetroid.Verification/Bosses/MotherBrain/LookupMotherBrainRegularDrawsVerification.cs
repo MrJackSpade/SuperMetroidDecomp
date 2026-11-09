@@ -1,96 +1,52 @@
-using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
-/// <summary>Checks Mother Brain's regular room draw lists and their compiled shape descriptors.</summary>
+/// <summary>Checks Mother Brain's fill rows and tube clears and their shape descriptors against the cartridge; their pictures are installed (#1557).</summary>
 internal static class LookupMotherBrainRegularDrawsVerification
 {
-    /// <summary>Compares all eight draw lists and 63 cells with native words, including ownership and bounds.</summary>
-    internal static void VerifyMotherBrainRegularDrawMapping(ISnesAddressSpace rom)
+    /// <summary>The two fill rows' and six tube clears' draw-list addresses and published names.</summary>
+    private static readonly LookupEscapeGateStockFrame[] Regular = [new(0x966d, "background-row-e-unused"), new(0x968b, "background-row-f-unused"),
+        new(0x96a9, "clear-ceiling-block"), new(0x96b1, "clear-ceiling-tube"), new(0x96bf, "clear-bottom-middle-side-tube"),
+        new(0x96cb, "clear-bottom-middle-tubes"), new(0x96ef, "clear-bottom-left-tube"), new(0x9703, "clear-bottom-right-tube")];
+
+    /// <summary>Compares all eight draw lists' geometry and collision with native words, including ownership and bounds.</summary>
+    internal static void VerifyMotherBrainRegularDrawMapping(SuperMetroidAddressSpace rom)
     {
-        ushort[] pointers = [0x966d, 0x968b, 0x96a9, 0x96b1, 0x96bf, 0x96cb, 0x96ef, 0x9703];
-        ushort[] otherPointers = [0x94a3,0x94b1,0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
-        var exported = RoomObjectMotherBrainFakeDeathVisualFiles.All.Where(draw => pointers.Contains(RoomObjectDrawAddressCodec.Of(draw.Draw))).ToArray();
-        AssertEqual(pointers.Length, exported.Length, "Mother Brain regular physical export count");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
-            ushort pointer = (ushort)value;
-            bool owned = Array.IndexOf(pointers, pointer) >= 0;
-            AssertEqual(owned, MotherBrainFakeDeathDraws.TryDescribeRegular(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape),
+            bool owned = Regular.Any(frame => frame.Pointer == value);
+            AssertEqual(owned, MotherBrainFakeDeathDraws.TryDescribeRegular(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(value), out var shape),
                 $"Mother Brain regular descriptor ownership {value:X4}");
-            AssertEqual(owned || otherPointers.Contains(pointer), MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto),
-                $"Mother Brain regular DTO ownership {value:X4}");
             if (!owned)
             {
                 AssertEqual(default(MotherBrainFakeDeathDraws.RegularDraw), shape, "Mother Brain regular missing descriptor");
-                if (!otherPointers.Contains(pointer))
-                    AssertEqual(default(RoomObjectShotBlockDrawDefinitions.DrawList), dto, "Mother Brain regular missing DTO");
+                continue;
             }
-        }
-        int cells = 0;
-        for (int index = 0; index < pointers.Length; index++)
-        {
-            ushort pointer = pointers[index];
-            AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Mother Brain regular export order");
-            MotherBrainFakeDeathDraws.TryDescribeRegular(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var shape);
-            MotherBrainFakeDeathDraws.TryGet(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pointer), out var dto);
-            int cursor = pointer, run = 0;
-            while (true)
+            foreach (int invalid in new[] { int.MinValue, -1, shape.RunCount, int.MaxValue })
             {
-                ushort count = ReadWord(cursor);
-                cursor += 2;
-                AssertEqual(count, (ushort)(shape.Count(run) | (shape.Vertical(run) ? 0x8000 : 0)), "Mother Brain regular native direction/count");
-                AssertRunHeader(count, dto.Runs.Span[run], "Mother Brain regular DTO direction/count");
-                AssertRunHeader(count, exported[index].Runs.Span[run], "Mother Brain regular export direction/count");
-                int length = count & 0x7fff;
-                AssertEqual(length, shape.Count(run), "Mother Brain regular native width");
-                AssertEqual(length, dto.Runs.Span[run].Blocks.Length, "Mother Brain regular DTO width");
-                AssertEqual(length, exported[index].Runs.Span[run].Blocks.Length, "Mother Brain regular export width");
-                AssertEqual((count & 0x8000) != 0, shape.Vertical(run), "Mother Brain regular runtime direction");
-                for (int block = 0; block < length; block++, cursor += 2)
-                {
-                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadWord(cursor));
-                    AssertEqual(expected, shape.BlockAt(run, block), "Mother Brain regular native calculated cell");
-                    AssertEqual(expected, dto.Runs.Span[run].Blocks.Span[block], "Mother Brain regular native DTO cell");
-                    AssertEqual(expected, exported[index].Runs.Span[run].Blocks.Span[block], "Mother Brain regular native export cell");
-                    cells++;
-                }
-                sbyte nextX = unchecked((sbyte)MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | cursor++));
-                sbyte nextY = unchecked((sbyte)MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | cursor++));
-                // The cartridge ends each run with the next run's start, and the last with no offset.
-                AssertEqual(nextX, run + 1 < shape.RunCount ? shape.Start(run + 1).X : (short)0, "Mother Brain regular native origin-relative X");
-                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(dto, run), "Mother Brain regular DTO X");
-                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(dto, run), "Mother Brain regular DTO Y");
-                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(exported[index], run), "Mother Brain regular export X");
-                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(exported[index], run), "Mother Brain regular export Y");
-                AssertEqual((sbyte)0, nextY, "Mother Brain regular runtime column origin Y");
-                foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Mother Brain regular cell bounds");
-                run++;
-                if (nextX == 0 && nextY == 0) break;
-            }
-            AssertEqual(run, shape.RunCount, "Mother Brain regular native run count");
-            AssertEqual(run, dto.Runs.Length, "Mother Brain regular DTO run count");
-            AssertEqual(run, exported[index].Runs.Length, "Mother Brain regular export run count");
-            AssertEqual(index + 1 < pointers.Length ? pointers[index + 1] : 0x9717,
-                cursor, "Mother Brain regular original draw end");
-            foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
-            {
-                AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Mother Brain regular run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid, 0), "Mother Brain regular run bounds");
                 AssertThrows<ArgumentOutOfRangeException>(() => shape.Start(invalid), "Mother Brain regular start bounds");
             }
+            for (int run = 0; run < shape.RunCount; run++)
+            {
+                int selectedRun = run;
+                foreach (int invalid in new[] { int.MinValue, -1, shape.Count(run), int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(selectedRun, invalid), "Mother Brain regular cell bounds");
+            }
+        }
+        AssertLayoutsAsNative(rom, RoomObjectMotherBrainFakeDeathVisualFiles.Family, Regular, collision: true);
+        int cells = 0;
+        foreach (LookupEscapeGateStockFrame frame in Regular)
+        {
+            _ = NativeTerrain(rom, frame.Pointer, out int written);
+            cells += written;
         }
         AssertEqual(63, cells, "Mother Brain regular sixty-three original physical cells");
-
-        ushort ReadWord(int address) => LittleEndianBytes.Word(MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | address), MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | (address + 1)));
     }
-
-    /// <summary>Reads a native Mother Brain PLM draw-list byte for the shape oracle.</summary>
-    private static byte MotherBrainRegularDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

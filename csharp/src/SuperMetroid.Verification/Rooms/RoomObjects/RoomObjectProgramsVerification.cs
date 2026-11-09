@@ -75,7 +75,7 @@ internal static class RoomObjectProgramsVerification
     internal static void VerifyScriptedRoomPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), ScriptedRoomObjectProgramDefinitions.Programs, ScriptedRoomEntries,
-            frame => ScriptedRoomObjectDrawDefinitions.DrawLists[frame], ScriptedRoomCueAt, "scripted room");
+            frame => ScriptedRoomObjectDrawDefinitions.DrawLists[frame], NoCues<RoomObjectNoCue>(), "scripted room");
         Console.WriteLine($"  Scripted room programs: {steps} typed steps match bank $84.");
         VerifyScriptedTerrainChanges(rom);
     }
@@ -132,83 +132,6 @@ internal static class RoomObjectProgramsVerification
         }
         step = default;
         return false;
-    }
-
-    /// <summary>The scripted rooms' instructions, with their operands.</summary>
-    private static bool ScriptedRoomCueAt(IImportCartridgeSource cartridge, ushort cursor, [MaybeNullWhen(false)] out ScriptedRoomObjectCue cue, out int length)
-    {
-        cue = default;
-        length = 2;
-        switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
-        {
-            case RoomObjectInstruction.InstallFrameBehavior:
-                ushort routine = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
-                ScriptedRoomObjectFrameBehavior installed =
-                    routine == RoomObjectFrameBehaviorNativeRoutines.Of(SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomFrameBehaviors.Controller) ? ScriptedRoomObjectFrameBehavior.ShaktoolRoomController
-                    : throw new InvalidDataException($"Scripted room list installs untranslated pre-instruction ${routine:X4}.");
-                cue = new ScriptedRoomObjectCue.InstallFrameBehavior(FrameBehavior: installed);
-                length = 4;
-                return true;
-            case RoomObjectInstruction.ClearFrameBehavior:
-                cue = new ScriptedRoomObjectCue.Command(ScriptedRoomObjectCueKind.ClearFrameBehavior);
-                return true;
-            case RoomObjectInstruction.GotoIfEventSet:
-            case RoomObjectInstruction.SetLoweredAcidHeight:
-            case RoomObjectInstruction.TransformSpikesToSlopes:
-            case RoomObjectInstruction.RevertSlopesToSpikes:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-            case RoomObjectInstruction.MoveRightFourBlocks:
-            case RoomObjectInstruction.SetGreyDoorFrameBehavior:
-            case RoomObjectInstruction.Sleep:
-            case RoomObjectInstruction.Delete:
-            case RoomObjectInstruction.LinkInstruction:
-            case RoomObjectInstruction.GotoIfDoorBitSet:
-            case RoomObjectInstruction.IncrementDoorHitCounterAndGoto:
-            case RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomObjectInstruction.GotoIfSamusNear:
-            case RoomObjectInstruction.Goto:
-            case RoomObjectInstruction.DecrementTimerAndGoto:
-            case RoomObjectInstruction.SetEightBitTimer:
-            case RoomObjectInstruction.CopyFromRamToVram:
-            case RoomObjectInstruction.GotoIfAreaBossBitSet:
-            case RoomObjectInstruction.SetEvent:
-            case RoomObjectInstruction.SetObjectBtsFromByte:
-            case RoomObjectInstruction.DrawObjectBlock:
-            case RoomObjectInstruction.DrawObjectBlockClone:
-            case RoomObjectInstruction.QueueSoundLibrary3Maximum6:
-            case RoomObjectInstruction.ClearDownwardGateTrigger:
-            case RoomObjectInstruction.SpawnDownwardGateProjectile:
-            case RoomObjectInstruction.WakeDownwardGateProjectile:
-            case RoomObjectInstruction.ShootEyeDoorProjectile:
-            case RoomObjectInstruction.SpawnEyeDoorSweat:
-            case RoomObjectInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomObjectInstruction.SpawnEyeDoorSmoke:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomObjectInstruction.DamageDraygonCannonFacingRight:
-            case RoomObjectInstruction.DamageDraygonCannonFacingLeft:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-            case RoomObjectInstruction.GotoIfSamusHasNoBombs:
-            case RoomObjectInstruction.SetObjectBtsToOne:
-            case RoomObjectInstruction.GotoIfRoomArgumentLess:
-            case RoomObjectInstruction.SpawnFourMotherBrainGlassShards:
-            case RoomObjectInstruction.SpawnTorizoStatueBreaking:
-            case RoomObjectInstruction.QueueSongOneMusicTrack:
-            case RoomObjectInstruction.EnableNoobTubeWaterPhysics:
-            case RoomObjectInstruction.SpawnNoobTubeCrack:
-            case RoomObjectInstruction.TriggerNoobTubeEarthquake:
-            case RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomObjectInstruction.LockSamus:
-            case RoomObjectInstruction.UnlockSamus:
-            case RoomObjectInstruction.SamusEaterDamage:
-            case RoomObjectInstruction.SamusEaterReleaseImmunity:
-            case RoomObjectInstruction.MoveTourianAccessDown:
-            default:
-                return false;
-        }
     }
 
     /// <summary>The block reactions' sound queues and grapple BTS write.</summary>

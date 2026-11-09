@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
-/// <summary>Shaktool's room controller PLM and the pre-instruction that follows Shaktool's digging.</summary>
+/// <summary>Shaktool's room controller: its spawn and the room's scroll setup.</summary>
 [RoomLifetime]
 internal sealed class ShaktoolObjects
 {
@@ -23,7 +23,7 @@ internal sealed class ShaktoolObjects
         _events = events;
         _slotTable = slotTable;
     }
-    /// <summary>Spawns the Shaktool room's controller PLM and runs its scroll setup.</summary>
+    /// <summary>Spawns the Shaktool room's controller and runs its scroll setup.</summary>
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
@@ -33,27 +33,9 @@ internal sealed class ShaktoolObjects
 
         slot.Header = RoomObjectHeaderId.ShaktoolRoomController;
         slot.BlockIndex = 0;
-        slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.ShaktoolRoomController));
-        slot.FrameHold = 1;
+        slot.Become(new ShaktoolRoomControllerObject(_samus, _events));
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
             scrolls.SetCell(cell, cell == 0 ? RoomScrollState.Blue : RoomScrollState.RedBoundary);
         return true;
-    }
-
-    /// <summary>Opens all scroll cells during a power bomb and retires the controller after Samus passes the cleared-path boundary.</summary>
-    /// <remarks>Retiring clears the room object's identity but leaves its instruction words in place.</remarks>
-    internal void RunShaktoolRoomFrameBehavior(RoomObjectSlot slot, RoomScrollGrid? scrolls,
-        bool powerBombExplosionActive)
-    {
-        if (scrolls is null || _samus?.Current is not { } samus || _events is null)
-            throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
-        if (powerBombExplosionActive)
-            for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)
-                scrolls.SetCell(cell, RoomScrollState.Blue);
-        if (samus.Position.X.Whole <= ShaktoolRoomDefinitions.ClearedPathXBoundary) return;
-        _events.Set(StoryEvent.ShaktoolClearedPath);
-        // Retiring clears only the identity; inactive instruction/timer words remain in place.
-        slot.Header = 0;
-        slot.Delete();
     }
 }

@@ -1062,10 +1062,8 @@ internal static class RoomObjectPopulationVerification
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         RoomObjectSlotSnapshot sleeping = roomObjects.PopulationSlots.Single();
-        AssertEqual(ShaktoolRoomObjectNativeProgram.FrameBehavior, sleeping.FrameBehavior,
-            "compiled list installs Shaktool room pre-instruction");
-        AssertTrue(RoomObjectProgramStartOracle.IsRunning(RoomObjectProgramStart.Typed(ScriptedRoomObjectProgram.ShaktoolRoomController), sleeping),
-            "the controller runs its typed program, resting on its closing sleep");
+        AssertTrue(sleeping.Behaviour is ShaktoolRoomControllerObject { Watching: true },
+            "after its first update the controller watches the room, as the native list's installed wait does");
 
         roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, PowerBombExplosionActive = true });
         for (int cell = 0; cell < ShaktoolRoomDefinitions.ScrollCellCount; cell++)

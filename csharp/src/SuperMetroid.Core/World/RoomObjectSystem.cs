@@ -39,7 +39,7 @@ namespace SuperMetroid.Core.World;
 /// family.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAreaRoomObjects, IEnemyRoomObjects, IScriptedRoomObjectHooks
+public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAreaRoomObjects, IEnemyRoomObjects
 {
     /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }
@@ -272,9 +272,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     SpeedBoosterEscapeObjects IRoomObjects.SpeedBoosterEscape => SpeedBoosterEscape;
 
     /// <inheritdoc/>
-    IScriptedRoomObjectHooks IRoomObjects.ScriptedHooks => this;
-
-    /// <inheritdoc/>
     void IRoomObjects.DeleteObject(RoomObjectSlot slot) => DeleteObject(slot);
 
     /// <inheritdoc/>
@@ -300,11 +297,4 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
 
     /// <inheritdoc/>
     ShaktoolObjects IEnemyRoomObjects.Shaktool => Shaktool;
-
-    /// <inheritdoc/>
-    IRoomObjectFrameBehavior IScriptedRoomObjectHooks.FrameBehavior(ScriptedRoomObjectFrameBehavior frameBehavior) => frameBehavior switch
-    {
-        ScriptedRoomObjectFrameBehavior.ShaktoolRoomController => ShaktoolRoomFrameBehaviors.Controller,
-        _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomObjectFrameBehavior)} {frameBehavior}."),
-    };
 }

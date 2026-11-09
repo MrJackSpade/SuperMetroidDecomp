@@ -49,7 +49,6 @@ internal static class RoomObjectNativeListAddresses
     internal static IReadOnlyList<NativeProgramEntry<ScriptedRoomObjectProgram>> ScriptedRoomEntries { get; } =
     [
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.ElevatorPlatform, 0xafb6),
-        new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.ShaktoolRoomController, 0xb8d6),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.MotherBrainEscapeGate, 0xbb34),
         new NativeProgramEntry<ScriptedRoomObjectProgram>(ScriptedRoomObjectProgram.MotherBrainEscapeGateClosing, 0xbb44),
     ];

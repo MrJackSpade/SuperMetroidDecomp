@@ -5,8 +5,6 @@ internal enum ScriptedRoomObjectProgram
 {
     /// <summary>The elevator platform's idle loop.</summary>
     ElevatorPlatform,
-    /// <summary>Shaktool's room controller: installs its pre-instruction and sleeps.</summary>
-    ShaktoolRoomController,
     /// <summary>Mother Brain's escape gate.</summary>
     MotherBrainEscapeGate,
     /// <summary>Mother Brain's escape gate closing.</summary>

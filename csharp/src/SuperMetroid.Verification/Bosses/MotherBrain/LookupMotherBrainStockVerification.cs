@@ -1,87 +1,29 @@
-using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Verification.Areas.Escape;
-using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.InstalledFramePictureAssertions;
 
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
-/// <summary>Checks Mother Brain fake-death PLM visuals against native draw runs and editable catalog rules.</summary>
+/// <summary>Checks the installed pictures of Mother Brain's fake-death room frames against the cartridge's draw lists (#1557).</summary>
 internal static class LookupMotherBrainStockVerification
 {
-    /// <summary>Compares twenty-two frames and 230 visual cells, then checks invalid input.</summary>
-    internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
-        RoomObjectMotherBrainFakeDeathVisualCatalog installed)
+    /// <summary>Compares the twenty-two frames' 230 written cells with the cartridge, then the import and its rejections.</summary>
+    internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom, InstalledMotherBrainFakeDeathFrames installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x94a3,"fill-wall"),new LookupEscapeGateStockFrame(0x94b1,"escape-door"),
-            new LookupEscapeGateStockFrame(0x9505,"background-row-2"),new LookupEscapeGateStockFrame(0x9523,"background-row-3"),new LookupEscapeGateStockFrame(0x9541,"background-row-4"),
-            new LookupEscapeGateStockFrame(0x955f,"background-row-5"),new LookupEscapeGateStockFrame(0x957d,"background-row-6"),new LookupEscapeGateStockFrame(0x959b,"background-row-7"),
-            new LookupEscapeGateStockFrame(0x95b9,"background-row-8"),new LookupEscapeGateStockFrame(0x95d7,"background-row-9"),new LookupEscapeGateStockFrame(0x95f5,"background-row-a"),
-            new LookupEscapeGateStockFrame(0x9613,"background-row-b"),new LookupEscapeGateStockFrame(0x9631,"background-row-c"),new LookupEscapeGateStockFrame(0x964f,"background-row-d"),
-            new LookupEscapeGateStockFrame(0x966d,"background-row-e-unused"),new LookupEscapeGateStockFrame(0x968b,"background-row-f-unused"),
-            new LookupEscapeGateStockFrame(0x96a9,"clear-ceiling-block"),new LookupEscapeGateStockFrame(0x96b1,"clear-ceiling-tube"),
-            new LookupEscapeGateStockFrame(0x96bf,"clear-bottom-middle-side-tube"),new LookupEscapeGateStockFrame(0x96cb,"clear-bottom-middle-tubes"),
-            new LookupEscapeGateStockFrame(0x96ef,"clear-bottom-left-tube"),new LookupEscapeGateStockFrame(0x9703,"clear-bottom-right-tube")];
-        var native = new Dictionary<ushort, RoomBlockAppearance[]>();
-        var widths = new Dictionary<ushort, int[]>();
-        foreach (var frame in frames)
-        {
-            var appearances = new List<RoomBlockAppearance>();
-            var counts = new List<int>();
-            int cursor = frame.Pointer;
-            while (true)
-            {
-                int count = ReadSamusEaterObjectWord(rom, 0x840000 | cursor) & 0x7fff;
-                counts.Add(count);
-                cursor += 2;
-                for (int index = 0; index < count; index++, cursor += 2)
-                    appearances.Add(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor)).Appearance);
-                byte x = MotherBrainStockMappingRomByte(rom, 0x840000 | cursor++), y = MotherBrainStockMappingRomByte(rom, 0x840000 | cursor++);
-                if (x == 0 && y == 0) break;
-            }
-            native.Add(frame.Pointer, appearances.ToArray());
-            widths.Add(frame.Pointer, counts.ToArray());
-        }
-        AssertEqual(230, native.Values.Sum(words => words.Length), "Mother Brain original visual cell count");
-        var entries = frames.Select(frame => new RoomObjectVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
-        var stock = RoomObjectMotherBrainFakeDeathVisualCatalog.Stock();
-        var imported = RoomObjectMotherBrainFakeDeathVisualFiles.Create(entries.Reverse());
-        string Hash(Dictionary<ushort, RoomBlockAppearance[]> appearances) => SuperMetroid.AssetExtraction.SelectedPresentationHash.FromAppearanceFrames(
-            nameof(RoomObjectMotherBrainFakeDeathVisualCatalog), appearances.ToDictionary(pair => RoomObjectMotherBrainFakeDeathVisualFiles.VisualId(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(pair.Key)), pair => pair.Value));
-        foreach (var catalog in new[] {stock, imported, installed})
-        {
-            AssertEqual(Hash(native), catalog.ContentIdentity, "Mother Brain original flattened hash");
-            foreach (var frame in frames)
-            {
-                int flat = 0;
-                for (int run = 0; run < widths[frame.Pointer].Length; run++)
-                {
-                    for (int block = 0; block < widths[frame.Pointer][run]; block++)
-                        AssertEqual(native[frame.Pointer][flat++], catalog.GetAppearance(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),run,block), "Mother Brain native stock word");
-                    foreach (int bad in new[] {int.MinValue,-1,widths[frame.Pointer][run],int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),run,bad), "Mother Brain block bounds");
-                }
-                foreach (int bad in new[] {int.MinValue,-1,widths[frame.Pointer].Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),bad,0), "Mother Brain run bounds");
-            }
-        }
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativeObjectDraws.At<MotherBrainFakeDeathDraw>((ushort)pointer),0,0), "MotherBrainFakeDeath unknown pointer");
-        AssertThrows<InvalidDataException>(() => RoomObjectMotherBrainFakeDeathVisualFiles.Create(entries[..21]), "MotherBrainFakeDeath missing frame");
-        AssertThrows<InvalidDataException>(() => RoomObjectMotherBrainFakeDeathVisualFiles.Create(entries.Append(entries[0])), "MotherBrainFakeDeath duplicate frame");
-        var invalid = entries.ToArray();
-        invalid[0] = new("FILL-WALL", entries[0].Blocks);
-        AssertThrows<InvalidDataException>(() => RoomObjectMotherBrainFakeDeathVisualFiles.Create(invalid), "MotherBrainFakeDeath ordinal identity");
-        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[4]);
-        AssertThrows<InvalidDataException>(() => RoomObjectMotherBrainFakeDeathVisualFiles.Create(invalid), "MotherBrainFakeDeath exact frame shape");
+        LookupEscapeGateStockFrame[] frames = [new(0x94a3, "fill-wall"), new(0x94b1, "escape-door"),
+            new(0x9505, "background-row-2"), new(0x9523, "background-row-3"), new(0x9541, "background-row-4"),
+            new(0x955f, "background-row-5"), new(0x957d, "background-row-6"), new(0x959b, "background-row-7"),
+            new(0x95b9, "background-row-8"), new(0x95d7, "background-row-9"), new(0x95f5, "background-row-a"),
+            new(0x9613, "background-row-b"), new(0x9631, "background-row-c"), new(0x964f, "background-row-d"),
+            new(0x966d, "background-row-e-unused"), new(0x968b, "background-row-f-unused"),
+            new(0x96a9, "clear-ceiling-block"), new(0x96b1, "clear-ceiling-tube"),
+            new(0x96bf, "clear-bottom-middle-side-tube"), new(0x96cb, "clear-bottom-middle-tubes"),
+            new(0x96ef, "clear-bottom-left-tube"), new(0x9703, "clear-bottom-right-tube")];
+        foreach (InstalledMotherBrainFakeDeathFrames pictures in new[] { InstalledMotherBrainFakeDeathFrames.Stock(), installed })
+            AssertPicturedAsNative(rom, pictures.Images, RoomObjectMotherBrainFakeDeathVisualFiles.Family, frames, 230);
+        AssertImportAndRejections(rom, installed.Images, RoomObjectMotherBrainFakeDeathVisualFiles.Family);
     }
-
-    /// <summary>Reads a native run displacement byte for the fake-death draw-list oracle.</summary>
-    private static byte MotherBrainStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
 }

@@ -65,7 +65,7 @@ internal interface IGameplayArtwork
     InstalledRoomObjectEyeDoorVisuals? RoomObjectEyeDoorVisuals { get; }
 
     /// <summary>Room PLM mother brain glass visuals.</summary>
-    RoomObjectMotherBrainGlassVisualCatalog? RoomObjectMotherBrainGlassVisuals { get; }
+    InstalledMotherBrainGlassFrames? RoomObjectMotherBrainGlassVisuals { get; }
 
     /// <summary>Room PLM noob tube visuals.</summary>
     InstalledRoomObjectNoobTubeVisuals? RoomObjectNoobTubeVisuals { get; }
@@ -77,13 +77,13 @@ internal interface IGameplayArtwork
     RoomObjectElevatorPlatformVisualCatalog? RoomObjectElevatorPlatformVisuals { get; }
 
     /// <summary>Room PLM escape gate visuals.</summary>
-    RoomObjectEscapeGateVisualCatalog? RoomObjectEscapeGateVisuals { get; }
+    InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; }
 
     /// <summary>Room PLM bomb torizo hand visuals.</summary>
     RoomObjectBombTorizoHandVisualCatalog? RoomObjectBombTorizoHandVisuals { get; }
 
     /// <summary>Room PLM draygon cannon visuals.</summary>
-    RoomObjectDraygonCannonVisualCatalog? RoomObjectDraygonCannonVisuals { get; }
+    InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; }
 
     /// <summary>Room PLM chozo statue visuals.</summary>
     RoomObjectChozoStatueVisualCatalog? RoomObjectChozoStatueVisuals { get; }
@@ -116,7 +116,7 @@ internal interface IGameplayArtwork
     RoomObjectCrocomireVisualCatalog? RoomObjectCrocomireVisuals { get; }
 
     /// <summary>Room PLM mother brain fake death visuals.</summary>
-    RoomObjectMotherBrainFakeDeathVisualCatalog? RoomObjectMotherBrainFakeDeathVisuals { get; }
+    InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; }
 
     /// <summary>Room PLM collectible visuals.</summary>
     InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; }

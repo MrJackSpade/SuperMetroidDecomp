@@ -1,42 +1,16 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The three physical four-block gate images chosen by the Mother Brain
-/// escape-gate program. Terrain blocks remain immutable collision definitions;
-/// visual block references can be separated for authoring independently.
+/// The shape of the three four-block gate frames chosen by the Mother Brain escape gate. What each frame shows is its
+/// installed picture (#1557).
 /// </summary>
 internal static class MotherBrainEscapeGateObjectDrawDefinitions
 {
-    /// <summary>
-    /// Each gate image's four vertical cells, always solid. Open uses blank FF; half adds end caps
-    /// 30F; closed fills the middle with tile 2E8, vertically flipped for the upper half. Collision nibble 8 is
-    /// unchanged even for the visually open frame.
-    /// </summary>
-    internal static readonly Dictionary<MotherBrainEscapeGateDraw, RoomTerrainBlock[]> Cells = new()
-    {
-        [MotherBrainEscapeGateDraw.Open] =
-        [
-            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
-        ],
-        [MotherBrainEscapeGateDraw.HalfClosed] =
-        [
-            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
-        ],
-        [MotherBrainEscapeGateDraw.Closed] =
-        [
-            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(744, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(744, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
-        ],
-    };
+    /// <summary>The cells each gate frame covers, down its column from the origin.</summary>
+    internal const int Height = 4;
+
+    /// <summary>How every cell of every gate frame collides, the visually open frame included.</summary>
+    internal const RoomCollisionType Collision = RoomCollisionType.SolidBlock;
 }

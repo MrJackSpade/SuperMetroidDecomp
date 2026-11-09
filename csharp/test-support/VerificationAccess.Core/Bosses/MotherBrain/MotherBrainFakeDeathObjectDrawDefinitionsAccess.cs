@@ -5,18 +5,16 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>Verification access to <see cref="MotherBrainFakeDeathDraws"/> members production does not use.</summary>
 internal static class MotherBrainFakeDeathObjectDrawDefinitionsAccess
 {
-    /// <summary>Resolves a Mother Brain fake-death draw list by native pointer.</summary>
+    /// <summary>Resolves a Mother Brain fake-death draw to the geometry the import pictures it by.</summary>
     extension(MotherBrainFakeDeathDraws)
     {
-        /// <summary>Searches background, regular, then boundary draw families for one native pointer.</summary>
-        internal static bool TryGet(RoomObjectDraw request, out RoomObjectShotBlockDrawDefinitions.DrawList draw)
+        /// <summary>The geometry of a mural row, boundary, fill row or tube clear; false for any other draw.</summary>
+        internal static bool TryGet(RoomObjectDraw request, out RoomObjectFrameLayout layout)
         {
-            // Native order: background, regular, then boundary draw families.
-            if (RoomObjectMotherBrainFakeDeathVisualFiles.TryGetBackground(request, out draw)
-                || RoomObjectMotherBrainFakeDeathVisualFiles.TryGetRegular(request, out draw)
-                || RoomObjectMotherBrainFakeDeathVisualFiles.TryGetBoundary(request, out draw))
+            if (request is RoomObjectFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame } &&
+                RoomObjectMotherBrainFakeDeathVisualFiles.Family.Layouts.TryGetValue(frame, out layout))
                 return true;
-            draw = default;
+            layout = default;
             return false;
         }
     }

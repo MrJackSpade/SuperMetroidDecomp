@@ -17,7 +17,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>Checks Mother Brain's installed fake-death artwork and her native collision and draw state.</summary>
 internal static class MotherBrainFakeDeathVisualsVerification
 {
-    /// <summary>Checks the stock mapping, a compiled background row's physical block and tile, and that a malformed installed visual file fails loudly where it is read.</summary>
+    /// <summary>Checks the installed pictures against the cartridge, a background row's physical block and installed tile, and that a malformed installed visual file fails loudly where it is read.</summary>
     internal static void VerifyMotherBrainFakeDeathVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -30,12 +30,12 @@ internal static class MotherBrainFakeDeathVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectMotherBrainFakeDeathVisualFilesConstants.ValidateStock(
                 installation.RoomObjectMotherBrainFakeDeathVisualDirectory);
-            RoomObjectMotherBrainFakeDeathVisualCatalog stock =
+            InstalledMotherBrainFakeDeathFrames stock =
                 installation.LoadRoomObjectMotherBrainFakeDeathVisuals();
             VerifyMotherBrainStockMapping(rom, stock);
             VerifyMotherBrainVisualDraw(MotherBrainRoomMutation.MuralRow12,
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
-                null);
+                stock);
 
             string stockPath = Path.Combine(
                 installation.RoomObjectMotherBrainFakeDeathVisualDirectory,
@@ -47,13 +47,13 @@ internal static class MotherBrainFakeDeathVisualsVerification
                 "tampered Mother Brain fake-death stock fails loudly where it is read");
         }
         Console.WriteLine(
-            "Mother Brain fake-death visuals: 22 stock draws, the compiled background row and strict failures pass.");
+            "Mother Brain fake-death visuals: 22 pictured frames, the background row and strict failures pass.");
     }
 
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
     private static void VerifyMotherBrainVisualDraw(MotherBrainRoomMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
-        RoomObjectMotherBrainFakeDeathVisualCatalog? visuals)
+        InstalledMotherBrainFakeDeathFrames? visuals)
     {
         const int width = 32;
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();

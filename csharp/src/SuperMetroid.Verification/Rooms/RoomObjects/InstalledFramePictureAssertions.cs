@@ -1,0 +1,163 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.Verification.Areas.Escape;
+using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinitionsVerification;
+
+namespace SuperMetroid.Verification.Rooms.RoomObjects;
+
+/// <summary>
+/// Checks a room object's installed frame pictures (#1557) against the cartridge's draw lists, which are walked here
+/// independently of the import: each run's header gives its length and direction, and the word after it where the next
+/// run starts.
+/// </summary>
+internal static class InstalledFramePictureAssertions
+{
+    /// <summary>The picture the cartridge's draw list at <paramref name="pointer"/> draws, and how many cells it writes.</summary>
+    internal static Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> NativePicture(SuperMetroidAddressSpace rom, int pointer, out int written) =>
+        NativeTerrain(rom, pointer, out written).ToDictionary(cell => cell.Key, cell => cell.Value.Appearance);
+
+    /// <summary>
+    /// The terrain the cartridge's draw list at <paramref name="pointer"/> leaves at each cell from the object's origin,
+    /// and how many cells it writes; a cell written twice keeps its last write.
+    /// </summary>
+    internal static Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> NativeTerrain(SuperMetroidAddressSpace rom, int pointer, out int written)
+    {
+        var cells = new Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock>();
+        Offset16<RoomBlocks> start = Offset16<RoomBlocks>.Zero;
+        int cursor = pointer;
+        written = 0;
+        for (int run = 0; ; run++)
+        {
+            AssertTrue(run < 8, "a native draw list ends within eight runs");
+            int header = ReadSamusEaterObjectWord(rom, 0x840000 | cursor);
+            int count = header & 0x7fff;
+            bool vertical = (header & 0x8000) != 0;
+            cursor += 2;
+            for (int cell = 0; cell < count; cell++, cursor += 2)
+                cells[start + (vertical ? new Offset16<RoomBlocks>(0, cell) : new Offset16<RoomBlocks>(cell, 0))] =
+                    RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | cursor));
+            written += count;
+            int x = unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | cursor));
+            int y = unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (cursor + 1)));
+            cursor += 2;
+            if (x == 0 && y == 0) return cells;
+            start = new Offset16<RoomBlocks>(x, y);
+        }
+    }
+
+    /// <summary>
+    /// Requires the geometry the game draws each of <paramref name="frames"/> by, as the import pictures it, to be the
+    /// cartridge's: the frame's address and published name, each run's header, the start of the run after it and, when
+    /// <paramref name="collision"/> is set, how each cell collides.
+    /// </summary>
+    internal static void AssertLayoutsAsNative<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameFamily<TFrame> family,
+        IReadOnlyList<LookupEscapeGateStockFrame> frames, bool collision) where TFrame : struct, Enum
+    {
+        AssertEqual(Enum.GetValues<TFrame>().Length, family.Layouts.Count, family.Name + " lays out every frame");
+        foreach (LookupEscapeGateStockFrame frame in frames)
+        {
+            TFrame identity = RoomObjectDraw.FrameOf<TFrame>(NativeObjectDraws.At<TFrame>(frame.Pointer), family.Name);
+            AssertEqual(frame.Id, family.Ids[identity], family.Name + " frame's published name");
+            AssertEqual(frame.Pointer, RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(identity)), family.Name + " frame's address");
+            RoomObjectFrameLayout layout = family.Layouts[identity];
+            int cursor = frame.Pointer;
+            for (int run = 0; run < layout.Runs.Length; run++)
+            {
+                RoomObjectFrameRun part = layout.Runs.Span[run];
+                AssertEqual(RoomObjectRunHeaderCodec.Encode(part.Direction, part.Count), ReadSamusEaterObjectWord(rom, 0x840000 | cursor),
+                    family.Name + " frame " + frame.Id + " run header");
+                if (collision)
+                    for (int cell = 0; cell < part.Count; cell++)
+                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (cursor + 2 + cell * 2))).Collision,
+                            part.Collisions.Span[cell], family.Name + " frame " + frame.Id + " cell collision");
+                AssertEqual(RoomObjectRunContinuationCodec.Encode(layout, run), ReadSamusEaterObjectWord(rom, 0x840000 | (cursor + 2 + part.Count * 2)),
+                    family.Name + " frame " + frame.Id + " run continuation");
+                cursor += 4 + part.Count * 2;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Requires every frame of <paramref name="family"/> to be pictured exactly as the cartridge draws it: the same cells,
+    /// each showing the cartridge's block and mirroring, under the frame's published name, and nothing outside them.
+    /// </summary>
+    /// <param name="rom">The cartridge.</param>
+    /// <param name="images">The installed pictures.</param>
+    /// <param name="family">The object's frames as the import pictures them.</param>
+    /// <param name="frames">Each frame's draw-list address and published name.</param>
+    /// <param name="writtenCells">The number of cells the frames' draw lists write in all.</param>
+    internal static void AssertPicturedAsNative<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameImages<TFrame> images,
+        RoomObjectFrameFamily<TFrame> family, IReadOnlyList<LookupEscapeGateStockFrame> frames, int writtenCells) where TFrame : struct, Enum
+    {
+        AssertEqual(frames.Count, images.All.Count, family.Name + " pictures every frame");
+        AssertEqual(frames.Count, Enum.GetValues<TFrame>().Length, family.Name + " names every frame's address");
+        int written = 0;
+        foreach (LookupEscapeGateStockFrame frame in frames)
+        {
+            TFrame identity = RoomObjectDraw.FrameOf<TFrame>(NativeObjectDraws.At<TFrame>(frame.Pointer), family.Name);
+            AssertEqual(frame.Id, family.Ids[identity], family.Name + " frame's published name");
+            Dictionary<Offset16<RoomBlocks>, RoomBlockAppearance> native = NativePicture(rom, frame.Pointer, out int frameWritten);
+            written += frameWritten;
+            RoomObjectFrameImage image = images.Image(identity);
+            AssertEqual(native.Count, image.Cells.Count, family.Name + " frame " + frame.Id + " covers the cartridge's cells");
+            foreach (KeyValuePair<Offset16<RoomBlocks>, RoomBlockAppearance> cell in native)
+                AssertEqual(cell.Value, image.At(cell.Key), family.Name + " frame " + frame.Id + " shows the cartridge's block");
+            AssertThrows<InvalidDataException>(() => image.At(new Offset16<RoomBlocks>(64, 64)), family.Name + " frame " + frame.Id + " covers no other cell");
+            AssertEqual(native.Count, family.Layouts[identity].Cells().Count, family.Name + " frame " + frame.Id + " geometry covers the cartridge's cells");
+            foreach (Offset16<RoomBlocks> cell in native.Keys)
+                AssertTrue(family.Layouts[identity].Cells().Contains(cell), family.Name + " frame " + frame.Id + " geometry covers each cartridge cell");
+        }
+        AssertEqual(writtenCells, written, family.Name + " native cell count");
+    }
+
+    /// <summary>
+    /// Requires the importer's pictures of every frame, read from <paramref name="rom"/>, to equal the installed ones, and
+    /// the installed file to be rejected when a frame is missing, repeated, misnamed or misshapen.
+    /// </summary>
+    internal static void AssertImportAndRejections<TFrame>(SuperMetroidAddressSpace rom, RoomObjectFrameImages<TFrame> installed,
+        RoomObjectFrameFamily<TFrame> family) where TFrame : struct, Enum
+    {
+        foreach (TFrame frame in Enum.GetValues<TFrame>())
+        {
+            RoomObjectFrameImage imported = RoomObjectFrameImageFiles.Picture(rom, family.Name, family.Layouts[frame]);
+            RoomObjectFrameImage image = installed.Image(frame);
+            AssertEqual(image.Cells.Count, imported.Cells.Count, family.Name + " import covers the installed cells");
+            foreach (KeyValuePair<Offset16<RoomBlocks>, RoomBlockAppearance> cell in imported.Cells)
+                AssertEqual(cell.Value, image.At(cell.Key), family.Name + " import pictures what is installed");
+        }
+        string directory = Path.Combine(Path.GetTempPath(), "sm-1557-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            RoomObjectFrameImageFiles.Extract(rom, directory, SupportedCartridge.Sha256, family);
+            string path = Path.Combine(directory, family.FileName);
+            string stock = File.ReadAllText(path);
+            AssertEqual(installed.All.Count, RoomObjectFrameImageFiles.Load(directory, family).All.Count, family.Name + " extracted file loads");
+            var document = System.Text.Json.Nodes.JsonNode.Parse(stock)!.AsObject();
+            var frames = document["frames"]!.AsArray();
+
+            void Rejected(string label, Action<System.Text.Json.Nodes.JsonArray> edit)
+            {
+                var copy = System.Text.Json.Nodes.JsonNode.Parse(stock)!.AsObject();
+                edit(copy["frames"]!.AsArray());
+                File.WriteAllText(path, copy.ToJsonString());
+                AssertThrows<InvalidDataException>(() => RoomObjectFrameImageFiles.Load(directory, family), family.Name + " rejects " + label);
+            }
+
+            Rejected("a missing frame", array => array.RemoveAt(0));
+            Rejected("a repeated frame", array => array.Add(System.Text.Json.Nodes.JsonNode.Parse(array[0]!.ToJsonString())));
+            Rejected("an unknown frame name", array => array[0]!["id"] = array[0]!["id"]!.GetValue<string>().ToUpperInvariant());
+            Rejected("a missing cell", array => array[0]!["cells"]!.AsArray().RemoveAt(0));
+            Rejected("a cell outside the frame", array => array[0]!["cells"]![0]!["x"] = 64);
+            Rejected("an invalid block", array => array[0]!["cells"]![0]!["block"] = RoomBlockAppearance.LastBlock + 1);
+            AssertEqual(frames.Count, installed.All.Count, family.Name + " extracted file names every frame");
+        }
+        finally
+        {
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
+    }
+}

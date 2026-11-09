@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// Physical draw layouts selected by the reachable right- and left-facing
 /// Draygon cannon PLM programs. Unused diagonal orientations are not claimed.
-/// These terrain blocks and signed row offsets remain gameplay definitions.
+/// These collision kinds and signed row offsets are gameplay definitions; what each frame shows is its installed
+/// picture (#1557).
 /// </summary>
 internal static class DraygonCannonObjectDrawDefinitions
 {
@@ -26,67 +27,53 @@ internal static class DraygonCannonObjectDrawDefinitions
         [DraygonCannonDraw.LeftDamagedD] = new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3),
     };
 
+    /// <summary>A right shield frame's cells: the shootable core then its rim, over the core's extension and the lower rim.</summary>
+    private static readonly RoomCollisionType[][] RightShield =
+    [
+        [RoomCollisionType.ShootableBlock, RoomCollisionType.Air],
+        [RoomCollisionType.VerticalExtension, RoomCollisionType.Air],
+    ];
+
+    /// <summary>A right damaged frame's cells: the spiked core over its lower half, each beside an empty cell.</summary>
+    private static readonly RoomCollisionType[][] RightDamaged =
+    [
+        [RoomCollisionType.SpikeBlock, RoomCollisionType.Air],
+        [RoomCollisionType.SpikeBlock, RoomCollisionType.Air],
+    ];
+
+    /// <summary>A left shield frame's cells: the shootable core, the rim to its left, then the lower rim and the core's extension.</summary>
+    private static readonly RoomCollisionType[][] LeftShield =
+    [
+        [RoomCollisionType.ShootableBlock],
+        [RoomCollisionType.Air],
+        [RoomCollisionType.Air, RoomCollisionType.VerticalExtension],
+    ];
+
+    /// <summary>A left damaged frame's cells: the spiked core, an empty cell to its left, then an empty cell and the lower half.</summary>
+    private static readonly RoomCollisionType[][] LeftDamaged =
+    [
+        [RoomCollisionType.SpikeBlock],
+        [RoomCollisionType.Air],
+        [RoomCollisionType.Air, RoomCollisionType.SpikeBlock],
+    ];
+
     /// <summary>
-    /// The cells of each of the twelve 2x2 cannon frames, one row per run in the original write order. Right lists have two
-    /// horizontal rows; left lists split the first row into origin and left cells. Shield frames advance two tiles;
-    /// damaged frames advance one and leave the cells beside the core empty. Lower tiles are one tileset row (32 tiles)
-    /// below their upper partners. Right art mirrors X.
+    /// How the cells of each of the twelve 2x2 cannon frames collide, one row per run in the original write order. Right
+    /// lists have two horizontal rows; left lists split the first row into origin and left cells.
     /// </summary>
-    internal static readonly Dictionary<DraygonCannonDraws.Draw, RoomTerrainBlock[][]> Cells = new()
+    internal static readonly Dictionary<DraygonCannonDraws.Draw, RoomCollisionType[][]> Collisions = new()
     {
-        [new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 0)] = RightShield(0),
-        [new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 1)] = RightShield(1),
-        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 0)] = RightDamaged(0),
-        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 1)] = RightDamaged(1),
-        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 2)] = RightDamaged(2),
-        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 3)] = RightDamaged(3),
-        [new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 0)] = LeftShield(0),
-        [new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 1)] = LeftShield(1),
-        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 0)] = LeftDamaged(0),
-        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 1)] = LeftDamaged(1),
-        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 2)] = LeftDamaged(2),
-        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3)] = LeftDamaged(3),
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 0)] = RightShield,
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 1)] = RightShield,
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 0)] = RightDamaged,
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 1)] = RightDamaged,
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 2)] = RightDamaged,
+        [new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 3)] = RightDamaged,
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 0)] = LeftShield,
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 1)] = LeftShield,
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 0)] = LeftDamaged,
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 1)] = LeftDamaged,
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 2)] = LeftDamaged,
+        [new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3)] = LeftDamaged,
     };
-
-    /// <summary>The empty cell a damaged frame leaves beside its core.</summary>
-    private static RoomTerrainBlock Empty => RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air);
-
-    /// <summary>A right shield frame: the shootable core then its rim, over the core's extension and the lower rim.</summary>
-    private static RoomTerrainBlock[][] RightShield(int frame) =>
-    [
-        [
-            RoomTerrainBlock.Of(276 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
-            RoomTerrainBlock.Of(275 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
-        ],
-        [
-            RoomTerrainBlock.Of(308 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
-            RoomTerrainBlock.Of(307 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
-        ],
-    ];
-
-    /// <summary>A right damaged frame: the spiked core over its lower half, each beside an empty cell.</summary>
-    private static RoomTerrainBlock[][] RightDamaged(int frame) =>
-    [
-        [RoomTerrainBlock.Of(384 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
-        [RoomTerrainBlock.Of(416 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
-    ];
-
-    /// <summary>A left shield frame: the shootable core, the rim to its left, then the lower rim and core extension.</summary>
-    private static RoomTerrainBlock[][] LeftShield(int frame) =>
-    [
-        [RoomTerrainBlock.Of(276 + frame * 2, BlockMirroring.None, RoomCollisionType.ShootableBlock)],
-        [RoomTerrainBlock.Of(275 + frame * 2, BlockMirroring.None, RoomCollisionType.Air)],
-        [
-            RoomTerrainBlock.Of(307 + frame * 2, BlockMirroring.None, RoomCollisionType.Air),
-            RoomTerrainBlock.Of(308 + frame * 2, BlockMirroring.None, RoomCollisionType.VerticalExtension),
-        ],
-    ];
-
-    /// <summary>A left damaged frame: the spiked core, an empty cell to its left, then an empty cell and the lower half.</summary>
-    private static RoomTerrainBlock[][] LeftDamaged(int frame) =>
-    [
-        [RoomTerrainBlock.Of(384 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
-        [Empty],
-        [Empty, RoomTerrainBlock.Of(416 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
-    ];
 }

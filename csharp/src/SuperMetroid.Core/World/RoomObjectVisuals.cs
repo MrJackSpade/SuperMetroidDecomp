@@ -37,8 +37,8 @@ internal sealed class RoomObjectVisuals
     /// <summary>Visual-only mirrored eye-door frames supplied by installed content.</summary>
     public InstalledRoomObjectEyeDoorVisuals? RoomObjectEyeDoorVisuals { get; set; }
 
-    /// <summary>Visual-only Mother Brain glass frames supplied by installed content.</summary>
-    public RoomObjectMotherBrainGlassVisualCatalog? RoomObjectMotherBrainGlassVisuals { get; set; }
+    /// <summary>The installed pictures of Mother Brain's glass frames; collision stays with the draws.</summary>
+    public InstalledMotherBrainGlassFrames? RoomObjectMotherBrainGlassVisuals { get; set; }
 
     /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
     public InstalledRoomObjectNoobTubeVisuals? RoomObjectNoobTubeVisuals { get; set; }
@@ -49,14 +49,14 @@ internal sealed class RoomObjectVisuals
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
     public RoomObjectElevatorPlatformVisualCatalog? RoomObjectElevatorPlatformVisuals { get; set; }
 
-    /// <summary>Mother Brain escape-gate appearance; collision stays compiled.</summary>
-    public RoomObjectEscapeGateVisualCatalog? RoomObjectEscapeGateVisuals { get; set; }
+    /// <summary>The installed pictures of Mother Brain's escape-gate frames; collision stays with the draws.</summary>
+    public InstalledEscapeGateFrames? RoomObjectEscapeGateVisuals { get; set; }
 
     /// <summary>Bomb Torizo hand art; physical draw words stay compiled.</summary>
     public RoomObjectBombTorizoHandVisualCatalog? RoomObjectBombTorizoHandVisuals { get; set; }
 
-    /// <summary>Draygon cannon art; physical draw words stay compiled.</summary>
-    public RoomObjectDraygonCannonVisualCatalog? RoomObjectDraygonCannonVisuals { get; set; }
+    /// <summary>The installed pictures of Draygon's cannon frames; collision stays with the draws.</summary>
+    public InstalledDraygonCannonFrames? RoomObjectDraygonCannonVisuals { get; set; }
 
     /// <summary>Chozo statue PLM art; physical draw words stay compiled.</summary>
     public RoomObjectChozoStatueVisualCatalog? RoomObjectChozoStatueVisuals { get; set; }
@@ -94,9 +94,8 @@ internal sealed class RoomObjectVisuals
     /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
     public RoomObjectCrocomireVisualCatalog? RoomObjectCrocomireVisuals { get; set; }
 
-    /// <summary>Gets or replaces Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; compiled run geometry, collision words, and PLM timing remain unchanged.</remarks>
-    public RoomObjectMotherBrainFakeDeathVisualCatalog? RoomObjectMotherBrainFakeDeathVisuals { get; set; }
+    /// <summary>The installed pictures of Mother Brain's fake-death room wall, door, mural rows, fill rows and tube clears; geometry, collision and timing stay with the draws.</summary>
+    public InstalledMotherBrainFakeDeathFrames? RoomObjectMotherBrainFakeDeathVisuals { get; set; }
 
     /// <summary>Collectible art; compiled level words retain collision.</summary>
     public InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; set; }

@@ -49,9 +49,6 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Visual-only mirrored eye-door frames supplied by installed content.</summary>
     public InstalledRoomObjectEyeDoorVisuals? EyeDoorVisuals => _visuals.RoomObjectEyeDoorVisuals;
 
-    /// <summary>Visual-only Mother Brain glass frames supplied by installed content.</summary>
-    public RoomObjectMotherBrainGlassVisualCatalog? MotherBrainGlassVisuals => _visuals.RoomObjectMotherBrainGlassVisuals;
-
     /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
     public InstalledRoomObjectNoobTubeVisuals? NoobTubeVisuals => _visuals.RoomObjectNoobTubeVisuals;
 
@@ -61,14 +58,8 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
     public RoomObjectElevatorPlatformVisualCatalog? ElevatorPlatformVisuals => _visuals.RoomObjectElevatorPlatformVisuals;
 
-    /// <summary>Mother Brain escape-gate appearance; collision stays compiled.</summary>
-    public RoomObjectEscapeGateVisualCatalog? EscapeGateVisuals => _visuals.RoomObjectEscapeGateVisuals;
-
     /// <summary>Bomb Torizo hand art; the draw's terrain stays compiled.</summary>
     public RoomObjectBombTorizoHandVisualCatalog? BombTorizoHandVisuals => _visuals.RoomObjectBombTorizoHandVisuals;
-
-    /// <summary>Draygon cannon art; the draw's terrain stays compiled.</summary>
-    public RoomObjectDraygonCannonVisualCatalog? DraygonCannonVisuals => _visuals.RoomObjectDraygonCannonVisuals;
 
     /// <summary>Chozo statue PLM art; the draw's terrain stays compiled.</summary>
     public RoomObjectChozoStatueVisualCatalog? ChozoStatueVisuals => _visuals.RoomObjectChozoStatueVisuals;
@@ -105,10 +96,6 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Gets or replaces Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
     /// <remarks>The catalog is shared by reference. Null retains each block's own appearance.</remarks>
     public RoomObjectCrocomireVisualCatalog? CrocomireVisuals => _visuals.RoomObjectCrocomireVisuals;
-
-    /// <summary>Gets or replaces Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains the draw's own appearance; compiled run geometry, collision, and PLM timing remain unchanged.</remarks>
-    public RoomObjectMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals => _visuals.RoomObjectMotherBrainFakeDeathVisuals;
 
     /// <summary>Collectible art; compiled terrain retains collision.</summary>
     public InstalledRoomObjectCollectibleVisuals? CollectibleVisuals => _visuals.RoomObjectCollectibleVisuals;
@@ -175,26 +162,28 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))
         {
-            for (int column = 0; column < 13; column++)
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(column, 0), backgroundFakeDeath.BlockAt(column), MotherBrainFakeDeathVisuals?.GetAppearance(draw, 0, column));
+            RoomObjectFrameImage mural = FakeDeathImage(draw);
+            for (int column = 0; column < MotherBrainFakeDeathObjectDrawDefinitions.BackgroundWidth; column++)
+                DrawImageCell(level, draw, origin, mural, new Offset16<RoomBlocks>(column, 0), backgroundFakeDeath.CollisionAt(column));
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeRegular(draw, out var regularFakeDeath))
         {
+            RoomObjectFrameImage clear = FakeDeathImage(draw);
             for (int run = 0; run < regularFakeDeath.RunCount; run++)
                 for (int block = 0; block < regularFakeDeath.Count(run); block++)
                 {
                     bool vertical = regularFakeDeath.Vertical(run);
-                    Position16<RoomBlocks> runStart = origin + regularFakeDeath.Start(run);
-                    DrawTerrainAt(level, draw, runStart + new Offset16<RoomBlocks>(vertical ? 0 : block, vertical ? block : 0), regularFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
+                    DrawImageCell(level, draw, origin, clear, regularFakeDeath.Start(run) + new Offset16<RoomBlocks>(vertical ? 0 : block, vertical ? block : 0), regularFakeDeath.CollisionAt(run, block));
                 }
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBoundary(draw, out var boundaryFakeDeath))
         {
+            RoomObjectFrameImage boundary = FakeDeathImage(draw);
             for (int run = 0; run < MotherBrainFakeDeathDraws.BoundaryDraw.RunCount; run++)
                 for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
-                    DrawTerrainAt(level, draw, origin + boundaryFakeDeath.Start(run) + new Offset16<RoomBlocks>(0, block), boundaryFakeDeath.BlockAt(run, block), MotherBrainFakeDeathVisuals?.GetAppearance(draw, run, block));
+                    DrawImageCell(level, draw, origin, boundary, boundaryFakeDeath.Start(run) + new Offset16<RoomBlocks>(0, block), boundaryFakeDeath.CollisionAt(run, block));
             return;
         }
         if (draw is RoomObjectFrameDraw<TourianAccessDraw> { Frame: var tourian })
@@ -267,17 +256,12 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))
         {
+            RoomObjectFrameImage glass = Installed(_visuals.RoomObjectMotherBrainGlassVisuals, "Mother Brain glass").Images.Image(motherBrainGlass.Frame);
             for (int run = 0; run < motherBrainGlass.RunCount; run++)
             {
-                Position16<RoomBlocks> glass = origin + motherBrainGlass.Start(run);
                 bool vertical = motherBrainGlass.Vertical(run);
                 for (int cell = 0; cell < motherBrainGlass.BlockCount(run); cell++)
-                {
-                    RoomTerrainBlock physical = motherBrainGlass.BlockAt(run, cell);
-                    RoomBlockAppearance visual = MotherBrainGlassVisuals?.GetAppearance(draw, run, cell)
-                        ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, glass + new Offset16<RoomBlocks>(vertical ? 0 : cell, vertical ? cell : 0), physical, visual);
-                }
+                    DrawImageCell(level, draw, origin, glass, motherBrainGlass.Start(run) + new Offset16<RoomBlocks>(vertical ? 0 : cell, vertical ? cell : 0), motherBrainGlass.CollisionAt(run, cell));
             }
             return;
         }
@@ -339,13 +323,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))
         {
-            for (int row = 0; row < 4; row++)
-            {
-                RoomTerrainBlock physical = escapeGate.BlockAt(row);
-                RoomBlockAppearance visual = EscapeGateVisuals?.GetAppearance(draw, row)
-                    ?? physical.Appearance;
-                DrawTerrainAt(level, draw, origin + new Offset16<RoomBlocks>(0, row), physical, visual);
-            }
+            RoomObjectFrameImage gate = Installed(_visuals.RoomObjectEscapeGateVisuals, "Mother Brain escape gate").Images.Image(escapeGate.Frame);
+            for (int row = 0; row < MotherBrainEscapeGateObjectDrawDefinitions.Height; row++)
+                DrawImageCell(level, draw, origin, gate, new Offset16<RoomBlocks>(0, row), MotherBrainEscapeGateDraws.Draw.CollisionAt(row));
             return;
         }
         if (BombTorizoHandDraws.TryDescribe(draw, out var bombTorizoHand))
@@ -361,17 +341,11 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
         if (DraygonCannonDraws.TryDescribe(draw, out var draygonCannon))
         {
+            RoomObjectFrameImage cannon = Installed(_visuals.RoomObjectDraygonCannonVisuals, "Draygon cannon").Images
+                .Image(RoomObjectDraw.FrameOf<DraygonCannonDraw>(draw, "Draygon cannon"));
             for (int run = 0; run < draygonCannon.RunCount; run++)
-            {
-                Position16<RoomBlocks> cannon = origin + draygonCannon.Start(run);
                 for (int cell = 0; cell < draygonCannon.BlockCount(run); cell++)
-                {
-                    RoomTerrainBlock physical = draygonCannon.BlockAt(run, cell);
-                    RoomBlockAppearance visual = DraygonCannonVisuals?.GetAppearance(draw, run, cell)
-                        ?? physical.Appearance;
-                    DrawTerrainAt(level, draw, cannon + new Offset16<RoomBlocks>(cell, 0), physical, visual);
-                }
-            }
+                    DrawImageCell(level, draw, origin, cannon, draygonCannon.Start(run) + new Offset16<RoomBlocks>(cell, 0), draygonCannon.CollisionAt(run, cell));
             return;
         }
         if (ChozoStatueDraws.TryDescribe(draw, out var chozoStatue))
@@ -452,6 +426,19 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     }
 
 
+
+    /// <summary>
+    /// Writes the cell of a frame at <paramref name="cell"/> from the object's <paramref name="origin"/>: it collides as
+    /// <paramref name="collision"/> and shows what the frame's installed <paramref name="image"/> shows there (#1557).
+    /// </summary>
+    private static void DrawImageCell(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> origin, RoomObjectFrameImage image,
+        Offset16<RoomBlocks> cell, RoomCollisionType collision) =>
+        DrawTerrainAt(level, draw, origin + cell, new RoomTerrainBlock(image.At(cell), collision));
+
+    /// <summary>The installed picture of a frame of Mother Brain's fake-death room.</summary>
+    private RoomObjectFrameImage FakeDeathImage(RoomObjectDraw draw) =>
+        Installed(_visuals.RoomObjectMotherBrainFakeDeathVisuals, "Mother Brain fake-death room").Images
+            .Image(RoomObjectDraw.FrameOf<MotherBrainFakeDeathDraw>(draw, "Mother Brain fake-death room"));
 
     /// <summary>Draws one horizontal Kraid mutation showing its installed pictures.</summary>
     private static void DrawKraidBlockInstruction(RoomLevelData level, KraidRoomObjectDraws.Draw draw, Position16<RoomBlocks> origin, InstalledRoomObjectKraidVisuals visuals)

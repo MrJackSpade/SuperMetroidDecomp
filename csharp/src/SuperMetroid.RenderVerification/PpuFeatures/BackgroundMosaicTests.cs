@@ -33,7 +33,7 @@ internal static class BackgroundMosaicTests
         cgram.SetColor(241, new RgbColor(0, 0, 255));
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         oam[0] = 96; oam[1] = 64; oam[2] = 1; oam[3] = 0x3e;
-        var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
+        var memory = FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0);
         // BG1's plane and BG2's loaded tilemap show tile word zero, the pattern, drawn from their pictures (#1403).
         var rooms = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, default);
         // Every gameplay line scrolls differently on both axes (#1468): a sixteen-sample ramp across and down.

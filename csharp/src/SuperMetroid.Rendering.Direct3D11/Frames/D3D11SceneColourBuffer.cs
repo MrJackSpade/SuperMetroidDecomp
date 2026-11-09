@@ -18,6 +18,9 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
     /// <summary>The device the buffer lives on.</summary>
     private readonly ID3D11Device device;
 
+    /// <summary>The colours of the picture being packed, reused across pictures and frames.</summary>
+    private RgbColor[] inkScratch = [];
+
     /// <summary>Creates the initial buffer.</summary>
     internal D3D11SceneColourBuffer(ID3D11Device device)
     {
@@ -44,25 +47,29 @@ internal sealed class D3D11SceneColourBuffer : IDisposable
     internal void Pack(FramePaint frame, IReadOnlyList<D3D11ColourSlot> slots)
     {
         Ensure.NotNull(frame);
-        var tables = new RgbColor[slots.Count][];
-        int words = 1 + slots.Count;
+        // Every frame packs every picture's colours, so the packing reuses its scratch rather than allocating per picture.
+        int words = 1 + slots.Count, mostInks = 0;
         for (int slot = 0; slot < slots.Count; slot++)
         {
-            tables[slot] = Shading(frame, slots[slot]).InkColours(slots[slot].Sheet);
-            words += tables[slot].Length;
+            int inkCount = slots[slot].Sheet.StandardColours.Length;
+            words += inkCount;
+            mostInks = Math.Max(mostInks, inkCount);
         }
         if (words > Upload.Length)
         {
             Dispose();
             Create(Math.Max(words, Upload.Length * 2));
         }
+        if (mostInks > inkScratch.Length)
+            inkScratch = new RgbColor[mostInks];
         Span<uint> upload = Upload;
         upload[0] = Shown(frame.Backdrop);
         int table = 1 + slots.Count;
         for (int slot = 0; slot < slots.Count; slot++)
         {
             upload[1 + slot] = (uint)table;
-            RgbColor[] inks = tables[slot];
+            Span<RgbColor> inks = inkScratch.AsSpan(0, slots[slot].Sheet.StandardColours.Length);
+            Shading(frame, slots[slot]).InkColours(slots[slot].Sheet, inks);
             for (int ink = 0; ink < inks.Length; ink++)
                 upload[table + ink] = Shown(inks[ink]);
             table += inks.Length;

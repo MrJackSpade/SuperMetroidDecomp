@@ -79,7 +79,21 @@ public sealed record PictureShading
     public RgbColor[] InkColours(SpriteImage picture)
     {
         Ensure.NotNull(picture);
-        RgbColor[] inks = picture.StandardColours.ToArray();
+        var inks = new RgbColor[picture.StandardColours.Length];
+        InkColours(picture, inks);
+        return inks;
+    }
+
+    /// <summary>
+    /// Writes the colours <paramref name="picture"/>'s inks show in this shading into <paramref name="inks"/>, one per ink
+    /// of its standard colours, without allocating, for a backend that packs every picture's colours each frame.
+    /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="inks"/> does not hold one colour per ink.</exception>
+    public void InkColours(SpriteImage picture, Span<RgbColor> inks)
+    {
+        Ensure.NotNull(picture);
+        _ = Ensure.LengthEqual(inks, picture.StandardColours.Length);
+        picture.StandardColours.CopyTo(inks);
         foreach (PictureShade shade in Shades)
             picture.Shade(shade).Over(inks);
         foreach (ColourEffect effect in Effects)
@@ -89,6 +103,5 @@ public sealed record PictureShading
         }
         foreach (PictureShade shade in OverEffects)
             picture.Shade(shade).Over(inks);
-        return inks;
     }
 }

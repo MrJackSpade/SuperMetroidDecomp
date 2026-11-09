@@ -22,7 +22,9 @@ internal static class Mode7SmokeTests
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
         random.NextBytes(vram); random.NextBytes(oam);
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
+        // A turning floor is a frontend screen's; a turning room drawn with the room's lower band is a gameplay frame's (#1512).
         var memory = FramePaint.FromOam(vram, palette, oam, 128, 3);
+        var gameplayMemory = FramePaint.FromOamGameplay(vram, palette, oam, 128, 3);
         // The HUD is its own layer (#1466), drawn over the lines the floor leaves to it.
         PicturedHud hudPictures = PicturedHudFixtures.FromVram(vram, palette, 0x4000);
         var hudLayer = new HudLayer(hudPictures, ClearPixelsShowBehind: false);
@@ -58,7 +60,7 @@ internal static class Mode7SmokeTests
                 new FloorView(0.27, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),
                 map, hud, band);
             Check(new DisplayPacket(0,
-                new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
+                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
         }
         // A Ceres room's floor with its floor animation frames drawn over it (#1467), and the fixture's floor, with outside
         // pixels transparent, as Ceres rooms show them, or repeating.
@@ -76,7 +78,7 @@ internal static class Mode7SmokeTests
                 new FloorView(-0.27, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                 shown, hud, null);
             Check(new DisplayPacket(0,
-                new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
+                new LayeredScene(gameplayMemory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 

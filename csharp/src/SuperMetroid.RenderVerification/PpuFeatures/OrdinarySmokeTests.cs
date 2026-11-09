@@ -22,7 +22,7 @@ internal static class OrdinarySmokeTests
         var vram = new byte[SnesVram.ByteCount]; random.NextBytes(vram);
         var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount]; random.NextBytes(oam);
         RgbColor[] colors = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = FramePaint.FromOam(vram, colors, oam, 128, 3);
+        var memory = FramePaint.FromOamGameplay(vram, colors, oam, 128, 3);
         // Even HDMA cases show BG2 from a room plane; case one from the ocean sky's rows, whose last chunks show
         // nothing (#1347); case three from a library background's image (#1403), which no 64x64 map ever shows, so a
         // room plane there.

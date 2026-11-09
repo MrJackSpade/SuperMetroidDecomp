@@ -70,12 +70,21 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), MaridiaElevatubeObjectDefinitions.Terrain, "elevatube block");
         AssertEqual(RoomTerrainBlock.Of(0x046, BlockMirroring.None, RoomCollisionType.ShootableBlock), GateObjects.DownwardGateShotBlock(0).LeftBlock, "blue-left gate trigger block");
         AssertEqual(RoomTerrainBlock.Of(0x04d, BlockMirroring.None, RoomCollisionType.ShootableBlock), GateObjects.DownwardGateShotBlock(7).RightBlock, "yellow-right gate trigger block");
+        // A restoration's geometry holds its collision; what it shows is its installed picture (#1557).
+        InstalledRoomObjectLinkedRestoreVisuals restorations = InstalledRoomObjectLinkedRestoreVisuals.Stock();
         var bombHorizontal = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Horizontal, LinkedRestoreObjectFamily.BombBlock);
-        AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock), bombHorizontal.BlockAt(0, 0), "bomb block parent");
-        AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.HorizontalExtension), bombHorizontal.BlockAt(0, 1), "bomb block horizontal child");
+        AssertEqual(RoomCollisionType.BombableBlock, bombHorizontal.CollisionAt(0, 0), "bomb block parent");
+        AssertEqual(RoomCollisionType.HorizontalExtension, bombHorizontal.CollisionAt(0, 1), "bomb block horizontal child");
+        RoomObjectFrameImage bombPicture = restorations.Image(RoomObjectDraw.Of(BombBlockRestoreDraw.Horizontal));
+        AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(0, 0)), "bomb block parent picture");
+        AssertEqual(RoomBlockAppearance.Of(0x058), bombPicture.At(new(1, 0)), "bomb block horizontal child picture");
         var crumbleVertical = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Vertical, LinkedRestoreObjectFamily.ContactCrumble);
-        AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock), crumbleVertical.BlockAt(0, 0), "contact crumble parent");
-        AssertEqual(RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.VerticalExtension), crumbleVertical.BlockAt(0, 1), "contact crumble vertical child");
+        AssertEqual(RoomCollisionType.SpecialBlock, crumbleVertical.CollisionAt(0, 0), "contact crumble parent");
+        AssertEqual(RoomCollisionType.VerticalExtension, crumbleVertical.CollisionAt(0, 1), "contact crumble vertical child");
+        RoomObjectFrameImage crumblePicture = restorations.Image(RoomObjectDraw.Of(ContactCrumbleRestoreDraw.Vertical));
+        AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 0)), "contact crumble parent picture");
+        AssertEqual(RoomBlockAppearance.Of(0x0bc), crumblePicture.At(new(0, 1)), "contact crumble vertical child picture");
+
         Console.WriteLine("PLM definition migration: header words, member identifications, station animations, catalog values and terrain blocks keep their values.");
     }
 

@@ -219,7 +219,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage restored = Installed(LinkedRestoreVisuals, "linked restoration").Image(draw);
             for (int run = 0; run < linkedRestore.RunCount; run++)
                 for (int block = 0; block < 2; block++)
-                    DrawImageCell(level, draw, origin, restored, new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, restored, new Offset16<RoomBlocks>(linkedRestore.Vertical ? 0 : block, linkedRestore.Vertical ? block : run), linkedRestore.CollisionAt(run, block));
             return;
         }
         if (BlueDoorCaps.TryDescribe(draw, out var blueDoor))

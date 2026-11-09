@@ -156,7 +156,7 @@ internal static class TourianAccessObjectProgramsVerification
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     ((pointer >= RoomObjectNativeListAddresses.TourianAccessEntries[0].Entry &&
-                      pointer < RoomObjectNativeListAddresses.TourianAccessEntries[2].Entry + 6) ||
+                      pointer < RoomObjectNativeListAddresses.TourianAccessEntries[1].Entry + 6) ||
                      (pointer >= RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(TourianAccessDraw.EmptyRow)) &&
                       pointer < 0x930f));
             },

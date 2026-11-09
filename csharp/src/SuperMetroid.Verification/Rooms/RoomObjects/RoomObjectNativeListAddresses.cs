@@ -160,11 +160,10 @@ internal static class RoomObjectNativeListAddresses
     internal const int DownwardGateSleepContinuationOffset = 12;
 
     /// <summary>The Tourian elevator access lists (<c>InstList_PLM_CrumbleAccessToTourianElevator_0..1</c>, <c>..ClearAccess..</c>).</summary>
-    internal static IReadOnlyList<NativeProgramEntry<TourianAccessProgram>> TourianAccessEntries { get; } =
+    internal static IReadOnlyList<NativeProgramEntry<TourianAccessFloor>> TourianAccessEntries { get; } =
     [
-        new NativeProgramEntry<TourianAccessProgram>(TourianAccessProgram.Crumble, 0xaae5),
-        new NativeProgramEntry<TourianAccessProgram>(TourianAccessProgram.CrumbleRow, 0xaae8),
-        new NativeProgramEntry<TourianAccessProgram>(TourianAccessProgram.Clear, 0xab0c),
+        new NativeProgramEntry<TourianAccessFloor>(TourianAccessFloor.Crumble, 0xaae5),
+        new NativeProgramEntry<TourianAccessFloor>(TourianAccessFloor.Clear, 0xab0c),
     ];
 
     /// <summary>The Wrecked Ship attic's list (<c>InstList_PLM_WreckedShipAttic</c>, $84:BAFF).</summary>

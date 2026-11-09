@@ -423,18 +423,23 @@ internal static class RoomObjectProgramsVerification
         return true;
     }
 
-    /// <summary>The Tourian elevator access programs equal their native lists.</summary>
+    /// <summary>The Tourian elevator access changes play as their native lists do.</summary>
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), TourianAccessObjectProgramDefinitions.Programs, TourianAccessEntries,
-            draw => RoomObjectDraw.Of(draw),
-            (IImportCartridgeSource cartridge, ushort cursor, out TourianAccessCue cue, out int length) =>
-            {
-                cue = TourianAccessCue.MoveDown;
-                length = 2;
-                return InstructionAt<RoomObjectInstruction>(cartridge, cursor) == RoomObjectInstruction.MoveTourianAccessDown;
-            }, "Tourian access");
-        Console.WriteLine($"  Tourian access programs: {steps} typed steps match bank $84.");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        AssertEqual(Enum.GetValues<TourianAccessFloor>().Length, TourianAccessEntries.Count, "every Tourian access floor has a native list");
+        int frames = 0;
+        foreach ((TourianAccessFloor floor, ushort entry) in TourianAccessEntries)
+        {
+            frames += NativeTerrainChanges.Compare(cartridge, TourianAccessFloors.ForState(floor).Change, entry,
+                (IImportCartridgeSource source, ushort cursor, out NativeTerrainChanges.NativeStep step) =>
+                {
+                    step = new NativeTerrainChanges.NativeStep(new Offset16<RoomBlocks>(0, 1), Sound: null, Begins: false, Length: 2);
+                    return InstructionAt<RoomObjectInstruction>(source, cursor) == RoomObjectInstruction.MoveTourianAccessDown;
+                }, $"Tourian access {floor}", out bool began);
+            AssertTrue(!began, $"Tourian access {floor} opens nothing as it starts");
+        }
+        Console.WriteLine($"  Tourian access changes: {frames} typed frames match bank $84.");
     }
 
     /// <summary>The Wrecked Ship attic's program equals its native list.</summary>

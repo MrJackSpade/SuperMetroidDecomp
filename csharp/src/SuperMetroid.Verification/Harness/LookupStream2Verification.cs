@@ -907,9 +907,9 @@ internal static class LookupStream2Verification
     /// <summary>Checks horizontal scroll target selection against native grid boundary behavior.</summary>
     internal static void VerifyLookupStream2HorizontalCameraTargets(ISnesAddressSpace rom)
     {
-        var storage = new byte[RoomScrollGrid.StorageByteCount];
+        var storage = new byte[RoomScrollGrid.KeptCellCount];
         Array.Fill(storage, (byte)1);
-        var grid = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), storage, new Extent16<RoomScreens>(3, 2));
+        var grid = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(3, 2));
         foreach (CameraDistanceMode mode in Enum.GetValues<CameraDistanceMode>())
         foreach (byte facing in new byte[] { 4, 8 })
         for (int reversal = 0; reversal < 4; reversal++)

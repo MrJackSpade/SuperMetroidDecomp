@@ -55,11 +55,11 @@ public sealed class RoomObjectPopulation
         }
         else if (placement.Header.Header == RoomObjectHeaderId.ScrollTrigger)
         {
-            if (program is null || program.Length >= RoomScrollGrid.StorageByteCount)
+            if (program is null || program.Length >= RoomScrollGrid.KeptCellCount)
                 throw new InvalidDataException("A decoded scroll PLM needs a bounded write program.");
             foreach (RoomScrollWrite write in program)
             {
-                if (write.Index is < 0 or >= RoomScrollGrid.StorageByteCount || !Enum.IsDefined(write.State))
+                if (write.Index is < 0 or >= RoomScrollGrid.KeptCellCount || !Enum.IsDefined(write.State))
                     throw new InvalidDataException("A decoded scroll PLM contains an invalid scroll write.");
             }
         }

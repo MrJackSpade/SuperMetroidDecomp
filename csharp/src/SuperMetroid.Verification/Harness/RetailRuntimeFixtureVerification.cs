@@ -52,7 +52,7 @@ internal static class RetailRuntimeFixtureVerification
     internal static LoadedRoomAssets LoadFixtureRoomAssets(SelectedRoom room,
         RoomLevelArtworks? visualLayouts = null,
         InstalledRoomLevelStreams? levelStreams = null) =>
-        LoadedRoomAssets.Load(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), room, InstalledFixtures.RoomAssets with
+        LoadedRoomAssets.Load(RoomScrollGrid.PowerOnCells(), room, InstalledFixtures.RoomAssets with
         {
             VisualLayouts = visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts,
             LevelStreams = levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams,

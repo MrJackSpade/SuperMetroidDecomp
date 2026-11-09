@@ -69,7 +69,7 @@ internal static class RoomObjectPopulationImporter
         {
             var writes = new List<RoomScrollWrite>();
             int cursor = 0;
-            for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
+            for (int index = 0; index < RoomScrollGrid.KeptCellCount; index++)
             {
                 byte cell = Byte(0x8f, unchecked((ushort)(argument + cursor++)));
                 if ((cell & 0x80) != 0)

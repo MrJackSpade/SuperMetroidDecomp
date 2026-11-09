@@ -86,14 +86,14 @@ internal static class CrocomireCutsceneVerification
 
     /// <summary>The Crocomire room's authored scroll storage, read from its retail $8F:A9D7 record.</summary>
     private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
-        Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
+        Enumerable.Range(0, RoomScrollGrid.KeptCellCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
 
     /// <summary>Checks the bridge melt lock at X=1280 and the later skeleton-wall lock at X=512.</summary>
     internal static void VerifyCrocomireCutsceneCamera()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] storage = ReadNativeCrocomireRoomScrolls(rom);
-        var scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), storage, new Extent16<RoomScreens>(8, 1));
+        var scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null))
         {
@@ -104,7 +104,7 @@ internal static class CrocomireCutsceneVerification
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Access.Crocomire = state;
         enemies.CrocomireBehavior.Access.CrocomireDeath = new CrocomireDeathState();
-        enemies.VerificationServices().SetRoomScrollState = scrolls.SetStorage;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetCell;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, SamusState?, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
@@ -130,9 +130,9 @@ internal static class CrocomireCutsceneVerification
 
         // Revised interpretation: the later skeleton scene on the left. Begin at its
         // native wait-for-Samus handoff using the retail room's original scrolls.
-        scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), storage, new Extent16<RoomScreens>(8, 1));
+        scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
-        enemies.VerificationServices().SetRoomScrollState = scrolls.SetStorage;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetCell;
         state.DeathPhase = CrocomireDeathPhase.WaitForSamusAtWall;
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);

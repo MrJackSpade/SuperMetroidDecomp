@@ -82,7 +82,7 @@ public sealed class ScrollBoundaryCamera
             : previous.WithX(previous.X.WithWhole(samus.X));
     }
 
-    /// <summary>The mutable 50-byte scroll table consulted by this camera.</summary>
+    /// <summary>The room's scroll grid this camera consults.</summary>
     public RoomScrollGrid Scrolls { get; }
 
     /// <summary>

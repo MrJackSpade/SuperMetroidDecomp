@@ -53,14 +53,14 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             "typed trigger setup publishes its native collision behavior");
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
-        var scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
+        var scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
         roomObjects.Step(level, scrolls);
-        AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
+        AssertEqual(RoomScrollState.Green, scrolls.ReadState(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to sleep after its last write");
 
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
-            [trigger with { ScrollProgram = [new(RoomScrollGrid.StorageByteCount, RoomScrollState.Blue)] }]),
+            [trigger with { ScrollProgram = [new(RoomScrollGrid.KeptCellCount, RoomScrollState.Blue)] }]),
             "a decoded write past the scroll grid is rejected before allocation");
         AssertThrows<InvalidDataException>(() => new RoomObjectPopulation($"$8F:{0x9000:X4}",
             [trigger with { ScrollProgram = [new(0, (RoomScrollState)3)] }]), "invalid decoded scroll states are rejected");

@@ -1,130 +1,132 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>
-/// One room's view of Super Metroid's 50-byte room scroll-zone allocation (<see cref="RoomScrollStorage"/>).
+/// One room's scroll grid: a <see cref="RoomScrollState"/> for each of its screens, row by row, kept among the session's
+/// scroll cells (<see cref="ScrollCellsKeptAcrossRooms{TCell, TArea}"/>), whose cells past the room's own keep what earlier
+/// rooms left there.
 /// </summary>
 /// <remarks>
-/// Logical cells are screen-sized (256x256 pixels), not 16x16 room blocks. Values zero,
-/// one, and two are conventionally called red, blue, and green scrolls.
-/// Zero forms a camera boundary; one and two are traversable but affect vertical alignment
-/// differently. Scroll PLMs can mutate these bytes during play.
+/// Cells are screen-sized (256x256 pixels), not 16x16 room blocks. Red cells form a camera boundary; blue and green ones
+/// are traversable but align the camera vertically differently. Scroll triggers, doors, enemies and scripted events
+/// change cells during play.
 /// </remarks>
 public sealed class RoomScrollGrid
 {
-    /// <summary>Size in bytes of the fixed room scroll-zone allocation.</summary>
-    public const int StorageByteCount = 50;
+    /// <summary>How many scroll cells the game keeps: no room has more screens.</summary>
+    public const int KeptCellCount = 50;
 
-    /// <summary>The session's allocation, including bytes past this room's logical cells.</summary>
-    internal readonly RoomScrollStorage Storage;
+    /// <summary>The session's kept scroll cells, of which this room's are the first.</summary>
+    private readonly ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> _cells;
 
-    /// <summary>Validates screen-cell dimensions within the 50-byte allocation.</summary>
-    private RoomScrollGrid(RoomScrollStorage storage, Extent16<RoomScreens> size)
+    /// <summary>Validates the room's screen dimensions within the kept cells.</summary>
+    private RoomScrollGrid(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells, Extent16<RoomScreens> size)
     {
-        Storage = Ensure.NotNull(storage);
-        if (size.X == 0 || size.Y == 0 || size.X * size.Y > StorageByteCount)
+        _cells = Ensure.NotNull(cells);
+        if (size.X == 0 || size.Y == 0 || size.X * size.Y > cells.Count)
             throw new ArgumentOutOfRangeException(nameof(size));
 
         Size = size;
     }
 
-    /// <summary>Gets the room size in 256-pixel scroll-zone cells.</summary>
+    /// <summary>Gets the room size in 256-pixel scroll cells.</summary>
     public Extent16<RoomScreens> Size { get; }
-    /// <summary>Gets the number of logical room cells within the fixed storage allocation.</summary>
+
+    /// <summary>Gets the number of the room's own cells.</summary>
     public int LogicalCellCount => Size.X * Size.Y;
 
-    /// <summary>Copies a compiled 50-byte allocation into the session's scroll storage, as the room loader does.</summary>
-    public static RoomScrollGrid LoadCompiled(
-        RoomScrollStorage storage,
-        ReadOnlySpan<byte> compiled,
+    /// <summary>
+    /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
+    /// <paramref name="storedExploredMaps"/>: a run with nothing explored as red, one whose only explored cell is its last
+    /// as blue, and any other as green.
+    /// </summary>
+    public static ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeepCellsAcrossRooms(StoredExploredMaps<AreaId> storedExploredMaps) =>
+        new(KeptCellCount, RoomScrollState.RedBoundary, storedExploredMaps, RoomScrollState.Blue, RoomScrollState.Green);
+
+    /// <summary>Loads the scroll data <paramref name="scroll"/> selects into <paramref name="cells"/>, as the room loader does.</summary>
+    /// <exception cref="ArgumentException">An explicit table does not hold one state for every kept cell.</exception>
+    public static RoomScrollGrid FromDefinition(
+        ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
+        RoomScrollDefinition scroll,
         Extent16<RoomScreens> size)
     {
-        Ensure.LengthEqual(compiled, StorageByteCount);
-        var grid = new RoomScrollGrid(storage, size);
-        storage.Load(compiled);
+        Ensure.NotNull(scroll);
+        if (scroll.ImplicitBottomRow is { } bottomRow)
+            return CreateImplicit(cells, size, bottomRow);
+
+        foreach (RoomScrollState state in scroll.Cells)
+            Validate(state, nameof(scroll));
+        var grid = new RoomScrollGrid(cells, size);
+        cells.LoadAll(scroll.Cells);
         return grid;
     }
 
-    /// <summary>Creates the scroll allocation <paramref name="scroll"/> selects over <paramref name="storage"/>.</summary>
-    public static RoomScrollGrid FromDefinition(RoomScrollStorage storage, RoomScrollDefinition scroll, Extent16<RoomScreens> size)
-    {
-        Ensure.NotNull(scroll);
-        return scroll.ImplicitBottomRow is { } bottomRow
-            ? CreateImplicit(storage, size, bottomRow)
-            : LoadCompiled(storage, scroll.Storage.Span, size);
-    }
-
     /// <summary>
-    /// Builds the implicit scroll table used when a room state's scroll word is nonnegative.
+    /// Builds the implicit layout a room state selects when it names no explicit table: every row green except the last,
+    /// which is <paramref name="lastRowState"/>.
     /// </summary>
     /// <remarks>
-    /// This is the literal nested loop: every row begins as green value two,
-    /// while the final row receives <paramref name="lastRowState" />. The loop writes only
-    /// the room's width x height cells; the rest of the 50-byte allocation keeps what the
-    /// previous room left there, and the scroll routines read it at the room's edges.
+    /// Only the room's width x height cells are written; every kept cell past them keeps what the previous room left
+    /// there, and the camera reads them at the room's edges.
     /// </remarks>
     public static RoomScrollGrid CreateImplicit(
-        RoomScrollStorage storage,
+        ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
         Extent16<RoomScreens> size,
         RoomScrollState lastRowState)
     {
-        RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
-        var grid = new RoomScrollGrid(storage, size);
+        Validate(lastRowState, nameof(lastRowState));
+        var grid = new RoomScrollGrid(cells, size);
         for (int index = 0; index < grid.LogicalCellCount; index++)
-            storage[index] = (index / size.X == size.Y - 1
-                ? lastRowState
-                : RoomScrollState.Green).ToStorageByte();
+            cells.Write(index, index / size.X == size.Y - 1 ? lastRowState : RoomScrollState.Green);
         return grid;
     }
 
-    /// <summary>Reads one raw allocation index used by the assembly's multiplication arithmetic.</summary>
-    public byte ReadStorage(int index)
-    {
-        if ((uint)index >= StorageByteCount)
-            throw new ArgumentOutOfRangeException(nameof(index), index, "Scroll routine indexed outside the 50-byte allocation.");
-        return Storage[index];
-    }
-
-    /// <summary>Typed view of one byte inside the 50-byte scroll allocation.</summary>
-    public RoomScrollState ReadState(int index) => RoomScrollStates.FromStorageByte(ReadStorage(index));
+    /// <summary>The state of kept cell <paramref name="index"/>, the room's own or one past it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The index lies outside the kept cells.</exception>
+    public RoomScrollState ReadState(int index) => _cells.Read(index);
 
     /// <summary>
-    /// The scroll state a camera check reads at the cell a scroll calculation selects. A byte past the three authored
-    /// states reads as the camera treats it, <see cref="RoomScrollState.Green"/>.
+    /// The scroll state a camera check reads at the cell a scroll calculation selects.
     /// </summary>
     /// <remarks>
-    /// Most reads stay in the 50 scroll cells, but the bottom row can select the cells just past them, and a camera
-    /// above the room selects a row far past them; such a read observes the session's stored explored maps that
-    /// follow the cells (<see cref="RoomScrollStorage.ReadPastCells"/>) rather than throwing or clamping to a cell.
+    /// Most reads stay in the room's own cells, but the bottom row and right column can select the kept cells past them,
+    /// and a camera above the room selects a row past every kept cell; such a read observes the session's stored
+    /// explored maps (<see cref="ScrollCellsKeptAcrossRooms{TCell, TArea}.ReadForCamera"/>) rather than throwing or
+    /// clamping to a cell.
     /// </remarks>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0 through 65535, or past every stored map.</exception>
-    public RoomScrollState ReadCameraState(int index)
-    {
-        if ((uint)index > ushort.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return index < StorageByteCount
-            ? RoomScrollStates.FromStorageByte(Storage[index])
-            : Storage.ReadPastCells(index - StorageByteCount);
-    }
+    /// <exception cref="ArgumentOutOfRangeException">The index is negative, or past every stored map.</exception>
+    public RoomScrollState ReadCameraState(int index) => _cells.ReadForCamera(index);
 
     /// <summary>
-    /// Writes one raw byte in the fixed 50-byte scroll allocation. Enemy and PLM scripts use
-    /// literal storage indexes rather than logical room coordinates, so this seam preserves their
-    /// overlapping word stores without reverse-engineering them into guessed screen cells.
+    /// Sets kept cell <paramref name="index"/>. Scroll triggers, doors and enemies name cells by their place in the kept
+    /// cells rather than by screen, so a write may reach a cell past the room's own.
     /// </summary>
-    public void SetStorage(int index, RoomScrollState state)
+    /// <exception cref="ArgumentOutOfRangeException">The index lies outside the kept cells, or the state is not a scroll state.</exception>
+    public void SetCell(int index, RoomScrollState state)
     {
-        if ((uint)index >= StorageByteCount)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        RoomScrollStates.Validate(state, nameof(state));
-        Storage[index] = state.ToStorageByte();
+        Validate(state, nameof(state));
+        _cells.Write(index, state);
     }
 
-    /// <summary>Updates a logical cell as a scroll PLM would.</summary>
+    /// <summary>Updates one of the room's screens as a scroll trigger would.</summary>
     public void SetLogicalState(Position16<RoomScreens> screen, RoomScrollState state)
     {
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
-        RoomScrollStates.Validate(state, nameof(state));
-        Storage[screen.Y * Size.X + screen.X] = state.ToStorageByte();
+        Validate(state, nameof(state));
+        _cells.Write(screen.Y * Size.X + screen.X, state);
+    }
+
+    /// <summary>Rejects a value that is not one of the three scroll states.</summary>
+    private static void Validate(RoomScrollState state, string parameterName)
+    {
+        if (!Enum.IsDefined(state))
+        {
+            throw new ArgumentOutOfRangeException(
+                parameterName,
+                state,
+                "Known room scroll states are red boundary, blue, and green.");
+        }
     }
 }

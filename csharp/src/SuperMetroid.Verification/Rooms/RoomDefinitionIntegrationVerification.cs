@@ -48,8 +48,8 @@ internal static class RoomDefinitionIntegrationVerification
             "guarded post-Ceres room entry retains compiled incoming door");
         AssertEqual(expected.Room.ActiveRoom, actual.Room.ActiveRoom,
             "guarded post-Ceres room entry retains compiled header, selection, and state");
-        AssertTrue(expected.Room.LoadedCamera.Scrolls.StorageBytes.ToArray().SequenceEqual(
-                actual.Room.LoadedCamera.Scrolls.StorageBytes.ToArray()),
+        AssertTrue(expected.Room.LoadedCamera.Scrolls.KeptStates.SequenceEqual(
+                actual.Room.LoadedCamera.Scrolls.KeptStates),
             "guarded post-Ceres room entry retains compiled scroll constraints");
         AssertEqual(new MotherBrainRinkaDoorSpawnExpected(expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.PixelPosition.Y),
             new MotherBrainRinkaDoorSpawnExpected(actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.PixelPosition.Y),
@@ -169,7 +169,7 @@ internal static class RoomDefinitionIntegrationVerification
             {
                 AddAddressRange(forbidden,
                     RoomTilesetTableConstants.DefinitionBank | state.ScrollPointer,
-                    RoomScrollGrid.StorageByteCount);
+                    RoomScrollGrid.KeptCellCount);
             }
         }
 

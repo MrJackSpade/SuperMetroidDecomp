@@ -115,7 +115,9 @@ internal static class NativeSnapshotImport
         runtime.PaletteFxSession.PreviousSamusInHeatPaletteIndex = W(NativeSnapshotMemory.PreviousHeatPalettePhase);
         ushort[] hudWords = [.. Enumerable.Range(0, HudStateConstants.MutableTileCount).Select(index => W(NativeSnapshotMemory.HudTilemap + index * 2))];
         HudItem highlightedHudItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
-        runtime.Room.LoadedCamera.Scrolls.Storage.Load(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount));
+        // Each recorded scroll byte becomes the cell the camera reads it as.
+        for (int cell = 0; cell < RoomScrollGrid.KeptCellCount; cell++)
+            runtime.Room.LoadedCamera.Scrolls.SetCell(cell, RoomScrollStates.FromStorageByte(memory[NativeSnapshotMemory.ScrollStorage + cell]));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         // The current area's exploration lives in its live plane; every other area's in the saved planes.
         for (int area = 0; area < AreaIds.RetailCount; area++)

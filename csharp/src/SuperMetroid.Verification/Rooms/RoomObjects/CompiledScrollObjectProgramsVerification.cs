@@ -41,14 +41,14 @@ internal static class CompiledScrollObjectProgramsVerification
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationDefinitions.Get(0x8230), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "retail scroll-only population loads from compiled placement");
-        RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(SuperMetroid.Core.Progression.StoredExploredMapLoads.PowerOn()),
+        RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(),
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.RedBoundary);
-        scrolls.SetStorage(0, RoomScrollState.RedBoundary);
+        scrolls.SetCell(0, RoomScrollState.RedBoundary);
         AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(8, 13))),
             "retail scroll trigger wakes at its authored coordinate");
         roomObjects.Step(level, scrolls);
-        AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(0),
+        AssertEqual(RoomScrollState.Green, scrolls.ReadState(0),
             "compiled retail scroll program mutates the intended cell");
         AssertTrue(!roomObjects.ScrollObjectTriggered(level.GetBlockIndex(new(8, 13))),
             "retail scroll trigger returns to resident sleep");

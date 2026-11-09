@@ -25,7 +25,7 @@ internal static class TorizoMotionDefinitions
 
     /// <summary>
     /// The gravity on Golden Torizo's Chozo orb. Each floor bounce halves and reverses its fall, and the orb falls at
-    /// most the height of its room, at most fifty screens (<see cref="Rooms.Scrolling.RoomScrollGrid.StorageByteCount"/>),
+    /// most the height of its room, at most fifty screens (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>),
     /// before its terrain probe leaves the room and finds it solid, so its speed stays below 64 pixels an update.
     /// </summary>
     internal static readonly SignedEightEight GoldenOrbGravity = SignedEightEight.FromSignedRaw(24);

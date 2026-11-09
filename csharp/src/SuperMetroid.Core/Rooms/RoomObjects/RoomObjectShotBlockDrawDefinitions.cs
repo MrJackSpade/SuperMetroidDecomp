@@ -22,16 +22,6 @@ internal static class RoomObjectShotBlockDrawDefinitions
     {
         /// <summary>The number of cells the run writes.</summary>
         internal int Count => Collisions.Length;
-
-        /// <summary>Where the run's cell <paramref name="index"/> lies from the draw's origin.</summary>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not one of the run's cells.</exception>
-        internal Offset16<RoomBlocks> CellAt(int index)
-        {
-            if ((uint)index >= (uint)Count) throw new ArgumentOutOfRangeException(nameof(index));
-            return Start + (Direction == RoomObjectRunDirection.Vertical
-                ? new Offset16<RoomBlocks>(0, index)
-                : new Offset16<RoomBlocks>(index, 0));
-        }
     }
 
     /// <summary>One PLM draw with its ordered, immutable runs.</summary>

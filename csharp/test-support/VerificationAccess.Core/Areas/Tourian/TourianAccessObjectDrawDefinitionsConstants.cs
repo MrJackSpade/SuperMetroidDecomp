@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.AssetExtraction.Rooms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Areas.Tourian;
 

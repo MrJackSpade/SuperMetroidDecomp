@@ -180,7 +180,7 @@ internal static class PauseEquipmentRulesVerification
         PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         // Equip exactly the collected bits in the beam or item field for a category fixture.
         static SamusState Inventory(PauseEquipmentBit owned) =>
-            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedBeams = owned.Beam, EquippedBeams = owned.Beam, CollectedItems = owned.Item, EquippedItems = owned.Item };
+            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CollectedBeams = owned.Beam, EquippedBeams = owned.Beam, CollectedItems = owned.Item, EquippedItems = owned.Item };
     }
 
     /// <summary>Forbids production reads of migrated equipment masks, wireframe masks, and reserve-transfer rate.</summary>

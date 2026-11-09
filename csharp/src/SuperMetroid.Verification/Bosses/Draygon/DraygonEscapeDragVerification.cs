@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;

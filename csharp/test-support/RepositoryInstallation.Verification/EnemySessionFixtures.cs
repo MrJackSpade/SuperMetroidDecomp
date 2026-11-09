@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;

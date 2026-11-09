@@ -25,33 +25,33 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class SharedEscapeAndDrainCount
 {
     /// <summary>The count, 0 through 65535, a wrapped countdown kept exactly.</summary>
-    private int _count;
+    private int Count { get; set; }
 
     /// <summary>The count as Crystal Flash's ammunition countdown reads it.</summary>
-    public WrappingCountdown AmmoCountdown => WrappingCountdown.FromRaw(_count);
+    public WrappingCountdown AmmoCountdown => WrappingCountdown.FromRaw(Count);
 
     /// <summary>The count as Draygon's escape handler reads it: the presses counted toward the escape, 0 through 65535.</summary>
-    public int EscapePresses => _count;
+    public int EscapePresses => Count;
 
     /// <summary>Restarts Crystal Flash's ammunition countdown.</summary>
     /// <param name="updates">The updates until the next unit is drained.</param>
-    public void StartAmmoCountdown(int updates) => _count = WrappingCountdown.Start(updates).RemainingFrames;
+    public void StartAmmoCountdown(int updates) => Count = WrappingCountdown.Start(updates).RemainingFrames;
 
     /// <summary>Counts Crystal Flash's ammunition countdown down by one update, wrapping past zero, and returns the step.</summary>
     public CountdownStep CountDownAmmo()
     {
         CountdownStep step = AmmoCountdown.Decrement();
-        _count = step.Remaining.RemainingFrames;
+        Count = step.Remaining.RemainingFrames;
         return step;
     }
 
     /// <summary>Clears the escape presses, as Draygon's grab does.</summary>
-    public void ClearEscapePresses() => _count = 0;
+    public void ClearEscapePresses() => Count = 0;
 
     /// <summary>Counts one escape press, continuing from zero past 65535.</summary>
-    public void CountEscapePress() => _count = WrappingCounter.IncrementWord(_count);
+    public void CountEscapePress() => Count = WrappingCounter.IncrementWord(Count);
 
     /// <summary>The suit pickup leaves its stage on the count.</summary>
     /// <param name="stage">The stage's place in the stage order, from zero.</param>
-    public void LeaveSuitPickupStage(int stage) => _count = Ensure.BetweenInclusive(0, ushort.MaxValue, stage);
+    public void LeaveSuitPickupStage(int stage) => Count = Ensure.BetweenInclusive(0, ushort.MaxValue, stage);
 }

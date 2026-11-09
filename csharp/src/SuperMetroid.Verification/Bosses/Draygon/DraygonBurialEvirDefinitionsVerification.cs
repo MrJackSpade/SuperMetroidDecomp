@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;

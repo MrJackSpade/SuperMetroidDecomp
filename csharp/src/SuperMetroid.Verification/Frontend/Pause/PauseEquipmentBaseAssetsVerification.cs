@@ -45,7 +45,7 @@ internal static class PauseEquipmentBaseAssetsVerification
 
         Console.WriteLine("Pause equipment base: 1024 native words and guarded transitions pass.");
 
-        static SamusState Samus() => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        static SamusState Samus() => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Wave),
             EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),

@@ -18,10 +18,10 @@ internal static class PauseEquipmentLabelsVerification
 
         SamusState[] inventories =
         [
-            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()),
-            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Spazer,
+            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()),
+            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Spazer,
                 CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), MaxReserveEnergy = 100 },
-            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HyperBeamEnabled = true, CollectedBeams = SamusEquipmentWordCodec.FromSavedBeamWord(ushort.MaxValue), EquippedBeams = SamusEquipmentWordCodec.FromSavedBeamWord(ushort.MaxValue),
+            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HyperBeamEnabled = true, CollectedBeams = SamusEquipmentWordCodec.FromSavedBeamWord(ushort.MaxValue), EquippedBeams = SamusEquipmentWordCodec.FromSavedBeamWord(ushort.MaxValue),
                 CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.UnassignedItem | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope), EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.UnassignedItem | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope) },
         ];
         foreach (SamusState inventory in inventories)
@@ -40,7 +40,7 @@ internal static class PauseEquipmentLabelsVerification
             return pause.ShownVram().AsSpan(0x6000, 0x800).ToArray();
         }
 
-        static SamusState Clone(SamusState value) => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+        static SamusState Clone(SamusState value) => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             CollectedBeams = value.CollectedBeams,
             EquippedBeams = value.EquippedBeams,

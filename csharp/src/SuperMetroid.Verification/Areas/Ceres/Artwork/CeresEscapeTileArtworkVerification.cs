@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;

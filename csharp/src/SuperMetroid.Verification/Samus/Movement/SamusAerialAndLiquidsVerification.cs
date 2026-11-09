@@ -557,7 +557,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual<SamusTransitionShot?>(null, spinAimDown.PendingTransitionShot,
         "spin Down without Shoot does not publish a projectile bridge");
 
-    static SamusState CreateFallingSpin(SamusPoseId pose, ushort items, ushort speed, ushort subspeed) => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
+    static SamusState CreateFallingSpin(SamusPoseId pose, ushort items, ushort speed, ushort subspeed) => new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
     {
         Pose = pose,
         EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(items),

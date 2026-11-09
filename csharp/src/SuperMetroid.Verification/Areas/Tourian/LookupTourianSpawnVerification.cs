@@ -5,7 +5,6 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Areas.Tourian;

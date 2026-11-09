@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;

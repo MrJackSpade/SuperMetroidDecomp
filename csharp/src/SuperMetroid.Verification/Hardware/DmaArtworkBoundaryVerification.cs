@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Hardware.HardwareVerification;
 using static SuperMetroid.Verification.Hardware.QueuedVramAssetsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;

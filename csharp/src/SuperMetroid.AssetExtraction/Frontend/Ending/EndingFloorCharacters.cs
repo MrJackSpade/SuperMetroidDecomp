@@ -6,9 +6,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
 /// The installed escape, planet-explosion and reward-icon artwork as the import pipeline reads it (#1409), which names its
-/// content identity from each scene's map and characters and the reward icon's transfer.
+/// content identity from each scene's map and characters and the reward icon's transfer. The import pictures the turning
+/// floors' sheets from it; the game draws those sheets and never loads this artwork (#1555).
 /// </summary>
-public sealed class EndingFloorCharacters : EndingFloorArtwork
+public sealed class EndingFloorCharacters
 {
     /// <summary>Zebes zoom-out backdrop used by the first escape scene.</summary>
     private readonly EndingFloorSceneArtwork escapeA;
@@ -43,20 +44,8 @@ public sealed class EndingFloorCharacters : EndingFloorArtwork
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
-    /// <summary>The backdrop <paramref name="id"/> the installed ending floor artwork <paramref name="floor"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The artwork was not read from an installation.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> does not identify one of the three supported scenes.</exception>
-    public static EndingFloorSceneArtwork SceneOf(EndingFloorArtwork floor, EndingFloorSceneId id) =>
-        ((Ensure.NotNull(floor) as EndingFloorCharacters)
-            ?? throw new InvalidDataException("The ending floor artwork was not read from an installation, so it has no backdrops."))[id];
-
     /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
     public EndingRewardIconArtwork RewardIcon { get; }
-
-    /// <summary>The reward icon the installed ending floor artwork <paramref name="floor"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The artwork was not read from an installation.</exception>
-    public static EndingRewardIconArtwork RewardIconOf(EndingFloorArtwork floor) => (Ensure.NotNull(floor) as EndingFloorCharacters)?.RewardIcon
-        ?? throw new InvalidDataException("The ending floor artwork was not read from an installation, so it has no reward icon.");
 
     /// <summary>Identity of each decoded scene's two transfer lanes and the import's reward-icon transfer.</summary>
     /// <exception cref="InvalidDataException">A scene or the reward icon was not read from installed artwork.</exception>

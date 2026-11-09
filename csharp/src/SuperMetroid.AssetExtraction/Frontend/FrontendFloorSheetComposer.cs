@@ -237,12 +237,12 @@ internal static class FrontendFloorSheetComposer
     /// <summary>An ending escape or explosion scene's floor: its map laid out twice, one copy after the other, over its characters.</summary>
     private static ComposedSpriteSheet EndingScene(ScreenTileSources sources, EndingFloorSceneId scene, EndingPaletteId palette)
     {
-        ReadOnlySpan<byte> map = EndingFloorCharacters.SceneOf(sources.EndingMode7, scene).Map.Span;
+        ReadOnlySpan<byte> map = sources.EndingMode7[scene].Map.Span;
         var cells = new byte[FloorSheetComposer.CellCount];
         map.CopyTo(cells);
         map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
         return FloorSheetComposer.Compose(
-            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(EndingFloorCharacters.SceneOf(sources.EndingMode7, scene)).Characters.Span)],
+            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(sources.EndingMode7[scene]).Characters.Span)],
             ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette));
     }
 
@@ -269,10 +269,10 @@ internal static class FrontendFloorSheetComposer
     /// and a tile pixel in its high byte; under the post-credits palette.
     /// </summary>
     /// <exception cref="InvalidDataException">The icon's artwork is shorter than its chunks load.</exception>
-    private static ComposedSpriteSheet RewardIcon(EndingFloorArtwork mode7, EndingPaletteSet palettes)
+    private static ComposedSpriteSheet RewardIcon(EndingFloorCharacters mode7, EndingPaletteSet palettes)
     {
-        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(EndingFloorCharacters.RewardIconOf(mode7)).Bytes.Span;
-        ReadOnlySpan<byte> map = EndingFloorCharacters.RewardIconOf(mode7).Map.Span;
+        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span;
+        ReadOnlySpan<byte> map = mode7.RewardIcon.Map.Span;
         if (map.Length < FloorSheetComposer.CellCount || words.Length < FloorSheetComposer.TileSetBytes * sizeof(ushort))
             throw new InvalidDataException("The reward icon's artwork is shorter than its chunks load.");
         var pixels = new byte[FloorSheetComposer.TileSetBytes];

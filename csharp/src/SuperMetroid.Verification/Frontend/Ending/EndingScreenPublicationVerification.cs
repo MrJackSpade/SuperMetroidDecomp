@@ -33,7 +33,6 @@ internal static class EndingScreenPublicationVerification
             byte[] shownVram = ending.ShownVram();
             EndingCreditsState restored = RoundTrip(ending);
             restored.Flyaway.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
-            restored.Stage.BindFloorArtwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
             restored.InstalledArtwork.BindFixtureObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
             restored.InstalledArtwork.BindBackdrops(InstalledFixtures.EndingBackdrops);
             restored.InstalledArtwork.BindPaletteFxColors(InstalledFixtures.Maps.RoomPaletteFx);

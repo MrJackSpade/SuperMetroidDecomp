@@ -18,7 +18,6 @@ internal static class PostCreditsCharacterArtworkVerification
     internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
         EndingObjectArtwork stock = installation.LoadEndingObjectArt();
-        EndingFloorArtwork stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
@@ -28,7 +27,6 @@ internal static class PostCreditsCharacterArtworkVerification
             var native = CreateRetailEndingFixture(nativeAudio, hours, 0);
             var installed = CreateRetailEndingFixture(installedAudio, hours, 0);
             installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
-            installed.Stage.BindFloorArtwork(stockMode7);
             var checkedPhases = new HashSet<EndingCreditsPhase>();
             for (int frame = 0; frame < 60_000 &&
                 native.Stage.Phase != EndingCreditsPhase.PostCreditsShot; frame++)

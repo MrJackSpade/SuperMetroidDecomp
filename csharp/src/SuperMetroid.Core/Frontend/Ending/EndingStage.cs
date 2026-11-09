@@ -70,9 +70,6 @@ internal sealed class EndingStage
             "Ending font requires installed presentation assets.");
     }
 
-    /// <summary>Requires the turning floor's installed artwork, which an escape or explosion scene shows (#1515).</summary>
-    internal void RequireFloorArtwork() =>
-        _ = FloorArtwork ?? throw new InvalidOperationException("Ending turning-floor scene requires installed artwork.");
 
     /// <summary>
     /// Adds an actor in its place in the running order: one the ending shows one of at a time replaces the one already shown
@@ -263,8 +260,6 @@ internal sealed class EndingStage
     /// <summary>The ending's installed font.</summary>
     internal EndingFontAtlas? EndingFont { get; private set; }
 
-    /// <summary>The ending's installed turning-floor artwork.</summary>
-    internal EndingFloorArtwork? FloorArtwork { get; private set; }
 
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops? Backdrops { get; private set; }
@@ -311,14 +306,6 @@ internal sealed class EndingStage
         EndingFont = value;
     }
 
-    /// <summary>
-    /// Selects the installed floor artwork when the game is bound to its installed content. The active
-    /// backdrop is refreshed without resetting actors, palette, transform or music.
-    /// </summary>
-    internal void BindFloorArtwork(EndingFloorArtwork? value)
-    {
-        FloorArtwork = value;
-    }
 
     /// <summary>Selects the backdrops later scenes show (#1544).</summary>
     internal void BindBackdrops(EndingBackdrops? value) => Backdrops = value;

@@ -37,8 +37,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             Flyaway.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
-        if (!ReferenceEquals(previous.EndingFloorArt, artwork.EndingFloorArt))
-            Stage.BindFloorArtwork(artwork.EndingFloorArt);
+
         if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
             InstalledArtwork.BindObjectArtwork(artwork.EndingObjectArt);
         if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))

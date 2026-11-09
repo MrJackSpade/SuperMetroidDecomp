@@ -170,7 +170,6 @@ internal static class EndingPaletteArtworkVerification
         installedState.InstalledArtwork.BindEndingText(maps.EndingText);
         installedState.Stage.BindEndingFont(maps.EndingFont);
         installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
-        installedState.Stage.BindFloorArtwork(installation.LoadEndingMode7Art());
         installedState.InstalledArtwork.BindFixtureObjectArtwork(installation.LoadEndingObjectArt());
         // This matches the playable host's installed ending bindings: the production-shaped scene must complete without
         // *any* cartridge read.

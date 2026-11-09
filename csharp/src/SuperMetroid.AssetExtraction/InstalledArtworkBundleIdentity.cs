@@ -23,14 +23,6 @@ internal static class InstalledArtworkBundleIdentity
             : throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
     }
 
-    /// <summary>The installed content identity of the ending floor artwork.</summary>
-    extension(EndingFloorArtwork artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="EndingFloorCharacters"/>.</summary>
-        /// <exception cref="InvalidDataException">The ending floor artwork was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is EndingFloorCharacters installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The ending floor artwork was not read from installed artwork.");
-    }
 
     /// <summary>The installed content identity of the ending object artwork.</summary>
     extension(EndingObjectArtwork artwork)

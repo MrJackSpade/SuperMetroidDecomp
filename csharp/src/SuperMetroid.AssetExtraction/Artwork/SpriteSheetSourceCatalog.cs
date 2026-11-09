@@ -40,7 +40,7 @@ internal sealed class SpriteSheetSourceCatalog
     private readonly EndingPaletteSet endingPalettes;
 
     /// <summary>The ending's Mode 7 artwork.</summary>
-    private readonly Lazy<EndingFloorArtwork> endingMode7;
+    private readonly Lazy<EndingFloorCharacters> endingMode7;
 
     /// <summary>Reads inputs from installed stock content and the ending's decoded colours.</summary>
     /// <param name="content">Installed stock content.</param>

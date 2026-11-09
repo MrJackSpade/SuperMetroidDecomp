@@ -28,10 +28,9 @@ internal sealed class EndingZebesExplosion
         _artwork = artwork;
     }
 
-    /// <summary>Loads the planet explosion's turning-floor and sprite art and starts its palette crossfade.</summary>
+    /// <summary>Requires the planet explosion's sprite art and starts its palette crossfade.</summary>
     internal void SetupZebesExplosion()
     {
-        _stage.RequireFloorArtwork();
         _artwork.RequireExplosionArtwork();
         _stage.LoadColours(EndingColourLoad.Explosion);
         sprites.Clear();

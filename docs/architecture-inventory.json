@@ -58762,19 +58762,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.SharedBeamChargeCount",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/SharedBeamChargeCount.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.SharedEscapeAndDrainCount",
       "kind": "class",
       "scope": "product",
@@ -171781,6 +171768,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Projectiles/BeamCallbackTablesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Samus.Projectiles.BeamChargeClearVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/BeamChargeClearVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

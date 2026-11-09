@@ -384,10 +384,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The gameplay HUD.</summary>
     public HudState Hud { get; } = new();
 
-    /// <summary>
-    /// Parallax/layer/block dispatcher fed by the active camera.
-    /// Its requests become row/column staging transfers when a room loader supplies level data.
-    /// </summary>
+    /// <summary>The layers' positions and views, fed by the active camera; the frame boundary latches the views the screen shows.</summary>
     public BackgroundScrollState BackgroundScroll { get; } = new();
 
     /// <summary>Runs one frame boundary and publishes an empty sprite frame without advancing gameplay owners.</summary>

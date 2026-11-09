@@ -703,8 +703,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             else if (layer is GameplayBlendLayer { OverlayBehind: { } behind })
                 overlay = SameOverlay(overlay, behind);
         }
-        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.WrittenOverForeground, rooms?.Sky, overlay?.Picture,
-            rooms?.WrittenOverBackground, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
+        var levels = new RoomLevelLayers(rooms?.Foreground, rooms?.Background ?? floor, rooms?.DoorSource, rooms?.ForegroundText, rooms?.Sky, overlay?.Picture,
+            rooms?.BackgroundText, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.BackgroundImage,
             messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]),
             scene.Paint.Gameplay is null ? D3D11PictureColouring.OwnShading : D3D11PictureColouring.Hud, floorColouring);

@@ -533,6 +533,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     PhantoonEnemyState? IEnemyDisplaySources.Phantoon => PhantoonBehavior.Combat.Phantoon;
     /// <inheritdoc/>
     RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;
+
+    RoomWrittenOverlay IEnemyDisplaySources.CeresWarning => RidleyEncounter.CeresWarning;
+
+    RoomWrittenOverlay IEnemyDisplaySources.ZebesWarning => MotherBrainEncounter.ZebesWarning;
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresRidleyBehavior.Getaway.ChamberWalls();
     /// <inheritdoc/>

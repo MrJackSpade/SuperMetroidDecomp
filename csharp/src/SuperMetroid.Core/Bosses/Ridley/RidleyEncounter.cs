@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -38,6 +39,16 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     /// </summary>
     public RidleyEnemyState? CeresRidley =>
         Parts.Body.DefinitionId == EnemyDefinitionId.RidleyCeres ? Ridley : null;
+
+    /// <summary>
+    /// The warning Ceres's self-destruct shows over the arena's foreground (#1555): its EMERGENCY title, the Japanese
+    /// subtitle and the glyphs its typewriter has typed, in the order shown, each at its foreground cell; nothing before
+    /// the self-destruct shows any. It lasts the room, as the encounter does.
+    /// </summary>
+    public RoomWrittenOverlay CeresWarning { get; private set; } = RoomWrittenOverlay.Empty;
+
+    /// <summary>Shows <paramref name="picture"/> as the next part of <see cref="CeresWarning"/>.</summary>
+    internal void ShowCeresWarning(WrittenPicture picture) => CeresWarning = CeresWarning.With(picture);
 
     /// <summary>
     /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load

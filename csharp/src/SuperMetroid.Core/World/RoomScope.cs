@@ -79,12 +79,6 @@ internal sealed record RoomScope
             ? RoomBlockArtwork.Sprites
             : RoomBlockArtwork.Tileset;
 
-    /// <summary>Pictures the room's actors wrote over its foreground (the Ceres escape warning), or null (#1346, #1466).</summary>
-    public RoomWrittenOverlay? WrittenOverForeground { get; private set; }
-
-    /// <summary>Pictures the room's actors wrote over the background (the Zebes escape warning), or null (#1348, #1466).</summary>
-    public RoomWrittenOverlay? WrittenOverBackground { get; private set; }
-
     /// <summary>The scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
 
@@ -153,14 +147,6 @@ internal sealed record RoomScope
     /// are projectiles of this room, so the next room's load ends them.
     /// </summary>
     public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
-
-    /// <summary>Writes <paramref name="picture"/> over this room's foreground at its tilemap cell (#1346, #1466).</summary>
-    internal void WriteForegroundPicture(WrittenPicture picture) =>
-        WrittenOverForeground = (WrittenOverForeground ?? RoomWrittenOverlay.Empty).With(picture);
-
-    /// <summary>Writes <paramref name="picture"/> over this room's background at its tilemap cell (#1348, #1466).</summary>
-    internal void WriteBackgroundPicture(WrittenPicture picture) =>
-        WrittenOverBackground = (WrittenOverBackground ?? RoomWrittenOverlay.Empty).With(picture);
 
     /// <summary>Begins the Ceres elevator arrival in this room.</summary>
     /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>

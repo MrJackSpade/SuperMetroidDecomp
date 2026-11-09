@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.World;
 
@@ -26,6 +27,12 @@ internal interface IEnemyDisplaySources
 
     /// <summary>Ceres Ridley, if loaded.</summary>
     RidleyEnemyState? CeresRidley { get; }
+
+    /// <summary>The warning Ceres's self-destruct shows over the foreground (#1555), empty before it shows any.</summary>
+    RoomWrittenOverlay CeresWarning { get; }
+
+    /// <summary>The warning Zebes's escape shows over the background (#1555), empty before it shows any.</summary>
+    RoomWrittenOverlay ZebesWarning { get; }
 
     /// <summary>The chamber's walls Ceres Ridley's getaway shows around its turning floor (#1545), in the room's loaded artwork.</summary>
     ImmutableArray<PerspectiveFloorScenery> CeresGetawayChamberWalls { get; }

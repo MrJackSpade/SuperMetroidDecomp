@@ -177,9 +177,9 @@ internal sealed class MotherBrainRainbowAndDeath
         fragment.State = new MotherBrainDoorFragmentState();
     }
 
-    /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348).</summary>
+    /// <summary>Shows a glyph the Zebes escape typewriter typed over Mother Brain's room background (#1348, #1555).</summary>
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
-        _room.Services.WriteBackgroundPicture(new WrittenPicture(glyph.Picture, glyph.Cell));
+        _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Cell));
 
     /// <summary>Runs one body-function call through the shared verified sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(

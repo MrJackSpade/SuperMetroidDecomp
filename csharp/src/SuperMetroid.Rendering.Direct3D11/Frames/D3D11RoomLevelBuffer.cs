@@ -170,7 +170,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     {
         RoomBackgroundLayer? foreground = frame.Foreground, background = frame.Background;
         RoomDoorBackground? door = frame.Door;
-        RoomOverlayPictures? writtenOverForeground = frame.WrittenOverForeground, writtenOverBackground = frame.WrittenOverBackground;
+        RoomOverlayPictures? writtenOverForeground = frame.ForegroundText, writtenOverBackground = frame.BackgroundText;
         SkyPictures? sky = frame.Sky;
         OverlayPicture? fxOverlay = frame.FxOverlay;
         AffineFloor? turningFloor = frame.Floor;
@@ -548,7 +548,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                     yield return new(shown.Picture, D3D11PictureColouring.OwnShading, shown.Shading);
             }
         }
-        foreach (PlacedWrittenPicture placed in (frame.WrittenOverBackground?.Pictures ?? []).Concat(frame.WrittenOverForeground?.Pictures ?? []))
+        foreach (PlacedWrittenPicture placed in (frame.BackgroundText?.Pictures ?? []).Concat(frame.ForegroundText?.Pictures ?? []))
             yield return new(placed.Picture, D3D11PictureColouring.WrittenOverRoom);
         if (frame.FxOverlay is { } overlay)
             yield return new(overlay.Picture, D3D11PictureColouring.FxOverlay);

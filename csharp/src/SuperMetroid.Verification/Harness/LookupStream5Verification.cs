@@ -440,8 +440,7 @@ internal static class LookupStream5Verification
         CeresEscapeOverlays Check(CeresEscapeOverlayTilemapDocument source)
         {
             var result = CeresEscapeOverlays.Load(new MemoryStream(CeresEscapeOverlays.Write(source)));
-            var overlay = new RecordedBg1Overlay();
-            var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: overlay.Services())
+            var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")))
             {
                 TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), 
             };
@@ -449,7 +448,7 @@ internal static class LookupStream5Verification
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             // The getaway writes the title's picture by name (#1466); the words it stands for are the page's.
-            System.Collections.Immutable.ImmutableArray<int> shownWords = overlay.Overlay.WordsIn(result);
+            System.Collections.Immutable.ImmutableArray<int> shownWords = system.RidleyEncounter.CeresWarning.WordsIn(result);
             AssertEqual(count, shownWords.Count(word => word != RoomWrittenOverlay.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Emergency page keeps its native extent");
             for (int index = 0; index < count; index++)

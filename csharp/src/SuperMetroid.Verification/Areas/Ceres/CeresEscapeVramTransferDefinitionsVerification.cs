@@ -63,9 +63,8 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         CeresEscapeOverlays overlay =
             CeresEscapeOverlays.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
-        var japaneseOverlay = new RecordedBg1Overlay();
         var system = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: japaneseOverlay.Services())
+            services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")))
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), 
         };
@@ -112,7 +111,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
                 written[first + word] = true;
         }
-        ImmutableArray<int> shownWords = japaneseOverlay.Overlay.WordsIn(overlay);
+        ImmutableArray<int> shownWords = system.RidleyEncounter.CeresWarning.WordsIn(overlay);
         for (int word = 0; word < written.Length; word++)
             AssertEqual(written[word], shownWords[word] != RoomWrittenOverlay.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");

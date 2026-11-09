@@ -79,12 +79,6 @@ internal sealed class RoomEnemyRuntimeServices(
     public void IncrementGlassRoomArgument() => roomObjects.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
 
     /// <inheritdoc />
-    public void WriteForegroundPicture(WrittenPicture picture) => room.LoadedScope.WriteForegroundPicture(picture);
-
-    /// <inheritdoc />
-    public void WriteBackgroundPicture(WrittenPicture picture) => room.LoadedScope.WriteBackgroundPicture(picture);
-
-    /// <inheritdoc />
     public void DrawFloor(CeresFloorAnimationFrame frame) =>
         (room.LoadedScope.Floor ?? throw new InvalidOperationException("Only a Ceres room has a turning floor to draw over."))
             .Draw(frame);

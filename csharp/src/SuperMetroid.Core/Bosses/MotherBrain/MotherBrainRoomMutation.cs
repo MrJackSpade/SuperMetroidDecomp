@@ -27,13 +27,13 @@ public enum MotherBrainRoomMutation
     /// <summary>Installs background row nine.</summary>
     BackgroundRow9,
     /// <summary>Installs background row ten.</summary>
-    BackgroundRowA,
+    BackgroundRow10,
     /// <summary>Installs background row eleven.</summary>
-    BackgroundRowB,
+    BackgroundRow11,
     /// <summary>Installs background row twelve.</summary>
-    BackgroundRowC,
+    BackgroundRow12,
     /// <summary>Installs background row thirteen.</summary>
-    BackgroundRowD,
+    BackgroundRow13,
     /// <summary>Clears a ceiling block.</summary>
     ClearCeilingBlock,
     /// <summary>Clears a ceiling tube.</summary>

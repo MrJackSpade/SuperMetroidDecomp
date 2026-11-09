@@ -24,17 +24,17 @@ internal enum MotherBrainFakeDeathProgram
     /// <summary>Installs background row nine's layout.</summary>
     BackgroundRow9,
     /// <summary>Installs background row ten's layout.</summary>
-    BackgroundRowA,
+    BackgroundRow10,
     /// <summary>Installs background row eleven's layout.</summary>
-    BackgroundRowB,
+    BackgroundRow11,
     /// <summary>Installs background row twelve's layout.</summary>
-    BackgroundRowC,
+    BackgroundRow12,
     /// <summary>Installs background row thirteen's layout.</summary>
-    BackgroundRowD,
+    BackgroundRow13,
     /// <summary>The original game-unused background row fourteen.</summary>
-    BackgroundRowE,
+    BackgroundRow14,
     /// <summary>The original game-unused background row fifteen.</summary>
-    BackgroundRowF,
+    BackgroundRow15,
     /// <summary>Clears the ceiling block.</summary>
     ClearCeilingBlock,
     /// <summary>Clears the ceiling tube.</summary>

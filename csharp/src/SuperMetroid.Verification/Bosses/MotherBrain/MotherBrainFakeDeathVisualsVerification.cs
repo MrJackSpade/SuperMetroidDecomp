@@ -33,7 +33,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             RoomObjectMotherBrainFakeDeathVisualCatalog stock =
                 installation.LoadRoomObjectMotherBrainFakeDeathVisuals();
             VerifyMotherBrainStockMapping(rom, stock);
-            VerifyMotherBrainVisualDraw(MotherBrainRoomMutation.BackgroundRowD,
+            VerifyMotherBrainVisualDraw(MotherBrainRoomMutation.BackgroundRow13,
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 null);
 

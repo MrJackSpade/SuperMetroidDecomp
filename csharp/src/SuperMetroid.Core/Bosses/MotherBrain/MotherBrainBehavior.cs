@@ -358,15 +358,15 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRowA,
-                    MotherBrainRoomMutation.BackgroundRowB,
+                    MotherBrainRoomMutation.BackgroundRow10,
+                    MotherBrainRoomMutation.BackgroundRow11,
                     MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD:
                 FakeDeath.RequestMotherBrainRoomRows(
                     state,
-                    MotherBrainRoomMutation.BackgroundRowC,
-                    MotherBrainRoomMutation.BackgroundRowD,
+                    MotherBrainRoomMutation.BackgroundRow12,
+                    MotherBrainRoomMutation.BackgroundRow13,
                     MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics);
                 return;
             case MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Graphics:

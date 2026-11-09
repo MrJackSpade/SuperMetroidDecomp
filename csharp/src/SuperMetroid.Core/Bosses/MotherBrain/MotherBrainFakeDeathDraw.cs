@@ -23,18 +23,18 @@ internal enum MotherBrainFakeDeathDraw
     BackgroundRow8,
     /// <summary>Background row 9.</summary>
     BackgroundRow9,
-    /// <summary>Background row a.</summary>
-    BackgroundRowA,
-    /// <summary>Background row b.</summary>
-    BackgroundRowB,
-    /// <summary>Background row c.</summary>
-    BackgroundRowC,
-    /// <summary>Background row d.</summary>
-    BackgroundRowD,
-    /// <summary>Unused background row E.</summary>
-    BackgroundRowEUnused,
-    /// <summary>Unused background row F.</summary>
-    BackgroundRowFUnused,
+    /// <summary>Background row 10.</summary>
+    BackgroundRow10,
+    /// <summary>Background row 11.</summary>
+    BackgroundRow11,
+    /// <summary>Background row 12.</summary>
+    BackgroundRow12,
+    /// <summary>Background row 13.</summary>
+    BackgroundRow13,
+    /// <summary>Unused background row 14.</summary>
+    BackgroundRow14Unused,
+    /// <summary>Unused background row 15.</summary>
+    BackgroundRow15Unused,
     /// <summary>Clear ceiling block.</summary>
     ClearCeilingBlock,
     /// <summary>Clear ceiling tube.</summary>

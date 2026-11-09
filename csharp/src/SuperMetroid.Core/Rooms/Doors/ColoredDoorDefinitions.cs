@@ -22,13 +22,13 @@ internal static class ColoredDoorDefinitions
     };
 
     /// <summary>A waiting cap's closed image, for one update.</summary>
-    private static readonly IReadOnlyList<DoorCapStep> Waiting = [new(DoorCapFrame.Closed0, 1)];
+    private static readonly DoorCapStep[] Waiting = [new(DoorCapFrame.Closed0, 1)];
 
     /// <summary>The yellow downward cap's closed image, for two updates and then one.</summary>
-    private static readonly IReadOnlyList<DoorCapStep> YellowDownWaiting = [new(DoorCapFrame.Closed0, 2), new(DoorCapFrame.Closed0, 1)];
+    private static readonly DoorCapStep[] YellowDownWaiting = [new(DoorCapFrame.Closed0, 2), new(DoorCapFrame.Closed0, 1)];
 
     /// <summary>A hit short of opening: the blue image for three updates and the cap for four, three times.</summary>
-    private static readonly IReadOnlyList<DoorCapStep> Flash =
+    private static readonly DoorCapStep[] Flash =
     [
         new(DoorCapFrame.BlueFlash, 3),
         new(DoorCapFrame.Closed0, 4),
@@ -39,7 +39,7 @@ internal static class ColoredDoorDefinitions
     ];
 
     /// <summary>A hit on a red cap short of opening: <see cref="Flash"/>, sounding as it starts.</summary>
-    private static readonly IReadOnlyList<DoorCapStep> RedFlash =
+    private static readonly DoorCapStep[] RedFlash =
     [
         new(DoorCapFrame.BlueFlash, 3, RedHitSound),
         new(DoorCapFrame.Closed0, 4),
@@ -50,7 +50,7 @@ internal static class ColoredDoorDefinitions
     ];
 
     /// <summary>A cap opening: its three opening images, six updates each, then the cleared opening for one.</summary>
-    private static readonly IReadOnlyList<DoorCapStep> Opening =
+    private static readonly DoorCapStep[] Opening =
     [
         new(DoorCapFrame.Closed1, 6, DoorCapSequenceDefinitions.OpenSound),
         new(DoorCapFrame.Closed2, 6),
@@ -59,7 +59,7 @@ internal static class ColoredDoorDefinitions
     ];
 
     /// <summary>The yellow left cap opening: its three opening images, four updates each, then the cleared opening for 92.</summary>
-    private static readonly IReadOnlyList<DoorCapStep> YellowLeftOpening =
+    private static readonly DoorCapStep[] YellowLeftOpening =
     [
         new(DoorCapFrame.Closed1, 4, DoorCapSequenceDefinitions.OpenSound),
         new(DoorCapFrame.Closed2, 4),

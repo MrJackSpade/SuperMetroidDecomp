@@ -829,8 +829,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     ushort currentRandom = 0x1234;
     int generatedRandomCalls = 0;
     // The escape writes its warning text over BG1 (#1346).
-    RoomWrittenOverlay ceresOverlay = RoomWrittenOverlay.Empty;
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, WriteBg1Pictures = picture => ceresOverlay = ceresOverlay.With(picture), Floor = RoomBackgroundsFixtures.CeresFloor() })
+    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, Floor = RoomBackgroundsFixtures.CeresFloor() })
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
@@ -1178,7 +1177,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         bool finalBackground = record == backgroundTransfers.Count - 1;
         AssertTrue(enemies.Presentation.Looks.Shows(CeresEscapeReadyingDefinitions.WarningLook),
             "Ceres readying the backgrounds shows nothing new over the sprites");
-        AssertEqual(finalBackground, !ceresOverlay.Pictures.IsEmpty,
+        AssertEqual(finalBackground, !enemies.RidleyEncounter.CeresWarning.Pictures.IsEmpty,
             "Ceres writes EMERGENCY over BG1 on the final background frame");
         AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.ReadyingBackgrounds, state.CeresSelfDestructPhase, "Ceres background/hold phase handoff");
     }
@@ -1206,7 +1205,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             out ReadOnlyMemory<BackgroundTile> emergencyTiles),
         "Ceres EMERGENCY text resolves the cartridge tilemap words");
     // The getaway writes the title's picture by name (#1466); the words it stands for are the installed page's.
-    System.Collections.Immutable.ImmutableArray<int> ceresWords = ceresOverlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
+    System.Collections.Immutable.ImmutableArray<int> ceresWords = enemies.RidleyEncounter.CeresWarning.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
     for (int word = 0; word < emergency.WordCount; word++)
         AssertEqual(emergencyTiles.Span[word].PackedWord,
             ceresWords[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
@@ -1242,7 +1241,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(typewriterFrames > 128,
         "Ceres English warning remains visible long enough to type all three lines");
     // The typewriter's glyphs are pictures named by their character; the words they stand for are the typewriter's tiles.
-    System.Collections.Immutable.ImmutableArray<int> typedWords = ceresOverlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
+    System.Collections.Immutable.ImmutableArray<int> typedWords = enemies.RidleyEncounter.CeresWarning.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
     AssertEqual(0x3594, typedWords[0x5105 - 0x5000],
         "Ceres warning writes the S in SELF from the cartridge typewriter alphabet over BG1");
     AssertEqual(0x3582, typedWords[0x5145 - 0x5000],

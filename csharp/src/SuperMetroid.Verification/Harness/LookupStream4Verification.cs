@@ -1200,11 +1200,11 @@ internal static class LookupStream4Verification
                 hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
-            ushort[] before=hud.TileWords.ToArray();hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()){Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
-            for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudStockCells.AutoReserveCellIndex(cell)],hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
-            hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
+            // The HUD is drawn from its current values (#1555): manual reserves show the AUTO cells cleared.
+            hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Manual,ReserveEnergy=1});
+            for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserves clear AUTO");
         }
-        Console.WriteLine("HUD AUTO:12native words,the document hash,actual state updates,manual nonwrite/clear/readguard/neighbors pass.");
+        Console.WriteLine("HUD AUTO:12native words,the document hash,actual state updates,manual clear/readguard/neighbors pass.");
     }
 
     /// <summary>Checks auto-reserve HUD cell identities against the cartridge tile words.</summary>

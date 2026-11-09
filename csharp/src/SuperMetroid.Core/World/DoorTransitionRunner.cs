@@ -300,7 +300,7 @@ internal sealed class DoorTransitionRunner
         if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
             return;
         room.Enemies.StepEnemyProjectileInstructions(
-            _room.LevelData, _player.Samus, _room.Camera.PixelPosition, _clock.ShortCounter, bombProjectiles, _backgroundScroll, _clock.Counter);
+            _room.LevelData, _player.Samus, _room.Camera.PixelPosition, _clock.ShortCounter, bombProjectiles, _clock.Counter);
     }
 
     /// <summary>

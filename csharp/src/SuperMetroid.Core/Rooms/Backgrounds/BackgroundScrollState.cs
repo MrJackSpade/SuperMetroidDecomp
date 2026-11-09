@@ -3,13 +3,15 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// Layer positions and the background scroll offsets derived from them.
+/// The layers' positions and the scrolls the screen shows them at (#1555): the room pixel the foreground's view starts at
+/// and the background pixel the background's starts at, both in the layer's own pixels with no offset of their own.
 /// </summary>
 /// <remarks>
-/// This reproduces how the game derives background scroll from layer positions. The original row and column
-/// tilemap streaming is not ported: backgrounds render from level data through the offsets here (#1346).
-/// No desktop camera interpolation is hidden in this class. Every calculation below
-/// computes its two axes independently, so whole-value updates preserve its results.
+/// This reproduces how the game derives the background's position from the camera, and when each scroll follows its
+/// position: every unfrozen gameplay update, once at room entry, and at the steps a door's opening scroll recalculates
+/// them. Backgrounds render from level data and installed images through these scrolls (#1346). No desktop camera
+/// interpolation is hidden in this class. Every calculation below computes its two axes independently, so whole-value
+/// updates preserve its results.
 /// </remarks>
 public sealed class BackgroundScrollState
 {
@@ -25,51 +27,30 @@ public sealed class BackgroundScrollState
     /// </summary>
     public BackgroundScrollModes BackgroundScrollModes { get; set; } = BackgroundScrollModes.FollowsForeground;
 
-    /// <summary>Wrapped delta added to <see cref="ForegroundPosition"/> to form the foreground's scroll.</summary>
-    /// <remarks>These offsets are separate values, independent of the second layer's scroll mode.</remarks>
-    public Offset16<RoomPixels> ForegroundOffset { get; set; }
-
-    /// <summary>Wrapped delta added to <see cref="BackgroundPosition"/> to form the background's scroll.</summary>
-    public Offset16<BackgroundPixels> BackgroundOffset { get; set; }
-
-    /// <summary>Background 1's scroll position.</summary>
+    /// <summary>The room pixel the foreground's view starts at: its position at the last scroll calculation, or a room main's shift.</summary>
     public Position16<RoomPixels> ForegroundScroll { get; private set; }
 
-    /// <summary>Background 2's scroll position.</summary>
+    /// <summary>The background pixel the background's view starts at: its position at the last scroll calculation, or a boss's placement.</summary>
     public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
 
     /// <summary>
-    /// Publishes a room actor's direct writes to the background 2 scroll. Mother Brain
-    /// uses fixed background room modes, so the ordinary scrolling pass intentionally leaves
-    /// these values untouched after the actor supplies them.
+    /// Places the background's view where a boss that shows its body on the background puts it (Phantoon). His room's
+    /// fixed background axes leave the view where he put it during the ordinary scroll calculation.
     /// </summary>
-    public void SetBackgroundScroll(Position16<BackgroundPixels> scroll) => BackgroundScroll = scroll;
+    public void PlaceBackgroundView(Position16<BackgroundPixels> placement) => BackgroundScroll = placement;
 
-    /// <summary>Publishes a room-main write to the foreground's vertical scroll mirror without moving the camera or streaming origin.</summary>
+    /// <summary>Shifts the foreground's view to row <paramref name="vertical"/> without moving the camera (a room main's rumble).</summary>
     public void SetForegroundVerticalScroll(int vertical) => ForegroundScroll = ForegroundScroll.WithY(vertical);
 
     /// <summary>
-    /// Installs the door-opening offsets after a directional door setup has staged its
-    /// off-screen foreground coordinate. The foreground keeps the source room's scroll while the door
-    /// transition clears background's; all four offsets then remain active throughout the opening scroll.
+    /// Begins a door's opening scroll with the destination room's views at <paramref name="stagedForeground"/>, the
+    /// destination pixel the source room's screen will lie at, before the setup's first step: the screen shows the source
+    /// room's screen there and the destination scrolls in around it.
     /// </summary>
-    public void ConfigureDoorOpeningOffsets(
-        Position16<RoomPixels> retainedForegroundScroll,
-        Position16<RoomPixels> stagedForeground)
+    public void BeginDoorOpeningViews(Position16<RoomPixels> stagedForeground)
     {
-        // The door transition preserves foreground's source-room mirrors (with the down-door one-pixel
-        // adjustment already supplied by the caller) and clears both background mirrors before
-        // the four offsets are derived. Keeping the scroll writes here makes the
-        // returned offset state and the block snapshot one indivisible action.
-        ForegroundScroll = retainedForegroundScroll;
-        BackgroundScroll = Position16<BackgroundPixels>.Zero;
-        ForegroundOffset = retainedForegroundScroll - stagedForeground;
-        // The derivation deliberately subtracts the foreground for both background offsets: the
-        // background offset words are the negated staged camera origin. This is not a typo:
-        // the background's own position is combined with these words later.
-        BackgroundOffset = new Offset16<BackgroundPixels>(
-            CoordinateAxis.AsSigned(-stagedForeground.X),
-            CoordinateAxis.AsSigned(-stagedForeground.Y));
+        ForegroundScroll = stagedForeground;
+        BackgroundScroll = new Position16<BackgroundPixels>(stagedForeground.X, stagedForeground.Y);
     }
 
     /// <summary>
@@ -103,36 +84,36 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Applies foreground offsets and derives each background axis from its scroll mode, preserving fixed-mode registers. Room entry
-    /// runs it once before the first frame; gameplay runs it every unfrozen frame.
+    /// The foreground's view follows its position, and each background axis its scroll mode, keeping a fixed axis's view.
+    /// Room entry runs it once before the first frame; gameplay runs it every unfrozen frame.
     /// </summary>
     public void CalculateScrolls()
     {
-        ForegroundScroll = ForegroundPosition + ForegroundOffset;
+        ForegroundScroll = ForegroundPosition;
 
         // Mode one means "do not scroll the background on this axis": the caller skips both the
-        // background position write and the background scroll.
+        // background position write and the background's view.
         if (TryCalculateBackgroundPosition(ForegroundPosition.X, BackgroundScrollModes.Horizontal, out int backgroundX))
         {
             BackgroundPosition = BackgroundPosition.WithX(backgroundX);
-            BackgroundScroll = BackgroundScroll.WithX(CoordinateAxis.Wrap(backgroundX + BackgroundOffset.X));
+            BackgroundScroll = BackgroundScroll.WithX(backgroundX);
         }
 
         if (TryCalculateBackgroundPosition(ForegroundPosition.Y, BackgroundScrollModes.Vertical, out int backgroundY))
         {
             BackgroundPosition = BackgroundPosition.WithY(backgroundY);
-            BackgroundScroll = BackgroundScroll.WithY(CoordinateAxis.Wrap(backgroundY + BackgroundOffset.Y));
+            BackgroundScroll = BackgroundScroll.WithY(backgroundY);
         }
     }
 
     /// <summary>
-    /// Recomputes all four background scroll positions, for door transitions that already own the layer positions,
-    /// without changing background parallax state.
+    /// Both views follow their layers' positions, for door transitions that already own the layer positions, without
+    /// changing background parallax state.
     /// </summary>
     public void CalculateLayerScrolls()
     {
-        ForegroundScroll = ForegroundPosition + ForegroundOffset;
-        BackgroundScroll = BackgroundPosition + BackgroundOffset;
+        ForegroundScroll = ForegroundPosition;
+        BackgroundScroll = BackgroundPosition;
     }
 
     /// <summary>
@@ -155,9 +136,7 @@ public sealed class BackgroundScrollState
                 throw new InvalidOperationException($"Undefined {nameof(BackgroundScrollKind)} {scroll.Kind}.");
         }
 
-        // The hardware implementation performs two 8x8 multiplies: factor*low contributes
-        // its high product byte, and factor*high contributes its low product word. Together
-        // they equal floor(position * factor / 256), modulo 16 bits.
+        // The parallax position is floor(position * factor / 256), wrapped to the coordinate's sixteen bits.
         uint factor = (uint)scroll.Factor;
         result = CoordinateAxis.Wrap(EightEight.WholeOf(checked((uint)foregroundPosition) * factor));
         return true;

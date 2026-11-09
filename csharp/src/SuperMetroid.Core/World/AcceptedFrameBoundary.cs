@@ -205,9 +205,9 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room backgrounds this frame boundary displays (#1346): foreground from the level plane through the foreground offset, background from the
-    /// background plane when that layer streams (otherwise the background shows the tilemap its owner loaded), the source screen of a
-    /// door's opening scroll, and the room's foreground overlay. The planes are shared until gameplay changes level data.
+    /// The room backgrounds this frame boundary displays (#1346, #1555): foreground from the level plane, background from the
+    /// background plane when that layer streams (otherwise the background shows what its owner places there), the source screen of a
+    /// door's opening scroll, and the text shown over the foreground. The planes are shared until gameplay changes level data.
     /// </summary>
     private RoomBackgrounds? CaptureRoomBackgrounds()
     {
@@ -218,13 +218,13 @@ internal sealed class AcceptedFrameBoundary
         BackgroundScrollModes backgroundModes = _backgroundScroll.BackgroundScrollModes;
         // Each plane's pictures are resolved once this frame boundary's uploads have bound (WithBlockPictures).
         return new RoomBackgrounds(
-            new RoomBackgroundLayer(level.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsPlaneOffset(), null),
+            new RoomBackgroundLayer(level.ForegroundPlane.Cells, null),
             backgroundModes.Horizontal.Streams || backgroundModes.Vertical.Streams
-                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, _backgroundScroll.BackgroundOffset.AsPlaneOffset(), null)
+                ? new RoomBackgroundLayer(level.BackgroundPlane.Cells, null)
                 : null,
             null,
             _room.DoorSourceBackground,
-            // What actors wrote over the foreground and the background is drawn once this frame boundary's uploads have bound (WithBlockPictures).
+            // The text shown over the foreground and the background is drawn once this frame boundary's uploads have bound (WithBlockPictures).
             null,
             Floor: scope.Floor?.Publish(),
             BlockArtwork: RoomScope.BlockArtworkOf(_room.ActiveRoom));
@@ -239,7 +239,7 @@ internal sealed class AcceptedFrameBoundary
     private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, XrayRevealedBlocks? reveal)
     {
         // While a Ceres room shows its turning floor, the floor draws its installed pictures (#1467); Ceres Ridley's getaway
-        // writes its warning and doors over the arena once his floor ends.
+        // shows its warning over the arena once his floor ends.
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
         if (rooms.BlockArtwork != RoomBlockArtwork.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose blocks show the sprites' artwork.");
@@ -257,30 +257,30 @@ internal sealed class AcceptedFrameBoundary
         {
             RoomBackgroundImageResolver skyImage = scope.SkyImage
                 ?? throw new InvalidDataException($"{scope.Room.Definition.Name} shows a scrolling sky with no installed sky image.");
-            sky = new SkyPictures(skyImage.Resolve(appearance, skyImage.Image.PagesInOneColumn), scrollingSky.Variant);
+            sky = new SkyPictures(skyImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(skyImage.Image)), scrollingSky.Variant);
         }
-        // Where background shows the tilemap its library background loaded, it draws the background's image (#1392): not over a
+        // Where background shows the room's library background, it draws the background's image (#1392): not over a
         // streaming background plane, the sky's rows or a boss body that owns the background.
         RoomBackgroundImagePlane? image = null;
         if (rooms.Background is null && sky is null && latched.Bosses.Body is null && scope.BackgroundImage is { } background)
         {
-            // The Tourian entrance's statues descend through a background whose pages lie one above the other; every other
-            // room shows its library background's pages side by side.
+            // The Tourian entrance's statues descend through a background whose halves lie one above the other; every other
+            // room shows its library background's halves side by side.
             image = background.Resolve(appearance, latched.Scene.FxType == RoomFxType.TourianEntranceStatue
-                ? background.Image.PagesInOneColumn : RoomBackgroundImage.PagesSideBySide);
+                ? RoomBackgroundImagePlacement.Whole(background.Image) : RoomBackgroundImagePlacement.HalvesSideBySide(background.Image));
         }
         // A boss body shows each part's whole picture (#1466, #1513).
         ShownBossBody? shownBody = latched.Bosses.Body?.Show(BossBodyExtent(latched.Bosses));
-        // Pictures written over the background draw from the written picture sheet's frames for the inputs they depend on (#1466).
-        RoomOverlayPictures? writtenOverBackground = scope.WrittenOverBackground is { } overlay
-            ? new RoomOverlayPictures((scope.BackgroundWrittenPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over the background with no installed written picture sheet.")).Resolve(overlay, appearance))
-            : null;
-        // Pictures written over the foreground, as the Ceres escape's warning, draw from the sheet the same way.
-        RoomOverlayPictures? writtenOverForeground = scope.WrittenOverForeground is { } written
-            ? new RoomOverlayPictures((scope.ForegroundWrittenPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} writes over the foreground with no installed written picture sheet.")).Resolve(written, appearance))
-            : null;
+        // The text an escape shows over a layer, as its sequence describes it (#1555): Zebes's warning over the background, Ceres's
+        // over the foreground, each drawn from the written picture sheet's frames for the inputs they depend on (#1466).
+        RoomWrittenOverlay zebesWarning = scope.Enemies.DisplaySources.ZebesWarning;
+        RoomOverlayPictures? backgroundText = zebesWarning.Pictures.IsEmpty ? null
+            : new RoomOverlayPictures((scope.BackgroundWrittenPictures ?? throw new InvalidDataException(
+                $"{scope.Room.Definition.Name} shows text over the background with no installed written picture sheet.")).Resolve(zebesWarning, appearance));
+        RoomWrittenOverlay ceresWarning = scope.Enemies.DisplaySources.CeresWarning;
+        RoomOverlayPictures? foregroundText = ceresWarning.Pictures.IsEmpty ? null
+            : new RoomOverlayPictures((scope.ForegroundWrittenPictures ?? throw new InvalidDataException(
+                $"{scope.Room.Definition.Name} shows text over the foreground with no installed written picture sheet.")).Resolve(ceresWarning, appearance));
         return latched with
         {
             Bosses = latched.Bosses with { ShownBody = shownBody },
@@ -290,8 +290,8 @@ internal sealed class AcceptedFrameBoundary
                 Background = rooms.Background is { } shownBackground ? shownBackground with { Pictures = pictures } : null,
                 BackgroundImage = image,
                 Sky = sky,
-                WrittenOverBackground = writtenOverBackground,
-                WrittenOverForeground = writtenOverForeground,
+                BackgroundText = backgroundText,
+                ForegroundText = foregroundText,
                 // The room effect's page draws from the effect overlay sheet's pictures, as the effects' animations select them; the
                 // plane holds nothing else (#1466).
                 FxOverlay = scope.FxOverlayPictures.Resolve(latched.FxOverlay ?? throw new InvalidOperationException("A room's frame boundary latches its effect overlay plane."),

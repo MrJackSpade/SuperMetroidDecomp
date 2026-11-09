@@ -35,11 +35,13 @@ internal static class HudNativeState
                 samus.ReserveTankMode));
             hud.PreviousSelectedItem = highlighted;
             int columns = GameplayHudPresentation.MinimapSize.X;
-            for (int index = 0; index < hud.Minimap.Length; index++)
+            var cells = new MinimapCell[columns * GameplayHudPresentation.MinimapSize.Y];
+            for (int index = 0; index < cells.Length; index++)
             {
                 var output = new Position16<TilemapCells>(checked((ushort)(index % columns)), checked((ushort)(index / columns)));
-                hud.Minimap[index] = Decode(new MapTileWord(words[GameplayHudArtwork.Of(artwork).MinimapCellIndex(output)]));
+                cells[index] = Decode(new MapTileWord(words[GameplayHudArtwork.Of(artwork).MinimapCellIndex(output)]));
             }
+            hud.Minimap = [.. cells];
         }
     }
 

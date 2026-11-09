@@ -82,7 +82,7 @@ internal static class XrayRevealVisualInstallationVerification
         level.SetObjectBehavior(33, RoomBlockBehaviorCodec.Decode(2));
         RoomCollisionBlock before = level.GetObjectCollisionBlockByIndex(33);
         // Each reveal cell is the whole block shown and its arrangement (#1431).
-        RevealedBlock?[] originalMap = XrayRevealMap.Build(level, new(16, 16), default, AreaId.Brinstar, stock);
+        RevealedBlock?[] originalMap = XrayRevealMap.Build(level, new(16, 16), AreaId.Brinstar, stock);
         AssertEqual(Defined(originalTop), originalMap[0], "stock tall reveal top-left metatile");
         AssertEqual(Defined(0xb8), originalMap[XrayRevealArea.Columns],
             "stock tall reveal copies the native lower block");

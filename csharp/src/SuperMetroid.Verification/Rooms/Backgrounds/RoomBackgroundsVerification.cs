@@ -28,7 +28,7 @@ internal static class RoomBackgroundsVerification
     /// <summary>Tiles a fixture paints into each block picture: top left, top right, bottom left, bottom right.</summary>
     private const int BlockTiles = 4;
 
-    /// <summary>Resolves constructed planes through scroll offsets, a door window and an overlay.</summary>
+    /// <summary>Resolves constructed planes, a door window and an overlay.</summary>
     internal static void VerifyRoomBackgroundSources()
     {
         // Block n's picture paints the tiles of words n*4 .. n*4+3; the appearances select blocks with mirroring (#1431).
@@ -41,17 +41,15 @@ internal static class RoomBackgroundsVerification
         for (int block = 0; block < blocks.Length; block++)
             blocks[block] = RoomBlockAppearance.Of(block, mirrorings[block % mirrorings.Length]);
         var plane = new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), blocks);
-        var offset = new Offset16<PlanePixels>(0x10, -0x08);
         // The destination and the door's source room draw block pictures of different characters (#1403).
         var random = new Random(1346);
         var palette = new RgbColor[SnesCgram.ColorCount];
         byte[] destinationImage = new byte[SnesVram.ByteCount], sourceImage = new byte[SnesVram.ByteCount];
         random.NextBytes(destinationImage);
         random.NextBytes(sourceImage);
-        var layer = new RoomBackgroundLayer(plane.Cells, offset, RoomBlockFixtures.Pictures(definitions, destinationImage, palette));
+        var layer = new RoomBackgroundLayer(plane.Cells, RoomBlockFixtures.Pictures(definitions, destinationImage, palette));
 
-        // Each level pixel shows its appearance's whole block, by index and mirroring (#1431), drawn through the offset.
-        AssertEqual(offset, layer.ScrollOffset, "the layer is drawn through the plane's scroll offset");
+        // Each level pixel shows its appearance's whole block, by index and mirroring (#1431).
         int checks = 0;
         for (int y = 0; y < Side * RoomLevelPlane.BlockPixels; y += 3)
         for (int x = 0; x < Side * RoomLevelPlane.BlockPixels; x += 5)
@@ -71,18 +69,24 @@ internal static class RoomBackgroundsVerification
         AssertTrue(!layer.Blocks.TryCellAt(new Position16<PlanePixels>(0, 0) + new Offset16<PlanePixels>(-1, 0), out _, out _),
             "a scroll left of the room shows no block");
 
-        // The door's source screen covers the window at its scroll, below the HUD and the first blank scanline.
+        // The door's source screen covers the window where the destination's view begins, below the HUD and the first
+        // blank scanline, and shows the source room from the row the source's view showed there (#1555).
         var sourceBlocks = Enumerable.Repeat(RoomBlockAppearance.Of(15), Side * Side).ToArray();
         RoomBlockPictureTable sourcePictures = RoomBlockFixtures.Pictures(definitions, sourceImage, palette);
-        var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks).Cells,
-            new Offset16<PlanePixels>(0, 0), sourcePictures);
-        var sourceScroll = new Position16<PlanePixels>(0, 0);
-        var door = RoomDoorBackground.Begin(source, sourceScroll);
-        var top = new Position16<PlanePixels>(0x18, ScreenGeometry.LayerRowsAboveSprites + ScreenGeometry.GameplayHudHeightPixels);
+        var source = new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(Side, Side), sourceBlocks).Cells, sourcePictures);
+        var sourceView = new Position16<PlanePixels>(0x20, 0x10);
+        var destinationView = new Position16<PlanePixels>(0x300, 0x100);
+        var door = RoomDoorBackground.Begin(source, sourceView, destinationView, downward: false);
+        var belowHud = new Offset16<PlanePixels>(0, ScreenGeometry.LayerRowsAboveSprites + ScreenGeometry.GameplayHudHeightPixels);
+        Position16<PlanePixels> top = destinationView + belowHud + new Offset16<PlanePixels>(0x18, 0);
         AssertTrue(door.Covers(top) && ReferenceEquals(door.SourceRoom.Pictures, sourcePictures),
             "the door window's first gameplay line shows the source room");
         AssertTrue(!door.Covers(top + new Offset16<PlanePixels>(0, -1)),
             "the line above the window shows the destination room");
+        AssertEqual(sourceView + belowHud, door.SourceOrigin, "the window's first gameplay pixel shows the source room's row below its view");
+        AssertEqual(destinationView + belowHud - new Offset16<PlanePixels>(0, 1),
+            RoomDoorBackground.Begin(source, sourceView, destinationView, downward: true).WindowOrigin,
+            "a downward door's source screen lies one row higher on the destination");
 
         Console.WriteLine($"  Room backgrounds: {checks} level samples and the door window agree.");
     }
@@ -104,8 +108,8 @@ internal static class RoomBackgroundsVerification
     }
 
     /// <summary>
-    /// Loads retail rooms and checks the published description: BG1 is the room's foreground plane at the BG1 offset,
-    /// BG2 is its layer-2 plane only when layer 2 streams, and BG1 at the scroll shows the level at the camera.
+    /// Loads retail rooms and checks the published description: BG1 is the room's foreground plane, BG2 is its layer-2
+    /// plane only when layer 2 streams, and BG1 at the scroll shows the level at the camera.
     /// </summary>
     internal static void VerifyPublishedRoomBackgrounds()
     {
@@ -124,27 +128,25 @@ internal static class RoomBackgroundsVerification
                 ?? throw new InvalidOperationException("A loaded room publishes its backgrounds.");
             RoomLevelData level = runtime.Room.LoadedLevelData;
             AssertTrue(ReferenceEquals(level.ForegroundPlane.Cells, published.Foreground.Blocks), $"{room.Name} BG1 is the room's foreground plane");
-            AssertEqual(runtime.BackgroundScroll.ForegroundOffset.AsPlaneOffset(), published.Foreground.ScrollOffset, $"{room.Name} BG1 offset");
             AssertEqual(streams, published.Background is not null, $"{room.Name} BG2 comes from level data only when layer 2 streams");
             if (published.Background is { } bg2)
             {
                 AssertTrue(ReferenceEquals(level.BackgroundPlane.Cells, bg2.Blocks), $"{room.Name} BG2 is the room's layer-2 plane");
-                AssertEqual(runtime.BackgroundScroll.BackgroundOffset.AsPlaneOffset(), bg2.ScrollOffset, $"{room.Name} BG2 offset");
             }
             Position16<PlanePixels> scroll = runtime.BackgroundScroll.ForegroundScroll.AsPlaneScroll();
             Position16<PlanePixels> camera = runtime.BackgroundScroll.ForegroundPosition.AsPlaneScroll();
             for (int y = 0; y < 192; y += 37)
             for (int x = 0; x < 256; x += 41)
             {
-                // The block BG1 shows at a screen pixel, through its scroll and offset, is the level's block at the camera.
+                // The block BG1 shows at a screen pixel, through its scroll, is the level's block at the camera.
                 var screen = new Offset16<PlanePixels>((short)x, (short)y);
-                AssertTrue(published.Foreground.Blocks.TryCellAt(scroll - published.Foreground.ScrollOffset + screen, out RoomBlockCell shown, out var shownWithin) &&
+                AssertTrue(published.Foreground.Blocks.TryCellAt(scroll + screen, out RoomBlockCell shown, out var shownWithin) &&
                         level.ForegroundPlane.Cells.TryCellAt(camera + screen, out RoomBlockCell expected, out var expectedWithin)
                         && shown == expected && shownWithin == expectedWithin,
                     $"{room.Name} BG1 at screen {x},{y} shows the level at the camera");
             }
         }
-        Console.WriteLine("  Room backgrounds: published planes, offsets and camera agree for streaming and fixed BG2 rooms.");
+        Console.WriteLine("  Room backgrounds: published planes, scrolls and camera agree for streaming and fixed BG2 rooms.");
     }
 
     /// <summary>Runs the room background checks.</summary>

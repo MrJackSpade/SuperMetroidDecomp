@@ -39,7 +39,7 @@ public static class GameplayMessageNoticeExtractor
             }
 
             var template = new BackgroundTile[
-                rowCount * GameplayMessageBoxDefinitions.Layout.TilemapWidth];
+                rowCount * GameplayMessageTilemapDefinitions.TilemapWidth];
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
                 template[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))));
@@ -49,7 +49,7 @@ public static class GameplayMessageNoticeExtractor
                 GameplayMessageNotices.StockTextRegions(id, template))
             {
                 BackgroundTile[] cells = template.AsSpan(
-                    region.Row * GameplayMessageBoxDefinitions.Layout.TilemapWidth + region.Column,
+                    region.Row * GameplayMessageTilemapDefinitions.TilemapWidth + region.Column,
                     region.Width).ToArray();
                 int palette = cells.First(cell =>
                     GameplayMessageTitlePresentation.DecodeGlyph(cell) != ' ').ColourVariant;
@@ -90,7 +90,7 @@ public static class GameplayMessageNoticeExtractor
             });
         }
 
-        var border = new BackgroundTile[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
+        var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
             border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
 

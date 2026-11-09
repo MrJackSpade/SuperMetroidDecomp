@@ -7,7 +7,7 @@ internal static class RoomDoorBackgroundAccess
     extension(RoomDoorBackground self)
     {
         /// <summary>Whether the source screen still covers a scrolled position.</summary>
-        /// <param name="scrolled">The scroll register plus the screen pixel.</param>
+        /// <param name="scrolled">The destination foreground pixel: the view plus the screen pixel.</param>
         public bool Covers(Position16<PlanePixels> scrolled)
         {
             Offset16<PlanePixels> within = scrolled - self.WindowOrigin;

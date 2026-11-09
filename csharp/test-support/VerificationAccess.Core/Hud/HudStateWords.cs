@@ -39,7 +39,8 @@ internal static class HudStateWords
             Ensure.LengthEqual<ushort>(native, HudStateConstants.MutableTileCount);
             ushort[] port = hud.TileWords;
             var minimapCells = new Dictionary<int, int>();
-            if (hud.Presentation is { } presentation)
+            // Before the minimap's first update its cells show the template, compared word for word like every other cell.
+            if (hud.Presentation is { } presentation && !hud.Minimap.IsEmpty)
             {
                 int columns = GameplayHudPresentation.MinimapSize.X;
                 for (int index = 0; index < hud.Minimap.Length; index++)

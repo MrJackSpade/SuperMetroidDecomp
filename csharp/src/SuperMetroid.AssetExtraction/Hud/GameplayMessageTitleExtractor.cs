@@ -30,7 +30,7 @@ public static class GameplayMessageTitleExtractor
             int next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
             if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != GameplayMessageRoutine.SetupSmall ||
                 GameplayMessageRoutineWords.Routines.Decode(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap ||
-                next - pointer != GameplayMessageBoxDefinitions.Layout.TilemapWidth * sizeof(ushort))
+                next - pointer != GameplayMessageTilemapDefinitions.TilemapWidth * sizeof(ushort))
             {
                 throw new InvalidDataException(
                     $"Gameplay message {id} is not the expected one-row cartridge definition.");
@@ -38,11 +38,11 @@ public static class GameplayMessageTitleExtractor
 
             var visible = new BackgroundTile[GameplayMessageTitleDefinitions.VisibleColumns];
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
-            for (int column = 0; column < GameplayMessageBoxDefinitions.Layout.TilemapWidth; column++)
+            for (int column = 0; column < GameplayMessageTilemapDefinitions.TilemapWidth; column++)
             {
                 BackgroundTile cell = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + column * sizeof(ushort))));
                 if (column is < GameplayMessageTitleDefinitions.OuterLeftColumns or
-                    >= (GameplayMessageBoxDefinitions.Layout.TilemapWidth -
+                    >= (GameplayMessageTilemapDefinitions.TilemapWidth -
                         GameplayMessageTitleDefinitions.OuterRightColumns))
                 {
                     if (cell != GameplayMessageTitleDefinitions.TransparentTile)
@@ -65,7 +65,7 @@ public static class GameplayMessageTitleExtractor
             titles.Add(id.ToString(), new() { Text = text.Trim(), Palette = palette });
         }
 
-        var border = new BackgroundTile[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
+        var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
             border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
 

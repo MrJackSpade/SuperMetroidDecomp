@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Hud;
 
 namespace SuperMetroid.Core.World;
@@ -13,8 +12,6 @@ internal sealed class GameplayHudSetup
 
     /// <summary>Owns the live HUD tilemap and its palette or map presentation binding.</summary>
     private readonly HudState _hud;
-    /// <summary>Supplies Samus state for HUD item and resource display.</summary>
-    private readonly SamusFrameState _player;
 
     /// <summary>Binds the runtime owners HUD initialization selects artwork for.</summary>
     internal GameplayHudSetup(GameplayHudSetupDependencies dependencies)
@@ -22,7 +19,6 @@ internal sealed class GameplayHudSetup
         _artwork = dependencies.Artwork;
 
         _hud = dependencies.Hud;
-        _player = dependencies.Player;
     }
 
     /// <summary>
@@ -32,7 +28,7 @@ internal sealed class GameplayHudSetup
     /// </summary>
     public void InitializeHud(HudSnapshot snapshot)
     {
-        _hud.BindPresentation(_artwork.MapPresentation?.GameplayHud, _player.Samus);
+        _hud.BindPresentation(_artwork.MapPresentation?.GameplayHud);
         _hud.Initialize(snapshot);
     }
 }

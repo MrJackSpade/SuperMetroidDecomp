@@ -21,5 +21,5 @@ internal static class D3D11RoomSources
             : rooms.Sky is not null ? D3D11RoomSource.Sky
             : rooms.BackgroundImage is not null ? D3D11RoomSource.LibraryBackground
             : throw new InvalidOperationException("The frame publishes no background plane, sky, boss body, reveal or background image for the background."))
-            | (rooms.WrittenOverBackground is null ? 0 : WrittenOverBackgroundFlag);
+            | (rooms.BackgroundText is null ? 0 : WrittenOverBackgroundFlag);
 }

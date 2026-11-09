@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World;
@@ -18,5 +17,5 @@ internal sealed class EnemyLoaderHooks(RinkaBehavior rinka, PrePhantoonRoomBehav
         rinka.CompleteLoaderTimeCameraReads(loaderInitializedSlot, camera);
 
     /// <inheritdoc/>
-    public void SpawnPrePhantoonRoomProjectile(BackgroundScrollState backgroundScroll) => prePhantoonRoom.SpawnPrePhantoonRoomProjectile(backgroundScroll);
+    public void SpawnPrePhantoonRoomProjectile() => prePhantoonRoom.SpawnPrePhantoonRoomProjectile();
 }

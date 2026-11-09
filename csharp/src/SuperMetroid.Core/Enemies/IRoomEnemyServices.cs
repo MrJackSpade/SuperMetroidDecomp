@@ -26,12 +26,6 @@ public interface IRoomEnemyServices : IChozoStatueRoomServices, IMotherBrainRoom
     /// <summary>The active PLM population.</summary>
     IRoomObjectPresence RoomObjects { get; }
 
-    /// <summary>Writes <paramref name="picture"/> over the room's foreground at its tilemap cell (#1346, #1466).</summary>
-    void WriteForegroundPicture(WrittenPicture picture);
-
-    /// <summary>Writes <paramref name="picture"/> over the room's background at its tilemap cell (#1348, #1466).</summary>
-    void WriteBackgroundPicture(WrittenPicture picture);
-
     /// <summary>Draws <paramref name="frame"/>'s picture over the part of the room's turning floor it covers (#1349, #1467).</summary>
     void DrawFloor(CeresFloorAnimationFrame frame);
 }

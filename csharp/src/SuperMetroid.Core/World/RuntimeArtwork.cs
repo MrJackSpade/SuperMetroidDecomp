@@ -57,7 +57,7 @@ internal sealed class RuntimeArtwork
         set
         {
             field = value;
-            _hud.BindPresentation(value?.GameplayHud, _player.Samus);
+            _hud.BindPresentation(value?.GameplayHud);
             BindSamusPalettePresentation();
             _bossArtwork.EscapeTypewriterPresentation = value?.EscapeTypewriter;
             _bossArtwork.MotherBrainRainbowColors = value?.MotherBrainRainbowPalette;

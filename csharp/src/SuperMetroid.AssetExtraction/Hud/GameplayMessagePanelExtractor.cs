@@ -73,7 +73,7 @@ public static class GameplayMessagePanelExtractor
             });
         }
 
-        var border = new BackgroundTile[GameplayMessageBoxDefinitions.Layout.TilemapWidth];
+        var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
             border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.LargeBorder + column * sizeof(ushort))));
 

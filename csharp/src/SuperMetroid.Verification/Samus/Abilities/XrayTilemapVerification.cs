@@ -41,7 +41,7 @@ internal static class XrayTilemapVerification
         RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         // Layer one, and BG1 with it, half a block into the room's second block: the camera's block is block 33.
         Position16<RoomPixels> cameraPosition = new(24, 24);
-        RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, default, area);
+        RevealedBlock?[] Build(AreaId area = AreaId.Brinstar) => XrayRevealMap.Build(level, cameraPosition, area);
         RevealedBlock? Cell(RevealedBlock?[] map, int column, int row) => map[row * XrayRevealArea.Columns + column];
         // Changes a block's collision, leaving the block BG1 shows, so a cell no reveal writes keeps its copy.
         void Set(int index, RoomCollisionType type, int behavior)

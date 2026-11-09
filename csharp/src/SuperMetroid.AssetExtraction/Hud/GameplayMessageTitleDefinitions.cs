@@ -32,7 +32,7 @@ public static class GameplayMessageTitleDefinitions
     /// <summary>Width in tilemap cells of the centered visible title region.</summary>
     public const int VisibleColumns = 19;
     /// <summary>Total cells in the three-row, 32-column message.</summary>
-    public const int TilemapWords = GameplayMessageBoxDefinitions.Layout.TilemapWidth * 3;
+    public const int TilemapWords = GameplayMessageTilemapDefinitions.TilemapWidth * 3;
     /// <summary>The transparent tile shown outside the visible title region.</summary>
     public static BackgroundTile TransparentTile { get; } = new(14, 0, highPriority: false);
 

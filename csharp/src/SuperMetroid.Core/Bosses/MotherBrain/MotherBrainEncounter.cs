@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 
@@ -19,6 +20,16 @@ internal sealed class MotherBrainEncounter
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
+
+    /// <summary>
+    /// The warning Zebes's escape shows over Mother Brain's room background (#1555): the glyphs her death's typewriter has
+    /// typed, in the order typed, each at its background cell; nothing before her death types any. It lasts the room, as
+    /// the encounter does.
+    /// </summary>
+    public RoomWrittenOverlay ZebesWarning { get; private set; } = RoomWrittenOverlay.Empty;
+
+    /// <summary>Shows <paramref name="picture"/> as the next glyph of <see cref="ZebesWarning"/>.</summary>
+    internal void ShowZebesWarning(WrittenPicture picture) => ZebesWarning = ZebesWarning.With(picture);
 
     /// <summary>
     /// The rows Mother Brain's corpse shows as its rot has left them, which her corpse's frame is drawn through (#1531);

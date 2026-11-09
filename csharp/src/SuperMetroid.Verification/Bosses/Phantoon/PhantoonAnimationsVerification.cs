@@ -267,8 +267,7 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyPrePhantoonRoomAnimation(IImportCartridgeSource cartridge)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var scroll = new BackgroundScrollState();
-        enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(scroll);
+        enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile();
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);
         AssertTrue(projectile.Animation is PrePhantoonRoomAnimation, "the room setup starts the typed room animation");
         var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry, projectile.FrameHold.RawValue);

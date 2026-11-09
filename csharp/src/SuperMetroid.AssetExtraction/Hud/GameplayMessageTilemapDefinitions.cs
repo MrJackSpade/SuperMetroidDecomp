@@ -12,6 +12,15 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// </summary>
 public static class GameplayMessageTilemapDefinitions
 {
+    /// <summary>Width of a message in tile cells.</summary>
+    public const int TilemapWidth = 32;
+
+    /// <summary>Minimum supported message-box height in tile rows.</summary>
+    public const int MinimumRows = 3;
+
+    /// <summary>Maximum supported message-box height in tile rows.</summary>
+    public const int MaximumRows = 6;
+
     /// <summary>Number of rows occupied by the upper and lower borders together.</summary>
     public const int BorderRows = 2;
 

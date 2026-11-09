@@ -40,13 +40,13 @@ public static class GameplayMessageNotices
     {
         int rows = ContentRows(messageId);
         Ensure.NotNull(template);
-        if (template.Count != rows * GameplayMessageBoxDefinitions.Layout.TilemapWidth)
+        if (template.Count != rows * GameplayMessageTilemapDefinitions.TilemapWidth)
             throw new InvalidDataException("Notice region derivation requires its complete native tilemap rows.");
         return Enumerate();
 
         IEnumerable<GameplayMessageTextRegionDefinition> Enumerate()
         {
-            int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+            int width = GameplayMessageTilemapDefinitions.TilemapWidth;
             for (int row = 0; row < rows; row++)
             {
                 int column = 0;

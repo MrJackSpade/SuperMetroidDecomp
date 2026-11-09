@@ -52,9 +52,12 @@ static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMas
 static const uint SourceWrittenOverBackground = 256;
 static const uint RoomRecordWords = 6, RoomDoorSlot = 2, RoomDoorWindowWord = 18, RoomOverlayWord = 19, RoomSkyWord = 20;
 static const uint RoomFxOverlayWord = 21, RoomWrittenOverBackgroundWord = 22, RoomFloorSheetsWord = 23, RoomBossBodyWord = 24, RoomXrayRevealWord = 25;
-// A library background (RoomBackgroundImagePlane): its image picture's offset, then each 16x16 cell's picture offset.
+// A library background (RoomBackgroundImagePlane, #1555): its image picture's offset, the area its rectangles lie on, the
+// count of its rectangles, three words for each (its corner on the area, the image pixel that corner shows and its size,
+// each x below y), then each 16x16 cell's picture offset, row by row across the image.
 static const uint RoomLibraryBackgroundWord = 26;
-// The scrolling sky's image, laid out as a library background's: its image picture's offset, then each cell's.
+static const uint ImagePieceWords = 3;
+// The scrolling sky's image, laid out as a library background's.
 static const uint RoomSkyImageWord = 27;
 // Pixels down one band of the scrolling sky, which shows one page or none (SkyPictures.BandPixels).
 static const uint SkyBandPixels = 256;
@@ -113,7 +116,9 @@ bool SkyPicture(uint2 scrolled, out uint2 within, out uint picture)
 {
     uint2 position = uint2(scrolled.x & 255, scrolled.y & 2047);
     uint skyImage = RoomLevels[RoomSkyImageWord];
-    uint cell = RoomLevels[skyImage + 2 + (position.y >> 4) * 16 + (position.x >> 4)];
+    // The sky's one rectangle is its whole image at the area's corner, so the image pixel is the position.
+    uint cells = skyImage + 3 + RoomLevels[skyImage + 2] * ImagePieceWords;
+    uint cell = RoomLevels[cells + (position.y >> 4) * 16 + (position.x >> 4)];
     picture = cell != 0 ? cell : RoomLevels[skyImage];
     within = cell != 0 ? (position & 15) : position;
     return RoomLevels[RoomLevels[RoomSkyWord] + position.y / SkyBandPixels] != 0;
@@ -256,21 +261,33 @@ bool RevealPicture(uint2 scrolled, out uint picture, out uint2 within)
     // A block copied from beyond the room has no picture and shows nothing.
     return picture != 0;
 }
-// The picture and pixel a room's library background shows at a scrolled position of the background (#1392): the image's
-// area (#1514), in its record's second word, x below y, repeats beyond its edges and holds its 256-pixel pages left to right
-// and then downward; a rebound cell's picture, or the image of the pages.
+// The picture and pixel a room's library background shows at a position of the background (#1392, #1555): the image's
+// area (#1514), in its record's second word, x below y, repeats beyond its edges, and the rectangle lying at the position
+// shows the image pixel that far from its corner's; a rebound cell's picture, or the image. False where no rectangle lies.
 bool LibraryBackgroundPicture(uint2 scrolled, out uint picture, out uint2 within)
 {
     uint image = RoomLevels[RoomLibraryBackgroundWord];
     uint area = RoomLevels[image + 1];
     uint2 extent = uint2(area & 65535, area >> 16);
     uint2 position = (scrolled & 65535) % extent;
-    uint page = (position.y >> 8) * (extent.x >> 8) + (position.x >> 8);
-    uint2 pagePixel = position & 255;
-    uint cell = RoomLevels[image + 2 + page * 256 + (pagePixel.y >> 4) * 16 + (pagePixel.x >> 4)];
-    picture = cell != 0 ? cell : RoomLevels[image];
-    within = cell != 0 ? (pagePixel & 15) : uint2(pagePixel.x, page * 256 + pagePixel.y);
-    return true;
+    uint whole = RoomLevels[image];
+    uint columns = (RoomLevels[whole + PictureSizeWord] & 65535) >> 4;
+    uint pieces = RoomLevels[image + 2];
+    picture = 0;
+    within = uint2(0, 0);
+    for (uint piece = 0; piece < pieces; piece++)
+    {
+        uint record = image + 3 + piece * ImagePieceWords;
+        uint corner = RoomLevels[record], source = RoomLevels[record + 1], size = RoomLevels[record + 2];
+        uint2 offset = position - uint2(corner & 65535, corner >> 16);
+        if (offset.x >= (size & 65535) || offset.y >= (size >> 16)) continue;
+        uint2 pixel = uint2(source & 65535, source >> 16) + offset;
+        uint cell = RoomLevels[image + 3 + pieces * ImagePieceWords + (pixel.y >> 4) * columns + (pixel.x >> 4)];
+        picture = cell != 0 ? cell : whole;
+        within = cell != 0 ? (pixel & 15) : pixel;
+        return true;
+    }
+    return false;
 }
 // The background from the room's background plane or the sky's rows, or the foreground as RoomBackgrounds resolves it: a door's source
 // screen, then words written over the foreground, then the level plane.
@@ -481,14 +498,16 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpXrayRoom) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpMessageText)
     {
-        // The message's image (#1392) from its top scanline, in the message's text colours (#1408): a clear pixel shows
-        // nothing.
+        // The message's picture (#1392, #1555) with its top-left corner at screen pixel (HorizontalScroll, TilemapWord), in
+        // the message's text colours (#1408): a clear pixel shows nothing, and nothing shows outside the picture.
         uint picture = RoomLevels[RoomMessagePictureWord];
-        uint height = RoomLevels[picture + PictureSizeWord] >> 16;
-        if (picture == 0 || id.y < TilemapWord || id.y >= TilemapWord + height) return;
+        if (picture == 0 || id.x < HorizontalScroll || id.y < TilemapWord) return;
+        uint size = RoomLevels[picture + PictureSizeWord];
+        uint2 within = id.xy - uint2(HorizontalScroll, TilemapWord);
+        if (within.x >= (size & 65535) || within.y >= (size >> 16)) return;
         uint index;
         bool front;
-        uint shown = PicturePixel(picture, uint2(id.x, id.y - TilemapWord), index, front);
+        uint shown = PicturePixel(picture, within, index, front);
         if (index != 0) Output[id.xy] = shown;
         return;
     }

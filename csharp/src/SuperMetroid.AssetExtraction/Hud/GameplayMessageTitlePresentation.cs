@@ -51,10 +51,10 @@ public sealed class GameplayMessageTitlePresentation
 
         var result = new BackgroundTile[GameplayMessageTitleDefinitions.TilemapWords];
         Border.CopyTo(result, 0);
-        Border.CopyTo(result, GameplayMessageBoxDefinitions.Layout.TilemapWidth * 2);
+        Border.CopyTo(result, GameplayMessageTilemapDefinitions.TilemapWidth * 2);
         Span<BackgroundTile> content = result.AsSpan(
-            GameplayMessageBoxDefinitions.Layout.TilemapWidth,
-            GameplayMessageBoxDefinitions.Layout.TilemapWidth);
+            GameplayMessageTilemapDefinitions.TilemapWidth,
+            GameplayMessageTilemapDefinitions.TilemapWidth);
         content[..GameplayMessageTitleDefinitions.OuterLeftColumns].Fill(
             GameplayMessageTitleDefinitions.TransparentTile);
         content[^GameplayMessageTitleDefinitions.OuterRightColumns..].Fill(
@@ -96,7 +96,7 @@ public sealed class GameplayMessageTitlePresentation
 
         if (document.Version != GameplayMessageTitleDefinitions.Version ||
             document.Border is null ||
-            document.Border.Length != GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
+            document.Border.Length != GameplayMessageTilemapDefinitions.TilemapWidth ||
             document.Titles is null)
         {
             throw new InvalidDataException(

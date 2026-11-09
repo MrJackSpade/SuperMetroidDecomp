@@ -533,6 +533,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     PhantoonEnemyState? IEnemyDisplaySources.Phantoon => PhantoonBehavior.Combat.Phantoon;
     /// <inheritdoc/>
     RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;
+
+    RoomWrittenOverlay IEnemyDisplaySources.CeresWarning => RidleyEncounter.CeresWarning;
+
+    RoomWrittenOverlay IEnemyDisplaySources.ZebesWarning => MotherBrainEncounter.ZebesWarning;
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresRidleyBehavior.Getaway.ChamberWalls();
     /// <inheritdoc/>
@@ -1281,13 +1285,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Position16<RoomPixels> camera,
         int frameCounterByte,
         SamusBombProjectileSystem? samusBombs,
-        BackgroundScrollState? backgroundScroll,
         int frameCounter)
     {
         Room.EnsureLoaded();
         DeathsAndDrops.BindSamus(samus);
-        // The pre-Phantoon room's background rule applies at the start of the projectile update.
-        PrePhantoonRoomBehavior.ApplyBackgroundScrollRule(backgroundScroll);
         // A projectile pass starts with no drop or death sound pending: the previous pass's, published or not, are dropped.
         Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyPickup);
         Audio.CancelSoundAtUpdateEnd(EnemySoundSource.EnemyDeath);

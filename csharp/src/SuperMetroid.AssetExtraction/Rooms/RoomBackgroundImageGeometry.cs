@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
@@ -11,8 +9,14 @@ internal static class RoomBackgroundImageGeometry
     /// <summary>The tilemap pages a library background pictures.</summary>
     internal const int Pages = 2;
 
+    /// <summary>Tiles along a tilemap page's side.</summary>
+    internal const int PageTiles = 32;
+
+    /// <summary>Pixels along a tilemap page's side: the width of every background picture, one page wide.</summary>
+    internal const int PagePixels = PageTiles * 8;
+
     /// <summary>Tiles in a library background's two pages.</summary>
-    internal const int Words = Pages * RoomBackgroundImage.PageTiles * RoomBackgroundImage.PageTiles;
+    internal const int Words = Pages * PageTiles * PageTiles;
 
     /// <summary>Tiles in one 16x16 cell of an image.</summary>
     internal const int CellTiles = 4;

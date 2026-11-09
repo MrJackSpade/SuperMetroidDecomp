@@ -533,13 +533,12 @@ internal sealed class RoomLoader
             _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
         Position16<RoomPixels> stagedForeground = _doorOpeningScroll.CameraPosition + foregroundStaging;
-        Position16<RoomPixels> retainedForegroundScroll = direction == DoorDirection.Down
-            ? sourceScroll.ForegroundScroll + new Offset16<RoomPixels>(0, 1)
-            : sourceScroll.ForegroundScroll;
-        _backgroundScroll.ConfigureDoorOpeningOffsets(retainedForegroundScroll, stagedForeground);
+        _backgroundScroll.BeginDoorOpeningViews(stagedForeground);
         _pendingDoorOpeningSourceView = null;
-        // The source screen stays where it was while the destination scrolls in around it.
-        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsPlaneScroll());
+        // The source screen stays where it was on the screen, lying where the destination's view begins, while the
+        // destination scrolls in around it.
+        _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.ForegroundScroll.AsPlaneScroll(),
+            stagedForeground.AsPlaneScroll(), direction == DoorDirection.Down);
         PublishDoorOpeningLayers(_doorOpeningScroll);
         // Each directional setup immediately takes its first step, which recomputes the
         // layer scrolls from the already-advanced layer positions. Down's first update
@@ -785,8 +784,7 @@ internal sealed class RoomLoader
         {
             RoomViewportLoadMode.DisplayInitialViewport => null,
             RoomViewportLoadMode.StreamThroughDoor => new DoorOpeningSourceView(_backgroundScroll.ForegroundScroll,
-                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, _backgroundScroll.ForegroundOffset.AsPlaneOffset(),
-                    SourceScreenPictures())),
+                new RoomBackgroundLayer(_room.LoadedLevelData.ForegroundPlane.Cells, SourceScreenPictures())),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
@@ -1036,7 +1034,7 @@ internal sealed class RoomLoader
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(roomObjects, enemies);
         // The Tourian escape setup spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
-            enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
+            enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(enemies.LastEnemyFrame.RoomEffects, roomObjects, roomFxOverlay, roomPaletteFx, enemies);
         scope.TourianStatues = new TourianStatueSequence(_tourianStatueDependencies, roomFxOverlay, roomPaletteFx, roomObjects, enemies);
         // The door-transition code that owns the door's camera targets keeps them over the destination once its enemies are loaded.

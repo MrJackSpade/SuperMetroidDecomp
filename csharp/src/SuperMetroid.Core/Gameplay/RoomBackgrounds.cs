@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <summary>
 /// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no tilemap: foreground from the room's
 /// level plane, background from its background plane when that layer streams, the source room's screen during a door's opening
-/// scroll, and words a room actor wrote over the foreground. A null <see cref="Background"/> leaves background to the sky's rows, a boss body
+/// scroll, and the text an escape shows over either layer (#1555). A null <see cref="Background"/> leaves background to the sky's rows, a boss body
 /// that owns background (#1352), or the tilemap its owner loaded (a library background or the X-ray reveal) until that
 /// owner gets its own layer.
 /// </summary>
@@ -17,12 +17,12 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Background">The room's background plane on the background, or null when the background shows a loaded tilemap.</param>
 /// <param name="FxOverlay">The room effect's page on the effect overlay (#1348, #1514), as its picture (#1403); null until the frame boundary that latched it resolves it. The HUD is its own layer (#1466).</param>
 /// <param name="DoorSource">The source room's foreground screen during a door's opening scroll, or null.</param>
-/// <param name="WrittenOverForeground">Words a room actor wrote over the foreground, or null.</param>
+/// <param name="ForegroundText">The text an escape shows over the foreground (Ceres's warning), or null (#1555).</param>
 /// <param name="Sky">
 /// The scrolling sky on the background when the room has no background plane, drawn from its image (#1347, #1403); null without a sky,
 /// and until the frame boundary that latched the room resolves its pictures.
 /// </param>
-/// <param name="WrittenOverBackground">Words a room actor wrote over the background, or null (#1348).</param>
+/// <param name="BackgroundText">The text an escape shows over the background (Zebes's warning), or null (#1348, #1555).</param>
 /// <param name="Floor">The turning floor a Ceres room shows, or null outside Ceres (#1349, #1467).</param>
 /// <param name="BossBody">The boss body shown while a boss shows one, as its pictures placed where they show, or null (#1352, #1466, #1514).</param>
 /// <param name="BlockArtwork">Which artwork foreground's and the background's blocks show (#1357, #1466).</param>
@@ -30,8 +30,8 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="BackgroundImage">The room's library background drawn from its image, where background shows the tilemap it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
 public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, RoomBackgroundLayer? Background, FxOverlayPage? FxOverlay,
-    RoomDoorBackground? DoorSource = null, RoomOverlayPictures? WrittenOverForeground = null, SkyPictures? Sky = null,
-    RoomOverlayPictures? WrittenOverBackground = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
+    RoomDoorBackground? DoorSource = null, RoomOverlayPictures? ForegroundText = null, SkyPictures? Sky = null,
+    RoomOverlayPictures? BackgroundText = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
     RoomBlockArtwork BlockArtwork = RoomBlockArtwork.Tileset, XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? BackgroundImage = null)
 {

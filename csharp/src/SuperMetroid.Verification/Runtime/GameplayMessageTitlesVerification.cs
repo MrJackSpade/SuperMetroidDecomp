@@ -27,7 +27,7 @@ internal static class GameplayMessageTitlesVerification
 
         var stockMessages = new GameplayMessageArtwork(stock);
         int comparedWords = 0;
-        int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        int width = SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth;
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
             var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());

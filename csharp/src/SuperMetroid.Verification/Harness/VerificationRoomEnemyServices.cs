@@ -134,14 +134,6 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded("advance Mother Brain's glass-room argument").MotherBrain.IncrementGlassRoomArgument();
     }
 
-    /// <summary>Forwards a picture written over BG1 to the loaded room.</summary>
-    public void WriteForegroundPicture(WrittenPicture picture) =>
-        Loaded("write over the room's BG1").WriteForegroundPicture(picture);
-
-    /// <summary>Forwards a picture written over BG2 to the loaded room.</summary>
-    public void WriteBackgroundPicture(WrittenPicture picture) =>
-        Loaded("write over the room's BG2").WriteBackgroundPicture(picture);
-
     /// <summary>Draws a picture over the loaded room's turning floor.</summary>
     public void DrawFloor(CeresFloorAnimationFrame frame) =>
         Loaded("draw over the room's turning floor").DrawFloor(frame);

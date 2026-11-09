@@ -109,7 +109,7 @@ internal static class OrdinarySmokeTests
                 $"{device.Kind}: ordinary {count}, boss BG2 tilemap, HDMA {hdma}");
         }
         // Words written over BG2 drawn from their pictures (#1392), some still from their characters, over each BG2 map size.
-        var typed = pictured with { WrittenOverBackground = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        var typed = pictured with { BackgroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })
         {
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
@@ -122,7 +122,7 @@ internal static class OrdinarySmokeTests
         }
         // Words written over BG1 drawn from their pictures (#1392), as the Ceres escape's warning is, some still from their
         // characters.
-        var warned = pictured with { WrittenOverForeground = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
+        var warned = pictured with { ForegroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         {
             var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);

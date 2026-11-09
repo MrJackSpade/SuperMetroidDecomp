@@ -20,6 +20,6 @@ internal static class GameplayMessageBoxStateTiles
 
         /// <summary>Number of consecutive 32-tile rows <paramref name="messages"/> lays out for what the box shows.</summary>
         internal int TilemapRowCount(GameplayMessageArtwork messages) =>
-            self.Tilemap(messages).Length / GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+            self.Tilemap(messages).Length / SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth;
     }
 }

@@ -292,7 +292,7 @@ internal sealed class CeresRidleyGetaway
         }
     }
 
-    /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's foreground.</summary>
+    /// <summary>Shows the warning's EMERGENCY title over the room's foreground.</summary>
     internal void DrawCeresEmergencyText()
     {
         DrawCeresOverlay(CeresEscapeWarningPictures.Emergency);
@@ -303,7 +303,7 @@ internal sealed class CeresRidleyGetaway
     /// written overlay places a picture by the eight-pixel cell its corner lies on.
     /// </summary>
     private void DrawCeresOverlay(CeresEscapeWarningPicture page) =>
-        _room.Services.WriteForegroundPicture(new WrittenPicture(page.Picture, new Position16<TilemapCells>(
+        _ridleyEncounter.ShowCeresWarning(new WrittenPicture(page.Picture, new Position16<TilemapCells>(
             page.Corner.X / ScreenGeometry.BackgroundTileSizePixels, page.Corner.Y / ScreenGeometry.BackgroundTileSizePixels)));
 
     /// <summary>
@@ -326,7 +326,7 @@ internal sealed class CeresRidleyGetaway
         return state.CeresEscapeReadying.IsFinished;
     }
 
-    /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's foreground.</summary>
+    /// <summary>Shows every row half of the one-shot Japanese overlay list over the room's foreground.</summary>
     internal void DrawCeresJapaneseOverlay()
     {
         foreach (CeresEscapeWarningPicture page in CeresEscapeWarningPictures.Japanese)
@@ -339,9 +339,9 @@ internal sealed class CeresRidleyGetaway
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         bool completed = installed.Step(out EscapeTypewriterGlyph? glyph);
-        // The Ceres program types over the room's foreground (#1348).
+        // The Ceres program types over the room's foreground (#1348), as part of the warning (#1555).
         if (glyph is { } typed)
-            _room.Services.WriteForegroundPicture(new WrittenPicture(typed.Picture, typed.Cell));
+            _ridleyEncounter.ShowCeresWarning(new WrittenPicture(typed.Picture, typed.Cell));
         state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterDefinitions.CeresClick, priority: SoundRequestPriority.Low);

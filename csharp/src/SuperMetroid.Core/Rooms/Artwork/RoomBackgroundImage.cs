@@ -7,42 +7,33 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// One installed pre-coloured room background (#1392, #1466): the full picture of a 32-tile-wide tilemap a room shows on
-/// The background, coloured with its own colours, and the cells whose pictures change with the room's
-/// appearance inputs. A library background pictures the two background pages it loads, the first above the second; the scrolling
-/// sky pictures all its rows.
+/// One installed pre-coloured room background (#1392, #1466, #1555): the picture a room shows on the background, coloured
+/// with its own colours, and the cells whose pictures change with the room's appearance inputs. A library background
+/// pictures its two halves, the first above the second, which a room places on the background
+/// (<see cref="RoomBackgroundImagePlacement"/>); the scrolling sky pictures all its rows.
 /// </summary>
 public sealed class RoomBackgroundImage
 {
-    /// <summary>Tiles along a tilemap page's side.</summary>
-    public const int PageTiles = 32;
-
-    /// <summary>Pixels along a tilemap page's side.</summary>
-    public const int PagePixels = PageTiles * 8;
-
-    /// <summary>The area two pages cover side by side, as a room shows a library background's (#1514).</summary>
-    public static Extent16<BackgroundPixels> PagesSideBySide { get; } = new(2 * PagePixels, PagePixels);
-
-    /// <summary>The frame of an image's sheet that pictures its whole tilemap.</summary>
+    /// <summary>The frame of an image's sheet that pictures the whole background.</summary>
     public const string FrameName = "pages";
 
     /// <summary>Pixels along a cell's side.</summary>
-    private const int CellPixels = 16;
+    public const int CellPixels = 16;
 
-    /// <summary>Checks the picture spans a page's width and whole cell rows, and that each changing cell lies in it once.</summary>
+    /// <summary>Checks the picture is whole cells across and down, and that each changing cell lies in it once.</summary>
     /// <exception cref="InvalidDataException">
-    /// The picture is not whole cell rows across a page, or a cell lies outside it or repeats.
+    /// The picture is not whole cells across and down, or a cell lies outside it or repeats.
     /// </exception>
     public RoomBackgroundImage(string name, SpriteSheet sheet, IEnumerable<RoomBackgroundCell> cells)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         SpriteSheetFrame picture = Ensure.NotNull(sheet).Frame(FrameName);
-        if (picture.Size.X != PagePixels || picture.Size.Y == 0 || picture.Size.Y % CellPixels != 0)
-            throw new InvalidDataException($"Room background {name} is {picture.Size.X}x{picture.Size.Y}, not whole cell rows across a page.");
+        if (picture.Size.X == 0 || picture.Size.X % CellPixels != 0 || picture.Size.Y == 0 || picture.Size.Y % CellPixels != 0)
+            throw new InvalidDataException($"Room background {name} is {picture.Size.X}x{picture.Size.Y}, not whole cells across and down.");
         Name = name;
         Sheet = sheet;
         Picture = picture;
-        CellCount = PagePixels / CellPixels * (picture.Size.Y / CellPixels);
+        CellCount = picture.Size.X / CellPixels * (picture.Size.Y / CellPixels);
         Cells = [.. Ensure.NotNull(cells)];
         if (Cells.Any(cell => cell.Cell < 0 || cell.Cell >= CellCount) || Cells.DistinctBy(cell => cell.Cell).Count() != Cells.Count)
             throw new InvalidDataException($"Room background {name} records a changing cell outside its {CellCount} cells, or one twice.");
@@ -54,13 +45,10 @@ public sealed class RoomBackgroundImage
     /// <summary>The image's sheet.</summary>
     public SpriteSheet Sheet { get; }
 
-    /// <summary>The picture of both pages, the first above the second.</summary>
+    /// <summary>The picture of the whole background.</summary>
     public SpriteSheetFrame Picture { get; }
 
-    /// <summary>The area the image's pages cover one above another, as a sky's rows or a room showing them in a column (#1514).</summary>
-    public Extent16<BackgroundPixels> PagesInOneColumn => new(PagePixels, Picture.Size.Y);
-
-    /// <summary>The image's 16x16 cells: two rows by two columns of tiles each.</summary>
+    /// <summary>The image's 16x16 cells, row by row across the picture.</summary>
     public int CellCount { get; }
 
     /// <summary>The cells whose pictures change with the room's appearance inputs; every other cell always shows the image.</summary>

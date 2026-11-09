@@ -1,44 +1,45 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// A room's background image as the background shows it at one moment (#1392, #1403): the image's picture, and the block picture of
-/// each 16x16 cell whose characters show artwork the room bound after loading.
+/// A room's background image as the background shows it at one moment (#1392, #1403, #1555): the image's picture placed on
+/// the background by its rectangles, and the block picture of each 16x16 cell whose characters show artwork the room bound
+/// after loading.
 /// </summary>
 public sealed class RoomBackgroundImagePlane
 {
     /// <summary>Each cell's picture, null where the image shows; the array is never written after it is shared.</summary>
     private readonly SpriteSheetFrame?[] cells;
 
-    /// <summary>Keeps the image's picture, the cells' pictures and the area its pages cover.</summary>
+    /// <summary>Keeps the image's picture, the cells' pictures and how the room places the image.</summary>
     /// <param name="image">The image.</param>
     /// <param name="cells">Each cell's picture, null where the image shows.</param>
-    /// <param name="area">
-    /// The area the image's 256-pixel pages cover, left to right and then downward, before it repeats (#1514):
-    /// <see cref="RoomBackgroundImage.PagesSideBySide"/> or the image's <see cref="RoomBackgroundImage.PagesInOneColumn"/>.
-    /// </param>
-    /// <exception cref="ArgumentOutOfRangeException">The area is not whole pages, or covers more pages than the image pictures.</exception>
-    public RoomBackgroundImagePlane(RoomBackgroundImage image, SpriteSheetFrame?[] cells, Extent16<BackgroundPixels> area)
+    /// <param name="placement">How the room places the image on the background.</param>
+    public RoomBackgroundImagePlane(RoomBackgroundImage image, SpriteSheetFrame?[] cells, RoomBackgroundImagePlacement placement)
     {
         Ensure.NotNull(image);
         this.cells = Ensure.NotNull(cells);
         Ensure.LengthEqual(cells, image.CellCount);
-        if (area.X == 0 || area.Y == 0 || area.X % RoomBackgroundImage.PagePixels != 0 || area.Y % RoomBackgroundImage.PagePixels != 0
-            || area.X / RoomBackgroundImage.PagePixels * area.Y > image.Picture.Size.Y)
-            throw new ArgumentOutOfRangeException(nameof(area), area, $"Room background {image.Name} cannot cover that area with its pages.");
+        Placement = Ensure.NotNull(placement);
         Picture = image.Picture;
-        Area = area;
     }
 
-    /// <summary>The area the image's pages cover, left to right and then downward, before it repeats.</summary>
-    public Extent16<BackgroundPixels> Area { get; }
+    /// <summary>How the room places the image on the background: its rectangles on an area that repeats.</summary>
+    public RoomBackgroundImagePlacement Placement { get; }
 
-    /// <summary>The picture of the whole image, its pages or rows one above the next.</summary>
+    /// <summary>The area the image's rectangles lie on, which repeats across the background.</summary>
+    public Extent16<BackgroundPixels> Area => Placement.Area;
+
+    /// <summary>The image's rectangles, each where it lies on the area.</summary>
+    public ImmutableArray<RoomBackgroundImagePiece> Pieces => Placement.Pieces;
+
+    /// <summary>The picture of the whole image.</summary>
     public SpriteSheetFrame Picture { get; }
 
-    /// <summary>The image's 16x16 cells.</summary>
+    /// <summary>The image's 16x16 cells, row by row across its picture.</summary>
     public int CellCount => cells.Length;
 
     /// <summary>The picture cell <paramref name="cell"/> shows in place of the image, or null.</summary>

@@ -25,13 +25,13 @@ public static class NoobTubeDebrisDefinitions
     /// </summary>
     public const int ShardMirrorSpan = 256;
 
-    /// <summary>Offsets from the spawning PLM block origin for the six released-air bubbles.</summary>
+    /// <summary>Offsets from the spawning room-object block origin for the six released-air bubbles.</summary>
     public static ReadOnlySpan<Offset16<RoomPixels>> BubbleOffsets => BubbleOffsetValues;
 
-    /// <summary>Whole-pixel X offset from the spawning PLM block origin to the tube crack.</summary>
+    /// <summary>Whole-pixel X offset from the spawning room-object block origin to the tube crack.</summary>
     public const int CrackXOffset = 96;
 
-    /// <summary>Whole-pixel Y offset from the spawning PLM block origin to the tube crack.</summary>
+    /// <summary>Whole-pixel Y offset from the spawning room-object block origin to the tube crack.</summary>
     public const int CrackYOffset = 48;
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>

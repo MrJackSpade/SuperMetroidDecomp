@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>How each noob tube draw is described.</summary>
 internal static class NoobTubeObjectDraws
 {
-    /// <summary>Accepts only the seven known tube draw pointers.</summary>
+    /// <summary>Accepts only the seven noob tube draws.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
         bool owned = request is RoomObjectFrameDraw<NoobTubeDraw>;
@@ -16,7 +16,7 @@ internal static class NoobTubeObjectDraws
     /// <summary>
     /// Seven named layouts. Wide runs are twelve cells: the rim and floor rows' pipe edges are solid around air, the
     /// floor with a second solid edge cell; the panel rows between are air. Each run starts at its own offset from the
-    /// PLM origin; the list ends at its last run. What each frame shows is its installed picture (#1557).
+    /// room-object origin; the list ends at its last run. What each frame shows is its installed picture (#1557).
     /// </summary>
     internal readonly record struct Draw(NoobTubeDraw Frame)
     {
@@ -53,7 +53,7 @@ internal static class NoobTubeObjectDraws
             _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Frame}."),
         };
 
-        /// <summary>Where a run starts, in blocks from the PLM origin: the first at the origin, each later one at its row.</summary>
+        /// <summary>Where a run starts, in blocks from the room-object origin: the first at the origin, each later one at its row.</summary>
         internal Offset16<RoomBlocks> Start(int run)
         {
             CheckRun(run);

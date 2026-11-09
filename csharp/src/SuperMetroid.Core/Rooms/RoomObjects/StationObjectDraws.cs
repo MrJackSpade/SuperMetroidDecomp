@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal static class StationObjectDraws
 {
     /// <summary>
-    /// Describes a draw handed over by the shared PLM drawing; draws of other families are not the stations'.
+    /// Describes a draw handed over by the shared room-object drawing; draws of other families are not the stations'.
     /// </summary>
     internal static bool TryDescribe(RoomObjectDraw request, [MaybeNullWhen(false)] out Draw draw)
     {
@@ -39,7 +39,7 @@ internal static class StationObjectDraws
     /// <summary>
     /// One station draw list's geometry. Station runs are horizontal and each starts at its own offset from the draw's
     /// origin; the list ends at its last run. Each layout is its own sealed record holding only what it needs; these
-    /// rules cover only the twenty owned draw pointers.
+    /// rules cover only the twenty owned draws.
     /// </summary>
     /// <param name="Id">The draw list.</param>
     internal abstract record Draw(StationDraw Id)

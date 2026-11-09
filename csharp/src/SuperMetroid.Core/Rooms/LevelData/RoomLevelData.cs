@@ -153,13 +153,13 @@ public sealed class RoomLevelData
     internal int GetObjectBlockIndex(Position16<RoomBlocks> block)
     {
         if (block.X < 0 || block.Y < 0)
-            throw new ArgumentOutOfRangeException(nameof(block), $"PLM block {block} has a negative coordinate.");
+            throw new ArgumentOutOfRangeException(nameof(block), $"Room-object block {block} has a negative coordinate.");
         int blockIndex = checked(block.Y * Size.X + block.X);
         if ((uint)blockIndex >= (uint)(Terrain.Length + BeyondRoom.Count))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(block),
-                $"PLM block ({block.X},{block.Y}) resolves to index {blockIndex}, past the room's " +
+                $"Room-object block ({block.X},{block.Y}) resolves to index {blockIndex}, past the room's " +
                 $"{Terrain.Length}-block grid and the {BeyondRoom.Count} blocks beyond it.");
         }
 

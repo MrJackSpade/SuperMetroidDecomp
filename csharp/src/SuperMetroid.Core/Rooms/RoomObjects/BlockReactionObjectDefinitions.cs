@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Block behaviours the block-reaction PLMs write.</summary>
+/// <summary>Block behaviours the block-reaction room objects write.</summary>
 internal static class BlockReactionObjectDefinitions
 {
     /// <summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The direction a PLM block run writes its blocks in, starting from the run's first block.</summary>
+/// <summary>The direction a room-object block run writes its blocks in, starting from the run's first block.</summary>
 internal enum RoomObjectRunDirection
 {
     /// <summary>Each following block is one column to the right, along a row.</summary>

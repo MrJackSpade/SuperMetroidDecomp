@@ -37,6 +37,6 @@ public enum DoorTransitionPhase
     Complete,
     /// <summary>Build the first destination actor frame before applying a fade step.</summary>
     DrawFirstDestinationFrame,
-    /// <summary>Yield once after destination PLM processing, then align Samus.</summary>
+    /// <summary>Yield once after destination room-object processing, then align Samus.</summary>
     FinishDoorLoading,
 }

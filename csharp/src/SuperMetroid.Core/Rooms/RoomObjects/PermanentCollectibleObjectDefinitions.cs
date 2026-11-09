@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The permanent-item PLMs: one per collectible kind for each of the exposed, Chozo-orb and concealed shot-block
+/// The permanent-item room objects: one per collectible kind for each of the exposed, Chozo-orb and concealed shot-block
 /// presentations (#1414: named by member, replacing the three header runs and four-byte stride the game's header
 /// words implied).
 /// </summary>
 internal static class PermanentCollectibleObjectDefinitions
 {
-    /// <summary>The item and presentation of each permanent-item PLM.</summary>
+    /// <summary>The item and presentation of each permanent-item room object.</summary>
     internal static IReadOnlyDictionary<RoomObjectHeaderId, PermanentCollectibleObject> Items { get; } = new Dictionary<RoomObjectHeaderId, PermanentCollectibleObject>
     {
         [RoomObjectHeaderId.ExposedEnergyTank] = new(InWorldCollectibleKind.EnergyTank, CollectiblePresentation.Exposed),

@@ -11,12 +11,12 @@ internal sealed class GateObjects
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The room's level, whose width locates a gate's column.</summary>
     private readonly RoomLevelData? _level;
-    /// <summary>Fixed PLM pool used for temporary shot triggers and resident gates.</summary>
+    /// <summary>Fixed room-object pool used for temporary shot triggers and resident gates.</summary>
     private readonly RoomObjectSlotTable _slotTable;
     /// <summary>Sound queue receiving accepted gate wake and rejected-shot effects.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Binds the gate PLM owner to the active room, slot pool, and sound queue.</summary>
+    /// <summary>Binds the gate room-object owner to the active room, slot pool, and sound queue.</summary>
     internal GateObjects(IRoomSamusAccess? samus, RoomLevelData? level, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
     {
         _samus = samus;
@@ -24,7 +24,7 @@ internal sealed class GateObjects
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    /// <summary>Spawn and close requests published by gate PLMs for the projectile system.</summary>
+    /// <summary>Spawn and close requests published by gate room objects for the projectile system.</summary>
     private readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
     /// <summary>Rejected-shot sounds buffered until the room's sound publication stage.</summary>
     private readonly List<SoundRequest> _pendingDownwardGateSounds = new();
@@ -32,7 +32,7 @@ internal sealed class GateObjects
     /// <summary>
     /// Returns and clears projectile work published by gate setup/list execution. Room load
     /// consumes the initial closed actor after enemy loading clears the enemy-projectile pool; normal
-    /// gameplay consumes later close/wake commands immediately after the PLM handler.
+    /// gameplay consumes later close/wake commands immediately after the room-object handler.
     /// </summary>
     public IReadOnlyList<DownwardGateProjectileRequest> TakeDownwardGateProjectileRequests()
     {
@@ -191,7 +191,7 @@ internal sealed class GateObjects
         trigger is DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.RedLeft or
             DownwardGateTriggerBehavior.GreenLeft or DownwardGateTriggerBehavior.YellowLeft;
 
-    /// <summary>Maps a color-and-side trigger behavior to the matching temporary PLM header.</summary>
+    /// <summary>Maps a color-and-side trigger behavior to the matching temporary room-object header.</summary>
     private static RoomObjectHeaderId HeaderForGateTrigger(DownwardGateTriggerBehavior trigger) => trigger switch
     {
         DownwardGateTriggerBehavior.GreenLeft => RoomObjectHeaderId.LeftGreenGateTrigger,
@@ -220,8 +220,8 @@ internal sealed class GateObjects
             DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.BlueRight => !plainPowerBomb,
             DownwardGateTriggerBehavior.YellowLeft => plainPowerBomb,
 
-            // The retail right-yellow routine branches on BNE rather than BEQ. Preserve
-            // that asymmetry even though it looks like a likely original bug.
+            // The retail right-yellow gate triggers on everything but a power bomb, the opposite of the
+            // left one. Preserve that asymmetry even though it looks like a likely original bug.
             DownwardGateTriggerBehavior.YellowRight => !plainPowerBomb,
             _ => throw new InvalidOperationException($"Undefined gate trigger {trigger}."),
         };

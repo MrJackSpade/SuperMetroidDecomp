@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Mutually exclusive room-main behaviors selected by a retail room state. Which routine each names is known only to the import oracle.</summary>
 public enum RoomMainCallback
 {
-    /// <summary>A zero room-main pointer; no room-specific main callback runs.</summary>
+    /// <summary>No room-specific main callback runs.</summary>
     None,
     /// <summary>Updates the land scrolling sky.</summary>
     ScrollingSkyLand,

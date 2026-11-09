@@ -15,20 +15,20 @@ internal sealed class RoomObjectSlot
     /// </summary>
     internal RoomObjectBehaviour? Behaviour { get; private set; }
     /// <summary>
-    /// Whether this slot holds a PLM and participates in the room update. Only <see cref="RoomObjectSlotTable"/>'s
+    /// Whether this slot holds a room object and participates in the room update. Only <see cref="RoomObjectSlotTable"/>'s
     /// spawn operations claim a slot; <see cref="Delete"/> and <see cref="Clear"/> free it.
     /// </summary>
     public bool Active { get; private set; }
-    /// <summary>The PLM the slot holds, selecting its setup and behavior.</summary>
+    /// <summary>The room object the slot holds, selecting its setup and behavior.</summary>
     public RoomObjectHeaderId Header { get; set; }
-    /// <summary>Index of the room block owned by this PLM.</summary>
+    /// <summary>Index of the room block owned by this room object.</summary>
     public int BlockIndex { get; set; }
     /// <summary>
     /// The terrain the slot restores at its block. Grapple setup saves the original block; collision-bomb setup
     /// saves the dimension parent instead.
     /// </summary>
     public RoomTerrainBlock RestoreTerrain { get; set; } = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
-    /// <summary>What the slot's PLM was placed with, or the state its setup or opening left there; null for none.</summary>
+    /// <summary>What the slot's room object was placed with, or the state its setup or opening left there; null for none.</summary>
     public RoomObjectRoomArgument? Argument { get; set; }
     /// <summary>The projectile hit on the place's block that its object has not yet taken, or null for none.</summary>
     public ResidentObjectProjectileHit? ProjectileHit { get; set; }
@@ -72,19 +72,19 @@ internal sealed class RoomObjectSlot
     }
 
     /// <summary>
-    /// Claims this free slot for a new PLM: every field is reset and the slot is active. Only <see cref="RoomObjectSlotTable"/>'s
+    /// Claims this free slot for a new room object: every field is reset and the slot is active. Only <see cref="RoomObjectSlotTable"/>'s
     /// spawn operations call it, which analyzer SME6303 enforces.
     /// </summary>
     internal void Claim()
     {
         if (Active)
-            throw new InvalidOperationException("An occupied PLM slot cannot be claimed.");
+            throw new InvalidOperationException("An occupied room-object slot cannot be claimed.");
         Clear();
         Active = true;
     }
 
     /// <summary>
-    /// Deletes the PLM, as the delete instruction does: only occupancy is cleared, and the other fields stay until the
+    /// Deletes the room object, as the delete instruction does: only occupancy is cleared, and the other fields stay until the
     /// slot is claimed again.
     /// </summary>
     internal void Delete() => Active = false;

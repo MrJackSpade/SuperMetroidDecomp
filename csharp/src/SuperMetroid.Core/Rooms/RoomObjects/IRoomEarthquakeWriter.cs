@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The room-shake writes PLMs make (#633).</summary>
+/// <summary>The room-shake writes room objects make (#633).</summary>
 public interface IRoomEarthquakeWriter
 {
     /// <summary>Writes the earthquake timer, 0 through 65535.</summary>

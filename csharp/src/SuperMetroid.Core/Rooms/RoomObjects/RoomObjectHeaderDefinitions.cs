@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The seventy distinct PLMs retail room populations place; every other PLM is rejected. Setup and execution stay with
-/// the PLM families.
+/// The seventy distinct room objects retail room populations place; every other room object is rejected. Setup and execution stay with
+/// the room-object families.
 /// </summary>
 internal static partial class RoomObjectHeaderDefinitions
 {

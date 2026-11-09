@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The three independently authored PLMs which together form one eye door.</summary>
+/// <summary>The three independently authored room objects which together form one eye door.</summary>
 public enum EyeDoorComponent
 {
-    /// <summary>Live eye PLM: receives missile hits, fires attack/sweat actors, sets the persistent opened-door bit, and ultimately becomes the ordinary blue-door cap.</summary>
+    /// <summary>Live eye room object: receives missile hits, fires attack/sweat actors, sets the persistent opened-door bit, and ultimately becomes the ordinary blue-door cap.</summary>
     Eye,
     /// <summary>Passive main door body: installs special-solid collision and follows the shared opened-door bit rather than accepting the eye's projectile hits itself.</summary>
     Door,

@@ -25,7 +25,7 @@
 /// </remarks>
 internal sealed class RoomObjectSlotTable
 {
-    /// <summary>How many PLMs the room can hold at once; a spawn into a full table fails.</summary>
+    /// <summary>How many room objects the room can hold at once; a spawn into a full table fails.</summary>
     internal const int Capacity = 40;
 
     /// <summary>The slots by ordinal; each slot object keeps its identity for the table's lifetime.</summary>
@@ -51,19 +51,19 @@ internal sealed class RoomObjectSlotTable
     internal bool IsFull => ActiveCount == Capacity;
 
     /// <summary>
-    /// A PLM spawned by a fixed game event: claims the first free slot in processing order, or returns null when the
+    /// A room object spawned by a fixed game event: claims the first free slot in processing order, or returns null when the
     /// table is full, in which case no setup runs.
     /// </summary>
     internal RoomObjectSlot? SpawnHardcoded() => ClaimFirstFree();
 
     /// <summary>
-    /// A PLM placed by room population or by the door-closing PLM: claims the first free slot in processing order, or
+    /// A room object placed by room population or by the door-closing room object: claims the first free slot in processing order, or
     /// returns null when the table is full, in which case no setup runs.
     /// </summary>
     internal RoomObjectSlot? SpawnRoomObject() => ClaimFirstFree();
 
     /// <summary>
-    /// A PLM spawned by a block reaction at the reacting block: claims the first free slot in processing order, or
+    /// A room object spawned by a block reaction at the reacting block: claims the first free slot in processing order, or
     /// returns null when the table is full, in which case no setup runs.
     /// </summary>
     internal RoomObjectSlot? SpawnAtCurrentBlock() => ClaimFirstFree();

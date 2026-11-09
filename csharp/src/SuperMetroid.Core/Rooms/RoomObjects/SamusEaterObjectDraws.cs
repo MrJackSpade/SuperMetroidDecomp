@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class SamusEaterObjectDraws
 {
-    /// <summary>Decodes one of eight plant draw pointers into its orientation and chew phase.</summary>
+    /// <summary>Describes one of the eight plant draws by its orientation and chew phase.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw)
     {
         if (request is not RoomObjectFrameDraw<SamusEaterDraw>)

@@ -11,10 +11,10 @@ internal sealed class BlockReactionObjects
     private readonly AreaId _area;
     /// <summary>Handles the animal-escape reaction reserved among the shot-block behaviours.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;
-    /// <summary>Allocates reaction PLMs in descending slot order.</summary>
+    /// <summary>Allocates reaction room objects in descending slot order.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Connects block reactions to the active room, escape-animal branch, and shared PLM pool.</summary>
+    /// <summary>Connects block reactions to the active room, escape-animal branch, and shared room-object pool.</summary>
     internal BlockReactionObjects(AreaId area, ICrittersEscapeReaction escapeAnimals, RoomObjectSlotTable slotTable)
     {
         _area = area;
@@ -33,8 +33,8 @@ internal sealed class BlockReactionObjects
         if (!respawning && behavior.Reaction != GrappleBlockReactionDefinitions.PermanentBreakableAnchor)
             throw new ArgumentOutOfRangeException(nameof(behavior), "The behaviour is not a breakable grapple block.");
 
-        // Spawning searches the PLM slots from the last down to the first. Matching it matters if multiple
-        // PLMs mutate the same room on one frame because the handler uses the same order.
+        // Spawning searches the room-object slots from the last down to the first. Matching it matters if multiple
+        // room objects mutate the same room on one frame because the handler uses the same order.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
@@ -46,13 +46,13 @@ internal sealed class BlockReactionObjects
             : new BlockReactionObject(BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock));
 
         // The setup saves the complete original block but clears only its behaviour. It deliberately leaves the
-        // Grapple-block collision intact until the first PLM pass later in this same gameplay frame draws the intact
+        // Grapple-block collision intact until the first room-object pass later in this same gameplay frame draws the intact
         // Grapple block.
         level.SetBehavior(blockIndex, RoomBlockBehavior.None);
         return true;
     }
 
-    /// <summary>Starts a timed collision bomb block and substitutes its parent appearance before the first PLM pass.</summary>
+    /// <summary>Starts a timed collision bomb block and substitutes its parent appearance before the first room-object pass.</summary>
     public bool TrySpawnCollisionBombBlock(
         RoomLevelData level,
         int blockIndex,
@@ -67,7 +67,7 @@ internal sealed class BlockReactionObjects
         }
 
         // The reaction spawn searches the same descending slot order used by every other
-        // gameplay-spawned PLM. Do not coalesce neighboring pieces: one collision scan
+        // gameplay-spawned room object. Do not coalesce neighboring pieces: one collision scan
         // can allocate more than one independently timed object in a single movement call.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
@@ -89,7 +89,7 @@ internal sealed class BlockReactionObjects
     /// </summary>
     /// <remarks>
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
-    /// parent's block as the restore block, makes the live block solid, and delays the program for four PLM handler
+    /// parent's block as the restore block, makes the live block solid, and delays the program for four room-object handler
     /// passes. Behaviours zero through three reverse their animation and restore the parent; four through seven end on
     /// air. The collision dispatcher independently returns solid for the triggering frame, so allocation success is not
     /// a collision-result substitute.
@@ -129,10 +129,10 @@ internal sealed class BlockReactionObjects
     /// The setup accepts boost-counter stage four and all six directional shinespark poses. On acceptance it preserves
     /// the collision kind in the eventual restore block, substitutes the Speed Booster parent's block, and makes the
     /// live block air before the
-    /// PLM handler draws the first crumble frame. Rejected contact deletes the temporary
+    /// room-object handler draws the first crumble frame. Rejected contact deletes the temporary
     /// slot synchronously and remains solid in the caller.
     /// </remarks>
-    /// <returns>True when contact passes: accepted setup, or an exhausted PLM pool.</returns>
+    /// <returns>True when contact passes: accepted setup, or an exhausted room-object pool.</returns>
     public bool TrySpawnSamusSpeedBoosterBlock(
         RoomLevelData level,
         int blockIndex,
@@ -223,7 +223,7 @@ internal sealed class BlockReactionObjects
         return true;
     }
 
-    /// <summary>Selects a shot-block PLM by behaviour, weapon family, area table, and air-versus-solid collision semantics.</summary>
+    /// <summary>Selects a shot-block room object by behaviour, weapon family, area table, and air-versus-solid collision semantics.</summary>
     public bool TrySpawnProjectileShotBlock(
         RoomLevelData level,
         int blockIndex,
@@ -246,7 +246,7 @@ internal sealed class BlockReactionObjects
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
-                $"Shootable behaviour {behavior} requires a specialized reaction outside the breakable/nothing PLM dispatcher.");
+                $"Shootable behaviour {behavior} requires a specialized reaction outside the breakable/nothing room-object dispatcher.");
         }
 
         // Shootable air checks the area-table selector before spawning. Its solid-block sibling instead performs the
@@ -256,7 +256,7 @@ internal sealed class BlockReactionObjects
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
 
-        // The power-bomb and Super Missile setups clear the newly allocated PLM when the weapon family is wrong.
+        // The power-bomb and Super Missile setups clear the newly allocated room object when the weapon family is wrong.
         // Observably that is identical to returning with no active slot: setup never changes the live block, and the
         // next handler has nothing to process. Perform this
         // gate before the host allocation loop while preserving every accepted path.

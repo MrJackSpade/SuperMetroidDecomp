@@ -3,10 +3,10 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// What one PLM handler pass reaches: the PLM owners, the room and the frame's inputs. Family steps, pre-instructions and
+/// What one room-object handler pass reaches: the room-object owners, the room and the frame's inputs. Family steps, per-frame steps and
 /// typed programs all run against it.
 /// </summary>
-/// <param name="RoomObjects">The room's PLM owners.</param>
+/// <param name="RoomObjects">The room's room-object owners.</param>
 /// <param name="Level">The room's level data, which draws and terrain commands change.</param>
 /// <param name="Frame">What the handler reads from the rest of the frame.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
@@ -27,7 +27,7 @@ internal readonly record struct RoomObjectStepContext(
     internal void QueueSound(SoundEffectId sound, SoundRequestPriority priority) =>
         RoomObjects.Sounds.Queue(sound, Priority: priority);
 
-    /// <summary>Moves the slot's origin by whole blocks, as the game's move-PLM instructions do.</summary>
+    /// <summary>Moves the slot's origin by whole blocks, as the game's move-room-object instructions do.</summary>
     internal void MoveOrigin(RoomObjectSlot slot, int columns, int rows) =>
         slot.BlockIndex = checked(slot.BlockIndex + columns + rows * Level.Size.X);
 }

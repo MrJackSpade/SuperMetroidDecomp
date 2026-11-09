@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The projectiles the n00b-tube PLM spawns. The values are arbitrary and nothing reads them; the projectile engine maps
+/// The projectiles the n00b-tube room object spawns. The values are arbitrary and nothing reads them; the projectile engine maps
 /// each to its projectile kind (#1414).
 /// </summary>
 public enum NoobTubeProjectileDefinition

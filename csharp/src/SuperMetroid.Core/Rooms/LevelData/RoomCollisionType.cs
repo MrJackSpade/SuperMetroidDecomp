@@ -25,7 +25,7 @@ public enum RoomCollisionType
     BombableAir,
     /// <summary>Ordinary fully solid block.</summary>
     SolidBlock,
-    /// <summary>Door collision block associated with a door PLM.</summary>
+    /// <summary>Door collision block associated with a door room object.</summary>
     DoorBlock,
     /// <summary>Solid spike-block behavior.</summary>
     SpikeBlock,

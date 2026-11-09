@@ -18,12 +18,12 @@ internal sealed class StationObjects
     private readonly IRoomSamusAccess? _samus;
     /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>
     private readonly IRoomObjectDrawing _drawing;
-    /// <summary>Locates resident station PLMs when collision or frontend confirmation arrives.</summary>
+    /// <summary>Locates resident station room objects when collision or frontend confirmation arrives.</summary>
     private readonly RoomObjectSlotTable _slotTable;
     /// <summary>Queues extension, retraction, and save-animation sounds.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Connects station activation to room state, PLM drawing, resident slots, and sound requests.</summary>
+    /// <summary>Connects station activation to room state, room-object drawing, resident slots, and sound requests.</summary>
     internal StationObjects(SharedGameState? system, IRoomSamusAccess? samus, IRoomObjectDrawing drawing, RoomObjectSlotTable slotTable, RoomObjectSoundQueue sounds)
     {
         _system = system;
@@ -40,7 +40,7 @@ internal sealed class StationObjects
     /// <summary>
     /// The saving sound queued when the save was accepted, until the frontend publishes it. The
     /// acceptance runs at the message-close boundary, which completes no gameplay audio publication, so the sound
-    /// cannot ride the PLM sound list: the next PLM pass would clear it unheard.
+    /// cannot ride the room-object sound list: the next room-object pass would clear it unheard.
     /// </summary>
     private SoundRequest? _pendingSavingSound;
 
@@ -72,21 +72,21 @@ internal sealed class StationObjects
         }
     }
 
-    /// <summary>Station messages/actions emitted by the most recent PLM handler pass.</summary>
+    /// <summary>Station messages/actions emitted by the most recent room-object handler pass.</summary>
     public IReadOnlyList<StationActivationEvent> StationActivationEvents =>
         _stationActivationEvents;
 
     /// <summary>
     /// Sets the room-entry lockout used when loading directly onto a save
-    /// station. Ordinary destination-room construction clears it by creating a fresh PLM
+    /// station. Ordinary destination-room construction clears it by creating a fresh room object
     /// owner; loading a saved game explicitly sets it after the station population is installed.
     /// </summary>
     public void LockSaveStationForCurrentRoomEntry() => SaveStationLockedOut = true;
 
     /// <summary>
-    /// Resumes the sleeping save-station PLM after the save message returns its YES/NO result.
+    /// Resumes the sleeping save-station room object after the save message returns its YES/NO result.
     /// The accepted route centres Samus, queues the saving sound and draws the first
-    /// animation frame within the same PLM pass. The declined route still installs the
+    /// animation frame within the same room-object pass. The declined route still installs the
     /// once-per-room-entry lockout. Returns whether the station is saving.
     /// </summary>
     public bool ResolveSaveStationConfirmation(StationActivationEvent activation, bool accepted, RoomLevelData level)
@@ -301,7 +301,7 @@ internal sealed class StationObjects
             roomWidthInBlocks,
             StationSetupGate.Checked);
 
-    /// <summary>Checks the entry pose and direction, then arms a matching resident station's PLM sequence.</summary>
+    /// <summary>Checks the entry pose and direction, then arms a matching resident station's room-object sequence.</summary>
     internal bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
@@ -375,8 +375,8 @@ internal sealed class StationObjects
                 station.AccessBlockIndex = accessBlockIndex;
                 station.AccessBehavior = access;
 
-                // ActivateStationIfSamusArmCannonLinedUp runs command six in setup,
-                // before the common PLM handler advances the resident access list. This
+                // The arm-cannon line-up check runs command six in setup,
+                // before the common room-object handler advances the resident access list. This
                 // distinction is observable in G-Mode: the disabled handler cannot start
                 // or finish the animation, but Samus is already movement-locked and the
                 // station therefore softlocks. The save trigger only advances its

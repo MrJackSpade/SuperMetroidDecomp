@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The room a PLM population is installed into (#633, #1466): the level they edit, what they show over the room's load,
+/// The room a room-object population is installed into (#633, #1466): the level they edit, what they show over the room's load,
 /// the system state that owns their bits, and the area.
 /// </summary>
 [RoomLifetime]
@@ -22,10 +22,10 @@ public sealed record RoomObjectRoom
     }
 
 
-    /// <summary>Room collision and tilemap data PLMs edit.</summary>
+    /// <summary>Room collision and tilemap data room objects edit.</summary>
     public RoomLevelData Level { get; }
 
-    /// <summary>What the room's PLMs show over its load, as a collectible shows in its graphics slot (#1466).</summary>
+    /// <summary>What the room's room objects show over its load, as a collectible shows in its graphics slot (#1466).</summary>
     public RoomAppearance Appearance { get; }
 
     /// <summary>System state owning item, door and event bits.</summary>

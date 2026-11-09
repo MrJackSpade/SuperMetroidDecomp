@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>What a block-reaction PLM draws at its block: a breakup image by block shape, a restore or reveal image, a grapple block
+/// <summary>What a block-reaction room object draws at its block: a breakup image by block shape, a restore or reveal image, a grapple block
 /// image, or the saved block itself.</summary>
 internal enum BlockReactionObjectFrame
 {

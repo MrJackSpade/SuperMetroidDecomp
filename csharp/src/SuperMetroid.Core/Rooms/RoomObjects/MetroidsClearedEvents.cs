@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The event the metroids-cleared PLM marks once a room's metroids are all killed, selected by its table entry.
+/// The event the metroids-cleared room object marks once a room's metroids are all killed, selected by its table entry.
 /// </summary>
 /// <remarks>
 /// The entry selects one of thirteen, not an event number. The first nine entries are deliberate no-ops; the final four

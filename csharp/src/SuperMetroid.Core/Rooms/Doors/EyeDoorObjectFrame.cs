@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The eye door's PLM draws; the animation's facing and component pick each draw list.</summary>
+/// <summary>The eye door's room-object draws; the animation's facing and component pick each draw list.</summary>
 internal enum EyeDoorObjectFrame
 {
     /// <summary>The closed eye.</summary>

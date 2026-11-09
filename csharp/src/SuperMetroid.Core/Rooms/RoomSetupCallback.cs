@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Mutually exclusive room-setup behaviors selected by a retail room state. Which routine each names is known only to the import oracle.</summary>
 public enum RoomSetupCallback
 {
-    /// <summary>A zero room-setup pointer; no room-specific setup callback runs.</summary>
+    /// <summary>No room-specific setup callback runs.</summary>
     None,
     /// <summary>Clears the rescued animals' exit blocks and starts shaking.</summary>
     ClearBlocksAfterSavingAnimalsAndShakeScreen,
@@ -49,7 +49,7 @@ public enum RoomSetupCallback
     BossRoomReturnB,
     /// <summary>A distinct boss-room no-op setup callback.</summary>
     BossRoomReturnC,
-    /// <summary>Creates Shaktool's room-setup PLM.</summary>
+    /// <summary>Creates Shaktool's room-setup room object.</summary>
     SetupShaktoolRoomObject,
     /// <summary>The no-op setup entry preceding Draygon setup.</summary>
     ReturnBeforeDraygonSetup,
@@ -65,7 +65,7 @@ public enum RoomSetupCallback
     SetLightHorizontalRoomShaking,
     /// <summary>Starts medium horizontal escape-room shaking.</summary>
     SetMediumHorizontalRoomShaking,
-    /// <summary>Initializes escape room four's PLM and medium horizontal shaking.</summary>
+    /// <summary>Initializes escape room four's room object and medium horizontal shaking.</summary>
     SetupEscapeRoom4ObjectAndMediumHorizontalShaking,
     /// <summary>Seals the Ceres door and spawns haze.</summary>
     TurnCeresDoorToSolidBlocksAndSpawnHaze,

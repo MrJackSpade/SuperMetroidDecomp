@@ -9,6 +9,6 @@ public readonly record struct SkyScrollSection(
     SignedSixteenSixteen Velocity,
     int DataSlot)
 {
-    /// <summary>The band's first room-pixel row, validated to the sixteen-bit row range world rows are compared in.</summary>
+    /// <summary>The band's first room-pixel row, validated to the row range 0 through 65535 that world rows are compared in.</summary>
     public int TopPosition { get; } = Ensure.BetweenInclusive(0, ushort.MaxValue, TopPosition);
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// One family of linked block restorations: bomb blocks or Samus-contact crumble blocks. Each family has three
 /// restoration draws, horizontal, vertical and square, that rebuild a parent block and its linked children. The families
 /// differ only in the parent's collision kind; the horizontal- and vertical-extension children and their links are the
-/// same. What each restoration shows is its installed picture (#1557). The shape shares the PLM row/column
+/// same. What each restoration shows is its installed picture (#1557). The shape shares the room object row/column
 /// representation with shot blocks.
 /// </summary>
 internal sealed class LinkedRestoreObjectFamily

@@ -23,7 +23,7 @@ internal static class GreyDoorCaps
         }
     }
 
-    /// <summary>Decodes a pointer on the twelve-byte grid into clear or animated cap orientation and frame.</summary>
+    /// <summary>Describes a grey door cap's draw: its orientation and its clear or animated frame.</summary>
     internal static bool TryDescribe(RoomObjectDraw request, out Draw draw) =>
         RoomObjectDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= GreyDoorObjectDrawDefinitions.ClearFrame and < 4, out draw);
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>What a scripted room PLM draws at its block.</summary>
+/// <summary>What a scripted room object draws at its block.</summary>
 internal enum ScriptedRoomObjectFrame
 {
     /// <summary>The Maridia elevatube.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
@@ -39,7 +38,7 @@ namespace SuperMetroid.Core.World;
 /// family.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAreaRoomObjects, IEnemyRoomObjects
+public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
 {
     /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>
     internal BlockReactionObjects BlockReactions { get; }
@@ -229,16 +228,10 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     GateObjects IRoomObjects.Gates => Gates;
 
     /// <inheritdoc/>
-    NoobTubeObjects IRoomObjects.NoobTube => NoobTube;
-
-    /// <inheritdoc/>
     SamusEaterObjects IRoomObjects.SamusEater => SamusEater;
 
     /// <inheritdoc/>
     ScrollObjects IRoomObjects.Scrolls => Scrolls;
-
-    /// <inheritdoc/>
-    SpeedBoosterEscapeObjects IRoomObjects.SpeedBoosterEscape => SpeedBoosterEscape;
 
     /// <inheritdoc/>
     void IRoomObjects.DeleteObject(RoomObjectSlot slot) => DeleteObject(slot);
@@ -253,17 +246,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     IChozoStatueHand ISamusRoomObjects.ChozoStatueHand => ChozoStatue;
 
     /// <inheritdoc/>
-    BombTorizoHandObjects IBossRoomObjects.BombTorizoHand => BombTorizoHand;
-
-    /// <inheritdoc/>
     DraygonCannonObjects IBossRoomObjects.DraygonCannons => DraygonCannons;
 
-    /// <inheritdoc/>
-    MotherBrainGlassObjects IBossRoomObjects.MotherBrainGlass => MotherBrainGlass;
-
-    /// <inheritdoc/>
-    TourianObjects IAreaRoomObjects.Tourian => Tourian;
-
-    /// <inheritdoc/>
-    ShaktoolObjects IEnemyRoomObjects.Shaktool => Shaktool;
 }

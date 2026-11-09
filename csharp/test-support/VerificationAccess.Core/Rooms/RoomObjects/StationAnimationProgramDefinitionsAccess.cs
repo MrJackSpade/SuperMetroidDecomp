@@ -14,7 +14,7 @@ internal static class StationAnimationProgramDefinitionsAccess
         internal static IEnumerable<NativeWord> NativeWords()
         {
             foreach (StationAnimationList list in StationAnimationProgramDefinitions.Lists())
-            for (int index = 0; index < StationAnimationPrograms.FrameCount(list); index++)
+            for (int index = 0; index < StationAnimationProgramDefinitions.Frames[list].Count; index++)
             {
                 StationAnimationProgramDefinitions.Frame frame = StationAnimationPrograms.Resolve(list, index);
                 yield return new NativeWord(checked((ushort)(StationNativeWords.AnimationLists.Word(list) + 4 * index)), checked((ushort)frame.Duration));

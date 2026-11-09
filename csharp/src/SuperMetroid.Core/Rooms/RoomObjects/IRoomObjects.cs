@@ -42,17 +42,11 @@ internal interface IRoomObjects
     /// <summary>Opens and closes colored gates after their matching triggers.</summary>
     GateObjects Gates { get; }
 
-    /// <summary>Runs the glass tube's scripted break and sound sequence.</summary>
-    NoobTubeObjects NoobTube { get; }
-
     /// <summary>Runs Samus Eater plant damage, release, and room object state.</summary>
     SamusEaterObjects SamusEater { get; }
 
     /// <summary>Applies PLM-driven room scroll grid changes.</summary>
     ScrollObjects Scrolls { get; }
-
-    /// <summary>Handles speed-booster escape tunnel block reactions.</summary>
-    SpeedBoosterEscapeObjects SpeedBoosterEscape { get; }
 
     /// <summary>Releases the slot.</summary>
     void DeleteObject(RoomObjectSlot slot);

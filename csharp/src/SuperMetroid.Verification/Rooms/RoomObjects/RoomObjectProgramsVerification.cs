@@ -180,7 +180,7 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction == RoomObjectInstruction.SetObjectBtsToOne)
             {
-                AssertTrue(restoresGrappleBehaviour && frame < change.Frames.Count && change.Frames[frame].RestoresSavedBlock,
+                AssertTrue(restoresGrappleBehaviour && frame < change.Frames.Count && change.Frames[frame].Draw is null,
                     $"{at}: only the respawning Grapple block restores its behaviour, just before its restored block");
                 grappleRestored = true;
                 cursor += 2;
@@ -188,7 +188,7 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction is RoomObjectInstruction.DrawObjectBlock or RoomObjectInstruction.DrawObjectBlockClone)
             {
-                AssertTrue(frame < change.Frames.Count && change.Frames[frame].RestoresSavedBlock, $"{at}: the typed image restores the saved block");
+                AssertTrue(frame < change.Frames.Count && change.Frames[frame].Draw is null, $"{at}: the typed image restores the saved block");
                 AssertEqual(1, change.Frames[frame].Updates, $"{at}: the restored block stays one update");
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound with the restored block");
                 frame++;

@@ -5,8 +5,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>Reads the stations' animations (<see cref="StationAnimationProgramDefinitions.Frames"/>) by image.</summary>
 internal static class StationAnimationPrograms
 {
-    /// <summary>How many images <paramref name="list"/> shows: three for the map and resource cycles, one for each save image.</summary>
-    internal static int FrameCount(StationAnimationList list) => Animation(list).Count;
 
     /// <summary>Image <paramref name="frameIndex"/> of <paramref name="list"/>; any other index is rejected.</summary>
     /// <exception cref="InvalidDataException">The animation has no such image.</exception>

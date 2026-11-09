@@ -121,7 +121,7 @@ internal static class RoomObjectSystemAccess
                 bool? takesShots = slot.BlockIndex != blockIndex ? null : slot.Behaviour switch
                 {
                     ColoredDoorObject colored => colored.TakesShots,
-                    GreyDoorObject grey => grey.TakesShots,
+                    GreyDoorObject grey => grey.Waits != GreyDoorWait.Nothing,
                     _ => null,
                 };
                 if (takesShots is not { } reached)

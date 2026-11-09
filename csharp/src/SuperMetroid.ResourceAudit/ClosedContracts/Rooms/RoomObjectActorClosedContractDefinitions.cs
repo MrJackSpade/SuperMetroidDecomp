@@ -27,7 +27,7 @@ internal static class RoomObjectActorClosedContractDefinitions
         new("SuperMetroid.Core.Enemies.Elevator.Artwork.RoomObjectElevatorPlatformVisualCatalog", "plm-elevator-platform-complete-draws", ["GetAppearance"],
             [SharedDrawShape, SharedDrawLogic, SharedTerrainBlocks,
              new("csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/RoomObjectElevatorPlatformVisualCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorPlatformObjectDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/ElevatorPlatformObjectDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorPlatformDraws.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectBlockStrip.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/ElevatorPlatformArtwork.cs")]),

@@ -1,7 +1,6 @@
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Enemies.Elevator;
+namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The elevator platform's complete animation loop and its three tile layouts (#1554). Timing, layout selection,

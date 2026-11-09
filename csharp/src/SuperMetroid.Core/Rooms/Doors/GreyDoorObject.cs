@@ -38,8 +38,6 @@ internal sealed class GreyDoorObject : DoorCapObject, IClosingDoor
     /// <summary>The hits counted toward the grey count; the shot that reaches it opens the cap.</summary>
     internal int HitCounter { get; private set; }
 
-    /// <summary>Whether a shot at the cap's block reaches it: from its first look until the shot that opens it.</summary>
-    internal bool TakesShots => Waits != GreyDoorWait.Nothing;
 
     /// <summary>Whether the cap has yet to take its first look at its door.</summary>
     private bool _placed = true;

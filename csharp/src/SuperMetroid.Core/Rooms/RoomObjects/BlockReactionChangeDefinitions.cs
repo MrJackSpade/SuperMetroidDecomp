@@ -51,7 +51,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x1 block, growing back.</summary>
     internal static BlockReactionChange ContactCrumble1x1Respawning { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.SingleBreakup0], 8, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup0], 8, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SingleBreakup1], 6),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 16),
@@ -64,7 +64,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x1 block, growing back.</summary>
     internal static BlockReactionChange ContactCrumble2x1Respawning { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 16),
@@ -77,7 +77,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x2 block, growing back.</summary>
     internal static BlockReactionChange ContactCrumble1x2Respawning { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 32),
@@ -90,7 +90,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x2 block, growing back.</summary>
     internal static BlockReactionChange ContactCrumble2x2Respawning { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 32),
@@ -103,7 +103,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x1 block, gone for good.</summary>
     internal static BlockReactionChange ContactCrumble1x1Permanent { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 1),
@@ -112,7 +112,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x1 block, gone for good.</summary>
     internal static BlockReactionChange ContactCrumble2x1Permanent { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 1),
@@ -121,7 +121,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x2 block, gone for good.</summary>
     internal static BlockReactionChange ContactCrumble1x2Permanent { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 1),
@@ -130,7 +130,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 2x2 block, gone for good.</summary>
     internal static BlockReactionChange ContactCrumble2x2Permanent { get; } = new(ContactCrumbleDelay,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 1),
@@ -139,7 +139,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A respawning shot block breaking up and growing back, 1x1.</summary>
     internal static BlockReactionChange RespawningShotBlock1x1 { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 384),
@@ -152,7 +152,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A respawning shot block breaking up and growing back, 2x1.</summary>
     internal static BlockReactionChange RespawningShotBlock2x1 { get; } = new(1,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 384),
@@ -165,7 +165,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A respawning shot block breaking up and growing back, 1x2.</summary>
     internal static BlockReactionChange RespawningShotBlock1x2 { get; } = new(1,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 384),
@@ -178,7 +178,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A respawning shot block breaking up and growing back, 2x2.</summary>
     internal static BlockReactionChange RespawningShotBlock2x2 { get; } = new(1,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 384),
@@ -191,7 +191,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A respawning Super Missile block breaking up and growing back.</summary>
     internal static BlockReactionChange RespawningSuperMissileBlock { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 384),
@@ -204,7 +204,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A respawning Power Bomb block breaking up and growing back.</summary>
     internal static BlockReactionChange RespawningPowerBombBlock { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 384),
@@ -217,7 +217,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A shot block breaking up for good, 1x1.</summary>
     internal static BlockReactionChange PermanentShotBlock1x1 { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 1),
@@ -226,7 +226,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A shot block breaking up for good, 2x1.</summary>
     internal static BlockReactionChange PermanentShotBlock2x1 { get; } = new(1,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 1),
@@ -235,7 +235,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A shot block breaking up for good, 1x2.</summary>
     internal static BlockReactionChange PermanentShotBlock1x2 { get; } = new(1,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 1),
@@ -244,7 +244,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A shot block breaking up for good, 2x2.</summary>
     internal static BlockReactionChange PermanentShotBlock2x2 { get; } = new(1,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 1),
@@ -253,7 +253,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A Super Missile block breaking up for good.</summary>
     internal static BlockReactionChange PermanentSuperMissileBlock { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 1),
@@ -262,7 +262,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A Power Bomb block breaking up for good.</summary>
     internal static BlockReactionChange PermanentPowerBombBlock { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 3, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.WhenIdle),
+        new(D.DrawLists[F.SingleBreakup0], 3, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.WhenIdle },
         new(D.DrawLists[F.SingleBreakup1], 2),
         new(D.DrawLists[F.SingleBreakup2], 1),
         new(D.DrawLists[F.SingleBreakup3], 1),
@@ -271,7 +271,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, growing back.</summary>
     internal static BlockReactionChange CollisionBombBlock1x1Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 384),
@@ -284,7 +284,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, growing back.</summary>
     internal static BlockReactionChange ReactionBombBlock1x1Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 384),
@@ -310,7 +310,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, growing back.</summary>
     internal static BlockReactionChange CollisionBombBlock2x1Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 384),
@@ -323,7 +323,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, growing back.</summary>
     internal static BlockReactionChange ReactionBombBlock2x1Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 384),
@@ -349,7 +349,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, growing back.</summary>
     internal static BlockReactionChange CollisionBombBlock1x2Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 384),
@@ -362,7 +362,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, growing back.</summary>
     internal static BlockReactionChange ReactionBombBlock1x2Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 384),
@@ -388,7 +388,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, growing back.</summary>
     internal static BlockReactionChange CollisionBombBlock2x2Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 384),
@@ -401,7 +401,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, growing back.</summary>
     internal static BlockReactionChange ReactionBombBlock2x2Respawning { get; } = new(1,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 384),
@@ -427,7 +427,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x1 block, gone for good.</summary>
     internal static BlockReactionChange CollisionBombBlock1x1Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 1),
@@ -436,7 +436,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x1 block, gone for good.</summary>
     internal static BlockReactionChange ReactionBombBlock1x1Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SingleBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SingleBreakup1], 4),
         new(D.DrawLists[F.SingleBreakup2], 4),
         new(D.DrawLists[F.SingleBreakup3], 1),
@@ -454,7 +454,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x1 block, gone for good.</summary>
     internal static BlockReactionChange CollisionBombBlock2x1Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 1),
@@ -463,7 +463,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x1 block, gone for good.</summary>
     internal static BlockReactionChange ReactionBombBlock2x1Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.HorizontalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.HorizontalBreakup1], 4),
         new(D.DrawLists[F.HorizontalBreakup2], 4),
         new(D.DrawLists[F.HorizontalBreakup3], 1),
@@ -481,7 +481,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 1x2 block, gone for good.</summary>
     internal static BlockReactionChange CollisionBombBlock1x2Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 1),
@@ -490,7 +490,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 1x2 block, gone for good.</summary>
     internal static BlockReactionChange ReactionBombBlock1x2Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.VerticalBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.VerticalBreakup1], 4),
         new(D.DrawLists[F.VerticalBreakup2], 4),
         new(D.DrawLists[F.VerticalBreakup3], 1),
@@ -508,7 +508,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block Samus's contact sets off, with its break sound: a 2x2 block, gone for good.</summary>
     internal static BlockReactionChange CollisionBombBlock2x2Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.ContactBlockBreak) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 1),
@@ -517,7 +517,7 @@ internal static class BlockReactionChangeDefinitions
     /// <summary>A bomb block a Power Bomb sets off, with its crumble sound: a 2x2 block, gone for good.</summary>
     internal static BlockReactionChange ReactionBombBlock2x2Permanent { get; } = new(1,
     [
-        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Low),
+        new(D.DrawLists[F.SquareBreakup0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Low },
         new(D.DrawLists[F.SquareBreakup1], 4),
         new(D.DrawLists[F.SquareBreakup2], 4),
         new(D.DrawLists[F.SquareBreakup3], 1),
@@ -536,7 +536,7 @@ internal static class BlockReactionChangeDefinitions
     internal static BlockReactionChange RespawningBreakableGrappleBlock { get; } = new(1,
     [
         new(D.DrawLists[F.GrappleBlock], 240),
-        new(D.DrawLists[F.GrappleBreak0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.GrappleBreak0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
         new(D.DrawLists[F.GrappleBreak1], 4),
         new(D.DrawLists[F.GrappleBreak2], 4),
         new(D.DrawLists[F.GrappleBlank], 6),
@@ -550,7 +550,7 @@ internal static class BlockReactionChangeDefinitions
     internal static BlockReactionChange PermanentBreakableGrappleBlock { get; } = new(1,
     [
         new(D.DrawLists[F.GrappleBlock], 120),
-        new(D.DrawLists[F.GrappleBreak0], 4, SoundBefore: EnemySound.BlockCrumble, soundPriority: SoundRequestPriority.Normal),
+        new(D.DrawLists[F.GrappleBreak0], 4, SoundBefore: EnemySound.BlockCrumble) { SoundPriority = SoundRequestPriority.Normal },
         new(D.DrawLists[F.GrappleBreak1], 4),
         new(D.DrawLists[F.GrappleBreak2], 4),
         new(D.DrawLists[F.GrappleBlank], 1),

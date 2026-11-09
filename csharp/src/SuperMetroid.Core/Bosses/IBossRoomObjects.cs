@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Torizo;
 
 namespace SuperMetroid.Core.Bosses;
 
@@ -10,12 +8,8 @@ namespace SuperMetroid.Core.Bosses;
 /// </summary>
 internal interface IBossRoomObjects
 {
-    /// <summary>Runs Bomb Torizo's hand and statue room object sequences.</summary>
-    BombTorizoHandObjects BombTorizoHand { get; }
 
     /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
     DraygonCannonObjects DraygonCannons { get; }
 
-    /// <summary>Controls the Mother Brain chamber glass barrier and shatter sequence.</summary>
-    MotherBrainGlassObjects MotherBrainGlass { get; }
 }

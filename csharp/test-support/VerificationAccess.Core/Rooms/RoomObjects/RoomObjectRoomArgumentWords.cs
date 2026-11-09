@@ -121,7 +121,7 @@ internal static class RoomObjectRoomArgumentWords
     {
         /// <summary>The word native work RAM holds for the slot's argument.</summary>
         internal ushort NativeRoomArgument => Encode(slot.Header, slot.Argument, slot.HitCounter,
-            (slot.Family as ScrollObjects.ScrollObjectState)?.CompiledProgram);
+            (slot.Behaviour as ScrollTriggerObject)?.Program);
     }
 
     /// <summary>The native room-argument word of a placement.</summary>

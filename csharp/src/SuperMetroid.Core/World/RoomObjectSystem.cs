@@ -86,7 +86,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     /// <summary>Connects Chozo statue activity with its room FX and PLM state.</summary>
     internal ChozoStatueObjects ChozoStatue { get; }
 
-    /// <summary>Applies PLM-driven room scroll grid changes.</summary>
+    /// <summary>The room's scroll triggers and extensions.</summary>
     internal ScrollObjects Scrolls { get; }
 
     /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
@@ -158,7 +158,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
-        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectibleObjects, DoorObjects, GreyDoors, Gates, EyeDoors, DraygonCannons, SpeedBoosterEscape])
+        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[WreckedShipTreadmill, Stations, CollectibleObjects, DoorObjects, GreyDoors, Gates, EyeDoors, DraygonCannons, SpeedBoosterEscape])
             source.AddObjectFamilies(_families);
         _families.RequireEveryFamily();
     }

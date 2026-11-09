@@ -6,9 +6,6 @@ internal enum RoomObjectFamily
     /// <summary>One's permanent-item headers.</summary>
     Collectible,
 
-    /// <summary>The resident scroll trigger.</summary>
-    Scroll,
-
     /// <summary>A yellow, green or red door cap.</summary>
     ColoredDoor,
 

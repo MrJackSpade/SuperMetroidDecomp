@@ -26,6 +26,14 @@ internal static class FramePaintAccess
             FramePaint.FromNative(cgram, OamDraws(vram, oamUpload, spriteCount, objectSelection));
 
         /// <summary>
+        /// A gameplay frame whose sprites are an OAM fixture's records, as <see cref="FromOam"/> builds a frontend one, with every
+        /// group of background pictures in its standard colours (<see cref="FromNativeGameplay"/>).
+        /// </summary>
+        internal static FramePaint FromOamGameplay(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> cgram,
+            ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection) =>
+            FramePaint.FromNativeGameplay(cgram, OamDraws(vram, oamUpload, spriteCount, objectSelection));
+
+        /// <summary>
         /// A frame painted from <paramref name="nativeColours"/>, a native 256-colour image: it shows native colour 0 where
         /// nothing is drawn, and each draw shows its picture in the native colours its inks name.
         /// </summary>

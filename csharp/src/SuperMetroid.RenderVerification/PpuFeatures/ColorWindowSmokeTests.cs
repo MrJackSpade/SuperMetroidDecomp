@@ -18,7 +18,7 @@ internal static class ColorWindowSmokeTests
         var random = new Random(32114);
         var vram = new byte[SnesVram.ByteCount]; random.NextBytes(vram);
         RgbColor[] palette = Enumerable.Range(0, 256).Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
-        var memory = FramePaint.FromNative(palette, []);
+        var memory = FramePaint.FromNativeGameplay(palette, []);
         SuperMetroid.Core.Assets.SpriteSheetFrame bg3 = FxOverlayFixtures.PlaneFromVram(vram, palette, 0x7ff8);
         var background = new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
             new Offset16<PlanePixels>(3, 11));

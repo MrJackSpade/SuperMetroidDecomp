@@ -43,7 +43,7 @@ internal static class XrayGameplayTests
             var bg1 = RoomBackgroundsFixtures.Uniform(vram.Bytes, cgram.Colors, new(1));
             var oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
-            var memory = FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0);
+            var memory = FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0);
             SuperMetroid.Core.Assets.SpriteSheetFrame plane = FxOverlayFixtures.PlaneFromVram(vram.Bytes, cgram.Colors, 0x1000);
             var registers = new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
@@ -89,9 +89,13 @@ internal static class XrayGameplayTests
                 foreach (bool bossImage in new[] { false, true })
                 foreach (bool blackBody in new[] { false, true })
                 {
+                    // The room's pictures are composed in their own colours (#1512), so a black body is composed black.
+                    var bodyColors = cgram.Colors.ToArray();
+                    if (blackBody) bodyColors[2] = RgbColor.Black;
+                    var bodyBackgrounds = RoomBackgroundsFixtures.Uniform(vram.Bytes, bodyColors, new(1));
                     var bodyRooms = bossImage
-                        ? bg1 with { BossBody = RoomBackgroundsFixtures.UniformBody(new(2), new(64, 32), vram.Bytes, cgram.Colors) }
-                        : bg1;
+                        ? bodyBackgrounds with { BossBody = RoomBackgroundsFixtures.UniformBody(new(2), new(64, 32), vram.Bytes, bodyColors) }
+                        : bodyBackgrounds;
                     var additive = new GameplayBlendLayer(new(registers with
                     {
                         ShownLayers = ScreenLayers.Foreground | ScreenLayers.Sprites,
@@ -102,9 +106,7 @@ internal static class XrayGameplayTests
                         Halved = false,
                         Colour = RgbColor.Black,
                     }, backgroundBehind: true);
-                    var bodyColors = cgram.Colors.ToArray();
-                    if (blackBody) bodyColors[2] = RgbColor.Black;
-                    var addScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
+                    var addScene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, bodyColors, oam, 1, 0), [additive], 15);
                     var addPixels = DisplayRendering.Render(addScene);
                     var yellow = new RgbaPixel(255, blackBody ? (byte)0 : (byte)165, 0);
                     Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
@@ -128,7 +130,7 @@ internal static class XrayGameplayTests
                     Halved = false,
                     Colour = new RgbColor(148, 148, 148),
                 });
-                var darkScene = new LayeredScene(FramePaint.FromOam(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
+                var darkScene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, cgram.Colors, oam, 1, 0), new DisplayLayer[] { dark }, 15);
                 var darkPixels = DisplayRendering.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
                 Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
@@ -173,7 +175,7 @@ internal static class XrayGameplayTests
             var layer = new GameplayBlendLayer(gameplay, lines, frame % 2 == 0, RandomBlend(random),
                 bg2Subscreen || frame % 3 == 0 ? null : bg3, bg2Subscreen);
             byte obsel = (byte)random.Next(256);
-            var memory = FramePaint.FromOam(bytes, colors, oam, 128, obsel);
+            var memory = FramePaint.FromOamGameplay(bytes, colors, oam, 128, obsel);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, (byte)(frame % 16));
             count++;
             var packet = new DisplayPacket(0, scene);
@@ -194,7 +196,7 @@ internal static class XrayGameplayTests
             var gameplay = new GameplaySceneLayer(registers, seeded with { XrayReveal = RoomBackgroundsFixtures.SeededReveal(random, colors) });
             var lines = RandomWindow(random);
             var layer = new GameplayBlendLayer(gameplay, lines, true, RandomBlend(random), null);
-            var memory = FramePaint.FromOam(bytes, colors, oam, 128, 3);
+            var memory = FramePaint.FromOamGameplay(bytes, colors, oam, 128, 3);
             var scene = new LayeredScene(memory, new DisplayLayer[] { layer }, 15);
             count++;
             var packet = new DisplayPacket(0, scene);

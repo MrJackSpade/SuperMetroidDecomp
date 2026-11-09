@@ -204,7 +204,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage plant = Installed(SamusEaterVisuals, "Samus Eater").Image(draw);
             for (int run = 0; run < SamusEaterObjectDraws.Draw.RunCount; run++)
                 for (int block = 0; block < SamusEaterObjectDraws.Draw.Count(run); block++)
-                    DrawImageCell(level, draw, origin, plant, samusEater.Start(run) + new Offset16<RoomBlocks>(block, 0), samusEater.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, plant, samusEater.Start(run) + new Offset16<RoomBlocks>(block, 0), samusEater.CollisionAt(run, block));
             return;
         }
         if (draw == BotwoonWallObjectDrawDefinitions.Clear)

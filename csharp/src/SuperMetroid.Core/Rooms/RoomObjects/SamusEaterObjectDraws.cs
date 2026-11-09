@@ -1,9 +1,12 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using static SuperMetroid.Core.Rooms.RoomObjects.SamusEaterObjectDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>How each Samus Eater draw is described.</summary>
+/// <summary>
+/// How each of the eight floor and ceiling plant draws is described: three runs draw the right mouth, the left mouth and
+/// the foliage, and the idle draw alone restores the special-air parent and its horizontal extension. What each frame
+/// shows is its installed picture (#1557).
+/// </summary>
 internal static class SamusEaterObjectDraws
 {
     /// <summary>Decodes one of eight plant draw pointers into its orientation and chew phase.</summary>
@@ -54,34 +57,20 @@ internal static class SamusEaterObjectDraws
             2 => new(-2, Ceiling ? 1 : -1),
             _ => throw new ArgumentOutOfRangeException(nameof(run)),
         };
-        /// <summary>The phase block, collision kind, and orientation mirroring of a single mouth or foliage block.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int block)
+        /// <summary>How a single mouth or foliage cell collides in this phase.</summary>
+        internal RoomCollisionType CollisionAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new ArgumentOutOfRangeException(nameof(block));
-            int tile;
-            RoomCollisionType collision;
-            BlockMirroring flips;
+            // The four-wide foliage is spiked air; the right mouth half precedes the left half in draw order.
             if (run == 2)
+                return RoomCollisionType.SpikeAir;
+            return new SamusEaterBlock(run, block) switch
             {
-                // Four-wide foliage: two tiles followed by their mirrored pair.
-                tile = FoliageFirstBlock + Phase * 2 + Math.Min(block, 3 - block);
-                collision = RoomCollisionType.SpikeAir;
-                flips = block >= 2 ? BlockMirroring.Horizontal : BlockMirroring.None;
-            }
-            else
-            {
-                // Right mouth half precedes the left half in draw order.
-                tile = MouthFirstBlock + Phase * 2 + (run == 0 ? 1 - block : block);
-                flips = run == 0 ? BlockMirroring.Horizontal : BlockMirroring.None;
-                collision = new SamusEaterBlock(run, block) switch
-                {
-                    (0, 1) or (1, 0) => RoomCollisionType.SolidBlock,
-                    (0, 0) when Phase == 0 => RoomCollisionType.SpecialAir,
-                    (1, 1) when Phase == 0 => RoomCollisionType.HorizontalExtension,
-                    _ => RoomCollisionType.Air,
-                };
-            }
-            return RoomTerrainBlock.Of(tile, flips | (Ceiling ? BlockMirroring.Vertical : BlockMirroring.None), collision);
+                (0, 1) or (1, 0) => RoomCollisionType.SolidBlock,
+                (0, 0) when Phase == 0 => RoomCollisionType.SpecialAir,
+                (1, 1) when Phase == 0 => RoomCollisionType.HorizontalExtension,
+                _ => RoomCollisionType.Air,
+            };
         }
     }
 }

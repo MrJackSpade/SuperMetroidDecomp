@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.LookupStream5Verification;
@@ -123,7 +122,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         DeadTourianCorpseDefinition expected)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
-        Action<RoomEnemySlot> initialize = enemies.DeadTourianBehavior.InitializeDeadTourianCorpse;
+        Action<RoomEnemySlot> initialize = DeadTourianBehavior.InitializeDeadTourianCorpse;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(enemyDefinition, slot.Definition);
         slot.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));

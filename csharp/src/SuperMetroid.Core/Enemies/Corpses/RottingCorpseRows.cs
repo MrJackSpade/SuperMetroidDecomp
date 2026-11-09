@@ -10,9 +10,6 @@ internal sealed class RottingCorpseRows
     /// <summary>The corpse row each corpse row shows, or none where a move has cleared it.</summary>
     private readonly int?[] rows;
 
-    /// <summary>The rows as last shown, kept until the next move changes them.</summary>
-    private CorpseRotRows? shown;
-
     /// <summary>A corpse <paramref name="rowCount"/> pixel rows tall, before its first rot call: every row shows itself.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The corpse has no rows.</exception>
     internal RottingCorpseRows(int rowCount)
@@ -21,6 +18,7 @@ internal sealed class RottingCorpseRows
         rows = new int?[rowCount];
         for (int row = 0; row < rowCount; row++)
             rows[row] = row;
+        Shown = CorpseRotRows.Of(rows);
     }
 
     /// <summary>
@@ -37,9 +35,12 @@ internal sealed class RottingCorpseRows
             rows[landing] = rows[row];
         if (operation == CorpseRowOperation.Move)
             rows[row] = null;
-        shown = null;
+        Shown = CorpseRotRows.Of(rows);
     }
 
-    /// <summary>The rows as the corpse's rot calls so far have left them, which its frames are drawn through.</summary>
-    internal CorpseRotRows Shown => shown ??= CorpseRotRows.Of(rows);
+    /// <summary>
+    /// The rows as the corpse's rot calls so far have left them, which its frames are drawn through; remade by each move,
+    /// not by each draw.
+    /// </summary>
+    internal CorpseRotRows Shown { get; private set; }
 }

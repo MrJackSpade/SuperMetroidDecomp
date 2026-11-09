@@ -112,7 +112,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Runs the already-dead Tourian layout.</summary>
-    private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
+    private static void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
         slot.Shading = TourianCorpseShades.InDrainedColours;
 

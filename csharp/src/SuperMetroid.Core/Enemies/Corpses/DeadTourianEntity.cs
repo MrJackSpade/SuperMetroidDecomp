@@ -12,7 +12,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Slot);
 
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTourianCorpse;
+    public EnemyInitializationAiHandler? FindInitialization() => DeadTourianBehavior.InitializeDeadTourianCorpse;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunDeadTourianMainAi;

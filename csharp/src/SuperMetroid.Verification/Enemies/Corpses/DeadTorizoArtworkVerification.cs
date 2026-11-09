@@ -12,10 +12,8 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Corpses;
 

@@ -29,7 +29,6 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.PipeBugs;

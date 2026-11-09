@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 

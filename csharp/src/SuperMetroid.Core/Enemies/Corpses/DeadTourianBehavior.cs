@@ -74,7 +74,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
-    internal void InitializeDeadTourianCorpse(RoomEnemySlot slot)
+    internal static void InitializeDeadTourianCorpse(RoomEnemySlot slot)
     {
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.DefinitionId);

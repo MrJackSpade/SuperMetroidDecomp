@@ -62,7 +62,6 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;

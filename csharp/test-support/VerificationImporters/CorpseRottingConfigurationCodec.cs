@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Corpses;
-using SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

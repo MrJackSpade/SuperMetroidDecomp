@@ -419,13 +419,15 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>The <see cref="D3D11TileDispatch.DrawnPart"/> of a room layer pass drawing its back or its front tiles.</summary>
     private static uint Tiles(bool front) => front ? 2u : 1u;
 
-    /// <summary>Draws the message box's text image, coloured in the message's text colours (#1408).</summary>
+    /// <summary>Draws the message box's picture where it lies on the screen, coloured in the message's text colours (#1408, #1555).</summary>
     private unsafe void DispatchMessage(MessageBoxLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.MessageText;
-        // The image's top line goes in the layer word; the room levels hold the image (#1392).
-        data[1] = (uint)layer.Top;
+        // The picture's top line goes in the layer word and its left column in the horizontal scroll; the room levels hold
+        // the picture (#1392).
+        data[1] = layer.Corner.Y;
+        data[3] = layer.Corner.X;
         data[25] = (uint)Math.Clamp(layer.FirstLine, 0, D3D11Screen.Height);
         data[26] = (uint)Math.Clamp(layer.EndLine, 0, D3D11Screen.Height);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));

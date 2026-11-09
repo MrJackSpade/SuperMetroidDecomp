@@ -10,18 +10,10 @@ namespace SuperMetroid.Core.Hud;
 /// </summary>
 public static class GameplayMessageBoxDefinitions
 {
-    /// <summary>Message dimensions and window placement.</summary>
+    /// <summary>Where the message box shows on the screen.</summary>
     public static class Layout
     {
-        /// <summary>Width of a message in tile cells.</summary>
-        public const int TilemapWidth = 32;
-        /// <summary>Minimum supported message-box height in tile rows.</summary>
-        public const int MinimumRows = 3;
-        /// <summary>Maximum supported message-box height in tile rows.</summary>
-        public const int MaximumRows = 6;
-        /// <summary>Width and height of one tile in pixels.</summary>
-        public const int TilePixels = 8;
-        /// <summary>Vertical screen coordinate around which the message window expands.</summary>
+        /// <summary>The screen line the message's picture is centred on, and around which the message window expands.</summary>
         public const int WindowCenterY = 124;
     }
 

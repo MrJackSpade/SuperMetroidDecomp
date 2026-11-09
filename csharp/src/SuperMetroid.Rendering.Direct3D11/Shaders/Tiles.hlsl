@@ -470,14 +470,16 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpXrayRoom) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpMessageText)
     {
-        // The message's image (#1392) from its top scanline, in the message's text colours (#1408): a clear pixel shows
-        // nothing.
+        // The message's picture (#1392, #1555) with its top-left corner at screen pixel (HorizontalScroll, TilemapWord), in
+        // the message's text colours (#1408): a clear pixel shows nothing, and nothing shows outside the picture.
         uint picture = RoomLevels[RoomMessagePictureWord];
-        uint height = RoomLevels[picture + PictureSizeWord] >> 16;
-        if (picture == 0 || id.y < TilemapWord || id.y >= TilemapWord + height) return;
+        if (picture == 0 || id.x < HorizontalScroll || id.y < TilemapWord) return;
+        uint size = RoomLevels[picture + PictureSizeWord];
+        uint2 within = id.xy - uint2(HorizontalScroll, TilemapWord);
+        if (within.x >= (size & 65535) || within.y >= (size >> 16)) return;
         uint index;
         bool front;
-        uint shown = PicturePixel(picture, uint2(id.x, id.y - TilemapWord), index, front);
+        uint shown = PicturePixel(picture, within, index, front);
         if (index != 0) Output[id.xy] = shown;
         return;
     }

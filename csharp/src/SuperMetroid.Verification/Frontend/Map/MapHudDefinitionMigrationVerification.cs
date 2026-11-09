@@ -60,7 +60,7 @@ internal static class MapHudDefinitionMigrationVerification
 
         // GameplayMessageRomData: layout, timing and colours stay in Core; its sources and the glyph words the import lays
         // each message form out with moved to extraction (#1466).
-        AssertEqual(32, GameplayMessageBoxDefinitions.Layout.TilemapWidth, "message tilemap width");
+        AssertEqual(32, SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth, "message tilemap width");
         AssertEqual(124, GameplayMessageBoxDefinitions.Layout.WindowCenterY, "message window centre");
         AssertEqual(8, GameplayMessageBoxDefinitions.Timing.OpeningPauseUpdates, "opening pause");
         AssertEqual(360, GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames, "item message duration");

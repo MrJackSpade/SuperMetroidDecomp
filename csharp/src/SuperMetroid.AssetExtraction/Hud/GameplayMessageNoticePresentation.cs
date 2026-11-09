@@ -43,7 +43,7 @@ public sealed class GameplayMessageNoticePresentation
     public BackgroundTile[] Build(GameplayMessageId messageId)
     {
         CompiledNotice notice = Get(messageId);
-        int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        int width = GameplayMessageTilemapDefinitions.TilemapWidth;
         var result = new BackgroundTile[(notice.RowCount + GameplayMessageTilemapDefinitions.BorderRows) * width];
         border.CopyTo(result, 0);
         notice.Template.CopyTo(result, width);
@@ -79,7 +79,7 @@ public sealed class GameplayMessageNoticePresentation
                 $"Gameplay-message notice {messageId} has no YES selection row.")
             : notice.NoSelection ?? throw new InvalidDataException(
                 $"Gameplay-message notice {messageId} has no NO selection row.");
-        int firstCell = GameplayMessageTilemapDefinitions.SaveSelectionRow * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        int firstCell = GameplayMessageTilemapDefinitions.SaveSelectionRow * GameplayMessageTilemapDefinitions.TilemapWidth;
         if (tilemap.Length < firstCell + GameplayMessageTilemapDefinitions.SaveSelectionRowWords)
         {
             throw new InvalidDataException(
@@ -114,7 +114,7 @@ public sealed class GameplayMessageNoticePresentation
 
         if (document.Version != GameplayMessageNoticeDefinitions.Version ||
             document.Border is null ||
-            document.Border.Length != GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
+            document.Border.Length != GameplayMessageTilemapDefinitions.TilemapWidth ||
             document.Notices is null)
         {
             throw new InvalidDataException(
@@ -136,7 +136,7 @@ public sealed class GameplayMessageNoticePresentation
             GameplayMessageNotice value = document.Notices[id.ToString()]
                 ?? throw new InvalidDataException($"Gameplay-message notice {id} is null.");
             int rowCount = GameplayMessageNotices.ContentRows(id);
-            int expectedWords = rowCount * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+            int expectedWords = rowCount * GameplayMessageTilemapDefinitions.TilemapWidth;
             bool save = GameplayMessageNotices.IsSaveConfirmation(id);
             if (value.RowCount != rowCount || value.Template is null ||
                 value.Template.Length != expectedWords || value.Text is null ||
@@ -156,7 +156,7 @@ public sealed class GameplayMessageNoticePresentation
                 if (string.IsNullOrEmpty(region.Text) || region.Width <= 0 ||
                     region.Text.Length > region.Width || (uint)region.Palette >= 8 ||
                     region.Row < 0 || region.Row >= rowCount || region.Column < 0 ||
-                    region.Column + region.Width > GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
+                    region.Column + region.Width > GameplayMessageTilemapDefinitions.TilemapWidth ||
                     region.Text.Any(static character =>
                         !GameplayMessageGlyphs.IsSupportedGlyph(character)) ||
                     !Enum.IsDefined(region.Alignment))
@@ -164,7 +164,7 @@ public sealed class GameplayMessageNoticePresentation
                     throw new InvalidDataException(
                         $"Gameplay-message notice {id} has an invalid text region.");
                 }
-                int first = region.Row * GameplayMessageBoxDefinitions.Layout.TilemapWidth +
+                int first = region.Row * GameplayMessageTilemapDefinitions.TilemapWidth +
                     region.Column;
                 for (int index = first; index < first + region.Width; index++)
                 {

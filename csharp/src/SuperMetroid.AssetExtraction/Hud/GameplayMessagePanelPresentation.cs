@@ -50,11 +50,11 @@ public sealed class GameplayMessagePanelPresentation
 
         var result = new BackgroundTile[GameplayMessagePanelDefinitions.TilemapWords];
         border.CopyTo(result, 0);
-        panel.Template.CopyTo(result, GameplayMessageBoxDefinitions.Layout.TilemapWidth);
-        border.CopyTo(result, result.Length - GameplayMessageBoxDefinitions.Layout.TilemapWidth);
+        panel.Template.CopyTo(result, GameplayMessageTilemapDefinitions.TilemapWidth);
+        border.CopyTo(result, result.Length - GameplayMessageTilemapDefinitions.TilemapWidth);
 
         Span<BackgroundTile> titleRow = result.AsSpan(
-            GameplayMessageBoxDefinitions.Layout.TilemapWidth +
+            GameplayMessageTilemapDefinitions.TilemapWidth +
                 GameplayMessagePanelDefinitions.OuterLeftColumns,
             GameplayMessagePanelDefinitions.VisibleColumns);
         titleRow.Fill(GameplayMessageTitlePresentation.CompileGlyph(' ', panel.Palette));
@@ -92,7 +92,7 @@ public sealed class GameplayMessagePanelPresentation
 
         if (document.Version != GameplayMessagePanelDefinitions.Version ||
             document.Border is null ||
-            document.Border.Length != GameplayMessageBoxDefinitions.Layout.TilemapWidth ||
+            document.Border.Length != GameplayMessageTilemapDefinitions.TilemapWidth ||
             document.Panels is null)
         {
             throw new InvalidDataException(
@@ -120,7 +120,7 @@ public sealed class GameplayMessagePanelPresentation
                 (uint)value.Palette >= 8 ||
                 value.Column < GameplayMessagePanelDefinitions.OuterLeftColumns ||
                 value.Column + value.Title.Length >
-                    GameplayMessageBoxDefinitions.Layout.TilemapWidth -
+                    GameplayMessageTilemapDefinitions.TilemapWidth -
                     GameplayMessagePanelDefinitions.OuterRightColumns ||
                 value.Template is null ||
                 value.Template.Length != GameplayMessagePanelDefinitions.ContentWords)
@@ -129,10 +129,10 @@ public sealed class GameplayMessagePanelPresentation
                     $"Gameplay-message panel {id} has unsupported title, palette or template dimensions.");
             }
 
-            for (int column = 0; column < GameplayMessageBoxDefinitions.Layout.TilemapWidth; column++)
+            for (int column = 0; column < GameplayMessageTilemapDefinitions.TilemapWidth; column++)
             {
                 if ((column < GameplayMessagePanelDefinitions.OuterLeftColumns ||
-                     column >= GameplayMessageBoxDefinitions.Layout.TilemapWidth -
+                     column >= GameplayMessageTilemapDefinitions.TilemapWidth -
                          GameplayMessagePanelDefinitions.OuterRightColumns) &&
                     value.Template[column] != GameplayMessageTitleDefinitions.TransparentTile)
                 {

@@ -6,38 +6,37 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
-/// The message box's text as the overlay shows it (#1392): the pre-coloured image of the message it shows, centered on the
-/// window, shown only on the reveal window's screen lines.
+/// The message box's text as the overlay shows it (#1392, #1555): the pre-coloured picture of the message it shows, placed
+/// in screen pixels centred across the screen and on the window, shown only on the reveal window's screen lines.
 /// </summary>
 public sealed record MessageBoxLayer : DisplayLayer
 {
-    /// <summary>Checks the image's shape and the reveal radius.</summary>
-    /// <param name="picture">The image of the message's text rows.</param>
+    /// <summary>Checks the picture fits the screen and the fully open window, and the reveal radius.</summary>
+    /// <param name="picture">The picture of the message.</param>
     /// <param name="radiusPixels">The centered reveal half-height in pixels, from zero through 24.</param>
-    /// <exception cref="ArgumentException">The image is not three through six full-width rows.</exception>
+    /// <exception cref="ArgumentException">The picture is empty, wider than the screen or taller than the open window.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The radius is out of range.</exception>
     public MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
     {
         Ensure.NotNull(picture);
-        int rows = picture.Size.Y / GameplayMessageBoxDefinitions.Layout.TilePixels;
-        if (picture.Size.X != GameplayMessageBoxDefinitions.Layout.TilemapWidth * GameplayMessageBoxDefinitions.Layout.TilePixels
-            || picture.Size.Y % GameplayMessageBoxDefinitions.Layout.TilePixels != 0
-            || rows < GameplayMessageBoxDefinitions.Layout.MinimumRows || rows > GameplayMessageBoxDefinitions.Layout.MaximumRows)
-            throw new ArgumentException("A message's image must be three through six complete rows.", nameof(picture));
+        if (picture.Size.X == 0 || picture.Size.Y == 0 || picture.Size.X > ScreenGeometry.ScreenWidthPixels
+            || picture.Size.Y > 2 * GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
+            throw new ArgumentException("A message's picture must fit across the screen and within the open window.", nameof(picture));
         if (radiusPixels is < 0 or > GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
             throw new ArgumentOutOfRangeException(nameof(radiusPixels));
         Picture = picture;
         RadiusPixels = radiusPixels;
     }
 
-    /// <summary>The image of the message's text rows.</summary>
+    /// <summary>The picture of the message.</summary>
     public SpriteSheetFrame Picture { get; }
 
     /// <summary>The current centered reveal half-height in pixels, from zero through 24.</summary>
     public int RadiusPixels { get; }
 
-    /// <summary>The screen line the image's top row is drawn on: the rows centered on the window.</summary>
-    public int Top => GameplayMessageBoxDefinitions.Layout.WindowCenterY - Picture.Size.Y / 2;
+    /// <summary>The screen pixel the picture's top-left corner lies on: the picture centred across the screen and on the window.</summary>
+    public Position16<ScreenPixels> Corner => new((ScreenGeometry.ScreenWidthPixels - Picture.Size.X) / 2,
+        GameplayMessageBoxDefinitions.Layout.WindowCenterY - Picture.Size.Y / 2);
 
     /// <summary>The first screen line the reveal window shows.</summary>
     public int FirstLine => GameplayMessageBoxDefinitions.Layout.WindowCenterY - RadiusPixels;

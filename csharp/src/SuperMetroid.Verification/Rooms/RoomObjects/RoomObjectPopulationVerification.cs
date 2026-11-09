@@ -1352,12 +1352,12 @@ internal static class RoomObjectPopulationVerification
         var notices = new GameplayMessageNoticeDocument
         {
             Version = GameplayMessageNoticeDefinitions.Version,
-            Border = Cells(GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x3801),
+            Border = Cells(SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth, 0x3801),
             Notices = GameplayMessageNoticeDefinitions.MessageIds.ToDictionary(id => id.ToString(), id =>
                 new GameplayMessageNotice
                 {
                     RowCount = GameplayMessageNotices.ContentRows(id),
-                    Template = Cells(GameplayMessageNotices.ContentRows(id) * GameplayMessageBoxDefinitions.Layout.TilemapWidth, 0x2800),
+                    Template = Cells(GameplayMessageNotices.ContentRows(id) * SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth, 0x2800),
                     Text = [new GameplayMessageTextRegion { Row = 0, Column = 0, Width = 4,
                         Alignment = GameplayMessageTextAlignment.Left, Text = "TEST", Palette = 0 }],
                     YesSelection = GameplayMessageNotices.IsSaveConfirmation(id) ? Cells(32, 0x5100) : null,

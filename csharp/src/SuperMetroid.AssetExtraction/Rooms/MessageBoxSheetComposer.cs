@@ -25,7 +25,7 @@ internal static class MessageBoxSheetComposer
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
         colours[MessageBoxColourDefinitions.LightInk] = MessageBoxColourDefinitions.Light;
         colours[MessageBoxColourDefinitions.DarkInk] = MessageBoxColourDefinitions.Dark;
-        int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        int width = SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.TilemapWidth;
         MessageForm[] forms = [.. GameplayMessageArtwork.Forms().Select(form => new MessageForm(form, messages.Tiles(form)))];
         int rows = forms.Sum(form => form.Tiles.Length / width);
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)(width * RoomTileCanvas.CharacterPixels)), checked((ushort)(rows * RoomTileCanvas.CharacterPixels))));

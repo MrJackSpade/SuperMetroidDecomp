@@ -14,17 +14,17 @@ public static class GameplayMessagePanelDefinitions
     /// <summary>Number of content rows between the shared top and bottom borders.</summary>
     public const int ContentRows = 4;
     /// <summary>Number of tilemap words in the four-row panel body.</summary>
-    public const int ContentWords = ContentRows * GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+    public const int ContentWords = ContentRows * GameplayMessageTilemapDefinitions.TilemapWidth;
     /// <summary>Total tilemap words in the bordered six-row message panel.</summary>
     public const int TilemapWords =
         (ContentRows + GameplayMessageTilemapDefinitions.BorderRows) *
-        GameplayMessageBoxDefinitions.Layout.TilemapWidth;
+        GameplayMessageTilemapDefinitions.TilemapWidth;
     /// <summary>Transparent columns retained at the left edge of the title row.</summary>
     public const int OuterLeftColumns = 3;
     /// <summary>Transparent columns retained at the right edge of the title row.</summary>
     public const int OuterRightColumns = 3;
     /// <summary>Columns available to the title and panel body between the outer margins.</summary>
-    public const int VisibleColumns = GameplayMessageBoxDefinitions.Layout.TilemapWidth -
+    public const int VisibleColumns = GameplayMessageTilemapDefinitions.TilemapWidth -
         OuterLeftColumns - OuterRightColumns;
 
     /// <summary>The closed set of item messages with editable four-row instruction bodies.</summary>

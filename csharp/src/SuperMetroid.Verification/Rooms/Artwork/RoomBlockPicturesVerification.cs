@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -268,14 +269,14 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
         BossBodySheet sheet = (runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("No boss body sheets are installed.")).Of(owner);
-        BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("No boss artwork is installed.");
+        BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         byte[] loaded = runtime.ComposedVram();
         // A frame pictured under a room animation's frames (Crocomire's melt states, #1513) shows those frames' characters
         // where they paint, as the body painter composes it, and the room's load elsewhere.
         IReadOnlyList<AnimatedCharacterPlacement> animated = RoomBlockUploads.ShownUnderBoss(BossRoomInputs.Value, room,
             RoomStateLists.GetStates(room).First(state => !state.EnemyPopulation.Records.IsEmpty)).Animated;
         int frames = 0;
-        foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses.Sources, owner))
+        foreach (BossBodyFrameSource frame in BossBodySheetComposer.Frames(bosses, owner))
         {
             byte[] vram = loaded;
             if (frame.Selected.Count > 0)

@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
@@ -27,9 +26,9 @@ internal static class BossBodyWords
     /// which alone the body shows shows the blank.
     /// </summary>
     /// <exception cref="InvalidDataException">The layer shows a frame <paramref name="bosses"/> does not compose.</exception>
-    internal static ushort[] Of(BossBodyLayer layer, BossBodyOwner owner, BossArtworkCatalog bosses, ushort? blankWord = null)
+    internal static ushort[] Of(BossBodyLayer layer, BossBodyOwner owner, BossSourceArtwork bosses, ushort? blankWord = null)
     {
-        Dictionary<string, BossBodyFrameSource> frames = FramesOf(bosses.Sources, owner);
+        Dictionary<string, BossBodyFrameSource> frames = FramesOf(bosses, owner);
         ushort blank = blankWord ?? BossBodySheetComposer.BlankOf(owner).PackedWord;
         int rows = owner == BossBodyOwner.Kraid ? KraidLayerRows : SharedLayerRows;
         var words = new ushort[rows * BossBodySourceDefinitions.LayerColumns];

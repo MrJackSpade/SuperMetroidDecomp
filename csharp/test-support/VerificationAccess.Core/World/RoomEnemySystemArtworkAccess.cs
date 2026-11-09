@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 
 namespace SuperMetroid.Core.World;
@@ -21,11 +20,13 @@ internal static class RoomEnemySystemArtworkAccess
             }
         }
 
-        /// <summary>The bosses' installed artwork, through the session's binding.</summary>
-        internal BossArtworkCatalog? BossArtwork
+        /// <summary>
+        /// Installs the bosses' installed artwork as the game binds it (#1583): of it, the session's binding takes Kraid's eye
+        /// colours, the one part the room's bosses read.
+        /// </summary>
+        internal BossSourceArtwork? BossArtwork
         {
-            get => self.BossArtworkBinding.Artwork;
-            set => self.BossArtworkBinding.Artwork = value;
+            set => self.BossArtworkBinding.KraidEyes = value?.KraidEyes;
         }
     }
 }

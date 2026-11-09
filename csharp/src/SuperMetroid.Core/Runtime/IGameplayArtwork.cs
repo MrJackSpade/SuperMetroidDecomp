@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
@@ -165,8 +166,8 @@ internal interface IGameplayArtwork
     /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }
 
-    /// <summary>The bosses' melts, background frames, corpse characters and colors.</summary>
-    BossArtworkCatalog? BossArtwork { get; }
+    /// <summary>Kraid's eye colours, which his eye glow reads back (#1512, #1583).</summary>
+    KraidEyeColours? KraidEyes { get; }
 
     /// <summary>Every boss's pre-assembled body frames (#1466).</summary>
     BossBodySheets? BossBodySheets { get; }

@@ -50,7 +50,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
 
         var runtime = CreateRetailRuntimeFixture();
         runtime.EnemySession.TileArtwork = stock.Enemies;
-        runtime.BossArtwork.Artwork = stock.Bosses;
+        runtime.BossArtwork.KraidEyes = stock.Bosses.KraidEyes;
         SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime));
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)

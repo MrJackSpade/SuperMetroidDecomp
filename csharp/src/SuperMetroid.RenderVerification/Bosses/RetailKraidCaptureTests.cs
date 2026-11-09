@@ -160,7 +160,7 @@ internal static class RetailKraidCaptureTests
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
         var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."), BossBodyOwner.Kraid,
-            runtime.BossArtwork.Artwork ?? throw new InvalidOperationException($"{context}: the runtime installs no boss artwork.")));
+            InstalledFixtures.BossArtwork));
         if (shown.Any(word => word != KraidWorkingMapDefinitions.BlankTile.PackedWord))
             throw new InvalidOperationException($"{context}: BG2 shows {string.Join(", ", shown.Select(word => $"${word:X4}"))}; only the blank tile ${KraidWorkingMapDefinitions.BlankTile.PackedWord:X4} remains on the cartridge.");
     }

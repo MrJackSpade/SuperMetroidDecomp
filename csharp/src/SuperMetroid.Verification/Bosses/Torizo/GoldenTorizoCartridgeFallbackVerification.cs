@@ -28,7 +28,7 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         var runtime = CreateRetailRuntimeFixture();
         InstalledEnemyArtwork installedArtwork = installation.LoadEnemyTiles();
         runtime.EnemySession.TileArtwork = installedArtwork.Enemies;
-        runtime.BossArtwork.Artwork = installedArtwork.Bosses;
+        runtime.BossArtwork.KraidEyes = installedArtwork.Bosses.KraidEyes;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

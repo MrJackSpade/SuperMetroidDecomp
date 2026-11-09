@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.World;
@@ -47,10 +48,9 @@ internal static class BossBodyCanvasFixtures
     /// <paramref name="firstWord"/>, where the cartridge's VRAM holds them, with every cell no frame shows left zero, as fresh
     /// VRAM's are.
     /// </summary>
-    internal static byte[] AsVram(BossBodyParts body, BossBodyOwner owner, RoomEnemySystem enemies, int firstWord, int vramByteCount)
+    internal static byte[] AsVram(BossBodyParts body, BossBodyOwner owner, BossSourceArtwork bosses, int firstWord, int vramByteCount)
     {
-        ushort[] words = BossBodyWords.Of(body.Publish(), owner,
-            enemies.BossArtwork ?? throw new InvalidOperationException("No boss artwork is bound."), blankWord: 0);
+        ushort[] words = BossBodyWords.Of(body.Publish(), owner, bosses, blankWord: 0);
         byte[] shown = new byte[vramByteCount];
         for (int word = 0; word < words.Length; word++)
             BinaryPrimitives.WriteUInt16LittleEndian(shown.AsSpan((firstWord + word) * sizeof(ushort)), words[word]);

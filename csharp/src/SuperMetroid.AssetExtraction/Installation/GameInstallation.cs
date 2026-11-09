@@ -337,7 +337,7 @@ public sealed record GameInstallation(string Root)
             ProjectileFrameBindings = projectiles.FrameBindings,
 
             EnemyTileArtwork = enemies.Enemies,
-            BossArtwork = enemies.Bosses,
+            KraidEyes = enemies.Bosses.KraidEyes,
             ChargeFlarePlacement = projectiles.FlarePlacement,
             GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
             GrappleSwingFrames = projectiles.GrappleTiles.SwingFrames,

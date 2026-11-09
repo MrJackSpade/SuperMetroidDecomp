@@ -39,23 +39,23 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue(RoomShowsPipeBackground(), "Mother Brain's room shows both pages of the actual pipe-room background");
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires state.");
         BossBodyParts image = runtime.Enemies.Presentation.RequireBossBody();
-        AssertTrue(!image.IsShown && Words(image.Publish(), runtime).All(word => word == 0x0338),
+        AssertTrue(!image.IsShown && Words(image.Publish()).All(word => word == 0x0338),
             "Initializer attaches her body showing nothing, which her room does not show yet");
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         // Since #1356 her room shows her body from the transition (#1515), and the room's pipe background stays untouched.
         AssertTrue(image.IsShown && ReferenceEquals(image, runtime.Enemies.Presentation.RequireBossBody())
-                && Words(image.Publish(), runtime)[..0x400].All(word => word == 0x0338),
+                && Words(image.Publish())[..0x400].All(word => word == 0x0338),
             "Phase-two setup reveals Mother Brain's body as it stands");
         AssertTrue(RoomShowsPipeBackground(), "Phase-two setup leaves the room's library background as loaded");
-        var artwork = runtime.Enemies.BossArtwork;
-        AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).Sources.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
+        BossSourceArtwork artwork = InstalledFixtures.BossArtwork;
+        AssertTrue((artwork.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.NewInstructionFrame = true;
         runtime.Enemies.Instructions.DrawBossBodyFrame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapCellCount).ToArray();
         foreach (var write in writes.Span)
             write.Words.CopyTo(expectedImage.AsSpan(write.FirstCell));
-        AssertTrue(Words(image.Publish(), runtime).SequenceEqual(expectedImage),
+        AssertTrue(Words(image.Publish()).SequenceEqual(expectedImage),
             "The crouched body frame shows exactly its authored BG2 words on her body");
         AssertTrue(RoomShowsPipeBackground(), "The body frame leaves the room's library background as loaded");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
@@ -79,8 +79,10 @@ internal static class MotherBrainTankBackgroundVerification
         return VerifyMotherBrainTankBackground();
     }
 
-    /// <summary>The tilemap entry each cell of Mother Brain's <paramref name="layer"/> shows, from the frames the runtime's artwork installs (#1466).</summary>
-    private static ushort[] Words(BossBodyLayer layer, SuperMetroidRuntime runtime) =>
-        BossBodyWords.Of(layer, BossBodyOwner.MotherBrain, runtime.BossArtwork.Artwork
-            ?? throw new InvalidOperationException("The runtime installs boss artwork."));
+    /// <summary>
+    /// The tilemap entry each cell of Mother Brain's <paramref name="layer"/> shows, from the installation's frames her
+    /// installed body sheet is composed from (#1466, #1583).
+    /// </summary>
+    private static ushort[] Words(BossBodyLayer layer) =>
+        BossBodyWords.Of(layer, BossBodyOwner.MotherBrain, InstalledFixtures.BossArtwork);
 }

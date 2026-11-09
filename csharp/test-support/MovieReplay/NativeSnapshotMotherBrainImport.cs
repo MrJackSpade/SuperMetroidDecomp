@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -272,10 +274,11 @@ internal static class NativeSnapshotMotherBrainImport
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
         BossBodySheets sheets = runtime.BossArtwork.BodySheets ?? throw new InvalidOperationException("The runtime installs no boss body sheets.");
-        BossArtworkCatalog bosses = runtime.BossArtwork.Artwork ?? throw new InvalidOperationException("The runtime installs no boss artwork.");
+        // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
+        BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
         var image = new BossBodyParts(BossBodyOwner.MotherBrain);
-        BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses.Sources, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
+        BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
             image.Show(state.Body.DefinitionId, sheet.Frame(staged.Name));

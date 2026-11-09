@@ -27,7 +27,7 @@ internal static class InstalledArtworkBindingVerification
             artwork = artwork with
             {
                 EnemyTileArtwork = enemyArtwork.Enemies,
-                BossArtwork = enemyArtwork.Bosses,
+                KraidEyes = enemyArtwork.Bosses.KraidEyes,
             };
         // An already-finished intro is deliberately not rebound for a restored gameplay room: its restored DMA side effect
         // would test a retired cinematic, not the room under examination.

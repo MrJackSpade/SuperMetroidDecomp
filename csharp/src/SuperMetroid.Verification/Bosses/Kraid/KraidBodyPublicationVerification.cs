@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -34,8 +36,8 @@ internal static class KraidBodyPublicationVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         KraidEnemyState state = runtime.Enemies.KraidBehavior.Access.Kraid
             ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
-        BossArtworkCatalog art = runtime.BossArtwork.Artwork
-            ?? throw new InvalidOperationException("The retail runtime installs boss artwork.");
+        // The retail runtime draws Kraid's body from the installation's body sheet, composed from these frames.
+        BossSourceArtwork art = InstalledFixtures.BossArtwork;
         ushort[] working = KraidBodyFixtures.WorkingMap(art);
         ReadOnlySpan<ushort> upper = working.AsSpan(0, KraidWorkingMapDefinitions.PageCells);
         ReadOnlySpan<ushort> lower = working.AsSpan(KraidWorkingMapDefinitions.LowerPageFirstCell, KraidWorkingMapDefinitions.PageCells);
@@ -61,7 +63,7 @@ internal static class KraidBodyPublicationVerification
         state.DisplayedHeadFrame = KraidHeadFrame.Open;
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(300, 96);
         GameplayLatchedBossBackgrounds roaring = Published(runtime);
-        ReadOnlySpan<ushort> head = (art.Sources.KraidBackground ?? throw new InvalidOperationException("Kraid art installs his BG2."))
+        ReadOnlySpan<ushort> head = (art.KraidBackground ?? throw new InvalidOperationException("Kraid art installs his BG2."))
             .HeadWords(KraidHeadFrameDefinitions.PresentationKey(KraidHeadFrame.Open));
         AssertTrue(Words(roaring, art).AsSpan().SequenceEqual(KraidBodyFixtures.Tilemap(upper, head, lower)),
             "the open mouth publishes its head over the upper page");
@@ -87,7 +89,7 @@ internal static class KraidBodyPublicationVerification
     }
 
     /// <summary>The tilemap entry each cell of the latched Kraid body shows, from the frames <paramref name="art"/> installs.</summary>
-    private static ushort[] Words(GameplayLatchedBossBackgrounds bosses, BossArtworkCatalog art) =>
+    private static ushort[] Words(GameplayLatchedBossBackgrounds bosses, BossSourceArtwork art) =>
         BossBodyWords.Of(bosses.Body ?? throw new InvalidOperationException("Kraid owning BG2 publishes his body."), BossBodyOwner.Kraid, art);
 
     /// <summary>Runs the Kraid body publication check.</summary>

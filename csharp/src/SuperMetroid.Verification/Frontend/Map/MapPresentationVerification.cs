@@ -219,7 +219,7 @@ internal static class MapPresentationVerification
 
             runtime.EnemySession.TileArtwork = EnemyTiles.Enemies;
             runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
-            runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
+            runtime.BossArtwork.KraidEyes = EnemyTiles.Bosses.KraidEyes;
 
             runtime.Artwork.SamusBodyArt = SamusBody;
             runtime.ShotBlockVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;

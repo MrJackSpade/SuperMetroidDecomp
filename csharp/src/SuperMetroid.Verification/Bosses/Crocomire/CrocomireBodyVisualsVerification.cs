@@ -193,7 +193,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
-            return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Crocomire, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
+            return new DrawNativeResult(oam, BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Crocomire, art.Bosses, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length));
         }
 
         // The graphics set Crocomire's room loads, which gives the tile base and colours his room draws him at.

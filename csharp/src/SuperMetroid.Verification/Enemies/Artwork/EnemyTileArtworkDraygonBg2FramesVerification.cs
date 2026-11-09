@@ -221,6 +221,6 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
-        return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Draygon, enemies, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
+        return BossBodyCanvasFixtures.AsVram(image, BossBodyOwner.Draygon, art.Bosses, EnemyBg2FrameLayoutConstants.VramBase, vram.Bytes.Length);
     }
 }

@@ -63,7 +63,8 @@ public static class RoomObjectCrocomireVisualFiles
     {
         bool found = CrocomireArenaDraws.TryDescribe(draw, out CrocomireArenaDraws.Draw shape);
         list = found
-            ? RoomObjectDrawListExport.Runs(draw, shape.RunCount, _ => shape.BlocksPerRun, shape.BlockAt,
+            ? RoomObjectDrawListExport.Runs(draw, shape.RunCount, _ => shape.BlocksPerRun, shape.CollisionAt,
+
                 _ => shape.Direction, run => shape.Start(run))
             : default;
         return found;

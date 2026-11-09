@@ -153,7 +153,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage arena = Installed(CrocomireVisuals, "Crocomire arena").Image(draw);
             for (int run = 0; run < crocomireDraw.RunCount; run++)
                 for (int block = 0; block < crocomireDraw.BlocksPerRun; block++)
-                    DrawImageCell(level, draw, origin, arena, new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.BlockAt(run, block).Collision);
+                    DrawImageCell(level, draw, origin, arena, new Offset16<RoomBlocks>(crocomireDraw.Wall ? run : block, crocomireDraw.Wall ? block : 0), crocomireDraw.CollisionAt(run, block));
             return;
         }
         if (MotherBrainFakeDeathDraws.TryDescribeBackground(draw, out var backgroundFakeDeath))

@@ -16,8 +16,8 @@ internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Pos
     public PictureShading? Shading { get; init; }
 
     /// <summary>
-    /// The rows a rotting corpse shows as its rot has left them (#1531), which each of the enemy's frames that shows the
-    /// corpse is drawn through; null for an enemy that shows no rotting corpse, or before its corpse's rows rot.
+    /// The rows the enemy's own rotting corpse shows as its rot has left them (#1539), which each of the enemy's frames that
+    /// shows the corpse is drawn whole through; null for an enemy that shows no rotting corpse.
     /// </summary>
     public CorpseRotRows? RotRows { get; init; }
 }

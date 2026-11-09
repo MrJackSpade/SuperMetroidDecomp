@@ -11,7 +11,7 @@ internal static class DeadTourianCorpses
             ? variants.Length
             : throw new ArgumentOutOfRangeException(nameof(species), species, null);
 
-    /// <summary>One Zoomer, Ripper, or Skree corpse's animation, rotting, kind, movement, and rotation identities.</summary>
+    /// <summary>One Zoomer, Ripper, or Skree corpse's pose and height.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
     internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species, int variantIndex)
     {
@@ -20,5 +20,19 @@ internal static class DeadTourianCorpses
         if ((uint)variantIndex >= variants.Length)
             throw new ArgumentOutOfRangeException(nameof(variantIndex), variantIndex, null);
         return variants[variantIndex];
+    }
+
+    /// <summary>The cartridge row upload list corpse <paramref name="variantIndex"/> of <paramref name="species"/> names.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
+    internal static CorpseRowUploadList RowUploadList(DeadTourianCorpseSpecies species, int variantIndex)
+    {
+        _ = For(species, variantIndex);
+        return new CorpseRowUploadList(species switch
+        {
+            DeadTourianCorpseSpecies.Zoomer => RottingCorpseSpecies.Zoomer,
+            DeadTourianCorpseSpecies.Ripper => RottingCorpseSpecies.Ripper,
+            DeadTourianCorpseSpecies.Skree => RottingCorpseSpecies.Skree,
+            _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
+        }, variantIndex);
     }
 }

@@ -12,8 +12,8 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// (<see cref="EncounterArtworkDrawingDefinitions"/>), composed by copying every look up to the one shown, in order, over
 /// the loaded characters; looks that leave the frame alike give it one picture, and a frame the looks of an encounter
 /// gameplay shows change has a picture of each, named by the looks. Gameplay knows nothing of where the copies land. A
-/// rotting corpse's frame is pictured once per look, with where the corpse lies in it, and the game draws it through the
-/// corpse's rows as its rot leaves them (#1531).
+/// rotting corpse's frame is pictured once per look, with where the corpse lies in it, and the game draws the whole picture
+/// through the corpse's own rows as its rot leaves them (#1539).
 /// </summary>
 internal sealed class SetCharacters
 {
@@ -26,7 +26,7 @@ internal sealed class SetCharacters
     /// <summary>Each encounter's characters as each of its looks leaves them, from the loaded table.</summary>
     private readonly Dictionary<ComposedEncounter, byte[][]> afterLook = [];
 
-    /// <summary>The corpses that rot in the set's rooms, whose frames are drawn through their rows.</summary>
+    /// <summary>The corpses that rot in the set's rooms, whose frames are drawn through their own rows.</summary>
     private readonly IReadOnlyList<RottingCorpseCells> corpses;
 
     /// <summary>Each combination of looks' characters, by the looks it shows.</summary>
@@ -39,14 +39,11 @@ internal sealed class SetCharacters
     /// The table as the room load leaves it, the encounters the set's members play, and the corpses that rot in the set's
     /// rooms.
     /// </summary>
-    /// <exception cref="InvalidDataException">An encounter's look changes a corpse's rows after the corpse's own characters load.</exception>
     internal SetCharacters(byte[] table, IReadOnlyList<EncounterLookSteps> Encounters, IReadOnlyList<RottingCorpseCells> corpses)
     {
         this.table = Ensure.NotNull(table);
         this.Encounters = Ensure.NotNull(Encounters);
         this.corpses = Ensure.NotNull(corpses);
-        foreach (RottingCorpseCells corpse in corpses)
-            corpse.RequireUnchangedBy(Encounters);
         foreach (EncounterLookSteps encounter in Encounters)
         {
             byte[] shown = [.. table];
@@ -70,14 +67,14 @@ internal sealed class SetCharacters
     /// do; an encounter that lists it for none leaves it as loaded. A frame whose artwork is its one look's own reads only
     /// another family's artwork where that look's copies never write, so it shows nothing. A picture in which every character
     /// the frame reads is blank shows nothing: it is named among the frame's blank pictures instead of composed. A frame that
-    /// shows a rotting corpse names where the corpse lies in its pictures (#1531).
+    /// shows a rotting corpse names where the corpse lies in its pictures (#1539).
     /// </summary>
     /// <param name="name">The frame's name, which names its pictures.</param>
     /// <param name="frame">The frame.</param>
     /// <param name="drawings">Which looks of each encounter the frame is drawn in.</param>
     /// <param name="showsCorpse">Whether the frame is one the game shows a rotting corpse in, over the corpse's rows it reads.</param>
     /// <exception cref="InvalidDataException">
-    /// A corpse's frame reads the rows of two corpses, or is not drawn as its corpse's rows rot; a frame whose artwork is its
+    /// A corpse's frame reads the rows of two corpses, or does not say where its corpse lies in it; a frame whose artwork is its
     /// look's own is drawn in more than one look; or the looks of an encounter gameplay never shows the looks of leave the
     /// frame otherwise.
     /// </exception>
@@ -108,8 +105,6 @@ internal sealed class SetCharacters
             if (distinct.Length == 1)
             {
                 parts.Add(new FrameLookPart(encounter, [drawn.Looks[0]], null));
-                if (corpse is not null)
-                    RequireOneCover(name, corpse, encounter, drawn.Looks);
                 continue;
             }
             EncounterArtwork shownAs = EncounterLookUploads.ShownAs(encounter.Encounter) ?? throw new InvalidDataException(
@@ -122,7 +117,7 @@ internal sealed class SetCharacters
             [.. part.Looks.Select(look => EncounterLookUploads.Looks(part.Encounter.Encounter)[look])])).OrderBy(change => change.Encounter)];
         var sources = new List<SheetFrameSource>();
         var blank = new List<string>();
-        var layouts = new Dictionary<string, CorpsePictureLayout>(StringComparer.Ordinal);
+        var placements = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
         foreach (int[] combination in Combinations(parts))
         {
             string picture = EncounterLook.PictureName(name, parts.Select((part, index) => part.ShownAs is EncounterArtwork shown
@@ -136,9 +131,9 @@ internal sealed class SetCharacters
             }
             sources.Add(new SheetFrameSource(picture, frame, Page(parts, combination)));
             if (corpse is not null)
-                layouts.Add(picture, CorpseRowPictures.LayoutOf(picture, frame, corpse, Covered(corpse, parts, combination)));
+                placements.Add(picture, CorpseRowPictures.PlacementOf(picture, frame, corpse));
         }
-        return new FramePictures(name, sources, changes, blank) { Corpses = layouts };
+        return new FramePictures(name, sources, changes, blank) { Corpses = placements };
     }
 
     /// <summary>
@@ -151,35 +146,6 @@ internal sealed class SetCharacters
         foreach (FrameLookPart part in parts)
             combinations = [.. combinations.SelectMany(earlier => part.Looks.Select(look => (int[])[.. earlier, look]))];
         return combinations;
-    }
-
-    /// <summary>
-    /// The characters of <paramref name="corpse"/>'s rows the looks of each part, up to the one <paramref name="combination"/>
-    /// names, have copied other characters over since the corpse's own last loaded (#1531).
-    /// </summary>
-    private static HashSet<int> Covered(RottingCorpseCells corpse, List<FrameLookPart> parts, int[] combination)
-    {
-        var covered = new HashSet<int>();
-        for (int index = 0; index < parts.Count; index++)
-            covered.UnionWith(corpse.CoveredBy(parts[index].Encounter, combination[index]));
-        return covered;
-    }
-
-    /// <summary>
-    /// Requires each of <paramref name="looks"/> a frame showing <paramref name="corpse"/> is pictured once for to cover the
-    /// corpse's characters alike once the corpse's own characters have loaded (#1531): the picture names where the corpse
-    /// still lies in it, so every look that shows it must leave the corpse alike.
-    /// </summary>
-    /// <exception cref="InvalidDataException">Two looks that show one picture leave the corpse's characters covered otherwise.</exception>
-    private static void RequireOneCover(string name, RottingCorpseCells corpse, EncounterLookSteps encounter, IReadOnlyList<int> looks)
-    {
-        IReadOnlySet<int> pictured = corpse.CoveredBy(encounter, looks[0]);
-        foreach (int look in looks.Where(look => corpse.LoadedBy(encounter, look)))
-        {
-            if (!corpse.CoveredBy(encounter, look).SetEquals(pictured))
-                throw new InvalidDataException(
-                    $"Frame {name} shows one picture in every look of {encounter.Encounter} it is drawn in, yet look {look} leaves {corpse.Name}'s characters covered otherwise.");
-        }
     }
 
     /// <summary>Whether <paramref name="copies"/> copy over any character whose first table byte <paramref name="read"/> names.</summary>

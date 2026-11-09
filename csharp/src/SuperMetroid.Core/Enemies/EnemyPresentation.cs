@@ -79,13 +79,12 @@ internal sealed class EnemyPresentation
     /// <summary>
     /// Publishes one frame of the enemy <paramref name="draw"/> shows from its installed sheet (#1392): the sheet its room's
     /// graphics set names, pre-coloured in the colours the set loads for the enemy, under the shading the draw names
-    /// (#1512), such as a hit flash or a glow's frame. A frame that shows a rotting corpse is drawn through the corpse's
-    /// rows as its rot leaves them (#1531).
+    /// (#1512), such as a hit flash or a glow's frame. A frame that shows a rotting corpse is drawn whole through the
+    /// corpse's own rows as its rot leaves them (#1539).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The actor shown.</param>
     /// <param name="draw">The frame drawn: the enemy, its sheet frame, origin, shading and the corpse's rows.</param>
-    /// <exception cref="InvalidDataException">A rotting corpse's frame is not as its corpse's rows say.</exception>
     internal void PublishSheetFrame(SpriteFrameBuffer sprites, SpriteSource source, EnemySheetDraw draw)
     {
         (EnemyDefinitionId enemy, string frame, Position16<ScreenPixels> origin) = draw;
@@ -99,14 +98,14 @@ internal sealed class EnemyPresentation
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
         {
             Shading = shading,
-            CorpseRot = CorpseRot(Sheets.CorpseLayout(LoadedSet, enemy, picture), draw.RotRows, image, picture),
+            CorpseRot = CorpseRot(Sheets.CorpsePlacement(LoadedSet, enemy, picture), draw.RotRows, image),
         });
     }
 
     /// <summary>
     /// Publishes one spawned object's frame from the loaded graphics set's pictures of the owner its graphics name (#1392,
     /// #1513), the set's own sheet or the common sheet holding the picture, under the shading the object carries (#1512),
-    /// through a rotting corpse's <paramref name="rows"/> when the frame shows the corpse (#1531).
+    /// through a rotting corpse's own <paramref name="rows"/> when the frame shows the corpse (#1539).
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="source">The object shown.</param>
@@ -115,8 +114,7 @@ internal sealed class EnemyPresentation
     /// <param name="graphics">Whose spawned-object sheet the object draws from, and the shading it shows its picture in.</param>
     /// <param name="rows">The rows of the rotting corpse the frame shows, as its rot has left them; none for one that shows none.</param>
     /// <exception cref="InvalidDataException">
-    /// The set has no pictures for that owner, none of its sheets holds the picture, or a rotting corpse's frame is not as its
-    /// rows say.
+    /// The set has no pictures for that owner, or none of its sheets holds the picture.
     /// </exception>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Position16<ScreenPixels> origin,
         SpriteGraphics graphics, CorpseRotRows? rows = null)
@@ -131,18 +129,17 @@ internal sealed class EnemyPresentation
         sprites.Add(new ImageSpriteDraw(source, image, origin, SpriteMirror.None)
         {
             Shading = graphics.Shading,
-            CorpseRot = CorpseRot(Sheets.SpawnedCorpseLayout(LoadedSet, owner, picture), rows, image, picture),
+            CorpseRot = CorpseRot(Sheets.SpawnedCorpsePlacement(LoadedSet, owner, picture), rows, image),
         });
     }
 
     /// <summary>
-    /// How <paramref name="picture"/> shows the rotting corpse it lies in as <paramref name="layout"/> says, through the
-    /// corpse's <paramref name="rows"/> (#1531); none for a picture that shows no rotting corpse, or before the corpse's rows
-    /// rot, when the picture shows itself.
+    /// How <paramref name="image"/> shows the rotting corpse that lies in it as <paramref name="placement"/> says, whole,
+    /// through the corpse's own <paramref name="rows"/> (#1539); none for a picture that shows no rotting corpse, or a draw
+    /// that names no corpse's rows, when the picture shows itself.
     /// </summary>
-    /// <exception cref="InvalidDataException">The picture is not as the layout and the rows say.</exception>
-    private static CorpseRotPicture? CorpseRot(CorpsePictureLayout? layout, CorpseRotRows? rows, SpriteSheetFrame image, string picture) =>
-        layout is not null && rows is not null ? CorpseRotDrawing.Picture(layout, rows, image.Size, picture) : null;
+    private static CorpseRotPicture? CorpseRot(CorpsePicturePlacement? placement, CorpseRotRows? rows, SpriteSheetFrame image) =>
+        placement is not null && rows is not null ? CorpseRotDrawing.Picture(placement, rows, image.Size) : null;
 
     /// <summary>
     /// The finished picture <paramref name="frame"/> draws as (#1538): for a frame the room's encounters' looks change, its

@@ -35,8 +35,8 @@ public sealed class CorpseRotSchedule
     private int FirstMovingLeadInRow => LastRow - 1;
 
     /// <summary>
-    /// Runs one rot call, handing each pixel row it moves to <paramref name="moveRow"/>, which moves the corpse's rows its
-    /// frames are drawn through (#1531).
+    /// Runs one rot call, handing each pixel row it moves to <paramref name="moveRow"/>, which moves the corpse's own rows its
+    /// frames are drawn through (#1539).
     /// </summary>
     /// <param name="moveRow">
     /// Receives the corpse pixel row moved and whether it is moved down, clearing its source, or copied down.

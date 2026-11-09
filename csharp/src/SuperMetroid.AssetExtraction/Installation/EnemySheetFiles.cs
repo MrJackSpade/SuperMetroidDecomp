@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 public static class EnemySheetFiles
 {
     /// <summary>The manifest revision this build reads.</summary>
-    public const int ManifestVersion = 23;
+    public const int ManifestVersion = 24;
 
     /// <summary>The manifest naming each graphics set's sheet for each of its enemies.</summary>
     public const string ManifestFileName = "enemy-sheets.json";
@@ -66,8 +66,8 @@ public static class EnemySheetFiles
         var sheets = new Dictionary<EnemySheetKey, SpriteSheet>();
         var changingEncounters = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>();
         var spawnedChangingEncounters = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>();
-        var corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>();
-        var spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>();
+        var corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>>();
+        var spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>>();
         // The sheets' frames are named from the stock enemy compositions installed beside them.
         var artwork = new Lazy<InstalledEnemyArtwork>(() => EnemyTileArtworkFiles.Load(
             Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory))
@@ -85,7 +85,7 @@ public static class EnemySheetFiles
                 SpriteSheet sheet = loaded[name];
                 Dictionary<string, FrameLookChange[]> frameChanges = LookChanges(manifest.LookChanges, set, enemyName);
                 HashSet<string> pictures = [.. EnemySheetComposer.FrameNames(artwork.Value.Enemies, enemy).SelectMany(frame => PictureNames(frame, frameChanges))];
-                Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.CorpsePictures, set, enemyName, pictures);
+                Dictionary<string, CorpsePicturePlacement> frameCorpses = CorpsePictures(manifest.CorpsePictures, set, enemyName, pictures);
                 // The sheet holds each of the frames' finished pictures, or names it among those that show nothing (#1538).
                 if (!sheet.HoldsExactly(pictures))
                     throw new InvalidDataException($"Enemy sheet {name} does not hold exactly the pictures of the frames {enemy} shows.");
@@ -114,7 +114,7 @@ public static class EnemySheetFiles
                     [.. entry.Common.Select(spawner => CommonSpawners.Named(spawner).Spawned)];
                 HashSet<string> pictures = [.. SpawnedObjectSheetComposer.FrameNames(sheetOwner, spawners, sharedSpawners, common).SelectMany(frame => PictureNames(frame,
                     frameChanges))];
-                Dictionary<string, CorpsePictureLayout> frameCorpses = CorpsePictures(manifest.SpawnedCorpsePictures, set, ownerName, pictures);
+                Dictionary<string, CorpsePicturePlacement> frameCorpses = CorpsePictures(manifest.SpawnedCorpsePictures, set, ownerName, pictures);
                 HashSet<string> blank = Empty(entry.Empty, $"{set} {ownerName}", pictures);
                 string resolution = $"{entry.Sheet}/{string.Join("/", entry.CommonPictures.OrderBy(held => held.Key, StringComparer.Ordinal)
                     .Select(held => $"{held.Key}:{string.Join(",", held.Value)}"))}/{string.Join(",", blank.Order(StringComparer.Ordinal))}/{string.Join("/",
@@ -214,23 +214,23 @@ public static class EnemySheetFiles
 
     /// <summary>
     /// Where the manifest says a rotting corpse lies in each picture of <paramref name="owner"/>'s sheet under
-    /// <paramref name="set"/> that shows one (#1531), each one of the sheet's frames' <paramref name="pictures"/>.
+    /// <paramref name="set"/> that shows one (#1539), each one of the sheet's frames' <paramref name="pictures"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">A named picture is no picture of the sheet's frames, or its layout spells no columns.</exception>
-    private static Dictionary<string, CorpsePictureLayout> CorpsePictures(
+    /// <exception cref="InvalidDataException">A named picture is no picture of the sheet's frames.</exception>
+    private static Dictionary<string, CorpsePicturePlacement> CorpsePictures(
         Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>> manifest, string set, string owner, HashSet<string> pictures)
     {
-        var layouts = new Dictionary<string, CorpsePictureLayout>(StringComparer.Ordinal);
+        var placements = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
         if (!manifest.TryGetValue(set, out Dictionary<string, Dictionary<string, CorpsePictureDocument>>? owners)
             || !owners.TryGetValue(owner, out Dictionary<string, CorpsePictureDocument>? named))
-            return layouts;
+            return placements;
         foreach ((string picture, CorpsePictureDocument document) in named)
         {
             if (!pictures.Contains(picture))
                 throw new InvalidDataException($"Enemy sheet manifest places a rotting corpse in {set} {owner} picture {picture}, which is no picture of its sheet's frames.");
-            layouts.Add(picture, document.Layout());
+            placements.Add(picture, document.Placement());
         }
-        return layouts;
+        return placements;
     }
 
     /// <summary>

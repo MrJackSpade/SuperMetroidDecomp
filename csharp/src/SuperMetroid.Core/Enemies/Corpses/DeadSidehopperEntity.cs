@@ -9,7 +9,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows? ShownRotRows => species.ShownDeadSidehopperRows(Slot);
+    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Slot);
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadSidehopper;

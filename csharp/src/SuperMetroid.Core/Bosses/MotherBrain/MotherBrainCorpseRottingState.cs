@@ -6,12 +6,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Mother Brain's corpse rotting away after her final death: her corpse's own rot schedule, the rot calls made, the rows
-/// that have fallen, and the corpse's rows as the rot has left them, which her corpse's frame is drawn through (#1531).
+/// that have fallen, and the corpse's own rows as the rot has left them, which her corpse's frame is drawn whole through
+/// (#1539).
 /// </summary>
-/// <remarks>
-/// The game delays each visible pixel row by a different amount and moves the corpse's pixel rows down, showing every row
-/// after each step but the last.
-/// </remarks>
 public sealed class MotherBrainCorpseRottingState
 {
     /// <summary>The corpse's visible pixel rows, each of which the rot schedule drops.</summary>
@@ -29,10 +26,8 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>Number of rows that have fallen so far.</summary>
     public uint FinishedEntryCount { get; private set; }
 
-    /// <summary>
-    /// The corpse's rows as the game last showed them (#1531): after each rot call but the last; none before the first.
-    /// </summary>
-    internal CorpseRotRows? Shown { get; private set; }
+    /// <summary>The corpse's rows as its rot calls so far have left them (#1539).</summary>
+    internal CorpseRotRows Shown => rows.Shown;
 
     /// <summary>Runs one rot call of Mother Brain's corpse.</summary>
     public MotherBrainCorpseRottingStepResult Step(
@@ -59,10 +54,6 @@ public sealed class MotherBrainCorpseRottingState
                     SoundEffect: EnemySound.LiquidDamage));
             });
 
-        // The last row's fall returns before the corpse's rows are shown again, so the last step is never shown; every
-        // still-active call shows all six rows as it left them.
-        if (stillRotting)
-            Shown = rows.Shown;
         return new MotherBrainCorpseRottingStepResult(StillRotting: stillRotting, DustRequests: dustRequests);
     }
 }

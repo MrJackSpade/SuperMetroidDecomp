@@ -171,7 +171,7 @@ internal sealed class MotherBrainHead
             return;
 
         // The head's sheet pictures each frame over what the encounter's uploads leave (#1392); her corpse's frame is drawn
-        // through its rows as its rot leaves them (#1531).
+        // whole through her corpse's own rows as its rot leaves them (#1539).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen)
             { Shading = frame.Shading, RotRows = _motherBrainEncounter.ShownCorpseRows });
     }

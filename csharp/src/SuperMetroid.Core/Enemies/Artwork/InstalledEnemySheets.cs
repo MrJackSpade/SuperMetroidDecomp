@@ -23,11 +23,11 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
     /// <summary>The same for each set's spawned-object sheets.</summary>
     internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>> spawnedChangingEncounters;
 
-    /// <summary>Each set's enemy sheets' pictures that show a rotting corpse, and where the corpse lies in each (#1531).</summary>
-    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>> corpsePictures;
+    /// <summary>Each set's enemy sheets' pictures that show a rotting corpse, and where the corpse lies in each (#1539).</summary>
+    internal readonly Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>> corpsePictures;
 
     /// <summary>The same for each set's spawned-object sheets.</summary>
-    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>> spawnedCorpsePictures;
+    internal readonly Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>> spawnedCorpsePictures;
 
     /// <summary>
     /// The sheets by graphics set name and enemy, and the spawned-object sheets by set name and owner, with the encounters
@@ -45,19 +45,19 @@ public sealed class InstalledEnemySheets : IEnemySheetSource
         this.changingEncounters = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>(Ensure.NotNull(changingEncounters));
         this.spawnedChangingEncounters = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, EncounterArtwork[]>>(
             Ensure.NotNull(spawnedChangingEncounters));
-        this.corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>(Ensure.NotNull(corpsePictures));
-        this.spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePictureLayout>>(Ensure.NotNull(spawnedCorpsePictures));
+        this.corpsePictures = new Dictionary<EnemySheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>>(Ensure.NotNull(corpsePictures));
+        this.spawnedCorpsePictures = new Dictionary<SpawnedObjectSheetKey, IReadOnlyDictionary<string, CorpsePicturePlacement>>(Ensure.NotNull(spawnedCorpsePictures));
     }
 
     /// <inheritdoc/>
-    public CorpsePictureLayout? CorpseLayout(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture) =>
-        corpsePictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlyDictionary<string, CorpsePictureLayout>? pictures)
-            && pictures.TryGetValue(picture, out CorpsePictureLayout? layout) ? layout : null;
+    public CorpsePicturePlacement? CorpsePlacement(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture) =>
+        corpsePictures.TryGetValue(new EnemySheetKey(Ensure.NotNull(set).Name, enemy), out IReadOnlyDictionary<string, CorpsePicturePlacement>? pictures)
+            && pictures.TryGetValue(picture, out CorpsePicturePlacement? placement) ? placement : null;
 
     /// <inheritdoc/>
-    public CorpsePictureLayout? SpawnedCorpseLayout(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture) =>
-        spawnedCorpsePictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, CorpsePictureLayout>? pictures)
-            && pictures.TryGetValue(picture, out CorpsePictureLayout? layout) ? layout : null;
+    public CorpsePicturePlacement? SpawnedCorpsePlacement(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture) =>
+        spawnedCorpsePictures.TryGetValue(new SpawnedObjectSheetKey(Ensure.NotNull(set).Name, owner), out IReadOnlyDictionary<string, CorpsePicturePlacement>? pictures)
+            && pictures.TryGetValue(picture, out CorpsePicturePlacement? placement) ? placement : null;
 
     /// <inheritdoc/>
     public IReadOnlyList<EncounterArtwork> ChangingEncounters(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string frame) =>

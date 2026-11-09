@@ -1,32 +1,31 @@
 using SuperMetroid.Core;
 using System.Collections.Immutable;
-using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
 /// The bank-$A9 row upload lists of the dead monsters (#1406): the rows a dead Sidehopper, Zoomer, Ripper or Skree uploads
 /// from its staged characters after each rot step. Only the extraction reads them, to find the characters the corpse's rows
-/// show in (#1531).
+/// show in, and so where each corpse lies in its pictures (#1539).
 /// </summary>
 [EncodingOwner("bank-$A9 dead-monster row upload lists")]
 internal static class DeadMonsterRowUploadDefinitions
 {
-    /// <summary>The rows <paramref name="kind"/> uploads, in native descriptor order.</summary>
-    /// <exception cref="InvalidDataException">The kind has no row upload list.</exception>
-    internal static ImmutableArray<CorpseRowUpload> ForKind(RottingCorpseKind kind)
+    /// <summary>The rows <paramref name="list"/> uploads, in native descriptor order.</summary>
+    /// <exception cref="InvalidDataException">The cartridge has no such row upload list.</exception>
+    internal static ImmutableArray<CorpseRowUpload> ForList(CorpseRowUploadList list)
     {
-        int Variant(int count) => (uint)kind.Variant < count
-            ? kind.Variant
-            : throw new InvalidDataException($"Corpse kind {kind.Name} has no row upload list.");
-        return kind.Species switch
+        int Variant(int count) => (uint)list.Variant < count
+            ? list.Variant
+            : throw new InvalidDataException($"Corpse {list.Name} has no row upload list.");
+        return list.Species switch
         {
             RottingCorpseSpecies.Sidehopper => SidehopperRows(Variant(2)),
             RottingCorpseSpecies.Zoomer => ZoomerRows(Variant(3)),
             RottingCorpseSpecies.Ripper => RipperRows(Variant(2)),
             RottingCorpseSpecies.Skree => SkreeRows(Variant(3)),
             RottingCorpseSpecies.Torizo => throw new InvalidDataException("The Torizo corpse uploads its rows by halves."),
-            _ => throw new InvalidDataException($"Corpse kind {kind.Name} has no row upload list."),
+            _ => throw new InvalidDataException($"Corpse {list.Name} has no row upload list."),
         };
     }
 

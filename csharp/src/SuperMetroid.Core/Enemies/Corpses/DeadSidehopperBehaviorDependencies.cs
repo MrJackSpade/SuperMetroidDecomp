@@ -25,6 +25,6 @@ internal sealed record DeadSidehopperBehaviorDependencies
     /// <summary>Collision.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Dead monsters.</summary>
-    public required DeadMonsterFrame DeadMonsters { get; init; }
+    /// <summary>The dust each fallen corpse row raises.</summary>
+    public required CorpseRowDust RowDust { get; init; }
 }

@@ -32,8 +32,8 @@ internal sealed class MotherBrainEncounter
     internal void ShowZebesWarning(WrittenPicture picture) => ZebesWarning = ZebesWarning.With(picture);
 
     /// <summary>
-    /// The rows Mother Brain's corpse shows as its rot has left them, which her corpse's frame is drawn through (#1531);
-    /// none before the game first shows them rotting.
+    /// The rows Mother Brain's corpse shows as its own rot has left them, which her corpse's frame is drawn whole through
+    /// (#1539); none while she is not loaded or her rainbow beam sequence has not begun.
     /// </summary>
     internal CorpseRotRows? ShownCorpseRows => MotherBrain?.RainbowBeamSequence?.ThirdPhaseDeath.CorpseRotting.Shown;
 

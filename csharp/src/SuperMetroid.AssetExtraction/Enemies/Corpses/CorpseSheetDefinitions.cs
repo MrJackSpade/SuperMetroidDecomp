@@ -1,6 +1,6 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
-/// <summary>Where the rotting corpses' row uploads land in the sprite characters (#1406, #1531).</summary>
+/// <summary>Where the rotting corpses' row uploads land in the sprite characters (#1406, #1539).</summary>
 internal static class CorpseSheetDefinitions
 {
     /// <summary>

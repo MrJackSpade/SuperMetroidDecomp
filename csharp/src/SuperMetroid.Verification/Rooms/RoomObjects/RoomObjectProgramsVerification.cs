@@ -309,118 +309,109 @@ internal static class RoomObjectProgramsVerification
         _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterBlockFrame)} {frame}."),
     };
 
-    /// <summary>The downward gate's programs equal their native lists, and each wake continues after the sleep it ends.</summary>
+    /// <summary>
+    /// The downward gate's native lists do what <see cref="DownwardGateObject"/> does (#1554): the closed gate shows for
+    /// one update, clears its trigger, arms its closed wake and sleeps; past the sleep it wakes its projectile, plays the
+    /// movement sound and rises image by image into the open gate, which shows for one update, clears its trigger, arms
+    /// its open wake and sleeps; past that sleep it shows the open gate, spawns its moving projectile with the movement
+    /// sound and lowers image by image into the closed gate. Every image, hold and operand is compared with
+    /// <see cref="DownwardGateMovementDefinitions"/>.
+    /// </summary>
     internal static void VerifyDownwardGatePrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DownwardGatePrograms.Programs, DownwardGateEntries,
-            draw => RoomObjectDraw.Of(draw), DownwardGateCueAt, "downward gate");
-        foreach ((DownwardGateProgram program, ushort entry) in DownwardGateEntries)
-        {
-            if (DownwardGatePrograms.ProgramAfterSleep(program) is not { } next)
-                continue;
-            AssertEqual(unchecked((ushort)(entry + DownwardGateSleepContinuationOffset)), DownwardGateEntries.Single(e => e.Program == next).Entry,
-                $"downward gate {next} continues {program} past its sleep");
-        }
-        ushort firstTrigger = DownwardGateEntries.Single(e => e.Program == DownwardGateProgram.TriggerBlueLeft).Entry;
-        AssertTrue(DownwardGateShotBlockDefinitions.Triggers.Select(trigger => trigger.Program).SequenceEqual(
-                DownwardGateEntries.Where(e => e.Entry >= firstTrigger).OrderBy(e => e.Entry).Select(e => e.Program)),
-            "downward gate triggers are selected in native list order");
-        Console.WriteLine($"  Downward gate programs: {steps} typed steps match bank $84.");
+        IReadOnlyDictionary<GateState, ushort> addresses = DownwardGateAddresses(rom);
+        Console.WriteLine($"  Downward gate lists: {addresses.Count} typed gate states match bank $84.");
     }
 
     /// <summary>
-    /// The native instruction pointer a downward gate's typed program stands for: the address of the native instruction
-    /// its cursor rests on, for comparisons with native gate traces.
+    /// The native instruction a downward gate in the typed state of <paramref name="gate"/> rests on at the end of an
+    /// update, for comparisons with native gate traces: the instruction after the image it shows, or the sleep it rests
+    /// on.
     /// </summary>
-    internal static ushort DownwardGateNativeInstruction(ISnesAddressSpace rom, DownwardGateObjectAnimation gate)
+    internal static ushort DownwardGateNativeInstruction(ISnesAddressSpace rom, DownwardGateObject gate)
     {
-        downwardGateAddresses ??= StepAddresses(CartridgeImportSource.Require(rom), DownwardGatePrograms.Programs,
-            DownwardGateEntries, draw => RoomObjectDraw.Of(draw), DownwardGateCueAt, "downward gate");
-        return downwardGateAddresses[new ProgramStep<DownwardGateProgram>(gate.Cursor.Program, gate.Cursor.Position)];
+        ArgumentNullException.ThrowIfNull(gate);
+        downwardGateAddresses ??= DownwardGateAddresses(rom);
+        int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening ? gate.Frame : 0;
+        return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)
+            ? address
+            : throw new InvalidDataException($"A downward gate in {gate.Phase} at image {frame} has no native instruction.");
     }
 
-    /// <summary>The downward gate's step addresses, walked once.</summary>
-    private static IReadOnlyDictionary<ProgramStep<DownwardGateProgram>, ushort>? downwardGateAddresses;
+    /// <summary>The native instruction of every typed gate state, walked once.</summary>
+    private static IReadOnlyDictionary<GateState, ushort>? downwardGateAddresses;
 
-    /// <summary>The gate's trigger, pre-instruction, projectile and sound instructions with their operands.</summary>
-    private static bool DownwardGateCueAt(IImportCartridgeSource cartridge, ushort cursor, out DownwardGateCue cue, out int length)
+    /// <summary>
+    /// Walks the gate's native lists from its header, checking each against the typed course, and returns the instruction
+    /// each typed state rests on.
+    /// </summary>
+    private static Dictionary<GateState, ushort> DownwardGateAddresses(ISnesAddressSpace rom)
     {
-        ushort operand = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
-        (bool known, cue, length) = InstructionAt<RoomObjectInstruction>(cartridge, cursor) switch
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, TerrainChangeFrame frame, string at)
         {
-            RoomObjectInstruction.ClearDownwardGateTrigger => new DownwardGateCueAtCase(true, DownwardGateCue.ClearTrigger, 2),
-            RoomObjectInstruction.InstallFrameBehavior => new DownwardGateCueAtCase(true,
-                RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(operand, "downward gate pre-instruction") == DownwardGateFrameBehavior.WakeIfTriggered
-                ? DownwardGateCue.ArmWakeIfTriggered : DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow, 4),
-            RoomObjectInstruction.SpawnDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.SpawnMovingGate, 4),
-            RoomObjectInstruction.WakeDownwardGateProjectile => new DownwardGateCueAtCase(true, DownwardGateCue.WakeGateProjectile, 4),
-            RoomObjectInstruction.QueueSoundLibrary3Maximum6 => new DownwardGateCueAtCase(true, DownwardGateCue.QueueMovementSound, 3),
-            RoomObjectInstruction.SetGreyDoorFrameBehavior or
-                RoomObjectInstruction.Sleep or
-                RoomObjectInstruction.Delete or
-                RoomObjectInstruction.ClearFrameBehavior or
-                RoomObjectInstruction.LinkInstruction or
-                RoomObjectInstruction.GotoIfDoorBitSet or
-                RoomObjectInstruction.IncrementDoorHitCounterAndGoto or
-                RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-                RoomObjectInstruction.GotoIfSamusNear or
-                RoomObjectInstruction.Goto or
-                RoomObjectInstruction.DecrementTimerAndGoto or
-                RoomObjectInstruction.SetEightBitTimer or
-                RoomObjectInstruction.CopyFromRamToVram or
-                RoomObjectInstruction.GotoIfAreaBossBitSet or
-                RoomObjectInstruction.GotoIfEventSet or
-                RoomObjectInstruction.SetEvent or
-                RoomObjectInstruction.SetObjectBtsFromByte or
-                RoomObjectInstruction.DrawObjectBlock or
-                RoomObjectInstruction.DrawObjectBlockClone or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum6 or
-                RoomObjectInstruction.ShootEyeDoorProjectile or
-                RoomObjectInstruction.SpawnEyeDoorSweat or
-                RoomObjectInstruction.SpawnTwoEyeDoorSmoke or
-                RoomObjectInstruction.SpawnEyeDoorSmoke or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight or
-                RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft or
-                RoomObjectInstruction.DamageDraygonCannonFacingRight or
-                RoomObjectInstruction.DamageDraygonCannonFacingLeft or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum3 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1 or
-                RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct or
-                RoomObjectInstruction.GotoIfSamusHasNoBombs or
-                RoomObjectInstruction.SetObjectBtsToOne or
-                RoomObjectInstruction.GotoIfRoomArgumentLess or
-                RoomObjectInstruction.SpawnFourMotherBrainGlassShards or
-                RoomObjectInstruction.SpawnTorizoStatueBreaking or
-                RoomObjectInstruction.QueueSongOneMusicTrack or
-                RoomObjectInstruction.EnableNoobTubeWaterPhysics or
-                RoomObjectInstruction.SpawnNoobTubeCrack or
-                RoomObjectInstruction.TriggerNoobTubeEarthquake or
-                RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles or
-                RoomObjectInstruction.LockSamus or
-                RoomObjectInstruction.UnlockSamus or
-                RoomObjectInstruction.MoveRightFourBlocks or
-                RoomObjectInstruction.SetAnimalsEscapedEvent or
-                RoomObjectInstruction.SamusEaterDamage or
-                RoomObjectInstruction.SamusEaterReleaseImmunity or
-                RoomObjectInstruction.MoveTourianAccessDown or
-                RoomObjectInstruction.TransformSpikesToSlopes or
-                RoomObjectInstruction.RevertSlopesToSpikes or
-                RoomObjectInstruction.SetLoweredAcidHeight => new DownwardGateCueAtCase(false, default, 0),
-            _ => new DownwardGateCueAtCase(false, default, 0),
-        };
-        if (!known)
-            return false;
-        if (cue == DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow)
-            AssertEqual(RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow), operand, "downward gate closed wake");
-        if (cue == DownwardGateCue.SpawnMovingGate)
-            AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), operand, "downward gate moving projectile");
-        if (cue == DownwardGateCue.QueueMovementSound)
-        {
-            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
-            AssertEqual(SoundRequestPriority.Normal, DownwardGateObjectProgramDefinitions.MovementSoundPriority, "downward gate movement sound priority");
+            AssertEqual(frame.Updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
         }
-        return true;
+        void AssertMovementSound(int cursor, string at)
+        {
+            AssertEqual(RoomObjectInstruction.QueueSoundLibrary3Maximum6, At(cursor), $"{at} movement sound");
+            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)),
+                $"{at} movement sound identity");
+            AssertEqual(SoundRequestPriority.Normal, DownwardGateMovementDefinitions.MovementSoundPriority, $"{at} movement sound priority");
+        }
+        // Each resting list: its image for one update, the trigger cleared, its wake armed, the sleep; the continuation
+        // after the sleep follows it.
+        int Resting(int list, RoomObjectDraw image, DownwardGatePhase showing, DownwardGatePhase resting, Dictionary<GateState, ushort> into)
+        {
+            AssertShown(list, new TerrainChangeFrame(image, 1), $"{showing}");
+            AssertEqual(RoomObjectInstruction.ClearDownwardGateTrigger, At(list + 4), $"{resting} clears the trigger");
+            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list + 6), $"{resting} arms its wake");
+            AssertEqual(resting, RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(Word(list + 8), "downward gate wake"), $"{resting} wake");
+            AssertEqual(RoomObjectInstruction.Sleep, At(list + 10), $"{resting} sleeps");
+            into[new GateState(showing, 0)] = checked((ushort)(list + 4));
+            into[new GateState(resting, 0)] = checked((ushort)(list + 10));
+            return list + 12;
+        }
+
+        var addresses = new Dictionary<GateState, ushort>();
+        int closed = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.DownwardGate) + 2);
+        addresses[new GateState(DownwardGatePhase.Starting, 0)] = checked((ushort)closed);
+        int reopen = Resting(closed, DownwardGateMovementDefinitions.ClosedImage, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
+        AssertEqual(RoomObjectInstruction.WakeDownwardGateProjectile, At(reopen), "reopening wakes the gate projectile");
+        AssertMovementSound(reopen + 4, "reopening");
+        int cursor = reopen + 7;
+        for (int index = 0; index < DownwardGateMovementDefinitions.Reopening.Count; index++, cursor += 4)
+        {
+            AssertShown(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
+            addresses[new GateState(DownwardGatePhase.Reopening, index)] = checked((ushort)(cursor + 4));
+        }
+        AssertEqual(RoomObjectInstruction.Goto, At(cursor), "reopening goes on to the open gate");
+        int open = Word(cursor + 2);
+        int close = Resting(open, DownwardGateMovementDefinitions.OpenImage, DownwardGatePhase.ShowingOpen, DownwardGatePhase.RestingOpen, addresses);
+        cursor = close;
+        for (int index = 0; index < DownwardGateMovementDefinitions.Closing.Count; index++, cursor += 4)
+        {
+            if (index == DownwardGateMovementDefinitions.ClosingMovementStart)
+            {
+                AssertEqual(RoomObjectInstruction.SpawnDownwardGateProjectile, At(cursor), "closing spawns the moving gate");
+                AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), Word(cursor + 2), "downward gate moving projectile");
+                AssertMovementSound(cursor + 4, "closing");
+                cursor += 7;
+            }
+            AssertShown(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
+            addresses[new GateState(DownwardGatePhase.Closing, index)] = checked((ushort)(cursor + 4));
+        }
+        AssertEqual(closed, cursor, "closing runs on into the closed gate");
+        return addresses;
     }
+
+    /// <summary>A typed gate state: its phase and, while it moves, the image it shows.</summary>
+    /// <param name="Phase">The gate's phase.</param>
+    /// <param name="Frame">The image of its movement, or zero at rest.</param>
+    private readonly record struct GateState(DownwardGatePhase Phase, int Frame);
 
     /// <summary>The Tourian elevator access changes play as their native lists do.</summary>
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)

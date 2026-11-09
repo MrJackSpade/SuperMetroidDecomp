@@ -116,29 +116,6 @@ internal static class RoomObjectNativeListAddresses
         new NativeProgramEntry<SpeedBoosterBlockProgram>(SpeedBoosterBlockProgram.BombReveal, 0xc928),
     ];
 
-    /// <summary>
-    /// The downward gate's lists: the open and closed gates ($84:BC13, $84:BC3A), the continuations after their sleeps
-    /// ($84:BC1F, $84:BC46), and the eight trigger lists from $84:BCAF, six bytes each.
-    /// </summary>
-    internal static IReadOnlyList<NativeProgramEntry<DownwardGateProgram>> DownwardGateEntries { get; } =
-    [
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.Open, 0xbc13),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.Close, 0xbc1f),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.Closed, 0xbc3a),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.Reopen, 0xbc46),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerBlueLeft, 0xbcaf),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerBlueRight, 0xbcb5),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerRedLeft, 0xbcbb),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerRedRight, 0xbcc1),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerGreenLeft, 0xbcc7),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerGreenRight, 0xbccd),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerYellowLeft, 0xbcd3),
-        new NativeProgramEntry<DownwardGateProgram>(DownwardGateProgram.TriggerYellowRight, 0xbcd9),
-    ];
-
-    /// <summary>The bytes from a sleeping gate list's entry to the continuation after its sleep.</summary>
-    internal const int DownwardGateSleepContinuationOffset = 12;
-
     /// <summary>The Tourian elevator access lists (<c>InstList_PLM_CrumbleAccessToTourianElevator_0..1</c>, <c>..ClearAccess..</c>).</summary>
     internal static IReadOnlyList<NativeProgramEntry<TourianAccessFloor>> TourianAccessEntries { get; } =
     [

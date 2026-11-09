@@ -8,13 +8,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal static class RoomObjectFrameBehaviorNativeWords
 {
-    /// <summary>The bank-$84 routine word naming each <see cref="DownwardGateFrameBehavior"/>.</summary>
-    internal static readonly NativeWordIdentities<DownwardGateFrameBehavior> DownwardGate = new(new Dictionary<DownwardGateFrameBehavior, ushort>
+    /// <summary>The bank-$84 routine word of each resting wait of the downward gate (<see cref="DownwardGatePhase"/>).</summary>
+    internal static readonly NativeWordIdentities<DownwardGatePhase> DownwardGate = new(new Dictionary<DownwardGatePhase, ushort>
     {
-        [DownwardGateFrameBehavior.None] = 0x0000,
-        [DownwardGateFrameBehavior.WakeIfTriggered] = 0xbb52,
-        [DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow] = 0xbb6b,
-        [DownwardGateFrameBehavior.Inert] = 0xbb6a,
+        [DownwardGatePhase.RestingOpen] = 0xbb52,
+        [DownwardGatePhase.RestingClosed] = 0xbb6b,
     });
 
     /// <summary>The bank-$84 routine word of each wait of the glass tube (<see cref="NoobTubePhase"/>).</summary>

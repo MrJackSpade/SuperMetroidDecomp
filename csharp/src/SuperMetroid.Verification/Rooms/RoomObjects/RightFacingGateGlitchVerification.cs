@@ -132,7 +132,7 @@ internal static class RightFacingGateGlitchVerification
                     bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                     shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                     var gate = roomObjects.SinglePopulationSlot(RoomObjectHeaderId.DownwardGate);
-                    if (gate.LoopTimer != 0)
+                    if (gate.Behaviour is DownwardGateObject { Triggered: true })
                     {
                         SamusProjectileSlot shot = shots.Slots[0];
                         columnActivations.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
@@ -251,7 +251,7 @@ internal static class RightFacingGateGlitchVerification
             runtime.StepFrame(input);
             gate = runtime.RoomObjects.PopulationSlots.Single(
                 slot => slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-            if (gate.LoopTimer == 0)
+            if (gate.Behaviour is not DownwardGateObject { Triggered: true })
                 continue;
 
             openFrame = frame;

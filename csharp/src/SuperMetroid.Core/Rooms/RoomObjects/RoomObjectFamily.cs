@@ -15,9 +15,6 @@ internal enum RoomObjectFamily
     /// <summary>A map, refill or save station.</summary>
     Station,
 
-    /// <summary>The resident five-block downward gate.</summary>
-    DownwardGate,
-
     /// <summary>One component of a mirrored eye-door assembly.</summary>
     EyeDoor,
 }

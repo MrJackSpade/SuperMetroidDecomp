@@ -96,9 +96,8 @@ internal static class FrozenGateGlitchVerification
         }
         gate = roomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        AssertEqual(RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow),
-            gate.FrameBehavior, "Caterpillar gate enters proximity-aware sleep");
-        Enum sleepingProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
+        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, WakeArmed: true },
+            "Caterpillar gate rests closed, waiting for a trigger or Samus in its column");
 
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
@@ -133,16 +132,15 @@ internal static class FrozenGateGlitchVerification
         roomObjects.Step(level);
         gate = roomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        bool gateWoke = gate.Animation is not { } woken || !woken.RunningProgram.Equals(sleepingProgram);
+        bool gateWoke = gate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.RestingClosed };
         AssertEqual(expected.GateWoke, gateWoke,
             $"{expected.Distance}-pixel case preserves native gate wake state");
 
-        // The C# coroutine represents the original moving pre-instruction with an inert
-        // callback plus the same advancing instruction list. Compare the observable wake
-        // result above; retain the raw CPU words in the fixture for disassembly auditing.
+        // The typed gate stops waiting once it wakes, as the cartridge's moving gate stops running its wake. Compare the
+        // observable wake result above; the raw CPU words stay in the fixture for disassembly auditing.
         AssertEqual(expected.GateWoke,
-            gate.FrameBehavior == RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.Inert),
-            $"{expected.Distance}-pixel case selects the translated moving-gate phase");
+            gate.Behaviour is DownwardGateObject { WakeArmed: false, Phase: DownwardGatePhase.Reopening },
+            $"{expected.Distance}-pixel case starts the gate rising");
     }
 
     /// <summary>Parses the eight expected native collision and gate fields from a fixture row.</summary>

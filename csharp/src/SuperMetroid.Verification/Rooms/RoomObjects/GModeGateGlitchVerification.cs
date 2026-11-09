@@ -86,7 +86,8 @@ internal static class GModeGateGlitchVerification
             roomObjects.Step(level);
         gate = roomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        Enum sleepingGateProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
+        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed },
+            "the gate is closed before the shot");
         while (roomObjects.SlotTable.ActiveCount < 40)
         {
             AssertTrue(roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
@@ -136,7 +137,7 @@ internal static class GModeGateGlitchVerification
 
             RoomObjectSlotSnapshot currentGate = roomObjects.PopulationSlots.Single(slot =>
                 slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-            if ((currentGate.Animation is not { } current || !current.RunningProgram.Equals(sleepingGateProgram)) && openedFrame < 0)
+            if (currentGate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.ShowingClosed or DownwardGatePhase.RestingClosed } && openedFrame < 0)
                 openedFrame = frame;
         }
 

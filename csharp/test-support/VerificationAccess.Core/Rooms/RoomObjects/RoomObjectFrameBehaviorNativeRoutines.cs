@@ -48,9 +48,6 @@ internal static class RoomObjectFrameBehaviorNativeRoutines
             [ColoredDoorFrameBehaviors.WakeOnSuperMissile] = DoorsNativeWords.ColoredDoorFrameBehaviors.Word(ColoredDoorFrameBehavior.WakeOnSuperMissile),
             [EyeDoorFrameBehaviors.WakeWhenDoorBitSet] = DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.WakeWhenDoorBitSet),
             [EyeDoorFrameBehaviors.MissileHit] = DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
-            [DownwardGateFrameBehaviors.WakeIfTriggered] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggered),
-            [DownwardGateFrameBehaviors.WakeIfTriggeredOrSamusBelow] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggeredOrSamusBelow),
-            [DownwardGateFrameBehaviors.Inert] = RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.Inert),
         };
         foreach (GreyDoorFrameBehavior routine in Enum.GetValues<GreyDoorFrameBehavior>().Where(routine => routine != GreyDoorFrameBehavior.None))
             routines.Add(GreyDoorFrameBehaviors.Of(routine), DoorsNativeWords.GreyDoorFrameBehaviors.Word(routine));

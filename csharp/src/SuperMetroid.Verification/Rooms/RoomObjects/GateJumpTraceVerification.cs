@@ -55,8 +55,8 @@ internal static class GateJumpTraceVerification
                 if (frame == shootFrame) input |= ControllerButton.X;
                 runtime.StepFrame(input);
                 var gate = runtime.RoomObjects.PopulationSlots.Single(s => s.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-                activated |= gate.LoopTimer != 0;
-                string actual = $"{frame},{ControllerWordCodec.ToJoypadWord(input):X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbers.Number(samus.Pose):X2},{gate.LoopTimer},{NativeGateInstruction(bus, gate):X4}";
+                activated |= gate.Behaviour is DownwardGateObject { Triggered: true };
+                string actual = $"{frame},{ControllerWordCodec.ToJoypadWord(input):X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbers.Number(samus.Pose):X2},{(gate.Behaviour is DownwardGateObject { Triggered: true } ? 1 : 0)},{NativeGateInstruction(bus, gate):X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
             }
             AssertEqual(shootFrame == 8 && aimFrame == 0, samus.Position.X.Whole < 112, "Only native successful timing crosses opened gate");
@@ -66,10 +66,13 @@ internal static class GateJumpTraceVerification
         Console.WriteLine("PASS 1120 original-CPU gate jump frames: ordinary/spin successes, adjacent misses and falling control.");
     }
 
-    /// <summary>The native instruction address the gate's typed program stands for.</summary>
+    /// <summary>
+    /// The native instruction the gate's typed state stands for (#1554): the trace's instruction column is compared as
+    /// the gate's own phase and image, translated through the ROM oracle's walk of the gate's lists.
+    /// </summary>
     private static ushort NativeGateInstruction(ISnesAddressSpace bus, RoomObjectSlotSnapshot gate) =>
-        RoomObjectProgramsVerification.DownwardGateNativeInstruction(bus, gate.Animation as DownwardGateObjectAnimation
-            ?? throw new InvalidDataException($"Gate at block {gate.BlockIndex} runs no typed gate program."));
+        RoomObjectProgramsVerification.DownwardGateNativeInstruction(bus, gate.Behaviour as DownwardGateObject
+            ?? throw new InvalidDataException($"Gate at block {gate.BlockIndex} is no typed gate."));
 
     /// <summary>Runs the focused gate-jump trace verification command.</summary>
     [VerificationCommand("--gate-jump-traces")]

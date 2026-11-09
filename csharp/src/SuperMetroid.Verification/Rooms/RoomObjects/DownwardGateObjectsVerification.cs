@@ -113,8 +113,9 @@ internal static class DownwardGateObjectsVerification
         AssertEqual(RoomObjectHeaderId.DownwardGate, slots[0].HeaderPointer,
             "first resident slot is the closed downward gate");
         AssertEqual(1, slots[1].ProcessingPosition, "shot block is processed next");
-        AssertTrue(slots[1].Animation is DownwardGateObjectAnimation { Program: DownwardGateProgram.TriggerBlueLeft },
-            "argument zero selects the blue-left trigger program");
+        AssertTrue(slots[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
+                && triggerChange == DownwardGateShotBlockDefinitions.Triggers[0].Change,
+            "argument zero selects the blue-left trigger's draw");
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
         {
@@ -190,8 +191,8 @@ internal static class DownwardGateObjectsVerification
             "compiled final open draw clears the second column collision word");
         RoomObjectSlotSnapshot openedGate = roomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        AssertEqual(RoomObjectFrameBehaviorNativeWords.DownwardGate.Word(DownwardGateFrameBehavior.WakeIfTriggered),
-            openedGate.FrameBehavior, "open gate sleeps under shot-only callback");
+        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen, WakeArmed: true },
+            "open gate rests, waiting only for a trigger");
 
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
                 level,
@@ -234,7 +235,7 @@ internal static class DownwardGateObjectsVerification
             $"{trigger} is claimed by the gate dispatcher");
         RoomObjectSlotSnapshot gate = roomObjects.PopulationSlots.Single(slot =>
             slot.HeaderPointer == RoomObjectHeaderId.DownwardGate);
-        AssertEqual(accepted ? 1 : 0, gate.LoopTimer,
+        AssertEqual(accepted, gate.Behaviour is DownwardGateObject { Triggered: true },
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
         StepDownwardGateObject(roomObjects, level);
         StepDownwardGateObject(roomObjects, level);

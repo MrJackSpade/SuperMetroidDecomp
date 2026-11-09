@@ -94,7 +94,6 @@ internal sealed class EndingCreditsRoll
         // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
     }
 
-
     /// <summary>The steps left of the white wash of the brief transition into the final logo (<see cref="WhiteWash"/>), fading to none, where it stays.</summary>
     internal int WhiteFlashColor { get; set; }
 

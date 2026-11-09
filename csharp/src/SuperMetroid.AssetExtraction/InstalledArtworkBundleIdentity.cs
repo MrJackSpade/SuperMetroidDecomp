@@ -23,7 +23,6 @@ internal static class InstalledArtworkBundleIdentity
             : throw new InvalidDataException("The Ceres flight artwork was not read from installed artwork.");
     }
 
-
     /// <summary>The installed content identity of the ending object artwork.</summary>
     extension(EndingObjectArtwork artwork)
     {

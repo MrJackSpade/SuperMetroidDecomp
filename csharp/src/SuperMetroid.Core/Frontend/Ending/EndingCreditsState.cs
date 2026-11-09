@@ -37,7 +37,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             Flyaway.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
-
         if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
             InstalledArtwork.BindObjectArtwork(artwork.EndingObjectArt);
         if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))
@@ -55,7 +54,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal readonly EndingScreen screen = new();
     /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     internal readonly List<EndingSprite> sprites = [];
-
     /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
     internal CreditsObjectState Credits => InstalledArtwork.CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");

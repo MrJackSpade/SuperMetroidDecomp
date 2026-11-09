@@ -10,7 +10,6 @@ public static class IntroCinematicDefinitions
         public const int Width = 32;
     }
 
-
     /// <summary>The colours the repeating flashback and narration crossfades fade.</summary>
     public static class Palette
     {

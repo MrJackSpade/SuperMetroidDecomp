@@ -99,26 +99,19 @@ public sealed class FileSelectMapWindow
         }
         else
         {
-            left = AtLeast(left + motion.Left, 0);
-            right = AtMost(right + motion.Right, ScreenGeometry.ScreenWidthPixels);
-            top = AtLeast(top + motion.Top, 0);
-            bottom = AtMost(bottom + motion.Bottom, ScreenGeometry.ScreenHeightPixels);
+            left = OnScreen(left + motion.Left, ScreenGeometry.ScreenWidthPixels);
+            right = OnScreen(right + motion.Right, ScreenGeometry.ScreenWidthPixels);
+            top = OnScreen(top + motion.Top, ScreenGeometry.ScreenHeightPixels);
+            bottom = OnScreen(bottom + motion.Bottom, ScreenGeometry.ScreenHeightPixels);
         }
         IsComplete = --movesLeft == 0;
         return IsComplete;
     }
 
-    /// <summary><paramref name="edge"/>, or the screen edge <paramref name="minimum"/> once it has moved past it.</summary>
-    private static SignedSixteenSixteen AtLeast(SignedSixteenSixteen edge, int minimum)
-    {
-        SignedSixteenSixteen bound = SignedSixteenSixteen.FromWholePixels(minimum);
-        return edge.RawValue < bound.RawValue ? bound : edge;
-    }
-
-    /// <summary><paramref name="edge"/>, or the screen edge <paramref name="maximum"/> once it has moved past it.</summary>
-    private static SignedSixteenSixteen AtMost(SignedSixteenSixteen edge, int maximum)
-    {
-        SignedSixteenSixteen bound = SignedSixteenSixteen.FromWholePixels(maximum);
-        return edge.RawValue > bound.RawValue ? bound : edge;
-    }
+    /// <summary>
+    /// <paramref name="edge"/> kept on the screen, whose side along the edge's axis is <paramref name="side"/> pixels: an
+    /// edge moved past the screen's first or last pixel stops at that edge of the screen.
+    /// </summary>
+    private static SignedSixteenSixteen OnScreen(SignedSixteenSixteen edge, int side) =>
+        SignedSixteenSixteen.FromRaw(Math.Clamp(edge.RawValue, 0, SignedSixteenSixteen.FromWholePixels(side).RawValue));
 }

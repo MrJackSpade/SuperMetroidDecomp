@@ -158,7 +158,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
         PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionObjects(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationObjects(SlotTable);
-        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectibleObjects, Gates, DraygonCannons, SpeedBoosterEscape])
+        foreach (IRoomObjectFamilySource source in (IRoomObjectFamilySource[])[Scrolls, WreckedShipTreadmill, CollectibleObjects, Gates, DraygonCannons, SpeedBoosterEscape])
             source.AddObjectFamilies(_families);
         _families.RequireEveryFamily();
     }

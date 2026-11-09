@@ -246,7 +246,7 @@ internal static class CoreAccess
                 return roomObjects.SlotTable.InProcessingOrder
                     .Select((slot, position) => new IndexedObjectSlot(slot, position))
                     .Where(entry => entry.Slot.Active)
-                    .SelectMany(entry => entry.Slot.Family is StationObjects.StationObjectState station
+                    .SelectMany(entry => entry.Slot.Behaviour is StationObject station
                         ? [new StationObjectSnapshot(entry.Index, entry.Slot.BlockIndex, entry.Slot.NativeRoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationObjectSnapshot>())

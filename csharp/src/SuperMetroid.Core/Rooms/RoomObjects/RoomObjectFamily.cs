@@ -9,9 +9,6 @@ internal enum RoomObjectFamily
     /// <summary>The resident scroll trigger.</summary>
     Scroll,
 
-    /// <summary>A map, refill or save station.</summary>
-    Station,
-
     /// <summary>The resident five-block downward gate.</summary>
     DownwardGate,
 

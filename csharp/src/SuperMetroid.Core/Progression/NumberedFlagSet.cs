@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// A fixed range of numbered progress flags, each on or off (#1475): the story events by event number, the Chozo orbs,
-/// item locations and doors by the number room data gives them, an area's save stations by station number and an area's
-/// explored map cells by cell. Numbers run from zero to <see cref="Capacity"/> minus one; a number outside that range is
-/// rejected rather than reaching a neighbouring flag.
+/// A fixed range of numbered progress flags, each on or off (#1475): an area's save stations by station number and an
+/// area's explored map cells by cell. Numbers run from zero to <see cref="Capacity"/> minus one; a number outside that
+/// range is rejected rather than reaching a neighbouring flag.
 /// </summary>
 public sealed class NumberedFlagSet
 {

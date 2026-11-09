@@ -2,16 +2,13 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The progress a save keeps (#1475): the story events that have happened, how many Zebetites have been destroyed, each
-/// area's defeated bosses, the Chozo orbs broken, the item locations collected, the doors opened for good, each area's
+/// area's defeated bosses, the item locations collected, the doors opened for good, each area's
 /// used save stations and elevators, the area maps acquired and each area's explored map cells. Each set is keyed by its
 /// own identity, and the Zebetite count is a count (#1527). Lifetime: the
 /// session's <see cref="SharedGameState"/> owns the live progress; every save slot and save snapshot owns a detached copy.
 /// </summary>
 public sealed class PersistentProgress
 {
-    /// <summary>The Chozo orbs, item locations and doors room data numbers, 0 through 511 each.</summary>
-    public const int RoomFlagCount = 512;
-
     /// <summary>The save stations and elevators each area numbers, 0 through 15.</summary>
     public const int StationsPerArea = 16;
 
@@ -34,7 +31,7 @@ public sealed class PersistentProgress
     private readonly NumberedFlagSet[] _explored = Areas(MapCellsPerArea);
 
     /// <summary>Every story event, in the order the game lists them.</summary>
-    private static readonly IReadOnlyList<StoryEvent> StoryEvents = Enum.GetValues<StoryEvent>();
+    private static readonly StoryEvent[] StoryEvents = Enum.GetValues<StoryEvent>();
 
     /// <summary>The story events that have happened.</summary>
     public ProgressSet<StoryEvent> Events { get; } = new(StoryEvents);
@@ -50,14 +47,11 @@ public sealed class PersistentProgress
         set => field = Ensure.BetweenInclusive(0, ZebetiteCount, value);
     }
 
-    /// <summary>The Chozo orbs broken open, by room-data number; independent of whether the item they exposed was collected.</summary>
-    public NumberedFlagSet ChozoOrbs { get; } = new(RoomFlagCount);
+    /// <summary>The item locations whose pickup has been collected.</summary>
+    public ProgressSet<ItemLocation> CollectedItems { get; } = new(ItemLocationDefinitions.All);
 
-    /// <summary>The item locations whose pickup has been collected, by room-data number.</summary>
-    public NumberedFlagSet CollectedItems { get; } = new(RoomFlagCount);
-
-    /// <summary>The coloured doors opened for good, by room-data number.</summary>
-    public NumberedFlagSet OpenedDoors { get; } = new(RoomFlagCount);
+    /// <summary>The doors opened for good.</summary>
+    public ProgressSet<LockedDoor> OpenedDoors { get; } = new(LockedDoorDefinitions.All);
 
     /// <summary>Whether <paramref name="storyEvent"/> has happened.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="storyEvent"/> is not a defined story event.</exception>
@@ -110,10 +104,10 @@ public sealed class PersistentProgress
         _explored[AreaIds.ToIndex(area)].Members.Select(AreaMapSize.Extent.CellAtRowMajorIndex);
 
     /// <summary>
-    /// Applies SpaceTime's progression overwrite: every story event, boss, orb, item, door, station and map it decides,
+    /// Applies SpaceTime's progression overwrite: every story event, boss, item, door, station and map it decides,
     /// and the Zebetite count when it decides it, takes the state it gives, and everything else keeps its state.
     /// </summary>
-    /// <exception cref="ArgumentException">The overwrite decides more flags than a range numbers.</exception>
+    /// <exception cref="ArgumentException">The overwrite decides more stations than an area numbers.</exception>
     public void Overwrite(ProgressionOverwrite overwrite)
     {
         Ensure.NotNull(overwrite);
@@ -122,7 +116,6 @@ public sealed class PersistentProgress
             ZebetitesDestroyed = zebetitesDestroyed;
         foreach (KeyValuePair<AreaId, BossBits> bosses in overwrite.AreaBosses)
             SetDefeatedBosses(bosses.Key, bosses.Value);
-        ChozoOrbs.Overwrite(overwrite.ChozoOrbs);
         CollectedItems.Overwrite(overwrite.CollectedItems);
         OpenedDoors.Overwrite(overwrite.OpenedDoors);
         foreach (KeyValuePair<AreaId, FlagOverwrite> stations in overwrite.UsedStations)
@@ -138,7 +131,6 @@ public sealed class PersistentProgress
         Events.CopyFrom(source.Events);
         ZebetitesDestroyed = source.ZebetitesDestroyed;
         source._defeatedBosses.CopyTo(_defeatedBosses, 0);
-        ChozoOrbs.CopyFrom(source.ChozoOrbs);
         CollectedItems.CopyFrom(source.CollectedItems);
         OpenedDoors.CopyFrom(source.OpenedDoors);
         for (int area = 0; area < AreaIds.RetailCount; area++)

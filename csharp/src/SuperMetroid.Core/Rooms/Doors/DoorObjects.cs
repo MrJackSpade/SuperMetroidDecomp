@@ -59,11 +59,10 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
             if (!resident.Active || resident.BlockIndex != blockIndex)
                 continue;
 
-            // A negative room argument is explicitly
-            // nonpersistent. The escape entrance's argument is negative, so it always selects its
-            // closing list. Ordinary colored caps consult the same opened-door bit array.
+            // A cap whose opening never persists always closes. The escape entrance's cap never persists, so it
+            // always selects its closing list. Ordinary coloured caps consult the doors opened for good.
             if (resident.Argument is DoorBitArgument { Persists: true } residentDoorBit &&
-                system.HasOpenedDoorBit(residentDoorBit.DoorBit))
+                system.HasOpenedDoor(residentDoorBit.Door))
             {
                 break;
             }
@@ -164,24 +163,23 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>
-    /// Whether this cap's door bit records it as opened before; a negative room argument never does.
+    /// Whether this cap's door has been opened for good before; a cap whose opening never persists never has.
     /// </summary>
     internal bool IsDoorOpened(RoomObjectSlot slot) =>
-        slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoorBit(cap.DoorBit);
+        slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoor(cap.Door);
 
     /// <summary>
-    /// The opened-door step at its threshold: records the door as opened, leaves the opened doors of its window as the argument and
+    /// The opened-door step at its threshold: records the door as opened, leaves the doors then open as the argument and
     /// replaces the shot wake with the inert frame behaviour.
     /// </summary>
     internal void MarkDoorOpened(RoomObjectSlot slot)
     {
         if (slot.Argument is DoorBitArgument { Persists: true } cap)
         {
-            // The cap keeps the opened doors of the window it just updated, marked spent.
+            // The cap keeps the doors open once it has opened its own, marked spent.
             SharedGameState system = RequireSystem();
-            system.SetOpenedDoorBit(cap.DoorBit);
-            int firstDoor = SpentDoorArgument.FirstDoorOfWindow(cap.DoorBit);
-            slot.Argument = new SpentDoorArgument(firstDoor, system.OpenedDoorsFrom(firstDoor, SpentDoorArgument.WindowDoorCount));
+            system.OpenDoor(cap.Door);
+            slot.Argument = new SpentDoorArgument(cap.Door, [.. system.Progress.OpenedDoors.Members]);
         }
         slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
     }
@@ -265,8 +263,10 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
         slot.StartAnimation(new BlueDoorObjectAnimation(BlueDoorObjectProgramDefinitions.OpeningPrograms[orientation]));
         slot.FrameHold = 1;
         slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
-        // The spawn leaves the argument zero: door bit zero, which a later closing check reads.
-        slot.Argument = new DoorBitArgument(0, DoorOpeningPersistence.Persistent);
+        // The spawn leaves the argument the game's first door, the Landing Site's green door, which a later closing
+        // check reads: once that door has been opened for good, the spawned blue door never closes.
+        slot.Argument = new DoorBitArgument(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft,
+            DoorOpeningPersistence.Persistent);
         slot.LoopTimer = WrappingCountdown.Start(0);
         slot.Family = null;
 

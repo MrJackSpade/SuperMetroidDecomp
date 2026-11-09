@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// starts one colour past the shot's slot in the beam palette and reads from the place its animation has reached. Its
 /// bound is a signed test of that read position, so a shot animating from a list high in its bank copies on through the
 /// rest of the bank, past the palette and on through saved progress, before the read position wraps and the loop ends.
-/// Which story events, area bosses, Chozo orbs, item locations, doors, used stations and area maps it turns on or off,
+/// Which story events, area bosses, item locations, doors, used stations and area maps it turns on or off,
 /// and the loading state it leaves, therefore depend only on the shot's slot and where its animation stands; the import
 /// pipeline decodes them once into an overwrite for each animation position a SpaceTime shot can hold and each slot. Only
 /// the progress part is kept (owner decision on #1318).

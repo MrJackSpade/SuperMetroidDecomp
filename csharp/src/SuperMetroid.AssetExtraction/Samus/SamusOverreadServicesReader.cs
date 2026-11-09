@@ -198,9 +198,8 @@ internal static class SamusOverreadServicesReader
             Require(overwrite.AreaBosses, nameof(overwrite.AreaBosses)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime boss area"),
                 area => area.Value.Aggregate(BossBits.None, (bosses, name) => bosses | Parse<BossBits>(name, "SpaceTime boss"))),
-            Require(overwrite.ChozoOrbs, nameof(overwrite.ChozoOrbs)),
-            Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems)),
-            Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors)),
+            ProgressionTableCodec.CollectedItemsOf(Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems))),
+            ProgressionTableCodec.OpenedDoorsOf(Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors))),
             Require(overwrite.UsedStations, nameof(overwrite.UsedStations)).ToDictionary(
                 area => Parse<AreaId>(area.Key, "SpaceTime station area"), area => area.Value),
             Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(

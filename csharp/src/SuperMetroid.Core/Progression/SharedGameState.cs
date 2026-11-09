@@ -43,7 +43,7 @@ public sealed class SharedGameState
     /// </summary>
     public StoredExploredMaps<AreaId> StoredExploredMaps { get; }
 
-    /// <summary>The session's persistent progress: events, bosses, orbs, items, doors, stations, maps and exploration.</summary>
+    /// <summary>The session's persistent progress: events, bosses, items, doors, stations, maps and exploration.</summary>
     public PersistentProgress Progress { get; } = new();
 
     /// <summary>The frame the save file found at power-on adds to every rising-liquid and Tourian-statue earthquake rumble's delay.</summary>
@@ -68,11 +68,11 @@ public sealed class SharedGameState
     }
 
     /// <summary>
-    /// Applies SpaceTime's progression overwrite (#1318, #1330, #1474, #1475): every story event, boss, orb, item, door,
+    /// Applies SpaceTime's progression overwrite (#1318, #1330, #1474, #1475): every story event, boss, item, door,
     /// station and map the overwrite decides takes the state it gives, and the saved loading state when the overwrite
     /// reaches it.
     /// </summary>
-    /// <exception cref="ArgumentException">The overwrite decides more flags than a range numbers.</exception>
+    /// <exception cref="ArgumentException">The overwrite decides more stations than an area numbers.</exception>
     internal void Overwrite(ProgressionOverwrite overwrite)
     {
         Ensure.NotNull(overwrite);
@@ -239,40 +239,30 @@ public sealed class SharedGameState
     /// <summary>Tests an event.</summary>
     public bool HasEvent(StoryEvent eventNumber) => Progress.HasEvent(eventNumber);
 
-    /// <summary>
-    /// Whether the item location a nonnegative room-PLM argument numbers has been collected, as the item PLMs test it.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The number is outside the room-data range.</exception>
-    public bool HasCollectedItemBit(int bitIndex) => Progress.CollectedItems.Contains(bitIndex);
+    /// <summary>Whether <paramref name="location"/>'s pickup has been collected, as the item room objects test it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="location"/> is not a retail item location.</exception>
+    public bool HasCollectedItem(ItemLocation location) => Progress.CollectedItems.Contains(location);
 
     /// <summary>
-    /// Marks one physical pickup as collected, as an item PLM does when Samus collects it. This set identifies locations;
-    /// it is deliberately independent from Samus's equipment, where multiple tanks of one kind share one meaning.
+    /// Marks one physical pickup as collected, as an item room object does when Samus collects it. This set identifies
+    /// locations; it is deliberately independent from Samus's equipment, where multiple tanks of one kind share one meaning.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The number is outside the room-data range.</exception>
-    public void SetCollectedItemBit(int bitIndex) => Progress.CollectedItems.Add(bitIndex);
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="location"/> is not a retail item location.</exception>
+    public void CollectItem(ItemLocation location) => Progress.CollectedItems.Add(location);
 
     /// <summary>
-    /// Whether the door a colored-door PLM argument numbers has been opened for good. Negative room arguments are
-    /// handled by the PLM owner, because the room data uses them for caps that never persist.
+    /// Whether <paramref name="door"/> has been opened for good. Caps whose opening never persists are handled by their
+    /// room object, which never asks.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The number is outside the room-data range.</exception>
-    public bool HasOpenedDoorBit(int bitIndex) => Progress.OpenedDoors.Contains(bitIndex);
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="door"/> is not a retail door.</exception>
+    public bool HasOpenedDoor(LockedDoor door) => Progress.OpenedDoors.Contains(door);
 
     /// <summary>
-    /// Persists a colored door after its final valid hit, matching the door instruction. Re-entering
-    /// the room then converts that colored cap into its ordinary blue-door counterpart.
+    /// Persists a coloured door after its final valid hit, matching the door instruction. Re-entering
+    /// the room then converts that coloured cap into its ordinary blue-door counterpart.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The number is outside the room-data range.</exception>
-    public void SetOpenedDoorBit(int bitIndex) => Progress.OpenedDoors.Add(bitIndex);
-
-    /// <summary>
-    /// The doors opened for good among the <paramref name="count"/> doors numbered from <paramref name="firstDoor"/>,
-    /// ascending; numbers past the room-data range are never open.
-    /// </summary>
-    internal IReadOnlyList<int> OpenedDoorsFrom(int firstDoor, int count) =>
-        [.. Enumerable.Range(Ensure.AtLeastZero(firstDoor), Ensure.AtLeastZero(count))
-            .Where(door => door < Progress.OpenedDoors.Capacity && Progress.OpenedDoors.Contains(door))];
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="door"/> is not a retail door.</exception>
+    public void OpenDoor(LockedDoor door) => Progress.OpenedDoors.Add(door);
 
     /// <summary>Marks a cell of <paramref name="area"/>'s map as explored, as Samus's map-exploration update does.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cell is outside the area map.</exception>

@@ -37,7 +37,7 @@ public static class XrayRevealOverlays
         for (int i = items.Count - 1; i >= 0; i--)
         {
             CollectibleObjectSnapshot item = items[i];
-            if (item.ItemBit is not { } itemBit || system.HasCollectedItemBit(itemBit)) continue;
+            if (item.Location is not { } location || system.HasCollectedItem(location)) continue;
             RevealedBlock revealed = CollectibleObjects.ShowsOwnPicture(item.Kind)
                 ? new RevealedBlock(CollectibleCellPictures.DefinitionOf(new CollectiblePicture(item.Kind, 0)), RevealedBlockArrangement.AsDefined)
                 : Arranged(overlays.TankMetatile(item.Kind));

@@ -1,5 +1,7 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The collected-item bit a collectible sets when Samus picks it up.</summary>
-/// <param name="ItemBit">The bit's index in the collected-items record.</param>
-public sealed record CollectedItemArgument(int ItemBit) : RoomObjectRoomArgument;
+/// <summary>The item location a collectible stands at, which picking it up records as collected.</summary>
+/// <param name="Location">The item location.</param>
+public sealed record CollectedItemArgument(ItemLocation Location) : RoomObjectRoomArgument;

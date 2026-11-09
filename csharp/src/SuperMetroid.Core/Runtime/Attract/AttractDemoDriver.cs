@@ -78,17 +78,13 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>
-    /// The progress every attract demo plays with: every item location collected and every Chozo orb broken, no door
-    /// opened, no event or boss, every area's map acquired and every station used, and nothing explored.
+    /// The progress every attract demo plays with: every item location collected, no door opened, no event or boss,
+    /// every area's map acquired and every station used, and nothing explored.
     /// </summary>
     private static PersistentProgress DemoProgress()
     {
         var progress = new PersistentProgress();
-        for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
-        {
-            progress.CollectedItems.Add(location);
-            progress.ChozoOrbs.Add(location);
-        }
+        progress.CollectedItems.AddAll();
         for (int areaIndex = 0; areaIndex < AreaIds.RetailCount; areaIndex++)
         {
             AreaId area = AreaIds.At(areaIndex);

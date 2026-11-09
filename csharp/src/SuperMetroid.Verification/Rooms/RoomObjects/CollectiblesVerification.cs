@@ -66,7 +66,9 @@ internal static class CollectiblesVerification
         for (int kindIndex = 0; kindIndex < 21; kindIndex++)
         {
             InWorldCollectibleKind kind = (InWorldCollectibleKind)kindIndex;
-            CollectibleFixture fixture = LoadCollectible(bus, header: unchecked((ushort)(0xeed7 + kindIndex * 4)), roomArgument: unchecked((ushort)kindIndex), precollected: false);
+            // Each kind stands at its own retail item location, numbered from the first of the contiguous run 128 through 152.
+            ushort location = unchecked((ushort)(128 + kindIndex));
+            CollectibleFixture fixture = LoadCollectible(bus, header: unchecked((ushort)(0xeed7 + kindIndex * 4)), roomArgument: location, precollected: false);
 
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,
                 $"{kind} exposed header loads through room population");
@@ -96,7 +98,7 @@ internal static class CollectiblesVerification
                 $"{kind} visible block accepts Samus contact");
             fixture.RoomObjects.Step(fixture.Level);
 
-            AssertTrue(fixture.System.HasCollectedItemBit(kindIndex),
+            AssertTrue(fixture.System.HasCollectedItemBit(location),
                 $"{kind} marks its physical item bit");
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.CollectiblePickupEvents.Count,
                 $"{kind} publishes exactly one acquisition");
@@ -151,7 +153,7 @@ internal static class CollectiblesVerification
         // A Chozo orb accepts projectile contact, performs its authored burst, then becomes
         // the same visible/touchable item. Acquisition must retain the triggering physical
         // location rather than confusing the projectile type with an item bit.
-        CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 91, precollected: false);
+        CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 79, precollected: false);
         orb.RoomObjects.Step(orb.Level);
         var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
@@ -161,9 +163,7 @@ internal static class CollectiblesVerification
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
         orb.RoomObjects.Step(orb.Level);
-        AssertTrue(!orb.System.HasRoomChozoBit(91),
-            "breaking a Chozo orb persists nothing; only unused PLMs $D700/$D708 use $84:8865");
-        AssertTrue(!orb.System.HasCollectedItemBit(91),
+        AssertTrue(!orb.System.HasCollectedItemBit(79),
             "breaking a Chozo orb does not prematurely collect its item");
         StepFrames(9, _ => orb.RoomObjects.Step(orb.Level));
         AssertEqual(CollectiblePhase.Visible, orb.RoomObjects.CollectiblePhases[0],
@@ -172,7 +172,7 @@ internal static class CollectiblesVerification
         AssertTrue(orb.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(orb.BlockIndex),
             "exposed Chozo item accepts touch");
         orb.RoomObjects.Step(orb.Level);
-        AssertTrue(orb.System.HasCollectedItemBit(91),
+        AssertTrue(orb.System.HasCollectedItemBit(79),
             "Chozo item persists its room argument bit");
         AssertTrue((orb.Samus.CollectedItems & SamusEquipmentFlags.MorphBall) != 0,
             "Chozo Morph Ball grants equipment");
@@ -183,16 +183,16 @@ internal static class CollectiblesVerification
         orb.RoomObjects.Step(orb.Level);
         AssertEqual(0, orb.RoomObjects.CollectibleObjects.Collectibles.Count, "Chozo pickup deletes after message");
 
-        CollectibleFixture reopenedOrb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 91, precollected: false, preopenedChozo: true);
+        CollectibleFixture reopenedOrb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 79, precollected: false);
         AssertEqual(CollectiblePhase.ChozoOrb, reopenedOrb.RoomObjects.CollectiblePhases[0],
-            "an uncollected Chozo item rebuilds its orb on reload, whatever the chozo bit holds");
-        AssertTrue(!reopenedOrb.System.HasCollectedItemBit(91),
+            "an uncollected Chozo item rebuilds its orb on reload");
+        AssertTrue(!reopenedOrb.System.HasCollectedItemBit(79),
             "reloaded broken orb remains independently uncollected");
 
         // Concealed shot items reveal through the same generic projectile callback, remain
         // visible for their native timed window, and after pickup restore as an empty
         // shootable block rather than deleting the location owner.
-        CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 123, precollected: false);
+        CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 150, precollected: false);
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock), shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain,
             "shot-item setup installs type-C concealed block");
         AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.BlockIndex),
@@ -269,7 +269,7 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Loads one authored-shape item PLM into a synthetic room with selectable prior collection and Chozo state.</summary>
-    internal static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomFxOverlayState? roomFx = null, CollectibleRoomLayout layout = default)
+    internal static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, RoomFxOverlayState? roomFx = null, CollectibleRoomLayout layout = default)
     {
         const ushort population = 0x9000;
         Extent16<RoomBlocks> size = layout.RoomSize ?? new(8, 8);
@@ -290,8 +290,6 @@ internal static class CollectiblesVerification
         var system = new SharedGameState(new SharedRandom());
         if (precollected)
             system.SetCollectedItemBit(roomArgument);
-        if (preopenedChozo)
-            system.SetRoomChozoBit(roomArgument);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
         {
             Health = 99,
@@ -468,19 +466,16 @@ internal static class CollectiblesVerification
             $"{kind} enters equipped beam word");
     }
 
-    /// <summary>Checks SRAM round-trip of edge item bits, Chozo and door bits, events, bosses, and independent beam words.</summary>
+    /// <summary>Checks SRAM round-trip of the first, a middle and the last item location and door, events, bosses, and independent beam words.</summary>
     private static void VerifyCollectedItemSaveRoundTrip()
     {
         var sourceSystem = new SharedGameState(new SharedRandom());
         sourceSystem.SetCollectedItemBit(0);
-        sourceSystem.SetCollectedItemBit(91);
-        sourceSystem.SetCollectedItemBit(511);
-        sourceSystem.SetRoomChozoBit(0);
-        sourceSystem.SetRoomChozoBit(91);
-        sourceSystem.SetRoomChozoBit(511);
+        sourceSystem.SetCollectedItemBit(79);
+        sourceSystem.SetCollectedItemBit(154);
         sourceSystem.SetOpenedDoorBit(0);
         sourceSystem.SetOpenedDoorBit(91);
-        sourceSystem.SetOpenedDoorBit(511);
+        sourceSystem.SetOpenedDoorBit(172);
         sourceSystem.SetEvent(StoryEvent.TourianUnlocked);
         sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
         var sourceSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())
@@ -498,15 +493,12 @@ internal static class CollectiblesVerification
         var restoredSystem = new SharedGameState(new SharedRandom());
         var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
         slot.ApplyTo(restoredSamus, restoredSystem);
-        AssertTrue(restoredSystem.HasCollectedItemBit(0), "first physical item bit round-trips");
-        AssertTrue(restoredSystem.HasCollectedItemBit(91), "middle physical item bit round-trips");
-        AssertTrue(restoredSystem.HasCollectedItemBit(511), "last physical item bit round-trips");
-        AssertTrue(restoredSystem.HasRoomChozoBit(0), "first room Chozo bit round-trips");
-        AssertTrue(restoredSystem.HasRoomChozoBit(91), "middle room Chozo bit round-trips");
-        AssertTrue(restoredSystem.HasRoomChozoBit(511), "last room Chozo bit round-trips");
-        AssertTrue(restoredSystem.HasOpenedDoorBit(0), "first opened-door bit round-trips");
-        AssertTrue(restoredSystem.HasOpenedDoorBit(91), "middle opened-door bit round-trips");
-        AssertTrue(restoredSystem.HasOpenedDoorBit(511), "last opened-door bit round-trips");
+        AssertTrue(restoredSystem.HasCollectedItemBit(0), "first item location round-trips");
+        AssertTrue(restoredSystem.HasCollectedItemBit(79), "middle item location round-trips");
+        AssertTrue(restoredSystem.HasCollectedItemBit(154), "last item location round-trips");
+        AssertTrue(restoredSystem.HasOpenedDoorBit(0), "first opened door round-trips");
+        AssertTrue(restoredSystem.HasOpenedDoorBit(91), "middle opened door round-trips");
+        AssertTrue(restoredSystem.HasOpenedDoorBit(172), "last opened door round-trips");
         AssertTrue(restoredSystem.HasEvent(StoryEvent.TourianUnlocked),
             "event bytes round-trip through SRAM");
         AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaBoss),

@@ -15,14 +15,11 @@ public sealed record SaveProgressionJsonDocument
     /// <summary>Each area's defeated bosses, one entry per area in area order.</summary>
     public required SaveAreaBossesJsonDocument[] DefeatedBosses { get; init; }
 
-    /// <summary>The Chozo orbs broken open, by room-data number, ascending.</summary>
-    public required int[] BrokenChozoOrbs { get; init; }
+    /// <summary>The item locations collected, by name, in the order room data lists them (schema six, #1553).</summary>
+    public required string[] CollectedItems { get; init; }
 
-    /// <summary>The item locations collected, by room-data number, ascending.</summary>
-    public required int[] CollectedItems { get; init; }
-
-    /// <summary>The coloured doors opened for good, by room-data number, ascending.</summary>
-    public required int[] OpenedDoors { get; init; }
+    /// <summary>The doors opened for good, by name, in the order room data lists them (schema six, #1553).</summary>
+    public required string[] OpenedDoors { get; init; }
 
     /// <summary>Each area's used save stations and elevators, one entry per area in area order.</summary>
     public required SaveAreaStationsJsonDocument[] UsedStations { get; init; }

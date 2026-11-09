@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Saves;
 public static class GameSaveJsonFormat
 {
     /// <summary>
-    /// Schema six lists only the story events the game keeps, by name (#1553); schema five kept the Zebetite count as a
+    /// Schema six lists the story events, item locations and doors by name and keeps no Chozo orbs (#1553); schema five kept the Zebetite count as a
     /// count and named the Shitroid-approach event (#1527); schema four named each slot's startup route (#1523); schema
     /// three listed each area's defeated bosses, used stations and acquired map by area (#1475). The hosts' legacy
     /// importer upgrades schemas one through five.

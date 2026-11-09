@@ -61,10 +61,10 @@ internal static class NativeSnapshotImport
         runtime.Options.MoonwalkEnabled = W(NativeSnapshotMemory.MoonwalkOption) != 0;
         // The initial import reads the native progression tables through the cartridge's table codec.
         PersistentProgress progress = runtime.System.Progress;
-        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
+        ProgressionTableCodec.ReadCollectedItems(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), progress);
         ProgressionTableCodec.ReadAreaBosses(memory.AsSpan(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), progress);
         ProgressionTableCodec.ReadEvents(memory.AsSpan(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), progress);
-        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
+        ProgressionTableCodec.ReadOpenedDoors(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), progress);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(W(NativeSnapshotMemory.Room)), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,

@@ -147,8 +147,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             var nativeProgress = new PersistentProgress();
             ProgressionTableCodec.ReadAreaBosses(memory.Slice(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), nativeProgress);
             ProgressionTableCodec.ReadEvents(memory.Slice(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), nativeProgress);
-            ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.CollectedItems);
-            ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.OpenedDoors);
+            ProgressionTableCodec.ReadCollectedItems(memory.Slice(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), nativeProgress);
+            ProgressionTableCodec.ReadOpenedDoors(memory.Slice(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), nativeProgress);
             ProgressionTableCodec.ReadUsedStations(memory.Slice(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), nativeProgress);
             ProgressionTableCodec.ReadAreaMaps(memory.Slice(NativeSnapshotMemory.MapStationMarkers, ProgressionTableCodec.MapStationByteCount), nativeProgress);
             PersistentProgress portProgress = runtime.System.Progress;
@@ -165,8 +165,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             }
             CheckSet("Events", portProgress.Events, nativeProgress.Events);
             CheckValue("Zebetites destroyed", portProgress.ZebetitesDestroyed, nativeProgress.ZebetitesDestroyed);
-            CheckFlags("Collected items", portProgress.CollectedItems, nativeProgress.CollectedItems);
-            CheckFlags("Opened doors", portProgress.OpenedDoors, nativeProgress.OpenedDoors);
+            CheckSet("Collected items", portProgress.CollectedItems, nativeProgress.CollectedItems);
+            CheckSet("Opened doors", portProgress.OpenedDoors, nativeProgress.OpenedDoors);
             foreach (AreaId area in Enum.GetValues<AreaId>())
             {
                 if (portProgress.DefeatedBosses(area) != nativeProgress.DefeatedBosses(area))

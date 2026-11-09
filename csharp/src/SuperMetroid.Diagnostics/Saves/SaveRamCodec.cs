@@ -244,9 +244,9 @@ public static class SaveRamCodec
         var progress = new PersistentProgress();
         ProgressionTableCodec.ReadEvents(payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress);
         ProgressionTableCodec.ReadAreaBosses(payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount), progress);
-        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.ChozoOrbs);
-        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
-        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
+        // The Chozo-orb table is not read: only unused room objects write it and nothing reads it.
+        ProgressionTableCodec.ReadCollectedItems(payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress);
+        ProgressionTableCodec.ReadOpenedDoors(payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress);
         ProgressionTableCodec.ReadUsedStations(payload.Slice(SaveRamLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount), progress);
         ProgressionTableCodec.ReadAreaMaps(payload.Slice(SaveRamLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount), progress);
         SaveRamMapPacking.Unpack(payload.Slice(SaveRamLayout.CompressedMapDataOffset, SaveRamLayout.CompressedMapDataByteCount), maps, progress);
@@ -258,9 +258,9 @@ public static class SaveRamCodec
     {
         ProgressionTableCodec.WriteEvents(progress, payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount));
         ProgressionTableCodec.WriteAreaBosses(progress, payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount));
-        ProgressionTableCodec.WriteFlags(progress.ChozoOrbs, payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
-        ProgressionTableCodec.WriteFlags(progress.CollectedItems, payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
-        ProgressionTableCodec.WriteFlags(progress.OpenedDoors, payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
+        // The Chozo-orb table is left clear, as a new file leaves it.
+        ProgressionTableCodec.WriteCollectedItems(progress, payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
+        ProgressionTableCodec.WriteOpenedDoors(progress, payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
         ProgressionTableCodec.WriteUsedStations(progress, payload.Slice(SaveRamLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount));
         ProgressionTableCodec.WriteAreaMaps(progress, payload.Slice(SaveRamLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount));
     }

@@ -56,16 +56,16 @@ internal static class RoomObjectRoomArgumentWords
         if (header == RoomObjectHeaderId.ScrollTrigger || FixedWords.ContainsKey(header) || FillerHeaders.Contains(header))
             return null;
         if (CollectibleObjects.TryIdentifyPermanentCollectible(header, out _, out _))
-            return new CollectedItemArgument(word);
+            return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(word));
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectHeaderId.BombTorizoGreyDoor)
         {
             return new GreyDoorArgument((word >> GreyConditionShift) & GreyConditionMask,
-                new DoorBitArgument(word & GreyDoorBitMask, Persistence(word)));
+                new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(word & GreyDoorBitMask), Persistence(word)));
         }
         if (name.StartsWith("RedDoor", StringComparison.Ordinal) || name.StartsWith("GreenDoor", StringComparison.Ordinal) ||
             name.StartsWith("YellowDoor", StringComparison.Ordinal) || name.StartsWith("EyeDoor", StringComparison.Ordinal))
         {
-            return new DoorBitArgument(word & ~NeverPersists, Persistence(word));
+            return new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(word & ~NeverPersists), Persistence(word));
         }
         if (header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation or RoomObjectHeaderId.SaveStation)
             return new StationArgument(word);
@@ -94,11 +94,11 @@ internal static class RoomObjectRoomArgumentWords
             return unchecked((ushort)hits);
         return argument switch
         {
-            CollectedItemArgument item => checked((ushort)item.ItemBit),
-            DoorBitArgument door => checked((ushort)(door.DoorBit | (door.Persists ? 0 : NeverPersists))),
+            CollectedItemArgument item => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(item.Location)),
+            DoorBitArgument door => checked((ushort)(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door.Door) | (door.Persists ? 0 : NeverPersists))),
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
-                (grey.ConditionIndex << GreyConditionShift) | grey.Door.DoorBit)),
-            SpentDoorArgument spent => unchecked((ushort)(NeverPersists | spent.OpenedDoors.Sum(door => 1 << (door - spent.FirstDoor)))),
+                (grey.ConditionIndex << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
+            SpentDoorArgument spent => SpentWord(spent),
             StationArgument station => checked((ushort)station.Station),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),
@@ -109,6 +109,28 @@ internal static class RoomObjectRoomArgumentWords
             _ => throw new InvalidOperationException($"Undefined room argument {argument}."),
         };
     }
+
+    /// <summary>
+    /// The word a spent cap holds: never-persists, and a bit for each door open at the opening among the sixteen doors
+    /// numbered from the first of the spent door's group of eight.
+    /// </summary>
+    private static ushort SpentWord(SpentDoorArgument spent)
+    {
+        int firstDoor = SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(spent.Door) / SpentWindowGroupDoorCount * SpentWindowGroupDoorCount;
+        int window = 0;
+        foreach (int number in spent.OpenedDoors.Select(door => SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door)))
+        {
+            if (number >= firstDoor && number < firstDoor + SpentWindowDoorCount)
+                window |= 1 << (number - firstDoor);
+        }
+        return unchecked((ushort)(NeverPersists | window));
+    }
+
+    /// <summary>The doors a spent cap's window covers.</summary>
+    private const int SpentWindowDoorCount = 16;
+
+    /// <summary>The doors of each group a spent cap's window starts at the first of.</summary>
+    private const int SpentWindowGroupDoorCount = 8;
 
     /// <summary>The native room-argument word of a live slot.</summary>
     extension(RoomObjectSlot slot)

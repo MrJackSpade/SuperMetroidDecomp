@@ -750,9 +750,9 @@ internal static class RoomObjectPopulationVerification
         var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
         [
             new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.GreenDoorFacingRight),
-                new(offRoomX, offRoomY), new DoorBitArgument(0x27, DoorOpeningPersistence.Persistent)),
+                new(offRoomX, offRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(0x27), DoorOpeningPersistence.Persistent)),
             new RoomObjectPlacement(RoomObjectHeaders.Get(RoomObjectHeaderId.GreenDoorFacingLeft),
-                new(inRoomX, inRoomY), new DoorBitArgument(0x28, DoorOpeningPersistence.Persistent)),
+                new(inRoomX, inRoomY), new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(0x28), DoorOpeningPersistence.Persistent)),
         ]);
 
         RoomLevelData level = CreateRoom(new(width, height),

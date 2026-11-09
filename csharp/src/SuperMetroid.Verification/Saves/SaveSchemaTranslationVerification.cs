@@ -40,7 +40,6 @@ internal static class SaveSchemaTranslationVerification
         system.SetAreaMapAcquired(AreaId.WreckedShip);
         system.SetCollectedItemBit(23);
         system.SetOpenedDoorBit(31);
-        system.SetRoomChozoBit(17);
         // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.ShitroidEncounterMusicSkipped);
@@ -95,6 +94,26 @@ internal static class SaveSchemaTranslationVerification
             AssertEqual(route, (upgradedThree.Slots[0] ?? throw new InvalidOperationException("The upgraded save lost slot 0.")).StartupRoute,
                 $"schema three's loading-state word ${word:X4} becomes its startup route");
         }
+
+        // A schema-five save lists event bits no story event uses by number, broken Chozo orbs, and item locations and
+        // doors by room-data number, including numbers no retail placement has (#1553); it upgrades to the same saves,
+        // without the bits nothing reads.
+        JsonObject schemaFive = RequiredJson.Parse(json).AsObject();
+        schemaFive["schemaVersion"] = 5;
+        ToSchemaFiveProgression(schemaFive);
+        JsonObject fiveProgression = schemaFive.Required("slots").Required(0).Required("progression").AsObject();
+        JsonArray fiveEvents = fiveProgression.Required("events").AsArray();
+        fiveEvents.Add("0x3F");
+        fiveProgression["brokenChozoOrbs"] = new JsonArray(17, 91);
+        JsonArray fiveItems = fiveProgression.Required("collectedItems").AsArray();
+        fiveItems.Add(511);
+        JsonArray fiveDoors = fiveProgression.Required("openedDoors").AsArray();
+        fiveDoors.Add(511);
+        GameSaveJsonDocument upgradedFive = LegacyGameSaveJson.Deserialize(schemaFive.ToJsonString(), "game save", out bool migratedFive);
+        AssertTrue(migratedFive, "a schema-five save is upgraded");
+        AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedFive, RetailPresentationFixture()), RetailPresentationFixture()),
+            SaveRamCodec.Encode(ram, RetailPresentationFixture()),
+            "a schema-five save upgrades to the same saves, keeping every named event, item location and door");
 
         // A schema-four save lists the Zebetite count as the three counter events and names the Shitroid-approach event
         // after its number (#1527); it upgrades to the count, the event's name and the same saves.
@@ -182,6 +201,7 @@ internal static class SaveSchemaTranslationVerification
     /// </summary>
     private static void ToSchemaFourProgression(JsonObject root)
     {
+        ToSchemaFiveProgression(root);
         foreach (JsonNode? slotNode in root.Required("slots").AsArray())
         {
             if (slotNode is null) continue;
@@ -203,6 +223,34 @@ internal static class SaveSchemaTranslationVerification
             foreach (string name in byNumber.Values)
                 events.Add(name);
             progression["events"] = events;
+        }
+    }
+
+    /// <summary>
+    /// Rewrites each slot's current progression as schema five wrote it (#1553): the item locations and doors by the
+    /// numbers room data gives them, and an empty list of broken Chozo orbs.
+    /// </summary>
+    private static void ToSchemaFiveProgression(JsonObject root)
+    {
+        foreach (JsonNode? slotNode in root.Required("slots").AsArray())
+        {
+            if (slotNode is null) continue;
+            JsonObject progression = slotNode.Required("progression").AsObject();
+            var items = new JsonArray();
+            foreach (JsonNode? entry in progression.Required("collectedItems").AsArray())
+            {
+                string name = entry?.GetValue<string>() ?? "";
+                items.Add(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(ItemLocationDefinitions.All.Single(location => location.Name == name)));
+            }
+            var doors = new JsonArray();
+            foreach (JsonNode? entry in progression.Required("openedDoors").AsArray())
+            {
+                string name = entry?.GetValue<string>() ?? "";
+                doors.Add(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(LockedDoorDefinitions.All.Single(door => door.Name == name)));
+            }
+            progression["brokenChozoOrbs"] = new JsonArray();
+            progression["collectedItems"] = items;
+            progression["openedDoors"] = doors;
         }
     }
 

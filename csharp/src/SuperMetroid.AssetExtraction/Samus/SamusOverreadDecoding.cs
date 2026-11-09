@@ -226,7 +226,6 @@ internal static class SamusOverreadDecoding
             ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset)),
             ProgressionTableCodec.AreaBossesPrefix(Leading(ProgressionSliceLayout.BossBitsOffset, ProgressionSliceLayout.RoomChozoBitsOffset))
                 .ToDictionary(area => area.Key.ToString(), area => (IReadOnlyList<string>)[.. BossFlagNames(area.Value)]),
-            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.RoomChozoBitsOffset, ProgressionSliceLayout.CollectedItemBitsOffset)),
             ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionSliceLayout.OpenedDoorBitsOffset)),
             ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionSliceLayout.PaddingOffset)),
             ProgressionTableCodec.UsedStationsPrefix(Leading(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionSliceLayout.MapStationsOffset))

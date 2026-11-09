@@ -81,3 +81,14 @@ It checks canonical round trips, missing field restoration, real frontend comple
 production/consumption, item setup counting, strict errors, named-over-raw precedence,
 legacy imports, atomic persistence, and the v1 backup. Fixtures use fresh stores, SRAM images and
 temporary files, never player saves.
+
+## Schema six (#1553)
+
+Schema six lists a slot's story events, collected item locations and opened doors by name: each event by its
+`StoryEvent` name, each item location and door by its `ItemLocationDefinitions` or `LockedDoorDefinitions` name, in
+the order room data lists them. It keeps no Chozo orbs, which only unused room objects write and nothing reads. The
+cartridge's event, item and door numbers live only in AssetExtraction (`StoryEventNumbers`, `RoomPlacementNumbers`),
+which the save-image codec, SpaceTime's overwrite and the schema-five upgrade use. The upgrade from schema five turns
+each item and door number into the name of the placement it numbers and drops what nothing reads: event bits no story
+event uses, the orb list, and item or door numbers no retail placement has. The save-image codec reads and writes the
+same tables and leaves the orb table clear.

@@ -12,7 +12,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// listed bosses, used stations and acquired maps by the cartridge's table positions, which become lists by area; schema
 /// three (#1523) kept the cartridge's loading-state word, which becomes the startup route it selects; schema four
 /// (#1527) listed the Zebetite count as three event bits, which become a count, and named an event after its number;
-/// schema five (#1553) listed event-table bits no story event uses by number, which hold nothing the game reads.
+/// schema five (#1553) listed event-table bits no story event uses by number, and the Chozo orbs, item locations and
+/// doors by room-data number, which become the locations and doors they number.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -79,8 +80,11 @@ public static class LegacyGameSaveJson
 
     /// <summary>
     /// Schema five to six (#1553): schema five listed a bit of the event table that no story event uses as its number,
-    /// <c>0xNN</c>. Nothing in the game reads such a bit (only SpaceTime's overwrite or an imported save image could set
-    /// one), so, like schema two's padding, it is not carried; every named event is kept as it was.
+    /// <c>0xNN</c>, and listed the Chozo orbs, item locations and doors by the numbers room data gives them. The item
+    /// locations and doors become the names of the locations and doors those numbers name. Nothing in the game reads an
+    /// unnamed event bit, a Chozo orb, or an item or door number that no retail placement has (only SpaceTime's
+    /// overwrite, a tester assist or an imported save image could set one), so, like schema two's padding, they are not
+    /// carried; every named event, item location and door is kept as it was.
     /// </summary>
     private static void UpgradeSchemaFive(JsonObject root)
     {
@@ -97,7 +101,29 @@ public static class LegacyGameSaveJson
                     named.Add(name);
             }
             progression["events"] = named;
+            if (progression["brokenChozoOrbs"] is not JsonArray)
+                throw new InvalidDataException($"slots[{index}].progression.brokenChozoOrbs is required");
+            progression.Remove("brokenChozoOrbs");
+            progression["collectedItems"] = PlacementNames(progression, "collectedItems", index,
+                number => SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.TryItem(number, out var location) ? location.Name : null);
+            progression["openedDoors"] = PlacementNames(progression, "openedDoors", index,
+                number => SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.TryDoor(number, out var door) ? door.Name : null);
         }
+    }
+
+    /// <summary>
+    /// The names of the placements a schema-five list numbers, in its order; a number no retail placement has names
+    /// nothing the game reads and is not carried.
+    /// </summary>
+    private static JsonArray PlacementNames(JsonObject progression, string list, int slot, Func<int, string?> nameOf)
+    {
+        var names = new JsonArray();
+        foreach (int number in Numbers(Take(progression, list, slot), slot))
+        {
+            if (nameOf(number) is { } name)
+                names.Add(name);
+        }
+        return names;
     }
 
     /// <summary>Each saved slot's progression object and the slot's index.</summary>

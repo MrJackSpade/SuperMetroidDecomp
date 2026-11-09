@@ -82,7 +82,7 @@ internal static class XraySetupVerification
         // An uncollected item that shows its own picture overlays that picture's block (#1538), which lies past the common
         // room elements like the markers do.
         HashSet<int> itemPictures = [.. runtime.RoomObjects.CollectibleObjects.Collectibles
-            .Where(item => item.ItemBit is { } bit && !runtime.System.HasCollectedItemBit(bit) && CollectibleObjects.ShowsOwnPicture(item.Kind))
+            .Where(item => item.Location is { } location && !runtime.System.HasCollectedItem(location) && CollectibleObjects.ShowsOwnPicture(item.Kind))
             .Select(item => CollectibleCellPictures.DefinitionOf(new CollectiblePicture(item.Kind, 0)))];
         RevealedBlock? stray = expected.FirstOrDefault(block => block is not null && block != Marker(2) &&
             block.Value.Definition >= CommonRoomElementBlocks && !itemPictures.Contains(block.Value.Definition));

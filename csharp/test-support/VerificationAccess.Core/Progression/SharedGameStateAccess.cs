@@ -13,14 +13,20 @@ internal static class SharedGameStateAccess
         internal static uint Multiply16By16(ushort left, ushort right) => (uint)left * right;
     }
 
-    /// <summary>Reads and sets the broken Chozo orbs, which production carries only through saves.</summary>
+    /// <summary>Reads and sets progress through the numbers room data and native fixtures give it.</summary>
     extension(SharedGameState self)
     {
-        /// <summary>Whether the Chozo orb room data numbers <paramref name="orb"/> has been broken.</summary>
-        internal bool HasRoomChozoBit(int orb) => self.Progress.ChozoOrbs.Contains(orb);
+        /// <summary>Whether the item location room data numbers <paramref name="number"/> has been collected.</summary>
+        internal bool HasCollectedItemBit(int number) => self.HasCollectedItem(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(number));
 
-        /// <summary>Records the Chozo orb room data numbers <paramref name="orb"/> as broken.</summary>
-        internal void SetRoomChozoBit(int orb) => self.Progress.ChozoOrbs.Add(orb);
+        /// <summary>Records the item location room data numbers <paramref name="number"/> as collected.</summary>
+        internal void SetCollectedItemBit(int number) => self.CollectItem(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(number));
+
+        /// <summary>Whether the door room data numbers <paramref name="number"/> has been opened for good.</summary>
+        internal bool HasOpenedDoorBit(int number) => self.HasOpenedDoor(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(number));
+
+        /// <summary>Records the door room data numbers <paramref name="number"/> as opened for good.</summary>
+        internal void SetOpenedDoorBit(int number) => self.OpenDoor(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(number));
 
         /// <summary>Records bosses as defeated in the area with index <paramref name="areaIndex"/>.</summary>
         internal void SetBossBits(int areaIndex, BossBits bits) => self.SetBossBits(AreaIds.At(areaIndex), bits);

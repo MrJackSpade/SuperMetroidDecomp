@@ -39,6 +39,11 @@ public static class TesterAssistDefinitions
     {
         BossAreas = new[] { AreaId.Crateria, AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia, AreaId.Ceres },
         ClearedEvents = new[] { StoryEvent.ShaktoolClearedPath },
-        ClearedDoorFlags = new[] { 69, 92, 133, 155, 168 },
+        ClearedDoors = new[]
+        {
+            LockedDoorDefinitions.KraidEyeDoorEyeDoorFacingLeft, LockedDoorDefinitions.LNFarmingEyeDoorFacingRight,
+            LockedDoorDefinitions.BasementDefaultEyeDoorFacingLeft, LockedDoorDefinitions.ThePreciousEyeDoorFacingRight,
+            LockedDoorDefinitions.TourianEyeDoorEyeDoorFacingLeft,
+        },
     };
 }

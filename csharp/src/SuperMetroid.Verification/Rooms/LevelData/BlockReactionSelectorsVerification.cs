@@ -109,30 +109,37 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.CollisionBomb(index)), "collision bomb"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CollisionBomb(index)), "collision bomb"));
 
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.ReactionBomb(index)), "bomb reaction"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ReactionBomb(index)), "bomb reaction"));
 
     /// <summary>Checks crumble-reveal instruction selection for the four native sizes.</summary>
     internal static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.CrumbleReveal(index)), "crumble reveal"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CrumbleReveal(index)), "crumble reveal"));
 
     /// <summary>Checks contact-crumble instruction selection for the eight native reactions.</summary>
     internal static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionObjectPrograms.ContactCrumble(index)), "contact crumble"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ContactCrumble(index)), "contact crumble"));
 
     /// <summary>Checks the bounded bomb-special BTS domain, including adjacent area aliases.</summary>
     internal static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)
     {
         AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,
-            index => RoomObjectProgramStartOracle.NativeListOf(BombSpecialBlockReactions.ProgramAt(index)), "bomb special including adjacent area aliases"));
+            index => BombSpecialNativeList(BombSpecialBlockReactions.ChangeAt(index)), "bomb special including adjacent area aliases"));
     }
+
+    /// <summary>The native list a bomb-special reaction stands for: the shared delete, the speed reveal or a crumble reveal.</summary>
+    private static ushort BombSpecialNativeList(BlockReactionChange change) =>
+        change == BlockReactionChange.MadeAtSpawn ? RoomObjectProgramStartOracle.SharedDeleteEntry
+            : change == SpeedBoosterBlockObjectDefinitions.BombReveal
+                ? RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Program == change).Entry
+                : RoomObjectNativeListAddresses.BlockReactionEntry(change);
 
     /// <summary>Compares a selector with the native header indirection and rejects indexes outside its domain.</summary>
     private static void VerifyNativeBlockInstructionSelection(SuperMetroidAddressSpace rom,

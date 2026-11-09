@@ -14,8 +14,6 @@ internal static class RoomObjectProgramStartOracle
     private static IReadOnlyList<RoomObjectProgramStartOracleTypedStart> TypedStarts { get; } =
     [
         new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Delete, SharedDeleteEntry),
-        .. RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
-        .. RoomObjectNativeListAddresses.BlockReactionEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
         .. RoomObjectNativeListAddresses.ScriptedRoomEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
         .. DoorObjectNativeListAddresses.BlueEntries.Select(entry => new RoomObjectProgramStartOracleTypedStart(RoomObjectProgramStart.Typed(entry.Program), entry.Entry)),
     ];

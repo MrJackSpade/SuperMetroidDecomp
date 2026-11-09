@@ -70,6 +70,4 @@ internal enum BlockReactionObjectFrame
     GrappleBreak2,
     /// <summary>The GrappleBlank image.</summary>
     GrappleBlank,
-    /// <summary>The slot's saved block, redrawn as a respawning block returns.</summary>
-    RestoredBlock,
 }

@@ -76,7 +76,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
         AssertEqual(RoomObjectHeaderId.SpeedBlockRespawning, slot.HeaderPointer,
             "BTS $0E selects the standard respawning header");
-        AssertTrue(slot.Animation is SpeedBoosterBlockObjectAnimation { Program: SpeedBoosterBlockProgram.Respawning },
+        AssertTrue(slot.Behaviour is BlockReactionObject { Change: var respawning } && respawning == SpeedBoosterBlockObjectDefinitions.RespawningCrumble,
             "BTS $0E starts the respawning program");
 
         StepSpeedBoosterObject(roomObjects, level);
@@ -145,7 +145,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             RoomObjectSlotSnapshot slot = roomObjects.PopulationSlots.Single();
             AssertEqual(expected.Header, slot.HeaderPointer,
                 $"Brinstar BTS ${bts:X2} selects its exact PLM header");
-            AssertTrue(slot.Animation is SpeedBoosterBlockObjectAnimation animation && animation.Program == expected.Program,
+            AssertTrue(slot.Behaviour is BlockReactionObject { Change: var started } && started == expected.Change,
                 $"Brinstar BTS ${bts:X2} starts its exact typed program");
             AssertEqual(RoomCollisionType.Air,
                 level.GetCollisionBlockByIndex(blockIndex).CollisionType,

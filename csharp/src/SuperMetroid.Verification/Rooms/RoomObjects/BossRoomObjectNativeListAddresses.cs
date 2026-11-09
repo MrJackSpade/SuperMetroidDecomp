@@ -89,10 +89,4 @@ internal static class BossRoomObjectNativeListAddresses
         new NativeProgramEntry<SporeSpawnCeilingMutation>(SporeSpawnCeilingMutation.Clear, 0xab21),
     ];
 
-    /// <summary>The Bomb Torizo hand's list (<c>InstList_PLM_BombTorizosCrumblingChozo</c>) and its continuation after the sleep.</summary>
-    internal static IReadOnlyList<NativeProgramEntry<BombTorizoHandProgram>> BombTorizoHandEntries { get; } =
-    [
-        new NativeProgramEntry<BombTorizoHandProgram>(BombTorizoHandProgram.Sleeping, 0xd368),
-        new NativeProgramEntry<BombTorizoHandProgram>(BombTorizoHandProgram.Crumble, 0xd372),
-    ];
 }

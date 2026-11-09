@@ -91,7 +91,7 @@ internal static class BombTorizoHandVerification
         }
         // The crumble starts on the delay's last frame; the first fragment drops its own delay later, with no step
         // between them for the debris characters the cartridge loaded there (#1406).
-        AssertEqual(BombTorizoHandObjectProgramDefinitions.FragmentDelays[0], firstFragmentFrame,
+        AssertEqual(BombTorizoHandCrumbleDefinitions.FragmentDelays[0], firstFragmentFrame,
             "the first fragment drops its authored delay after the crumble begins");
         AssertSequenceEqual(
             new[] { 0, 1, 2, 3, 4, 5, 6, 7 },

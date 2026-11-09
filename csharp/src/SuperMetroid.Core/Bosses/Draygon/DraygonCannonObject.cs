@@ -107,11 +107,12 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
                 WakeArmed = false;
                 Destroy(place, context);
                 return;
-            case DraygonCannonPhase.Flashing when ++_frame < _look.HitFlash.Count:
-                Show(place, context, _look.HitFlash[_frame], DraygonCannonPhase.Flashing);
-                return;
             case DraygonCannonPhase.Flashing:
-                Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
+                _frame++;
+                if (_frame < _look.HitFlash.Count)
+                    Show(place, context, _look.HitFlash[_frame], DraygonCannonPhase.Flashing);
+                else
+                    Show(place, context, _look.Shield, DraygonCannonPhase.Shielded);
                 return;
             case DraygonCannonPhase.Smoking:
                 _frame = (_frame + 1) % _look.Smoke.Count;

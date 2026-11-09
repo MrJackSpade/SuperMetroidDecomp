@@ -221,7 +221,6 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects, IAre
     internal void DeleteObject(RoomObjectSlot slot)
     {
         slot.Delete();
-        BombTorizoHandObjects.MarkBombTorizoHandDeleted(slot);
         MotherBrainGlass.OnObjectDeleted(slot);
         // Semantic family references are discriminators, not retained debug
         // history. A later spawn can reuse this slot and must never inherit

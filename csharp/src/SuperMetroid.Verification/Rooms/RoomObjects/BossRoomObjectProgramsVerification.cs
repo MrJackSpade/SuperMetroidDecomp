@@ -227,96 +227,48 @@ internal static class BossRoomObjectProgramsVerification
         Console.WriteLine($"  Mother Brain glass: {stages.Count} typed stages match bank $84.");
     }
 
-    /// <summary>The Bomb Torizo hand's programs equal its native list.</summary>
+    /// <summary>
+    /// The Bomb Torizo hand plays as its native list does (#1554): it shows the intact hand for one update, arms its wake
+    /// for Samus's Bombs and sleeps; past the sleep each crumble step drops its fragment and shows its image for its
+    /// updates, then the boss music is queued and the hand ends. Every step is compared with
+    /// <see cref="BombTorizoHandCrumbleDefinitions"/>; the debris character load between the first two steps takes no time.
+    /// </summary>
     internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
     {
-        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandObjectProgramDefinitions.Programs, BombTorizoHandEntries,
-            draw => RoomObjectDraw.Of(draw), BombTorizoHandCueAt, "Bomb Torizo hand");
-        AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandObjectProgramDefinitions.ProgramsAfterSleep[BombTorizoHandProgram.Sleeping],
-            "the woken hand continues after its sleep");
-        AssertEqual(unchecked((ushort)(BombTorizoHandEntries[0].Entry + 10)), BombTorizoHandEntries[1].Entry,
-            "the crumble list follows the sleeping list's sleep");
-        Console.WriteLine($"  Bomb Torizo hand programs: {steps} typed steps match bank $84.");
-    }
-
-    /// <summary>The hand's wake, fragment and music instructions with their operands.</summary>
-    private static bool BombTorizoHandCueAt(IImportCartridgeSource cartridge, ushort cursor, out BombTorizoHandCue cue, out int length)
-    {
-        ushort Word(int offset) => cartridge.ReadCartridgeWord(ProgramBank | (cursor + offset));
-        switch (InstructionAt<RoomObjectInstruction>(cartridge, cursor))
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
+        RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
+        void AssertShown(int cursor, BombTorizoHandDraw image, int updates, string at)
         {
-            case RoomObjectInstruction.InstallFrameBehavior:
-                AssertEqual(BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior, Word(2), "hand bomb wake");
-                cue = new BombTorizoHandCue(BombTorizoHandCueKind.ArmBombWake);
-                length = 4;
-                return true;
-            case RoomObjectInstruction.SpawnTorizoStatueBreaking:
-                AssertEqual(0, Word(2) % sizeof(ushort), "hand fragment operand is a two-byte table offset");
-                cue = new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort));
-                length = 4;
-                return true;
-            case RoomObjectInstruction.QueueSongOneMusicTrack:
-                cue = new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic);
-                length = 2;
-                return true;
-            case RoomObjectInstruction.SetGreyDoorFrameBehavior:
-            case RoomObjectInstruction.CopyFromRamToVram:
-            case RoomObjectInstruction.Sleep:
-            case RoomObjectInstruction.Delete:
-            case RoomObjectInstruction.ClearFrameBehavior:
-            case RoomObjectInstruction.LinkInstruction:
-            case RoomObjectInstruction.GotoIfDoorBitSet:
-            case RoomObjectInstruction.IncrementDoorHitCounterAndGoto:
-            case RoomObjectInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            case RoomObjectInstruction.GotoIfSamusNear:
-            case RoomObjectInstruction.Goto:
-            case RoomObjectInstruction.DecrementTimerAndGoto:
-            case RoomObjectInstruction.SetEightBitTimer:
-            case RoomObjectInstruction.GotoIfAreaBossBitSet:
-            case RoomObjectInstruction.GotoIfEventSet:
-            case RoomObjectInstruction.SetEvent:
-            case RoomObjectInstruction.SetObjectBtsFromByte:
-            case RoomObjectInstruction.DrawObjectBlock:
-            case RoomObjectInstruction.DrawObjectBlockClone:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum6:
-            case RoomObjectInstruction.QueueSoundLibrary3Maximum6:
-            case RoomObjectInstruction.ClearDownwardGateTrigger:
-            case RoomObjectInstruction.SpawnDownwardGateProjectile:
-            case RoomObjectInstruction.WakeDownwardGateProjectile:
-            case RoomObjectInstruction.ShootEyeDoorProjectile:
-            case RoomObjectInstruction.SpawnEyeDoorSweat:
-            case RoomObjectInstruction.SpawnTwoEyeDoorSmoke:
-            case RoomObjectInstruction.SpawnEyeDoorSmoke:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingRight:
-            case RoomObjectInstruction.MoveUpAndMakeBlueDoorFacingLeft:
-            case RoomObjectInstruction.DamageDraygonCannonFacingRight:
-            case RoomObjectInstruction.DamageDraygonCannonFacingLeft:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum3:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1:
-            case RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct:
-            case RoomObjectInstruction.GotoIfSamusHasNoBombs:
-            case RoomObjectInstruction.SetObjectBtsToOne:
-            case RoomObjectInstruction.GotoIfRoomArgumentLess:
-            case RoomObjectInstruction.SpawnFourMotherBrainGlassShards:
-            case RoomObjectInstruction.EnableNoobTubeWaterPhysics:
-            case RoomObjectInstruction.SpawnNoobTubeCrack:
-            case RoomObjectInstruction.TriggerNoobTubeEarthquake:
-            case RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles:
-            case RoomObjectInstruction.LockSamus:
-            case RoomObjectInstruction.UnlockSamus:
-            case RoomObjectInstruction.MoveRightFourBlocks:
-            case RoomObjectInstruction.SetAnimalsEscapedEvent:
-            case RoomObjectInstruction.SamusEaterDamage:
-            case RoomObjectInstruction.SamusEaterReleaseImmunity:
-            case RoomObjectInstruction.MoveTourianAccessDown:
-            case RoomObjectInstruction.TransformSpikesToSlopes:
-            case RoomObjectInstruction.RevertSlopesToSpikes:
-            case RoomObjectInstruction.SetLoweredAcidHeight:
-            default:
-                cue = default;
-                length = 0;
-                return false;
+            AssertEqual(updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual((int)SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(RoomObjectDraw.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
+
+        int cursor = Word(RoomObjectNativeWords.Word(RoomObjectHeaderId.BombTorizoHand) + 2);
+        AssertShown(cursor, BombTorizoHandCrumbleDefinitions.RestingImage, 1, "resting hand");
+        AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(cursor + 4), "hand arms its wake");
+        AssertEqual(BombTorizoHandObjectProgramDefinitionsConstants.WakeIfSamusHasBombsFrameBehavior, Word(cursor + 6), "hand bomb wake");
+        AssertEqual(RoomObjectInstruction.Sleep, At(cursor + 8), "hand rests until Samus has Bombs");
+        cursor += 10;
+        IReadOnlyList<BombTorizoHandCrumbleStep> crumble = BombTorizoHandCrumbleDefinitions.Crumble;
+        for (int index = 0; index < crumble.Count; index++)
+        {
+            BombTorizoHandCrumbleStep step = crumble[index];
+            string at = $"hand crumble step {index}";
+            if (At(cursor) == RoomObjectInstruction.CopyFromRamToVram)
+                cursor += 9;
+            if (step.FragmentBefore is { } fragment)
+            {
+                AssertEqual(RoomObjectInstruction.SpawnTorizoStatueBreaking, At(cursor), $"{at} drops a fragment");
+                AssertEqual(fragment * sizeof(ushort), (int)Word(cursor + 2), $"{at} fragment");
+                cursor += 4;
+            }
+            AssertShown(cursor, step.Image, step.Updates, at);
+            cursor += 4;
+        }
+        AssertEqual(RoomObjectInstruction.QueueSongOneMusicTrack, At(cursor), "the crumbled hand queues the boss music");
+        AssertEqual(RoomObjectInstruction.Delete, At(cursor + 2), "the crumbled hand ends");
+        Console.WriteLine($"  Bomb Torizo hand: {crumble.Count} typed crumble steps match bank $84.");
     }
 
     /// <summary>Botwoon's crumble sound, its opening of the scrolls and its move down a block.</summary>

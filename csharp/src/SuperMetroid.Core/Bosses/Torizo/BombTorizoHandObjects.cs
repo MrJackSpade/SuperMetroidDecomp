@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>The Bomb Torizo statue's hand PLM: its setup, per-frame state and the instructions that wake the statue.</summary>
+/// <summary>The Bomb Torizo statue's hand: its setup, the fragments and music it requests, and the identity search Bomb Torizo makes.</summary>
 [RoomLifetime]
 internal sealed class BombTorizoHandObjects
 {
@@ -54,7 +54,7 @@ internal sealed class BombTorizoHandObjects
             return;
         }
 
-        slot.StartAnimation(new BombTorizoHandObjectAnimation());
+        slot.Become(new BombTorizoHandObject(this));
         _bombTorizoHandRoomWidth = level.Size.X;
     }
 
@@ -65,22 +65,10 @@ internal sealed class BombTorizoHandObjects
         _musicRequests.Clear();
     }
 
-    /// <summary>
-    /// Runs the hand's frame behaviour before the ordinary PLM timer pass.
-    /// </summary>
-    internal void RunBombTorizoHandFrameBehavior(RoomObjectSlot slot)
-    {
-        IRoomSamus samus = _samus?.Current
-            ?? throw new InvalidOperationException(
-                "A live Bomb Torizo hand PLM has no active Samus inventory owner.");
-        if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
-            return;
-
-        // The sleeping step leaves the script position at itself. The frame behaviour skips past it,
-        // restores the frame hold to one, and replaces its frame behaviour with an empty one.
-        slot.WakePastSleep();
-        slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
-    }
+    /// <summary>Whether Samus has Bombs, which wakes the resting hand.</summary>
+    internal bool SamusHasBombs() =>
+        (_samus?.Current ?? throw new InvalidOperationException(
+            "A live Bomb Torizo hand has no active Samus inventory owner.")).CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
     /// <summary>Spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
     internal void SpawnFragment(RoomObjectSlot slot, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
@@ -97,13 +85,4 @@ internal sealed class BombTorizoHandObjects
 
     /// <summary>Room width in blocks used to turn the hand's linear PLM block index into fragment spawn coordinates.</summary>
     private int _bombTorizoHandRoomWidth;
-
-    /// <summary>Removes the hand's header and wake pre-instruction once its PLM has been deleted.</summary>
-    internal static void MarkBombTorizoHandDeleted(RoomObjectSlot slot)
-    {
-        if (slot.Header != RoomObjectHeaderId.BombTorizoHand)
-            return;
-        slot.Header = 0;
-        slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
-    }
 }

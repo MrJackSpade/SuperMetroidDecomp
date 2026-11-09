@@ -121,6 +121,9 @@ internal interface IGameplayArtwork
     /// <summary>Room PLM collectible visuals.</summary>
     InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; }
 
+    /// <summary>Room PLM bombed-reveal, escape-passage, escape-shaft-wall and rescue-wall visuals.</summary>
+    InstalledRoomObjectRevealAndWallVisuals? RoomObjectRevealAndWallVisuals { get; }
+
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     InstalledXrayReveals? XrayRevealVisuals { get; }
 

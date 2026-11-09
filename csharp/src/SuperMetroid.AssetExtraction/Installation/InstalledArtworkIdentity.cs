@@ -57,6 +57,7 @@ public static class InstalledArtworkIdentity
                 Crocomire = Require(artwork.RoomObjectCrocomireVisuals),
                 MotherBrainFakeDeath = Require(artwork.RoomObjectMotherBrainFakeDeathVisuals),
                 Collectible = Require(artwork.RoomObjectCollectibleVisuals),
+                RevealAndWall = Require(artwork.RoomObjectRevealAndWallVisuals),
             }))
             .Concat(GameplayPresentationIdentity.Create(standardObjects, Require(artwork.XrayRevealVisuals)))
             .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingObjectArt), Require(artwork.EndingBackdrops)))

@@ -92,4 +92,7 @@ public sealed record RoomObjectVisualCatalogSet
 
     /// <summary>Collectible.</summary>
     public required InstalledRoomObjectCollectibleVisuals Collectible { get; init; }
+
+    /// <summary>Bombed reveals, escape passage, escape shaft wall and rescue wall.</summary>
+    public required InstalledRoomObjectRevealAndWallVisuals RevealAndWall { get; init; }
 }

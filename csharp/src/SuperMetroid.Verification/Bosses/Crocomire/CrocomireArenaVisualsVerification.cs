@@ -34,7 +34,7 @@ internal static class CrocomireArenaVisualsVerification
                 installation.LoadRoomObjectCrocomireVisuals();
             VerifyCrocomireStockMapping(rom, stock);
             VerifyCrocomireVisualDraw(CrocomireArenaMutation.ClearBridge,
-                new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x80), null);
+                new(9, 0), RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x80), stock);
 
             string stockPath = Path.Combine(
                 installation.RoomObjectCrocomireVisualDirectory,
@@ -51,7 +51,7 @@ internal static class CrocomireArenaVisualsVerification
     /// <summary>Runs one arena mutation and checks its collision word, immediate BG1 update, and ROM-free visual source.</summary>
     private static void VerifyCrocomireVisualDraw(CrocomireArenaMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
-        RoomObjectCrocomireVisualCatalog? visuals)
+        RoomObjectCrocomireVisualCatalog visuals)
     {
         const int width = 32;
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();

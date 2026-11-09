@@ -142,6 +142,9 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Room PLM collectible visuals.</summary>
     public InstalledRoomObjectCollectibleVisuals? RoomObjectCollectibleVisuals { get; init; }
 
+    /// <summary>Room PLM bombed-reveal, escape-passage, escape-shaft-wall and rescue-wall visuals.</summary>
+    public InstalledRoomObjectRevealAndWallVisuals? RoomObjectRevealAndWallVisuals { get; init; }
+
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     public InstalledXrayReveals? XrayRevealVisuals { get; init; }
 

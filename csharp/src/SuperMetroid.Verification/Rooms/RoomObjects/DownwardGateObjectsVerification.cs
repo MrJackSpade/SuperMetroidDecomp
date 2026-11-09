@@ -250,10 +250,12 @@ internal static class DownwardGateObjectsVerification
             $"{trigger} trigger list draws once and deletes without ROM control bytes");
     }
 
-    /// <summary>Loads a gate and adjacent shot block at room cell (6,2) with compiled headers and synthetic actor instructions.</summary>
+    /// <summary>
+    /// Loads a gate and adjacent shot block at room cell (6,2) with compiled headers and synthetic actor instructions,
+    /// drawing with the repository installation's pictures.
+    /// </summary>
     internal static CreateDownwardGateFixtureResult
-        CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger,
-            InstalledRoomObjectDownwardGateVisuals? visuals = null)
+        CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger)
     {
         var bus = new TestAddressSpace();
         const ushort populationPointer = 0x9400;
@@ -275,7 +277,7 @@ internal static class DownwardGateObjectsVerification
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new RoomTerrainBlock[roomWidth * 16],
             new RoomBlockBehavior[roomWidth * 16]);
-        var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectDownwardGateVisuals = visuals });
+        var roomObjects = RoomObjectFixtures.Unbound();
         int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return new CreateDownwardGateFixtureResult(bus, level, roomObjects, gateY * roomWidth + gateX);

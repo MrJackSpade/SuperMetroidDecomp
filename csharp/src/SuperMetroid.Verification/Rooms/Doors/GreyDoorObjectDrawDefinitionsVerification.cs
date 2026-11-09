@@ -73,7 +73,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             const int width = 16;
             const int origin = 4 + 4 * width;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
-            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectGreyDoorVisuals = stock });
+            var roomObjects = RoomObjectFixtures.Unbound();
             var system = new SharedGameState(new SharedRandom());
             var guarded = NewGreyDoorDrawGuard(bus, lists);
             AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -136,7 +136,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                     $"resident grey door {header} never rereads program or draw data");
 
                 var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
-                var reopened = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectGreyDoorVisuals = stock });
+                var reopened = RoomObjectFixtures.Unbound();
                 AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref reopened, new RoomObjectRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                     $"opened grey door {header} reloads");
                 // The closed blue list shows the blue cap for one frame and deletes on the next pass.

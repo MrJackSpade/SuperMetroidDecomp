@@ -260,6 +260,11 @@ public sealed record GameInstallation(string Root)
     /// <summary>Editable item/orb/reveal appearances; pickup and collision remain compiled.</summary>
     public InstalledRoomObjectCollectibleVisuals LoadRoomObjectCollectibleVisuals() =>
         RoomObjectCollectibleVisualFiles.Load(RoomObjectCollectibleVisualDirectory);
+    /// <summary>The installed pictures of the bombed reveals, the escape passage, the escape shaft wall and the rescue wall.</summary>
+    public string RoomObjectRevealAndWallVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName);
+    /// <summary>Loads the bombed reveals', escape passage's, escape shaft wall's and rescue wall's pictures as installed; their terrain stays the game's.</summary>
+    public InstalledRoomObjectRevealAndWallVisuals LoadRoomObjectRevealAndWallVisuals() =>
+        RoomObjectRevealAndWallVisualFiles.Load(RoomObjectRevealAndWallVisualDirectory);
     /// <summary>Stock definitions for X-ray reveal metatile selections under the replaceable content tree.</summary>
     public string XrayRevealVisualDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.XrayRevealVisualDirectoryName);
     /// <summary>Editable X-ray metatile choices; reveal commands and collision rules remain compiled.</summary>
@@ -321,6 +326,7 @@ public sealed record GameInstallation(string Root)
             RoomObjectCrocomireVisuals = LoadRoomObjectCrocomireVisuals(),
             RoomObjectMotherBrainFakeDeathVisuals = LoadRoomObjectMotherBrainFakeDeathVisuals(),
             RoomObjectCollectibleVisuals = LoadRoomObjectCollectibleVisuals(),
+            RoomObjectRevealAndWallVisuals = LoadRoomObjectRevealAndWallVisuals(),
             XrayRevealVisuals = LoadXrayRevealVisuals(),
             ProjectileFrameBindings = projectiles.FrameBindings,
 

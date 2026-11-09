@@ -255,6 +255,7 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.RoomObjectCrocomireVisuals, value => ShotBlockVisuals.RoomObjectCrocomireVisuals = value);
         Bind(a => a.RoomObjectMotherBrainFakeDeathVisuals, value => ShotBlockVisuals.RoomObjectMotherBrainFakeDeathVisuals = value);
         Bind(a => a.RoomObjectCollectibleVisuals, value => ShotBlockVisuals.RoomObjectCollectibleVisuals = value);
+        Bind(a => a.RoomObjectRevealAndWallVisuals, value => ShotBlockVisuals.RoomObjectRevealAndWallVisuals = value);
         Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
 
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);

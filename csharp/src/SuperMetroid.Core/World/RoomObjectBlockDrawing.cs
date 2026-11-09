@@ -113,6 +113,9 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Collectible art; compiled terrain retains collision.</summary>
     public InstalledRoomObjectCollectibleVisuals? CollectibleVisuals => _visuals.RoomObjectCollectibleVisuals;
 
+    /// <summary>The installed pictures of the bombed reveals, the escape passage, the escape shaft wall and the animals' rescue wall.</summary>
+    public InstalledRoomObjectRevealAndWallVisuals? RevealAndWallVisuals => _visuals.RoomObjectRevealAndWallVisuals;
+
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining the draw's collision.</summary>
     public void Draw(RoomLevelData level, int blockIndex, RoomObjectDraw draw)
     {
@@ -122,22 +125,22 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         Position16<RoomBlocks> origin = level.Size.CellAtRowMajorIndex(blockIndex);
         if (BombedRevealObjectDraws.TryGet(draw, out var bombedReveal))
         {
-            DrawCompiledBlockInstruction(level, bombedReveal, origin);
+            DrawRevealOrWall(level, bombedReveal, origin, Installed(RevealAndWallVisuals, "reveal and wall"));
             return;
         }
         if (CrateriaMainstreetEscapePassageDraws.TryGetDraw(draw, out var clearedPassage))
         {
-            DrawCompiledBlockInstruction(level, clearedPassage, origin);
+            DrawRevealOrWall(level, clearedPassage, origin, Installed(RevealAndWallVisuals, "reveal and wall"));
             return;
         }
         if (OldTourianEscapeShaftWallDraws.TryGetDraw(draw, out var openWall))
         {
-            DrawCompiledBlockInstruction(level, openWall, origin);
+            DrawRevealOrWall(level, openWall, origin, Installed(RevealAndWallVisuals, "reveal and wall"));
             return;
         }
         if (EscapeAnimalWalls.TryGet(draw, out var animalWall))
         {
-            DrawCompiledBlockInstruction(level, animalWall, origin);
+            DrawRevealOrWall(level, animalWall, origin, Installed(RevealAndWallVisuals, "reveal and wall"));
             return;
         }
         if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.Draw> { Frame: var compiled })
@@ -405,10 +408,15 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         throw new InvalidDataException($"PLM draw {draw} has no compiled definition.");
     }
 
-    /// <summary>Writes each run of a compiled PLM draw from where it starts and applies each authored block.</summary>
-    private static void DrawCompiledBlockInstruction(RoomLevelData level, RoomObjectShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin)
+    /// <summary>
+    /// Writes each run of a reveal or wall frame's terrain from where the run starts, each cell showing its installed
+    /// picture.
+    /// </summary>
+    private static void DrawRevealOrWall(RoomLevelData level, RoomObjectShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin,
+        InstalledRoomObjectRevealAndWallVisuals visuals)
     {
         ReadOnlySpan<RoomObjectShotBlockDrawDefinitions.Run> runs = definition.Runs.Span;
+        int cell = 0;
         for (int runIndex = 0; runIndex < runs.Length; runIndex++)
         {
             RoomObjectShotBlockDrawDefinitions.Run run = runs[runIndex];
@@ -417,7 +425,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             for (int offset = 0; offset < run.Count; offset++)
             {
                 Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(vertical ? 0 : offset, vertical ? offset : 0);
-                DrawTerrainAt(level, definition.Draw, block, run.Blocks.Span[offset]);
+                DrawTerrainAt(level, definition.Draw, block, run.Blocks.Span[offset], visuals.GetAppearance(definition.Draw, cell++));
             }
         }
     }

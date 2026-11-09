@@ -52,6 +52,27 @@ internal static class RoomObjectContentIdentity
         });
     }
 
+    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectRevealAndWallVisuals"/>.</summary>
+    extension(InstalledRoomObjectRevealAndWallVisuals visuals)
+    {
+        /// <summary>Canonical identity of every installed reveal and wall frame's pictures, excluding gameplay mechanics.</summary>
+        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectRevealAndWallVisuals), content =>
+        {
+            foreach (var frame in RoomObjectRevealAndWallVisualFiles.All.OrderBy(item => RoomObjectRevealAndWallVisualFiles.VisualId(item.Draw), StringComparer.Ordinal))
+            {
+                int cells = 0;
+                foreach (RoomObjectShotBlockDrawDefinitions.Run run in frame.Runs.Span)
+                    cells += run.Count;
+                var appearances = new RoomBlockAppearance[cells];
+                for (int cell = 0; cell < cells; cell++)
+                    appearances[cell] = visuals.GetAppearance(frame.Draw, cell);
+                content.AppendName("frame", RoomObjectRevealAndWallVisualFiles.VisualId(frame.Draw));
+                content.Append("runs", frame.Runs.Length);
+                content.AppendAppearances("blocks", appearances);
+            }
+        });
+    }
+
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBotwoonWallVisuals"/>.</summary>
     extension(InstalledRoomObjectBotwoonWallVisuals visuals)
     {

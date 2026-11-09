@@ -34,10 +34,10 @@ internal static class DownwardGateVisualsVerification
             "stock gate visual retains the physical column art");
 
         DownwardGateVisualsRenderResult
-            Render(InstalledRoomObjectDownwardGateVisuals visuals)
+            Render()
         {
             (TestAddressSpace bus, RoomLevelData level, RoomObjectSystem roomObjects, int gateBlockIndex) = CreateDownwardGateFixture(
-                    DownwardGateTriggerBehavior.BlueLeft, visuals);
+                    DownwardGateTriggerBehavior.BlueLeft);
             StepDownwardGateObject(roomObjects, level);
             AssertEqual(RoomBlockAppearance.Of(0x0ff),
                 level.DisplayedAppearance(gateBlockIndex + level.Size.X),
@@ -53,7 +53,7 @@ internal static class DownwardGateVisualsVerification
                 triggerStreamed);
         }
 
-        var native = Render(stock);
+        var native = Render();
         AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.ShootableBlock), native.Physical,
             "stock gate draw retains its physical second-column word");
         AssertEqual(RoomBlockAppearance.Of(0x0ff), native.Streamed,

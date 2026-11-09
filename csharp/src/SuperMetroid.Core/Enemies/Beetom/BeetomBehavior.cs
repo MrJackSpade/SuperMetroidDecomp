@@ -293,7 +293,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomProgram.HopRight);
     }
 
-    /// <summary>Starts the attached blood-drain instruction list for the current facing.</summary>
+    /// <summary>Starts the attached blood-drain program for the current facing.</summary>
     internal static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimationScript(
@@ -359,7 +359,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBeetomVerticalArc(slot, state, level, risingDelta, fallingDelta);
 
         // The horizontal half still runs on the exact frame that vertical collision changes
-        // the function pointer. That ordering is easy to lose when expressing the two axes
+        // the AI function. That ordering is easy to lose when expressing the two axes
         // as a single host movement vector.
         SignedSixteenSixteen displacement = arc == BeetomArcKind.Lunge
             ? (direction == HorizontalDirection.Left ? SignedSixteenSixteen.FromWholePixels(-3) : SignedSixteenSixteen.FromWholePixels(3))
@@ -468,9 +468,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
-            tableIndex = WrappingCounter.AddWord(tableIndex, tableIndexDelta);
+            tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
-            accumulatedHeight = WrappingCounter.AddWord(accumulatedHeight,
+            accumulatedHeight = WrappingCounter.AddCount(accumulatedHeight,
                 EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive));
             if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
                 return tableIndex;

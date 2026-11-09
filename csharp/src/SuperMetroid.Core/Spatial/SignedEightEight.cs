@@ -37,11 +37,11 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
     /// velocity's high byte do: a negative velocity's whole part reads 256 larger.
     /// </summary>
     [IntegerQuantity("whole-pixel byte of an 8.8 velocity")]
-    public int WholeByte => EightEight.WholeOf(RawValue);
+    public int UnsignedWholePixels => EightEight.WholeOf(RawValue);
 
     /// <summary>The fraction's eight bits, 0 through 255 256ths of a pixel.</summary>
     [IntegerQuantity("fraction byte of an 8.8 velocity")]
-    public int FractionByte => EightEight.FractionOf(RawValue);
+    public int FractionSubpixels => EightEight.FractionOf(RawValue);
 
     /// <summary>Whether the velocity points toward decreasing coordinates, leftward or upward.</summary>
     public bool IsNegative => SignedRawValue < 0;

@@ -18,7 +18,7 @@ internal static class ChootFallingPathDefinitions
     /// </summary>
     /// <remarks>
     /// The authored path holds all 73 motion pairs. Choot consumes one pair per fall frame and
-    /// adds its signed offsets to the 16-bit path origin; the following
+    /// adds its signed offsets to the wrapping path origin; the following
     /// loop Y distance is separate from this path.
     /// </remarks>
     private static readonly Offset16<RoomPixels>[] Normal =

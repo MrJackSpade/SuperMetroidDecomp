@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
-/// <summary>The room sprite-object programs the named object kinds reach, by their instruction lists.</summary>
+/// <summary>The room sprite-object programs the named object kinds reach.</summary>
 internal enum RoomSpriteObjectProgram
 {
     /// <summary>Draygon foaming at the mouth animation script.</summary>

@@ -52,7 +52,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FinishActivity:
-                // Left/right lists use duplicate opcodes with byte-for-byte state effects.
+                // Left/right programs use duplicate steps with identical state effects.
                 FinishFuneNamiheActivity(state);
                 break;
             default:
@@ -94,10 +94,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case FuneNamiheEnemyFunction.FuneWaitForCooldown:
-                // INC occurs before CMP. BMI tests the signed subtraction result rather
-                // than performing an unsigned branch; ordinary room parameters are small,
+                // The counter steps before the comparison. The comparison tests the sign of the difference rather
+                // than comparing unsigned; ordinary room parameters are small,
                 // but the distinction remains visible at the 32768 wrap boundary.
-                state.CooldownTimer = WrappingCounter.IncrementWord(state.CooldownTimer);
+                state.CooldownTimer = WrappingCounter.IncrementCount(state.CooldownTimer);
                 if (WrappingCounter.IsBehind(state.CooldownTimer, state.CooldownTime))
                     return;
 
@@ -114,7 +114,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                         "Namihe proximity AI requires the active Samus actor.");
                 }
 
-                // IsSamusWithinAPixelRowsOfEnemy takes the modular absolute difference and
+                // The row-proximity test takes the modular absolute difference and
                 // uses a strict comparison. Equality at the configured distance stays idle.
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.Y.Whole,
@@ -131,7 +131,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case FuneNamiheEnemyFunction.FuneActivityNoOp:
             case FuneNamiheEnemyFunction.NamiheActivityNoOp:
-                // The active animation's finish opcode is the only owner allowed to leave
+                // The active animation's finish step is the only owner allowed to leave
                 // these inert states. Main AI intentionally does nothing until that command.
                 return;
 
@@ -142,8 +142,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Models <c>SetFuneNamiheInstList</c>: installs the animation the species, activity and facing select. Both
-    /// instruction timers are reset together.
+    /// Installs the animation the species, activity and facing select. Both
+    /// program timers are reset together.
     /// </summary>
     private static void InstallFuneNamiheAnimationScript(
         RoomEnemySlot slot,
@@ -177,7 +177,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             : FuneNamiheEnemyFunction.FuneWaitForCooldown;
     }
 
-    /// <summary>Binds the shared fireball pre-instruction to 8.8 horizontal travel and inclusive camera culling.</summary>
+    /// <summary>Binds the shared fireball frame behaviour to 8.8 horizontal travel and inclusive camera culling.</summary>
     internal static void AddFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

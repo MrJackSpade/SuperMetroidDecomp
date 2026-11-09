@@ -168,8 +168,8 @@ internal static class MotherBrainNeckKinematics
         // below reduces it to body+(32,-50), but retaining the two stages keeps each
         // segment's equation separately readable.
         Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
-        ByteAngle lower = lowerAngle.ToByteAngle();
-        ByteAngle upper = upperAngle.ToByteAngle();
+        TrigonometryAngle lower = lowerAngle.ToTrigonometryAngle();
+        TrigonometryAngle upper = upperAngle.ToTrigonometryAngle();
 
         var joints = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
         for (int joint = 0; joint < MotherBrainNeckJointDefinitions.LowerCount; joint++)
@@ -182,7 +182,7 @@ internal static class MotherBrainNeckKinematics
     /// <summary>Places a lower-neck joint from the body-relative reference point and its signed polar displacement.</summary>
     private static Position16<RoomPixels> CalculateLowerSegment(
         Position16<RoomPixels> reference,
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int distance) =>
         reference + new Offset16<RoomPixels>(112, -96) + CalculatePolarOffset(angle, distance);
 
@@ -190,16 +190,16 @@ internal static class MotherBrainNeckKinematics
     /// One joint's displacement: the sine multiply for the angle (X) and the angle plus a
     /// quarter turn (Y), each added to the anchor wrapping at 65536.
     /// </summary>
-    private static Offset16<RoomPixels> CalculatePolarOffset(ByteAngle angle, int distance) =>
+    private static Offset16<RoomPixels> CalculatePolarOffset(TrigonometryAngle angle, int distance) =>
         new(CalculateSignedComponent(angle, distance),
-            CalculateSignedComponent(angle.TurnedBy(ByteAngle.QuarterTurn), distance));
+            CalculateSignedComponent(angle.TurnedBy(TrigonometryAngle.QuarterTurn), distance));
 
     /// <summary>
     /// Exact signed multiply/high-word behavior of the sine multiply. A joint lies at most 127 pixels from its anchor:
     /// the neck's distances are 2, 10 and 20.
     /// </summary>
     internal static int CalculateSignedComponent(
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int distance)
     {
         int sine = Trigonometry.SignedSine(angle);

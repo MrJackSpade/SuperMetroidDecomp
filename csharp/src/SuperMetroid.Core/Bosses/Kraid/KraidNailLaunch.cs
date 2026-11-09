@@ -13,6 +13,6 @@ public static class KraidNailLaunch
     /// random choice changes these words or requires a stored lookup.
     /// </remarks>
     public static FixedVector<RoomPixels> FromSiblingVelocity(int siblingYWhole) =>
-        FixedVector<RoomPixels>.FromWords(KraidNailLaunchDefinitions.LeftwardWhole, 0,
+        FixedVector<RoomPixels>.FromStoredParts(KraidNailLaunchDefinitions.LeftwardWhole, 0,
             CoordinateAxis.AsSigned(siblingYWhole) < 0 ? KraidNailLaunchDefinitions.DownwardWhole : KraidNailLaunchDefinitions.UpwardWhole, 0);
 }

@@ -269,7 +269,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         Position16<RoomPixels> explosion = new(
             CoordinateAxis.Wrap(slot.Position.X.Whole + xOffset), CoordinateAxis.Wrap(slot.Position.Y.Whole + yOffset));
 
-        // GenerateRandomNumber is called exactly once per explosion. Values below 0x4000
+        // The shared random sequence advances exactly once per explosion. Values below 16384
         // select the large explosion; all other values select animation three (smoke).
         int randomNumber = _room.Random.Generate();
         MiscDustAnimation animation = randomNumber < 16384
@@ -291,9 +291,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     {
         int frame = Ensure.NotNull(door).FrameCounter;
 
-        // AnimateCeresElevatorPlatform does not belong to either arrival
+        // The elevator platform's animation does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door
-        // actor keeps alternating these four turning-floor tilemap bytes forever. Omitting this
+        // actor keeps alternating the turning floor's platform frames forever. Omitting this
         // queue made the moving sprite pad flash correctly, then left the landed floor platform
         // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
         _room.Services.DrawFloor(CeresFloorAnimation.PlatformFrame((frame & 2) >> 1));

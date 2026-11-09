@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// Which of the pause frame's button labels are lit (#1467), as <c>SetPauseScreenButtonLabelPalettes</c>
-/// sets them: on the map page, while unpausing, or on the equipment page.
+/// Which of the pause frame's button labels are lit (#1467), as the pause screen lights them: on the map page, while
+/// unpausing, or on the equipment page.
 /// </summary>
 internal enum PauseButtonHighlight
 {

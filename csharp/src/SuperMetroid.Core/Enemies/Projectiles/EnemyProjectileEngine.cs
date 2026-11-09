@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The enemy-projectile engine: the eighteen physical slots, allocation and definition setup, the
-/// per-frame pass (pre-instructions, then each instruction list), the instruction interpreter, both draw-priority
+/// per-frame pass (frame behaviours, then each program), the program interpreter, both draw-priority
 /// passes and the Samus collision passes. Species behavior arrives through registered handlers; the engine names
 /// no species.
 /// </summary>
@@ -99,7 +99,7 @@ internal sealed class EnemyProjectileEngine
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
             .Select(index => new RoomEnemyProjectileSlot(index))
             .ToArray();
-    /// <summary>The 8-bit frame counter sampled by the current projectile pass; verification drives it to step instructions.</summary>
+    /// <summary>The frame counter of 0 through 255 sampled by the current projectile pass; verification drives it to step programs.</summary>
     internal int CurrentFrame8 { get; set; }
 
     /// <summary>A shot meets an enemy projectile only inside the same 32-pixel cell: the shift that selects the cell.</summary>
@@ -111,7 +111,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The pixel offset within an 8-pixel half block.</summary>
     private const int HalfBlockPixelMask = 7;
 
-    /// <summary>The 16-bit frame counter for the current projectile pass.</summary>
+    /// <summary>The frame counter of 0 through 65535 for the current projectile pass.</summary>
     internal int CurrentFrame16 { get; private set; }
 
     /// <summary>All eighteen physical slots, including currently inactive slots.</summary>
@@ -168,7 +168,7 @@ internal sealed class EnemyProjectileEngine
                 // The collision handler only marks non-plasma shots spent. It does not call the
                 // ordinary enemy-impact routine and therefore cannot turn a freshly fired
                 // Super Missile (or its invisible link) into an explosion in the producer
-                // frame. Its own pre-instruction consumes the mark on the next projectile pass.
+                // frame. Its own frame behaviour consumes the mark on the next projectile pass.
                 if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
                     shot.IsSpent = true;
 
@@ -198,12 +198,12 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>One projectile pass: every live slot's pre-instruction, then its instruction list.</summary>
+    /// <summary>One projectile pass: every live slot's frame behaviour, then its program.</summary>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int frameCounterByte,
+        int frameCycle,
         SamusBombProjectileSystem? samusBombs,
         int frameCounter)
     {
@@ -218,11 +218,11 @@ internal sealed class EnemyProjectileEngine
         // allocates another projectile. Allocation searches from the last slot down without changing
         // the pass's outer index. A child allocated below the current physical index is therefore
         // reached later in THIS pass; a child allocated above it waits until the next pass.
-        // Reusing the current slot also lets the replacement's instruction list run in this
-        // pass after the pre-instruction returns. Reading each array entry at loop time
+        // Reusing the current slot also lets the replacement's program run in this
+        // pass after the frame behaviour returns. Reading each array entry at loop time
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
-        CurrentFrame8 = frameCounterByte;
+        CurrentFrame8 = frameCycle;
         CurrentFrame16 = frameCounter;
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
@@ -237,10 +237,10 @@ internal sealed class EnemyProjectileEngine
                 level,
                 samus,
                 camera,
-                frameCounterByte,
+                frameCycle,
                 samusBombs);
             // The pass does not re-read the identity after the frame behaviour: a slot whose identity
-            // the pre-instruction released still runs its instructions in this pass (a power-bombed
+            // the frame behaviour released still runs its program in this pass (a power-bombed
             // Draygon goop that reaches Samus attaches through its touch list). A slot the port
             // cleared outright has no timer or animation left, so processing it does nothing.
             ProcessEnemyProjectileInstructions(projectile, samus, camera);
@@ -248,7 +248,7 @@ internal sealed class EnemyProjectileEngine
 
     }
 
-    /// <summary>Publishes projectile hurt requests after PLMs; the next Samus phase consumes them.</summary>
+    /// <summary>Publishes projectile hurt requests after room objects; the next Samus phase consumes them.</summary>
     public void ResolveEnemyProjectileSamusHits(SamusState? samus)
     {
         _room.EnsureLoaded();
@@ -374,8 +374,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Copies the seven-word definition record installed by
-    /// <c>SpawnEprojInner</c>. Family initializers may then replace fields exactly as their
+    /// Copies the definition record a projectile spawn installs.
+    /// Family initializers may then replace fields exactly as their
     /// authored initializer does; centralizing the copy prevents each projectile translation
     /// from inventing subtly different radius/property semantics.
     /// </summary>
@@ -387,13 +387,13 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
         projectile.Kind = kind;
         projectile.FrameBehavior = definition.FrameBehavior;
-        // SpawnEprojInner starts the instruction timer at one, so the first step runs on the first pass. A kind without
+        // The spawn starts the program timer at one, so the first step runs on the first pass. A kind without
         // a typed start has its spawner start the program its producer chooses.
         projectile.FrameHold = WrappingCountdown.Start(1);
         if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
             projectile.StartAnimation(animation);
 
-        // SpawnEprojInner shows the blank frame before the first list tick. It is intentionally not the program's first
+        // The spawn shows the blank frame before the first program tick. It is intentionally not the program's first
         // frame; advances to that on its own pass.
         projectile.Frame = EnemyProjectileFrameId.Blank;
         projectile.Radius = definition.Radius;
@@ -407,22 +407,22 @@ internal sealed class EnemyProjectileEngine
         projectile.Graphics = graphics;
     }
 
-    /// <summary>Runs the projectile's current pre-instruction before its program advances.</summary>
+    /// <summary>Runs the projectile's current frame behaviour before its program advances.</summary>
     private void RunEnemyProjectileFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        int frameCounterByte,
+        int frameCycle,
         SamusBombProjectileSystem? samusBombs)
     {
         EnemyProjectileFrameBehavior id = projectile.FrameBehavior;
         if (!Handlers.TryGetFrameBehavior(id, out EnemyProjectileFrameBehaviorHandler? handler))
         {
             throw new InvalidDataException(
-                $"Enemy projectile pre-instruction {projectile.FrameBehavior} is not translated.");
+                $"Enemy projectile frame behaviour {projectile.FrameBehavior} is not translated.");
         }
-        handler(new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCounterByte, samusBombs));
+        handler(new EnemyProjectileFrameBehaviorContext(projectile, level, samus, camera, frameCycle, samusBombs));
     }
 
     /// <summary>Moves one projectile axis through each crossed room block and clamps it flush at the first collision.</summary>
@@ -459,7 +459,7 @@ internal sealed class EnemyProjectileEngine
         // The block scan checks every room block crossed by the projectile's perpendicular
         // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
         // right/down projectiles collide one pixel earlier than their counterparts.
-        // The edge wraps at the room's sixteen-bit coordinate width, as the probe's block bounds check expects.
+        // The edge wraps past the room coordinates' 65535, as the probe's block bounds check expects.
         int movementEdge = CoordinateAxis.Wrap(nextPosition +
             (movingNegative ? -movementRadius : movementRadius - 1));
         int firstPerpendicularBlock = (perpendicularPosition - perpendicularRadius) >> 4;
@@ -703,7 +703,7 @@ internal sealed class EnemyProjectileEngine
             return;
         }
 
-        // A slot its pre-instruction cleared this pass has no program left, so its instructions do nothing.
+        // A slot its frame behaviour cleared this pass has no program left, so its program does nothing.
         if (!projectile.IsActive)
             return;
         throw new InvalidOperationException($"Enemy projectile {projectile.Kind} in slot {projectile.SlotIndex} runs no program.");
@@ -711,9 +711,9 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Runs the death actor's two explosion cues. Both consume one object-number operand and one
-    /// RNG word; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that word's fields that offset X and Y
+    /// random sample; <paramref name="xScatter"/> and <paramref name="yScatter"/> read that sample's fields that offset X and Y
     /// around the death actor, before both are centred back by <paramref name="center"/>.
-    /// CreateSpriteAtPos owns a separate finite pool, so these decorations never
+    /// Sprite objects own a separate finite pool, so these decorations never
     /// consume one of the eighteen pickup/death projectile slots.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(
@@ -740,9 +740,9 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(projectile);
         // The fields and centres are authored byte operands (checked below), so the offsets stay within one byte.
-        RandomSampleField xRange = RequireLowByteField(scatter.XRange);
+        RandomSampleField xRange = RequireLowHalfField(scatter.XRange);
         int xCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.X);
-        RandomSampleField yRange = RequireLowByteField(scatter.YRange);
+        RandomSampleField yRange = RequireLowHalfField(scatter.YRange);
         int yCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
@@ -770,14 +770,14 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// <paramref name="field"/>, checked to lie within a sample's low byte, as the scatter's authored byte operand does.
     /// </summary>
-    private static RandomSampleField RequireLowByteField(RandomSampleField field)
+    private static RandomSampleField RequireLowHalfField(RandomSampleField field)
     {
-        _ = Ensure.BetweenInclusive(0, LowByteBits, field.Shift + field.Width);
+        _ = Ensure.BetweenInclusive(0, LowHalfBits, field.Shift + field.Width);
         return field;
     }
 
     /// <summary>The bits of a sample's low byte, the only bits a scatter's range reads.</summary>
-    private const int LowByteBits = 8;
+    private const int LowHalfBits = 8;
 
     /// <summary>
     /// Allocates the shared room-graphics dust/explosion actor.
@@ -845,8 +845,8 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Spawns the save station's projectile with the room's graphics and initializes it.
-    /// The game derives the actor origin from the currently executing save-station
-    /// PLM: one block right and two blocks above its trigger block.
+    /// The game derives the actor origin from the currently running save-station
+    /// room object: one block right and two blocks above its trigger block.
     /// </summary>
     public void SpawnSaveStationElectricity(int roomObjectBlockIndex, int roomWidthInBlocks)
     {
@@ -857,7 +857,7 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
         {
-            // SpawnEprojInner deliberately drops a spawn when all eighteen physical slots
+            // The projectile spawn deliberately drops a spawn when all eighteen physical slots
             // are occupied. This is the game's finite-pool behavior, not a host error.
             return;
         }
@@ -901,7 +901,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Spawns one particle through <c>SpawnEprojInner</c>'s definition copy (damage four,
+    /// Spawns one particle through the projectile spawn's definition copy (damage four,
     /// contact enabled, Skree or Metaree animation), then applies the shared particle
     /// initializer's position and 8.8 velocity.
     /// </summary>
@@ -923,7 +923,7 @@ internal sealed class EnemyProjectileEngine
         particle.Velocity = velocity;
     }
 
-    /// <summary>Runs common <c>CreateADudShot</c> for a protected head hitbox.</summary>
+    /// <summary>Creates the common dud shot for a protected head hitbox.</summary>
     internal void CreateEnemyProjectileDudShot(SamusProjectileSlot projectile)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(

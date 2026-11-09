@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 public static class EnemyShotTiming
 {
     /// <summary>
-    /// NormalEnemyShotAI stores sixteen frames of
+    /// The normal enemy shot AI stores sixteen frames of
     /// invincibility after a damaging projectile with the Plasma bit set.
     /// </summary>
     public const int PlasmaInvincibilityFrames = 16;

@@ -17,7 +17,7 @@ public sealed class MultiviolaEnemyState
     /// The flight heading, from its spawn settings, reflected by exclusive-or at each wall or floor; its velocity is
     /// rebuilt from it every update.
     /// </summary>
-    public ByteAngle Heading { get; internal set; }
+    public TrigonometryAngle Heading { get; internal set; }
 
     /// <summary>The flight speed, from its spawn settings, multiplied with the heading's sine and cosine.</summary>
     public int Speed { get; internal set; }

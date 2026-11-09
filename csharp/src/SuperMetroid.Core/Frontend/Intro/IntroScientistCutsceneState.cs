@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Scripted Ceres laboratory vignette between intro pages three and four.</summary>
 internal sealed class IntroScientistCutsceneState
 {
-    /// <summary>Delivered or examined Baby actor whose instruction list drives scene completion.</summary>
+    /// <summary>Delivered or examined Baby actor whose program drives scene completion.</summary>
     internal readonly IntroDiscoverySprite baby;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor program.</summary>
@@ -58,7 +58,7 @@ internal sealed class IntroScientistCutsceneState
 
         // The delivery behaviour deletes only when the *alternate* intro counter reaches zero during the
         // later page-four reverse crossfade. The forward scientist fade decrements the
-        // cinematic-function counter while IntroCrossFadeTimer remains 127.
+        // cinematic-function counter while the intro crossfade counter remains 127.
         if (introCrossfadeTimer == 0)
         {
             baby.Start(CinematicSpriteProgram.Delete);
@@ -67,7 +67,7 @@ internal sealed class IntroScientistCutsceneState
         {
             if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
             {
-                // AD68 moves the camera left while keeping the delivered baby fixed
+                // The delivery scene moves the camera left while keeping the delivered baby fixed
                 // relative to the laboratory subjects.
                 Background += new Offset16<RoomPixels>(-1, 0);
                 baby.WholePosition += new Offset16<ScreenPixels>(1, 0);
@@ -75,7 +75,7 @@ internal sealed class IntroScientistCutsceneState
             else if (Scene == IntroLaboratoryScene.Examination &&
                 CoordinateAxis.Difference(Background.Y, 8) < 0)
             {
-                // ADA6 moves the second laboratory page down from -24 to +8 while the
+                // The examination scene moves the second laboratory page down from -24 to +8 while the
                 // examined baby rises by the same 32 pixels.
                 Background += new Offset16<RoomPixels>(0, 1);
                 baby.WholePosition += new Offset16<ScreenPixels>(0, -1);

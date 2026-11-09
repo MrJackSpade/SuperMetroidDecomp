@@ -27,11 +27,11 @@ internal static class WrappingTimerStepsVerification
     /// <summary>Steps a word counter past the top, and inside the word.</summary>
     internal static void VerifyWordCounterStep()
     {
-        AssertEqual(0x010F, WrappingCounter.AddWord(0xFFFF, 0x0110), "a step past $FFFF wraps to the bottom");
-        AssertEqual(0x0410, WrappingCounter.AddWord(0x0300, 0x0110), "a step inside the word adds plainly");
-        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounter.AddWord(ushort.MaxValue + 1, 1),
+        AssertEqual(0x010F, WrappingCounter.AddCount(0xFFFF, 0x0110), "a step past $FFFF wraps to the bottom");
+        AssertEqual(0x0410, WrappingCounter.AddCount(0x0300, 0x0110), "a step inside the word adds plainly");
+        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounter.AddCount(ushort.MaxValue + 1, 1),
             "a counter above a word is rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounter.AddWord(0, -1), "a negative step is rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => WrappingCounter.AddCount(0, -1), "a negative step is rejected");
     }
 
     /// <summary>Loads a zero loop count and decrements it, and saturates a countdown at zero.</summary>

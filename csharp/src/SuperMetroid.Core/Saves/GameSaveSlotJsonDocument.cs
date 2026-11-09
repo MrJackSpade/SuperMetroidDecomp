@@ -48,14 +48,14 @@ public sealed record GameSaveSlotJsonDocument
     public required bool JapaneseText { get; init; }
 
     /// <summary>
-    /// The cumulative item-PLM setup count, not a percentage. Gameplay wraps it to zero after
+    /// The cumulative count of item room objects set up, not a percentage. Gameplay wraps it to zero after
     /// <see cref="SaveFieldValue.MaximumValue"/>; the save only carries the value it reached.
     /// </summary>
     public required int LoadedItemCount { get; init; }
 
     /// <summary>The debug-mode setting the slot was saved with, carried unchanged.</summary>
     /// <remarks>
-    /// The JSON property keeps the schema-two name <c>cartridgeDebugFlag</c>, so saves written before the rename stay
+    /// The JSON property keeps its schema-two name, so saves written before the rename stay
     /// readable and new saves stay readable by earlier builds.
     /// </remarks>
     [JsonPropertyName("cartridgeDebugFlag")]

@@ -13,7 +13,7 @@ public sealed class ZoaEnemyState
     /// </summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
-    /// <summary>Element index zero through three in the instruction-list pointer table.</summary>
+    /// <summary>Element index zero through three in the program table.</summary>
     public ZoaAnimationSelector AnimationScriptTableIndex { get; internal set; }
 
     /// <summary>

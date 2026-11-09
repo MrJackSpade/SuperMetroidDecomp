@@ -43,10 +43,10 @@ public readonly record struct DachoraGlowCycle
     public int UpdatesLeft => count % UpdatesPerFrame;
 
     /// <summary>The cycle after counting one update off it, borrowing from the frame when no updates are left.</summary>
-    public DachoraGlowCycle CountedDown() => new(WrappingCounter.DecrementWord(count));
+    public DachoraGlowCycle CountedDown() => new(WrappingCounter.DecrementCount(count));
 
     /// <summary>The cycle after a step of <paramref name="step"/>'s frames and updates, carrying updates into the frame.</summary>
-    public DachoraGlowCycle Stepped(DachoraGlowCycle step) => new(WrappingCounter.AddWord(count, step.count));
+    public DachoraGlowCycle Stepped(DachoraGlowCycle step) => new(WrappingCounter.AddCount(count, step.count));
 
     /// <summary>Whether the cycle is short of <paramref name="end"/>, as the game compares them by the sign of their difference.</summary>
     public bool IsShortOf(DachoraGlowCycle end) => WrappingCounter.IsBehind(count, end.count);

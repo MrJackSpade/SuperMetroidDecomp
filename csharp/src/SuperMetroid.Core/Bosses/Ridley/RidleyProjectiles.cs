@@ -40,8 +40,8 @@ internal sealed class RidleyProjectiles
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(ridley);
         int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
         int muzzleY = ridley.Position.Y.Whole - 43;
-        ByteAngle angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzleX), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzleY))).ToTableAngle().TurnedBy(ByteAngle.QuarterTurn);
+        TrigonometryAngle angle = EnemyMath.CalculateBearing(
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzleX), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzleY))).ToTableAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
         if (state.FacingDirection == RidleyFacing.Left)
         {
@@ -67,7 +67,7 @@ internal sealed class RidleyProjectiles
         // signed 8.8 velocity whose magnitude never exceeds 1280.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
             EnemyMath.MultiplySineSample(FireballSpeed, angle),
-            EnemyMath.MultiplySineSample(FireballSpeed, angle.TurnedBy(ByteAngle.QuarterTurn)));
+            EnemyMath.MultiplySineSample(FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Allocates Ridley's fireball at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
@@ -166,7 +166,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Decrements the low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
     internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
-        LowByteCountdownStep step = WrappingCounter.DecrementLowByte(source.RemainingAfterburns);
+        LowHalfCountdownStep step = WrappingCounter.DecrementLowHalf(source.RemainingAfterburns);
         source.RemainingAfterburns = step.Remaining.RemainingFrames;
         if (step.IsNegative)
             return;

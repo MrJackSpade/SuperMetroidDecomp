@@ -29,5 +29,5 @@ public sealed class WaverEnemyState
     internal void AdvanceWave() => Angle = Angle.TurnedBySteps(2);
 
     /// <summary>Reflects the wave phase by half a turn, as a vertical collision does.</summary>
-    internal void ReflectWave() => Angle = Angle.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn);
+    internal void ReflectWave() => Angle = Angle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn);
 }

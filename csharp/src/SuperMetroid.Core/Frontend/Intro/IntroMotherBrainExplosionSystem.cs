@@ -24,7 +24,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         if (actors.Count != 0)
             throw new InvalidOperationException("The intro Mother Brain explosions were already spawned.");
 
-        // Despite their adjacent definition addresses, the retail routine explicitly
+        // Although their definitions are listed together, the retail game explicitly
         // spawns three small actors first and five big actors second. Each initializer uses
         // its parameter as an index into independent position and start-delay tables.
         for (int parameter = 0; parameter < IntroMotherBrainDefinitions.SmallExplosionCount; parameter++)

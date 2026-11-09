@@ -28,7 +28,7 @@ internal static class FlyOwnedStateVerification
         state.AdvanceCircle(clockwise: true);
         AssertEqual(RotationAngle.Zero, state.Angle, "sixteen circling updates complete a revolution");
         state.AdvanceCircle(clockwise: false);
-        AssertEqual((byte)240, state.Angle.ToByteAngle().RawValue, "an anticlockwise step from zero wraps to the last step");
+        AssertEqual((byte)240, state.Angle.ToTrigonometryAngle().RawValue, "an anticlockwise step from zero wraps to the last step");
         Console.WriteLine("Fly owned state: the circling revolution and its wrap match.");
     }
 

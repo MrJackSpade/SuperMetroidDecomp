@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
-/// <summary>Chozo statue hand PLMs: the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
+/// <summary>Chozo statue hand room objects: the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
 [RoomLifetime]
 internal sealed class ChozoStatueObjects : IChozoStatueHand
 {
@@ -16,17 +16,17 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     private readonly SharedGameState? _system;
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
-    /// <summary>Descending PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
+    /// <summary>Descending room-object allocation scanned for temporary reactions and persistent statue actors.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds Chozo hand behavior to its room services and PLM slot allocation.</summary>
+    /// <summary>Binds Chozo hand behavior to its room services and room-object slot allocation.</summary>
     internal ChozoStatueObjects(SharedGameState? system, AreaId area, RoomObjectSlotTable slotTable)
     {
         _system = system;
         _area = area;
         _slotTable = slotTable;
     }
-    /// <summary>The room's enemy PLM requests for hand activation, bound when the room loads.</summary>
+    /// <summary>The room's enemy room-object requests for hand activation, bound when the room loads.</summary>
     private IEnemyObjectRequests? _chozoHands;
     /// <summary>The room's FX owner for Lower Norfair acid height writes, bound when the room loads.</summary>
     private RoomFxOverlayState? _chozoRoomFx;
@@ -66,7 +66,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         if (eligible)
         {
             IEnemyObjectRequests hands = _chozoHands ??
-                throw new InvalidOperationException("Chozo hand has no bound enemy PLM requests.");
+                throw new InvalidOperationException("Chozo hand has no bound enemy room-object requests.");
             hands.ActivateChozoStatueHandTrigger(level, block.Index);
             // The nested hardcoded spawn occurs while the reaction slot is occupied.
             hands.ApplyPendingChozoStatueObjects(level, this);

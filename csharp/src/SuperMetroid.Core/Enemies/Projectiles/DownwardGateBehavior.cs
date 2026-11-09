@@ -12,7 +12,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>Shared finite projectile pool holding moving and closed gate actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Binds gate PLM requests to the current room's projectile owner.</summary>
+    /// <summary>Binds gate room-object requests to the current room's projectile owner.</summary>
     internal DownwardGateBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -42,7 +42,7 @@ internal sealed class DownwardGateBehavior
         }
     }
 
-    /// <summary>Allocates a gate actor at its PLM block and ties it to its gate's block for waking.</summary>
+    /// <summary>Allocates a gate actor at its room object's block and ties it to its gate's block for waking.</summary>
     private void SpawnDownwardGateProjectile(
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
@@ -57,7 +57,7 @@ internal sealed class DownwardGateBehavior
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return; // SpawnEprojInner's deliberate finite-pool failure.
+            return; // The projectile spawn's deliberate finite-pool failure.
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
         int blockX = request.RoomObjectBlockIndex % roomWidthInBlocks;
@@ -69,7 +69,7 @@ internal sealed class DownwardGateBehavior
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0))));
 
-        // The gate's block ties the actor to its gate; the gate's PLM searches for it when the gate needs to open again.
+        // The gate's block ties the actor to its gate; the gate's room object searches for it when the gate needs to open again.
         projectile.State = new DownwardGateState(request.RoomObjectBlockIndex);
     }
 
@@ -92,7 +92,7 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
         {
             throw new InvalidDataException(
-                $"Downward gate PLM block {roomObjectBlockIndex} has no associated gate projectile.");
+                $"Downward gate room object at block {roomObjectBlockIndex} has no associated gate projectile.");
         }
 
         ResumeDownwardGate(projectile);
@@ -149,7 +149,7 @@ internal sealed class DownwardGateBehavior
         }
     }
 
-    /// <summary>Connects the moving-gate pre-instruction to the projectile handler table.</summary>
+    /// <summary>Connects the moving-gate frame behaviour to the projectile handler table.</summary>
     internal static void AddDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, cue));

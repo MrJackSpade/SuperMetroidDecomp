@@ -102,7 +102,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.BombCounter = W(MotherBrainMemory.BombCounter);
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");
-        state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWords(
+        state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromStoredParts(
             W(MotherBrainMemory.DeathBeamNext + 2), W(MotherBrainMemory.DeathBeamNext),
             W(MotherBrainMemory.DeathBeamNext + 6), W(MotherBrainMemory.DeathBeamNext + 4));
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(

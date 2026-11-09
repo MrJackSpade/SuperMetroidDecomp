@@ -28,7 +28,7 @@ internal static class IntroEggMotionDefinitionsVerification
         {
             int address = ShellGravitySteps + (IntroEggMotionDefinitions.FragmentCurveFrames + past) * 4;
             SignedSixteenSixteen step = installed.Step(past);
-            AssertEqual(cartridge.ReadCartridgeWord(address), step.WholeWord, $"shell step {past} past the curve: whole word");
+            AssertEqual(cartridge.ReadCartridgeWord(address), step.UnsignedWholePixels, $"shell step {past} past the curve: whole word");
             AssertEqual(cartridge.ReadCartridgeWord(address + 2), step.Fraction, $"shell step {past} past the curve: fraction word");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => installed.Step(stepsPastCurve), "no fragment falls a fourth step past the curve");
@@ -53,7 +53,7 @@ internal static class IntroEggMotionDefinitionsVerification
             for (int index = 0; index < count; index++)
             {
                 var actual = sample(index);
-                AssertEqual(Word(address + index * 4), actual.WholeWord, "Egg motion native whole word");
+                AssertEqual(Word(address + index * 4), actual.UnsignedWholePixels, "Egg motion native whole word");
                 AssertEqual(Word(address + index * 4 + 2), actual.Fraction, "Egg motion native fraction word");
             }
         }

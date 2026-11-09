@@ -127,7 +127,7 @@ internal sealed class IntroCeresFlightState
                 break;
 
             case IntroCeresFlightPhase.WaitForMusicQueue:
-                // The approach enables the display once CheckIfMusicIsQueued reports an empty queue.
+                // The approach enables the display once the music queue is empty.
                 if (!audio.HasQueuedMusic)
                 {
                     brightness = 15;
@@ -208,7 +208,7 @@ internal sealed class IntroCeresFlightState
         else
         {
             layers.Add(new TurningFloorLayer(FloorView.Turned(angle, zoom,
-                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedWord()),
+                CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedOffset()),
                 CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront)
                     // The flight shows no colour effect on its floor; it fades with the display's brightness (#1512).
@@ -266,7 +266,7 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
 
-    /// <summary>Creates one cinematic actor with its authored timing and active pre-instruction.</summary>
+    /// <summary>Creates one cinematic actor with its authored timing and active frame behaviour.</summary>
     private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
@@ -346,8 +346,8 @@ internal sealed class IntroCeresFlightState
     /// <summary>Lowers brightness every other dispatch until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
-        // The fade step seeds both fade words with one. The fade-out calls HandleFadingOut, which
-        // therefore removes one brightness level every other frame and ends with the screen blanked.
+        // The fade step seeds both fade delays with one. The fade-out therefore removes one brightness level every
+        // other frame and ends with the screen blanked.
         if (fadeDelay-- > 0)
             return;
         fadeDelay = 1;
@@ -367,7 +367,7 @@ internal sealed class IntroCeresFlightState
             if (actor.FrameBehavior != definition.ActiveFrameBehavior)
             {
                 throw new InvalidDataException(
-                    $"Ceres flight actor {index} names invalid pre-instruction " +
+                    $"Ceres flight actor {index} names invalid frame behaviour " +
                     $"{actor.FrameBehavior}.");
             }
             if (definition.WrapX)
@@ -402,7 +402,7 @@ internal sealed class IntroCeresFlightState
             CeresFlightActorDefinitions.FrontStars.ActiveFrameBehavior)
         {
             throw new InvalidDataException(
-                $"Ceres front stars name invalid pre-instruction " +
+                $"Ceres front stars name invalid frame behaviour " +
                 $"{stars.FrameBehavior}.");
         }
         // The rush lasts while the zoom falls from 512 by 16 an update, about 32 updates, so the speed rises from four

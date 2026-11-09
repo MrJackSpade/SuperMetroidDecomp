@@ -175,7 +175,7 @@ internal sealed class CeresRidleyGetaway
     /// scrolled by the getaway's offset across the floor.
     /// </summary>
     internal static FloorView? FloorTransform(RidleyEnemyState? ridley) => ridley is { GetawayActive: true } getaway
-        ? FloorView.Turned(getaway.FloorAngle, getaway.FloorZoom, getaway.FloorCenter.AsSignedWord(), getaway.FloorOffset)
+        ? FloorView.Turned(getaway.FloorAngle, getaway.FloorZoom, getaway.FloorCenter.AsSignedOffset(), getaway.FloorOffset)
         : null;
 
     /// <summary>Selects the zoom-dependent fifteen-color Ceres getaway palette without replacing transparent color zero.</summary>

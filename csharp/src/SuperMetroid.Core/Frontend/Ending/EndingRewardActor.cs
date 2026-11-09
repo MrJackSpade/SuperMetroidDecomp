@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ten reward gesture and jump actors (#1416: the values are arbitrary; the cinematic-object definition
-/// words that named them are verification's <c>EndingRewardNativeWords</c>).
+/// The ten reward gesture and jump actors (#1416: the values are arbitrary).
 /// </summary>
 internal enum EndingRewardActor
 {

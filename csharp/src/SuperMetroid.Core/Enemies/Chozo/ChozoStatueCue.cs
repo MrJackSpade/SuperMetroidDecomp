@@ -16,7 +16,7 @@ internal abstract record ChozoStatueCue
     /// <param name="CarryRecord">The carry-motion record, 0 through 31, a <see cref="Move"/> cue moves by.</param>
     internal sealed record Move(int CarryRecord) : ChozoStatueCue;
 
-    /// <summary>Sets the pre-instruction main AI runs.</summary>
+    /// <summary>Sets the frame behaviour main AI runs.</summary>
     /// <param name="FrameBehavior">The cue's FrameBehavior operand.</param>
     internal sealed record SetFrameBehavior(ChozoStatueFrameBehavior FrameBehavior) : ChozoStatueCue;
 

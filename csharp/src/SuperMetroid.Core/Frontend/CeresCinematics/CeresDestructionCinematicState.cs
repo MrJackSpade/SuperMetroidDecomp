@@ -91,7 +91,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private readonly SamusPowerBombExplosionState stationExplosion = new();
     /// <summary>Engine-flicker palette program created at the Zebes reveal boundary.</summary>
     internal RoomPaletteFxSystem? PaletteFx { get; set; }
-    /// <summary>Planet actor whose sliding pre-instruction uses the larger acceleration.</summary>
+    /// <summary>Planet actor whose sliding frame behaviour uses the larger acceleration.</summary>
     internal IntroDiscoverySprite? ZebesPlanetActor { get; private set; }
     /// <summary>Star actor whose offscreen deletion completes the cinematic.</summary>
     private IntroDiscoverySprite? zebesCompletionStarActor;
@@ -421,7 +421,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
 
-        // C11B loads the station's two views; the floor shows the station's installed picture (#1467).
+        // The scene setup loads the station's two views; the floor shows the station's installed picture (#1467).
         FloorShot = CeresFloorShot.Station;
         Backdrop = content.CeresFlight.Backdrop;
 
@@ -449,8 +449,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         if (Artwork is null)
             throw new InvalidOperationException("Zebes reveal requires installed cinematic artwork.");
 
-        // C699 starts on the planet-reveal page. It also stages the rear-gunship view, which becomes visible
-        // only when C7CA later selects the floor again.
+        // The reveal starts on the planet-reveal page. It also stages the rear-gunship view, which becomes visible
+        // only when the gunship step later selects the floor again.
         ZebesRevealed = true;
         FloorShot = CeresFloorShot.ZebesApproach;
 
@@ -528,7 +528,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private bool MusicQueueFinished() =>
         audio is null ? --musicQueueTimer <= 0 : !audio.HasQueuedMusic;
 
-    /// <summary>Installs an authored sprite's position, attributes, instruction list, and pre-instruction.</summary>
+    /// <summary>Installs an authored sprite's position, attributes, program, and frame behaviour.</summary>
     private static IntroDiscoverySprite CreateActor(
         CeresDestructionActorDefinition definition)
     {
@@ -560,9 +560,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         explosionSpawnerFrame++;
 
         // The explosion spawner remains invisible for 128 frames, spawns five staggered small blasts,
-        // waits 80 BEFORE installing the repeating-blast pre-instruction, then runs
-        // it during the final 64-frame wait. The pre-instruction stops on departure;
-        // the instruction list still reaches its four terminal blasts afterward.
+        // waits 80 BEFORE installing the repeating-blast frame behaviour, then runs
+        // it during the final 64-frame wait. The frame behaviour stops on departure;
+        // the program still reaches its four terminal blasts afterward.
         CeresExplosionSpawnEvents events = CeresExplosions.EventsAtFrame(explosionSpawnerFrame,
             CeresDestructionPhaseGroups.BeforeFlyingAway.Contains(Phase), ref explosionRepeatCountdown);
         if (events.Initial)
@@ -598,7 +598,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 if (actor.FrameBehavior != definition.ActiveFrameBehavior)
                 {
                     throw new InvalidDataException(
-                        $"Ceres destruction actor {index} names invalid pre-instruction " +
+                        $"Ceres destruction actor {index} names invalid frame behaviour " +
                         $"{actor.FrameBehavior}.");
                 }
                 if (definition.WrapX)
@@ -708,8 +708,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 actor.Position = actor.Position.WithY(actor.Position.Y.MovedBy(-slideSpeed.ToSixteenSixteenDelta()));
                 if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)
                 {
-                    // Each reveal object deletes itself before its 8-bit
-                    // screen Y coordinate can wrap below the screen. Only star sheet five
+                    // Each reveal object deletes itself before its screen Y,
+                    // 0 through 255, can wrap below the screen. Only star sheet five
                     // additionally hands the cinematic back to game load.
                     if (definition.CompletesScene)
                     {
@@ -817,7 +817,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
                     ? CeresDestructionSceneDefinitions.CeresFloorCenter
                     : CeresDestructionSceneDefinitions.ZebesFloorCenter,
-                Background.Whole.AsSignedWord());
+                Background.Whole.AsSignedOffset());
             // Before the station is set up, and after the explosion with Samus aboard clears it, the floor shows nothing.
             if (FloorShot is not { } shot)
                 layers = [sprites];

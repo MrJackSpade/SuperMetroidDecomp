@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
-/// <summary>One editable initial screen placement for a fixed rear-view Ceres actor; coordinates preserve sixteen-bit encoding rather than motion parameters.</summary>
+/// <summary>One editable initial screen placement for a fixed rear-view Ceres actor; coordinates are wrapping screen positions, 0 through 65535, rather than motion parameters.</summary>
 [SpatialComponents("External format: the actor layout JSON stores each spawn position as x/y screen words.")]
 public sealed record CeresFlightActorPlacement
 {

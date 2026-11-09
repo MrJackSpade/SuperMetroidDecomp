@@ -34,10 +34,10 @@ internal static class SkulteraOwnedStateVerification
 
         state.Angle = RotationAngle.FromSteps(250);
         state.AdvanceAngle();
-        AssertEqual((byte)4, state.Angle.ToByteAngle().RawValue, "the phase wraps forward through a full turn");
+        AssertEqual((byte)4, state.Angle.ToTrigonometryAngle().RawValue, "the phase wraps forward through a full turn");
         state.AngleDelta = -state.AngleDelta;
         state.AdvanceAngle();
-        AssertEqual((byte)250, state.Angle.ToByteAngle().RawValue, "the phase wraps backward through a full turn");
+        AssertEqual((byte)250, state.Angle.ToTrigonometryAngle().RawValue, "the phase wraps backward through a full turn");
         Console.WriteLine("Skultera owned state: speeds and phase wrap match.");
     }
 

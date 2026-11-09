@@ -16,7 +16,7 @@ public sealed class KzanEnemyState
     public KzanEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// Top-position wait in actor updates; decremented with 16-bit wrapping, so an initial zero does not expire
+    /// Top-position wait in actor updates; decremented with a wrap below zero to 65535, so an initial zero does not expire
     /// immediately.
     /// </summary>
     public WrappingCountdown FallWaitTimer { get; internal set; }

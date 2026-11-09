@@ -1024,7 +1024,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
                 if (ranActorAi)
                 {
-                    slot.FrameCounter = WrappingCounter.IncrementWord(slot.FrameCounter);
+                    slot.FrameCounter = WrappingCounter.IncrementCount(slot.FrameCounter);
                     // The enemy pass skips the animation script whenever frozen bit
                     // four is present, even if lower-priority hurt bit two selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here

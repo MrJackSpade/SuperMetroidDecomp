@@ -128,7 +128,7 @@ internal sealed class PhantoonPatterns
             if (body.FigureEightSpeed.WholePixels >= PhantoonMotionDefinitions.ForwardFastCap)
             {
                 body.FigureEightSpeed = SignedSixteenSixteen.FromParts(PhantoonMotionDefinitions.ForwardFastCap, 0);
-                body.SpeedPhase = WrappingCounter.IncrementWord(body.SpeedPhase);
+                body.SpeedPhase = WrappingCounter.IncrementCount(body.SpeedPhase);
             }
             return;
         }
@@ -173,7 +173,7 @@ internal sealed class PhantoonPatterns
             if (body.FigureEightSpeed.WholePixels <= cap)
             {
                 body.FigureEightSpeed = SignedSixteenSixteen.FromParts(cap + 1, 0);
-                body.SpeedPhase = WrappingCounter.IncrementWord(body.SpeedPhase);
+                body.SpeedPhase = WrappingCounter.IncrementCount(body.SpeedPhase);
             }
             return;
         }
@@ -512,7 +512,7 @@ internal sealed class PhantoonPatterns
         }
 
         _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundPriority);
-        state.EyeState.RageWaveCount = WrappingCounter.IncrementWord(state.EyeState.RageWaveCount);
+        state.EyeState.RageWaveCount = WrappingCounter.IncrementCount(state.EyeState.RageWaveCount);
         if (state.EyeState.RageWaveCount < PhantoonRageDefinitions.WaveCount)
         {
             state.BodyState.FunctionTimer = PhantoonRageDefinitions.WaveInterval;

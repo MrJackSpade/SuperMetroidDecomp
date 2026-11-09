@@ -90,7 +90,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
 
     /// <summary>
     /// Result published after confirmation has completely closed. Consumers clear it
-    /// through <see cref="ConsumeConfirmationResult"/> at the suspended PLM return seam.
+    /// through <see cref="ConsumeConfirmationResult"/> when the suspended room object that opened the box resumes.
     /// </summary>
     public bool? CompletedConfirmationResult { get; private set; }
 
@@ -104,7 +104,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     /// <summary>
     /// Starts one ordinary gameplay message with its authored layout.
     /// Bindings are parameters because the options menu may remap them; their defaults are
-    /// the words installed by <c>NewSaveFile</c>.
+    /// the bindings a new save file starts with.
     /// </summary>
     /// <param name="messageId">The ordinary message or the gunship save confirmation to show.</param>
     /// <param name="controllerRead">

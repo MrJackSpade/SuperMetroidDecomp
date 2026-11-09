@@ -489,7 +489,7 @@ internal static void VerifySamusExtraDisplacement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
     standing.Kinematics.Radius = new(5, 21);
-    standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(1, 0x8000, 2, 0x4000);
+    standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStanding(
 
         level,
@@ -527,7 +527,7 @@ internal static void VerifySamusExtraDisplacement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
     transition.Kinematics.Radius = new(5, 19);
-    transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
+    transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
     uint transitionXBefore = transition.Kinematics.Position.X.RawValue;
     uint transitionYBefore = transition.Kinematics.Position.Y.RawValue;
     SamusAerialMovement.StepNormalJump(

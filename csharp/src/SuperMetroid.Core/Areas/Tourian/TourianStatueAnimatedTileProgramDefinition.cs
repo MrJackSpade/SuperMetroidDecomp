@@ -21,7 +21,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     public required AnimatedTileObject AnimatedObject { get; init; }
 
     /// <summary>The bytes of statue artwork each shown frame shows.</summary>
-    public required int FrameByteCount { get; init; }
+    public required int FrameArtworkSize { get; init; }
 
     /// <summary>The statue this program animates, as the shared statue animation state names it.</summary>
     public required TourianGreyStatues Statue { get; init; }

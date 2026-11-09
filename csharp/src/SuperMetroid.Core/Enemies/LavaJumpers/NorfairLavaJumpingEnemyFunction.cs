@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>
-/// The routine the Norfair lava-jumping enemy's main AI runs. The retail source is commonly labelled
-/// <c>NorfairLavajumpingEnemy</c>; the authored name record spells the internal name <c>SQUEEWPT</c>.
-/// Its values are arbitrary.
+/// The routine the Norfair lava-jumping enemy's main AI runs; the authored name record spells the internal name
+/// <c>SQUEEWPT</c>. Its values are arbitrary.
 /// </summary>
 public enum NorfairLavaJumpingEnemyFunction
 {

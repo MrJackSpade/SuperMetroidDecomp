@@ -163,7 +163,7 @@ public enum RoomEnemyProjectileKind
     EyeDoorProjectile = 77,
     /// <summary>The Eye Door's sweat actor.</summary>
     EyeDoorSweat = 78,
-    /// <summary>The PLM-spawned smoke actor used by Eye Doors.</summary>
+    /// <summary>The room-object-spawned smoke actor used by Eye Doors.</summary>
     EyeDoorSmoke = 79,
     /// <summary>A parameter-selected dust or explosion effect.</summary>
     MiscDustExplosion = 80,
@@ -241,7 +241,7 @@ public enum RoomEnemyProjectileKind
     SporeSpawnSpore = 116,
     /// <summary>The actor that schedules new spores.</summary>
     SporeSpawnSpawner = 117,
-    /// <summary>Electricity anchored to the current save-station PLM.</summary>
+    /// <summary>Electricity anchored to the current save-station room object.</summary>
     SaveStationElectricity = 118,
     /// <summary>Gate actor spawned when a downward gate begins closing.</summary>
     DownwardGateMoving = 119,

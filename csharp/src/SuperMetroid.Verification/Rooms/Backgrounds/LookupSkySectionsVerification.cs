@@ -72,7 +72,7 @@ internal static class LookupSkySectionsVerification
     {
         for (int index = 0; index < 23; index++)
             AssertEqual(ReadVerificationWord(rom, 0x88aec5 + index * 8),
-                ScrollingSkyBands.GetSection(index).Velocity.WholeWord, "Sky integer speed");
+                ScrollingSkyBands.GetSection(index).Velocity.UnsignedWholePixels, "Sky integer speed");
     }
 
     /// <summary>Checks the HDMA slot mapping, including the duplicate slot at band 8.</summary>

@@ -39258,7 +39258,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Compatibility/LowByteCountdownStep.cs",
+      "path": "csharp/src/SuperMetroid.Core/Compatibility/LowHalfCountdownStep.cs",
       "module": "csharp/src/SuperMetroid.Core/Compatibility",
       "role": "production",
       "namespace": "SuperMetroid.Core.Compatibility",
@@ -44450,7 +44450,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyByteAngleDefinitions.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/EnemyTrigonometryAngleDefinitions.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies",
@@ -78440,7 +78440,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Spatial/ByteAngle.cs",
+      "path": "csharp/src/SuperMetroid.Core/Spatial/TrigonometryAngle.cs",
       "module": "csharp/src/SuperMetroid.Core/Spatial",
       "role": "production",
       "namespace": "SuperMetroid.Core.Spatial",
@@ -134606,7 +134606,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Compatibility/LowByteCountdownStepAccess.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Compatibility/LowHalfCountdownStepAccess.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Compatibility",

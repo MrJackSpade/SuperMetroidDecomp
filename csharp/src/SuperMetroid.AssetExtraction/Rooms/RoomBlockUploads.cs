@@ -206,7 +206,7 @@ internal static class RoomBlockUploads
                 foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
                 {
                     yield return AnimatedCharacterPlacement.At(AnimatedTileFrames.Picture(statue.AnimatedObject, picture), AnimatedTileVramDestinations.WordOf(statue.AnimatedObject),
-                        inputs.AnimatedTiles.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameByteCount));
+                        inputs.AnimatedTiles.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameArtworkSize));
                 }
             }
         }

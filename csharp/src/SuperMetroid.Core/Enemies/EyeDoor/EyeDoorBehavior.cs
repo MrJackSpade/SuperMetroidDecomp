@@ -27,9 +27,9 @@ internal sealed class EyeDoorBehavior
     private SharedGameState? _eyeDoorProjectileSystem;
 
     /// <summary>
-    /// Replays <c>SpawnEprojWithRoomGfx</c> and the definition-specific initializer selected
-    /// by the eye-door PLM instruction. The PLM block index and room argument are retained
-    /// because the game initializers read both directly from their spawning PLM slot.
+    /// Replays spawning a projectile with room graphics and the definition-specific initializer selected
+    /// by the eye-door room object's program. The room object's block index and room argument are retained
+    /// because the game initializers read both directly from their spawning room object.
     /// </summary>
     public void SpawnEyeDoorProjectile(
         EyeDoorProjectileRequest request,
@@ -254,7 +254,7 @@ internal sealed class EyeDoorBehavior
         MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
-        // Stores only the list pointer, keeping the definition's one-update timer.
+        // Stores only the program, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
@@ -310,7 +310,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
     internal static SignedEightEight ReadEyeDoorAcceleration(int tableIndex)
     {
-        int sample = Trigonometry.SignedSine(ByteAngle.Wrapped(tableIndex));
+        int sample = Trigonometry.SignedSine(TrigonometryAngle.Wrapped(tableIndex));
         return SignedEightEight.FromSignedRaw(sample >> 4);
     }
 
@@ -353,10 +353,10 @@ internal sealed class EyeDoorBehavior
     private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, IRoomSamus samus)
     {
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
-        shot.Heading = new ByteAngle(EnemyMath.CalculateBearing(
+        shot.Heading = new TrigonometryAngle(EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).RawValue);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading)));
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.TurnedBySteps(-EnemyByteAngleDefinitions.QuarterTurn))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
@@ -431,7 +431,8 @@ internal sealed class EyeDoorBehavior
 
     /// <summary>Scans every touched room block along one projectile collision edge.</summary>
     /// <remarks>
-    /// The block scans count the blocks to test as ((end) - (start &amp; 0xFFF0)) &gt;&gt; 4 in 16 bits
+    /// The block scans count the blocks to test as the distance from the start's block edge to the end, over 16,
+    /// wrapping past 65535,
     /// and test one more than that, stepping the level index by a row (horizontal edge) or a
     /// block (vertical edge). A zero radius on a block boundary makes the count underflow to
     /// 4095, so the scan runs on through the room until it meets a solid block.

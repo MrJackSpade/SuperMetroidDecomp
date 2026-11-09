@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Which DeadTourian occupant a slot holds, one per definition the species installs.</summary>
+/// <summary>Which Tourian corpse occupant a slot holds, one per definition the species installs.</summary>
 internal enum DeadTourianPart
 {
     /// <summary>The <see cref="EnemyDefinitionId.CorpseRipper"/> occupant.</summary>

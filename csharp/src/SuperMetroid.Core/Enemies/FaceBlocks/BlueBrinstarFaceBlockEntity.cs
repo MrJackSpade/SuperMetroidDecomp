@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
-/// <summary>One BlueBrinstarFaceBlock occupant: its own AI handlers, with the shared reactions.</summary>
-/// <param name="species">The BlueBrinstarFaceBlock species owner.</param>
+/// <summary>One blue Brinstar face block occupant: its own AI handlers, with the shared reactions.</summary>
+/// <param name="species">The blue Brinstar face block species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)

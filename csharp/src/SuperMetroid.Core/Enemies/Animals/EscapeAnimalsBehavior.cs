@@ -123,7 +123,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Escape Etecoon pre-instruction {state.FrameBehavior?.ToString() ?? "none"} " +
+                    $"Escape Etecoon frame behaviour {state.FrameBehavior?.ToString() ?? "none"} " +
                     "is not translated.");
         }
     }
@@ -138,8 +138,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Escape Etecoon walking requires room collision data.");
 
         // The stored speed is signed 8.8; the slope-ignoring horizontal mover receives signed
-        // 16.16, hence the exact eight-bit shift. The event test is inside the collision
-        // branch in the retail routine and must not turn an animal around in open space.
+        // 16.16, hence the exact shift by 256. The event test is inside the collision
+        // branch in the retail game and must not turn an animal around in open space.
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
@@ -220,7 +220,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Samples the critters-escaped event for Dachora's instruction-list branch and room revisit handling.</summary>
+    /// <summary>Samples the critters-escaped event for Dachora's program branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>

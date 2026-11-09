@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// every segment runs its animation script and is processed off screen; the five internal pieces also ignore Samus's
 /// touch. Owner distance: how many slots each segment sits after the chain's first segment, its owner: its
 /// position in the chain. The joints integrate symmetric increments 1,2,3,4,3,2 into steps 0,1,3,6,10,13,15: the
-/// initial neighbor angle is -2048 times the step, wrapped to a 16-bit turn, and the initial curling angle delta is 32
+/// initial neighbor angle is -2048 times the step, wrapped to a turn of 65536, and the initial curling angle delta is 32
 /// times it, the same curvature at 1/64 of the angle's magnitude. Initial program: both saws their primary-piece list,
 /// the center segment the head-down list, the four arms the normal arm list. Layer: saws and head use layer 2, arms
 /// layer 4. Callback by part: fixed anchor, head, final saw and ordinary arms have distinct roles.

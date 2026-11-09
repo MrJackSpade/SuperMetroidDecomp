@@ -20,13 +20,13 @@ internal static class DraygonBurialEvirs
         double radians = angle * Math.PI / 128;
         double x = Math.Cos(radians), y = Math.Sin(radians);
         return new(
-            FixedVector<RoomPixels>.FromWords(
+            FixedVector<RoomPixels>.FromStoredParts(
                 0, (int)Math.Floor(ushort.MaxValue * Math.Abs(x)),
                 0, (int)Math.Floor(ushort.MaxValue * y)),
             new Position16<RoomPixels>(
                 CoordinateAxis.Wrap((int)Math.Floor(CenterX + Radius * x)),
                 CoordinateAxis.Wrap((int)Math.Floor(CenterY - Radius * y))),
-            ByteAngle.Wrapped(angle));
+            TrigonometryAngle.Wrapped(angle));
     }
 
     /// <summary>

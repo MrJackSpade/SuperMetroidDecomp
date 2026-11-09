@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 [RoomLifetime]
 public sealed class CeresHazeState
 {
-    /// <summary>Mutually exclusive pre-instruction phases of the room-owned haze.</summary>
+    /// <summary>Mutually exclusive per-frame phases of the room-owned haze.</summary>
     private enum Phase
     {
         /// <summary>Waits for the room fade-in gate without changing the published haze strength.</summary>
@@ -27,7 +27,7 @@ public sealed class CeresHazeState
         /// <summary>Writes strengths sixteen through one before decrementing, retaining one at zero.</summary>
         FadingOut,
     }
-    /// <summary>Current haze pre-instruction phase, independent of its selected color channel.</summary>
+    /// <summary>Current haze phase, independent of its selected color channel.</summary>
     private Phase _phase;
     /// <summary>Fade position used before incrementing on entry and before decrementing on exit.</summary>
     private int _counter;
@@ -52,7 +52,7 @@ public sealed class CeresHazeState
         Intensity = immediateViewport ? CeresHazeDefinitions.FadeSteps - 1 : 0;
     }
 
-    /// <summary>One pre-instruction call. Transition changes do not rewrite the selected channel.</summary>
+    /// <summary>One per-frame haze step. Transition changes do not rewrite the selected channel.</summary>
     /// <param name="roomFade">
     /// The door fade: on fade-in a waiting owner enters fade-in and writes its first strength on this same update; on
     /// fade-out a holding owner changes phase now but publishes its first fade-out strength on the following update.

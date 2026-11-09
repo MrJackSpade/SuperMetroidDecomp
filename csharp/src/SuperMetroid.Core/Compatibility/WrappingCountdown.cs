@@ -152,7 +152,7 @@ public readonly record struct WrappingCountdown
     /// Takes one away from the <see cref="EightBitCount"/> alone: it wraps from 0 to 255 and the rest of the countdown is
     /// kept. The step's tests describe the eight-bit count.
     /// </summary>
-    public LowByteCountdownStep DecrementEightBitCount() =>
+    public LowHalfCountdownStep DecrementEightBitCount() =>
         new(WithEightBitCount(unchecked((byte)(EightBitCount - 1))));
 
     /// <summary>

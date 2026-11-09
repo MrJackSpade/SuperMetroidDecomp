@@ -168,7 +168,7 @@ internal static class XrayGameplayTests
                     ?? throw new InvalidOperationException("A seeded room shows a seeded effect page."),
                 random.Next(FxOverlayPlaneConstants.Rows - bg3Rows + 1), bg3Rows), 32,
                 // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
-                BlendOperation.Add, new ScrollWave(Word(), random.Next(65536), new ByteAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224),
+                BlendOperation.Add, new ScrollWave(Word(), random.Next(65536), new TrigonometryAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224),
                 new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536)));
             bool bg2Subscreen = frame % 4 == 0;
             // Every fourth frame blends with the background lying behind; most others with the overlay; the rest with the colour.

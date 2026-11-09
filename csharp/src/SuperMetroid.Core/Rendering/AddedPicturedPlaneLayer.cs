@@ -23,7 +23,7 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneL
         init => field = Ensure.NotNull(value);
     } = Ensure.NotNull(Plane);
 
-    /// <summary>The plane line shown on the screen's top line, every line's, within a signed sixteen-bit offset.</summary>
+    /// <summary>The plane line shown on the screen's top line, every line's, within an offset of -32768 through 32767.</summary>
     public int VerticalScroll
     {
         get;

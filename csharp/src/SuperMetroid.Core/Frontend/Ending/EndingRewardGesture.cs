@@ -15,7 +15,7 @@ internal sealed class EndingRewardGesture
     /// <summary>Distinguishes the suitless jump request from the suited handoff.</summary>
     public bool SuitlessJumpRequested { get; private set; }
 
-    /// <summary>Spawns the suitless pair or the suited head, body, and arm in E342 allocation order.</summary>
+    /// <summary>Spawns the suitless pair or the suited head, body, and arm in the reward's allocation order.</summary>
     public EndingRewardGesture(EndingReward reward)
     {
         // The cast keeps the allocation order: a suited reward's head first, then body, then arm.
@@ -90,7 +90,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
-    /// <summary>Creates an actor from compiled initialization and binds its discovery pre-instruction.</summary>
+    /// <summary>Creates an actor from compiled initialization and binds its discovery frame behaviour.</summary>
     private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActors.Get(definition);

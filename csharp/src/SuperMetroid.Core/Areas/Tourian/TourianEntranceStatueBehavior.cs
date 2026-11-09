@@ -195,7 +195,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - TourianEntranceStatueVerticalOffset);
     }
 
-    /// <summary>Registers the shared pre-instruction for base, Ridley, and Phantoon decoration actors.</summary>
+    /// <summary>Registers the shared per-frame behaviour for base, Ridley, and Phantoon decoration actors.</summary>
     internal void AddTourianEntranceStatueProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

@@ -82,7 +82,7 @@ internal static class AnimatedTileFrameArtwork
             foreach (TourianStatueTilePicture picture in RoomFxAnimatedTilePictures.TourianStatuePictures)
                 yield return new(AnimatedTileFrames.Picture(statue.AnimatedObject, picture),
                     AnimatedTileImageSources.TourianStatue(statue.AnimatedObject, picture),
-                    atlas => atlas.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameByteCount));
+                    atlas => atlas.TourianStatuePicture(statue.AnimatedObject, picture, statue.FrameArtworkSize));
         }
     }
 }

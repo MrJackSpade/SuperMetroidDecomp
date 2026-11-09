@@ -37,7 +37,7 @@ public readonly record struct SignedSixteenSixteen
     public static SignedSixteenSixteen Zero => default;
 
     /// <summary>The whole-pixel word as its unsigned native bit pattern.</summary>
-    public ushort WholeWord => unchecked((ushort)(RawValue >> 16));
+    public ushort UnsignedWholePixels => unchecked((ushort)(RawValue >> 16));
 
     /// <summary>The signed whole-pixel word.</summary>
     [IntegerQuantity("whole-pixel part of a signed distance")]
@@ -152,7 +152,7 @@ public readonly record struct SignedSixteenSixteen
     /// reverse one: the fraction's borrow never reaches the whole pixels. It equals the true reversal when the fraction is
     /// zero and lies one pixel further along the original direction when it is not.
     /// </summary>
-    public SignedSixteenSixteen NegatedWordsSeparately() =>
+    public SignedSixteenSixteen NegatedPartsSeparately() =>
         FromParts(unchecked((short)-WholePixels), unchecked((ushort)-Fraction));
 
     /// <summary>

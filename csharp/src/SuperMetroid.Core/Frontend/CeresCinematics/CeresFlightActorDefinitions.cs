@@ -43,7 +43,7 @@ internal static class CeresFlightActorDefinitions
             new(80, 159), CeresSpriteColouring.SpaceObjects, SignedEightEight.Zero, 16384, true);
 
     /// <summary>The space station under attack.
-    /// Its initializer places it at (116,160), palette0C00; its callback adds 1/16 pixel with nine-bit X wrap;
+    /// Its initializer places it at (116,160) in the station's colours; its callback adds 1/16 pixel, wrapping X past 511;
     /// its animation is the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpriteFrameBehavior.CeresUnderAttack, CinematicSpriteProgram.CeresUnderAttack,

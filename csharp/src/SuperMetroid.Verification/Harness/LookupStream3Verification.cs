@@ -1056,7 +1056,7 @@ internal static class LookupStream3Verification
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
-            AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new ByteAngle((byte)angle)), "stream 3 native calculated swing art frame");
+            AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve(new TrigonometryAngle((byte)angle)), "stream 3 native calculated swing art frame");
         AssertTrue(swingFrames.frames is null, "stream 3 stock swing frame lookup discarded");
         byte[] fileSelectJson = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         var fileSelect = FileSelectSourcePresentation.Load(new MemoryStream(fileSelectJson));

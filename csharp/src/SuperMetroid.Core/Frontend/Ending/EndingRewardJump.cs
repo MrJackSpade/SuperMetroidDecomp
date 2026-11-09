@@ -39,7 +39,7 @@ internal sealed class EndingRewardJump
     public bool ShotRequested { get; private set; }
     /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
     public bool FallingSheetSelected { get; private set; }
-    /// <summary>Whole-pixel body height used to select the falling and landed instruction lists.</summary>
+    /// <summary>Whole-pixel body height used to select the falling and landed programs.</summary>
     public int BodyY => CoordinateAxis.AsSigned(body.WholePosition.Y);
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
@@ -162,7 +162,7 @@ internal sealed class EndingRewardJump
 
     /// <summary>Requires a suited jump's head actor when a head-specific instruction runs.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
-    /// <summary>Creates a jump actor from its catalogued initial position, palette, and instruction pointers.</summary>
+    /// <summary>Creates a jump actor from its catalogued initial position, palette, and programs.</summary>
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActors.Get(definition);

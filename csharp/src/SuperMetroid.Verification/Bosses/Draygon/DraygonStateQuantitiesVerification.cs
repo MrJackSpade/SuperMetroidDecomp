@@ -65,13 +65,13 @@ internal static class DraygonStateQuantitiesVerification
         state.SwoopVelocity = default;
         state.GoopYOscillationAngle = RotationAngle.FromSteps(byte.MaxValue);
         DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
-        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new ByteAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
+        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
         AssertEqual(RotationAngle.Zero, state.GoopYOscillationAngle, "the phase wraps from the last table unit to zero");
         DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
-        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new ByteAngle(0), 32))), state.Body.Position.Y.Whole,
+        AssertEqual(unchecked((ushort)(384 + EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
-        AssertEqual(1, (int)state.GoopYOscillationAngle.ToByteAngle().RawValue, "the wrapped phase advances by one unit");
+        AssertEqual(1, (int)state.GoopYOscillationAngle.ToTrigonometryAngle().RawValue, "the wrapped phase advances by one unit");
     }
 
     /// <summary>
@@ -95,15 +95,15 @@ internal static class DraygonStateQuantitiesVerification
         enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()));
 
         Position16<RoomPixels> expectedBody = center + new Offset16<RoomPixels>(
-            unchecked((short)EnemyMath.ReadEightBitCosineProduct(new ByteAngle(angle), radiusWhole)),
-            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(new ByteAngle(angle), radiusWhole >> 2)));
+            unchecked((short)EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(angle), radiusWhole)),
+            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(new TrigonometryAngle(angle), radiusWhole >> 2)));
         AssertEqual(expectedBody, state.Body.Position.Whole, "the body is placed from the angle and radius before they advance");
         uint nativeRadius = unchecked(SixteenSixteenWords.Compose(radiusWhole, radiusFraction) + 8192u);
         AssertEqual(unchecked((int)nativeRadius), state.SpiralXRadius.RawValue, "the radius grows by one eighth of a pixel, carrying into its whole pixels");
-        AssertEqual((ushort)6, state.SpiralXRadius.WholeWord, "the carried radius reaches the next whole pixel");
+        AssertEqual((ushort)6, state.SpiralXRadius.UnsignedWholePixels, "the carried radius reaches the next whole pixel");
         ushort nativeDelta = unchecked(angleDeltaRaw - 1);
         AssertEqual(nativeDelta, state.SpiralAngleDelta.RawValue, "the angular step slows by 1/256 unit");
-        AssertEqual(unchecked((byte)(angle + UnsignedEightEight.Whole(nativeDelta))), state.SpiralAngle.ToByteAngle().RawValue,
+        AssertEqual(unchecked((byte)(angle + UnsignedEightEight.Whole(nativeDelta))), state.SpiralAngle.ToTrigonometryAngle().RawValue,
             "the angle advances by the step's whole units and wraps around the turn");
         AssertEqual(DraygonAiFunction.FinalTailWhips, state.Function, "the lifted centre past its limit ends the spiral");
     }

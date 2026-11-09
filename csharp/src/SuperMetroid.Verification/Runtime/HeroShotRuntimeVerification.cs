@@ -147,7 +147,7 @@ internal static class HeroShotRuntimeVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         AssertEqual(21, samus.Kinematics.Radius.Y, "next alpha publishes landing radius");
         AssertEqual(475, samus.Position.Y.Whole, "alpha does not repeat landing correction");
-        var previous = FixedPosition<RoomPixels>.FromWords(120, 0x1234, 477, 0xabcd);
+        var previous = FixedPosition<RoomPixels>.FromStoredParts(120, 0x1234, 477, 0xabcd);
         AssertEqual(previous.WithY(previous.Y.WithWhole(475)), samus.ApplyPreviousPositionWrites(previous),
             "Native pose correction changes only previous Y, preserving both X words and previous Y fraction");
         AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous),

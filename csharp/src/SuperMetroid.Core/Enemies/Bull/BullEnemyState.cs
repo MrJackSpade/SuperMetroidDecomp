@@ -26,7 +26,7 @@ public sealed class BullEnemyState
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BullProgram> Program { get; set; }
 
-    /// <summary>The current delay, target, acceleration, or deceleration dispatcher pointer.</summary>
+    /// <summary>The current delay, target, acceleration, or deceleration step.</summary>
     public BullEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -37,7 +37,7 @@ public sealed class BullEnemyState
     public int Acceleration
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public sealed class BullEnemyState
     public int Speed
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
     /// <summary>
@@ -73,8 +73,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Accelerate()
     {
-        Acceleration = WrappingCounter.AddWord(Acceleration, AccelerationDelta);
-        Speed = WrappingCounter.AddWord(Speed, Acceleration);
+        Acceleration = WrappingCounter.AddCount(Acceleration, AccelerationDelta);
+        Speed = WrappingCounter.AddCount(Speed, Acceleration);
     }
 
     /// <summary>
@@ -84,8 +84,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Decelerate()
     {
-        Acceleration = WrappingCounter.SubtractWord(Acceleration, AccelerationDelta);
-        Speed = WrappingCounter.SubtractWord(Speed, Acceleration);
+        Acceleration = WrappingCounter.SubtractCount(Acceleration, AccelerationDelta);
+        Speed = WrappingCounter.SubtractCount(Speed, Acceleration);
     }
 
     /// <summary>

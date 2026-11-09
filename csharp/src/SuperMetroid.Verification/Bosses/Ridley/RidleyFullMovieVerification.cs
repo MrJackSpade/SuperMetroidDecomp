@@ -347,7 +347,7 @@ internal static class RidleyFullMovieVerification
             };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x97ff);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            var previous = FixedPosition<RoomPixels>.FromWords(128, 0, 401, 0xb7ff);
+            var previous = FixedPosition<RoomPixels>.FromStoredParts(128, 0, 401, 0xb7ff);
             AssertTrue(SamusPosturePoseTransitions.TryApplyMorphTransition(samus, level,
                 left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0),
                 "source6289 airborne morph accepted");

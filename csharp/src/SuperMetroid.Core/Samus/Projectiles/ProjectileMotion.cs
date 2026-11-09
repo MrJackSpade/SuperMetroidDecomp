@@ -375,7 +375,7 @@ internal sealed class ProjectileMotion
         link.FrameBehavior = SamusProjectileFrameBehavior.SuperMissileLink;
 
         owner.SuperMissileLinkSlot = link.SlotIndex;
-        _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
+        _slotTable.ProjectileCounter = WrappingCounter.IncrementCount(_slotTable.ProjectileCounter);
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>

@@ -121,8 +121,8 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
-        // The game reads the header through the new pointer on every dispatch.
-        // Our cached definition must follow that pointer even during the death frame.
+        // The game reads the new definition on every dispatch.
+        // Our cached definition must follow it even during the death frame.
         enemy.Bind(EnemyDefinitionId.Respawn, _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.Respawn));
     }
 
@@ -284,10 +284,9 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Exact byte-accumulator translation of the random drop selection. Minor drops are renormalized into
-    /// the budget left after enabled super/PB chances; the two major drops retain their raw
-    /// table probabilities. All additions which occurred in eight-bit accumulator mode are
-    /// explicitly wrapped here. The drops Samus can use are offered in the chance table's column order (the minor
+    /// Exact translation of the random drop selection, whose chances are counts of 0 through 255. Minor drops are
+    /// renormalized into the budget left after enabled super/PB chances; the two major drops retain their raw
+    /// table probabilities. Every addition wraps past 255, explicitly here. The drops Samus can use are offered in the chance table's column order (the minor
     /// columns first, then the two major ones), and the first whose accumulated chance reaches the random draw is
     /// chosen; the draw is read before anything else, as the game reads it.
     /// </summary>
@@ -391,10 +390,8 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Uses an explicit boss chance table, a saved enemy header's, or none. A death explosion from a cleared enemy slot
-    /// drops nothing: the drop-chance table indexed by header zero reads a word
-    /// the boot clears and the
-    /// game never writes except for a neighbouring 16-bit store that
-    /// writes zero.
+    /// drops nothing: the drop-chance table indexed by the empty definition reads a value
+    /// the boot clears and the game never sets to anything but zero.
     /// </summary>
     private EnemyDropChances? ResolveEnemyDropChances(RoomEnemyProjectileSlot projectile)
     {
@@ -538,7 +535,7 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
-    /// <summary>Measures the absolute distance between 16-bit coordinates.</summary>
+    /// <summary>Measures the absolute distance between wrapping coordinates of 0 through 65535.</summary>
     private static int AbsoluteWrappedDelta(int left, int right) =>
         CoordinateAxis.Distance(left, right);
 

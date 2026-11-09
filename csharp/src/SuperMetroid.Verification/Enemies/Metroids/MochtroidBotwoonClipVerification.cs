@@ -82,7 +82,7 @@ internal static class MochtroidBotwoonClipVerification
             throw new InvalidDataException("Botwoon Hallway did not initialize Samus.");
         samus.Position = samus.Position.WithWhole(expected.Samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0, 0, 0, 0);
+        samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(0, 0, 0, 0);
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.HasRunningMomentum = false;

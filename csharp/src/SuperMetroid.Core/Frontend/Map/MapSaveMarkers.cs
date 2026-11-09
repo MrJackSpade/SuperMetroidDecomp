@@ -14,13 +14,13 @@ public static class MapSaveMarkers
     /// <remarks>
     /// Independently reviewed for #1165: each of the six original sixteen-slot marker
     /// views has a usable coordinate exactly when the corresponding compiled
-    /// load-station record has a nonzero room pointer. Unused slots have FFFE coordinates
+    /// load-station record names a room. Unused slots have off-map coordinates
     /// and a zero-room placement. Enumerate that existing semantic definition rather
     /// than store a second list of station identities. Validate the area immediately,
     /// before returning the lazy sequence, preserving the previous span API's rejection.
     /// </remarks>
     /// <param name="area">One of the six Zebes area identities; Ceres has no save-map marker list.</param>
-    /// <returns>A lazy ascending sequence of station slots whose compiled load placement has a nonzero room pointer.</returns>
+    /// <returns>A lazy ascending sequence of station slots whose compiled load placement names a room.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area is outside the six supported identities; rejection occurs before enumeration.</exception>
     public static IEnumerable<int> Indices(AreaId area)
     {

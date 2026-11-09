@@ -93,7 +93,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
             ushort expectedWhole = unchecked((ushort)(velocityWhole + (fractionalSum > ushort.MaxValue ? 1 : 0)));
             var accelerated = SignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction) +
                 SignedSixteenSixteen.FromParts(0, gravityFraction);
-            AssertEqual(new VerifyBombSpreadMotionWrapsCase(expectedWhole, unchecked((ushort)fractionalSum)), new VerifyBombSpreadMotionWrapsCase(accelerated.WholeWord, accelerated.Fraction),
+            AssertEqual(new VerifyBombSpreadMotionWrapsCase(expectedWhole, unchecked((ushort)fractionalSum)), new VerifyBombSpreadMotionWrapsCase(accelerated.UnsignedWholePixels, accelerated.Fraction),
                 $"spread gravity from {velocityWhole:X4}.{velocityFraction:X4} carries and wraps like the split words");
         }
     }

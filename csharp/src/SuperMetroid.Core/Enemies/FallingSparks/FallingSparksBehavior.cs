@@ -66,7 +66,7 @@ internal sealed class FallingSparksBehavior
     internal void RunFallingSparkFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
-        int frameCounterByte)
+        int frameCycle)
     {
         // A falling spark first moves through the generic collision helper. The helper's accepted movement is
         // *additional* to the spark's own 16.16 movement below; omitting it shifts the floor-contact frame.
@@ -76,7 +76,7 @@ internal sealed class FallingSparksBehavior
             // The enemy-projectile vertical mover, slope reactions included, reads the spark's whole speed in
             // pixels as an 8.8 speed in 1/256ths of a pixel.
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical,
-                    new SignedEightEight(spark.VerticalSpeed.WholeWord)))
+                    new SignedEightEight(spark.VerticalSpeed.UnsignedWholePixels)))
             {
                 BeginFallingSparkFloorImpact(projectile);
                 return;
@@ -96,7 +96,7 @@ internal sealed class FallingSparksBehavior
         AddFallingSparkVerticalVelocity(projectile);
         AddFallingSparkHorizontalVelocity(projectile);
 
-        if ((frameCounterByte & 3) == 0)
+        if ((frameCycle & 3) == 0)
             SpawnFallingSparkTrail(projectile);
     }
 
@@ -138,7 +138,7 @@ internal sealed class FallingSparksBehavior
             projectile.Graphics);
     }
 
-    /// <summary>Connects the falling-spark pre-instruction to the projectile handler table.</summary>
+    /// <summary>Connects the falling-spark frame behaviour to the projectile handler table.</summary>
     internal void AddFallingSparksProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

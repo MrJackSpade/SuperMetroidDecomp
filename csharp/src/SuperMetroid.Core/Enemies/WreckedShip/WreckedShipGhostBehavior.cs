@@ -352,12 +352,12 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         return componentsChanged;
     }
 
-    /// <summary>Advances WreckedShipGhost's typed animation.</summary>
+    /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Programs, WreckedShipGhostFrameDefinitions.ShownFrames.Of,
             static (WreckedShipGhostEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
-    /// <summary>Ports WreckedShipGhost's main AI.</summary>
+    /// <summary>Runs the Wrecked Ship ghost's main AI.</summary>
     internal static void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWreckedShipGhostMain(slot, slot.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame.Samus);

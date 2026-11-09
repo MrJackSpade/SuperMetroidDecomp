@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// Dissolve 5/6, scroll 9/A and start-game fade C select zero, meaning the installed
 /// hidden anchor, as does start-game handoff 4 (<see cref="GameOptionsPhase.StartGame"/>).
 /// Startup phases 0/1 (<see cref="GameOptionsPhase.FinishFadingOut"/> and
-/// <see cref="GameOptionsPhase.LoadingMenu"/>) also select zero. No pointer
-/// array or generated selection cache is retained. Forged managed phases reject.
+/// <see cref="GameOptionsPhase.LoadingMenu"/>) also select zero. No selection
+/// table or generated selection cache is retained. Forged managed phases reject.
 /// </remarks>
 internal static class GameOptionsCursorPolicy
 {

@@ -22,7 +22,7 @@ public sealed class CeresRevealActorPlacements
 
     /// <summary>Returns the selected initial placement for one actor in the Zebes-reveal spawn order.</summary>
     /// <param name="actorIndex">Index 0..5: planet, upper-left stars, upper-right stars, lower-left stars, lower-right stars, then Planet Zebes title.</param>
-    /// <returns>Named screen-pixel placement used when creating the actor, without changing its instruction list or motion policy.</returns>
+    /// <returns>Named screen-pixel placement used when creating the actor, without changing its program or motion policy.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The actor index is outside 0..5.</exception>
     public CeresRevealActorPlacement this[int actorIndex]
     {

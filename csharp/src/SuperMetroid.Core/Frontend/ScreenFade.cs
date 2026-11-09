@@ -61,11 +61,11 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// AdvanceSlowScreenFadeIn: one cinematic dispatch of fading in. Returns
+    /// One cinematic dispatch of fading in slowly. Returns
     /// true when this call reached full brightness.
     /// </summary>
     /// <remarks>
-    /// Unlike the gameplay fades, these count down the low byte of the delay and reload it
+    /// Unlike the gameplay fades, these count down the lower half of the delay, 0 through 255, and reload it
     /// from the counter, stepping when the decrement reaches zero or wraps negative. Equal seeds
     /// of N therefore step on the Nth call and every N calls after it.
     /// </remarks>
@@ -86,7 +86,7 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// AdvanceSlowScreenFadeOut: one cinematic dispatch of fading out. Returns
+    /// One cinematic dispatch of fading out slowly. Returns
     /// true once brightness is zero (the screen is blanked on that call).
     /// </summary>
     public bool AdvanceSlowFadeOut(ref ScreenBrightness brightness)
@@ -110,7 +110,7 @@ public sealed class ScreenFade
     /// <summary>Decrements the delay's low byte: true while the decremented byte stays positive.</summary>
     private bool ConsumeSlowDelay()
     {
-        LowByteCountdownStep step = Delay.DecrementEightBitCount();
+        LowHalfCountdownStep step = Delay.DecrementEightBitCount();
         Delay = step.Remaining;
         return !step.IsZeroOrNegative;
     }
@@ -125,7 +125,7 @@ public sealed class ScreenFade
         Counter = Counter.WithEightBitCount(0);
     }
 
-    /// <summary>DEC/BMI on the 16-bit counter; returns true when this dispatch only counts down.</summary>
+    /// <summary>Counts the delay down, wrapping below zero; returns true when this dispatch only counts down.</summary>
     private bool ConsumeCounter()
     {
         CountdownStep step = Counter.Decrement();

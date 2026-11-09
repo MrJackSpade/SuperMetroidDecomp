@@ -9,7 +9,7 @@ internal static class PauseMapIndicatorAnimation
     public const int FrameCount = 4;
 
     /// <summary>Calculates the triangular sprite pulse, phase0..3.</summary>
-    /// <remarks>Independently reviewed for #1165: start at5F, rise twice, then fall.
+    /// <remarks>Independently reviewed for #1165: start at frame 95, rise twice, then fall.
     /// The bounded triangle is2-abs(2-phase). Invalid indices throw
     /// ArgumentOutOfRangeException; timer advancement remains caller-owned.</remarks>
     public static MapSpriteId SpritemapId(int frame) => frame switch

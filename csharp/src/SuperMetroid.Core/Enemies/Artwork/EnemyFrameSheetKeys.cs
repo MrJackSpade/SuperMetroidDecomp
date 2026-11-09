@@ -34,5 +34,5 @@ internal static class EnemyFrameSheetKeys
 
     /// <summary><paramref name="compositionName"/>'s underscore-separated words, each capitalized, joined.</summary>
     private static string PascalCase(string compositionName) => string.Concat(compositionName.Split('_')
-        .Select(word => word.Length == 0 ? word : char.ToUpperInvariant(word[0]) + word[1..]));
+        .Select(segment => segment.Length == 0 ? segment : char.ToUpperInvariant(segment[0]) + segment[1..]));
 }

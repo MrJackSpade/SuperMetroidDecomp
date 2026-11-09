@@ -145,8 +145,8 @@ internal static class ShutterNativeArc
         }
         var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
         Word(0xFA8, (ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")));
-        Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.WholeWord);
-        Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.WholeWord);
+        Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.UnsignedWholePixels);
+        Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.UnsignedWholePixels);
         Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(shutter.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);
         Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.LowerEndpoint.Y);
         Word(0x8000, shutter.ReactionDirection == ShutterHeading.LeftOrUp ? 0 : 1);

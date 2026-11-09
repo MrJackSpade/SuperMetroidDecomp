@@ -56,7 +56,7 @@ internal static class DachoraMotionStateVerification
             fallEnemies.DachoraBehavior.RunDachoraMainAi(fallSlot, frame);
 
             string context = $"Dachora falling at {whole} and {fraction}/65536 pixels";
-            AssertEqual(expectedWhole, fall.Speed.WholeWord, $"{context}: whole speed word");
+            AssertEqual(expectedWhole, fall.Speed.UnsignedWholePixels, $"{context}: whole speed word");
             AssertEqual(expectedFraction, fall.Speed.Fraction, $"{context}: speed fraction word");
             AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)expectedWhole), expectedFraction), fall.Speed, context);
         }

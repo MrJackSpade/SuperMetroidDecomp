@@ -384,7 +384,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             : AlcoonProgram.WalkingRightLoop;
     }
 
-    /// <summary>Connects Alcoon fireballs to their movement pre-instruction.</summary>
+    /// <summary>Connects Alcoon fireballs to their movement frame behaviour.</summary>
     internal static void AddAlcoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

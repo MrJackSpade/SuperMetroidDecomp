@@ -25,10 +25,10 @@ internal static class WaverOwnedStateVerification
 
         state.Angle = RotationAngle.FromSteps(0xff);
         state.AdvanceWave();
-        AssertEqual((byte)0x01, state.Angle.ToByteAngle().RawValue, "advancing wraps through a full turn");
+        AssertEqual((byte)0x01, state.Angle.ToTrigonometryAngle().RawValue, "advancing wraps through a full turn");
         state.Angle = RotationAngle.FromSteps(0xc0);
         state.ReflectWave();
-        AssertEqual((byte)0x40, state.Angle.ToByteAngle().RawValue, "reflecting wraps through a full turn");
+        AssertEqual((byte)0x40, state.Angle.ToTrigonometryAngle().RawValue, "reflecting wraps through a full turn");
         Console.WriteLine("Waver owned state: the velocity and phase wraps match.");
     }
 

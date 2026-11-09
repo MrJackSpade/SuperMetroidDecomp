@@ -333,7 +333,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
-            AddBotwoonAngleVector(head, state.MovementAngle.ToByteAngle(), state.Speed);
+            AddBotwoonAngleVector(head, state.MovementAngle.ToTrigonometryAngle(), state.Speed);
         }
         else
         {
@@ -654,7 +654,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int startOffset)
     {
         int speed = BotwoonSpeeds.ForHealthPhase(state.HealthPhase).SpitSpeed;
-        ByteAngle angle = state.SpitAngle.TurnedBySteps(startOffset).ToByteAngle();
+        TrigonometryAngle angle = state.SpitAngle.TurnedBySteps(startOffset).ToTrigonometryAngle();
         for (int projectile = 0; projectile < count; projectile++)
         {
             SpawnBotwoonSpit(head, angle, speed);
@@ -788,7 +788,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the angle table's signed X/Y displacement to the head.</summary>
     private static void AddBotwoonAngleVector(
         RoomEnemySlot head,
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int magnitude)
     {
         int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude));
@@ -1023,7 +1023,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="head">Botwoon's head.</param>
     /// <param name="angle">The spit's direction.</param>
     /// <param name="speed">The spit speed, 0 through 65535.</param>
-    internal void SpawnBotwoonSpit(RoomEnemySlot head, ByteAngle angle, int speed)
+    internal void SpawnBotwoonSpit(RoomEnemySlot head, TrigonometryAngle angle, int speed)
     {
         RoomEnemyProjectileSlot? spit = _projectiles.AllocateEnemyProjectile();
         if (spit is null)

@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Samus's independent items, one flag each. The values are arbitrary and nothing reads them: the save slot equipment
-/// word is the import's SamusEquipmentWordCodec's, and the animation item operand is
-/// the Samus animation's item operand encoding's. Members keep the word's bit order, so enumerating them lists
+/// Samus's independent items, one flag each. The values are arbitrary and nothing reads them: the saved equipment
+/// encoding belongs to the import's equipment codec, and the animation item operand to
+/// the Samus animation's item operand encoding. Members keep the saved order, so enumerating them lists
 /// the items in that order.
 /// </summary>
 [Flags]

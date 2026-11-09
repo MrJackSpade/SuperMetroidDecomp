@@ -138,9 +138,9 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the one-time loop.</summary>
     private static void CalculateInitialBoyonBounceSpeed(BoyonEnemyState state)
     {
-        // Every iteration multiplies two low bytes,
-        // adds the 16-bit product with wraparound, then compares by the result's sign.
-        // The curve saturates at 255 once its 23 stored bytes are exhausted.
+        // Every iteration multiplies two values of 0 through 255,
+        // adds the product, wrapping past 65535, then compares by the result's sign.
+        // The curve saturates at 255 once its 23 stored samples are exhausted.
         for (int guard = 0; guard < BoyonEnemyState.LargestSpeedTableIndex; guard++)
         {
             state.Speed = MultiplyBoyonCurveEntry(state);
@@ -193,7 +193,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
         BoyonBounceCurve.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
 
-    /// <summary>Ports <c>IsSamusWithinAPixelColumnsOfEnemy</c> for Boyon's init1 radius.</summary>
+    /// <summary>Whether Samus lies within Boyon's init1 radius of pixel columns of the enemy.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemySlot slot, SamusState samus)
     {
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);

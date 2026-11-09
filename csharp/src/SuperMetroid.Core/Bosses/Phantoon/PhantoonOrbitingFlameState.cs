@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// radius, and, for an intro flame, how long it circles before its circle starts closing.
 /// </summary>
 /// <param name="angle">The flame's starting angle around the body.</param>
-internal sealed class PhantoonOrbitingFlameState(ByteAngle angle) : EnemyProjectileState
+internal sealed class PhantoonOrbitingFlameState(TrigonometryAngle angle) : EnemyProjectileState
 {
     /// <summary>How many radius values the radius holds before it wraps.</summary>
     private const int RadiusRange = 256;
 
     /// <summary>The flame's angle around Phantoon's body.</summary>
-    internal ByteAngle Angle { get; set; } = angle;
+    internal TrigonometryAngle Angle { get; set; } = angle;
 
     /// <summary>The table units a rage flame turns each update, negative when it circles the other way.</summary>
     internal int AngleStep { get; init; }

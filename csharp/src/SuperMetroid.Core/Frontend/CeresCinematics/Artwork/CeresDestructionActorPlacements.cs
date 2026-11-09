@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// Editable spawn positions for the three persistent actors behind Ceres's explosion.
-/// Their instruction lists, wrap behavior, and movement remain compiled mechanics.
+/// Their programs, wrap behavior, and movement remain compiled mechanics.
 /// </summary>
 public sealed class CeresDestructionActorPlacements
 {

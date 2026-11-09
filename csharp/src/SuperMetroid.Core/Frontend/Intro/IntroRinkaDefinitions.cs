@@ -6,23 +6,22 @@ internal static class IntroRinkaDefinitions
 
     /// <summary>The intro Rinka's initialization, empty frame behaviour, and initial animation.</summary>
     /// <remarks>
-    /// Issues #625 and #990: its animation has
-    /// 17 words, all matched to the original data.
+    /// Issues #625 and #990: its animation matches the original data.
     /// Three ten-call frames select three authored spritemaps,
     /// followed by the start-moving step. The four-frame loop
     /// then selects the second, first, second and third for ten calls
     /// each before its goto returns to the loop's start. The generic interpreter
     /// loads the first frame on relative call 0, the callback and first
     /// loop frame on call 30, and subsequent loop frames on calls 40,
-    /// 50, and 60. Because pre-instruction runs before list advancement,
+    /// 50, and 60. Because the frame behaviour runs before the program advances,
     /// movement begins on the following actor call. The frame order is
     /// authored animation policy; retain the bounded two-phase stream.
     ///
     /// Issues #625 and #991: the three selected spritemaps,
-    /// f=0..2, each have four five-byte entries and tile
-    /// $196+f. All 66 bytes match the original data.
-    /// Entry j=0..3 uses X=0 for even j or 504 for odd j, Y=0 for j&lt;2
-    /// or 248 otherwise, palette seven and priority three, tile $196+f, plus the vertical flip
+    /// f=0..2, each have four parts and tile
+    /// 406+f, matching the original data.
+    /// Part j=0..3 uses X=0 for even j or 504 for odd j, Y=0 for j&lt;2
+    /// or 248 otherwise, the Rinka's colours in front of the scene, tile 406+f, plus the vertical flip
     /// for j&lt;2 and the horizontal flip for even j. This is an exact bounded
     /// four-quadrant construction; the frame program selects no other
     /// spritemaps or adjacent visual data.

@@ -155,7 +155,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge, the two walk redirections, and
-    /// a laser that fires continue the animation elsewhere, as the routines replace the instruction pointer.
+    /// a laser that fires continue the animation elsewhere, as the routines replace the program.
     /// </summary>
     private WorkRobotProgram? ApplyWorkRobotCue(RoomEnemySlot slot, WorkRobotEnemyState state, EnemyInstructionContext context, WorkRobotCue cue)
     {
@@ -251,8 +251,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!step.CheckLedge)
             return null;
 
-        // The game moves only whole X/Y words for this temporary foot probe. In particular,
-        // MoveEnemyDown's collision-produced Y subposition survives after Y is restored.
+        // The game moves only whole X/Y pixels for this temporary foot probe. In particular,
+        // the downward move's collision-produced Y subposition survives after Y is restored.
         state.BackupPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithWrappedWholeX(
             slot.Position.X.Whole + step.LedgeProbeDirection * slot.Radius.X * 2);
@@ -376,7 +376,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Connects robot lasers to collision-first movement in their projectile pre-instruction.</summary>
+    /// <summary>Connects robot lasers to collision-first movement in their projectile frame behaviour.</summary>
     internal static void AddWorkRobotProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>

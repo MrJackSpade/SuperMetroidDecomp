@@ -4,8 +4,8 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of an ordinary Metroid, with its three parallel extension words. The two sprite-object references are the
-/// managed equivalent of the original's sprite-object indexes; the drain accumulator is the third parallel word.
+/// The state of an ordinary Metroid, with its three extra values. The two sprite-object references are the
+/// managed equivalent of the original's sprite-object indexes; the drain accumulator is the third.
 /// </summary>
 public sealed class MetroidEnemyState
 {
@@ -26,7 +26,7 @@ public sealed class MetroidEnemyState
     /// <summary>Variable E; four-frame escape timer and frozen-shake countdown.</summary>
     public int EscapeTimer { get; internal set; }
 
-    /// <summary>Zero-based movement dispatcher index 0..3, not an AI routine pointer.</summary>
+    /// <summary>Zero-based movement dispatcher index 0..3, not an AI routine.</summary>
     public MetroidAiFunction Function { get; internal set; }
 
     /// <summary>Live shared-pool electricity sprite object; the Metroid owner repositions, freezes and terminates it alongside the central body.</summary>

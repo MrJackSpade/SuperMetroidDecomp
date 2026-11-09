@@ -104,7 +104,7 @@ public sealed class PersistentProgress
         _explored[AreaIds.ToIndex(area)].Members.Select(AreaMapSize.Extent.CellAtRowMajorIndex);
 
     /// <summary>
-    /// Applies SpaceTime's progression overwrite: every story event, boss, item, door, station and map it decides,
+    /// Applies the Spacetime Beam's progression overwrite: every story event, boss, item, door, station and map it decides,
     /// and the Zebetite count when it decides it, takes the state it gives, and everything else keeps its state.
     /// </summary>
     /// <exception cref="ArgumentException">The overwrite decides more stations than an area numbers.</exception>

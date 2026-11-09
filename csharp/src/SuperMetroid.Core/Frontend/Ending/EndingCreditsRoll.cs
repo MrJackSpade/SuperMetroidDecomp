@@ -89,8 +89,8 @@ internal sealed class EndingCreditsRoll
         screen.Colours.Fade(EndingFade.SuitlessSamus, rewardPaletteStep);
         if (_stage.EndingReward == EndingReward.Helmetless)
             screen.Colours.Fade(EndingFade.SuitedSamus, rewardPaletteStep);
-        // E110 saves the post-credits colours as its target, then E158 runs the shared component accumulator 32 times.
-        // Each increment is component<<3 in 8.8 precision and composing takes only its high byte, so step S of 32 shows
+        // The fade saves the post-credits colours as its target, then runs the shared component accumulator 32 times.
+        // Each increment is eight times the component in 256ths and composing keeps only whole units, so step S of 32 shows
         // each target channel times S over 32, rounded down: the level the import pre-colours (#1512).
     }
 

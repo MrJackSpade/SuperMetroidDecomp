@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>Semantic weighted choices from the escape explosion selector.</summary>
 internal static class ZebesEscapeExplosionDefinitions
 {
-    /// <summary>The small-explosion choice's sound, from <c>ExplosionSoundEffects</c>.</summary>
+    /// <summary>The small-explosion choice's sound, the shared small-explosion sound.</summary>
     private static readonly SoundEffectId SmallExplosionSound = EnemySound.SmallExplosion;
-    /// <summary>The smoke choice's sound, from <c>ExplosionSoundEffects</c>.</summary>
+    /// <summary>The smoke choice's sound, the shared big-explosion sound.</summary>
     private static readonly SoundEffectId SmokeSound = EnemySound.BigExplosion;
 
     /// <summary>
@@ -15,8 +15,8 @@ internal static class ZebesEscapeExplosionDefinitions
     /// cloud, two smoke clouds, two short big dust clouds and one big dust cloud.
     /// Only the first small-explosion and smoke choices carry a sound.
     /// </summary>
-    /// <remarks>The bucket weights and sound-bearing choices are authored effect variety (see
-    /// residualScalarInputsReview).</remarks>
+    /// <remarks>The bucket weights and sound-bearing choices are authored effect variety (see the residual scalar
+    /// inputs review).</remarks>
     internal static readonly ZebesEscapeExplosionDefinition[] Choices =
     [
         new(RoomSpriteObjectKind.SporeSpawnDyingExplosion, SmallExplosionSound),

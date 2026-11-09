@@ -10,7 +10,7 @@ internal static class PauseEquipmentRules
     public const int ReserveEnergyPerFrame = 1;
 
     /// <summary>Selects the upgrade flag belonging to a named category/item control.
-    /// Native82:C04C..C067 has five beam, six suit/misc and three boot words in menu
+    /// The menu lists five beams, six suit and miscellaneous items and three boots in menu
     /// order. These are independent bit identities, not a numeric sequence; callers
     /// use the selected bit to test inventory or toggle exactly that upgrade.
     /// Reserve/unknown categories reject before item selection; category-local holes reject.</summary>

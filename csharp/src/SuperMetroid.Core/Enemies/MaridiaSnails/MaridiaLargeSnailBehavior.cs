@@ -87,7 +87,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         slot.SetSpeciesState(state);
 
         // The initial left-facing animation intentionally disagrees with installed selector zero,
-        // whose table entry is right-facing idle. Because SetOumInstList suppresses equal
+        // whose table entry is right-facing idle. Because installing the snail's animation suppresses equal
         // selectors, this oddity is observable until Samus first selects a different index.
         state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailProgram.FacingLeftIdle);
     }

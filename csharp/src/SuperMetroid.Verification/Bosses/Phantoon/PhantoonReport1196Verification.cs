@@ -78,7 +78,7 @@ internal static class PhantoonReport1196Verification
         boss.MouthState.WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
-        AssertTrue(wave.CurrentWave is { BaseScroll: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new ByteAngle(7),
+        AssertTrue(wave.CurrentWave is { BaseScroll: 13, Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new TrigonometryAngle(7),
             "following pass rebuilds the animated death wave from the resumed phase");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; every displayed line aligns before wave advancement.");
     }

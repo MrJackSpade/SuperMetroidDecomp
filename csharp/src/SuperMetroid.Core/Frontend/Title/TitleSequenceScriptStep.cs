@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>The commands that end a title card: start the next floor scene, or remove the card.</summary>
-/// <remarks>The values are arbitrary (#1416); verification's TitleNativeWords names the original routine of each.</remarks>
+/// <remarks>The values are arbitrary (#1416).</remarks>
 internal enum TitleSequenceScriptStep
 {
     /// <summary>Removes the card.</summary>

@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MochtroidShakeDefinitions
 {
     /// <summary>The shake velocity table's two-pixel shake amplitude.
-    /// Axis and sign derive from the timer; the amplitude is an authored scalar (see residualScalarInputsReview).</summary>
+    /// Axis and sign derive from the timer; the amplitude is an authored scalar (see the residual scalar inputs
+    /// review).</summary>
     internal const int Amplitude = 2;
 
     /// <summary>The shake displacement timer bits 1..2 select: right, up, left or down in that order.</summary>

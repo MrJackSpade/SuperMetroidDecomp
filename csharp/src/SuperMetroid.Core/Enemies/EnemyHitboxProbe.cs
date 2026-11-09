@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The colliding projectile's or Samus's edges as the extended-frame walkers compare them, whether the walker selects the shot
 /// (strict) or touch (inclusive) reaction (#633), and whether the room has installed enemy artwork. The corners are room
-/// pixels whose sixteen-bit wrap is part of the comparison: the walker's signed differences are taken between wrapped
+/// pixels whose wrap past 65535 is part of the comparison: the walker's signed differences are taken between wrapped
 /// edges.
 /// </summary>
 /// <param name="TopLeft">The target's left and top edges.</param>

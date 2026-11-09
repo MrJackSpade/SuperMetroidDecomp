@@ -9,7 +9,7 @@ public static class SkyBandScrolls
     /// <summary>
     /// The sky's bands of horizontal scroll down the gameplay lines, each moved by <paramref name="shift"/>: from the first
     /// gameplay line, each line shows the offset of the world row it shows; a band ends where its world rows reach the
-    /// next band, the end of the sky, or the sixteen-bit wrap. Lines above the gameplay lines show the unshifted base.
+    /// next band, the end of the sky, or the wrap past 65535. Lines above the gameplay lines show the unshifted base.
     /// </summary>
     /// <param name="sky">The sky the frame published.</param>
     /// <param name="shift">The horizontal shift added to every line, as the room's shake adds to the background's scroll after each band's value.</param>
@@ -27,6 +27,6 @@ public static class SkyBandScrolls
         return new ScrollBands(Shifted(0, shift), bands.ToImmutable());
     }
 
-    /// <summary><paramref name="offset"/> moved by <paramref name="shift"/>, wrapping as a sixteen-bit scroll.</summary>
+    /// <summary><paramref name="offset"/> moved by <paramref name="shift"/>, wrapping as a scroll of 0 through 65535.</summary>
     private static int Shifted(int offset, int shift) => CoordinateAxis.Wrap(offset + shift);
 }

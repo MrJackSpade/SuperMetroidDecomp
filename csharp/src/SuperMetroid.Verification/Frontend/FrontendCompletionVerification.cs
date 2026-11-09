@@ -197,8 +197,8 @@ internal static void VerifyDoorOpeningTrajectories()
     // IRQ endpoint is destination+$20; the other three finish on the header coordinate.
     const ushort destinationX = 0x0300;
     const ushort destinationY = 0x0200;
-    var source = FixedPosition<RoomPixels>.FromWords(0x00a5, 0x4000, 0x0073, 0x8000);
-    var postNudge = FixedPosition<RoomPixels>.FromWords(0x0318, 0x4000, 0x0218, 0x8000);
+    var source = FixedPosition<RoomPixels>.FromStoredParts(0x00a5, 0x4000, 0x0073, 0x8000);
+    var postNudge = FixedPosition<RoomPixels>.FromStoredParts(0x0318, 0x4000, 0x0218, 0x8000);
     var finalBackground = new Position16<BackgroundPixels>(0x0180, 0x0140);
 
     for (int direction = 0; direction < 4; direction++)

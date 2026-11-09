@@ -49,7 +49,7 @@ public sealed class SharedEscapeAndDrainCount
     public void ClearEscapePresses() => Count = 0;
 
     /// <summary>Counts one escape press, continuing from zero past 65535.</summary>
-    public void CountEscapePress() => Count = WrappingCounter.IncrementWord(Count);
+    public void CountEscapePress() => Count = WrappingCounter.IncrementCount(Count);
 
     /// <summary>The suit pickup leaves its stage on the count.</summary>
     /// <param name="stage">The stage's place in the stage order, from zero.</param>

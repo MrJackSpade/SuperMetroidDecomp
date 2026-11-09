@@ -146,7 +146,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             NativeBodyInstruction(steps, state), slot.FrameHold.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
             checked((ushort)slot.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
-            state.Function, state.Angle.ToByteAngle().RawValue, checked((ushort)state.MaximumXRadius),
+            state.Function, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.MaximumXRadius),
             state.DeathStarted, state.DeathDropRequested);
     }
 

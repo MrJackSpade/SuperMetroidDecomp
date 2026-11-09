@@ -141,7 +141,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             SignedSixteenSixteen acceleration = swoopLeft
                 ? KiHunterMotionDefinitions.LeftSwoopAcceleration
                 : KiHunterMotionDefinitions.RightSwoopAcceleration;
-            ushort accelerationWhole = acceleration.WholeWord;
+            ushort accelerationWhole = acceleration.UnsignedWholePixels;
             ushort accelerationFraction = acceleration.Fraction;
             ushort cap = swoopLeft ? unchecked((ushort)-2) : (ushort)2;
             ushort angle = swoopLeft ? (ushort)255 : (ushort)128;

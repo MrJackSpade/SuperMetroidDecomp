@@ -323,7 +323,7 @@ internal static class CoreAccess
                         "ordinary projectiles; no prior frame exists to attribute their allocation.");
                 _firedSlot = null;
             }
-            else if (game.FrameNumber != WrappingCounter.IncrementWord(_frameNumber))
+            else if (game.FrameNumber != WrappingCounter.IncrementCount(_frameNumber))
             {
                 throw new InvalidOperationException(
                     $"Projectile observation skipped from frame {_frameNumber} to {game.FrameNumber}; " +

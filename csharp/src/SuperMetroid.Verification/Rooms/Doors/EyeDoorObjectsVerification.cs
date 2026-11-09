@@ -71,7 +71,7 @@ internal static class EyeDoorObjectsVerification
             "eye-door attack initializer applies cartridge PLM Y offset");
         for (int frame = 0; frame < 10; frame++)
             enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual(new ByteAngle(64), attack.StateOf<EyeDoorShotState>().Heading,
+        AssertEqual(new TrigonometryAngle(64), attack.StateOf<EyeDoorShotState>().Heading,
             "direction opcode keeps the rightward heading");
         AssertEqual((ushort)0x0100, attack.Velocity.X.RawValue,
             "direction opcode seeds rightward signed 8.8 X velocity");

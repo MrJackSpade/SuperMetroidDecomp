@@ -7,13 +7,13 @@ public static class BoyonBounceCurve
 {
     /// <summary>The curve is k(k+1)/2, with explicit byte saturation beyond its stored samples.</summary>
     /// <remarks>
-    /// #625 / #643 exact proof: each of the 23 authored unsigned bytes
+    /// #625 / #643 exact proof: each of the 23 authored samples
     /// equals k*(k+1)/2 for authored index k in 0..22, ending at 253.
     /// The caller reads first, then substitutes 255 for every index at or above
-    /// 23 before its eight-bit multiply; the nominal overread at index 23 is
+    /// 23 before its multiply; the nominal overread at index 23 is
     /// discarded. This method models that effective caller result, not a larger table.
-    /// VerifyCompiledBoyonSpeeds checks all authored bytes, all 65,536 input indices, and
-    /// every low-byte multiplier through the real production calculation.
+    /// The compiled Boyon speed check checks all authored samples, all 65,536 input indices, and
+    /// every multiplier of 0 through 255 through the real production calculation.
     /// </remarks>
     public static int Sample(int index) => index < StoredSampleCount
         ? index * (index + 1) / 2

@@ -1,4 +1,4 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
-/// <summary>One translated enemy initialization AI routine (the definition's init pointer).</summary>
+/// <summary>One translated enemy initialization AI (the definition's initialization behaviour).</summary>
 internal delegate void EnemyInitializationAiHandler(RoomEnemySlot slot);

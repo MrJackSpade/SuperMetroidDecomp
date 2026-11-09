@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The draw layouts used by the translated Chozo statue PLMs: run geometry, signed offsets and how each cell collides.
+/// The draw layouts used by the translated Chozo statue room objects: run geometry, signed offsets and how each cell collides.
 /// The crumble plug shares the shot-block breakup frames. What each frame shows is its installed picture (#1557).
 /// </summary>
 internal static class ChozoStatueObjectDrawDefinitions

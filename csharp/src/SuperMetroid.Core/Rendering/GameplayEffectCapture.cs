@@ -88,8 +88,8 @@ public static class GameplayEffectCapture
 
     /// <summary>
     /// The rotating sixteen-sample heat haze over every gameplay line (#1468). The haze is sixteen one-line
-    /// entries repeated through the frame: it starts at the background's vertical scroll's low nibble, while each frame
-    /// the sixteen resident words backward through A, so the first gameplay line reaches the sample at that nibble plus the
+    /// entries repeated through the frame: it starts at the background's vertical scroll's last four bits, while each
+    /// frame rotates the sixteen samples backward, so the first gameplay line reaches the sample at that remainder plus the
     /// wave's phase.
     /// </summary>
     private static SampledScrollWave HeatHaze(int baseScroll, int backgroundVerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
@@ -105,7 +105,7 @@ public static class GameplayEffectCapture
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
         Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(cameraPosition);
-        int angle = beam.Angle.ToByteAngle().RawValue;
+        int angle = beam.Angle.ToTrigonometryAngle().RawValue;
         var cone = new WindowCone(eye.WithY(eye.Y - EyeWindowRenderDefinitions.ApexYOffset),
             angle - beam.AngularWidth, angle + beam.AngularWidth);
         return new(ScreenWindow.Of(cone, HudHeight), beam.Color);
@@ -269,7 +269,7 @@ public static class GameplayEffectCapture
             (xray.FacingLeft ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
         int eyeY = samusOnScreen.Y -
             (xray.Crouching ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
-        int angle = xray.Angle.ToByteAngle().RawValue;
+        int angle = xray.Angle.ToTrigonometryAngle().RawValue;
         var cone = new WindowCone(Offset16<ScreenPixels>.Of(eyeX, eyeY), angle - xray.AngularWidth, angle + xray.AngularWidth);
         return ScreenWindow.Of(cone, HudHeight);
     }

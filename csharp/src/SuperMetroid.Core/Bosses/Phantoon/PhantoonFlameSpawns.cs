@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonFlameSpawns
 {
     /// <summary>The enraged flame <paramref name="index"/>'s start angle, zero through fifteen.</summary>
-    public static ByteAngle RageAngle(int index) => At(PhantoonFlameSpawnDefinitions.RageAngles, index, nameof(index));
+    public static TrigonometryAngle RageAngle(int index) => At(PhantoonFlameSpawnDefinitions.RageAngles, index, nameof(index));
 
     /// <summary>The screen X of rain column <paramref name="column"/>, zero through eight.</summary>
     public static int RainX(int column) => At(PhantoonFlameSpawnDefinitions.RainXs, column, nameof(column));
 
     /// <summary>The spiral flame <paramref name="index"/>'s start angle, zero through seven.</summary>
-    public static ByteAngle SpiralAngle(int index) => At(PhantoonFlameSpawnDefinitions.SpiralAngles, index, nameof(index));
+    public static TrigonometryAngle SpiralAngle(int index) => At(PhantoonFlameSpawnDefinitions.SpiralAngles, index, nameof(index));
 
     /// <summary>Reads one authored value, rejecting a position outside the table.</summary>
     private static T At<T>(T[] table, int position, string name) =>

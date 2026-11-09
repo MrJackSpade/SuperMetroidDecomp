@@ -22,6 +22,6 @@ public sealed class SparkEnemyState
     /// <summary>Whether <see cref="BaseFunctionTime"/> requests a randomized delay rather than naming one.</summary>
     internal bool RequestsRandomDelay => BaseFunctionTime >= RandomDelayRequestFrom;
 
-    /// <summary>The countdown decremented with the game's <c>DEC; BEQ</c>: reaching zero expires it, and one that starts from zero wraps instead.</summary>
+    /// <summary>The countdown, decremented and then tested for zero as the game does: reaching zero expires it, and one that starts from zero wraps instead.</summary>
     public int FunctionTimer { get; internal set; }
 }

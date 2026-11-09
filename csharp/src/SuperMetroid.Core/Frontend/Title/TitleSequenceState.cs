@@ -347,7 +347,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         consolePaletteFx.StepScreen(new PaletteFxConditions { SamusY = 0, EquippedItems = 0, TorizoIsDead = false, AreaMiniBossDefeated = false });
         tubeLightRecord = consolePaletteFx.RecordOf(PaletteFxColours.BabyMetroidTubeLight) ?? tubeLightRecord;
         displaysRecord = consolePaletteFx.RecordOf(PaletteFxColours.TitleScreenDisplays) ?? displaysRecord;
-        // The skip reconstruction follows PaletteFxHandler for this frame. Restart
+        // The skip reconstruction follows the palette effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)
             ResetConsolePaletteFx();
@@ -372,7 +372,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         return new(new FramePaint(Backdrop, objects.Draws),
             floorBackgroundEnabled
                 ? FloorView.Turned(TitleSequenceDefinitions.Scenes.Rotation, Zoom, TitleSequenceDefinitions.Scenes.FloorCentre,
-                    panPosition.Whole.AsSignedWord())
+                    panPosition.Whole.AsSignedOffset())
                 : null,
             Brightness, gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled
@@ -494,7 +494,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
     }
 
-    /// <summary>Starts a title card's instruction list with its sprites shown and the turning floor hidden.</summary>
+    /// <summary>Starts a title card's program with its sprites shown and the turning floor hidden.</summary>
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;

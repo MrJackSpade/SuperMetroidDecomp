@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Remaining">The countdown after the step: its eight-bit count one lower (wrapping 0 to 255), the rest unchanged.</param>
 [CompatibilityService("a countdown kept in the low half of a value whose high half is independent state, wrapping without disturbing it")]
 [EncodingOwner("low-byte countdown decrement result")]
-public readonly record struct LowByteCountdownStep(WrappingCountdown Remaining)
+public readonly record struct LowHalfCountdownStep(WrappingCountdown Remaining)
 {
     /// <summary>The eight-bit count from which it reads as negative: it has run past zero.</summary>
     private const int NegativeFrom = 1 << 7;

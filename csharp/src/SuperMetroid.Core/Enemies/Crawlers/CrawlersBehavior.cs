@@ -203,7 +203,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
+        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
         if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);
@@ -241,7 +241,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
+        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
         if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);
@@ -348,7 +348,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
+        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
         if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);
@@ -386,7 +386,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
+        state.ConsecutiveTurnCounter = WrappingCounter.IncrementCount(state.ConsecutiveTurnCounter);
         if (!WrappingCounter.IsBehind(state.ConsecutiveTurnCounter, 4))
         {
             BeginCrawlerFall(state);

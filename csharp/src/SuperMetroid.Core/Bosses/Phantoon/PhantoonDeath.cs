@@ -68,7 +68,7 @@ internal sealed class PhantoonDeath
         if (!state.EyeState.FadeComplete)
             return;
         state.EyeState.FadeComplete = false;
-        state.EyeState.DyingFadeCycles = WrappingCounter.IncrementWord(state.EyeState.DyingFadeCycles);
+        state.EyeState.DyingFadeCycles = WrappingCounter.IncrementCount(state.EyeState.DyingFadeCycles);
         if (state.EyeState.DyingFadeCycles < 10)
             return;
 
@@ -99,12 +99,12 @@ internal sealed class PhantoonDeath
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);
 
-        state.TentaclesState.ExplosionIndex = WrappingCounter.IncrementWord(state.TentaclesState.ExplosionIndex);
+        state.TentaclesState.ExplosionIndex = WrappingCounter.IncrementCount(state.TentaclesState.ExplosionIndex);
         if (state.TentaclesState.ExplosionIndex < PhantoonDeathExplosionDefinitions.Count)
             return;
 
         state.TentaclesState.ExplosionIndex = PhantoonDeathExplosionDefinitions.RepeatStart;
-        state.BodyState.ExplosionPass = WrappingCounter.IncrementWord(state.BodyState.ExplosionPass);
+        state.BodyState.ExplosionPass = WrappingCounter.IncrementCount(state.BodyState.ExplosionPass);
         if (state.BodyState.ExplosionPass >= PhantoonDeathExplosionDefinitions.PassCount)
             state.BodyState.Function = PhantoonAiFunction.BeginFinalWavyDeath;
     }

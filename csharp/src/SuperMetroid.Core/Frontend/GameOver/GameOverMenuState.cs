@@ -248,7 +248,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         sprites.FinishFrame();
     }
 
-    /// <summary>Ports <c>HandleGameOverBabyMetroid</c>'s six/eight-byte instruction stream.</summary>
+    /// <summary>Runs the game-over Baby Metroid's pose program.</summary>
     private void StepBabyMetroid()
     {
         StepCompiledBabyMetroid();

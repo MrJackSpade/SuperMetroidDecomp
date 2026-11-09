@@ -54,5 +54,5 @@ public sealed class SharedRandom
     internal void SeedPowerOn() => State = SharedRandomDefinitions.PowerOnState;
 
     /// <summary>Stores the state with its two bytes exchanged, as the lava and acid FX routine does.</summary>
-    internal void SwapBytes() => State = State.WithBytesSwapped();
+    internal void SwapHalves() => State = State.WithHalvesSwapped();
 }

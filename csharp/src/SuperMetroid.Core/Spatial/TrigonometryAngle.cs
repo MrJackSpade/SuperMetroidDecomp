@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Spatial;
 /// is the form with a fraction, whose whole units are this value.
 /// </summary>
 [EncodingOwner("sine-table byte angle")]
-public readonly record struct ByteAngle
+public readonly record struct TrigonometryAngle
 {
     /// <summary>The angle of <paramref name="rawValue"/> table units, 0 through 255.</summary>
     /// <param name="rawValue">The angle in table units, 0 through 255.</param>
-    public ByteAngle(int rawValue) => RawValue = checked((byte)rawValue);
+    public TrigonometryAngle(int rawValue) => RawValue = checked((byte)rawValue);
 
     /// <summary>The angle in table units, 0 through 255.</summary>
     public byte RawValue { get; init; }
@@ -20,13 +20,13 @@ public readonly record struct ByteAngle
     /// circle, as the game's angle arithmetic wraps.
     /// </summary>
     /// <param name="units">The computed angle in table units, which may lie outside one turn.</param>
-    public static ByteAngle Wrapped(int units) => new(unchecked((byte)units));
+    public static TrigonometryAngle Wrapped(int units) => new(unchecked((byte)units));
 
     /// <summary>One quarter turn: up.</summary>
-    public static ByteAngle QuarterTurn { get; } = new(0x40);
+    public static TrigonometryAngle QuarterTurn { get; } = new(0x40);
 
     /// <summary>One half turn: left.</summary>
-    public static ByteAngle HalfTurn { get; } = new(0x80);
+    public static TrigonometryAngle HalfTurn { get; } = new(0x80);
 
     /// <summary>
     /// The index this angle reads in a 128-entry half-wave table: the angle folded onto the first half of the turn, as
@@ -38,22 +38,22 @@ public readonly record struct ByteAngle
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
 
     /// <summary>Turns the angle by <paramref name="delta"/> signed steps, continuing around the turn.</summary>
-    public ByteAngle TurnedBySteps(int delta) => Wrapped(RawValue + delta);
+    public TrigonometryAngle TurnedBySteps(int delta) => Wrapped(RawValue + delta);
 
     /// <summary>The angle turned on by <paramref name="turn"/>, wrapping around the full turn.</summary>
-    public ByteAngle TurnedBy(ByteAngle turn) => Wrapped(RawValue + turn.RawValue);
+    public TrigonometryAngle TurnedBy(TrigonometryAngle turn) => Wrapped(RawValue + turn.RawValue);
 
     /// <summary>
     /// This angle carried into the half turn from zero up to (not including) <see cref="HalfTurn"/>, keeping its
     /// position within the half turn: an angle in the other half turns back by a half turn.
     /// </summary>
-    public ByteAngle InFirstHalfTurn() => new(RawValue % HalfTurn.RawValue);
+    public TrigonometryAngle InFirstHalfTurn() => new(RawValue % HalfTurn.RawValue);
 
     /// <summary>
     /// This angle carried into the half turn from <see cref="HalfTurn"/> up to a full turn, keeping its position within
     /// the half turn: an angle in the other half turns on by a half turn.
     /// </summary>
-    public ByteAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
+    public TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
     /// <summary>This angle as the high byte of an 8.8 <see cref="RotationAngle"/>.</summary>
     public RotationAngle ToAngle() => RotationAngle.FromSteps(RawValue);

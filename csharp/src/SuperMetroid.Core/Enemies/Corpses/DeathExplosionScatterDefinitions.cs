@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
 /// The ten-point small-explosion scatter shared by Ridley's death and the
-/// Baby Metroid's death: both store the identical interleaved X/Y
-/// word pairs, so one owner serves both consumers. The points are an authored scatter pattern
-/// with no symmetry, ordering or radial rule (see residualScalarInputsReview).
+/// Baby Metroid's death: both store the identical X/Y
+/// pairs, so one owner serves both consumers. The points are an authored scatter pattern
+/// with no symmetry, ordering or radial rule (see the residual scalar inputs review).
 /// </summary>
 internal static class DeathExplosionScatterDefinitions
 {

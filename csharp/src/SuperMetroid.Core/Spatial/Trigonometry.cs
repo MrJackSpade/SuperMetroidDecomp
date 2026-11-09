@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// The game's sine and cosine samples over byte angles and the multiplications that use them (#1422): the signed 8.8
-/// and sixteen-bit sine waves, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
+/// The game's sine and cosine samples over trigonometry angles and the multiplications that use them (#1422): the signed
+/// 8.8 sine wave and the one peaking at 32767, their unsigned half-waves and the negative-cosine view, exactly as every enemy, boss,
 /// projectile and screen effect samples them. These are engine math definitions, not editable presentation assets.
 /// </summary>
 public static class Trigonometry
 {
-    /// <summary>The game's 16-bit sine table and its three
+    /// <summary>The game's sine table peaking at 32767 and its three
     /// quadrant continuations. These signed samples peak at +/-32767, unlike
     /// the sign-extended 8.8 table. The positive half equals the stored unsigned
     /// half-wave shifted right once; sign is restored only after that truncation.</summary>
@@ -20,16 +20,16 @@ public static class Trigonometry
     /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
     /// input angle before sampling. Individual investigation: #625 / #909.
     /// </remarks>
-    public static int SignedSixteenBitSine(ByteAngle angle)
+    public static int SignedSixteenBitSine(TrigonometryAngle angle)
     {
         int magnitude = UnsignedHalfWave(angle.HalfWaveIndex) >> 1;
         return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
-    /// <summary>CalculateSine/Cosine: multiply unsigned speed by
+    /// <summary>The sine or cosine product: multiply unsigned speed by
     /// the signed 8.8 sample, keep product bits 8..23, then restore the sign.
     /// Callers add a quarter-turn themselves when selecting cosine.</summary>
-    public static SignedEightEight MultiplySignedSine(int speed, ByteAngle angle)
+    public static SignedEightEight MultiplySignedSine(int speed, TrigonometryAngle angle)
     {
         int sample = SignedSine(angle);
         int magnitude = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, speed) * Math.Abs(sample));
@@ -45,7 +45,7 @@ public static class Trigonometry
     /// sine view. The backend's scroll-wave shader (#1468) draws ripples from
     /// these same samples.
     /// Individual investigation: #625 / #910.</remarks>
-    public static int SignedSine(ByteAngle angle)
+    public static int SignedSine(TrigonometryAngle angle)
     {
         int halfWaveIndex = angle.HalfWaveIndex;
         int magnitude = halfWaveIndex == 64 ? 256 : EightBitHalfWave(halfWaveIndex);
@@ -61,10 +61,10 @@ public static class Trigonometry
     /// Independently reviewed for #1165 against all 320 original words, prefix bounds
     /// and byte-phase aliases. Keep this existing view; do not duplicate its storage.
     /// </remarks>
-    public static int SignedNegativeCosineWord(int index)
+    public static int SignedNegativeCosineSample(int index)
     {
         if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));
-        return SignedSine(ByteAngle.Wrapped(index - 64));
+        return SignedSine(TrigonometryAngle.Wrapped(index - 64));
     }
 
     /// <summary>The game's byte sine table and cosine continuation:

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>Fixed walking/wall/ninja-Pirate collision data, separate from editable sprite art.</summary>
 /// <remarks>
-/// Reviewed for #1165. The 132 frame records lie in 8 contiguous runs, so every frame address derives from its run
-/// start and the preceding record sizes. Each component references its hitbox list directly; where the 147 lists lie
+/// Reviewed for #1165. The 132 frame records lie in 8 contiguous runs. Each component references its hitbox list
+/// directly; where the 147 lists lie
 /// in the game is known only to the verification oracle. Component placements and list rectangles are authored
 /// per drawing and retained: no hitbox list is a facing mirror of another, and the 105 lists that repeat another
 /// list's rectangles stay separate records.

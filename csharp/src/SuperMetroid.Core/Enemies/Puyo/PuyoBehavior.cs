@@ -53,8 +53,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             YSpeedTableIndex = 0,
             HopCooldownTimer = slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
             Function = PuyoEnemyFunction.Grounded,
-            // InitAI never writes the airborne function or the inactive extended words. The room loader's
-            // cleared enemy allocation therefore leaves them empty until InitiateHop owns
+            // The initialization AI never writes the airborne function or the inactive extra values. The room loader's
+            // cleared enemy allocation therefore leaves them empty until the first hop owns
             // them; do not pre-populate plausible values the game has not written.
             AirborneFunction = null,
             CurrentHop = PuyoHopType.NormalSmall,
@@ -100,7 +100,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the grounded Puyo.</summary>
     private void RunGroundedPuyo(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
     {
-        // DEC followed by BPL means a zero cooldown waits one frame and then wraps to FFFF
+        // Decrementing and then testing for a non-negative count means a zero cooldown waits one frame and then wraps to 65535
         // before hopping. This is not equivalent to a conventional "if timer != 0" test.
         if (--state.HopCooldownTimer >= 0)
             return;
@@ -111,7 +111,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         InitiatePuyoHop(slot, state, samus);
     }
 
-    /// <summary>Ports <c>InitiateHop</c>, <c>ChooseHopType</c>, and their random selection.</summary>
+    /// <summary>Starts a hop: chooses the hop type and its random selection.</summary>
     private void InitiatePuyoHop(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
     {
         // Normal follow-up hops are promoted from type zero to type one when Samus is
@@ -126,7 +126,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Aim toward Samus unless the preceding terrain collision latched the opposite
-        // direction. Equality follows the game's BPL path and therefore aims right.
+        // direction. Equality follows the game's non-negative path and therefore aims right.
         PuyoDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
             ? PuyoDirection.Left
             : PuyoDirection.Right;
@@ -159,18 +159,18 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int distanceAccumulator = 0;
         PuyoHopDefinition hop = Hop(state);
         int xSpeed = hop.XSpeed;
-        // The game exchanges the height word's bytes (XBA); every authored height is below 256 pixels, so that
+        // The game exchanges the height's two halves; every authored height is below 256 pixels, so that
         // makes the height the whole part of an 8.8 distance.
         int swappedJumpHeight = UnsignedEightEight.FromParts(whole: hop.Height, fraction: 0);
 
-        for (int guard = 0; guard <= WrappingCounter.LargestWordCount; guard++)
+        for (int guard = 0; guard <= WrappingCounter.LargestCount; guard++)
         {
-            timeAccumulator = WrappingCounter.AddWord(timeAccumulator, xSpeed);
+            timeAccumulator = WrappingCounter.AddCount(timeAccumulator, xSpeed);
             EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(UnsignedEightEight.Whole(timeAccumulator));
 
             // Summing each row's coarse speed, in 256ths of a pixel, gives the 8.8 distance estimate used only to
             // find the initial curve row.
-            distanceAccumulator = WrappingCounter.AddWord(distanceAccumulator,
+            distanceAccumulator = WrappingCounter.AddCount(distanceAccumulator,
                 speedRow.CoarseToward(EnemySpeedSign.Positive));
             if (!WrappingCounter.IsBehind(swappedJumpHeight, distanceAccumulator))
                 continue;

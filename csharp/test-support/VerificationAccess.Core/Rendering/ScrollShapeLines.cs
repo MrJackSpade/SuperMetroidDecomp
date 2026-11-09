@@ -42,7 +42,7 @@ internal static class ScrollShapeLines
     internal static int WaveDisplacement(ScrollWave wave, int line)
     {
         if (line < wave.FirstLine || line >= wave.EndLine) return 0;
-        int sine = Trigonometry.SignedSine(new ByteAngle(unchecked((byte)(wave.Phase.RawValue + line * AngleStepsPerTurn / wave.Period))));
+        int sine = Trigonometry.SignedSine(new TrigonometryAngle(unchecked((byte)(wave.Phase.RawValue + line * AngleStepsPerTurn / wave.Period))));
         int magnitude = TimesSixteenSixteen(Math.Abs(sine), wave.Amplitude);
         return sine < 0 ? -magnitude : magnitude;
     }

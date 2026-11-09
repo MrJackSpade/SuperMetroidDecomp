@@ -58,10 +58,10 @@ public sealed class PuyoEnemyState
 
     /// <summary>
     /// One airborne update's change to the speed index: rising lowers it by <paramref name="delta"/>, falling raises it.
-    /// A step that leaves 0 through 32767 (the game tests its word's sign bit) restarts the fall at zero: the apex
+    /// A step that leaves 0 through 32767 (the game tests its sign) restarts the fall at zero: the apex
     /// while rising, and a restart of an overlong fall.
     /// </summary>
-    /// <param name="delta">The hop record's 8.8 index step, at most $300.</param>
+    /// <param name="delta">The hop record's 8.8 index step, at most three whole steps.</param>
     internal void StepAirborneIndex(int delta)
     {
         YSpeedTableIndex = Falling ? YSpeedTableIndex + delta : YSpeedTableIndex - delta;

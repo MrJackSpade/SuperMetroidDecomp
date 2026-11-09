@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// A frontend screen's sprite entries (#1358, #1392): each placed pre-coloured frame becomes a whole-frame draw, in
 /// emission order, frontmost first. Screens publish these draws instead of writing sprite records. Frames land where the
-/// game places them: nine-bit X and eight-bit Y read by the spritemap loader the origin selects. A frame is always drawn
+/// game places them: an X of 0 through 511 and a Y of 0 through 255, read by the spritemap loader the origin selects. A frame is always drawn
 /// whole, as its one pre-assembled image; a crowded screen never cuts a frame short (#1513). The placed frames are the screen's state, and the draws are made from them.
 /// </summary>
 public sealed class ScreenSprites
 {
-    /// <summary>The values of an eight-bit coordinate.</summary>
-    private const int ByteRange = 256;
+    /// <summary>The values a frame's Y takes, 0 through 255.</summary>
+    private const int YRange = 256;
 
     /// <summary>The values of the nine-bit X.</summary>
     private const int XRange = 512;
@@ -94,11 +94,11 @@ public sealed class ScreenSprites
     }
 
     /// <summary>
-    /// The line an object's Y names within the screen's band of <see cref="ByteRange"/> lines: the loaders place an
+    /// The line an object's Y names within the screen's band of <see cref="YRange"/> lines: the loaders place an
     /// object by that line alone, so a Y past the band's end continues from its start.
     /// </summary>
     /// <param name="y">The object's Y, 0 through 65535.</param>
-    private static int LineWithinBand(int y) => Ensure.BetweenInclusive(0, ushort.MaxValue, y) % ByteRange;
+    private static int LineWithinBand(int y) => Ensure.BetweenInclusive(0, ushort.MaxValue, y) % YRange;
 
     /// <summary>The draw of <paramref name="placedObject"/>'s frame, its X in signed screen pixels: the upper half lies left of the screen.</summary>
     private static ImageSpriteDraw Draw(ScreenObject placedObject, int index)
@@ -107,14 +107,14 @@ public sealed class ScreenSprites
         int screenX = nineBitX >= XRange / 2 ? nineBitX - XRange : nineBitX;
         // The loaders read only the origin's low Y byte: the on-screen loader places it on or below the screen, so a
         // frame just below the bottom still shows the parts that reach up into it, and the off-screen loader above it.
-        int imageY = LineWithinBand(placedObject.Position.Y) - (placedObject.Side == SpriteOrigin.OffScreen ? ByteRange : 0);
+        int imageY = LineWithinBand(placedObject.Position.Y) - (placedObject.Side == SpriteOrigin.OffScreen ? YRange : 0);
         return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
             new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(imageY)), SpriteMirror.None)
             { Shading = placedObject.Shading };
     }
 
     /// <summary>
-    /// One placed frame at its position (nine-bit X as stored in sixteen bits, eight-bit Y), with the loader that reads its
+    /// One placed frame at its position (an X of 0 through 511, a Y of 0 through 255), with the loader that reads its
     /// origin and the shading the screen shows it in (#1512).
     /// </summary>
     private readonly record struct ScreenObject(Position16<SpritePixels> Position, SpriteSheetFrame Image, SpriteOrigin Side, PictureShading Shading);

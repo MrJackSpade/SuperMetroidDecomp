@@ -182,7 +182,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        int frameCounterByte)
+        int frameCycle)
     {
         if (samus is null)
             throw new InvalidOperationException("Mama Turtle AI requires the active Samus actor.");
@@ -200,7 +200,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleAiFunction.LeavingShell:
                 RequireTurtleLevel(level);
                 RunMamaTurtleLeavingShell(
-                    slot, state, samus, level, frameCounterByte);
+                    slot, state, samus, level, frameCycle);
                 return;
             case MamaTurtleAiFunction.EnteringShell:
                 RunMamaTurtleEnteringShell(slot, state, samus);
@@ -291,10 +291,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        int frameCounterByte)
+        int frameCycle)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
-        if ((frameCounterByte & 1) != 0)
+        if ((frameCycle & 1) != 0)
             return;
 
         if (PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
@@ -489,7 +489,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity.Y + SignedSixteenSixteen.FromParts(0, 8192));
         }
 
-        // Only the whole word is passed to MoveEnemyDown; the fraction influences later
+        // Only the whole part is passed to the downward move; the fraction influences later
         // whole-speed carries but is not itself part of this frame's displacement.
         if (!_terrain.MoveEnemyVertically(level, mama, state.Velocity.Y.WithoutFraction()))
             return;
@@ -587,7 +587,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Baby Turtle main-AI pointer {state.Function?.ToString() ?? "none"} is not translated.");
+                    $"Baby Turtle main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

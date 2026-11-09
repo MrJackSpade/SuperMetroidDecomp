@@ -134,7 +134,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         {
             case GameOptionsPhase.FinishFadingOut:
                 // Index zero: the previous menu already reached black, so
-                // HandleFadingOut leaves it there and the index advances.
+                // the fade-out leaves it there and the index advances.
                 Phase = GameOptionsPhase.LoadingMenu;
                 break;
 

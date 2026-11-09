@@ -15,7 +15,7 @@ public enum DemoInputProgram
     AttractDelete,
     /// <summary>The DiagonalShinespark title demonstration's input.</summary>
     AttractDiagonalShinespark,
-    /// <summary>The DiagonalShinespark demonstration's input after its pre-instruction lets the shinespark continue.</summary>
+    /// <summary>The DiagonalShinespark demonstration's input after its per-frame check lets the shinespark continue.</summary>
     AttractDiagonalShinesparkContinuation,
     /// <summary>The EyeDoor title demonstration's input.</summary>
     AttractEyeDoor,

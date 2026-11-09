@@ -47,8 +47,8 @@ public sealed class FileSelectMapScroll
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { top = y; break; }
         for (int y = 31; y > 0; y--)
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
-        // Every map word below holds its wrapped sixteen-bit value; the signed tests read those
-        // words as the game's branches do.
+        // Every map value below holds its value wrapped to 0 through 65535; the signed tests read 32768 and above as
+        // negative, as the game's tests do.
         int minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
         int maximumX = Wrap(right * 8);
         int minimumY = Wrap(top * 8);
@@ -104,7 +104,7 @@ public sealed class FileSelectMapScroll
             tick = 0;
         }
         if (Direction == MapScrollDirection.None) return false;
-        // Both halves of the MapScrolling speed data contain the same eight-tick pulse:
+        // Both halves of the map scrolling speed data contain the same eight-tick pulse:
         // move eight pixels on tick four, then finish and queue sound on tick eight.
         if (++tick == MapScrollDefinitions.PulseTick)
         {

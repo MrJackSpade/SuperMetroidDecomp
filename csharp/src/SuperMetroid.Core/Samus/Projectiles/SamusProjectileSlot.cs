@@ -80,7 +80,7 @@ public sealed class SamusProjectileSlot
     public int? SuperMissileLinkSlot { get; internal set; }
 
     /// <summary>The orbit angle of an Ice, Plasma or Spazer special-attack particle.</summary>
-    public ByteAngle ComboAngle { get; internal set; }
+    public TrigonometryAngle ComboAngle { get; internal set; }
 
     /// <summary>The homing vertical speed of a Wave special-attack particle.</summary>
     public SignedEightEight WaveComboVerticalSpeed { get; internal set; }
@@ -107,7 +107,7 @@ public sealed class SamusProjectileSlot
     public int EchoRadius { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>The departure angle of a Shinespark crash echo, to the angle table's whole steps.</summary>
-    public ByteAngle EchoAngle { get; internal set; }
+    public TrigonometryAngle EchoAngle { get; internal set; }
 
     /// <summary>The Power Bomb fuse the glitched Chainsaw beam runs over its shot.</summary>
     public WrappingCountdown ChainsawPowerBombFuse { get; internal set; }

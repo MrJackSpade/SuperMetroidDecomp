@@ -38,9 +38,9 @@ public static class ChozoCarry
     /// The carried-Samus X field is exactly
     /// <c>sign * (local == 0 ? 28 : local == 1 ? 30 : 32)</c>, where
     /// <c>local = record % 16</c> and sign is negative for the
-    /// first sixteen records, positive for the second. All 32 words
+    /// first sixteen records, positive for the second. All 32 offsets
     /// are authored values. The caller adds this signed whole
-    /// pixel offset after moving the statue, with 16-bit position wrapping.
+    /// pixel offset after moving the statue, wrapping the position past 65535.
     /// Records outside the table are rejected. Investigation: #625 / #666.
     /// </remarks>
     public static ChozoCarryStepDefinition Read(int record)

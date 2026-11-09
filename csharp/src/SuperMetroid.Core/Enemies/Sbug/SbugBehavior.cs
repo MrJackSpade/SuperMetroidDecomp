@@ -32,7 +32,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int SbugRandomSeed = 11;
     /// <summary>Random and forward-then-wait legs last 32 enemy frames before selection changes.</summary>
     private const int SbugMovementSegmentFrames = 32;
-    /// <summary>Long wandering mode tracks $200 frames before dropping its distance-based reversal gate.</summary>
+    /// <summary>Long wandering mode tracks 512 frames before dropping its distance-based reversal gate.</summary>
     private const int SbugLongRandomLifetime = 512;
     /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
     private const int SbugReverseDistance = 96;
@@ -52,27 +52,27 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The forward velocity uses the game-derived unsigned quarter-circle magnitudes and lets
         // the shared helper apply signs later from the original angle. The side velocities instead use the signed,
-        // intentionally imperfect eight-bit multiply routine.
+        // intentionally imperfect short multiply routine.
         int speed = state.Speed;
-        RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyByteAngleDefinitions.EighthTurn);
-        RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyByteAngleDefinitions.EighthTurn);
+        RotationAngle leftAngle = state.InitialAngle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.EighthTurn);
+        RotationAngle rightAngle = state.InitialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn);
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
-            state.InitialAngle.ToByteAngle(),
+            state.InitialAngle.ToTrigonometryAngle(),
             speed,
-            phase: EnemyByteAngleDefinitions.QuarterTurn);
+            phase: EnemyTrigonometryAngleDefinitions.QuarterTurn);
         state.ForwardYVelocity = CalculateUnsignedSbugMagnitude(
-            state.InitialAngle.ToByteAngle(),
+            state.InitialAngle.ToTrigonometryAngle(),
             speed,
-            phase: EnemyByteAngleDefinitions.HalfTurn);
+            phase: EnemyTrigonometryAngleDefinitions.HalfTurn);
         CalculateSignedSbugVelocities(
-            leftAngle.ToByteAngle(),
+            leftAngle.ToTrigonometryAngle(),
             speed,
             out SignedSixteenSixteen leftX,
             out SignedSixteenSixteen leftY);
         state.LeftXVelocity = leftX;
         state.LeftYVelocity = leftY;
         CalculateSignedSbugVelocities(
-            rightAngle.ToByteAngle(),
+            rightAngle.ToTrigonometryAngle(),
             speed,
             out SignedSixteenSixteen rightX,
             out SignedSixteenSixteen rightY);
@@ -99,7 +99,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             // Activation functions deliberately consume a frame merely replacing
-            // their own pointer. Movement begins on the following enemy-main invocation.
+            // their own AI function. Movement begins on the following main AI call.
             case SbugEnemyFunction.ActivateMoveForward:
                 state.Function = SbugEnemyFunction.MoveForward;
                 return;
@@ -176,12 +176,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SbugHeading relativeHeading)
     {
-        // CalculateAngleOfSamusFromEnemy uses zero-up/clockwise units. Subtracting it from
+        // The angle of Samus from the enemy uses zero-up/clockwise units. Subtracting it from
         // 64 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding 128 selects the exact opposite direction for behavior six.
-        ByteAngle heading = EnemyMath.CalculateBearing(
+        TrigonometryAngle heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
-        state.FaceCustomHeading(heading.TurnedBySteps(relativeHeading == SbugHeading.Away ? ByteAngle.HalfTurn.RawValue : 0).ToAngle());
+        state.FaceCustomHeading(heading.TurnedBySteps(relativeHeading == SbugHeading.Away ? TrigonometryAngle.HalfTurn.RawValue : 0).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
         state.Function = relativeHeading == SbugHeading.Away
             ? SbugEnemyFunction.MoveAwayFromSamus
@@ -281,7 +281,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // Reading a byte, subtracting a quarter turn and wrapping again creates an unsigned byte delta; the later
         // trigonometry reads only the heading's low byte, which the turn wraps within.
         int randomTurn = _room.Random.Next(SbugMovementDefinitions.RandomTurn);
-        int angleDelta = ByteAngle.Wrapped(randomTurn - EnemyByteAngleDefinitions.QuarterTurn).RawValue;
+        int angleDelta = TrigonometryAngle.Wrapped(randomTurn - EnemyTrigonometryAngleDefinitions.QuarterTurn).RawValue;
         state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = SbugMovementSegmentFrames;
@@ -292,7 +292,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
-            state.CustomHeading.ToByteAngle(),
+            state.CustomHeading.ToTrigonometryAngle(),
             state.Speed,
             out SignedSixteenSixteen customX,
             out SignedSixteenSixteen customY);
@@ -308,8 +308,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // The original negates pixel and subpixel words separately. For a nonzero low word
         // that is off by exactly 1.0 compared with a proper 32-bit two's complement; this
         // visible drift is part of retail behavior and must not be “fixed.”
-        state.CustomXVelocity = NegateSbugWordsIndependently(state.CustomXVelocity);
-        state.CustomYVelocity = NegateSbugWordsIndependently(state.CustomYVelocity);
+        state.CustomXVelocity = NegateSbugPartsIndependently(state.CustomXVelocity);
+        state.CustomYVelocity = NegateSbugPartsIndependently(state.CustomYVelocity);
 
         // The reversal does not show the opposite facing: as the game does, it turns the facing a quarter turn
         // counter-clockwise and folds it into the four facings from right to up-left.
@@ -318,17 +318,17 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Negates pixel and subpixel words separately, retaining the game's fractional error.</summary>
-    private static SignedSixteenSixteen NegateSbugWordsIndependently(SignedSixteenSixteen value) =>
-        value.NegatedWordsSeparately();
+    private static SignedSixteenSixteen NegateSbugPartsIndependently(SignedSixteenSixteen value) =>
+        value.NegatedPartsSeparately();
 
     /// <summary>Applies unsigned quarter-wave magnitudes with signs from the original angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
     {
-        // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
+        // Moving the enemy by its angle and speeds applies signs to the unsigned magnitudes by
         // testing the original mathematical angle independently for X and Y.
-        ByteAngle initialAngle = state.InitialAngle.ToByteAngle();
-        bool subtractX = initialAngle.TurnedBySteps(EnemyByteAngleDefinitions.QuarterTurn).IsInSecondHalf;
-        bool subtractY = initialAngle.TurnedBySteps(EnemyByteAngleDefinitions.HalfTurn).IsInSecondHalf;
+        TrigonometryAngle initialAngle = state.InitialAngle.ToTrigonometryAngle();
+        bool subtractX = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn).IsInSecondHalf;
+        bool subtractY = initialAngle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn).IsInSecondHalf;
         slot.Position = slot.Position.WithX(slot.Position.X.MovedBy(ForwardDisplacement(state.ForwardXVelocity, subtractX)));
         slot.Position = slot.Position.WithY(slot.Position.Y.MovedBy(ForwardDisplacement(state.ForwardYVelocity, subtractY)));
     }
@@ -355,40 +355,40 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Multiplies a quarter-wave table value by population speed into unsigned 16.16 words.</summary>
     internal static UnsignedSixteenSixteen CalculateUnsignedSbugMagnitude(
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int speed,
         int phase)
     {
-        // ConvertAngleToXy indexes a 128-word unsigned quarter-circle table,
-        // then performs a complete 16x16->32 multiplication. Population speed is a byte,
-        // but retaining uint arithmetic documents the actual width of the result.
+        // Converting the angle to X and Y reads a 128-entry unsigned quarter-circle table,
+        // then performs a complete multiplication into a 16.16 result. Population speed is at most 255,
+        // but retaining uint arithmetic documents the actual range of the result.
         int tableIndex = angle.TurnedBySteps(phase).HalfWaveIndex;
         uint product = (uint)Trigonometry.UnsignedHalfWave(tableIndex) * (uint)speed;
         return UnsignedSixteenSixteen.FromRaw(product);
     }
 
-    /// <summary>Samples the signed eight-bit multiply path for X and Y phase offsets.</summary>
+    /// <summary>Samples the signed short multiply path for X and Y phase offsets.</summary>
     private static void CalculateSignedSbugVelocities(
-        ByteAngle angle,
+        TrigonometryAngle angle,
         int speed,
         out SignedSixteenSixteen xVelocity,
         out SignedSixteenSixteen yVelocity)
     {
-        xVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyByteAngleDefinitions.QuarterTurn);
-        yVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyByteAngleDefinitions.HalfTurn);
+        xVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyTrigonometryAngleDefinitions.QuarterTurn);
+        yVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyTrigonometryAngleDefinitions.HalfTurn);
     }
 
-    /// <summary>Reproduces the eight-bit sine multiply and independent negative-word conversion.</summary>
-    internal static SignedSixteenSixteen CalculateSignedSbugComponent(ByteAngle angle, int speed, int phase)
+    /// <summary>Reproduces the short sine multiply and independent negation of each part.</summary>
+    internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase)
     {
-        // The eight-bit sine multiplication multiplies two bytes, swaps the product's bytes into 16.16 words, then
-        // (when negative) negates those words independently. Recreate the operations rather
+        // The short sine multiplication multiplies two values of 0 through 255, takes the product as a 16.16
+        // displacement in 256ths, then (when negative) negates its whole and fraction parts independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
-        ByteAngle tableAngle = angle.TurnedBySteps(phase);
+        TrigonometryAngle tableAngle = angle.TurnedBySteps(phase);
         int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);
         // Every authored speed is below five, so the product of the two bytes stays below 65,536.
         SignedSixteenSixteen product = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sineMagnitude * speed);
-        return tableAngle.IsInSecondHalf ? product.NegatedWordsSeparately() : product;
+        return tableAngle.IsInSecondHalf ? product.NegatedPartsSeparately() : product;
     }
 
     /// <summary>Restarts the selected animation only when its facing list differs from the installed one.</summary>

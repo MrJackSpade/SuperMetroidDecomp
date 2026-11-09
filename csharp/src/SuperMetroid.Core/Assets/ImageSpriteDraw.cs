@@ -10,7 +10,7 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// <summary>Places a sheet frame.</summary>
     /// <param name="source">The actor or display element shown.</param>
     /// <param name="image">The sheet frame shown.</param>
-    /// <param name="origin">The screen point the frame's origin lands on; each coordinate is a signed 16-bit value.</param>
+    /// <param name="origin">The screen point the frame's origin lands on; each coordinate lies from -32768 through 32767.</param>
     /// <param name="mirror">Mirrors the frame about its origin.</param>
     public ImageSpriteDraw(SpriteSource source, SpriteSheetFrame image, Position16<ScreenPixels> origin, SpriteMirror mirror)
         : base(source, origin)

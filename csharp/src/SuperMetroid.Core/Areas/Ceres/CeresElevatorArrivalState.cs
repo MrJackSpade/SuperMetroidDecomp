@@ -31,9 +31,9 @@ public sealed class CeresElevatorArrivalState
     {
         Ensure.NotNull(samus);
 
-        // SpawnEprojWithGfx first copies enemy slot zero's tile/palette word. The shared
+        // Spawning a projectile with graphics first copies enemy slot zero's tile and palette choice. The shared
         // initializer then clears it, so both actors use room-loaded sprite tiles and the
-        // palettes authored by their spritemaps. Retaining the transient word is
+        // palettes authored by their spritemaps. Retaining the transient choice is
         // what previously made the level-data concealer teal until touchdown.
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
@@ -97,7 +97,7 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Emits the low-priority spritemaps selected by the live instruction lists.
+    /// Emits the low-priority spritemaps selected by the live programs.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the loaded graphics set's sheets.</param>
@@ -192,7 +192,7 @@ public sealed class CeresElevatorArrivalState
         public SpriteGraphics Graphics { get; }
         /// <summary>Whether the projectile still occupies its arrival slot.</summary>
         public bool Active { get; set; } = true;
-        /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
+        /// <summary>Whole room position; the per-frame movement only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
         /// <summary>Pad-only startup delay before it begins moving Samus toward the platform.</summary>
         public int WaitTimer { get; set; }

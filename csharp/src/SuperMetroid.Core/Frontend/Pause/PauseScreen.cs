@@ -125,7 +125,7 @@ internal sealed class PauseScreen
 
     /// <summary>
     /// The HUD pause shows (#1466): the retained HUD's images under the pause palette, drawn on the HUD's own layer. The
-    /// cleared cells <c>QueueClearingOfFxTilemap</c> leaves beneath and around the HUD show nothing, so pause draws none.
+    /// cleared cells the pause leaves beneath and around the HUD show nothing, so pause draws none.
     /// </summary>
     internal PicturedHud RetainedHudPictures() => pictured ??= HudPictures.Pictured(Hud, PictureShading.Standard);
 

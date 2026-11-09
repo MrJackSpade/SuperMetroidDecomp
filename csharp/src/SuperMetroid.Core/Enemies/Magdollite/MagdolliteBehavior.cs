@@ -20,7 +20,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Supplies the room artwork used by the shared palette hook.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Allocates the lava shots emitted by the overlay's instruction list.</summary>
+    /// <summary>Allocates the lava shots emitted by the overlay's program.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The room's enemy places, where each Magdollite part finds the others when it is placed.</summary>
     private readonly EnemySlotTable _slotTable;

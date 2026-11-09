@@ -10,7 +10,7 @@ public sealed class ChozoStatueState
     /// <summary>The carry-motion record, 0 through 31, the statue last moved by.</summary>
     public int CarryRecord { get; internal set; }
 
-    /// <summary>The literal pre-instruction pointer.</summary>
+    /// <summary>The frame behaviour the statue runs, or none.</summary>
     public ChozoStatueFrameBehavior? FrameBehavior { get; internal set; }
 
     /// <summary>Whether this is the Wrecked Ship statue (parameter two zero) rather than Lower Norfair's (two).</summary>

@@ -29,7 +29,7 @@ public sealed class CinematicPaletteFader
     private readonly Dictionary<IntroSpriteFade, int> sprites =
         Enum.GetValues<IntroSpriteFade>().ToDictionary(static colours => colours, static _ => Levels);
 
-    /// <summary>Ports <c>ClearYColorsFromIndexX</c>: the groups' colours become black.</summary>
+    /// <summary>Clears the groups' colours: they become black.</summary>
     /// <param name="colours">The colours to clear.</param>
     internal void Clear(IntroFadeColours colours)
     {
@@ -40,12 +40,12 @@ public sealed class CinematicPaletteFader
             sprites[group] = 0;
     }
 
-    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c>: the groups' colours take one step toward black.</summary>
+    /// <summary>Fades the groups' colours out: they take one step toward black.</summary>
     /// <param name="colours">The colours to fade.</param>
     /// <exception cref="InvalidOperationException">A group was faded past black.</exception>
     internal void FadeOut(IntroFadeColours colours) => Step(colours, -1);
 
-    /// <summary>Ports <c>FadeInYColorsFromIndexX</c>: the groups' colours take one step toward their installed colours.</summary>
+    /// <summary>Fades the groups' colours in: they take one step toward their installed colours.</summary>
     /// <param name="colours">The colours to fade.</param>
     /// <exception cref="InvalidOperationException">A group was faded past its installed colours.</exception>
     internal void FadeIn(IntroFadeColours colours) => Step(colours, 1);

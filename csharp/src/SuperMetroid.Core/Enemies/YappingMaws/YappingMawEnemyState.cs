@@ -87,7 +87,7 @@ public sealed class YappingMawEnemyState
 
     /// <summary>
     /// Variable F: the population parameter-one distance, 0 through 65535, below which an attack starts. The game
-    /// compares it by the sign of a sixteen-bit difference, so a parameter of 32768 or more behaves as the game's
+    /// compares it by the sign of a wrapped difference, so a parameter of 32768 or more behaves as the game's
     /// wrapped comparison does; <see cref="IsWithinActivationDistance"/> owns that comparison.
     /// </summary>
     public int ActivationDistance { get; internal set; }
@@ -102,7 +102,7 @@ public sealed class YappingMawEnemyState
     /// <summary>Variable 30: the mouth currently owns Samus's input/position.</summary>
     public bool HasGrabbedSamus { get; internal set; }
 
-    /// <summary>Signed whole room-pixel offset from the moving mouth to captive Samus, selected by aiming/animation opcodes.</summary>
+    /// <summary>Signed whole room-pixel offset from the moving mouth to captive Samus, selected by aiming/animation cues.</summary>
     public Offset16<RoomPixels> HeldSamusOffset { get; internal set; }
 
     /// <summary>The sector the bite aims into, selecting its facing animations; the held placement applies only to the two horizontal sectors.</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
-/// The state of one Magdollite part, with its extension words. Extension words are named here instead of reproducing
+/// The state of one Magdollite part, with its extra values. They are named here instead of reproducing
 /// the original's deliberately obscure drawing-queue/spawn-snapshot aliases between three neighboring records.
 /// </summary>
 public sealed class MagdolliteEnemyState
@@ -18,7 +18,7 @@ public sealed class MagdolliteEnemyState
 
     /// <summary>The immutable head, arm, or hand role decoded from this physical enemy slot's population parameter one.</summary>
     public MagdollitePart Part { get; }
-    /// <summary>The current AI function pointer.</summary>
+    /// <summary>The current AI function.</summary>
     public MagdolliteEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -43,9 +43,9 @@ public sealed class MagdolliteEnemyState
     /// </summary>
     public Offset16<RoomPixels> RiseDisplacement { get; internal set; }
 
-    /// <summary>AnimationActiveFlag, set and cleared by instruction callbacks to gate head transitions and completion of the hand's throw.</summary>
+    /// <summary>Whether an animation is active, set and cleared by program callbacks to gate head transitions and completion of the hand's throw.</summary>
     public bool AnimationBusy { get; internal set; }
-    /// <summary>EmergeNotReadyFlag: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
+    /// <summary>Whether the head is not yet ready to emerge: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
     public bool HeadWaitsForBodyLanding { get; internal set; }
     /// <summary>
     /// The part's whole-pixel spawn position, captured before its initializer moves it; only Y is meaningful. The head
@@ -70,9 +70,9 @@ public sealed class MagdolliteEnemyState
     /// consumes the head's copy.
     /// </summary>
     public SignedSixteenSixteen UpwardVelocity { get; internal set; }
-    /// <summary>FinishedGrowingFlag, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
+    /// <summary>Whether the arm has finished growing, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
     public bool BodyReachedApex { get; internal set; }
-    /// <summary>NotEmergedFlag: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
+    /// <summary>Whether the arm has not emerged: true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
     public bool BodyWakeRequested { get; internal set; }
     /// <summary>Whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }

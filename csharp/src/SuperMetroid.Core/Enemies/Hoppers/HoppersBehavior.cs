@@ -315,7 +315,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
-            tableIndex = WrappingCounter.AddWord(tableIndex, tableIndexDelta);
+            tableIndex = WrappingCounter.AddCount(tableIndex, tableIndexDelta);
 
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every
             // initial jump row.

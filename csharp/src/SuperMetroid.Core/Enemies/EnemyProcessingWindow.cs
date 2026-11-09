@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Selects the enemies EnemyMain processes this frame: the processing window, on-screen tests, and the active and
+/// Selects the enemies the enemy pass processes this frame: the processing window, on-screen tests, and the active and
 /// interactive enemies, each in <see cref="EnemySlotOrder"/>.
 /// </summary>
 [RoomLifetime]
@@ -96,7 +96,7 @@ internal sealed class EnemyProcessingWindow
         !CoordinateAxis.Precedes(camera.Y + 248, slot.Position.Y.Whole);
 
     /// <summary>
-    /// The center lies within $100 pixels
+    /// The center lies within 256 pixels
     /// right of and below the camera on both axes.
     /// </summary>
     internal static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, Position16<RoomPixels> camera) =>
@@ -107,7 +107,7 @@ internal sealed class EnemyProcessingWindow
 
     /// <summary>
     /// A negative X, a right edge
-    /// left of the camera, or a position at least $100 right of the camera is off-screen.
+    /// left of the camera, or a position at least 256 pixels right of the camera is off-screen.
     /// </summary>
     internal static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, int cameraX)
     {

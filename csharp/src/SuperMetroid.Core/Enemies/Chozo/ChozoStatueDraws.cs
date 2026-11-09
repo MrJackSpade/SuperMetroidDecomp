@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Chozo statue PLMs' block draws: which PLM draws are the statues', the runs each lays from
+/// The Chozo statue room objects' block draws: which room-object draws are the statues', the runs each lays from
 /// <see cref="ChozoStatueObjectDrawDefinitions"/>.
 /// </summary>
 internal static class ChozoStatueDraws

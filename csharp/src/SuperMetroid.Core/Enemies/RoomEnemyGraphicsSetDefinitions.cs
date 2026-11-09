@@ -398,7 +398,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     public static RoomEnemyGraphicsSetDefinition ElectricDeathDefault { get; } = new(nameof(ElectricDeathDefault));
     /// <summary>The enemy graphics set of the Bowling Alley room once the area's boss is dead.</summary>
     public static RoomEnemyGraphicsSetDefinition BowlingAlleyWhenAreaBossDead { get; } = new(nameof(BowlingAlleyWhenAreaBossDead));
-    /// <summary>The enemy graphics set of the Assembly Line room in its default state.</summary>
+    /// <summary>The enemy graphics set of Wrecked Ship's Assembly Line room in its default state.</summary>
     public static RoomEnemyGraphicsSetDefinition AssemblyLineDefault { get; } = new(nameof(AssemblyLineDefault));
     /// <summary>The enemy graphics set of the Phantoon room once the area's boss is dead.</summary>
     public static RoomEnemyGraphicsSetDefinition PhantoonWhenAreaBossDead { get; } = new(nameof(PhantoonWhenAreaBossDead));
@@ -414,7 +414,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     public static RoomEnemyGraphicsSetDefinition BasementDefault { get; } = new(nameof(BasementDefault));
     /// <summary>The enemy graphics set of the Wrecked Ship Entrance room in its default state.</summary>
     public static RoomEnemyGraphicsSetDefinition WreckedShipEntranceDefault { get; } = new(nameof(WreckedShipEntranceDefault));
-    /// <summary>The enemy graphics set of the Assembly Line room once the area's boss is dead.</summary>
+    /// <summary>The enemy graphics set of Wrecked Ship's Assembly Line room once the area's boss is dead.</summary>
     public static RoomEnemyGraphicsSetDefinition AssemblyLineWhenAreaBossDead { get; } = new(nameof(AssemblyLineWhenAreaBossDead));
     /// <summary>The enemy graphics set of the Wrecked Ship Save room once the area's boss is dead.</summary>
     public static RoomEnemyGraphicsSetDefinition WreckedShipSaveWhenAreaBossDead { get; } = new(nameof(WreckedShipSaveWhenAreaBossDead));

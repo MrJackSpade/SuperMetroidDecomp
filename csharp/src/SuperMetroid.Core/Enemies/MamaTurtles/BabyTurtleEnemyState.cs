@@ -2,13 +2,13 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>The state of a Baby Turtle, with its required extension words.</summary>
+/// <summary>The state of a Baby Turtle, with its required extra values.</summary>
 public sealed class BabyTurtleEnemyState
 {
     /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<MamaTurtleProgram> Program { get; set; }
 
-    /// <summary>Gets the current Baby Turtle AI function pointer.</summary>
+    /// <summary>Gets the current Baby Turtle AI function.</summary>
     public BabyTurtleAiFunction? Function { get; internal set; }
 
     /// <summary>

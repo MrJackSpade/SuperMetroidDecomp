@@ -19,7 +19,7 @@ internal static class CeresDestructionActorDefinitions
             new(136, 111), CeresSpriteColouring.Zebes, 0, false, 64, CinematicSpriteFrameBehavior.ZebesSlideSceneAway, false);
 
     /// <summary>The PLANET ZEBES text actor: its initializer,
-    /// an empty callback and its list. Its operands center the title at (128,186), palette zero.
+    /// an empty callback and its list. Its operands center the title at (128,186), in the cinematic's first sprite colours.
     /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.ZebesTitle,

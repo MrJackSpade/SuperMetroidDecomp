@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Visible animation core of the intro Mother Brain's cinematic sprite definition.
 /// </summary>
 /// <remarks>
-/// The definition's initializer fixes the actor at (56,111) in her own colouring and
-/// priority three. Its animation cycles four authored spritemaps at
+/// The definition's initializer fixes the actor at (56,111) in her own colouring,
+/// in front of the scene. Its animation cycles four authored spritemaps at
 /// sixteen frames apiece. The actor also retains the hit counter, eight-frame palette
 /// flash, and the 128-frame exploding state and the room picture's shake.
 /// </remarks>
@@ -26,9 +26,9 @@ internal sealed class IntroMotherBrainSpriteState
     /// 128 that starts the page-two program, after which it is no longer advanced.
     /// </summary>
     private int explodingTimer;
-    /// <summary>Whether explosion timing has entered the page-two instruction list.</summary>
+    /// <summary>Whether explosion timing has entered the page-two program.</summary>
     private bool pageTwoInstructionStarted;
-    /// <summary>Whether the page-two program's pre-instruction has replaced hit flashing.</summary>
+    /// <summary>Whether the page-two program's frame behaviour has replaced hit flashing.</summary>
     private bool CrossfadingToPageTwo =>
         actor.ListFrameBehavior == CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading;
 
@@ -68,7 +68,7 @@ internal sealed class IntroMotherBrainSpriteState
     public bool IsVisible { get; private set; } = true;
 
     /// <summary>
-    /// Runs the actor pre-instruction that precedes its instruction-list timer decrement.
+    /// Runs the actor's frame behaviour that precedes its program's timer decrement.
     /// </summary>
     public void RunFrameBehavior(
         int cinematicFrameCounter,

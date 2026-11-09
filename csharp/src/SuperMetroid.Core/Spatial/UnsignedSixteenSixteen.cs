@@ -120,6 +120,6 @@ public readonly record struct UnsignedSixteenSixteen
     /// the sign bit clear. This is not an unsigned 32-bit comparison; a fraction word of $8000 or more fails it even
     /// when the whole word is above the cap.
     /// </summary>
-    public bool WordsAtLeast(UnsignedSixteenSixteen cap) =>
+    public bool PartsAtLeast(UnsignedSixteenSixteen cap) =>
         unchecked((short)(Whole - cap.Whole)) >= 0 && unchecked((short)(Fraction - cap.Fraction)) >= 0;
 }

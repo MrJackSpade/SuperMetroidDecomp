@@ -91,7 +91,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     RioProgram.SwoopingPart1);
                 state.Function = RioEnemyFunction.Diving;
 
-                // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The
+                // The game's on-screen check returns zero for an on-screen origin. The
                 // branch consequently queues the cry only for the visible attack start.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
                     _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Rio, EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
@@ -187,10 +187,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                ByteAngle angle = EnemyMath.CalculateBearing(
+                TrigonometryAngle angle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToMirroredTableAngle();
                 state.Velocity = state.Velocity.WithX(ReadRioSignedSineCosineSample(
-                    angle.TurnedBySteps(EnemyByteAngleDefinitions.QuarterTurn)));
+                    angle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn)));
                 state.Velocity = state.Velocity.WithY(ReadRioSignedSineCosineSample(angle));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,
@@ -241,10 +241,10 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reads one sign-extended entry from the eight-bit sine/cosine table. Rio consumes
+    /// Reads one signed entry from the 8.8 sine/cosine table. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
-    internal static SignedEightEight ReadRioSignedSineCosineSample(ByteAngle angle) =>
+    internal static SignedEightEight ReadRioSignedSineCosineSample(TrigonometryAngle angle) =>
         SignedEightEight.FromSignedRaw(Trigonometry.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>

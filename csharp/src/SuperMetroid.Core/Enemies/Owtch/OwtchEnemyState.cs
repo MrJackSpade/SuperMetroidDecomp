@@ -30,7 +30,7 @@ public sealed class OwtchEnemyState
     public int BurialDepth
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestWordCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, value);
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public sealed class OwtchEnemyState
     /// </summary>
     internal bool RiseOnePixel()
     {
-        BurialDepth = WrappingCounter.DecrementWord(BurialDepth);
+        BurialDepth = WrappingCounter.DecrementCount(BurialDepth);
         return BurialDepth == 0;
     }
 

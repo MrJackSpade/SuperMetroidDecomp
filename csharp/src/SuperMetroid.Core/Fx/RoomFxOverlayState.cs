@@ -320,7 +320,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         int random = system.RandomNumber;
         AdvanceLiquidMotion(random, system.EarthquakeSoundDelay);
         QueueLavaAmbientSound(random);
-        system.SwapRandomBytes();
+        system.SwapRandomHalves();
     }
 
     /// <summary>
@@ -740,7 +740,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         }
 
         // The tide indexes the negative-cosine prefix, not the sine origin.
-        int sample = Trigonometry.SignedNegativeCosineWord(Ensure.BetweenInclusive(0, byte.MaxValue, EightEight.WholeOf(TidePhase)));
+        int sample = Trigonometry.SignedNegativeCosineSample(Ensure.BetweenInclusive(0, byte.MaxValue, EightEight.WholeOf(TidePhase)));
         TideFixedOffset = SixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }

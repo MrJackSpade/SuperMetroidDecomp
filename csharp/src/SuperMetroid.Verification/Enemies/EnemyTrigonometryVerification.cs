@@ -669,15 +669,15 @@ internal static class EnemyTrigonometryVerification
             words[i] = rom.ReadCartridgeWord(address);
         }
 
-        var pixel = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitSineProduct(new ByteAngle(unchecked((byte)angle)), radius));
-        var fixedProduct = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitSineFixedProduct(new ByteAngle(unchecked((byte)angle)), radius));
-        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new ByteAngle(unchecked((byte)angle)), radius));
-        var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new ByteAngle(unchecked((byte)angle)), radius));
-        var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitCosineFixedProduct(new ByteAngle(unchecked((byte)angle)), radius));
-        var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new ByteAngle(unchecked((byte)angle)), radius));
-        var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new ByteAngle(angle), speed, phase));
-        var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new ByteAngle(angle), speed, phase));
-        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => EnemyMath.ReadUnsignedSineMagnitudeProduct(new ByteAngle(unchecked((byte)angle)), magnitude, offset));
+        var pixel = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitSineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var fixedProduct = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitSineFixedProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var negative = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitCosineFixedProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.ReadEightBitNegativeSineFixedProduct(new TrigonometryAngle(unchecked((byte)angle)), radius));
+        var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new TrigonometryAngle(angle), speed, phase));
+        var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new TrigonometryAngle(angle), speed, phase));
+        var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => EnemyMath.ReadUnsignedSineMagnitudeProduct(new TrigonometryAngle(unchecked((byte)angle)), magnitude, offset));
 
         int ExpectedPixel(int angle, int radius)
         {
@@ -739,17 +739,17 @@ internal static class EnemyTrigonometryVerification
         for (int index = 0; index < 320; index++)
         {
             short expected = Reference(index);
-            AssertEqual(expected, Trigonometry.SignedNegativeCosineWord(index), "all 320 native prefix/full-wave words");
+            AssertEqual(expected, Trigonometry.SignedNegativeCosineSample(index), "all 320 native prefix/full-wave words");
             if (index >= 64)
             {
                 byte angle = (byte)(index - 64);
-                AssertEqual(expected, Trigonometry.SignedSine(new ByteAngle(angle)), "all signed sine quadrants match cartridge");
+                AssertEqual(expected, Trigonometry.SignedSine(new TrigonometryAngle(angle)), "all signed sine quadrants match cartridge");
             }
         }
         foreach (int invalid in new[] { -1, 320, int.MinValue, int.MaxValue })
         {
             bool rejected = false;
-            try { _ = Trigonometry.SignedNegativeCosineWord(invalid); }
+            try { _ = Trigonometry.SignedNegativeCosineSample(invalid); }
             catch (ArgumentOutOfRangeException) { rejected = true; }
             AssertTrue(rejected, "signed table does not silently wrap invalid prefix indexes");
         }
@@ -767,7 +767,7 @@ internal static class EnemyTrigonometryVerification
                 tide.TidePhase = (ushort)phase;
                 tide.TideFixedOffset = 12345;
                 step();
-                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToByteAngle().RawValue);
+                short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = (option & RoomLiquidOptions.SmallTide) != 0;
                 bool still = option == RoomLiquidOptions.None;
                 int scale = still ? 0 : small ? 8 : 32;

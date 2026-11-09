@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <summary>Shaktool's orbit and orientation encodings, as its segment routines apply them.</summary>
 internal static class ShaktoolOrbitDefinitions
 {
-    /// <summary>One angle-table entry of a 16-bit angle: the straightening step and its extra centre step.</summary>
+    /// <summary>One angle-table entry of a rotation angle: the straightening step and its extra centre step.</summary>
     internal const int TableStep = 256;
 
     /// <summary>The direction buckets a middle segment's heading is rounded to, one for each equal arc of the turn.</summary>

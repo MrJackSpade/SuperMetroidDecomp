@@ -147,8 +147,8 @@ internal sealed class EndingEscapeScenes
                 return;
 
             case CinematicSpriteCueKind.EndZebesExplosion:
-                // F32B disables TM/TS without deleting the actors: the stars must still
-                // advance and become visible again when Func120 starts the flyaway.
+                // The scene hides the sprite layer without deleting the actors: the stars must still
+                // advance and become visible again when the flyaway starts.
                 screen.Colours.Flash(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor);
                 _stage.PhaseTimer = 120;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;

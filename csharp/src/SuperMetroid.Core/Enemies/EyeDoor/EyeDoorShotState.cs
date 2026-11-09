@@ -11,5 +11,5 @@ internal sealed class EyeDoorShotState(LockedDoor door) : EnemyProjectileState
     internal LockedDoor Door { get; } = Ensure.NotNull(door);
 
     /// <summary>The direction the shot accelerates along: the zero angle until its program aims it at Samus.</summary>
-    internal ByteAngle Heading { get; set; }
+    internal TrigonometryAngle Heading { get; set; }
 }

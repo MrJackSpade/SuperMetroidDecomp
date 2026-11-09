@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="heading">The direction the projectile flies in.</param>
 /// <param name="horizontalSpeed">The unsigned horizontal part of its speed.</param>
 /// <param name="verticalSpeed">The unsigned vertical part of its speed.</param>
-internal sealed class AngledFlightState(ByteAngle heading, UnsignedSixteenSixteen horizontalSpeed, UnsignedSixteenSixteen verticalSpeed)
+internal sealed class AngledFlightState(TrigonometryAngle heading, UnsignedSixteenSixteen horizontalSpeed, UnsignedSixteenSixteen verticalSpeed)
     : EnemyProjectileState
 {
     /// <summary>The direction the projectile flies in.</summary>
-    internal ByteAngle Heading { get; } = heading;
+    internal TrigonometryAngle Heading { get; } = heading;
 
     /// <summary>The unsigned horizontal part of the projectile's speed, in pixels per update.</summary>
     internal UnsignedSixteenSixteen HorizontalSpeed { get; } = horizontalSpeed;
@@ -23,7 +23,7 @@ internal sealed class AngledFlightState(ByteAngle heading, UnsignedSixteenSixtee
     /// <summary>Splits <paramref name="speed"/> along <paramref name="heading"/> by the shared sine table.</summary>
     /// <param name="heading">The direction the projectile flies in.</param>
     /// <param name="speed">The speed, 0 through 65535 in 1/256 pixel per update.</param>
-    internal static AngledFlightState Launch(ByteAngle heading, int speed) => new(
+    internal static AngledFlightState Launch(TrigonometryAngle heading, int speed) => new(
         heading,
         EnemyMath.AbsoluteCosineSpeed(heading, speed),
         EnemyMath.AbsoluteSineSpeed(heading, speed));

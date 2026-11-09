@@ -3,7 +3,7 @@
 /// <summary>What a cue of the Chozo statue's programs does: one per instruction its lists use.</summary>
 internal enum ChozoStatueCueKind
 {
-    /// <summary>Clears the pre-instruction.</summary>
+    /// <summary>Clears the frame behaviour.</summary>
     ClearFrameBehavior,
     /// <summary>Plays the footstep sound.</summary>
     PlayFootstepSound,

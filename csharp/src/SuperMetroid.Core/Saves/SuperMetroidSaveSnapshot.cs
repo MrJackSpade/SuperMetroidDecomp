@@ -27,7 +27,7 @@ public sealed record SuperMetroidSaveSnapshot
     public bool JapaneseText { get; init; }
 
     /// <summary>
-    /// The cumulative item-PLM setup count. Gameplay wraps it to zero after <see cref="SaveFieldValue.MaximumValue"/>;
+    /// The cumulative count of item room objects set up. Gameplay wraps it to zero after <see cref="SaveFieldValue.MaximumValue"/>;
     /// the snapshot only carries the value it reached.
     /// </summary>
     public int LoadedItemCount { get; init; }

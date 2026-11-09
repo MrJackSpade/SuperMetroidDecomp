@@ -159,7 +159,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             segment.Position = owner.Position.WithWhole(state.InitialHead);
             // The initializer writes collision option one for these four links. Their
             // shot-blocking property admits the beam overlap; this independent flag selects the persistent
-            // dud response rather than the definition's delete-on-shot instruction list.
+            // dud response rather than the definition's delete-on-shot program.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
             state.ProjectileSegments[segmentIndex] = segment;
         }
@@ -320,7 +320,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// only the angle's position within one turn.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(NuclearWaffleEnemyState state, int angle) =>
-        state.Origin + EnemyMath.CircleOffset(ByteAngle.Wrapped(angle), state.OrbitRadius);
+        state.Origin + EnemyMath.CircleOffset(TrigonometryAngle.Wrapped(angle), state.OrbitRadius);
 
     /// <summary>Advances the signed 16.16 sweep angle by the angular speed, carrying from its fraction.</summary>
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state) =>

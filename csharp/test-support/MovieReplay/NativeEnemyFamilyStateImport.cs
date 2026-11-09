@@ -125,7 +125,7 @@ internal static class NativeEnemyFamilyStateImport
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part's own state takes its own.
             if (kraidPartRecord is KraidNailState kraidNail)
-                kraidNail.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
+                kraidNail.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.B, words.E, words.D);
             if (kraidPartRecord is KraidLintState kraidLint)
             {
                 kraidLint.LintXOffset = CoordinateAxis.AsSigned(words.C);
@@ -423,7 +423,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<MetroidEnemyState>() is { } metroidRecord)
         {
-            metroidRecord.Velocity = FixedVector<RoomPixels>.FromWords(words.B, words.A, words.D, words.C);
+            metroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
             metroidRecord.EscapeTimer = unchecked((short)words.E);
             metroidRecord.Function = (MetroidAiFunction)words.F;
         }
@@ -490,13 +490,13 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)
         {
-            etecoonRecord.Velocity = FixedVector<RoomPixels>.FromWords(words.C, words.D, words.A, words.B);
+            etecoonRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.A, words.B);
             etecoonRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
             etecoonRecord.Function = words.F == 0 ? null : AnimalsNativeWords.EtecoonAiFunctions.Decode(words.F, "recorded EtecoonAiFunction");
         }
         if (slot.SpeciesState<MochtroidEnemyState>() is { } mochtroidRecord)
         {
-            mochtroidRecord.Velocity = FixedVector<RoomPixels>.FromWords(words.B, words.A, words.D, words.C);
+            mochtroidRecord.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.B, words.A, words.D, words.C);
             mochtroidRecord.ShakeTimer = unchecked((short)words.E);
             mochtroidRecord.MovementMode = (MochtroidMovementMode)words.F;
         }
@@ -595,7 +595,7 @@ internal static class NativeEnemyFamilyStateImport
             walkingPirate.RightPost = new(words.F, 0);
         }
         if (slot.EntityState<MultiviolaEntity, MultiviolaEnemyState>() is { } multiviola)
-            multiviola.Velocity = FixedVector<RoomPixels>.FromWords(words.C, words.D, words.E, words.F);
+            multiviola.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.E, words.F);
         if (slot.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
         {
             crawler.Velocity = new(new SignedEightEight(words.A), new SignedEightEight(words.B));
@@ -666,7 +666,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.AlcoonStates[index] is { } alcoon)
         {
             alcoon.Function = words.A == 0 ? null : AlcoonNativeWords.AlcoonEnemyFunctions.Decode(words.A, "recorded AlcoonEnemyFunction");
-            alcoon.Velocity = FixedVector<RoomPixels>.FromWords(words.D, 0, words.B, words.C);
+            alcoon.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.D, 0, words.B, words.C);
             alcoon.SpawnPosition = alcoon.SpawnPosition.WithY(words.F);
         }
         if (enemies.DeadTourianCorpses[index] is { } corpse)

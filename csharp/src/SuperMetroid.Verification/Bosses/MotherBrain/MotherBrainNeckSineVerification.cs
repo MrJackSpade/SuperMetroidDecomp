@@ -23,7 +23,7 @@ internal static class MotherBrainNeckSineVerification
                 AssertEqual(
                     expected,
                     MotherBrainNeckKinematics.CalculateSignedComponent(
-                        new ByteAngle(unchecked((byte)angle)),
+                        new TrigonometryAngle(unchecked((byte)angle)),
                         unchecked((ushort)distance)),
                     $"Mother Brain neck component angle {angle:X2}, distance {distance:X2}");
             }
@@ -53,8 +53,8 @@ internal static class MotherBrainNeckSineVerification
     {
         ushort referenceX = unchecked((ushort)(body.X - 0x0050));
         ushort referenceY = unchecked((ushort)(body.Y + 0x002e));
-        byte lower = RotationAngle.FromRaw(lowerAngle).ToByteAngle().RawValue;
-        byte upper = RotationAngle.FromRaw(upperAngle).ToByteAngle().RawValue;
+        byte lower = RotationAngle.FromRaw(lowerAngle).ToTrigonometryAngle().RawValue;
+        byte upper = RotationAngle.FromRaw(upperAngle).ToTrigonometryAngle().RawValue;
 
         Position16<RoomPixels> Lower(ushort distance) => new(
             unchecked((ushort)(referenceX + 0x0070 +

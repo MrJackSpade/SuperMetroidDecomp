@@ -33,7 +33,7 @@ internal sealed class EnemyAudioQueue
     private readonly Dictionary<EnemyMusicSource, List<DelayedMusicRequest>> _pendingMusic = [];
 
     /// <summary>
-    /// The power-bomb explosion bound for the current enemy frame: EnemyMain refreshes this before AI; later draw and
+    /// The power-bomb explosion bound for the current enemy frame: the enemy pass refreshes this before AI; later draw and
     /// room-main requests sample the same owner.
     /// </summary>
     internal SamusPowerBombExplosionState? PowerBomb { get; set; }

@@ -414,7 +414,7 @@ internal static void VerifySamusXray()
     AssertEqual(21, standing.Kinematics.Radius.Y, "standing X-ray radius");
     AssertEqual(2, standing.AnimationFrame, "command five starts X-ray frame two");
     AssertEqual(0x3f, standing.AnimationFrameTimer.RawValue, "command five X-ray timer");
-    AssertEqual(RotationAngle.QuarterTurn.ToByteAngle().RawValue, standing.Xray.Angle.ToByteAngle().RawValue,
+    AssertEqual(RotationAngle.QuarterTurn.ToTrigonometryAngle().RawValue, standing.Xray.Angle.ToTrigonometryAngle().RawValue,
         "right X-ray initial angle");
     AssertEqual(XraySetupStage.FreezeTimeSaveBackground, standing.Xray.SetupStage, "X-ray starts setup stage one");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
@@ -475,7 +475,7 @@ internal static void VerifySamusXray()
         SamusXrayDisplaySnapshot.Capture(standing, null) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
         new Position16<RoomPixels>(0, 0));
     AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(103, 184),
-            RotationAngle.QuarterTurn.ToByteAngle().RawValue - 10, RotationAngle.QuarterTurn.ToByteAngle().RawValue + 10), DisplayScreen.HudHeight),
+            RotationAngle.QuarterTurn.ToTrigonometryAngle().RawValue - 10, RotationAngle.QuarterTurn.ToTrigonometryAngle().RawValue + 10), DisplayScreen.HudHeight),
         xrayWindow, "the full X-ray beam is a cone from Samus's eye, ten units either side of her aim");
 
     AssertTrue(standing.Xray.UpdatePalette(xrayColours, standing.EquippedItems),
@@ -489,10 +489,10 @@ internal static void VerifySamusXray()
     standing.Xray.StepBeam(
         standing,
         (ControllerButton.B | ControllerButton.Up | ControllerButton.Down));
-    AssertEqual(0x3f, standing.Xray.Angle.ToByteAngle().RawValue, "X-ray Up wins over Down");
+    AssertEqual(0x3f, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "X-ray Up wins over Down");
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(standing, (ControllerButton.B | ControllerButton.Up));
-    AssertEqual(10, standing.Xray.Angle.ToByteAngle().RawValue, "right X-ray upper clamp includes width");
+    AssertEqual(10, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "right X-ray upper clamp includes width");
     AssertEqual(0, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "upper-clamped angle selects looking-up art");
 
@@ -513,7 +513,7 @@ internal static void VerifySamusXray()
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray turn publishes turning pose");
     AssertEqual(SamusMovementType.TurningOnGround, standing.PoseHistory.PreviousMovement, "X-ray turn publishes turning metadata");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.Pose, "X-ray right-to-left standing turn pose");
-    AssertEqual(0xf6, standing.Xray.Angle.ToByteAngle().RawValue, "X-ray turn mirrors angle");
+    AssertEqual(0xf6, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "X-ray turn mirrors angle");
     AssertTrue(standing.Xray.StepMovement(standing) is null,
         "X-ray movement is RTS during type-E turn");
     for (int tick = 0; tick < 5; tick++)
@@ -603,7 +603,7 @@ internal static void VerifySamusXray()
         "deferred setup starts beam ownership before pose-command arbitration");
     AssertEqual(XraySuspendedSubsystems.All, interrupted.Xray.SuspendedSubsystems,
         "deferred setup immediately disables all four native subsystems");
-    AssertEqual(RotationAngle.ThreeQuarterTurn.ToByteAngle().RawValue, interrupted.Xray.Angle.ToByteAngle().RawValue,
+    AssertEqual(RotationAngle.ThreeQuarterTurn.ToTrigonometryAngle().RawValue, interrupted.Xray.Angle.ToTrigonometryAngle().RawValue,
         "deferred left-facing setup publishes native angle C0");
     AssertEqual(SamusSpecialPaletteType.None, interrupted.Xray.SpecialPaletteKind,
         "deferred setup does not install command-five palette ownership early");

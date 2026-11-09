@@ -3,13 +3,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Terrain PLMs that enemies break, spawned by enemy contact instead of Samus or projectiles.</summary>
+/// <summary>Terrain room objects that enemies break, spawned by enemy contact instead of Samus or projectiles.</summary>
 internal sealed class EnemyBreakableTerrainObjects
 {
-    /// <summary>Finite PLM slots searched in descending order for a free break effect.</summary>
+    /// <summary>Finite room-object slots searched in descending order for a free break effect.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Uses the room's live PLM pool so enemy-triggered breaks share allocation limits.</summary>
+    /// <summary>Uses the room's live room-object pool so enemy-triggered breaks share allocation limits.</summary>
     internal EnemyBreakableTerrainObjects(RoomObjectSlotTable slotTable)
     {
         _slotTable = slotTable;

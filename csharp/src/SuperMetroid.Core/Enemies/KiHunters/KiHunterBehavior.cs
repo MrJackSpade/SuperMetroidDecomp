@@ -302,7 +302,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ByteAngle tableAngle = RotationAngle.WrappedSteps(state.SwoopAngle).ToByteAngle();
+        TrigonometryAngle tableAngle = RotationAngle.WrappedSteps(state.SwoopAngle).ToTrigonometryAngle();
         int targetX = CoordinateAxis.Wrap(
             state.SwoopTarget.X +
             EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X));
@@ -502,8 +502,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DetachedSpeedIndex,
             sign: EnemySpeedSign.Negative));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
-        wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(byteAngle, radius) - state.OrbitOffset);
+        TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
+        wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(trigonometryAngle, radius) - state.OrbitOffset);
 
         if (LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
@@ -523,10 +523,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             state.DetachedSpeedIndex,
             sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
+        TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
         int desiredY = CoordinateAxis.Wrap(
             state.OrbitCenter.Y +
-            EnemyMath.ReadEightBitNegativeSineProduct(byteAngle, radius) -
+            EnemyMath.ReadEightBitNegativeSineProduct(trigonometryAngle, radius) -
             state.FallingArcOffset.Y);
         if (_terrain.MoveEnemyVertically(
                 level,
@@ -540,7 +540,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         wings.Position = wings.Position.WithWrappedWholeX(
-            state.OrbitCenter.X + EnemyMath.ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcOffset.X);
+            state.OrbitCenter.X + EnemyMath.ReadEightBitCosineProduct(trigonometryAngle, radius) - state.FallingArcOffset.X);
         if (!LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
             BeginDetachedKiHunterWingOrbit(wings, state);
@@ -615,7 +615,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Walks the quadratic speed table until the detached wing's speed sum reaches its threshold. The reset cannot wrap:
-    /// the table read rejects an index past its last record long before the reset would leave its sixteen-bit range.
+    /// the table read rejects an index past its last record long before the reset would pass 65535.
     /// </summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
@@ -743,10 +743,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
-        // NormalEnemyShotAi clears the complete body record before returning to Ki-Hunter's
+        // The normal enemy shot AI clears the complete body record before returning to Ki-Hunter's
         // private shot tail on a fatal hit. The game nevertheless keeps the
         // dead body's physical slot and accesses the next slot to delete its wings. Once the
-        // typed state has established this slot as a body, a cleared definition word is
+        // typed state has established this slot as a body, a cleared definition is
         // therefore valid until the callback finishes; revalidating only the mutable header
         // converts the ordinary fatal-shot path into a host exception. A place the room set up as a body stays one.
         bool initializedBody = _wingsOfBody.IsPlaced(body);
@@ -847,7 +847,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Connects acid spit startup and gravity movement to pre-instructions.</summary>
+    /// <summary>Connects acid spit startup and gravity movement to frame behaviours.</summary>
     internal static void AddKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -866,13 +866,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectileFrameBehavior.KiHunterAcidLaunchRight);
     }
 
-    /// <summary>Ports KiHunter's main AI.</summary>
+    /// <summary>Runs the Ki-Hunter's main AI.</summary>
     internal void RunKiHunterMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKiHunterMain(slot, slot.RequireSpeciesState<KiHunterEnemyState>(), frame.Samus, frame.Level);
     }
 
-    /// <summary>Advances KiHunter's typed animation.</summary>
+    /// <summary>Advances the Ki-Hunter's typed animation.</summary>
     internal void AdvanceKiHunterTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, KiHunterAnimations.Programs, KiHunterFrameDefinitions.ShownFrames.Of,
             static (KiHunterEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,

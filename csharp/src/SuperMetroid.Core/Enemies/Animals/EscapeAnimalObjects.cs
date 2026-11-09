@@ -5,16 +5,16 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>The critters-escape PLMs: the shootable rescue wall, its reaction list, and the Crateria passage that opens only when the animals escaped.</summary>
+/// <summary>The critters-escape room objects: the shootable rescue wall, its reaction list, and the Crateria passage that opens only when the animals escaped.</summary>
 [RoomLifetime]
 internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
 {
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
-    /// <summary>PLM slot pool searched from the final slot toward the first.</summary>
+    /// <summary>Room-object slot pool searched from the final slot toward the first.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds the animal-rescue PLM behaviors to room events and the shared slot table.</summary>
+    /// <summary>Binds the animal-rescue room-object behaviors to room events and the shared slot table.</summary>
     internal EscapeAnimalObjects(IGlobalEventFlags? events, RoomObjectSlotTable slotTable)
     {
         _events = events;
@@ -23,9 +23,9 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// <summary>Makes the three-block rescue wall shootable, preserving artwork.</summary>
     public void SetupCrittersEscapeBlock(RoomLevelData level, int blockIndex)
     {
-        // Hardcoded spawn cannot execute setup when every PLM slot is occupied.
+        // Hardcoded spawn cannot execute setup when every room-object slot is occupied.
         if (_slotTable.IsFull)
-            throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
+            throw new InvalidOperationException("Animal rescue wall setup has no free room-object slot.");
         RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, blockIndex, EscapeAnimalWallDefinitions.OriginCollisionType,
             EscapeAnimalWallDefinitions.ReactionBehavior);
         for (int row = 1; row <= 2; row++)
@@ -39,7 +39,7 @@ internal sealed class EscapeAnimalObjects : ICrittersEscapeReaction
     /// removes the wall unless the critters-escaped event is set, so the passage
     /// stays shut when the animals were left behind.
     /// </summary>
-    /// <returns>False when no PLM remains: the event is unset or every slot is occupied.</returns>
+    /// <returns>False when no room object remains: the event is unset or every slot is occupied.</returns>
     public bool TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
     {
         Ensure.NotNull(level);

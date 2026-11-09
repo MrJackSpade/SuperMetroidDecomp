@@ -107,7 +107,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Recreates <c>GetSignedYMinusX</c> followed by the signed threshold comparison used by
+    /// Recreates the signed Y-minus-X difference followed by the signed threshold comparison used by
     /// both proximity helpers. Equality at 64 pixels is outside; the modular -32768
     /// difference also remains outside without passing through host <c>Math.Abs</c> overflow.
     /// </summary>
@@ -137,7 +137,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RunPolypMain(slot, slot.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
 
-    /// <summary>Projectile pre-instruction installed on each launched rock.</summary>
+    /// <summary>Projectile frame behaviour installed on each launched rock.</summary>
     private const EnemyProjectileFrameBehavior PolypRockFrameBehavior =
         EnemyProjectileFrameBehavior.PolypRockFlight;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>

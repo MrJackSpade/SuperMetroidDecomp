@@ -64,7 +64,7 @@ internal static class PhantoonBodyPublicationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingIn = runtime.Display.Latched.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
-        AssertEqual(new PhantoonWave(40, 3072, new ByteAngle((byte)(state.BodyWave.Phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
+        AssertEqual(new PhantoonWave(40, 3072, new TrigonometryAngle((byte)(state.BodyWave.Phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
             fadingIn.Wave, "the wavy fade-in publishes the wave's base scroll, amplitude, phase's angle and its mode's period");
         BossBodyLayer image = runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException("Phantoon publishes his body layer.");

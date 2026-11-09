@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 /// <summary>The Wrecked Ship entrance treadmill and the Maridia elevatube: their spawns and the belt row a treadmill runs.</summary>
 internal sealed class WreckedShipTreadmillObjects
 {
-    /// <summary>PLM slot pool used for treadmill and elevatube allocation.</summary>
+    /// <summary>Room-object slot pool used for treadmill and elevatube allocation.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Attaches treadmill and elevatube spawning to the room's PLM pool.</summary>
+    /// <summary>Attaches treadmill and elevatube spawning to the room's room-object pool.</summary>
     internal WreckedShipTreadmillObjects(RoomObjectSlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -22,7 +22,7 @@ internal sealed class WreckedShipTreadmillObjects
     /// 56 blocks with blank air. The treadmill's first update runs the belt when Phantoon is dead, and it then leaves the
     /// room either way.
     /// </summary>
-    /// <returns>False only when all forty PLM slots are occupied.</returns>
+    /// <returns>False only when all forty room-object slots are occupied.</returns>
     public bool TrySpawnWreckedShipEntranceTreadmill(
         RoomLevelData level,
         WreckedShipTreadmillDirection direction,
@@ -64,7 +64,7 @@ internal sealed class WreckedShipTreadmillObjects
     /// Spawns the effectively invisible elevatube object at (1,0): it waits sixteen updates, plays the elevatube sound
     /// and leaves the room.
     /// </summary>
-    /// <returns>False only when all forty PLM slots are occupied.</returns>
+    /// <returns>False only when all forty room-object slots are occupied.</returns>
     public bool TrySpawnMaridiaElevatube(RoomLevelData level)
     {
         Ensure.NotNull(level);

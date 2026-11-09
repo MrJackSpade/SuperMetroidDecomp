@@ -66,13 +66,4 @@ internal static class InstalledArtworkBundleIdentity
         public string ContentIdentity => artwork is SamusBodySources installed ? installed.ContentIdentity
             : throw new InvalidDataException("The Samus body artwork was not read from installed artwork.");
     }
-
-    /// <summary>The installed content identity of the Samus spritemaps.</summary>
-    extension(InstalledSamusSpritemaps artwork)
-    {
-        /// <summary>The identity the import pipeline computed for <paramref name="artwork"/>, which it read as a <see cref="SamusSpritemapSources"/>.</summary>
-        /// <exception cref="InvalidDataException">The Samus spritemaps was not read from installed artwork.</exception>
-        public string ContentIdentity => artwork is SamusSpritemapSources installed ? installed.ContentIdentity
-            : throw new InvalidDataException("The Samus spritemaps was not read from installed artwork.");
-    }
 }

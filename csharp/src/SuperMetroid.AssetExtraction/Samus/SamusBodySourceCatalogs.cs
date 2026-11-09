@@ -18,15 +18,6 @@ internal static class SamusBodySourceCatalogs
             throw new InvalidDataException("Samus body artwork was not built from installed frame selections.");
     }
 
-    /// <summary>The pose-half table's compositions.</summary>
-    extension(InstalledSamusSpritemaps self)
-    {
-        /// <summary>The table with the compositions the import pipeline built it from.</summary>
-        /// <exception cref="InvalidDataException">The table was not built by the import pipeline.</exception>
-        internal SamusSpritemapSources Source => self as SamusSpritemapSources ??
-            throw new InvalidDataException("Samus spritemaps were not built from installed compositions.");
-    }
-
     /// <summary>The arm cannon's descriptors, appearances and tiles.</summary>
     extension(InstalledSamusArmCannonArtwork self)
     {

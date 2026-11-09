@@ -428,7 +428,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             }
             SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
             samus.Control.EnterGunship();
-            samus.Presentation.PrimeGraphics(samus);
             pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
             Part(top).FunctionTimer = 144;

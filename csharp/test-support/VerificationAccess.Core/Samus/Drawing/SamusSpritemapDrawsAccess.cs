@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Samus.Drawing;
@@ -14,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// (the zero-pointer WRAM spritemap among them); built only when such a spritemap is drawn.
 /// </param>
 internal readonly record struct SamusSpritemapArtwork(
-    InstalledSamusSpritemaps Spritemaps,
+    SamusSpritemapSources Spritemaps,
     SpriteArtwork Characters,
     Func<SpriteArtwork> PageCharacters);
 
@@ -39,7 +38,7 @@ internal static class SamusSpritemapDrawsAccess
         SamusSpritemapArtwork artwork,
         SpriteSource source)
     {
-        if (artwork.Spritemaps.Source.TryGetFrame(spritemapIndex, out SpriteFrame? frame))
+        if (artwork.Spritemaps.TryGetFrame(spritemapIndex, out SpriteFrame? frame))
         {
             // A spritemap that names a character beyond its own sheet reads the rest of the OBJ table there.
             SpriteArtwork characters = frame.LastCharacter < artwork.Characters.CharacterCount

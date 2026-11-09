@@ -45,7 +45,6 @@ internal static void VerifySamusRenderingSlice()
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
     var samusColours = new SamusColours();
-    var vram = new SnesVram();
     var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
 
@@ -58,15 +57,19 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x000d, powerSuit[15], "Samus power-suit shade colour fifteen");
 
     BindSyntheticSamusRendering(bus, samus);
-    samus.Presentation.PrimeGraphics(samus);
-    AssertEqual(0x92d0b0, samus.Presentation.BodyFrames.TopDefinitionAddress, "pose 1 frame 0 top tile definition");
-    AssertEqual(0x92d1c8, samus.Presentation.BodyFrames.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
-
-    samus.Presentation.BodyFrames.LoadShownInto(vram);
-    AssertEqual(0x10, vram.ReadByte(0xc000), "Samus top part 1 is the shown body's character 0");
-    AssertEqual(0x20, vram.ReadByte(0xc200), "Samus top part 2 is the shown body's character 16");
-    AssertEqual(0x30, vram.ReadByte(0xc100), "Samus bottom part 1 is the shown body's character 8");
-    AssertEqual(0x40, vram.ReadByte(0xc300), "Samus bottom part 2 is the shown body's character 24");
+    // The import composes pose 1's frame-zero picture of the definitions its selector names, laid where the picture's
+    // parts read them (#1585).
+    InstalledSamusBodyArtwork poseOneArtwork = BoundArtwork(samus);
+    SamusBodyFramePictures poseOnePictures = poseOneArtwork.Source.Pictures(SamusPoseId.FacingRightNormalPose, 0);
+    AssertEqual(0x92d0b0, 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOnePictures.Top)), "pose 1 frame 0 top tile definition");
+    AssertEqual(0x92d1c8, poseOnePictures.Bottom is { } poseOneBottom ? 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOneBottom)) : 0,
+        "pose 1 frame 0 bottom tile definition");
+    ReadOnlySpan<byte> poseOneCharacters = SamusBodySheetFixtures.CharactersOf(poseOneArtwork)
+        .BodyArtwork(poseOnePictures.Top, poseOnePictures.Bottom).Characters;
+    AssertEqual(0x10, poseOneCharacters[0], "Samus top part 1 is the composed body's character 0");
+    AssertEqual(0x20, poseOneCharacters[16 * SpriteArtwork.CharacterByteCount], "Samus top part 2 is the composed body's character 16");
+    AssertEqual(0x30, poseOneCharacters[8 * SpriteArtwork.CharacterByteCount], "Samus bottom part 1 is the composed body's character 8");
+    AssertEqual(0x40, poseOneCharacters[24 * SpriteArtwork.CharacterByteCount], "Samus bottom part 2 is the composed body's character 24");
 
     SamusPresentation.InitializeAnimation(samus);
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "pose 1 initial animation delay");
@@ -122,15 +125,15 @@ internal static void VerifySamusRenderingSlice()
     // Pose $01's graphics Y offset is six, so world (1152,134) becomes origin (128,128).
     AssertEqual(128, samus.Presentation.SpritemapPosition.X, "Samus default screen X calculation");
     AssertEqual(128, samus.Presentation.SpritemapPosition.Y, "Samus signed graphics-Y offset calculation");
-    // The body records the pose halves and animation frame it drew, not a table index (#1465), as one full body (#1513).
-    var poseOne = new SamusBodyFrame(new SamusBodyHalfFrame(SamusPoseId.FacingRightNormalPose, SamusBodyHalf.Top, 0),
-        new SamusBodyHalfFrame(SamusPoseId.FacingRightNormalPose, SamusBodyHalf.Bottom, 0), null);
-    AssertEqual(poseOne, samus.Presentation.DrawnFrame, "Samus pose 1 draws its top and bottom halves' frame-zero pictures");
-    // The published description: the whole body as one pre-coloured frame, the sheet frame of its spritemaps with the
-    // definition records this frame's transfers select, at the spritemap origin.
+    // The body records the pose and picture frame it drew, not a table index (#1465), as one whole picture (#1513, #1585).
+    var poseOne = new SamusBodyFrame(SamusPoseId.FacingRightNormalPose, 0);
+    AssertEqual(poseOne, samus.Presentation.DrawnFrame, "Samus pose 1 draws its frame-zero picture");
+    AssertEqual(2, Composition(samus, poseOne).Bottom is null ? 1 : 2, "Samus pose 1's frame-zero picture is composed of its top and bottom halves");
+    // The published description: the whole body as one pre-coloured frame, the sheet frame of its pose and picture
+    // frame, at the spritemap origin.
     SpriteDraw[] body = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertEqual(1, body.Length, "Samus pose 1 publishes one full-body frame");
-    AssertTrue(ShowsBodyFrame(samus, body[0], poseOne), "the body draw shows its full-body sheet frame with the selected records");
+    AssertTrue(ShowsBodyFrame(samus, body[0], poseOne), "the body draw shows its whole-picture sheet frame");
     AssertEqual(new SpriteSource(SpriteSourceKind.Samus), body[0].Source, "body draw source");
     AssertEqual(samus.Presentation.SpritemapPosition, body[0].Origin, "body draw sits at the spritemap origin");
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
@@ -161,9 +164,10 @@ internal static void VerifySamusRenderingSlice()
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    AssertEqual(new SamusBodyFrame(new SamusBodyHalfFrame(SamusPoseId.MovingRightNormalPose, SamusBodyHalf.Top, 0),
-            new SamusBodyHalfFrame(SamusPoseId.MovingRightNormalPose, SamusBodyHalf.Bottom, 0), null), samus.Presentation.DrawnFrame,
-        "running pose draws its top and bottom halves' frame-zero pictures");
+    AssertEqual(new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, 0), samus.Presentation.DrawnFrame,
+        "running pose draws its frame-zero picture");
+    AssertEqual(2, Composition(samus, new SamusBodyFrame(SamusPoseId.MovingRightNormalPose, 0)).Bottom is null ? 1 : 2,
+        "running pose's frame-zero picture is composed of its top and bottom halves");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
     SamusGroundedPoseTransitions.ApplyRunningRightToStandingRight(samus);
@@ -211,11 +215,13 @@ internal static void VerifySamusRenderingSlice()
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
     SamusBodyFrame forward = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException("Power-suit forward drew no body.");
-    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Top, 0), forward.Top,
-        "power-suit forward draws its top half's frame-zero picture");
-    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Bottom, 0), forward.Bottom,
-        "power-suit forward draws its bottom half's frame-zero picture");
-    AssertTrue(forward.ChestCover is not null, "power-suit forward draws the chest cover in its full body");
+    AssertEqual(new SamusBodyFrame(SamusPoseId.ForwardFacingPowerSuitPose, 0), forward, "power-suit forward draws its frame-zero picture");
+    SamusBodyComposition forwardComposition = Composition(samus, forward);
+    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Top, 0), forwardComposition.Top,
+        "power-suit forward's picture is composed of its top half's frame-zero picture");
+    AssertEqual(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingPowerSuitPose, SamusBodyHalf.Bottom, 0), forwardComposition.Bottom,
+        "power-suit forward's picture is composed of its bottom half's frame-zero picture");
+    AssertTrue(forwardComposition.ChestCover is not null, "power-suit forward's whole picture holds the chest cover");
     SpriteDraw[] forwardBody = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertEqual(1, forwardBody.Length, "power-suit forward publishes its halves and chest cover as one full-body frame");
     AssertTrue(ShowsBodyFrame(samus, forwardBody[0], forward), "power-suit forward shows its full-body sheet frame");
@@ -232,40 +238,36 @@ internal static void VerifySamusRenderingSlice()
     samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
-    SamusBodyPicture? bottomBeforeSuited = samus.Presentation.BodyFrames.Shown.Bottom;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0));
     oam = oamFrame.FinalizeAsOam();
-    // The suited forward frame selects bottom set $FF: no bottom transfer. Its body draws keep showing the bottom
-    // record the previous frame selected, as retained VRAM did natively.
-    AssertTrue(bottomBeforeSuited is not null, "the frame before the suited pose selected a bottom record");
-    AssertEqual(bottomBeforeSuited, samus.Presentation.BodyFrames.Shown.Bottom,
-        "a frame with no bottom transfer keeps the earlier bottom record");
+    // The suited forward frame selects bottom set $FF: no bottom transfer. Its whole picture is composed of its own
+    // selection alone, with no bottom picture carried from an earlier frame (#1585).
+    var suited = new SamusBodyFrame(SamusPoseId.ForwardFacingSuitedPose, 0);
+    SamusBodyFramePictures suitedPictures = BoundArtwork(samus).Source.Pictures(suited.Pose, suited.PictureFrame);
+    AssertTrue(suitedPictures.Bottom is null, "the suited forward frame names no bottom record");
+    AssertTrue(BoundArtwork(samus).Source.Spritemaps.PictureKey(Composition(samus, suited), suitedPictures) is { BottomPicture: null },
+        "a frame with no bottom transfer is composed with no bottom picture");
     SpriteDraw[] suitedBody = [.. oamFrame.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
-    var suited = new SamusBodyFrame(new SamusBodyHalfFrame(SamusPoseId.ForwardFacingSuitedPose, SamusBodyHalf.Top, 0),
-        new SamusBodyHalfFrame(SamusPoseId.ForwardFacingSuitedPose, SamusBodyHalf.Bottom, 0), null);
     AssertTrue(suitedBody.Length == 1 && ShowsBodyFrame(samus, suitedBody[0], suited),
-        "a frame with no bottom transfer draws its full-body sheet frame over the earlier bottom record");
-    AssertEqual(suited, samus.Presentation.DrawnFrame, "suited forward draws its top and bottom halves' frame-zero pictures");
+        "a frame with no bottom transfer draws its own whole-picture sheet frame");
+    AssertEqual(suited, samus.Presentation.DrawnFrame, "suited forward draws its frame-zero picture");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "suited forward emits no power-suit chest patch");
 
-    // `$90:85E2` suppresses body OAM on odd invincibility frames but still calls the
-    // bank-$92 tile-definition selector. This is deliberately not folded into the arm-
+    // `$90:85E2` suppresses body OAM on odd invincibility frames. This is deliberately not folded into the arm-
     // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
     samus.InvincibilityTimer = WrappingCountdown.Start(1);
     samus.KnockbackTimer = 0;
-    SamusBodyPictures shownBeforeHidden = samus.Presentation.BodyFrames.Shown;
+    SamusBodyFrame? drawnBeforeHidden = samus.Presentation.DrawnFrame;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, cameraPosition: new(0x0400, 0), frameCounter: 1);
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0, oam.LastFinalizedSpriteCount,
         "odd invincibility frame suppresses complete Samus body");
-    AssertTrue(samus.Presentation.BodyFrames.Shown.Top is not null,
-        "hidden invincibility frame still selects its top picture");
-    AssertEqual(shownBeforeHidden.Bottom, samus.Presentation.BodyFrames.Shown.Bottom,
-        "hidden suited-forward frame names no bottom half and keeps the bottom picture already shown");
+    AssertEqual(drawnBeforeHidden, samus.Presentation.DrawnFrame,
+        "a hidden invincibility frame keeps the picture last drawn, which the echoes repeat");
 
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -296,8 +298,8 @@ internal static void VerifySamusRenderingSlice()
 
     // Give every synthetic spritemap index used below one visible OBJ. Top and bottom base indices are both zero, so a
     // split body's picture is the top-only picture: the body sheet lays that picture out once (#1513), and its OAM part
-    // count no longer tells the halves apart. The drawn body frame is the witness: a bottom half means the lower-half
-    // dispatcher accepted that pose and frame, none means the top-only branch.
+    // count no longer tells the halves apart. The drawn picture's composition is the witness: a bottom half means the
+    // lower-half dispatcher accepted that pose and frame, none means the top-only branch.
     SeedBodyHalfRoutingSpritemaps(bus);
 
     // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
@@ -336,7 +338,7 @@ internal static void VerifySamusRenderingSlice()
         oam = oamFrame.FinalizeAsOam();
         AssertTrue(oam.LastFinalizedSpriteCount > 0, $"{name} draws the body");
         SamusBodyFrame drawn = samus.Presentation.DrawnFrame ?? throw new InvalidOperationException($"{name} published no body frame.");
-        AssertEqual(expectedHalves, drawn.Bottom is null ? 1 : 2, name);
+        AssertEqual(expectedHalves, Composition(samus, drawn).Bottom is null ? 1 : 2, name);
     }
 
     // `$90:864E` contains exactly 28 bottom-half handlers, and the complete retail
@@ -444,21 +446,22 @@ internal static void VerifySamusRenderingSlice()
     Console.WriteLine("  Samus: body art, turning-floor position, bottom rules, tile DMA, OAM, and invincibility flicker agree.");
 }
 
-/// <summary>
-/// Whether <paramref name="draw"/> is the unmirrored full-body sheet picture <paramref name="frame"/> shows with the
-/// definition records Samus's transfers select.
-/// </summary>
+/// <summary>Whether <paramref name="draw"/> is the unmirrored whole-picture sheet frame <paramref name="frame"/> names.</summary>
 private static bool ShowsBodyFrame(SamusState samus, SpriteDraw draw, SamusBodyFrame frame)
 {
-    InstalledSamusSpritemaps spritemaps = samus.Presentation.BodyFrames.Artwork?.Spritemaps
-        ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
-    InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets
+    InstalledSpriteSheets sheets = samus.Presentation.Sheets
         ?? throw new InvalidOperationException("Verification requires bound Samus sprite sheets.");
-    if (!spritemaps.TryGetFrameKey(frame.Top, frame.Bottom, frame.ChestCover, samus.Presentation.BodyFrames.Shown, out SamusBodyFrameKey key))
-        throw new InvalidOperationException($"Body {frame} has no composition.");
     return draw is ImageSpriteDraw { Mirror: SpriteMirror.None } image &&
-        ReferenceEquals(sheets.Get(SpriteSheetId.SamusBody).Frame(key.Name), image.Image);
+        ReferenceEquals(sheets.Get(SpriteSheetId.SamusBody).Frame(frame.Name), image.Image);
 }
+
+/// <summary>The body artwork bound to <paramref name="samus"/>.</summary>
+private static InstalledSamusBodyArtwork BoundArtwork(SamusState samus) => samus.Presentation.Artwork
+    ?? throw new InvalidOperationException("Verification requires bound Samus body artwork.");
+
+/// <summary>The halves and chest cover the import composed <paramref name="frame"/>'s whole picture of (#1585).</summary>
+private static SamusBodyComposition Composition(SamusState samus, SamusBodyFrame frame) =>
+    SamusBodyCompositions.Of(frame.Pose, frame.PictureFrame, BoundArtwork(samus));
 
 /// <summary>
 /// Walks the complete `$90:C519-$C790` arm-cannon cover lifetime. The fixture keeps the
@@ -492,7 +495,7 @@ internal static void VerifySamusArmCannon()
         SelectedHudItem = HudItem.Beam,
     };
 
-    samus.Presentation.BodyFrames.BindBodyFixture(InstalledFixtures.SamusBody);
+    samus.Presentation.BindBodyFixture(InstalledFixtures.SamusBody);
     samus.BindArmCannonFixture(artwork);
 
     // The HUD producer requires two identical samples. Merely changing selection sets the
@@ -991,7 +994,7 @@ static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
 {
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
     for (int index = 0; index <= 3; index++)
-        WriteTestWord(bus, InstalledSamusSpritemaps.PointerTableAddress + index * 2, 0xe000);
+        WriteTestWord(bus, SamusSpritemapSources.PointerTableAddress + index * 2, 0xe000);
     bus.WriteBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, [
         0xf8, 0x00, 0xf8, 0x00,
         0xfc, 0xfe, 0xfc, 0xfe,

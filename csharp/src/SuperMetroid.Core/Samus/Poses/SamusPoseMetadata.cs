@@ -119,7 +119,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static int ReadGraphicsYOffset(SamusState samus)
     {
-        return (samus.Presentation.BodyFrames.Artwork ?? throw new InvalidOperationException(
+        return (samus.Presentation.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork."))
             .GraphicsYOffset(samus.Pose);
     }
@@ -183,7 +183,6 @@ internal static class SamusPoseMetadata
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         samus.Control.LockHandlers();
-        samus.Presentation.PrimeGraphics(samus);
     }
 
     /// <summary>
@@ -196,8 +195,7 @@ internal static class SamusPoseMetadata
     /// own exactly: equipment-selected pose, its delay list, the radius-dependent lift and
     /// all motion values cleared by the routine. It does not write the collision radius;
     /// the next alpha's radius update does. Runtime/debug callers remain responsible for
-    /// input lock, palette, grapple, and priming the first graphics transfer before their first
-    /// displayed frame.
+    /// input lock, palette and grapple before their first displayed frame.
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {

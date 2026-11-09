@@ -85,12 +85,12 @@ internal static class SamusBodyArtworkVerification
         }
         AssertEqual(435, definitions, "complete Samus body DMA definition count");
 
-        SamusSpritemapSources sprites = stock.Spritemaps.Source;
+        SamusSpritemapSources sprites = stock.Source.Spritemaps;
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            int topAddress = InstalledSamusSpritemaps.TopBaseAddress + pose * 2;
-            int bottomAddress = InstalledSamusSpritemaps.BottomBaseAddress + pose * 2;
+            int topAddress = SamusSpritemapSources.TopBaseAddress + pose * 2;
+            int bottomAddress = SamusSpritemapSources.BottomBaseAddress + pose * 2;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(topAddress),
                 sprites.TopBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} top OAM base");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(bottomAddress),
@@ -98,7 +98,7 @@ internal static class SamusBodyArtworkVerification
         }
         int nonzeroSpritemaps = 0;
         ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapSources.EntryCount).Select(index =>
-            CartridgeImportSource.Require(bus).ReadCartridgeWord(InstalledSamusSpritemaps.PointerTableAddress + index * 2))];
+            CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSpritemapSources.PointerTableAddress + index * 2))];
         SamusSpritemapId?[] nativeEntries = SamusSpritemapNative.Entries(nativePointers);
         for (int index = 0; index < SamusSpritemapSources.EntryCount; index++)
         {
@@ -181,9 +181,9 @@ internal static class SamusBodyArtworkVerification
             SamusParticles nativeEffects = OneParticle(type, 0);
             SamusParticles installedEffects = OneParticle(type, 0);
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
-                SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
+                SamusBodySheetFixtures.ForAtmosphere(stock.Source.Spritemaps)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame, new(0, 0), 128,
-                SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps)));
+                SamusBodySheetFixtures.ForAtmosphere(stock.Source.Spritemaps)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam),
                 $"atmospheric type {type} uses installed Samus OAM art with native parity");
@@ -206,7 +206,7 @@ internal static class SamusBodyArtworkVerification
             OamBuffer nativeEffectOam = SpriteFrameBuffer.DrawnOam(frame => nativeEffects.UpdateAndDraw(frame, new(0, 0), 128,
                 SamusBodySheetFixtures.ForAtmosphere(atmosphere: stock.Atmosphere)));
             OamBuffer installedEffectOam = SpriteFrameBuffer.DrawnOam(frame => installedEffects.UpdateAndDraw(frame,
-                Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Spritemaps, stock.Atmosphere)));
+                Position16<RoomPixels>.Zero, 128, SamusBodySheetFixtures.ForAtmosphere(stock.Source.Spritemaps, stock.Atmosphere)));
             AssertTrue(nativeEffectOam.LastFinalizedSpriteCount > 0 &&
                 nativeEffectOam.ImageEquals(installedEffectOam) &&
                 nativeEffects.All[0].Kind == installedEffects.All[0].Kind &&
@@ -344,16 +344,15 @@ internal static class SamusBodyArtworkVerification
         for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            var frames = new SamusBodyFrameState();
-            frames.BindArtwork(stock);
-            frames.Select(SamusPoseNumbering.FromNumber(pose), 0);
-            // The pictures shown are the definition records the cartridge's frame-zero selector names (#1465).
+            // The half pictures the import composes a pose's frame zero of are the definition records the cartridge's
+            // frame-zero selector names (#1465, #1585).
+            SamusBodyFramePictures pictures = stock.Source.Pictures(SamusPoseNumbering.FromNumber(pose), 0);
             SamusBodyFrameSelection selection = stock.Selection(SamusPoseNumbering.FromNumber(pose), 0);
             AssertEqual(SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
-                frames.Shown.Top, $"Samus pose {pose:X2} shows its frame-zero top definition");
+                pictures.Top, $"Samus pose {pose:X2} composes its frame-zero top definition");
             AssertEqual(selection.NamesBottom
                     ? SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)) : null,
-                frames.Shown.Bottom, $"Samus pose {pose:X2} shows its frame-zero bottom definition, or none before any is named");
+                pictures.Bottom, $"Samus pose {pose:X2} composes its frame-zero bottom definition, or none when the frame names none");
         }
 
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail.");
@@ -451,8 +450,8 @@ internal static class SamusBodyArtworkVerification
         };
         // The imported bytes above are the independent stock oracle. Both runtime
         // owners must now receive the installed catalog; no ROM fallback remains.
-        nativeSamus.Presentation.BodyFrames.BindBodyFixture(body);
-        installedSamus.Presentation.BodyFrames.BindBodyFixture(body);
+        nativeSamus.Presentation.BindBodyFixture(body);
+        installedSamus.Presentation.BindBodyFixture(body);
         nativeSamus.BindArmCannonFixture(armCannon);
         installedSamus.BindArmCannonFixture(armCannon);
         for (int frame = 0; frame < 4; frame++)
@@ -481,7 +480,7 @@ internal static class SamusBodyArtworkVerification
     private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort index, Position16<SpritePixels> origin)
     {
-        int pointerAddress = InstalledSamusSpritemaps.PointerTableAddress + index * 2;
+        int pointerAddress = SamusSpritemapSources.PointerTableAddress + index * 2;
         int recordAddress = 0x920000 | CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(pointerAddress);
         ushort partCount = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(recordAddress);
         int partAddress = SnesAddressMath.AddWithinBank(recordAddress, 2);

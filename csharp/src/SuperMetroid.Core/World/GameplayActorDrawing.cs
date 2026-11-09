@@ -188,7 +188,7 @@ internal sealed class GameplayActorDrawing
                     turningFloor: _display.ActiveTurningFloor);
             }
             else if (_player.LastDeathSequenceStep is { DrawExplosion: true })
-                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.BodyFrames.Sheets);
+                _player.Samus.DeathSequence.DrawExplosion(_sprites, _player.Samus.Presentation.Sheets);
         }
         else
         {
@@ -287,7 +287,7 @@ internal sealed class GameplayActorDrawing
                     _sprites,
                     _room.Camera.PixelPosition,
                     _player.Samus.LiquidPhysics.UntestedWaterSurfaceLine,
-                    _player.Samus.Presentation.BodyFrames.Sheets);
+                    _player.Samus.Presentation.Sheets);
 
                 // Drawing modes one and two differ only in sprite priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses

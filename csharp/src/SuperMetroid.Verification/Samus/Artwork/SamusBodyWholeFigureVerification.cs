@@ -55,30 +55,31 @@ internal static class SamusBodyWholeFigureVerification
         var opaque = new OpaquePixels(SheetInkRules.InkPlane(RepositoryInstallation.Installation.SpriteSheetDirectory, image), image.Size.X);
 
         InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
-        SamusSpritemapSources spritemaps = body.Spritemaps.Source;
+        SamusSpritemapSources spritemaps = body.Source.Spritemaps;
         var drawers = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         var findings = new List<string>();
         foreach (SamusShownBody shown in SamusShownFrames.Of(InstalledFixtures.AnimationContinuation).Bodies(body))
         {
-            SamusBodyFrame drawn = shown.Frame;
-            if (!spritemaps.TryGetFrameKey(drawn.Top, drawn.Bottom, drawn.ChestCover, shown.Pictures, out SamusBodyFrameKey key))
+            SamusBodyComposition drawn = shown.Composition;
+            if (spritemaps.PictureKey(drawn, shown.Pictures) is not { } key)
                 continue;
-            string drawer = $"{drawn.Top.Pose} frame {drawn.Top.AnimationFrame}";
-            if (!drawers.TryGetValue(key.Name, out List<string>? named))
+            string name = shown.Frame.Name;
+            string drawer = $"{shown.Frame.Pose} frame {shown.Frame.PictureFrame}";
+            if (!drawers.TryGetValue(name, out List<string>? named))
             {
                 named = [];
-                drawers.Add(key.Name, named);
+                drawers.Add(name, named);
             }
             named.Add(drawer);
-            findings.AddRange(ForeignSelections(drawn, key, spritemaps, body, drawer));
-            if (sheet.ShowsNothing(key.Name))
+            findings.AddRange(ForeignSelections(drawn, key, spritemaps, body.Source, name, drawer));
+            if (sheet.ShowsNothing(name))
                 continue;
-            SpriteSheetFrame frame = sheet.Frame(key.Name);
+            SpriteSheetFrame frame = sheet.Frame(name);
             SamusBodyHalfFrame[] halves = drawn.Bottom is { } lower ? [drawn.Top, lower] : [drawn.Top];
             foreach (SamusBodyHalfFrame half in halves)
             {
                 if (spritemaps.TryGetFrame(half, out SpriteFrame? composition) && !opaque.InksWithin(frame, composition))
-                    findings.Add($"frame {key.Name} ({drawer}) lacks its {half.Half} half, which its pose's own rule draws");
+                    findings.Add($"frame {name} ({drawer}) lacks its {half.Half} half, which its pose's own rule draws");
             }
         }
         foreach (KeyValuePair<string, List<string>> named in drawers.OrderBy(entry => entry.Key, StringComparer.Ordinal))
@@ -101,26 +102,26 @@ internal static class SamusBodyWholeFigureVerification
 
     /// <summary>
     /// The parts of <paramref name="key"/> that are not the selection of the pose and picture frame <paramref name="drawn"/>
-    /// draws: a bottom half drawn at another pose or frame than the top, a composition other than the one the pose half's
+    /// composes: a bottom half drawn at another pose or frame than the top, a composition other than the one the pose half's
     /// table holds at the frame, or a half picture other than the one the frame itself selects.
     /// </summary>
     /// <exception cref="InvalidDataException">The pose's frame has no installed pictures.</exception>
-    private static IEnumerable<string> ForeignSelections(SamusBodyFrame drawn, SamusBodyFrameKey key,
-        SamusSpritemapSources spritemaps, InstalledSamusBodyArtwork body, string drawer)
+    private static IEnumerable<string> ForeignSelections(SamusBodyComposition drawn, SamusBodyPictureKey key,
+        SamusSpritemapSources spritemaps, SamusBodySources body, string name, string drawer)
     {
         SamusBodyHalfFrame top = drawn.Top;
         if (drawn.Bottom is { } lower && (lower.Pose != top.Pose || lower.AnimationFrame != top.AnimationFrame))
-            yield return $"frame {key.Name} ({drawer}) draws its bottom half from {lower.Pose} frame {lower.AnimationFrame}";
+            yield return $"frame {name} ({drawer}) draws its bottom half from {lower.Pose} frame {lower.AnimationFrame}";
         if (key.Top != OwnComposition(spritemaps, top))
-            yield return $"frame {key.Name} ({drawer}) shows a top composition its pose's table does not hold at the frame";
+            yield return $"frame {name} ({drawer}) shows a top composition its pose's table does not hold at the frame";
         SamusSpritemapId? ownBottom = drawn.Bottom is { } bottomHalf ? OwnComposition(spritemaps, bottomHalf) : null;
         if (key.Bottom != ownBottom)
-            yield return $"frame {key.Name} ({drawer}) shows a bottom composition its pose's table does not hold at the frame";
-        SamusBodyFramePictures own = body.Frame(top.Pose, top.AnimationFrame);
+            yield return $"frame {name} ({drawer}) shows a bottom composition its pose's table does not hold at the frame";
+        SamusBodyFramePictures own = body.Pictures(top.Pose, top.AnimationFrame);
         if (key.TopPicture is { } topPicture && topPicture != own.Top)
-            yield return $"frame {key.Name} ({drawer}) shows top picture {topPicture.Ordinal}, not its frame's own {own.Top.Ordinal}";
+            yield return $"frame {name} ({drawer}) shows top picture {topPicture.Ordinal}, not its frame's own {own.Top.Ordinal}";
         if (key.BottomPicture is { } bottomPicture && bottomPicture != own.Bottom)
-            yield return $"frame {key.Name} ({drawer}) shows bottom picture {bottomPicture.Ordinal}, not one its frame selects";
+            yield return $"frame {name} ({drawer}) shows bottom picture {bottomPicture.Ordinal}, not one its frame selects";
     }
 
     /// <summary>The composition <paramref name="half"/>'s pose-half table holds at its frame, or none.</summary>

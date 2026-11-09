@@ -25,8 +25,8 @@ internal static class SamusSpritemapNative
     /// The cartridge's spritemap index for a drawn body picture: its pose half's first table entry plus its animation
     /// frame, or zero for no picture, the word the cartridge's bottom selector clears when a frame draws no bottom half.
     /// </summary>
-    internal static int Index(InstalledSamusSpritemaps spritemaps, SamusBodyHalfFrame? frame) =>
-        frame is { } drawn ? spritemaps.Source.EntryIndex(drawn) : 0;
+    internal static int Index(SamusSpritemapSources spritemaps, SamusBodyHalfFrame? frame) =>
+        frame is { } drawn ? spritemaps.EntryIndex(drawn) : 0;
 
     /// <summary>
     /// The body picture a recorded cartridge spritemap index names: the frame of <paramref name="pose"/>'s half that reads
@@ -34,16 +34,15 @@ internal static class SamusSpritemapNative
     /// frames read it, which shows the same composition. A zero bottom index is no picture.
     /// </summary>
     /// <exception cref="InvalidDataException">No pose half's covered frames read the index.</exception>
-    internal static SamusBodyHalfFrame? Frame(InstalledSamusSpritemaps spritemaps, SamusPoseId pose, SamusBodyHalf half, int index)
+    internal static SamusBodyHalfFrame? Frame(SamusSpritemapSources spritemaps, SamusPoseId pose, SamusBodyHalf half, int index)
     {
         if (half == SamusBodyHalf.Bottom && index == 0)
             return null;
-        SamusSpritemapSources source = spritemaps.Source;
         IEnumerable<SamusPoseId> candidates = [pose, .. Enumerable.Range(0, SamusBodySources.PoseCount).Where(SamusPoseNumbering.NamesPose).Select(SamusPoseNumbering.FromNumber)
-            .OrderByDescending(other => source.EntryIndex(new SamusBodyHalfFrame(other, half, 0)))];
+            .OrderByDescending(other => spritemaps.EntryIndex(new SamusBodyHalfFrame(other, half, 0)))];
         foreach (SamusPoseId candidate in candidates)
         {
-            var frame = new SamusBodyHalfFrame(candidate, half, index - source.EntryIndex(new SamusBodyHalfFrame(candidate, half, 0)));
+            var frame = new SamusBodyHalfFrame(candidate, half, index - spritemaps.EntryIndex(new SamusBodyHalfFrame(candidate, half, 0)));
             if (frame.AnimationFrame >= 0 && spritemaps.Covers(frame))
                 return frame;
         }

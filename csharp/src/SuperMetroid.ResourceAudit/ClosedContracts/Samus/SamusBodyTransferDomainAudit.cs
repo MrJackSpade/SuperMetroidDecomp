@@ -3,14 +3,14 @@ using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
-/// <summary>Rejects a provably invalid constant pose in a body frame-picture lookup.</summary>
+/// <summary>Rejects a provably invalid constant pose in a body frame-placement lookup.</summary>
 internal static class SamusBodyTransferDomainAudit
 {
     /// <summary>Returns a finding only when a constant pose is provably outside its admitted domain.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(InstalledSamusBodyArtwork).FullName) return null;
-        if (operation.TargetMethod.Name == "Frame" &&
+        if (operation.TargetMethod.Name == nameof(InstalledSamusBodyArtwork.OriginRise) &&
             operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Name == "pose") is
                 { Parameter: { } parameter, Value.ConstantValue: { HasValue: true, Value: not null } constant } &&
             ConstantDomainNumbers.Of(parameter.Type, constant.Value) is not (int and < SuperMetroid.AssetExtraction.Samus.SamusBodySources.PoseCount))

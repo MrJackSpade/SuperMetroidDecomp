@@ -1,8 +1,10 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// The compositions one pose's top and bottom halves show, at each animation frame the import covers for the pose. A
-/// frame with no composition draws nothing for that half.
+/// frame with no composition composes nothing for that half.
 /// </summary>
 public sealed class SamusPoseSpritemaps
 {

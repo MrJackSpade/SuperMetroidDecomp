@@ -1,13 +1,15 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Samus.Drawing;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Which body halves a pose's picture frame shows, where the body is drawn relative to Samus, and the chest cover the
-/// forward-facing Power Suit body shows: the decisions that make the one full-body picture Samus's body draws each update
-/// (#1513). The draw and the import that composes the body sheet both make them here.
+/// Which halves of the cartridge's split body a pose's picture frame is composed of, and the chest cover the
+/// forward-facing Power Suit body shows: the decisions the import makes, once, to compose the whole picture Samus's body
+/// draws for each pose and picture frame (#1513, #1585).
 /// </summary>
 /// <remarks>
 /// Every decision follows the pose's own movement type, never the movement Samus's gameplay carries. The drained-Samus
@@ -17,19 +19,18 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// presentation quirk the port does not replicate (owner ruling on #1513: no sprite sheet frame shows half a Samus); the
 /// carried movement itself stays gameplay and still governs her movement, collisions and the wall contact's rewind.
 /// </remarks>
-internal static class SamusBodyDrawing
+internal static class SamusBodyCompositions
 {
     /// <summary>
-    /// The full body an update draws for <paramref name="pose"/> at picture frame <paramref name="pictureFrame"/>: its top
-    /// half, its bottom half unless the pose's own movement type makes the top half the complete body, and the chest cover
-    /// between them for the forward-facing Power Suit body. <see cref="SamusShownFrames.PictureFrame"/> gives the picture
-    /// frame an animation frame shows.
+    /// The halves the whole picture of <paramref name="pose"/> at picture frame <paramref name="pictureFrame"/> is composed
+    /// of: its top half, its bottom half unless the pose's own movement type makes the top half the complete body, and the
+    /// chest cover between them for the forward-facing Power Suit body.
     /// </summary>
     /// <exception cref="InvalidDataException">The pose has no movement type, or the forward-facing Power Suit frame is not installed.</exception>
-    internal static SamusBodyFrame Frame(SamusPoseId pose, int pictureFrame, InstalledSamusBodyArtwork artwork)
+    internal static SamusBodyComposition Of(SamusPoseId pose, int pictureFrame, InstalledSamusBodyArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        return new SamusBodyFrame(
+        return new SamusBodyComposition(
             new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, pictureFrame),
             ShowsBottomHalf(pose, pictureFrame) ? new SamusBodyHalfFrame(pose, SamusBodyHalf.Bottom, pictureFrame) : null,
             ChestCover(pose, pictureFrame, artwork));
@@ -88,15 +89,6 @@ internal static class SamusBodyDrawing
     }
 
     /// <summary>
-    /// How far above Samus's drawn point the body's origin sits for <paramref name="pose"/> at picture frame
-    /// <paramref name="animationFrame"/>: the placement the import baked into that installed frame (#1517). The origin
-    /// goes with the picture: a mapped frame is placed as the picture frame it shows.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The frame is not installed.</exception>
-    internal static int OriginRise(SamusPoseId pose, int animationFrame, InstalledSamusBodyArtwork artwork) =>
-        Ensure.NotNull(artwork).Frame(pose, animationFrame).OriginRise;
-
-    /// <summary>
     /// Where the chest cover sits relative to the body's origin, or none for a pose without it. The game draws one
     /// small sprite between the top and bottom halves when the unsuited Samus faces the screen; it is not a visor, but
     /// covers the left side of the Power Suit's chest. The suited forward body has that shape in its own art and shows
@@ -105,11 +97,11 @@ internal static class SamusBodyDrawing
     /// </summary>
     /// <remarks>
     /// The game positions the cover from the unrotated world point while Ceres's turning floor rotates the body's;
-    /// the full-body picture keeps the cover where it sits on the body, a presentation quirk the port does not replicate
+    /// the whole picture keeps the cover where it sits on the body, a presentation quirk the port does not replicate
     /// (owner ruling on #1513).
     /// </remarks>
     private static Offset16<ScreenPixels>? ChestCover(SamusPoseId pose, int animationFrame, InstalledSamusBodyArtwork artwork) =>
         pose == SamusPoseId.ForwardFacingPowerSuitPose
-            ? Offset16<ScreenPixels>.Of(-7, OriginRise(pose, animationFrame, artwork) - 17)
+            ? Offset16<ScreenPixels>.Of(-7, artwork.OriginRise(pose, animationFrame) - 17)
             : null;
 }

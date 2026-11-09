@@ -123,7 +123,7 @@ public sealed class SamusArmCannonState
             // Selector -> one of four orientation lists -> current cover frame. The game loads that
             // character to the tile the sprite names; the sheet frame is that cover as the sprite shows it. Frame
             // zero, the null entry, returned above.
-            InstalledSpriteSheets sheets = samus.Presentation.BodyFrames.Sheets ?? throw new InvalidOperationException(
+            InstalledSpriteSheets sheets = samus.Presentation.Sheets ?? throw new InvalidOperationException(
                 "Arm cannon requires the installed sprite sheets.");
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
                 sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(selector, Frame)),

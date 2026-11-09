@@ -120,11 +120,15 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             return words.ToArray();
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
-        // The body records the pose half and frame it drew; the cartridge's index for that picture is compared.
-        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(samus.Presentation.BodyFrames.Artwork?.Spritemaps ??
-            throw new InvalidOperationException("Verification requires installed Samus spritemaps."), drawn);
+        // The body records the whole picture it drew (#1585); the cartridge's index for each half the import composed that
+        // picture of is compared.
+        InstalledSamusBodyArtwork BodyArtwork() => samus.Presentation.Artwork ??
+            throw new InvalidOperationException("Verification requires installed Samus body artwork.");
+        SamusBodyComposition? Drawn() => samus.Presentation.DrawnFrame is { } picture
+            ? SamusBodyCompositions.Of(picture.Pose, picture.PictureFrame, BodyArtwork()) : null;
+        int SpritemapIndex(SamusBodyHalfFrame? drawn) => SamusSpritemapNative.Index(BodyArtwork().Source.Spritemaps, drawn);
         BodyRecordResult BodyRecord() =>
-            new BodyRecordResult(SpritemapIndex(samus.Presentation.DrawnFrame?.Top), SpritemapIndex(samus.Presentation.DrawnFrame?.Bottom),
+            new BodyRecordResult(SpritemapIndex(Drawn()?.Top), SpritemapIndex(Drawn()?.Bottom),
                 samus.Presentation.SpritemapPosition.X, samus.Presentation.SpritemapPosition.Y);
         var previousBodyRecord = BodyRecord();
         for (int frame = 0; frame <= length; frame++)
@@ -218,8 +222,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 // origin/indices. Compare newly published records when both draws execute.
                 if (frame == 0 || (nativeBodyVisible && normalizedBodyVisible))
                 {
-                    Check("Samus top spritemap", SpritemapIndex(samus.Presentation.DrawnFrame?.Top), NativeSnapshotMemory.SamusTopSpritemap);
-                    Check("Samus bottom spritemap", SpritemapIndex(samus.Presentation.DrawnFrame?.Bottom), NativeSnapshotMemory.SamusBottomSpritemap);
+                    Check("Samus top spritemap", SpritemapIndex(Drawn()?.Top), NativeSnapshotMemory.SamusTopSpritemap);
+                    Check("Samus bottom spritemap", SpritemapIndex(Drawn()?.Bottom), NativeSnapshotMemory.SamusBottomSpritemap);
                     Check("Samus sprite X", samus.Presentation.SpritemapPosition.X, NativeSnapshotMemory.SamusSpriteX);
                     // A landing frame's native position word carries the table byte after its own, which the drawn origin
                     // never shows (#1500); the oracle gives the row the cartridge draws at.

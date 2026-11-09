@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Samus.Poses;
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The picture one half of Samus's body shows: a pose's top or bottom half at one of the pose's animation frames. It is
-/// the identity by which the body's compositions are selected and drawn.
+/// The composition one half of the cartridge's split Samus body shows: a pose's top or bottom half at one of the pose's
+/// animation frames. The import composes each whole body picture from the halves its frame shows (#1585).
 /// </summary>
 /// <param name="Pose">The pose whose half is shown.</param>
 /// <param name="Half">The body half.</param>

@@ -39,7 +39,7 @@ internal static class SamusOverreadHeldPoseFramesVerification
     {
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.SamusBody);
         InstalledSamusBodyArtwork body = InstalledFixtures.SamusBody;
-        SamusSpritemapSources spritemaps = body.Spritemaps.Source;
+        SamusSpritemapSources spritemaps = body.Source.Spritemaps;
         SamusShownFrames shown = SamusShownFrames.Of(InstalledFixtures.AnimationContinuation);
         SamusShownBody[] bodies = [.. shown.Bodies(body)];
         int resolved = 0;
@@ -50,15 +50,15 @@ internal static class SamusOverreadHeldPoseFramesVerification
             AssertTrue(shown.pictured[pose].Count > 0, $"{pose} pictures at least one frame");
             foreach (int frame in shown.pictured[pose])
             {
-                AssertTrue(body.TryFrame(pose, frame, out _), $"{pose} frame {frame} has installed pictures");
-                SamusShownBody[] drawnAs = [.. bodies.Where(drawn => drawn.Frame.Top.Pose == pose && drawn.Frame.Top.AnimationFrame == frame)];
+                AssertTrue(body.Source.TryPictures(pose, frame, out _), $"{pose} frame {frame} has installed pictures");
+                SamusShownBody[] drawnAs = [.. bodies.Where(drawn => drawn.Frame.Pose == pose && drawn.Frame.PictureFrame == frame)];
                 AssertTrue(drawnAs.Length > 0, $"{pose} frame {frame} is drawn as a body");
                 foreach (SamusShownBody drawn in drawnAs)
                 {
-                    AssertTrue(spritemaps.TryGetFrameKey(drawn.Frame.Top, drawn.Frame.Bottom, drawn.Frame.ChestCover, drawn.Pictures, out SamusBodyFrameKey key),
-                        $"{pose} frame {frame} names a body sheet frame");
+                    AssertTrue(spritemaps.PictureKey(drawn.Composition, drawn.Pictures) is not null,
+                        $"{pose} frame {frame} is composed of a body picture");
                     // ShowsNothing throws when the sheet holds no such frame at all.
-                    AssertTrue(!sheet.ShowsNothing(key.Name), $"{pose} frame {frame} is pictured on the body sheet as {key.Name}");
+                    AssertTrue(!sheet.ShowsNothing(drawn.Frame.Name), $"{pose} frame {frame} is pictured on the body sheet as {drawn.Frame.Name}");
                     resolved++;
                 }
             }

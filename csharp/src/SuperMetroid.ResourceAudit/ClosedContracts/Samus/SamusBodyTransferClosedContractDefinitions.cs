@@ -1,18 +1,15 @@
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
-/// <summary>Installed body half-picture availability, independently reviewed from Samus placement tables.</summary>
+/// <summary>Installed body frame placement availability, independently reviewed from Samus placement tables (#1585).</summary>
 internal static class SamusBodyTransferClosedContractDefinitions
 {
-    /// <summary>Reviews complete physical transfer records while accounting for placement, pose, and timing sources.</summary>
+    /// <summary>Reviews the installed frames' placements while accounting for pose and timing sources.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtwork", "samus-complete-installed-frame-pictures",
-            ["Frame"],
+        new("SuperMetroid.Core.Samus.Artwork.InstalledSamusBodyArtwork", "samus-complete-installed-frame-placements",
+            ["OriginRise"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusBodyArtwork.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyArtworkContent.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFramePictures.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPicture.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPictures.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseId.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseNumbering.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseProjectileOriginDefinitions.cs"),
@@ -26,10 +23,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/SamusFacingDirection.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirection.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusDrawingDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusBodyFrameState.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledSamusSpritemaps.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyHalfFrame.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusPoseSpritemaps.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Drawing/SamusPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/InstalledGrappleSwingFrames.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusAnimationDelayDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusAnimationDelays.cs"),

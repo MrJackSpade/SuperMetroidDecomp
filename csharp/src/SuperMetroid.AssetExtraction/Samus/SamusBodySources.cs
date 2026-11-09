@@ -8,9 +8,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>
 /// Samus's body as the import pipeline holds it (#1465): the cartridge's definition-group starts, per-pose frame lists
 /// and four-byte frame selections, from which the import resolves once the half pictures each pose shows at each
-/// animation frame, and the placement each of those frames carries (#1517). A half picture is a numbered body definition record: a group's start plus a selection's position,
-/// which may run into the next group. The numbering is the import's private knowledge; gameplay sees only
-/// <see cref="SamusBodyPicture"/> identities.
+/// animation frame, and the placement each of those frames carries (#1517). A half picture is a numbered body definition
+/// record: a group's start plus a selection's position, which may run into the next group. The half pictures and the
+/// compositions are the import's private knowledge: it composes the whole picture of each pose frame from them (#1585),
+/// and gameplay sees only where each installed frame places the body.
 /// </summary>
 public sealed class SamusBodySources : InstalledSamusBodyArtwork
 {
@@ -33,14 +34,24 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
     private readonly int[] poseFirstFrames;
     /// <summary>The contiguous frame-selector interval.</summary>
     private readonly SamusBodyFrameSelection[] frames;
+    /// <summary>Each pose's installed animation frames' half pictures, or none where not installed.</summary>
+    private readonly Dictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>> posePictures;
 
     /// <summary>Validates the body's native tables and resolves the half pictures each pose frame shows.</summary>
     /// <param name="parts">Samus's body tables, offsets and dependent artwork catalogs.</param>
     /// <param name="bodyCharactersContentIdentity">Identity of the body characters the frames select, composed into the body sheets at installation.</param>
     /// <exception cref="InvalidDataException">A table has an invalid length, a selector component is out of range, or a pose's frame list is outside the selectors.</exception>
     public SamusBodySources(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity)
-        : base(Content(Ensure.NotNull(parts)))
+        : this(parts, bodyCharactersContentIdentity, Installed(Ensure.NotNull(parts)))
     {
+    }
+
+    /// <summary>Binds the frames <paramref name="installed"/> resolved from <paramref name="parts"/>.</summary>
+    private SamusBodySources(SamusBodyArtworkParts parts, string bodyCharactersContentIdentity, InstalledFrames installed)
+        : base(Content(parts, installed))
+    {
+        posePictures = installed.Pictures;
+        Spritemaps = Ensure.NotNull(parts.Spritemaps);
         DeathPalettes = Ensure.NotNull(parts.DeathPalettes);
         DeathTilesContentIdentity = Ensure.NotNull(parts.DeathTilesContentIdentity);
         BodyCharactersContentIdentity = Ensure.NotNull(bodyCharactersContentIdentity);
@@ -51,8 +62,32 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         Placements = parts.Placements.ToDictionary();
     }
 
+    /// <summary>The compositions each pose half shows, which the import composes the whole body pictures from.</summary>
+    public SamusSpritemapSources Spritemaps { get; }
+
     /// <summary>Identity of the selected death-explosion characters, whose pre-coloured sheet is installed separately.</summary>
     public string DeathTilesContentIdentity { get; }
+
+    /// <summary>The half pictures <paramref name="pose"/>'s <paramref name="animationFrame"/> selects.</summary>
+    /// <exception cref="InvalidDataException">The pose has no record, or the frame is not installed.</exception>
+    public SamusBodyFramePictures Pictures(SamusPoseId pose, int animationFrame) =>
+        TryPictures(pose, animationFrame, out SamusBodyFramePictures pictures)
+            ? pictures
+            : throw new InvalidDataException($"Samus pose {pose} animation frame {animationFrame} selects no installed body pictures.");
+
+    /// <summary>
+    /// The half pictures <paramref name="pose"/>'s <paramref name="animationFrame"/> selects, when the pose has a record and
+    /// the frame is installed; false for any other pair, which <see cref="Pictures"/> rejects.
+    /// </summary>
+    public bool TryPictures(SamusPoseId pose, int animationFrame, out SamusBodyFramePictures pictures)
+    {
+        pictures = default;
+        if (!posePictures.TryGetValue(pose, out IReadOnlyList<SamusBodyFramePictures?>? shown) ||
+            (uint)animationFrame >= (uint)shown.Count || shown[animationFrame] is not { } selected)
+            return false;
+        pictures = selected;
+        return true;
+    }
 
     /// <summary>
     /// The fatal-damage suit, suitless and whiteout colours her death shades are pre-coloured from (#1512); gameplay
@@ -147,11 +182,22 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
         return counts;
     }
 
+    /// <summary>What the installed body holds for gameplay: where each installed frame places the body, and its catalogs.</summary>
+    private static SamusBodyArtworkContent Content(SamusBodyArtworkParts parts, InstalledFrames installed) => new()
+    {
+        OriginRises = installed.OriginRises,
+        GraphicsYOffsets = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
+        Atmosphere = parts.Atmosphere,
+        DeathSteps = parts.DeathPalettes.Steps,
+        ArmCannon = parts.ArmCannon,
+    };
+
     /// <summary>
     /// Validates the native tables and resolves, for every pose and every animation frame the body sheets cover that the
-    /// selector table holds, the half pictures the frame's selector names, or none when either named record is not installed.
+    /// selector table holds, the half pictures the frame's selector names and where the frame places the body, or none
+    /// when either named record or the placement is not installed.
     /// </summary>
-    private static SamusBodyArtworkContent Content(SamusBodyArtworkParts parts)
+    private static InstalledFrames Installed(SamusBodyArtworkParts parts)
     {
         Ensure.NotNull(parts.TopSetStarts);
         Ensure.NotNull(parts.BottomSetStarts);
@@ -172,31 +218,47 @@ public sealed class SamusBodySources : InstalledSamusBodyArtwork
             throw new InvalidDataException("Samus body placements do not cover exactly the poses with records.");
         int first = GroupLengths(parts.TopSetStarts, parts.BottomSetStarts).Keys.Min();
         // A frame is installed when both its pictures and its placement resolve.
-        SamusBodyFramePictures? Pictures(SamusBodyFrameSelection selection, SamusBodyPosePlacement placement, int animationFrame) =>
-            placement.TryFrameRise(animationFrame, out int rise) &&
-            TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Top, selection.TopSet, selection.TopPosition, out int top) &&
-            (!selection.NamesBottom || TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Bottom,
-                selection.BottomSet, selection.BottomPosition, out _))
-                ? new SamusBodyFramePictures(Picture(top), selection.NamesBottom
-                    ? Picture(parts.BottomSetStarts[selection.BottomSet] + selection.BottomPosition) : null, rise)
-                : null;
-        return new SamusBodyArtworkContent
+        bool TryInstall(SamusBodyFrameSelection selection, SamusBodyPosePlacement placement, int animationFrame,
+            out SamusBodyFramePictures selected, out int frameRise)
         {
-            Frames = Enumerable.Range(0, PoseCount).Where(SamusPoseNumbering.NamesPose).ToDictionary(SamusPoseNumbering.FromNumber, number =>
+            selected = default;
+            if (!placement.TryFrameRise(animationFrame, out frameRise) ||
+                !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Top, selection.TopSet, selection.TopPosition, out int top) ||
+                (selection.NamesBottom && !TryDefinitionRecord(parts.TopSetStarts, parts.BottomSetStarts, first, SamusBodyHalf.Bottom,
+                    selection.BottomSet, selection.BottomPosition, out _)))
+                return false;
+            selected = new SamusBodyFramePictures(Picture(top), selection.NamesBottom
+                ? Picture(parts.BottomSetStarts[selection.BottomSet] + selection.BottomPosition) : null);
+            return true;
+        }
+        var pictures = new Dictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>>();
+        var rises = new Dictionary<SamusPoseId, IReadOnlyList<int?>>();
+        foreach (int number in Enumerable.Range(0, PoseCount).Where(SamusPoseNumbering.NamesPose))
+        {
+            SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
+            int firstFrame = parts.PoseFirstFrames[number];
+            SamusBodyPosePlacement placement = parts.Placements[pose];
+            int count = Math.Min(SamusBodySheetDefinitions.AnimationFrames, FrameCount - firstFrame);
+            var framePictures = new SamusBodyFramePictures?[count];
+            var frameRises = new int?[count];
+            for (int frame = 0; frame < count; frame++)
             {
-                int firstFrame = parts.PoseFirstFrames[number];
-                SamusBodyPosePlacement placement = parts.Placements[SamusPoseNumbering.FromNumber(number)];
-                return (IReadOnlyList<SamusBodyFramePictures?>)parts.Frames
-                    .Skip(firstFrame).Take(Math.Min(SamusBodySheetDefinitions.AnimationFrames, FrameCount - firstFrame))
-                    .Select((selection, animationFrame) => Pictures(selection, placement, animationFrame)).ToArray();
-            }),
-            GraphicsYOffsets = parts.Placements.ToDictionary(pose => pose.Key, pose => pose.Value.GraphicsYOffset),
-            Spritemaps = parts.Spritemaps,
-            Atmosphere = parts.Atmosphere,
-            DeathSteps = parts.DeathPalettes.Steps,
-            ArmCannon = parts.ArmCannon,
-        };
+                if (!TryInstall(parts.Frames[firstFrame + frame], placement, frame, out SamusBodyFramePictures shown, out int rise))
+                    continue;
+                framePictures[frame] = shown;
+                frameRises[frame] = rise;
+            }
+            pictures.Add(pose, framePictures);
+            rises.Add(pose, frameRises);
+        }
+        return new InstalledFrames(pictures, rises);
     }
+
+    /// <summary>The frames an installed body resolves from its tables.</summary>
+    /// <param name="Pictures">Each pose's installed animation frames' half pictures, or none where not installed.</param>
+    /// <param name="OriginRises">Where each pose's installed animation frames place the body, or none where not installed.</param>
+    private sealed record InstalledFrames(Dictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>> Pictures,
+        Dictionary<SamusPoseId, IReadOnlyList<int?>> OriginRises);
 
     /// <summary>
     /// The record a native set and position select: the selected group's first record plus the position. The native

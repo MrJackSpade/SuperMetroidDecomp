@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// Verification access to the native tables the import resolved an installed body's pictures from (#1465), and the
-/// placements it installed (#1517). Gameplay reads only the frames; verification compares these tables, and the records
+/// placements it installed (#1517). Gameplay reads only the placements; verification compares these tables, and the records
 /// they select, with the cartridge.
 /// </summary>
 internal static class InstalledSamusBodyArtworkAccess
@@ -25,6 +25,9 @@ internal static class InstalledSamusBodyArtworkAccess
 
         /// <summary>The contiguous frame-selector interval.</summary>
         internal ReadOnlySpan<SamusBodyFrameSelection> Frames => self.Source.Frames;
+
+        /// <summary>The compositions each pose half shows, which the import composed the whole body pictures from (#1585).</summary>
+        internal SamusSpritemapSources Spritemaps => self.Source.Spritemaps;
 
         /// <summary>Where each pose places the body, as the installation holds it: its art origin and its frames' own placements (#1517).</summary>
         internal IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements => self.Source.Placements;

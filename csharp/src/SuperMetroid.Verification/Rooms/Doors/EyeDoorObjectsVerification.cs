@@ -221,8 +221,8 @@ internal static class EyeDoorObjectsVerification
             $"{orientation} opening produces ordinary blue-door cap type");
         AssertEqual(
             orientation == EyeDoorOrientation.Right
-                ? RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)).Value
-                : RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)).Value,
+                ? RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)))
+                : RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left))),
             RoomBlockBehaviorCodec.Encode(cap.Behavior),
             $"{orientation} opening produces correct blue-door BTS");
         for (int row = 1; row <= EyeDoorDefinitions.BlueDoorExtensionCount; row++)

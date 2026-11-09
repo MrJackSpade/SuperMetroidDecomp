@@ -30,7 +30,7 @@ internal static class GrappleDoorsVerification
             var words = new RoomTerrainBlock[width * width];
             var bts = new RoomBlockBehavior[words.Length];
             words[origin] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-            bts[origin] = RoomBlockBehaviorCodec.Decode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)).Value + (int)orientation);
+            bts[origin] = RoomBlockBehaviorCodec.Decode(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left))) + (int)orientation);
             for (int offset = 1; offset < 4; offset++)
             {
                 words[origin + offset * stride] = RoomTerrainBlock.Of(0, BlockMirroring.None, verticalCap

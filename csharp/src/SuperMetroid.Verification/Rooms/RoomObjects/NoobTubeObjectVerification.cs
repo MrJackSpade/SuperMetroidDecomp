@@ -78,7 +78,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual(NoobTubeObjectDefinitions.SolidProjectileTrigger,
             level.GetCollisionBlock(new(blockX, blockY)).Terrain,
             "n00b-tube setup installs the complete type-$8 collision word");
-        AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger).Value,
+        AssertEqual(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger)),
             RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(blockX, blockY)).Behavior),
             "n00b-tube setup installs BTS $44");
 

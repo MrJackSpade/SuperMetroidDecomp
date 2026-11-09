@@ -1,6 +1,5 @@
 namespace SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Verification access to <see cref="SamusSlopePhysics"/> members production does not use.</summary>
 internal static class SamusSlopePhysicsAccess

@@ -15,7 +15,7 @@ public static class ShotBlockReactions
             return null;
         if (reaction.Entry < LeadingEntries.Count)
             return LeadingEntries[reaction.Entry];
-        return reaction.Entry <= LastFollowingUnusedEntry || reaction.Entry == LoneUnusedEntry
+        return reaction.Entry is <= LastFollowingUnusedEntry or LoneUnusedEntry
             ? ShotBlockReaction.Unused
             : null;
     }

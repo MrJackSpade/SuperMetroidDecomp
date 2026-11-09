@@ -15,7 +15,7 @@ public readonly record struct SlopeGeometry
     public SlopeGeometry(int shape, BlockMirroring mirroring)
     {
         Shape = Ensure.BetweenInclusive(0, LastShape, shape);
-        Mirroring = (mirroring & ~BlockMirroring.Both) == 0
+        Mirroring = mirroring is BlockMirroring.None or BlockMirroring.Horizontal or BlockMirroring.Vertical or BlockMirroring.Both
             ? mirroring
             : throw new ArgumentOutOfRangeException(nameof(mirroring), mirroring, "Undefined slope mirroring.");
     }

@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;

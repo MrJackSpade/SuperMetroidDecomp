@@ -143754,6 +143754,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.CompositionOverPage",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation.Verification/SheetFrameSources.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.FrameKey",
       "kind": "record struct",
       "scope": "test",
@@ -152924,6 +152940,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Artwork.UploadedPictureChecks.ScreenInks",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Artwork/UploadedPictureChecks.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Artwork.VerifyInstalledEnemyExtendedFramesCase",

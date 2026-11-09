@@ -22,7 +22,7 @@ internal static class EndingPostCreditsScrollVerification
     /// </summary>
     internal static void VerifyEndingPostCreditsScroll()
     {
-        EndingCreditsState ending = CreateRetailEndingFixture(new AudioQueues(), gameTimeHours: 2, gameTimeMinutes: 0);
+        EndingCreditsState ending = CreateRetailEndingFixture(AudioQueues.Standalone(), gameTimeHours: 2, gameTimeMinutes: 0);
 
         // The post-shot is reached only after the reward has shown the producer panel and replaced it with the
         // copyright, which the white flash then clears; the production steps write that page before the shot begins.

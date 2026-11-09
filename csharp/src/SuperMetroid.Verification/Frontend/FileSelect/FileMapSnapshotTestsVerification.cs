@@ -30,8 +30,8 @@ internal static class FileMapSnapshotTestsVerification
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             saves.SaveSlot(0, save);
-            var legacy = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
-            var capture = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
+            var legacy = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
+            var capture = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             // Each update's two frames are compared for the pixels they show (#1532). The capture side advances first, so
             // its held packet is compared once more with the legacy frame of the same update, whose owner has not yet

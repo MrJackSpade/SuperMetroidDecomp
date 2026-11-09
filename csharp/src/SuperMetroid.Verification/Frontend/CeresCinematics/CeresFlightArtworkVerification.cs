@@ -62,8 +62,8 @@ internal static class CeresFlightArtworkVerification
         CeresFlightCharacters reference = CeresFlightCharacters.Read(
             referenceCharacters, referenceMaps, referenceObjects, CeresFlightPaletteFile.Read(referencePalette).Backdrop,
             referenceSprites, referenceActors);
-        var native = new IntroCeresFlightState(new AudioQueues(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
-        var installed = new IntroCeresFlightState(new AudioQueues(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
+        var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference, sheets: CinematicSheetFixtures.WithFlight(reference));
+        var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock, sheets: CinematicSheetFixtures.WithFlight(stock));
         var phases = new HashSet<IntroCeresFlightPhase>();
         for (int tick = 0; tick < 4000 && !native.Finished; tick++)
         {

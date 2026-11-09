@@ -7,7 +7,7 @@ internal static class DoorSoundDisableVerification
     internal static void VerifyDoorSoundDisableGuard()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         audio.AdvanceFrame(default);
         audio.QueueSound(Library1Sound.SpinJumpEnd, SoundRequestPriority.Essential);
         audio.DoorTransitionSoundsDisabled = true;

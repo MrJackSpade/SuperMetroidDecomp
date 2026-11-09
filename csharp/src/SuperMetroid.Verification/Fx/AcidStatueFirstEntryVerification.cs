@@ -69,7 +69,7 @@ internal static class AcidStatueFirstEntryVerification
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose.ForRoomCollision(), true);
 
         var transition = new DoorTransitionState();
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         transition.Begin(runtime);
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid),
             "completed Chozo event survives source-room staging");

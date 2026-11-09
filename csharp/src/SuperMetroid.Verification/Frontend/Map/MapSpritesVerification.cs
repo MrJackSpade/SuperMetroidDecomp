@@ -75,7 +75,7 @@ internal static class MapSpritesVerification
         void VerifyRenderedSprites()
         {
             var guard = NewMapSpriteGuard(bus);
-            var system = new SharedGameState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
+            var system = new SharedGameState(new SharedRandom()); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.Progress.ExploreEveryCell();
             var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
                 original.SaveMarkers);

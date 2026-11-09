@@ -24,8 +24,8 @@ internal static class GameOptionsPresentationVerification
             "installed options JSON is the deterministic cartridge extraction");
         _ = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
 
-        var nativeAudio = new AudioQueues();
-        var installedAudio = new AudioQueues();
+        var nativeAudio = AudioQueues.Standalone();
+        var installedAudio = AudioQueues.Standalone();
         var native = new GameOptionsMenuState(nativeAudio,
             mapPresentation: original, spriteSheets: MenuSheetFixtures.For(original));
         var installed = new GameOptionsMenuState(

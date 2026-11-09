@@ -671,7 +671,7 @@ internal static class MapPresentationVerification
     /// <summary>Checks stock file-select map pixels, the projected map cells, and restoration of the graphics state.</summary>
     private static void VerifyFileSelectMapCatalog(AreaMapPresentation original)
     {
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         system.Progress.ExploreEveryCell();
         var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
             AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));

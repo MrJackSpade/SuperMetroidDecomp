@@ -1,12 +1,13 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// The game's music queue and its three sound queues (#1410), a compatibility behaviour whose timing gameplay observes:
-/// each music request waits its delay and plays on the update the original plays it; a data set change withdraws every
-/// library's sound request for <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; a
-/// full music queue drops a request queued with the shortest delay and overwrites with a scheduled one; and a sound queue
-/// admits a request by its priority (<see cref="SoundQueueAdmission.For"/>), keeps each library's request until the
-/// library accepts it, then withdraws it.
+/// The game's music queue and its three sound queues (#1410): each music request waits its delay and plays on the update
+/// the original plays it; a data set change withdraws every library's sound request for
+/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; a full music queue drops a
+/// request queued with the shortest delay and overwrites with a scheduled one; and a sound queue admits a request by its
+/// priority (<see cref="SoundQueueAdmission.For"/>) and hands it to its library through the session's
+/// <see cref="SoundRequestHandshakes{TLibrary, TSound}"/>, which repeat each request until the library accepts it, then
+/// withdraw it.
 /// </summary>
 /// <remarks>
 /// The queues end in <see cref="AudioRequest"/>s: play or stop a track, change the music data
@@ -32,18 +33,11 @@ public sealed class AudioQueues
     /// <summary>Next insertion position in each library's SFX ring.</summary>
     internal readonly int[] SoundWritePositions =
         new int[SoundEffectLibraries.Count];
-    /// <summary>Per-library request phase, from request through acknowledged withdrawal.</summary>
-    internal readonly byte[] SoundStates = new byte[SoundEffectLibraries.Count];
-    /// <summary>The sound currently awaiting each library's acknowledgement, or none.</summary>
-    private readonly SoundEffectId?[] _currentSounds = new SoundEffectId?[SoundEffectLibraries.Count];
+    /// <summary>The handshake each library's handler runs with its library, injected by the session's composition root.</summary>
+    internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
     /// <summary>The sound each of the three sound dispatchers last asked its library for, as an acknowledgement of it, or none.</summary>
-    internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> SentSoundRequests =>
-        new(SoundEffectLibraries.InQueueOrder,
-            library => SoundAcknowledgement<SoundEffectId>.Of(_currentSounds[SoundEffectLibraries.ToQueueIndex(library)]));
-    /// <summary>Two-frame hold before a recognized sound request is withdrawn from its library.</summary>
-    private readonly byte[] _soundClearDelays =
-        new byte[SoundEffectLibraries.Count];
+    internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> SentSoundRequests => SoundHandshakes.Requests;
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
@@ -61,8 +55,16 @@ public sealed class AudioQueues
     /// <summary>Sound-handler calls, 0 through <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/>, for which a music change withdraws every library's sound request.</summary>
     private int _soundHandlerDowntime;
 
-    /// <summary>Creates empty music and sound queues and zeroed acknowledgement state, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
-    public AudioQueues() => Reset();
+    /// <summary>Creates empty music and sound queues with every library's handler ready, scheduling the power-on data set and requests for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
+    /// <param name="soundHandshakes">
+    /// The handshakes the libraries' handlers run, covering every library of <see cref="SoundEffectLibraries.InQueueOrder"/>;
+    /// the queues reset them with their own state.
+    /// </param>
+    public AudioQueues(SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> soundHandshakes)
+    {
+        SoundHandshakes = Ensure.NotNull(soundHandshakes);
+        Reset();
+    }
 
     /// <summary>
     /// Door-owned part of the sound-disable switch: set after the entry stop
@@ -110,9 +112,7 @@ public sealed class AudioQueues
         Array.Clear(SoundQueues);
         Array.Clear(SoundReadPositions);
         Array.Clear(SoundWritePositions);
-        Array.Clear(SoundStates);
-        Array.Clear(_currentSounds);
-        Array.Clear(_soundClearDelays);
+        SoundHandshakes.Reset();
         MusicReadPosition = 0;
         MusicWritePosition = 0;
         MusicTimer = default;
@@ -379,13 +379,9 @@ public sealed class AudioQueues
         {
             // Guarded by the nonzero test above: the downtime counts down to zero and never wraps.
             _soundHandlerDowntime = Ensure.AtLeastZero(_soundHandlerDowntime - 1);
-            for (int queue = 0;
-                queue < SoundEffectLibraries.Count;
-                queue++)
-            {
-                requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
-                _currentSounds[queue] = null;
-            }
+            foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
+                requests.Add(new AudioRequest.ClearSoundRequest(library));
+            SoundHandshakes.DropAwaitedRequests();
             return;
         }
 
@@ -396,56 +392,37 @@ public sealed class AudioQueues
                 requests);
     }
 
-    /// <summary>Performs request, acknowledgement, withdrawal-delay and zero-acknowledgement phases for one sound library.</summary>
+    /// <summary>Runs one handler call of <paramref name="queue"/>'s library handshake and does what the call asks of the queue.</summary>
     private void HandleSoundEffectQueue(
         int queue,
         SoundAcknowledgement<SoundEffectId> acknowledgement,
         List<AudioRequest> requests)
     {
-        switch (SoundStates[queue])
+        SoundEffectLibrary library = SoundEffectLibraries.FromQueueIndex(queue);
+        SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep step = SoundHandshakes.Advance(library, acknowledgement);
+        switch (step)
         {
-            case 0: // Send the next queued request to its library.
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.Wait:
+                break;
+
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RequestNext:
                 SendNextSound(queue, requests);
                 break;
 
-            case 1: // Wait until the library acknowledges the request.
-                if (!acknowledgement.Acknowledges(_currentSounds[queue]))
-                    requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), _currentSounds[queue]));
-                else
-                {
-                    SoundStates[queue] = 2;
-                    _soundClearDelays[queue] = 2;
-                }
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.RepeatRequest:
+                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)));
                 break;
 
-            case 2: // Wait two frames, then withdraw the request.
-                if ((_soundClearDelays[queue] = WrappingCounter.DecrementByte(_soundClearDelays[queue])) == 0)
-                {
-                    requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
-                    _currentSounds[queue] = null;
-                    SoundStates[queue] = 3;
-                }
-                break;
-
-            case 3: // Wait for the library to acknowledge the withdrawal, then continue.
-                if (!acknowledgement.IsNone)
-                {
-                    requests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibraries.FromQueueIndex(queue)));
-                }
-                else
-                {
-                    SoundStates[queue] = 0;
-                    SendNextSound(queue, requests);
-                }
+            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandlerStep.Withdraw:
+                requests.Add(new AudioRequest.ClearSoundRequest(library));
                 break;
 
             default:
-                throw new InvalidDataException(
-                    $"SFX library {queue + 1} entered invalid retail dispatcher state {SoundStates[queue]}.");
+                throw new InvalidDataException($"Sound library {library}'s handler asked for unknown step {step}.");
         }
     }
 
-    /// <summary>Dequeues one unread sound request, asks its library for it, and enters the acknowledgement phase.</summary>
+    /// <summary>Dequeues one unread sound request, asks its library for it, and starts awaiting its acceptance.</summary>
     private void SendNextSound(int queue, List<AudioRequest> requests)
     {
         if (SoundReadPositions[queue] == SoundWritePositions[queue])
@@ -453,10 +430,10 @@ public sealed class AudioQueues
 
         int read = SoundReadPositions[queue];
         SoundEffectId? sound = SoundQueues[queue, read];
-        requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), sound));
-        _currentSounds[queue] = sound;
+        SoundEffectLibrary library = SoundEffectLibraries.FromQueueIndex(queue);
+        requests.Add(AudioRequest.ForSound(library, sound));
+        SoundHandshakes.Requested(library, sound);
         SoundReadPositions[queue] = NextSoundPosition(read);
-        SoundStates[queue] = 1;
     }
 
     /// <summary>The sound ring position after <paramref name="position"/>, wrapping to the first at the ring's capacity.</summary>

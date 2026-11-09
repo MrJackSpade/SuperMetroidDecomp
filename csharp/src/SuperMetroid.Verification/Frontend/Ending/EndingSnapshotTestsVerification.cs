@@ -35,7 +35,7 @@ internal static class EndingSnapshotTestsVerification
         {
             var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var otherBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-            var audio = new AudioQueues(); var otherAudio = new AudioQueues();
+            var audio = AudioQueues.Standalone(); var otherAudio = AudioQueues.Standalone();
             var legacy = CreateRetailEndingFixture(audio, hours, 59);
             var captured = CreateRetailEndingFixture(otherAudio, hours, 59);
             var phases = new HashSet<EndingCreditsPhase>();

@@ -49,7 +49,7 @@ internal static class GrappleSoundsVerification
         Console.WriteLine("  Grapple sounds: fire, silent extension, attachment, cancellation, swing release and drop queues agree.");
         foreach (SoundRequest request in new[] { GrappleBeamDefinitions.Sounds.Fire, GrappleBeamDefinitions.Sounds.Attach, GrappleBeamDefinitions.Sounds.Stop })
         {
-            var audio = new AudioQueues();
+            var audio = AudioQueues.Standalone();
             audio.AdvanceFrame(default);
             audio.QueueSound(request.SoundEffect, request.Priority);
             AssertEqual(new AudioRequest.RequestSound(request.SoundEffect),

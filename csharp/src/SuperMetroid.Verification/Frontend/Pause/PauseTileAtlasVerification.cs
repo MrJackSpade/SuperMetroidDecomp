@@ -26,7 +26,7 @@ internal static class PauseTileAtlasVerification
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {
-            var system = new SharedGameState(); system.SetAreaMapAcquired(area);
+            var system = new SharedGameState(new SharedRandom()); system.SetAreaMapAcquired(area);
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
             var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
             var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

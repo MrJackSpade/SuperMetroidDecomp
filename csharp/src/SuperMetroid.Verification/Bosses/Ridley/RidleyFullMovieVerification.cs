@@ -623,7 +623,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyPausePageTiming()
     {
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = ReserveTankMode.Auto };
-        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
+        var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
         foreach (PauseScreenMode source in Enum.GetValues<PauseScreenMode>())
         {
             PauseScreenMode destination = source == PauseScreenMode.Map ? PauseScreenMode.Equipment : PauseScreenMode.Map;

@@ -22,8 +22,8 @@ internal static class InstalledFileSelectMapVerification
         snapshot.Progress.UsedStations(AreaId.Maridia).Add(0);
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
-        var installed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
+        var control = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
+        var installed = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), slot, 0, original, MenuSheetFixtures.For(original));
 
         // Each side's frame is captured once per update and the two are compared for the pixels they show (#1532): equal
         // descriptions show equal pixels without a draw, and only differing ones are drawn and compared.
@@ -71,8 +71,8 @@ internal static class InstalledFileSelectMapVerification
             AssertTrue(installed.LoadRequested, "ROM-free map reaches gameplay-load handoff after full fade");
             // Exercise the other exit from a fresh area view as well. The test
             // ends at the handoff; gameplay/options retain separate dependencies.
-            control = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
-            installed = new FileSelectMapMenuState(new AudioQueues(), slot, 0, original, MenuSheetFixtures.For(original));
+            control = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), slot, 0, original, MenuSheetFixtures.For(original));
+            installed = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), slot, 0, original, MenuSheetFixtures.For(original));
             for (int tick = 0; tick < 48; tick++) StepBoth(0);
             StepBoth(ControllerButton.B);
             for (int tick = 0; tick < 32 && !installed.OptionsRequested; tick++) StepBoth(0);

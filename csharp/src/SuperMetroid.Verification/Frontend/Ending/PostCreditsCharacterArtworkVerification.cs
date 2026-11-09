@@ -23,8 +23,8 @@ internal static class PostCreditsCharacterArtworkVerification
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var guardedBus = NewEndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-            var nativeAudio = new AudioQueues();
-            var installedAudio = new AudioQueues();
+            var nativeAudio = AudioQueues.Standalone();
+            var installedAudio = AudioQueues.Standalone();
             var native = CreateRetailEndingFixture(nativeAudio, hours, 0);
             var installed = CreateRetailEndingFixture(installedAudio, hours, 0);
             installed.InstalledArtwork.BindFixtureObjectArtwork(stock);

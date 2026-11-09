@@ -81,7 +81,7 @@ internal static class MoatFirstEntryVerification
             }
             runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose.ForRoomCollision(), true);
             var transition = new DoorTransitionState();
-            var audio = new AudioQueues();
+            var audio = AudioQueues.Standalone();
             transition.Begin(runtime);
             int transitionFrames = 0;
             for (int frame = 0; transition.IsActive && frame < 400; frame++)

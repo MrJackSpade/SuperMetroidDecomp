@@ -32,6 +32,9 @@ internal sealed class FrontendSession
         Random = Ensure.NotNull(random);
         Assists = assists ?? GameplayAssists.None;
         display = new FrontendDisplay(hostServices.GameplayFrames);
+        // One set of handshakes for the session's whole lifetime, like the clock: each library's handler carries its
+        // phase across menus and gameplay runtimes, and a soft reset returns it to ready with the queues.
+        audio = new AudioQueues(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder));
         audioSession = new AudioSession(soundClock);
         this.saves = Ensure.NotNull(saves);
         SelectedSaveSlot = saves.ReadSelectedSlot();
@@ -66,7 +69,7 @@ internal sealed class FrontendSession
     /// <summary>Boot-time number of demo sets; fixed for the session.</summary>
     internal readonly int bootDemoSetCount;
     /// <summary>The music queue and the sound libraries' request queues, shared across menus and gameplay.</summary>
-    internal readonly AudioQueues audio = new();
+    internal readonly AudioQueues audio;
     /// <summary>
     /// When each sound library accepts the game's requests and what it acknowledges: one clock for the session's whole
     /// lifetime, so its requests and request-check phase carry across menus and gameplay runtimes. It serves the libraries

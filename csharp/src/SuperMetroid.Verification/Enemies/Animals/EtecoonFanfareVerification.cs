@@ -52,7 +52,7 @@ internal static class EtecoonFanfareVerification
         AssertEqual((ushort)256, (enemies.EtecoonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.EtecoonStates[0].")).FunctionTimer.RawValue, "wake begins flexing timer");
 
         var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
-        var queue = new AudioQueues();
+        var queue = AudioQueues.Standalone();
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         queue.QueueSound(request.SoundEffect, request.Priority);

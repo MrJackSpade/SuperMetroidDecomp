@@ -376,7 +376,7 @@ internal static class GModeGateGlitchVerification
             new RoomBlockBehavior[width * 16]);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 1, MaxHealth = 99 };
         var roomObjects = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
         AssertTrue(roomObjects.TryNotifyStationTouch(
@@ -448,7 +448,7 @@ internal static class GModeGateGlitchVerification
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();
         var roomObjects = RoomObjectFixtures.Unbound();
-        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => { }, WriteType = _ => { } }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(bus, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => { }, WriteType = _ => { } }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
         StepNoobTube(roomObjects, level);
 
         AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(

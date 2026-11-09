@@ -80,7 +80,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             const int origin = 4 + 4 * width;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectColoredDoorVisuals = stock });
-            var system = new SharedGameState();
+            var system = new SharedGameState(new SharedRandom());
             var guarded = NewColoredDoorDrawReadGuard(bus, lists);
             AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident colored-door header {header} loads");

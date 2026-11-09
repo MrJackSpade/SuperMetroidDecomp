@@ -78,7 +78,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
         var guarded = NewEyeDoorDrawGuard(bus, lists);
-        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), RoomObjectPopulationImporter.Read(guarded, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = _ => { } } }),
+        AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), RoomObjectPopulationImporter.Read(guarded, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = _ => { } } }),
             $"{orientation} eye-door three-component population loads");
         roomObjects.Step(level);
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
@@ -135,7 +135,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),
         };
         var requests = new List<EyeDoorProjectileRequest>();
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         var roomObjects = RoomObjectFixtures.Unbound();
         var guarded = NewEyeDoorDrawGuard(bus, lists);
         AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomObjectPopulationImporter.Read(guarded, population), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = requests.Add } }),

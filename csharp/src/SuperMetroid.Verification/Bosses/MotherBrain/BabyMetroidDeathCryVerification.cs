@@ -69,7 +69,7 @@ internal static class BabyMetroidDeathCryVerification
                 AssertEqual(expected, cgram[index], $"Recovery row {frame} restores exact cartridge colors and preserves other palettes: {index}");
             }
         }
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         var renderer = AudioSessionAccess.CreateSynthesizing(installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.MotherBrain)]);

@@ -39,7 +39,7 @@ internal static void VerifyRandomNumberGeneratorExhaustively()
 {
     for (int seed = ushort.MinValue; seed <= ushort.MaxValue; seed++)
     {
-        var state = new SharedGameState();
+        var state = new SharedGameState(new SharedRandom());
         state.SetRandomNumber((ushort)seed);
         ushort expected = ReferenceNextRandom((ushort)seed);
         int actual = state.NextRandom();
@@ -62,7 +62,7 @@ internal static void VerifyKnownRandomSequence()
         0xe0f2, 0x65cb, 0xfe08, 0xf739,
     ];
 
-    var state = new SharedGameState();
+    var state = new SharedGameState(new SharedRandom());
     int[] actual = Enumerable.Range(0, expected.Length)
         .Select(_ => state.NextRandom())
         .ToArray();
@@ -79,7 +79,7 @@ internal static void VerifyKnownRandomSequence()
 internal static void VerifyTimedHeldInputTimeline()
 {
     const ControllerButton button = ControllerButton.A;
-    var state = new SharedGameState();
+    var state = new SharedGameState(new SharedRandom());
 
     // Frame 0: the button is new, so TRB removes it from the held-only sample.
     state.UpdateHeldInput(timerReset: 3, controllerInput: button, controllerNewInput: button);
@@ -125,7 +125,7 @@ internal static void VerifyTimedHeldInputTimeline()
 /// </summary>
 internal static void VerifyEventBitfield()
 {
-    var state = new SharedGameState();
+    var state = new SharedGameState(new SharedRandom());
     NumberedFlagSet events = state.Progress.Events;
     for (int eventNumber = 0; eventNumber < PersistentProgress.EventCount; eventNumber++)
     {
@@ -152,7 +152,7 @@ internal static void VerifyEventBitfield()
 /// </summary>
 internal static void VerifyBossBitfield()
 {
-    var state = new SharedGameState();
+    var state = new SharedGameState(new SharedRandom());
     for (int area = 0; area < AreaIds.RetailCount; area++)
     {
         state.SetBossBits(area, BossBits.AreaBoss | BossBits.AreaTorizo);

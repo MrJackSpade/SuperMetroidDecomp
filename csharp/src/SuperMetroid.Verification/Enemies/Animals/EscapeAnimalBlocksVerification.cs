@@ -27,7 +27,7 @@ internal static class EscapeAnimalBlocksVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), 256).ToArray();
         var level = CreateRoom(new(16, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x8412), new RoomObjectServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });

@@ -106,7 +106,7 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(PaintedSpriteEntries.AreOwn(optionsScene.SpriteDraws, options.screen.Objects.Draws), "options draws its own sprite entries");
 
         InstalledSpriteSheets gameOverSheets = MenuSheetFixtures.For(maps);
-        var gameOver = new GameOverMenuState(new AudioQueues(), maps, gameOverSheets);
+        var gameOver = new GameOverMenuState(AudioQueues.Standalone(), maps, gameOverSheets);
         for (int frame = 0; frame < 30; frame++)
             gameOver.Step(0);
         // Game over shows one picture of its whole page at the page's corner, under the sprites (#1467).

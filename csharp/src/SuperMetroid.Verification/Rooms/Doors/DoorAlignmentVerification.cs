@@ -146,7 +146,7 @@ internal static class DoorAlignmentVerification
 
         var transition = new DoorTransitionState();
         transition.Begin(runtime);
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         const ControllerButton heldLeftRight = (ControllerButton.Left | ControllerButton.Right);
         int alignmentCalls = 0;
         bool observedDestinationBuild = false;

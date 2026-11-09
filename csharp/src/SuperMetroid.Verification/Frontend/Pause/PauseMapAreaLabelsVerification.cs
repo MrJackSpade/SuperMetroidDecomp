@@ -28,7 +28,7 @@ internal static class PauseMapAreaLabelsVerification
         var cart = CartridgeImportSource.Require(bus);
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia })
         {
-            var system = new SharedGameState();
+            var system = new SharedGameState(new SharedRandom());
             var labels = new FileSelectMapIcons(system, area);
             var presentation = RetailPresentationFixture();
             labels.BindLandmarks(presentation.Landmarks);

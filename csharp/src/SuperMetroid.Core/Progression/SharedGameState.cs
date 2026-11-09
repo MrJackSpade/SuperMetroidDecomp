@@ -16,12 +16,6 @@ public sealed class SharedGameState
     /// </summary>
     public SaveLoadingGameState SavedStartupRoute { get; private set; } = SaveLoadingGameState.MainGame;
 
-    /// <summary>Creates the shared state over its own random-number generator, with the game's power-on seed.</summary>
-    public SharedGameState()
-        : this(new SharedRandom())
-    {
-    }
-
     /// <summary>
     /// Creates the shared state over the session's random-number generator, for a session whose power-on adds no rumble
     /// delay and whose explored maps are its own.

@@ -1253,7 +1253,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var coloredDoorObjects = RoomObjectFixtures.Unbound();
     AssertEqual(
         coloredDoorHeaders.Length,
-        RoomObjectFixtures.LoadPopulation(ref coloredDoorObjects, new RoomObjectRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomObjectPopulationImporter.Read(bus, coloredDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        RoomObjectFixtures.LoadPopulation(ref coloredDoorObjects, new RoomObjectRoom(coloredDoors, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, coloredDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "colored-door setup scans all yellow, green, and red orientations");
     for (int index = 0; index < coloredDoorHeaders.Length; index++)
     {
@@ -1279,7 +1279,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var residentWords = new RoomTerrainBlock[16 * 16];
     residentWords[residentDoorBlock] = RoomTerrainBlock.Of(288, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData residentDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(residentWords, new RoomBlockBehavior[residentWords.Length], new RoomBlockAppearance[residentWords.Length]), RoomLevelData.NothingBeyondGrid());
-    var residentDoorSystem = new SharedGameState();
+    var residentDoorSystem = new SharedGameState(new SharedRandom());
     var residentDoorObjects = RoomObjectFixtures.Unbound();
     AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref residentDoorObjects, new RoomObjectRoom(residentDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomObjectPopulationImporter.Read(bus, residentDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "resident colored-door loader allocates red door actor");
@@ -1343,7 +1343,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var greyDoorWords = new RoomTerrainBlock[16 * 16];
     greyDoorWords[greyDoorBlock] = RoomTerrainBlock.Of(544, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData greyDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(greyDoorWords, new RoomBlockBehavior[greyDoorWords.Length], new RoomBlockAppearance[greyDoorWords.Length]), RoomLevelData.NothingBeyondGrid());
-    var greyDoorSystem = new SharedGameState();
+    var greyDoorSystem = new SharedGameState(new SharedRandom());
     var greyDoorObjects = RoomObjectFixtures.Unbound();
     AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref greyDoorObjects, new RoomObjectRoom(greyDoorLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, greyDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
         "grey-door loader allocates enemy-quota actor from population");

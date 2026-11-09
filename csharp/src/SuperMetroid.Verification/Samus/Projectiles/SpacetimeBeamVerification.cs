@@ -58,7 +58,7 @@ internal static class SpacetimeBeamVerification
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
         };
-        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (ControllerButton.Left | ControllerButton.A));
@@ -78,7 +78,7 @@ internal static class SpacetimeBeamVerification
         samus.MaxPowerBombs = 5;
 
         // Progress as the native probe's sentinel-filled tables decode, with the opening cinematic as the loading state.
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         system.Progress.CopyFrom(SentinelProgression().Progress);
         system.LoadSavedStartupRoute(SaveLoadingGameState.OpeningCinematic);
 
@@ -180,7 +180,7 @@ internal static class SpacetimeBeamVerification
     /// </summary>
     private static SharedGameState SentinelProgression()
     {
-        var state = new SharedGameState();
+        var state = new SharedGameState(new SharedRandom());
         state.Progress.CopyFrom(DecodeSlice(Enumerable.Repeat(ProgressionSentinel, SpacetimeCopyOracle.ProgressionSliceByteCount).ToArray()));
         state.LoadSavedStartupRoute(SuperMetroid.AssetExtraction.Progression.SaveLoadingGameStateCodec.Route(LittleEndianBytes.Word(ProgressionSentinel, ProgressionSentinel)));
         return state;

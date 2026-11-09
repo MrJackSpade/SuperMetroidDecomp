@@ -43,7 +43,7 @@ internal static class ChainsawFiringVerification
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = (SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
         };
-        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (ControllerButton.Left | ControllerButton.A));
@@ -179,7 +179,7 @@ internal static class ChainsawFiringVerification
         interferenceWords[yellowDoorBlock] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new RoomBlockAppearance[25]), RoomLevelData.NothingBeyondGrid());
         var interferenceObjects = RoomObjectFixtures.Unbound();
-        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref interferenceObjects, new RoomObjectRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, RoomObjectFixtures.LoadPopulation(ref interferenceObjects, new RoomObjectRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Crateria), RoomObjectPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
         interferenceObjects.Step(interferenceLevel);
 

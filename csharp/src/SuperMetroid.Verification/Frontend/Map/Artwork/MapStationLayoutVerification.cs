@@ -20,7 +20,7 @@ internal static class MapStationLayoutVerification
             var rules = MapStationLayoutFile.Markers.Where(rule => rule.Area == area).ToArray();
             for (int mask = 0; mask < (1 << rules.Length); mask++)
             {
-                var system = new SharedGameState();
+                var system = new SharedGameState(new SharedRandom());
                 for (int i = 0; i < rules.Length; i++)
                     if ((mask & (1 << i)) != 0) system.MarkExploredMapTile(area, rules[i].Cell);
                 var native = new FileSelectMapIcons(system, area);

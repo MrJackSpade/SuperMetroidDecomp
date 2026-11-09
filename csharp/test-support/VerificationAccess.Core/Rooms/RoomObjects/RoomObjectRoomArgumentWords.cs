@@ -56,16 +56,16 @@ internal static class RoomObjectRoomArgumentWords
         if (header == RoomObjectHeaderId.ScrollTrigger || FixedWords.ContainsKey(header) || FillerHeaders.Contains(header))
             return null;
         if (CollectibleObjects.TryIdentifyPermanentCollectible(header, out _, out _))
-            return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(word));
+            return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectHeaderId.BombTorizoGreyDoor)
         {
             return new GreyDoorArgument((word >> GreyConditionShift) & GreyConditionMask,
-                new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(word & GreyDoorBitMask), Persistence(word)));
+                new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & GreyDoorBitMask), Persistence(word)));
         }
         if (name.StartsWith("RedDoor", StringComparison.Ordinal) || name.StartsWith("GreenDoor", StringComparison.Ordinal) ||
             name.StartsWith("YellowDoor", StringComparison.Ordinal) || name.StartsWith("EyeDoor", StringComparison.Ordinal))
         {
-            return new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(word & ~NeverPersists), Persistence(word));
+            return new DoorBitArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(word & ~NeverPersists), Persistence(word));
         }
         if (header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation or RoomObjectHeaderId.SaveStation)
             return new StationArgument(word);

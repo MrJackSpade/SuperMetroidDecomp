@@ -60,7 +60,7 @@ internal static class EyeDoorObjectsVerification
                 EyeDoorProjectileDefinition.Projectile,
                 Facing: EyeDoorOrientation.Left,
                 RoomObjectBlockIndex: roomObjectBlock,
-                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(5)),
+                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
             roomWidthInBlocks: 16,
             system);
         RoomEnemyProjectileSlot attack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
@@ -88,7 +88,7 @@ internal static class EyeDoorObjectsVerification
                 EyeDoorProjectileDefinition.Sweat,
                 Facing: EyeDoorOrientation.Right,
                 RoomObjectBlockIndex: roomObjectBlock,
-                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(5)),
+                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
             roomWidthInBlocks: 16,
             system);
         RoomEnemyProjectileSlot sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
@@ -103,7 +103,7 @@ internal static class EyeDoorObjectsVerification
                 EyeDoorProjectileDefinition.ScatteredSmoke,
                 Facing: EyeDoorOrientation.Left,
                 RoomObjectBlockIndex: roomObjectBlock,
-                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(5)),
+                Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(5)),
             roomWidthInBlocks: 16,
             system);
         RoomEnemyProjectileSlot smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
@@ -170,7 +170,7 @@ internal static class EyeDoorObjectsVerification
         EyeDoorProjectileRequest shot = effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile);
         AssertEqual(orientation, shot.Facing, $"{orientation} attack carries the eye's facing");
         AssertEqual(eyeBlock, shot.RoomObjectBlockIndex, $"{orientation} attack leaves the eye's block");
-        AssertTrue(ReferenceEquals(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(doorBit), shot.Door), $"{orientation} attack carries the door");
+        AssertTrue(ReferenceEquals(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(doorBit), shot.Door), $"{orientation} attack carries the door");
         AssertEqual(DoorsNativeWords.EyeDoorFrameBehaviors.Word(EyeDoorFrameBehavior.MissileHit),
             roomObjects.EyeDoorSnapshots.Single(door => door.Component == EyeDoorComponent.Eye).FrameBehavior,
             $"{orientation} open eye arms its missile wake");

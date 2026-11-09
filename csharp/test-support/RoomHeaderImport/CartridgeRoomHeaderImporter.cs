@@ -35,7 +35,7 @@ public static class CartridgeRoomHeaderImporter
                 case RoomStateSelectorCode.Finish:
                     return cursor;
                 case RoomStateSelectorCode.EventHasBeenSet:
-                    match = selection.IsEventSet(SuperMetroid.AssetExtraction.Progression.StoryEventNumbers.Of(cartridge.ReadCartridgeByte(0x8f0000 | cursor)));
+                    match = selection.IsEventSet(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.StoryEvent(cartridge.ReadCartridgeByte(0x8f0000 | cursor)));
                     cursor = unchecked((ushort)(cursor + 1));
                     break;
                 case RoomStateSelectorCode.BossIsDead:

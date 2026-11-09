@@ -17,16 +17,16 @@ internal static class SharedGameStateAccess
     extension(SharedGameState self)
     {
         /// <summary>Whether the item location room data numbers <paramref name="number"/> has been collected.</summary>
-        internal bool HasCollectedItemBit(int number) => self.HasCollectedItem(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(number));
+        internal bool HasCollectedItemBit(int number) => self.HasCollectedItem(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(number));
 
         /// <summary>Records the item location room data numbers <paramref name="number"/> as collected.</summary>
-        internal void SetCollectedItemBit(int number) => self.CollectItem(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(number));
+        internal void SetCollectedItemBit(int number) => self.CollectItem(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(number));
 
         /// <summary>Whether the door room data numbers <paramref name="number"/> has been opened for good.</summary>
-        internal bool HasOpenedDoorBit(int number) => self.HasOpenedDoor(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(number));
+        internal bool HasOpenedDoorBit(int number) => self.HasOpenedDoor(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(number));
 
         /// <summary>Records the door room data numbers <paramref name="number"/> as opened for good.</summary>
-        internal void SetOpenedDoorBit(int number) => self.OpenDoor(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Door(number));
+        internal void SetOpenedDoorBit(int number) => self.OpenDoor(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(number));
 
         /// <summary>Records bosses as defeated in the area with index <paramref name="areaIndex"/>.</summary>
         internal void SetBossBits(int areaIndex, BossBits bits) => self.SetBossBits(AreaIds.At(areaIndex), bits);

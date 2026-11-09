@@ -47,8 +47,8 @@ internal static class XrayOverlaysVerification
         var system = new SharedGameState(new SharedRandom());
         var items = new[]
         {
-            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(1), InWorldCollectibleKind.Bombs),
-            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Item(2), InWorldCollectibleKind.EnergyTank),
+            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(1), InWorldCollectibleKind.Bombs),
+            new CollectibleObjectSnapshot(33, SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(2), InWorldCollectibleKind.EnergyTank),
         };
         // Each overlay places one whole block (#1431): the cell at the camera's block shows the block written last, in the
         // arrangement its mirroring selects.

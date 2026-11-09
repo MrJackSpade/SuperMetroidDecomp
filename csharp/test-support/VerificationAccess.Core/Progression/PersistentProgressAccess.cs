@@ -11,13 +11,21 @@ internal static class PersistentProgressAccess
             self.Capacity == other.Capacity && self.Members.SequenceEqual(other.Members);
     }
 
+    /// <summary>Whether two progress sets hold the same members.</summary>
+    extension<TMember>(ProgressSet<TMember> self)
+        where TMember : notnull
+    {
+        /// <summary>Whether <paramref name="other"/> holds the same members, in the same order.</summary>
+        internal bool SetEquals(ProgressSet<TMember> other) => self.Members.SequenceEqual(other.Members);
+    }
+
     /// <summary>Fills and compares whole sets of progress for fixtures.</summary>
     extension(PersistentProgress self)
     {
         /// <summary>Whether <paramref name="other"/> holds the same progress.</summary>
         internal bool SameAs(PersistentProgress other) =>
-            self.Events.SetEquals(other.Events) && self.ZebetitesDestroyed == other.ZebetitesDestroyed &&
-            self.CollectedItems.SetEquals(other.CollectedItems) && self.OpenedDoors.SetEquals(other.OpenedDoors) &&
+            self.Events.Members.SequenceEqual(other.Events.Members) && self.ZebetitesDestroyed == other.ZebetitesDestroyed &&
+            self.CollectedItems.Members.SequenceEqual(other.CollectedItems.Members) && self.OpenedDoors.Members.SequenceEqual(other.OpenedDoors.Members) &&
             Enum.GetValues<AreaId>().All(area => self.DefeatedBosses(area) == other.DefeatedBosses(area) &&
                 self.UsedStations(area).SetEquals(other.UsedStations(area)) && self.HasAreaMap(area) == other.HasAreaMap(area) &&
                 self.ExploredCells(area).SequenceEqual(other.ExploredCells(area)));

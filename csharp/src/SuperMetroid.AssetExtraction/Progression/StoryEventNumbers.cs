@@ -39,23 +39,4 @@ public static class StoryEventNumbers
         Array.IndexOf(Numbered, storyEvent) is var number and >= 0
             ? number
             : throw new ArgumentOutOfRangeException(nameof(storyEvent), storyEvent, "The event has no cartridge number.");
-
-    /// <summary>The story event the cartridge numbers <paramref name="number"/>, when one uses it.</summary>
-    /// <param name="number">A number of the event table.</param>
-    /// <param name="storyEvent">The story event numbered so, when there is one.</param>
-    /// <returns>False for a number of the table that no story event uses.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside the event table.</exception>
-    public static bool TryStoryEvent(int number, out StoryEvent storyEvent)
-    {
-        _ = Ensure.BetweenInclusive(0, NumberCount - 1, number);
-        StoryEvent? named = number < Numbered.Length ? Numbered[number] : null;
-        storyEvent = named ?? default;
-        return named is not null;
-    }
-
-    /// <summary>The story event the cartridge numbers <paramref name="number"/>, which room data and object programs carry.</summary>
-    /// <exception cref="InvalidDataException">No story event uses <paramref name="number"/>.</exception>
-    public static StoryEvent Of(int number) => TryStoryEvent(number, out StoryEvent storyEvent)
-        ? storyEvent
-        : throw new InvalidDataException($"Event number {number} names no story event.");
 }

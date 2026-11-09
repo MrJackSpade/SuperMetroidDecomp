@@ -154,9 +154,6 @@ public static class SaveRamLayout
     /// <summary>Start of the per-area boss-state bytes at WRAM <c>$7E:D828</c>.</summary>
     public const int BossBitsOffset = 0x0068;
 
-    /// <summary>Start of the 64-byte room Chozo-orb bitset at WRAM <c>$7E:D830</c>.</summary>
-    public const int RoomChozoBitsOffset = 0x0070;
-
     /// <summary>Start of the 64-byte collected-item bitset at WRAM <c>$7E:D870</c>.</summary>
     public const int CollectedItemBitsOffset = 0x00b0;
 

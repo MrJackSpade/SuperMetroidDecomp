@@ -25,10 +25,6 @@ public sealed class NumberedFlagSet
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside the range.</exception>
     public void Add(int number) => _on[Require(number)] = true;
 
-    /// <summary>Turns flag <paramref name="number"/> off.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside the range.</exception>
-    public void Remove(int number) => _on[Require(number)] = false;
-
     /// <summary>Turns flag <paramref name="number"/> on or off.</summary>
     /// <param name="number">The flag's number.</param>
     /// <param name="on">Whether the flag is on afterwards.</param>
@@ -55,14 +51,6 @@ public sealed class NumberedFlagSet
         Ensure.NotNull(source);
         RequireSameRange(source);
         source._on.CopyTo(_on, 0);
-    }
-
-    /// <summary>A detached copy of these flags.</summary>
-    public NumberedFlagSet Copy()
-    {
-        var copy = new NumberedFlagSet(Capacity);
-        copy.CopyFrom(this);
-        return copy;
     }
 
     /// <summary>

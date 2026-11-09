@@ -7,6 +7,9 @@ namespace SuperMetroid.Verification.Saves;
 /// <summary>Checks cartridge SRAM field spans and slot directories against the declared layout.</summary>
 internal static class SaveRamLayoutVerification
 {
+    /// <summary>Where a save holds the cartridge's room Chozo-orb table, which the port writes clear and never reads (#1553).</summary>
+    private const int UnreadOrbTableOffset = 0x0070;
+
     /// <summary>
     /// Guards the cartridge SRAM schema independently of serializer behavior. Intentional
     /// holes are allowed, but no named field may overlap another field or leave its slot.
@@ -44,7 +47,7 @@ internal static class SaveRamLayoutVerification
             new PayloadRegion(SaveRamLayout.IconCancelOffset, 2, "icon-cancel option"),
             new PayloadRegion(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount, "event bits"),
             new PayloadRegion(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount, "boss bits"),
-            new PayloadRegion(SaveRamLayout.RoomChozoBitsOffset,
+            new PayloadRegion(UnreadOrbTableOffset,
                 ProgressionTableCodec.RoomFlagByteCount, "room Chozo bits"),
             new PayloadRegion(SaveRamLayout.CollectedItemBitsOffset,
                 ProgressionTableCodec.RoomFlagByteCount, "collected-item bits"),

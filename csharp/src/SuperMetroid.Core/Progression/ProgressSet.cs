@@ -84,13 +84,6 @@ public sealed class ProgressSet<T>
         return copy;
     }
 
-    /// <summary>Whether <paramref name="other"/> is of the same kind with the same members happened.</summary>
-    public bool SetEquals(ProgressSet<T> other)
-    {
-        Ensure.NotNull(other);
-        return SameKind(other) && other._on.SequenceEqual(_on);
-    }
-
     /// <summary>
     /// Applies <paramref name="overwrite"/>: every member it decides has happened when it lists it and has not
     /// otherwise, and every other member keeps its state.

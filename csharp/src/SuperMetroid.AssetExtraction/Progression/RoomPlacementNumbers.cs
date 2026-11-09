@@ -39,18 +39,6 @@ public static partial class RoomPlacementNumbers
     public static bool TryItem(int number, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ItemLocation? location) =>
         Index.Items.TryGetValue(Ensure.BetweenInclusive(0, NumberCount - 1, number), out location);
 
-    /// <summary>The door room data numbers <paramref name="number"/>.</summary>
-    /// <exception cref="InvalidDataException">No door has <paramref name="number"/>.</exception>
-    public static LockedDoor Door(int number) => TryDoor(number, out LockedDoor? door)
-        ? door
-        : throw new InvalidDataException($"Door number {number} names no retail door.");
-
-    /// <summary>The item location room data numbers <paramref name="number"/>.</summary>
-    /// <exception cref="InvalidDataException">No item location has <paramref name="number"/>.</exception>
-    public static ItemLocation Item(int number) => TryItem(number, out ItemLocation? location)
-        ? location
-        : throw new InvalidDataException($"Item number {number} names no retail item location.");
-
     /// <summary>The lookups built once from the generated numbering.</summary>
     private static class Index
     {

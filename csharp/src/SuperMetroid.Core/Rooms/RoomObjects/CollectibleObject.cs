@@ -186,7 +186,7 @@ internal sealed class CollectibleObject(
                     Timer = CollectibleTimingDefinitions.RevealImageUpdates;
                     return;
                 }
-                RoomObjectLevelWrites.DrawTerrain(context.Level, place.BlockIndex, place.RestoreTerrain);
+                context.DrawRestoredBlock(place);
                 Phase = CollectiblePhase.ShotBlock;
                 return;
 
@@ -205,7 +205,7 @@ internal sealed class CollectibleObject(
                     Timer = CollectibleTimingDefinitions.RespawnImageUpdates;
                     return;
                 }
-                RoomObjectLevelWrites.DrawTerrain(context.Level, place.BlockIndex, place.RestoreTerrain);
+                context.DrawRestoredBlock(place);
                 Phase = CollectiblePhase.CollectedShotBlock;
                 return;
 

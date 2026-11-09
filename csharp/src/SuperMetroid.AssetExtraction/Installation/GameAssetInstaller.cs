@@ -362,6 +362,8 @@ public static class GameAssetInstaller
             Step("Extracting collectible PLM visuals...", (bus, d) => RoomObjectCollectibleVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName,
             Step("Extracting reveal and wall PLM visuals...", (bus, d) => RoomObjectRevealAndWallVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
+        new(GameInstallationLayout.RoomObjectSetupBlockDirectoryName,
+            Step("Extracting room-object setup blocks...", (bus, d) => RoomObjectSetupBlockFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.XrayRevealVisualDirectoryName,
             Step("Extracting X-ray reveal visuals...", (bus, d) => XrayRevealVisualFiles.Extract(bus, d, SupportedCartridge.Sha256))),
         new(GameInstallationLayout.SpriteSheetDirectoryName, InstallerComponentKind.Composition,

@@ -124,6 +124,9 @@ internal interface IGameplayArtwork
     /// <summary>Room-object bombed-reveal, escape-passage, escape-shaft-wall and rescue-wall visuals.</summary>
     InstalledRoomObjectRevealAndWallVisuals? RoomObjectRevealAndWallVisuals { get; }
 
+    /// <summary>The blocks room-object setups and block reactions write of their own accord.</summary>
+    InstalledRoomObjectSetupBlocks? RoomObjectSetupBlocks { get; }
+
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     InstalledXrayReveals? XrayRevealVisuals { get; }
 

@@ -22,7 +22,4 @@ public static class EscapeAnimalWallDefinitions
 
     /// <summary>The extension blocks' behaviour: a displacement of one block up, onto the block above.</summary>
     public static readonly RoomBlockBehavior ExtensionBehavior = RoomBlockBehavior.Extending(-1);
-
-    /// <summary>The block the reaction shows in place of the wall's artwork, unmirrored.</summary>
-    public static readonly RoomBlockAppearance ReactionAppearance = RoomBlockAppearance.Of(159);
 }

@@ -22,7 +22,7 @@ internal sealed class WreckedShipTreadmillObject(WreckedShipTreadmillDirection d
     {
         Ensure.NotNull(place);
         if (AreaBossDefeated)
-            WreckedShipTreadmillObjects.RunBelt(context.Level, place.BlockIndex, Direction);
+            WreckedShipTreadmillObjects.RunBelt(context.Level, place.BlockIndex, Direction, context.RoomObjects.Drawing);
         context.RoomObjects.DeleteObject(place);
     }
 }

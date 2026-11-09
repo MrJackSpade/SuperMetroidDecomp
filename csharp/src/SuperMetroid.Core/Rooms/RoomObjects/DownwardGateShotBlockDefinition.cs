@@ -7,10 +7,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="Trigger">The trigger the written shot block selects.</param>
 /// <param name="Change">What the trigger's room object draws: its shot block, once, before it leaves the room.</param>
-/// <param name="LeftBlock">The terrain written left of the trigger, or null for none.</param>
-/// <param name="RightBlock">The terrain written right of the trigger, or null for none.</param>
+/// <param name="LeftCollision">
+/// The collision kind the block left of the trigger is given, keeping what it shows, or null to leave it alone.
+/// </param>
+/// <param name="RightCollision">
+/// The collision kind the block right of the trigger is given, keeping what it shows, or null to leave it alone.
+/// </param>
 internal readonly record struct DownwardGateShotBlockDefinition(
     DownwardGateTriggerBehavior Trigger,
     TerrainChange Change,
-    RoomTerrainBlock? LeftBlock,
-    RoomTerrainBlock? RightBlock);
+    RoomCollisionType? LeftCollision,
+    RoomCollisionType? RightCollision);

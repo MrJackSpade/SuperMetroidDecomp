@@ -95,6 +95,10 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>The installed pictures of the bombed reveals, the escape passage, the escape shaft wall and the animals' rescue wall.</summary>
     public InstalledRoomObjectRevealAndWallVisuals? RevealAndWallVisuals => _visuals.RoomObjectRevealAndWallVisuals;
 
+    /// <inheritdoc/>
+    public RoomBlockAppearance SetupBlock(RoomObjectSetupBlock block) =>
+        Installed(_visuals.RoomObjectSetupBlocks, "room-object setup block").Shown(block);
+
     /// <summary>Draws a compiled draw, selecting its family's installed visuals while retaining the draw's collision.</summary>
     public void Draw(RoomLevelData level, int blockIndex, RoomObjectDraw draw)
     {

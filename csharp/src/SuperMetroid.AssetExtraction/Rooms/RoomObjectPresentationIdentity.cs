@@ -36,6 +36,7 @@ public static class RoomObjectPresentationIdentity
             [GameInstallationLayout.RoomObjectMotherBrainFakeDeathVisualDirectoryName] = catalogs.MotherBrainFakeDeath.ContentIdentity,
             [GameInstallationLayout.RoomObjectCollectibleVisualDirectoryName] = catalogs.Collectible.ContentIdentity,
             [GameInstallationLayout.RoomObjectRevealAndWallVisualDirectoryName] = catalogs.RevealAndWall.ContentIdentity,
+            [GameInstallationLayout.RoomObjectSetupBlockDirectoryName] = catalogs.SetupBlocks.ContentIdentity,
         };
 }
 

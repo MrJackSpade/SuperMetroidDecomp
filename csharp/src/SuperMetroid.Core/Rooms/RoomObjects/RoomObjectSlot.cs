@@ -24,10 +24,11 @@ internal sealed class RoomObjectSlot
     /// <summary>Index of the room block owned by this room object.</summary>
     public int BlockIndex { get; set; }
     /// <summary>
-    /// The terrain the slot restores at its block. Grapple setup saves the original block; collision-bomb setup
-    /// saves the dimension parent instead.
+    /// The terrain the slot restores at its block, or null when its object saved none. Grapple setup saves the original
+    /// block; collision-bomb setup saves the dimension parent instead. Only an object whose setup saved a block restores
+    /// one (<see cref="RoomObjectStepContext.DrawRestoredBlock"/>).
     /// </summary>
-    public RoomTerrainBlock RestoreTerrain { get; set; } = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
+    public RoomTerrainBlock? RestoreTerrain { get; set; }
     /// <summary>What the slot's room object was placed with, or the state its setup or opening left there; null for none.</summary>
     public RoomObjectRoomArgument? Argument { get; set; }
     /// <summary>The projectile hit on the place's block that its object has not yet taken, or null for none.</summary>
@@ -42,7 +43,7 @@ internal sealed class RoomObjectSlot
         Active = false;
         Header = 0;
         BlockIndex = 0;
-        RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
+        RestoreTerrain = null;
         Argument = null;
         ProjectileHit = null;
         Behaviour = null;

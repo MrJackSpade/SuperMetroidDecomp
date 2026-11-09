@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -31,7 +32,9 @@ internal static class WallProbeBombBlockVerification
             state.Position = state.Position.WithWholeX(58).WithFractionX(fraction).WithWholeY(48);
             state.Radius = new(5, 5);
 
-            BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(level, state, samus, SignedSixteenSixteen.FromParts(8, 0));
+            // The probe spawns no room object, so the bomb block it breaks shows its parent's installed picture.
+            BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(level, state, samus, SignedSixteenSixteen.FromParts(8, 0),
+                roomObjectDrawing: RoomObjectFixtures.Unbound().Drawing);
             string context = $"wall probe in pose ${(int)SamusPoseNumbers.Number(pose):X2}";
             AssertEqual(!breaks, result.Collided, $"{context} collision");
             AssertEqual(breaks ? fraction : (ushort)0xffff, state.Position.X.Fraction, $"{context} X fraction");

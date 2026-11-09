@@ -24,13 +24,27 @@ internal static class ChozoStatueRoomDefinitions
     public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(BlockReaction.AreaSpecific(3));
 
     /// <summary>
-    /// The block the room-load crumbling plug writes: its setup never chooses one, so it writes what the room loader's
-    /// last draw left behind, block 416 mirrored both ways, as air.
+    /// The block the crumbling plug writes when the hand's trigger spawns it: its setup never chooses one, so it writes
+    /// what the room loader's last draw left behind, block 416 mirrored both ways, as air.
     /// </summary>
+    /// <remarks>
+    /// Gameplay terrain, not a picture (#1580): nothing pictures it, and when room objects run, the plug draws its first
+    /// breakup image over it in the room-object pass later in the same update. Until then it is read as terrain: its
+    /// air by Samus's and her shots' collision, and its block number and mirroring by a Wave shot's scan past the room's
+    /// ceiling (<see cref="Compatibility.StraddledBlockRead"/>), whose straddled block takes its collision family from
+    /// those bits and keeps the block it read as the block to restore.
+    /// </remarks>
     public static readonly RoomTerrainBlock HardcodedCrumbleSetupBlock =
         RoomTerrainBlock.Of(416, BlockMirroring.Horizontal | BlockMirroring.Vertical, RoomCollisionType.Air);
 
-    /// <summary>The block the statue-spawned crumbling plug writes: block zero, unmirrored, as air.</summary>
+    /// <summary>The block the crumbling plug writes when the statue spawns it: block zero, unmirrored, as air.</summary>
+    /// <remarks>
+    /// Gameplay terrain, not a picture (#1580): its setup never chooses a block, so nothing pictures it. The statue's
+    /// spawn is applied right after the enemy pass, and when room objects run the plug draws its first breakup image over
+    /// it in the room-object pass later in the same update. Until then it is read as terrain: its air by Samus's and her
+    /// shots' collision, and its block number and mirroring by a Wave shot's scan past the room's ceiling
+    /// (<see cref="Compatibility.StraddledBlockRead"/>).
+    /// </remarks>
     public static readonly RoomTerrainBlock SpawnedCrumbleSetupBlock =
         RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
 

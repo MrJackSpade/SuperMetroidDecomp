@@ -20,8 +20,10 @@ internal readonly record struct RoomObjectStepContext(
     /// Redraws the slot's saved terrain at its block, as the draw-block step restores a
     /// respawning block.
     /// </summary>
+    /// <exception cref="InvalidOperationException">The slot's object saved no block to restore.</exception>
     internal void DrawRestoredBlock(RoomObjectSlot slot) =>
-        RoomObjectLevelWrites.DrawTerrain(Level, slot.BlockIndex, slot.RestoreTerrain);
+        RoomObjectLevelWrites.DrawTerrain(Level, slot.BlockIndex, slot.RestoreTerrain
+            ?? throw new InvalidOperationException($"The room object at block {slot.BlockIndex} restores a block its setup never saved."));
 
     /// <summary>Queues <paramref name="sound"/> at <paramref name="priority"/>.</summary>
     internal void QueueSound(SoundEffectId sound, SoundRequestPriority priority) =>

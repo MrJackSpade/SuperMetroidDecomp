@@ -104,6 +104,7 @@ internal static class RoomObjectFixtures
         RoomObjectMotherBrainFakeDeathVisuals = MotherBrainFakeDeathFrames.Value,
         RoomObjectCollectibleVisuals = InstalledRoomObjectCollectibleVisuals.Stock(),
         RoomObjectRevealAndWallVisuals = InstalledRoomObjectRevealAndWallVisuals.Stock(),
+        RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock(),
     };
 
     /// <summary>The installed artwork a fixture draws with; editing it changes what the fixture draws.</summary>

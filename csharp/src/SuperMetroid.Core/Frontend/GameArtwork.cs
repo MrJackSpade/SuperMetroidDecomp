@@ -145,6 +145,9 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Room-object bombed-reveal, escape-passage, escape-shaft-wall and rescue-wall visuals.</summary>
     public InstalledRoomObjectRevealAndWallVisuals? RoomObjectRevealAndWallVisuals { get; init; }
 
+    /// <summary>The blocks room-object setups and block reactions write of their own accord.</summary>
+    public InstalledRoomObjectSetupBlocks? RoomObjectSetupBlocks { get; init; }
+
     /// <summary>X-ray reveal operands and item and special-room overlays.</summary>
     public InstalledXrayReveals? XrayRevealVisuals { get; init; }
 

@@ -335,7 +335,6 @@ internal static class RoomObjectSystemAccess
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.BlockIndex = blockIndex;
-            slot.RestoreTerrain = RoomObjectSlotDefinitions.ClearedRestoreTerrain;
 
             if (areaDependent)
             {
@@ -350,9 +349,10 @@ internal static class RoomObjectSystemAccess
             {
                 // The setup throws away the original appearance. The shot-block parent with the block's collision kind
                 // is both the restore block and the source of the deactivated live block.
-                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomObjectVisualBlockDefinitions.ShotBlockParent);
+                RoomTerrainBlock restore = block.Terrain.WithAppearance(self.Drawing.SetupBlock(RoomObjectSetupBlock.ShotBlockParent));
+                slot.RestoreTerrain = restore;
                 slot.Become(new BlockReactionObject(BlockReactionChanges.RespawningShot(ShotBlockReactions.BreakShape(bts.Reaction))));
-                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
+                level.SetTerrain(blockIndex, restore.Deactivated());
                 return true;
             }
 

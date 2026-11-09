@@ -66,6 +66,7 @@ internal static class NoobTubeObjectVerification
         var earthquakes = new List<int>();
         bool brokenEvent = false;
         var roomObjects = RoomObjectFixtures.Unbound();
+        RoomBlockAppearance originShown = level.GetCollisionBlock(new(blockX, blockY)).Terrain.Appearance;
 
         int parsed = RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, populationPointer), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubeObjectDefinitions.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
             {
@@ -75,9 +76,9 @@ internal static class NoobTubeObjectVerification
             } }, RoomFx = new RoomObjectFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = earthquakes.Add, WriteType = earthquakes.Add }, Enemies = new FixtureObjectEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
-        AssertEqual(NoobTubeObjectDefinitions.SolidProjectileTrigger,
+        AssertEqual(new RoomTerrainBlock(originShown, RoomCollisionType.SolidBlock),
             level.GetCollisionBlock(new(blockX, blockY)).Terrain,
-            "n00b-tube setup installs the complete type-$8 collision word");
+            "n00b-tube setup makes its origin solid and keeps what it shows");
         AssertEqual(RoomBlockBehaviorCodec.Encode(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger)),
             RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(blockX, blockY)).Behavior),
             "n00b-tube setup installs BTS $44");

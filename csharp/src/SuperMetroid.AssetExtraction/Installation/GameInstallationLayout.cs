@@ -109,12 +109,14 @@ public static class GameInstallationLayout
     public const string RoomObjectCollectibleVisualDirectoryName = "room-plm-collectibles";
     /// <summary>Content child directory for the bombed reveals', escape passage's, escape shaft wall's and rescue wall's pictures (#1557).</summary>
     public const string RoomObjectRevealAndWallVisualDirectoryName = "room-plm-reveals-and-walls";
+    /// <summary>Content child directory for the pictures of the blocks room-object setups and block reactions write of their own accord (#1580).</summary>
+    public const string RoomObjectSetupBlockDirectoryName = "room-plm-setup-blocks";
     /// <summary>Content child directory for X-ray reveal metatile selections.</summary>
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 249;
+    public const int FormatVersion = 250;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

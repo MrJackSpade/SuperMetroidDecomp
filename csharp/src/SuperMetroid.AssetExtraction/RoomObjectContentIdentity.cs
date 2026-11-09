@@ -30,6 +30,22 @@ internal static class RoomObjectContentIdentity
         public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectRevealAndWallVisuals), visuals.Images, RoomObjectRevealAndWallVisualFiles.Family);
     }
 
+    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSetupBlocks"/>.</summary>
+    extension(InstalledRoomObjectSetupBlocks blocks)
+    {
+        /// <summary>Hashes what every setup block shows, in published-name order (#1580).</summary>
+        public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomObjectSetupBlocks), content =>
+        {
+            Span<RoomBlockAppearance> shown = stackalloc RoomBlockAppearance[1];
+            foreach (RoomObjectSetupBlock block in Enum.GetValues<RoomObjectSetupBlock>().OrderBy(RoomObjectSetupBlockFiles.Id, StringComparer.Ordinal))
+            {
+                content.AppendName("block", RoomObjectSetupBlockFiles.Id(block));
+                shown[0] = blocks.Shown(block);
+                content.AppendAppearances("shows", shown);
+            }
+        });
+    }
+
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBotwoonWallVisuals"/>.</summary>
     extension(InstalledRoomObjectBotwoonWallVisuals visuals)
     {

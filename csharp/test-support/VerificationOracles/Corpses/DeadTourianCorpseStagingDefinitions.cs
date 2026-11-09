@@ -31,15 +31,6 @@ internal static class DeadTourianCorpseStagingDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
     };
 
-    /// <summary>The species whose character-row layout <paramref name="species"/>'s corpse rows follow.</summary>
-    internal static RottingCorpseSpecies RowLayout(DeadTourianCorpseSpecies species) => species switch
-    {
-        DeadTourianCorpseSpecies.Zoomer => RottingCorpseSpecies.Zoomer,
-        DeadTourianCorpseSpecies.Ripper => RottingCorpseSpecies.Ripper,
-        DeadTourianCorpseSpecies.Skree => RottingCorpseSpecies.Skree,
-        _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
-    };
-
     /// <summary>
     /// Builds a corpse's variants from its tile layout. Each corpse is a block of
     /// <paramref name="columns"/> by <paramref name="rows"/> 4bpp 8x8 tiles; successive variants

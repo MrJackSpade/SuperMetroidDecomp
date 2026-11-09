@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -17,53 +18,44 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     {
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
-            DeadSidehopperCorpseDefinitions.InitiallyAlive,
             configurationPointer: 0xdd68,
             graphicsVariant: 0));
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
-            DeadSidehopperCorpseDefinitions.InitiallyDead,
             configurationPointer: 0xdd78,
             graphicsVariant: 2));
 
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 0,
-            graphicsVariant: 0,
-            DeadSidehopperCorpseDefinitions.InitiallyAlive));
+            graphicsVariant: 0));
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 2,
-            graphicsVariant: 2,
-            DeadSidehopperCorpseDefinitions.InitiallyDead));
+            graphicsVariant: 2));
 
         Console.WriteLine(
-            "Dead sidehopper corpse definitions: both decoded configuration records' kinds, heights, row layouts and wraps, and both production initializers' own fresh rot schedules pass.");
+            "Dead sidehopper corpse definitions: both decoded configuration records' upload lists and heights, and both production initializers' own fresh rot schedules pass.");
     }
 
     /// <summary>
-    /// Compares one corpse record, decoded by the codec, with the typed definition and the character rot oracle's row movers: the
-    /// kind whose upload list it names, the corpse's height, its row layout and its wrap.
+    /// Compares one corpse record, decoded by the codec, with the typed definition: the upload list it names, which the
+    /// extraction finds the corpse's characters by, and the corpse's height.
     /// </summary>
     private static void VerifyDefinition(
         SuperMetroidAddressSpace rom,
-        DeadSidehopperCorpseDefinition definition,
         ushort configurationPointer,
         int graphicsVariant)
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, configurationPointer);
         string context = $"dead sidehopper configuration $A9:{configurationPointer:X4}";
-        AssertEqual<RottingCorpseKind?>(definition.Kind, configuration.Kind, $"{context} rots the kind whose upload list it names");
-        AssertEqual(definition.RowCount, configuration.RowCount, $"{context} corpse height");
-        AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Sidehopper), configuration.RowLayoutTable,
-            $"{context} names the sidehopper tile-row layout production copies with");
-        AssertEqual(configuration.Wrap, CorpseRowGeometry.Sidehopper(graphicsVariant).Wrap,
-            $"{context} wrap is the character rot oracle's row movers'");
+        AssertEqual<CorpseRowUploadList?>(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, graphicsVariant / 2), configuration.UploadList,
+            $"{context} names the row upload list the extraction finds the corpse's characters by");
+        AssertEqual(DeadSidehopperCorpseDefinitions.RowCount, configuration.RowCount, $"{context} corpse height");
     }
 
     /// <summary>Checks the state installed for one alive or initially dead enemy parameter.</summary>
     private static void VerifyProductionInitialization(
         ushort parameter1,
-        ushort graphicsVariant,
-        DeadSidehopperCorpseDefinition expected)
+        ushort graphicsVariant)
     {
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork };
         Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
@@ -76,9 +68,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
         AssertEqual(graphicsVariant, state.GraphicsVariant,
             $"dead sidehopper parameter {parameter1} graphics variant");
-        CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead sidehopper parameter {parameter1}");
-        AssertEqual(expected.Kind, state.Flesh,
-            $"dead sidehopper parameter {parameter1} rots the configured kind of corpse");
+        CorpseRotScheduleChecks.AssertFreshSchedule(DeadSidehopperCorpseDefinitions.RowCount, state.Rot, $"dead sidehopper parameter {parameter1}");
     }
 
 

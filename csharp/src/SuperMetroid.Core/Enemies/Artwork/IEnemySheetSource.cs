@@ -25,11 +25,11 @@ public interface IEnemySheetSource
 
     /// <summary>
     /// Where a rotting corpse lies in picture <paramref name="picture"/> of a frame of <paramref name="enemy"/>'s sheet under
-    /// graphics set <paramref name="set"/> (#1531), which the picture is drawn through as the corpse's rot leaves it; none for
+    /// graphics set <paramref name="set"/> (#1539), which the picture is drawn whole through as the corpse's own rot leaves it; none for
     /// a picture that shows no rotting corpse.
     /// </summary>
-    CorpsePictureLayout? CorpseLayout(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);
+    CorpsePicturePlacement? CorpsePlacement(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture);
 
     /// <summary>The same for picture <paramref name="picture"/> of the set's spawned-object sheet for <paramref name="owner"/>.</summary>
-    CorpsePictureLayout? SpawnedCorpseLayout(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
+    CorpsePicturePlacement? SpawnedCorpsePlacement(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture);
 }

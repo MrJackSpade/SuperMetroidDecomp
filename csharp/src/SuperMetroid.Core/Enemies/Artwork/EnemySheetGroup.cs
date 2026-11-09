@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// One family of installed enemy sheets (#1392, #1531, #1538): the sheets by key, the encounters whose looks change each of
+/// One family of installed enemy sheets (#1392, #1538, #1539): the sheets by key, the encounters whose looks change each of
 /// their frames, and where a rotting corpse lies in each frame that shows one.
 /// </summary>
 /// <typeparam name="TKey">What selects a sheet.</typeparam>
@@ -17,5 +17,5 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public sealed record EnemySheetGroup<TKey, TSheet>(
     IReadOnlyDictionary<TKey, TSheet> Sheets,
     IReadOnlyDictionary<TKey, IReadOnlyDictionary<string, EncounterArtwork[]>> ChangingEncounters,
-    IReadOnlyDictionary<TKey, IReadOnlyDictionary<string, CorpsePictureLayout>> CorpsePictures)
+    IReadOnlyDictionary<TKey, IReadOnlyDictionary<string, CorpsePicturePlacement>> CorpsePictures)
     where TKey : notnull;

@@ -262,14 +262,9 @@ internal static class EnemySpawnSettingsCodec
     };
 
     /// <summary>The corpse species whose corpses include <paramref name="corpse"/>.</summary>
-    private static DeadTourianCorpseSpecies CorpseSpecies(DeadTourianCorpseDefinition corpse) => corpse.Kind.Species switch
-    {
-        RottingCorpseSpecies.Zoomer => DeadTourianCorpseSpecies.Zoomer,
-        RottingCorpseSpecies.Ripper => DeadTourianCorpseSpecies.Ripper,
-        RottingCorpseSpecies.Skree => DeadTourianCorpseSpecies.Skree,
-        RottingCorpseSpecies.Torizo or RottingCorpseSpecies.Sidehopper => throw new ArgumentOutOfRangeException(nameof(corpse)),
-        _ => throw new ArgumentOutOfRangeException(nameof(corpse)),
-    };
+    /// <exception cref="InvalidOperationException">No species, or more than one, has the corpse.</exception>
+    private static DeadTourianCorpseSpecies CorpseSpecies(DeadTourianCorpseDefinition corpse) =>
+        DeadTourianCorpseDefinitions.Variants.Single(species => species.Value.Contains(corpse)).Key;
 
 
 

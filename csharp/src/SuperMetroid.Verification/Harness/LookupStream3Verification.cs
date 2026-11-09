@@ -1281,7 +1281,7 @@ internal static class LookupStream3Verification
     private static SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers InstalledPageResolver =>
         new(InstalledFixtures.EnemyArtwork, timer: InstalledAreaMapPresentation.EscapeTimerTilesOf(InstalledFixtures.Maps));
 
-    /// <summary>Checks corpse row offsets and rot/page transfer geometry against native source and destination words.</summary>
+    /// <summary>Checks corpse row offsets and rot row/page transfer placement against native source and destination words.</summary>
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 8; row++)
@@ -1308,60 +1308,6 @@ internal static class LookupStream3Verification
             AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.Characters.Length, "stream 3 corpse page bytes");
-        }
-        int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
-        for (int column = 0; column < 7; column++)
-            AssertEqual(minimumY[column], MotherBrainCorpseStaging.ColumnMinimumY(column), "stream 3 corpse native outline gate");
-        // Confirm the changed row/column geometry through the real pixel-copy path.
-        for (ushort y = 0; y < 48; y++)
-        foreach (bool move in new[] { false, true })
-        {
-            // The character rot oracle stages the corpse from its art and rots it to picture each step (#1392): stage a pattern
-            // through art whose rows hold it.
-            byte[] expectedTiles = new byte[0x600];
-            for (int offset = 0; offset < expectedTiles.Length; offset++)
-                expectedTiles[offset] = (byte)(offset * 37 + 11);
-            byte[] atlas = new byte[MotherBrainCorpseSheet.ByteCount];
-            for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-                expectedTiles.AsSpan(row * MotherBrainCorpseStaging.RowBytes, MotherBrainCorpseStaging.InitialCopyLength(row))
-                    .CopyTo(atlas.AsSpan(MotherBrainCorpseStaging.InitialCopyOffset(row)));
-            CorpseStaging actualTiles = CorpseStaging.MotherBrain(atlas);
-            int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
-            int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
-            for (int column = 0; column < 7; column++)
-            {
-                if (y < minimumY[column]) continue;
-                int start = column * 32;
-                if (y < 46)
-                {
-                    // Read both plane words before copying or clearing either source.
-                    byte lo = expectedTiles[start + source];
-                    byte hi = expectedTiles[start + source + 1];
-                    byte lo2 = expectedTiles[start + source + 16];
-                    byte hi2 = expectedTiles[start + source + 17];
-                    expectedTiles[start + destination + 2] = lo;
-                    expectedTiles[start + destination + 3] = hi;
-                    expectedTiles[start + destination + 18] = lo2;
-                    expectedTiles[start + destination + 19] = hi2;
-                }
-                if (move)
-                {
-                    expectedTiles[start + source] = 0;
-                    expectedTiles[start + source + 1] = 0;
-                    expectedTiles[start + source + 16] = 0;
-                    expectedTiles[start + source + 17] = 0;
-                }
-            }
-            actualTiles.MoveRow(CorpseRowGeometry.MotherBrain, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
-            // The movers never write below the sixth row, so the staged rows hold every effect.
-            for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
-            {
-                int first = row * MotherBrainCorpseStaging.RowBytes;
-                byte[] staged = actualTiles.Upload(new CorpseRotRow(row, CorpseWorkMemory.CorpseRottingHeap + first,
-                    MotherBrainCorpseStaging.InitialCopyLength(row), 0));
-                for (int offset = 0; offset < staged.Length; offset++)
-                    AssertEqual(expectedTiles[first + offset], staged[offset], "stream 3 corpse row geometry");
-            }
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {

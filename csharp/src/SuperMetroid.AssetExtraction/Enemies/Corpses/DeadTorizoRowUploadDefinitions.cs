@@ -3,9 +3,10 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
-/// The dead Torizo's alternating bank-$A9 row upload lists at $A9:D549 and $A9:D583 (#1406): the half of its rows it
-/// uploads from its staged characters each main-AI call. Only the extraction reads them, to find the characters each half's
-/// rows show in (#1531).
+/// The dead Torizo's alternating bank-$A9 row upload lists at $A9:D549 and $A9:D583 (#1406): the half of its rows the
+/// cartridge uploads from its staged characters each main-AI call. Only the extraction reads them, to find the characters
+/// its body's and its sand heap's rows show in, and so where each lies in its pictures (#1539); the game rots and draws the
+/// corpse whole.
 /// </summary>
 [EncodingOwner("bank-$A9 dead-Torizo row upload lists")]
 internal static class DeadTorizoRowUploadDefinitions

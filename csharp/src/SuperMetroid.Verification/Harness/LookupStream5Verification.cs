@@ -1199,7 +1199,7 @@ internal static class LookupStream5Verification
         }
     }
 
-    /// <summary>Compares Sidehopper motion and corpse geometry operands across the native unrolled columns.</summary>
+    /// <summary>Compares the Sidehopper corpse's native staging copies with the staging oracle's, over installed artwork.</summary>
     internal static void VerifyLookupStream5SidehopperGeometry(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => ReadVerificationWord(rom, address);
@@ -1219,7 +1219,7 @@ internal static class LookupStream5Verification
                     CorpseStagingGeometryDefinitions.SidehopperInitialCopy(variant, row), "Native Sidehopper MVN geometry");
                 ReadSidehopperCorpseRomBytes(rom, 0xb7c000 + source, length).CopyTo(expected, destination);
             }
-            // The character rot oracle stages the corpse as the cartridge does and rots it to picture each step (#1392).
+            // The staging oracle stages the corpse as the cartridge does (#1392).
             CorpseStaging corpseTiles = CorpseStaging.Sidehopper(atlas.Span, variant);
             for (int row = 0; row < 5; row++)
             {
@@ -1228,57 +1228,10 @@ internal static class LookupStream5Verification
                 for (int i = 0; i < copied.Length; i++)
                     AssertEqual(expected[copied.DestinationOffset + i], staged[i], "Actual installed Sidehopper graphics copy");
             }
-
-            // Native LDA abs,X operands and optional CMP #8 operands, independently read from each unrolled column.
-            int[] sourceOperands = alternate
-                ? [0xa9e56d, 0xa9e587, 0xa9e5a6, 0xa9e5c5, 0xa9e5e4]
-                : [0xa9e476, 0xa9e495, 0xa9e4af, 0xa9e4c9, 0xa9e4e3];
-            int[] minimumOperands = alternate ? [0, 0, 0xa9e59c, 0xa9e5bb, 0xa9e5da]
-                : [0xa9e46c, 0xa9e48b, 0, 0, 0];
-            for (int column = 0; column < 5; column++)
-            {
-                AssertEqual((Word(sourceOperands[column]) - 0x2000) / 2,
-                    CorpseStagingGeometryDefinitions.SidehopperColumnWordOffset(variant, column), "Native tile column word offset");
-                AssertEqual(minimumOperands[column] == 0 ? 0 : Word(minimumOperands[column]),
-                    CorpseStagingGeometryDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
-            }
-            CorpseRowGeometry geometry = CorpseRowGeometry.Sidehopper(variant);
-            foreach (ushort y in new ushort[] { 0, 7, 8, 37, 38 })
-            foreach (bool move in new[] { false, true })
-            {
-                for (int i = 0; i < expected.Length; i++)
-                    expected[i] = (byte)(i * 37 + i / 256);
-                corpseTiles.Copy(expected, new CorpseGraphicsCopy(0, 0, expected.Length));
-                int sourceRow = Word(0xa9e240 + (y >> 3) * 2) + (y & 7) * 2;
-                int destinationRow = sourceRow + ((y & 7) >= 6 ? 148 : 0);
-                for (int column = 0; column < 5; column++)
-                {
-                    int minimum = minimumOperands[column] == 0 ? 0 : Word(minimumOperands[column]);
-                    if (y < minimum) continue;
-                    int columnBase = Word(sourceOperands[column]) - 0x2000;
-                    foreach (int plane in new[] { 0, 16 })
-                    {
-                        int source = sourceRow + columnBase + plane;
-                        int destination = destinationRow + columnBase + plane + 2;
-                        if (y < 38)
-                        {
-                            expected[destination] = expected[source];
-                            expected[destination + 1] = expected[source + 1];
-                        }
-                        if (move) { expected[source] = 0; expected[source + 1] = 0; }
-                    }
-                }
-                corpseTiles.MoveRow(geometry, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
-                byte[] moved = Staged(corpseTiles, 0, expected.Length);
-                for (int i = 0; i < expected.Length; i++)
-                    AssertEqual(expected[i], moved[i], "Actual Sidehopper pixel copy/move including clipping, wrap and terminal row");
-            }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SidehopperInitialCopy(0, -1), "Copy row lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SidehopperInitialCopy(0, 5), "Copy row upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SidehopperColumnWordOffset(0, 5), "Column upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SidehopperColumnMinimumY(0, -1), "Column lower bound");
-        Console.WriteLine("Sidehopper geometry: ten native MVN rows, ten column offsets/clips, installed artwork and actual copy/move boundary rows pass; nonzero variant semantics preserved.");
+        Console.WriteLine("Sidehopper geometry: ten native MVN rows and installed artwork staging pass; nonzero variant semantics preserved.");
 
         static byte[] Staged(CorpseStaging staging, int offset, int length) =>
             staging.Upload(new CorpseRotRow(0, CorpseWorkMemory.EnemyBg2Staging + offset, length, 0));
@@ -1446,13 +1399,13 @@ internal static class LookupStream5Verification
             AssertEqual(identity,source.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
         }
     }
-    /// <summary>Checks the extraction's corpse row upload lists and the corpse geometry bounds.</summary>
+    /// <summary>Checks the extraction's corpse row upload lists and the sand geometry bounds.</summary>
     internal static void VerifyLookupStream5CorpseViews()
     {
         var expected = new List<CorpseRowUpload>();
         foreach (ushort table in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
         {
-            var rows = DeadMonsterRowUploadDefinitions.ForKind(CorpseNativeAddresses.TransferTableAt(table));
+            var rows = DeadMonsterRowUploadDefinitions.ForList(CorpseNativeAddresses.TransferTableAt(table));
             int index = 0;
             foreach (var row in rows)
             {
@@ -1463,11 +1416,9 @@ internal static class LookupStream5Verification
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "corpse DMA negative index");
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[rows.Length]; }, "corpse DMA past end");
         }
-        AssertTrue(expected.SequenceEqual(CorpseNativeAddresses.AllTransferTables.SelectMany(kind => DeadMonsterRowUploadDefinitions.ForKind(kind))),
+        AssertTrue(expected.SequenceEqual(CorpseNativeAddresses.AllTransferTables.SelectMany(kind => DeadMonsterRowUploadDefinitions.ForList(kind))),
             "every kind's row uploads, in native list order");
         AssertThrows<InvalidDataException>(() => CorpseNativeAddresses.TransferTableAt(0xe0e1), "unaligned row upload list rejected");
-        AssertThrows<InvalidDataException>(() => SuperMetroid.Verification.Enemies.Corpses.CorpseRowLayouts.RotationOffset(0xe227, 0), "unknown corpse row layout rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Verification.Enemies.Corpses.CorpseRowLayouts.RotationOffset(0xe226, 104), "corpse row past end rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SandSource(16), "sand source past end rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => CorpseStagingGeometryDefinitions.SandDestination(16), "sand destination past end rejected");
     }

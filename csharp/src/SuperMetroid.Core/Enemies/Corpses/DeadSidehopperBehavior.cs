@@ -31,13 +31,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Applies normal touch damage before the corpse finishes transforming.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Owns each kind of corpse's rot and the dust sound request.</summary>
-    private readonly DeadMonsterFrame _deadMonsters;
+    /// <summary>Raises each fallen row's dust and its sound request.</summary>
+    private readonly CorpseRowDust _rowDust;
 
     /// <summary>Connects the corpse actor to room state, terrain, presentation, and interaction services.</summary>
     internal DeadSidehopperBehavior(DeadSidehopperBehaviorDependencies dependencies)
     {
-        _deadMonsters = dependencies.DeadMonsters;
+        _rowDust = dependencies.RowDust;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
         _slotTable = dependencies.SlotTable;
@@ -104,8 +104,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
-            graphicsVariant: 0,
-            DeadSidehopperCorpseDefinitions.InitiallyAlive);
+            graphicsVariant: 0);
         SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperIdle);
         state.Function = DeadSidehopperAiFunction.AliveWaitForCamera;
         state.PaletteStage = 0;
@@ -119,26 +118,19 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
-            graphicsVariant: 2,
-            DeadSidehopperCorpseDefinitions.InitiallyDead);
+            graphicsVariant: 2);
         SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperInitiallyDead);
         state.PaletteStage = null;
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
 
-    /// <summary>Allocates slot state with the corpse's own rot schedule, and starts its kind's rot over.</summary>
-    private DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
+    /// <summary>Allocates slot state with the corpse's own rot schedule and its own rows.</summary>
+    private static DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
         RoomEnemySlot slot,
-        int graphicsVariant,
-        DeadSidehopperCorpseDefinition definition)
+        int graphicsVariant)
     {
-        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, new CorpseRotSchedule(definition.RowCount))
-        {
-            Flesh = definition.Kind,
-        };
+        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount));
         slot.SetSpeciesState(state);
-
-        _deadMonsters.BeginRows(state.Flesh, definition.RowCount);
         return state;
     }
 
@@ -404,22 +396,21 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Runs one rot call and its dust, moving its kind's rows as the call moves them (#1531).</summary>
+    /// <summary>Runs one rot call and its dust, moving the corpse's own rows as the call moves them (#1539).</summary>
     private void RunDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(
-            (row, operation) => _deadMonsters.MoveRow(state.Flesh, row, operation),
+            state.Rows.MoveRow,
             _ => FinishDeadSidehopperCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
 
-    /// <summary>The rows <paramref name="slot"/>'s frames show: its kind's, as its corpses' rot calls have left them (#1531).</summary>
-    internal CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) =>
-        _deadMonsters.ShownRows(RequireDeadSidehopperState(slot).Flesh);
+    /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
+    internal static CorpseRotRows ShownDeadSidehopperRows(RoomEnemySlot slot) => RequireDeadSidehopperState(slot).Rows.Shown;
 
     /// <summary>Records a completed row, spawns dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(
@@ -427,7 +418,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state)
     {
         state.FinishedEntryCount++;
-        _deadMonsters.SpawnCorpseRowDust(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
+        _rowDust.Spawn(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
         state.DustSpawnCount++;
     }
 

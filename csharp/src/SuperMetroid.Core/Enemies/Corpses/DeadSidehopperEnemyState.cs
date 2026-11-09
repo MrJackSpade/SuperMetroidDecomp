@@ -9,11 +9,12 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>The dead Sidehopper's typed animation (#641), started by setup and restarted by each hop, landing and rot.</summary>
     internal AnimationProgramCursor<DeadTourianProgram> Program { get; set; }
 
-    /// <summary>Captures one corpse's silhouette and its own rot schedule.</summary>
+    /// <summary>Captures one corpse's silhouette and its own rot schedule, and starts its own rows.</summary>
     internal DeadSidehopperEnemyState(RoomEnemySlot slot, int graphicsVariant, CorpseRotSchedule rot)
     {
         Slot = slot;
         Rot = Ensure.NotNull(rot);
+        Rows = new RottingCorpseRows(rot.Rows.Count);
         GraphicsVariant = graphicsVariant;
     }
 
@@ -23,8 +24,8 @@ public sealed class DeadSidehopperEnemyState
     public int GraphicsVariant { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }
-    /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
-    internal RottingCorpseKind Flesh { get; init; }
+    /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>
+    internal RottingCorpseRows Rows { get; }
 
     /// <summary>The current dead-sidehopper AI behaviour.</summary>
     public DeadSidehopperAiFunction? Function { get; internal set; }

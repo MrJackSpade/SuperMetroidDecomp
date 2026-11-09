@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
+
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
@@ -7,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class CorpseNativeAddresses
 {
     /// <summary>The bank-$A9 address of <paramref name="table"/>, from each species' first list and its lists' length.</summary>
-    internal static ushort TransferTableAddress(RottingCorpseKind table) => checked((ushort)(table.Species switch
+    internal static ushort TransferTableAddress(CorpseRowUploadList table) => checked((ushort)(table.Species switch
     {
         RottingCorpseSpecies.Sidehopper => 0xe0e0 + 42 * table.Variant,
         RottingCorpseSpecies.Zoomer => 0xe134 + 18 * table.Variant,
@@ -18,7 +20,7 @@ internal static class CorpseNativeAddresses
     }));
 
     /// <summary>The ten transfer lists, Sidehopper, Zoomer, Ripper then Skree, in native table order.</summary>
-    internal static RottingCorpseKind[] AllTransferTables { get; } =
+    internal static CorpseRowUploadList[] AllTransferTables { get; } =
     [
         new(RottingCorpseSpecies.Sidehopper, 0), new(RottingCorpseSpecies.Sidehopper, 1),
         new(RottingCorpseSpecies.Zoomer, 0), new(RottingCorpseSpecies.Zoomer, 1), new(RottingCorpseSpecies.Zoomer, 2),
@@ -28,9 +30,9 @@ internal static class CorpseNativeAddresses
 
     /// <summary>The bank-$A9 transfer list stored at <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No transfer list begins at <paramref name="address"/>.</exception>
-    internal static RottingCorpseKind TransferTableAt(ushort address)
+    internal static CorpseRowUploadList TransferTableAt(ushort address)
     {
-        foreach (RottingCorpseKind table in AllTransferTables)
+        foreach (CorpseRowUploadList table in AllTransferTables)
             if (TransferTableAddress(table) == address)
                 return table;
         throw new InvalidDataException($"No corpse transfer list begins at $A9:{address:X4}.");

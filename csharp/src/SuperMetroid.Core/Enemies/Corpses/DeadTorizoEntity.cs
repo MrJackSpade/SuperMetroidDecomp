@@ -9,7 +9,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
         IShowsCorpseRotRows
 {
     /// <inheritdoc/>
-    public CorpseRotRows? ShownRotRows => species.ShownDeadTorizoRows(Slot);
+    public CorpseRotRows ShownRotRows => species.ShownDeadTorizoRows(Slot);
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTorizo;

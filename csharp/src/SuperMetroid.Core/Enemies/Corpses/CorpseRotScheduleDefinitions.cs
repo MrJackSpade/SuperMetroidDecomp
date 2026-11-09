@@ -14,4 +14,7 @@ internal static class CorpseRotScheduleDefinitions
 
     /// <summary>The fewest pixel rows a corpse can have: the row before the last is the first that moves during its lead-in.</summary>
     internal const int FewestRows = 2;
+
+    /// <summary>How far down a moved or copied pixel row lands in the corpse's picture (#1539): on the row below it.</summary>
+    internal const int RowsFallenPerMove = 1;
 }

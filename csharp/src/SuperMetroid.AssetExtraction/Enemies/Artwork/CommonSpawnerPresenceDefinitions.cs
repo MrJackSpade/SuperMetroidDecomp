@@ -137,7 +137,7 @@ internal static class CommonSpawnerPresenceDefinitions
         [nameof(RidleyTail)] = RidleyGetaway,
         [nameof(CeresRidleyBehavior)] = RidleyGetaway,
         [nameof(CrocomireEncounterAccess)] = new() { Enemies = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue] },
-        [nameof(DeadMonsterFrame)] = new() { Enemies = Corpses },
+        [nameof(CorpseRowDust)] = new() { Enemies = Corpses },
         [nameof(PrePhantoonRoomBehavior)] = new() { Setups = [RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile] },
     };
 

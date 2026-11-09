@@ -31,8 +31,8 @@ internal sealed record EnemySheetManifestDocument
 
     /// <summary>
     /// For each graphics set by name, then each enemy by definition name and each of its frames that shows a rotting corpse
-    /// by name, where the corpse lies in the frame's pictures (#1531), which the game draws through the corpse's rows as its
-    /// rot leaves them. The enemy's sheet holds each such frame once. A frame that shows no rotting corpse is absent.
+    /// by name, where the corpse lies in the frame's pictures (#1539), which the game draws whole through the corpse's own
+    /// rows as its rot leaves them. The enemy's sheet holds each such frame once. A frame that shows no rotting corpse is absent.
     /// </summary>
     public required Dictionary<string, Dictionary<string, Dictionary<string, CorpsePictureDocument>>> CorpsePictures { get; init; }
 

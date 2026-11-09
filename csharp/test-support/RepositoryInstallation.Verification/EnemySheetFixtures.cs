@@ -148,21 +148,21 @@ internal static class EnemySheetFixtures
         }
 
         /// <inheritdoc/>
-        public CorpsePictureLayout? CorpseLayout(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture)
+        public CorpsePicturePlacement? CorpsePlacement(RoomEnemyGraphicsSetDefinition set, EnemyDefinitionId enemy, string picture)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.CorpseLayout(set, enemy, picture);
-            return Set(set).CorpsePictures.TryGetValue(enemy, out IReadOnlyDictionary<string, CorpsePictureLayout>? pictures)
-                && pictures.TryGetValue(picture, out CorpsePictureLayout? layout) ? layout : null;
+                return installed.CorpsePlacement(set, enemy, picture);
+            return Set(set).CorpsePictures.TryGetValue(enemy, out IReadOnlyDictionary<string, CorpsePicturePlacement>? pictures)
+                && pictures.TryGetValue(picture, out CorpsePicturePlacement? layout) ? layout : null;
         }
 
         /// <inheritdoc/>
-        public CorpsePictureLayout? SpawnedCorpseLayout(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture)
+        public CorpsePicturePlacement? SpawnedCorpsePlacement(RoomEnemyGraphicsSetDefinition set, SpawnedObjectOwner owner, string picture)
         {
             if (installed is not null && RoomEnemyGraphicsSetLists.DrawnUnder.Contains(set))
-                return installed.SpawnedCorpseLayout(set, owner, picture);
-            return Set(set).SpawnedCorpsePictures.TryGetValue(owner, out IReadOnlyDictionary<string, CorpsePictureLayout>? pictures)
-                && pictures.TryGetValue(picture, out CorpsePictureLayout? layout) ? layout : null;
+                return installed.SpawnedCorpsePlacement(set, owner, picture);
+            return Set(set).SpawnedCorpsePictures.TryGetValue(owner, out IReadOnlyDictionary<string, CorpsePicturePlacement>? pictures)
+                && pictures.TryGetValue(picture, out CorpsePicturePlacement? layout) ? layout : null;
         }
 
         /// <summary>
@@ -177,9 +177,9 @@ internal static class EnemySheetFixtures
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, Lazy<SpriteSheet>>();
             var changingEncounters = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, EncounterArtwork[]>>();
-            var corpsePictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CorpsePictureLayout>>();
+            var corpsePictures = new Dictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CorpsePicturePlacement>>();
             foreach ((EnemyDefinitionId enemy, SpriteSheetSources sources, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> frameChanges,
-                         IReadOnlyDictionary<string, CorpsePictureLayout> frameCorpses) in setSources.Enemies)
+                         IReadOnlyDictionary<string, CorpsePicturePlacement> frameCorpses) in setSources.Enemies)
             {
                 string name = $"{enemy}-{owner}";
                 enemies[enemy] = new Lazy<SpriteSheet>(() => Load(sources, name));
@@ -188,9 +188,9 @@ internal static class EnemySheetFixtures
             }
             var spawned = new Dictionary<SpawnedObjectOwner, Lazy<SpawnedObjectSheet>>();
             var spawnedChangingEncounters = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, EncounterArtwork[]>>();
-            var spawnedCorpsePictures = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, CorpsePictureLayout>>();
+            var spawnedCorpsePictures = new Dictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, CorpsePicturePlacement>>();
             foreach ((SpawnedObjectSheetPlan plan, SpriteSheetSources sources, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> frameChanges,
-                         IReadOnlyDictionary<string, CorpsePictureLayout> frameCorpses, IReadOnlySet<string> shownNothing) in setSources.Spawned)
+                         IReadOnlyDictionary<string, CorpsePicturePlacement> frameCorpses, IReadOnlySet<string> shownNothing) in setSources.Spawned)
             {
                 string name = $"Spawned-{plan.Owner}-{owner}";
                 // A fixture's set holds each of its spawned objects' pictures on its own sheet: none is common to another set.
@@ -231,6 +231,6 @@ internal static class EnemySheetFixtures
         IReadOnlyDictionary<SpawnedObjectOwner, Lazy<SpawnedObjectSheet>> Spawned,
         IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, EncounterArtwork[]>> ChangingEncounters,
         IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, EncounterArtwork[]>> SpawnedChangingEncounters,
-        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CorpsePictureLayout>> CorpsePictures,
-        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, CorpsePictureLayout>> SpawnedCorpsePictures);
+        IReadOnlyDictionary<EnemyDefinitionId, IReadOnlyDictionary<string, CorpsePicturePlacement>> CorpsePictures,
+        IReadOnlyDictionary<SpawnedObjectOwner, IReadOnlyDictionary<string, CorpsePicturePlacement>> SpawnedCorpsePictures);
 }

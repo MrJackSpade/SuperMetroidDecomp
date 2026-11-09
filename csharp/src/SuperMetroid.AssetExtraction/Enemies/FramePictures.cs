@@ -16,7 +16,7 @@ internal sealed record FramePictures(string Name, IReadOnlyList<SheetFrameSource
 {
     /// <summary>
     /// Where a rotting corpse lies in each of the frame's pictures that shows one, by picture name, which the game draws
-    /// through the corpse's rows as its rot leaves them (#1531); empty for a frame that shows no rotting corpse.
+    /// whole through the corpse's own rows as its rot leaves them (#1539); empty for a frame that shows no rotting corpse.
     /// </summary>
-    public IReadOnlyDictionary<string, CorpsePictureLayout> Corpses { get; init; } = new Dictionary<string, CorpsePictureLayout>(StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, CorpsePicturePlacement> Corpses { get; init; } = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
 }

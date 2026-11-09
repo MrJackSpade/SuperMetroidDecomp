@@ -22,7 +22,7 @@ internal static class CorpseRowSources
 
     /// <summary>The work-memory offset row <paramref name="index"/> of <paramref name="kind"/>'s uploads reads from, in native descriptor order.</summary>
     /// <exception cref="InvalidDataException">The kind has no row upload list.</exception>
-    internal static int Of(RottingCorpseKind kind, int index)
+    internal static int Of(CorpseRowUploadList kind, int index)
     {
         int variant = kind.Variant;
         return kind.Species switch

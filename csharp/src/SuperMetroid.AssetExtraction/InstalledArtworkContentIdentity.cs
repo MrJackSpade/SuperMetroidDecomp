@@ -357,19 +357,16 @@ internal static class InstalledArtworkContentIdentity
             content.AppendColors("backdrops", [backdrops.Escape, backdrops.Explosion, backdrops.Credits, backdrops.PostCredits]));
     }
 
-    /// <summary>Appends each sheet's frames that show a rotting corpse and where the corpse lies in each (#1531), in a stable order.</summary>
+    /// <summary>Appends each sheet's frames that show a rotting corpse and where the corpse lies in each (#1539), in a stable order.</summary>
     private static void AppendCorpsePictures(SelectedPresentationHash content, string label, IEnumerable<CorpsePictureOwner> owners)
     {
         foreach (CorpsePictureOwner owner in owners.OrderBy(owner => owner.Set, StringComparer.Ordinal).ThenBy(owner => owner.Owner, StringComparer.Ordinal))
         {
             content.Append(label, System.Text.Encoding.UTF8.GetBytes($"{owner.Set}/{owner.Owner}"));
-            foreach ((string frame, CorpsePictureLayout layout) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            foreach ((string frame, CorpsePicturePlacement placement) in owner.Frames.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                string columns = string.Join(',', layout.Columns.Select(column => column is { } rot
-                    ? $"{rot.FirstBand.ToString(CultureInfo.InvariantCulture)}:{string.Join('.', rot.Bands.Select(band => band.ToString(CultureInfo.InvariantCulture)))}"
-                    : "-"));
                 content.Append("corpse-frame", System.Text.Encoding.UTF8.GetBytes(
-                    $"{frame}@{layout.Top.ToString(CultureInfo.InvariantCulture)}:{columns}"));
+                    $"{frame}@{placement.Top.ToString(CultureInfo.InvariantCulture)}"));
             }
         }
     }
@@ -378,7 +375,7 @@ internal static class InstalledArtworkContentIdentity
     /// <param name="Set">The graphics set's name.</param>
     /// <param name="Owner">The enemy's name, or the spawned objects' owner.</param>
     /// <param name="Frames">The frames and where the corpse lies in each.</param>
-    private sealed record CorpsePictureOwner(string Set, string Owner, IReadOnlyDictionary<string, CorpsePictureLayout> Frames);
+    private sealed record CorpsePictureOwner(string Set, string Owner, IReadOnlyDictionary<string, CorpsePicturePlacement> Frames);
 
     /// <summary>Appends each sheet's frames encounters' looks change and the encounters that change each (#1538), in a stable order.</summary>
     private static void AppendPictures(SelectedPresentationHash content, string label, IEnumerable<PictureOwner> owners)

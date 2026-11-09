@@ -18,9 +18,6 @@ internal sealed class CorpseStaging
     /// <summary>The rotting heap Mother Brain's corpse stages in and the dead Torizo's sand falls into.</summary>
     private readonly StagedBytes heap = new(CorpseWorkMemory.CorpseRottingHeap, CorpseWorkMemory.CorpseRottingHeapBytes);
 
-    /// <summary>Bytes in one character.</summary>
-    private const int TileBytes = 32;
-
     /// <summary>The Sidehopper corpse's staged characters for graphics variant <paramref name="graphicsVariant"/>, copied from <paramref name="atlas"/>.</summary>
     internal static CorpseStaging Sidehopper(ReadOnlySpan<byte> atlas, int graphicsVariant)
     {
@@ -65,38 +62,6 @@ internal sealed class CorpseStaging
 
     /// <summary>Copies a run of installed corpse characters into the enemy BG2 buffer.</summary>
     internal void Copy(ReadOnlySpan<byte> atlas, CorpseGraphicsCopy copy) => bg2.Copy(atlas, copy.SourceOffset, copy.DestinationOffset, copy.Length);
-
-    /// <summary>
-    /// Copies pixel row <paramref name="y"/> of each of the corpse's character columns down to the next, as the cartridge's
-    /// unrolled movers do, and clears it for a move.
-    /// </summary>
-    internal void MoveRow(CorpseRowGeometry geometry, int y, CorpseRowOperation operation)
-    {
-        Ensure.NotNull(geometry);
-        StagedBytes tiles = geometry.InHeap ? heap : bg2;
-        int row = y >> 3;
-        if (row >= geometry.Rows)
-            throw new ArgumentOutOfRangeException(nameof(y), y, $"The corpse has {geometry.Rows} rows of characters.");
-        int source = row * geometry.TilesPerRow * TileBytes + (y & 7) * 2;
-        int destination = (y & 7) >= 6 ? geometry.Wrap + source : source;
-        for (int column = 0; column < geometry.ColumnWords.Length; column++)
-        {
-            if (y < geometry.ColumnMinimumY[column])
-                continue;
-            int sourceWord = source / 2 + geometry.ColumnWords[column];
-            int destinationWord = destination / 2 + geometry.ColumnWords[column] + 1;
-            if (y < geometry.CopyLimit)
-            {
-                tiles.WriteWord(destinationWord, tiles.ReadWord(sourceWord));
-                tiles.WriteWord(destinationWord + 8, tiles.ReadWord(sourceWord + 8));
-            }
-            if (operation == CorpseRowOperation.Move)
-            {
-                tiles.WriteWord(sourceWord, 0);
-                tiles.WriteWord(sourceWord + 8, 0);
-            }
-        }
-    }
 
     /// <summary>Copies the first bitplane word of eighteen spaced rows of sand line <paramref name="line"/> into the sand strips.</summary>
     internal void CopySandLine(ReadOnlySpan<byte> atlas, int line)

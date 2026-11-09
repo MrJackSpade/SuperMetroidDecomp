@@ -23,13 +23,13 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits dust when a rotting-table row finishes.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Provides installed corpse art and queues its tile transfers.</summary>
-    private readonly DeadMonsterFrame _deadMonsters;
+    /// <summary>Raises each fallen row's dust and its sound request.</summary>
+    private readonly CorpseRowDust _rowDust;
 
-    /// <summary>Connects corpse AI to the room scratch state, projectiles, and installed art.</summary>
-    internal DeadTourianBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, DeadMonsterFrame deadMonsters)
+    /// <summary>Connects corpse AI to the room's random numbers, frame counter, projectiles and row dust.</summary>
+    internal DeadTourianBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, CorpseRowDust rowDust)
     {
-        _deadMonsters = deadMonsters;
+        _rowDust = rowDust;
         _room = room;
         _frameContext = frameContext;
         _projectiles = projectiles;
@@ -79,21 +79,18 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.DefinitionId);
         DeadTourianCorpseDefinition definition = slot.SpawnSettings<CorpseSpawnSettings>().Corpse;
-        if (Array.IndexOf(DeadTourianCorpseDefinitions.Variants[profile.Species], definition) < 0)
+        int variant = Array.IndexOf(DeadTourianCorpseDefinitions.Variants[profile.Species], definition);
+        if (variant < 0)
         {
             throw new InvalidDataException(
-                $"Dead {profile.Species} placement names the corpse {definition.Kind.Name}, which is not one of its species'.");
+                $"Dead {profile.Species} placement names a corpse that is not one of its species'.");
         }
-        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, definition.Kind.Variant, profile, new CorpseRotSchedule(definition.RowCount))
-        {
-            Flesh = definition.Kind,
-        };
+        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variant, profile, new CorpseRotSchedule(definition.RowCount));
         slot.SetSpeciesState(state);
 
         slot.Shading = TourianCorpseShades.InDrainedColours;
         state.Function = DeadTourianCorpseFunction.Waiting;
         state.Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
-        _deadMonsters.BeginRows(state.Flesh, definition.RowCount);
     }
 
     /// <summary>Runs the shared corpse behaviour: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
@@ -143,7 +140,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs one rot call, moving its kind's rows as the call moves them (#1531), entering inert AI when it completes.
+    /// Runs one rot call, moving the corpse's own rows as the call moves them (#1539), entering inert AI when it completes.
     /// </summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemySlot slot,
@@ -151,15 +148,14 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(
-            (row, operation) => _deadMonsters.MoveRow(state.Flesh, row, operation),
+            state.Rows.MoveRow,
             _ => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadTourianCorpseFunction.Finished;
     }
 
-    /// <summary>The rows <paramref name="slot"/>'s frames show: its kind's, as its corpses' rot calls have left them (#1531).</summary>
-    internal CorpseRotRows ShownDeadTourianRows(RoomEnemySlot slot) =>
-        _deadMonsters.ShownRows(RequireDeadTourianCorpseState(slot).Flesh);
+    /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
+    internal static CorpseRotRows ShownDeadTourianRows(RoomEnemySlot slot) => RequireDeadTourianCorpseState(slot).Rows.Shown;
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(
@@ -167,7 +163,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTourianCorpseEnemyState state)
     {
         state.FinishedEntryCount++;
-        _deadMonsters.SpawnCorpseRowDust(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
+        _rowDust.Spawn(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
         state.DustSpawnCount++;
     }
 

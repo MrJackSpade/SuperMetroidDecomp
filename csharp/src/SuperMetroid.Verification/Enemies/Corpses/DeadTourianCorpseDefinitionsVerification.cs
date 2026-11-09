@@ -67,7 +67,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             "unknown dead Tourian corpse species");
         VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(rom);
         Console.WriteLine(
-            "Dead Tourian corpse definitions: 16 selectors, eight decoded configuration records' kinds, heights, row layouts and wraps, all eight real initializers' own fresh rot schedules, and disjoint retail heap placement pass.");
+            "Dead Tourian corpse definitions: 16 selectors, eight decoded configuration records' upload lists and heights, all eight real initializers' own fresh rot schedules, and disjoint retail heap placement pass.");
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             for (int second = first + 1; second < schedules.Count; second++)
             {
                 AssertTrue(!schedules[first].ScheduleHeapBytes.Overlaps(schedules[second].ScheduleHeapBytes),
-                    $"{schedules[first].Kind} and {schedules[second].Kind} rot schedules share no heap byte");
+                    $"{schedules[first].UploadList} and {schedules[second].UploadList} rot schedules share no heap byte");
             }
         }
     }
@@ -109,12 +109,9 @@ internal static class DeadTourianCorpseDefinitionsVerification
         DeadTourianCorpseDefinition definition)
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer(rom, species, variantIndex));
-        AssertEqual<RottingCorpseKind?>(definition.Kind, configuration.Kind,
-            $"dead {species} variant {variantIndex} rots the kind whose upload list its record names");
+        AssertEqual<CorpseRowUploadList?>(DeadTourianCorpses.RowUploadList(species, variantIndex), configuration.UploadList,
+            $"dead {species} variant {variantIndex}'s record names the row upload list the extraction finds its corpse's characters by");
         AssertEqual(definition.RowCount, configuration.RowCount, $"dead {species} variant {variantIndex} corpse height");
-        AssertEqual(configuration.Wrap,
-            CorpseRowGeometry.Tourian(species, DeadTourianCorpseStagingDefinitions.Variants(species)[variantIndex]).Wrap,
-            $"dead {species} variant {variantIndex} wrap is the extraction's row movers'");
     }
 
     /// <summary>Checks one corpse initializer's installed instruction, rot table, callbacks, and row limits.</summary>
@@ -142,11 +139,6 @@ internal static class DeadTourianCorpseDefinitionsVerification
             state.Program,
             $"dead {species} variant {variantIndex} started animation");
         CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead {species} variant {variantIndex}");
-        AssertEqual(expected.Kind, state.Flesh,
-            $"dead {species} variant {variantIndex} rots the configured kind of corpse");
-        AssertEqual(CorpseRowLayouts.TableAddress(DeadTourianCorpseStagingDefinitions.RowLayout(state.Species)),
-            CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer(rom, species, variantIndex)).RowLayoutTable,
-            $"dead {species} variant {variantIndex} configuration names the tile-row layout production copies with");
     }
 
 

@@ -97,7 +97,7 @@ internal static class EnemyEffectMechanicsVerification
         Console.WriteLine("  Crocomire melt: band selection per update, 54 calls per dissolve, erase/HDMA/smoke/phase timing pass.");
     }
 
-    /// <summary>Runs a corpse through all 118 rot calls, checking row falls, dust and the steps shown.</summary>
+    /// <summary>Runs a corpse through all 118 rot calls, checking row falls and dust.</summary>
     internal static void VerifyMotherBrainCorpseRot()
     {
         var rot = new MotherBrainCorpseRottingState();
@@ -131,7 +131,7 @@ internal static class EnemyEffectMechanicsVerification
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
         AssertEqual(118u, rot.ProcessCallCount, "fixed corpse completion clock");
-        Console.WriteLine("  Mother Brain corpse: 118 exact calls, 48 row completions, 117 rot steps shown, dust/audio timing pass.");
+        Console.WriteLine("  Mother Brain corpse: 118 exact calls, 48 row completions, dust/audio timing pass.");
     }
 
     /// <summary>Runs the Crocomire melt and Mother Brain corpse rot mechanics checks.</summary>

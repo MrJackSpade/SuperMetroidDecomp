@@ -25,7 +25,7 @@ internal static class DeadTorizoArtworkVerification
     /// <summary>Checks installed corpse staging and native OAM.</summary>
     internal static void VerifyInstalledDeadTorizoArtwork(InstalledEnemyArtwork stock)
     {
-        Suite(nameof(VerifyDeadTorizoRowUploads), () => VerifyDeadTorizoRowUploads(stock));
+        Suite(nameof(VerifyDeadTorizoRowUploads), VerifyDeadTorizoRowUploads);
         Suite(nameof(VerifyDeadTorizoStationaryVisual), () => VerifyDeadTorizoStationaryVisual(stock.Enemies));
         // The character rot oracle stages the corpse as its initializer does, from discontinuous portions of the ordinary ED3F sheet,
         // and drops sand words from that same sheet, to picture each step of its rot (#1392); the runtime stages nothing.
@@ -85,11 +85,10 @@ internal static class DeadTorizoArtworkVerification
     }
 
     /// <summary>
-    /// Compares the extraction's two row upload tables with the retail descriptors, and checks each main-AI call selects the
-    /// corpse's rot step for the half the cartridge uploads that call (#1406).
+    /// Compares the extraction's two row upload tables, which it finds the corpse's characters by, with the retail
+    /// descriptors (#1406, #1539).
     /// </summary>
-    private static void VerifyDeadTorizoRowUploads(
-        InstalledEnemyArtwork stock)
+    private static void VerifyDeadTorizoRowUploads()
     {
         // DeadTorizo_VRAMWriteTable_Even at $A9:D549 and DeadTorizo_VRAMWriteTable_Odd at $A9:D583, four words per record.
         const int recordByteCount = 8;
@@ -117,18 +116,7 @@ internal static class DeadTorizoArtworkVerification
             AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa90000 | unchecked((ushort)(table + records.Count * recordByteCount)))),
                 $"Dead Torizo phase {phase} native zero terminator");
         }
-
-        RoomEnemySystem installed = InitializeDeadTorizo(stock);
-        DeadTorizoEnemyState state = installed.DeadTorizo ?? throw new InvalidOperationException("Verification requires installed.DeadTorizo.");
-        Action<DeadTorizoEnemyState> showInstalled = SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.ShowNextRotHalf;
-        // $A9:D4CF increments the phase before selecting a table, so the first call uploads the odd half, the next the even.
-        showInstalled(state);
-        AssertTrue(state.ShowsOddHalf && state.OddHalfStep == 0 && state.EvenHalfStep is null,
-            "Dead Torizo's first call shows its odd half before its rot begins");
-        showInstalled(state);
-        AssertTrue(!state.ShowsOddHalf && state.OddHalfStep == 0 && state.EvenHalfStep == 0,
-            "Dead Torizo's second call shows its even half before its rot begins");
-        Console.WriteLine("  Dead Torizo row uploads: fourteen native descriptors match, and the halves both calls show alternate.");
+        Console.WriteLine("  Dead Torizo row uploads: fourteen native descriptors match.");
     }
 
     /// <summary>
@@ -171,14 +159,6 @@ internal static class DeadTorizoArtworkVerification
     private static ReadNativeDeadTorizoSandLineOffsetsResult ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
     {
         return new ReadNativeDeadTorizoSandLineOffsetsResult(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
-    }
-
-    /// <summary>Initializes the corpse actor with installed artwork.</summary>
-    private static RoomEnemySystem InitializeDeadTorizo(InstalledEnemyArtwork artwork)
-    {
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses };
-        new Action<RoomEnemySlot>(enemies.DeadTorizoBehavior.InitializeDeadTorizo)(enemies.SlotTable.Slots[0]);
-        return enemies;
     }
 
     /// <summary>The corpse as the character rot oracle stages it from installed art.</summary>

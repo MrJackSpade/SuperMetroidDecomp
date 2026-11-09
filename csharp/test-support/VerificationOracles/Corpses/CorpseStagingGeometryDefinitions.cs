@@ -1,12 +1,11 @@
-using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// Bounded, pinned bank-$A9 corpse staging geometry (#1406): where the cartridge copies a dead Sidehopper's characters into
-/// its work memory, the columns its pixel movers walk, the character rows each species' corpse lays out, and where the dead
-/// Torizo's sand falls. Only the character rot oracle reads it, to rot the staged characters (#1531).
+/// its work memory, and where the dead Torizo's sand falls. Only the staging oracle reads it, which checks the installed
+/// artwork stages as the cartridge's does.
 /// </summary>
 /// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
 [EncodingOwner("bank-$A9 corpse work-memory and staging layout")]
@@ -26,40 +25,6 @@ internal static class CorpseStagingGeometryDefinitions
         return new((silhouette * 9 + row * 16 + leftClip) * 32,
             (silhouette * 25 + row * 5 + leftClip) * 32, width * 32);
     }
-
-    /// <summary>Planes-0/1 tile-column words used by the $A9:E468/E564 Sidehopper pixel movers.</summary>
-    internal static int SidehopperColumnWordOffset(int variant, int column)
-    {
-        if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
-        return ((variant == 0 ? 0 : 25) + column) * 16;
-    }
-
-    /// <summary>
-    /// Missing first-row tiles in the two sidehopper silhouettes: first two columns in
-    /// variant zero, last three in the alternate variant. Native movers $A9:E468/E564
-    /// and copiers $A9:E4F5/E5F6 skip these columns until pixel row eight.
-    /// </summary>
-    internal static int SidehopperColumnMinimumY(int variant, int column)
-    {
-        if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
-        return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
-    }
-
-    /// <summary>
-    /// The bytes a pixel row's two-row fall from a character's last two rows carries back into the next character row,
-    /// on top of the row of characters it skips: the planes-0/1 words of the character's six rows above them.
-    /// </summary>
-    internal const int WrapCarryBack = 12;
-
-    /// <summary>The rows of characters <paramref name="species"/>'s staged corpse lays out and the characters in each.</summary>
-    internal static CorpseRotationExtent RotationExtent(RottingCorpseSpecies species) => species switch
-        {
-            RottingCorpseSpecies.Torizo => new CorpseRotationExtent(13, 10),
-            RottingCorpseSpecies.Sidehopper => new CorpseRotationExtent(6, 5),
-            RottingCorpseSpecies.Zoomer or RottingCorpseSpecies.Ripper => new CorpseRotationExtent(3, 3),
-            RottingCorpseSpecies.Skree => new CorpseRotationExtent(5, 2),
-            _ => throw new InvalidOperationException($"Undefined RottingCorpseSpecies {species}."),
-        };
 
     /// <summary>$A9:D67C: eight words per sand strip, second strip displaced by$120 staging bytes.</summary>
     internal static ushort SandDestination(int line) => (uint)line < 16

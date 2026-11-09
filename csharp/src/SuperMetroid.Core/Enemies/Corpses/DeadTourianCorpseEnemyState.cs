@@ -7,11 +7,12 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>The corpse's typed pose (#641), started by setup.</summary>
     internal AnimationProgramCursor<DeadTourianProgram> Program { get; set; }
 
-    /// <summary>Captures the selected corpse variant's callback profile and its own rot schedule for one slot.</summary>
+    /// <summary>Captures the selected corpse variant's callback profile and its own rot schedule for one slot, and starts its own rows.</summary>
     internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)
     {
         Slot = slot;
         Rot = Ensure.NotNull(rot);
+        Rows = new RottingCorpseRows(rot.Rows.Count);
         Species = species;
         VariantIndex = variantIndex;
         Profile = profile;
@@ -23,12 +24,12 @@ public sealed class DeadTourianCorpseEnemyState
     public DeadTourianCorpseFunction? Function { get; internal set; }
     /// <summary>Corpse family selected by the enemy header, determining callbacks and the tiled artwork layout.</summary>
     public DeadTourianCorpseSpecies Species { get; }
-    /// <summary>Zero-based variant within the species, the variant of its rotting kind; Rippers have 0–1, Zoomers and Skrees 0–2.</summary>
+    /// <summary>Zero-based variant within the species, its place in the species' corpses; Rippers have 0–1, Zoomers and Skrees 0–2.</summary>
     public int VariantIndex { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotSchedule Rot { get; }
-    /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
-    internal RottingCorpseKind Flesh { get; init; }
+    /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>
+    internal RottingCorpseRows Rows { get; }
     /// <summary>
     /// Pre-rot AI calls counted after solid Samus collision, from 0 through <see cref="LargestPreRotDelayCount"/>; the
     /// sixteenth switches to rotting and the corpse never returns to the delay. Touch/shot callbacks enter rotting directly.

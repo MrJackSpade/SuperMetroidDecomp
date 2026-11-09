@@ -6,12 +6,10 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
-/// Where a rotting corpse lies in one of its frames' pictures, and what the frame must be for the game to draw it through
-/// the corpse's rows as its rot leaves them (#1531). The game rots the corpse's characters, a pixel row of every character
-/// column at a time, each column from the first band of its flesh. So every part that draws the corpse lies unflipped top
-/// to bottom on one grid of character rows and columns, each of its characters at the row of the picture its band of the
-/// corpse's rows lies at; each character column of the picture shows one column of the corpse, unbroken from the band its
-/// flesh begins at down; and no other character is drawn over the corpse's, where the rot would move it too.
+/// Where a rotting corpse lies in one of its frames' pictures (#1539): the picture row its first pixel row lies at, which
+/// the game draws the whole picture's rows from as the corpse's own rot moves them. The extraction finds it from the
+/// characters the corpse's rows show in: each holds one band of eight of the corpse's rows, so every part that draws the
+/// corpse lies unflipped top to bottom, each of its characters at the row of the picture its band lies at.
 /// </summary>
 internal static class CorpseRowPictures
 {
@@ -30,78 +28,28 @@ internal static class CorpseRowPictures
         };
     }
 
-    /// <summary>
-    /// Where <paramref name="corpse"/> lies in a picture of frame <paramref name="frame"/> whose characters a later step has
-    /// <paramref name="covered"/> in part: a column shows the corpse rotting only in the bands whose characters it still
-    /// shows.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The frame is not drawn as its corpse's rows rot.</exception>
-    internal static CorpsePictureLayout LayoutOf(string name, SpriteFrame frame, RottingCorpseCells corpse, IReadOnlySet<int> covered)
+    /// <summary>Where <paramref name="corpse"/> lies in a picture of frame <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException">
+    /// The frame turns the corpse's rows over, draws its characters off one row of the picture per band, or draws none.
+    /// </exception>
+    internal static CorpsePicturePlacement PlacementOf(string name, SpriteFrame frame, RottingCorpseCells corpse)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(corpse);
-        Ensure.NotNull(covered);
-        DrawnCharacter[] drawn = [.. frame.Parts.SelectMany(Characters)];
-        int left = frame.Parts.Min(part => (int)part.Offset.X), top = frame.Parts.Min(part => (int)part.Offset.Y);
-        int right = frame.Parts.Max(part => part.Offset.X + part.Size.X);
-        if ((right - left) % SpriteArtwork.CharacterPixels != 0)
-            throw new InvalidDataException($"Corpse frame {name} is not a whole number of character columns wide.");
+        int top = frame.Parts.Min(part => (int)part.Offset.Y);
         int? corpseTop = null;
-        var columnOf = new Dictionary<int, int>();
-        var bandsOf = new Dictionary<int, SortedSet<int>>();
-        var rottingOf = new Dictionary<int, SortedSet<int>>();
-        foreach (DrawnCharacter character in drawn.Where(character => corpse.Holds(character.Character)))
+        foreach (DrawnCharacter character in frame.Parts.SelectMany(Characters).Where(character => corpse.Holds(character.Character)))
         {
             if (character.FlippedTopToBottom)
                 throw new InvalidDataException($"Corpse frame {name} flips {corpse.Name}'s character {character.Character} top to bottom, which turns its rows over.");
-            if ((character.Place.X - left) % SpriteArtwork.CharacterPixels != 0)
-                throw new InvalidDataException($"Corpse frame {name} draws {corpse.Name}'s character {character.Character} between character columns.");
-            int band = corpse.Band(character.Character);
-            int characterTop = character.Place.Y - top - band * SpriteArtwork.CharacterPixels;
+            int characterTop = character.Place.Y - top - corpse.Band(character.Character) * SpriteArtwork.CharacterPixels;
             if (corpseTop is int earlier && earlier != characterTop)
                 throw new InvalidDataException($"Corpse frame {name} draws {corpse.Name}'s character {character.Character} off its band's row.");
             corpseTop = characterTop;
-            int pictureColumn = (character.Place.X - left) / SpriteArtwork.CharacterPixels;
-            int corpseColumn = RottingCorpseCells.Column(character.Character);
-            if (columnOf.TryGetValue(pictureColumn, out int shown) && shown != corpseColumn)
-                throw new InvalidDataException($"Corpse frame {name}'s character column {pictureColumn} shows two of {corpse.Name}'s columns.");
-            columnOf[pictureColumn] = corpseColumn;
-            Add(bandsOf, pictureColumn, band);
-            if (!covered.Contains(character.Character))
-                Add(rottingOf, pictureColumn, band);
-            foreach (DrawnCharacter over in drawn)
-            {
-                if (Overlaps(over, character) && (over.Place != character.Place || over.Character != character.Character))
-                    throw new InvalidDataException(
-                        $"Corpse frame {name} draws character {over.Character} over {corpse.Name}'s character {character.Character}, where the rot would move it too.");
-            }
         }
-        if (corpseTop is not int pictureTop)
-            throw new InvalidDataException($"Corpse frame {name} draws none of {corpse.Name}'s characters.");
-        var columns = new CorpseColumnRot?[(right - left) / SpriteArtwork.CharacterPixels];
-        foreach ((int pictureColumn, SortedSet<int> bands) in bandsOf)
-        {
-            int first = corpse.FirstBand(columnOf[pictureColumn]);
-            if (bands.Min != first || bands.Max - bands.Min + 1 != bands.Count)
-                throw new InvalidDataException(
-                    $"Corpse frame {name}'s character column {pictureColumn} does not show {corpse.Name}'s column unbroken from the band its flesh begins at.");
-            if (rottingOf.TryGetValue(pictureColumn, out SortedSet<int>? rotting))
-                columns[pictureColumn] = new CorpseColumnRot(first, rotting);
-        }
-        return new CorpsePictureLayout(pictureTop, columns);
+        return corpseTop is int pictureTop ? new CorpsePicturePlacement(pictureTop)
+            : throw new InvalidDataException($"Corpse frame {name} draws none of {corpse.Name}'s characters.");
     }
-
-    /// <summary>Adds <paramref name="band"/> to <paramref name="column"/>'s bands.</summary>
-    private static void Add(Dictionary<int, SortedSet<int>> bands, int column, int band)
-    {
-        if (!bands.TryGetValue(column, out SortedSet<int>? set))
-            bands.Add(column, set = []);
-        set.Add(band);
-    }
-
-    /// <summary>Whether two drawn characters' pixels overlap.</summary>
-    private static bool Overlaps(DrawnCharacter first, DrawnCharacter second) =>
-        Math.Abs(first.Place.X - second.Place.X) < SpriteArtwork.CharacterPixels && Math.Abs(first.Place.Y - second.Place.Y) < SpriteArtwork.CharacterPixels;
 
     /// <summary>Each character <paramref name="part"/> draws, at its place in the frame.</summary>
     private static IEnumerable<DrawnCharacter> Characters(SpriteFramePart part)

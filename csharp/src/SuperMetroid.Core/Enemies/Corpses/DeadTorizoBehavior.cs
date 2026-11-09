@@ -112,8 +112,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Dead Torizo function {state.Function} is not translated.");
         }
-
-        ShowNextRotHalf(state);
     }
 
     /// <summary>The rotting corpse's downward acceleration per update, one 256th of a pixel per update.</summary>
@@ -125,7 +123,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoRotGravity);
         MoveWithEightEightVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
-        bool stillRotting = state.Rot.Step((row, operation) => state.Rows.MoveRow(row, operation), _ => FinishDeadTorizoCorpseRow(state));
+        bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow(state));
         if (!stillRotting)
             state.Function = DeadTorizoFunction.NoOperation;
     }
@@ -226,57 +224,24 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 
+    /// <summary>The body rows the dead Torizo in <paramref name="slot"/> shows: its own, as its rot calls have left them (#1539).</summary>
+    internal CorpseRotRows ShownDeadTorizoRows(RoomEnemySlot slot) => RequireDeadTorizoState(slot).Rows.Shown;
+
     /// <summary>
-    /// Switches to the other half of the corpse's rows and shows that half as the rot calls the corpse has taken leave it
-    /// (#1406, #1531): its body rows and its strip of sand. The game uploads one half each main-AI call, while the corpse is
-    /// intact, rotting or finished, so the half shows those rows from this update on.
+    /// The sand rows <paramref name="state"/>'s hook shows (#1539): only the rows its heap has formed into, as the corpse's
+    /// own rot calls form it. Every fifteenth rot call one more line of sand falls, from the heap's last row up, until
+    /// fifteen have fallen; the intact corpse has none.
     /// </summary>
-    internal static void ShowNextRotHalf(DeadTorizoEnemyState state)
+    internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
     {
-        state.ShowsOddHalf = !state.ShowsOddHalf;
-        int step = checked((int)state.ProcessCallCount);
-        if (state.ShowsOddHalf)
-        {
-            state.OddHalfStep = step;
-            state.OddHalfRows = state.Rows.Shown;
-        }
-        else
-        {
-            state.EvenHalfStep = step;
-            state.EvenHalfRows = state.Rows.Shown;
-        }
+        int lines = Math.Min(DeadTorizoCorpseDefinitions.SandLines,
+            checked((int)state.ProcessCallCount) / DeadTorizoCorpseDefinitions.RotCallsPerSandLine);
+        return CorpseRotRows.Showing(DeadTorizoCorpseDefinitions.SandRowCount, row => row >= DeadTorizoCorpseDefinitions.SandRowCount - lines);
     }
 
-    /// <summary>The body rows the dead Torizo in <paramref name="slot"/> shows: each half's as it last uploaded it (#1531).</summary>
-    internal CorpseRotRows ShownDeadTorizoRows(RoomEnemySlot slot) => ShownBody(RequireDeadTorizoState(slot));
-
     /// <summary>
-    /// The body rows <paramref name="state"/>'s corpse shows: the even half's above the odd half's first row and the odd
-    /// half's from it down, each as the half was last uploaded, or showing itself before its first upload (#1531).
-    /// </summary>
-    internal static CorpseRotRows ShownBody(DeadTorizoEnemyState state) =>
-        CorpseRotRows.Joined(state.EvenHalfRows ?? UnrottedBody, state.OddHalfRows ?? UnrottedBody, DeadTorizoCorpseDefinitions.OddHalfFirstRow);
-
-    /// <summary>
-    /// The sand rows <paramref name="state"/>'s hook shows (#1531): each strip as its half was last uploaded, or showing
-    /// itself before its first upload. Once uploaded, a strip shows only the rows its sand has fallen into: every fifteenth
-    /// rot call one more line falls, from the last up, until fifteen have fallen.
-    /// </summary>
-    internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state) =>
-        CorpseRotRows.Showing(DeadTorizoCorpseDefinitions.SandRowCount, row => SandShows(row,
-            row < DeadTorizoCorpseDefinitions.SandStripRows ? state.OddHalfStep : state.EvenHalfStep));
-
-    /// <summary>Whether sand row <paramref name="row"/> shows, its strip last uploaded after <paramref name="step"/> rot calls, or never.</summary>
-    private static bool SandShows(int row, int? step) => step is not int calls
-        || row >= DeadTorizoCorpseDefinitions.SandRowCount
-            - Math.Min(DeadTorizoCorpseDefinitions.SandLines, calls / DeadTorizoCorpseDefinitions.RotCallsPerSandLine);
-
-    /// <summary>The corpse's body rows before any rot call.</summary>
-    private static readonly CorpseRotRows UnrottedBody = CorpseRotRows.Unrotted(DeadTorizoCorpseDefinitions.RowCount);
-
-    /// <summary>
-    /// Runs the post-enemy ordinary-spritemap hook, publishing its frame as the encounter's own (#1392),
-    /// over the corpse's rows as their rot shows them.
+    /// Runs the post-enemy ordinary-spritemap hook, publishing its frame as the encounter's own (#1392), showing its sand
+    /// heap as the corpse's own rot has formed it (#1539).
     /// </summary>
     internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {

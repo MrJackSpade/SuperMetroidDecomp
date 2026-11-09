@@ -5,8 +5,8 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 
 /// <summary>
 /// Reference oracle of how the game stages Mother Brain's corpse in its rotting heap (#1531): the right-hand frame's rows
-/// copied from her corpse sheet, the columns its pixel movers walk and where each column's flesh begins, and where each
-/// row it uploads starts. The extraction knew this when it pictured each rot step; only the character rot oracle reads it now.
+/// copied from her corpse sheet, and where each row it uploads starts. Only the staging checks read it, which confirm her
+/// installed corpse artwork stages as the cartridge's does.
 /// </summary>
 internal static class MotherBrainCorpseStaging
 {
@@ -16,15 +16,8 @@ internal static class MotherBrainCorpseStaging
     /// <summary>The corpse copy advances seven tiles (224 bytes) per corpse tile row.</summary>
     internal const int RowBytes = ColumnCount * MotherBrainCorpseSheet.TileBytes;
 
-    /// <summary>The rotting steps skip absent upper pixels at the outline's outer columns: each column's first drawn row.</summary>
-    internal static readonly int[] ColumnMinimumYs = [16, 8, 0, 0, 0, 8, 32];
-
     /// <summary>The first four source rows end with an empty tile the initial copy leaves out.</summary>
     internal const int RowsWithEmptyFinalTile = 4;
-
-    /// <summary>The rotting steps skip absent upper pixels at the outline's outer columns.</summary>
-    internal static int ColumnMinimumY(int column) => (uint)column < (uint)ColumnMinimumYs.Length
-        ? ColumnMinimumYs[column] : throw new ArgumentOutOfRangeException(nameof(column));
 
     /// <summary>Where in the corpse sheet the initial copy of row <paramref name="row"/> starts: the right frame of its source page.</summary>
     internal static int InitialCopyOffset(int row) => (uint)row < RowCount

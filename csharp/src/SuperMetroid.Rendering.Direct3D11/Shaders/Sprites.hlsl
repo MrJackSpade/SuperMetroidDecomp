@@ -19,10 +19,8 @@ static const uint SpriteFlipX = 1, SpriteFlipY = 2, SpriteRecolour = 512;
 // Where a record's flags keep the draw's depth among the room's layers (#1514), two bits: D3D11SpriteDrawBuffer's
 // DepthShift, holding D3D11FrameRenderer.DepthWord.
 static const uint SpriteDepthShift = 3, SpriteDepthMask = 3;
-// A rotting corpse's row word naming a row its rot has cleared (#1531), which draws nothing.
+// A rotting corpse's row word naming a row its rot has cleared (#1539), which draws nothing.
 static const uint SpriteClearedRow = 0xffffffffu;
-// The pixels of one of a rotting corpse's character columns, each with its own table of rows.
-static const uint SpriteCorpseColumnPixels = 8;
 // A record flag marking a draw whose shading blends over every part, so each of its pixels blends whether or not its
 // image marks it as blending (#1512).
 static const uint SpriteShadingBlends = 1024;
@@ -64,12 +62,12 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     uint2 delta = uint2(int2(vertex.position.xy) - origin);
     uint2 source = uint2((flags & SpriteFlipX) != 0 ? size.x - 1 - delta.x : delta.x,
         (flags & SpriteFlipY) != 0 ? size.y - 1 - delta.y : delta.y);
-    // A rotting corpse's image pixel shows the row of its character column the rot has moved there, or nothing once the
-    // rot has cleared it (#1531): the record's sixth word starts a word per column naming the column's table of rows.
-    uint columns = SpriteDraws[record + 5];
-    if (columns != 0)
+    // A rotting corpse's image pixel shows the image row the rot has moved there, across the whole image, or nothing once
+    // the rot has cleared it (#1539): the record's sixth word starts its table of rows, a word per image row.
+    uint rows = SpriteDraws[record + 5];
+    if (rows != 0)
     {
-        uint shown = SpriteDraws[SpriteDraws[columns + source.x / SpriteCorpseColumnPixels] + source.y];
+        uint shown = SpriteDraws[rows + source.y];
         if (shown == SpriteClearedRow) discard;
         source.y = shown;
     }

@@ -154,8 +154,8 @@ internal static class EnemySheetComposer
         });
     }
 
-    /// <summary>Where a rotting corpse lies in each frame that shows one, as the manifest spells it: by frame (#1531).</summary>
-    private static Dictionary<string, CorpsePictureDocument> Document(IReadOnlyDictionary<string, CorpsePictureLayout> frames) =>
+    /// <summary>Where a rotting corpse lies in each frame that shows one, as the manifest spells it: by frame (#1539).</summary>
+    private static Dictionary<string, CorpsePictureDocument> Document(IReadOnlyDictionary<string, CorpsePicturePlacement> frames) =>
         frames.ToDictionary(frame => frame.Key, frame => CorpsePictureDocument.Of(frame.Value), StringComparer.Ordinal);
 
     /// <summary>
@@ -199,7 +199,7 @@ internal static class EnemySheetComposer
     /// <param name="LookChanges">How encounters' looks change each frame they change.</param>
     /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
     private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
-        IReadOnlyDictionary<string, CorpsePictureLayout> CorpsePictures);
+        IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures);
 
     /// <summary>One spawned-object sheet under a graphics set.</summary>
     /// <param name="Plan">The tile base, palette and spawners of the objects it draws.</param>
@@ -208,7 +208,7 @@ internal static class EnemySheetComposer
     /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
     /// <param name="Empty">The frames' finished pictures that show nothing.</param>
     private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
-        IReadOnlyDictionary<string, CorpsePictureLayout> CorpsePictures, IReadOnlySet<string> Empty);
+        IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures, IReadOnlySet<string> Empty);
 
     /// <summary>
     /// Names the distinct sheets in the order they are first asked for: a sheet whose files are the same as an earlier
@@ -302,7 +302,7 @@ internal static class EnemySheetComposer
             int paletteBits = loaded.Colours.RowOf(enemy);
             (IReadOnlyList<SheetShade> fixedShades, IReadOnlyList<SheetRowShade> rowShades) = loaded.Shades.Fixed(enemy);
             var changes = new Dictionary<string, IReadOnlyList<FrameLookChange>>(StringComparer.Ordinal);
-            var corpses = new Dictionary<string, CorpsePictureLayout>(StringComparer.Ordinal);
+            var corpses = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
             var blank = new HashSet<string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
             FramePictures[] pictures = [.. Frames(inputs.Enemies, enemy, shown, checked((ushort)tileBase), loaded.Characters)];
@@ -315,7 +315,7 @@ internal static class EnemySheetComposer
                 frames.AddRange(framePictures.Sources);
                 if (framePictures.Changes.Count > 0)
                     changes.Add(framePictures.Name, framePictures.Changes);
-                foreach ((string picture, CorpsePictureLayout corpse) in framePictures.Corpses)
+                foreach ((string picture, CorpsePicturePlacement corpse) in framePictures.Corpses)
                     corpses.Add(picture, corpse);
                 blank.UnionWith(framePictures.Blank);
             }
@@ -433,7 +433,7 @@ internal static class EnemySheetComposer
     private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, EnemyDefinitionId enemy, IReadOnlyList<EnemyFrameId> shown,
         int tileBase, SetCharacters characters) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row. A rotting corpse's
-        // frames name where the corpse lies in them (#1531).
+        // frames name where the corpse lies in them (#1539).
         Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(tileBase),
             FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
 

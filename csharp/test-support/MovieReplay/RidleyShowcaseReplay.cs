@@ -821,7 +821,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 ushort nativeMap = W(NativeSnapshotMemory.EnemyProjectileSpritemap + index);
                 if (checkedProjectileCompositions.Add(new CheckedProjectileComposition(projectile.PresentationOperandAddress, projectile.SpritemapPointer, nativeMap)))
                 {
-                    var artwork = (runtime.Enemies.TileArtwork ?? throw new InvalidOperationException("Verification requires runtime.Enemies.TileArtwork.")).ProjectileSpritemaps;
+                    // The runtime holds no compositions (#1583); the showcase runs on the installation's enemy artwork.
+                    var artwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps;
                     var parts = projectile.PresentationOperandAddress != 0
                         ? (artwork ?? throw new InvalidOperationException("Verification requires artwork.")).GetProgramFrame(projectile.PresentationOperandAddress)
                         : (artwork ?? throw new InvalidOperationException("Verification requires artwork.")).Get(projectile.SpritemapPointer);

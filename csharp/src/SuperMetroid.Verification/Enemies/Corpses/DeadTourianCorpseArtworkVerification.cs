@@ -53,7 +53,7 @@ internal static class DeadTourianCorpseArtworkVerification
             }
         }
 
-        var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
+        var missing = new InstalledEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 

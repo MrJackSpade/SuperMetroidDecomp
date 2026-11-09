@@ -97,7 +97,7 @@ internal static class CrocomireCutsceneVerification
         var camera = new ScrollBoundaryCamera(scrolls);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null))
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) },
+            TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), BossArtwork = new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) },
         };
         var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(1480, 144));

@@ -49,21 +49,21 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
 
         var runtime = CreateRetailRuntimeFixture();
-        runtime.EnemySession.TileArtwork = stock.Enemies;
+        runtime.EnemySession.FrameDisplays = stock.Enemies.ExtendedFrames?.Displays;
         runtime.BossArtwork.Artwork = stock.Bosses;
-        SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime));
+        SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime, stock.Enemies));
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
         {
             GunshipLiftoffTransferDefinition transfer = transfers[index];
-            AssertTrue(stockPages.Uploads[index].Source.Resolve(RuntimeArtworkContent.Of(runtime)).Span.SequenceEqual(installed.Resolve(transfer.Asset).Span),
+            AssertTrue(stockPages.Uploads[index].Source.Resolve(RuntimeArtworkContent.Of(runtime, stock.Enemies)).Span.SequenceEqual(installed.Resolve(transfer.Asset).Span),
                 $"takeoff frame {index} shows its installed page");
             nativeQueue.Enqueue(GunshipLiftoffCharacterDefinitions.ByteCount, EnemySourceDefinitions.GunshipLiftoffPageSource(index),
                 VramDmaDestination.FromNative(ObjCharacterNativeWords.Of(stockPages.Uploads[index].FirstByte / 32)));
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
-        byte[] installedPage = new ObjCharacterTablePage().Page(stockPages, RuntimeArtworkContent.Of(runtime)).Characters.ToArray();
+        byte[] installedPage = new ObjCharacterTablePage().Page(stockPages, RuntimeArtworkContent.Of(runtime, stock.Enemies)).Characters.ToArray();
         int pagesByte = stockPages.Uploads[0].FirstByte, pagesBytes = transfers.Length * GunshipLiftoffCharacterDefinitions.ByteCount;
         AssertTrue(installedPage.AsSpan(pagesByte, pagesBytes).SequenceEqual(
                 nativeVram.Bytes.Slice(GameplayVramLayoutConstants.ObjectCharacters.Offset * sizeof(ushort) + pagesByte, pagesBytes)),

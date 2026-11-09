@@ -336,7 +336,6 @@ public sealed record GameInstallation(string Root)
             XrayRevealVisuals = LoadXrayRevealVisuals(),
             ProjectileFrameBindings = projectiles.FrameBindings,
 
-            EnemyTileArtwork = enemies.Enemies,
             BossArtwork = enemies.Bosses,
             ChargeFlarePlacement = projectiles.FlarePlacement,
             GrappleFlarePlacement = projectiles.GrappleTiles.FlarePlacement,
@@ -346,6 +345,8 @@ public sealed record GameInstallation(string Root)
             BossAndIntroOverreads = LoadBossAndIntroOverreads(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),
+            EnemyFrameDisplays = (enemies.Enemies.ExtendedFrames ?? throw new InvalidDataException(
+                "The installed enemy artwork holds no extended frames.")).Displays,
             BossBodySheets = LoadBossBodySheets(),
         };
     }

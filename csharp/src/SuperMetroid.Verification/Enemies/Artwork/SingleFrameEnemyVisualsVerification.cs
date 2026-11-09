@@ -29,10 +29,6 @@ internal static class SingleFrameEnemyVisualsVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
-        var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom())
-        {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = stock }),
-        };
         foreach (var (definition, spritemap, count) in new[]
         {
             new VerifySingleFrameEnemyVisualsCase(SingleFrameEnemyVisualDefinitions.Kzan, KzanAnimationsConstants.Spritemaps(KzanProgram.Idle).Single(), 4),
@@ -44,7 +40,7 @@ internal static class SingleFrameEnemyVisualsVerification
                 definition.Name + " is installed");
             AssertEqual(count, parts.Length, definition.Name + " native sprite count");
             var actual = new OamBuffer();
-            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<SpritePixels>(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            stock.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<SpritePixels>(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
             CompareOam(expected, actual, definition.Name);

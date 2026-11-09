@@ -8,11 +8,13 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// The installed enemy artwork as the import pipeline holds it (#1463): beside the catalogs gameplay reads, each enemy's
-/// palette and colour cycles, which the sheets and their shades are pre-coloured in (#1512), each enemy's characters, the enemy, extended-frame and enemy-projectile compositions and the gunship's takeoff pages that the
-/// sheet composers compose the pre-coloured enemy sheets from, and the identity of the whole selected presentation.
+/// The installed enemy artwork as the import pipeline holds it (#1463, #1583): each enemy's palette and colour cycles,
+/// which the sheets and their shades are pre-coloured in (#1512), each enemy's characters, the enemy, extended-frame and
+/// enemy-projectile compositions and the gunship's takeoff pages that the sheet composers compose the pre-coloured enemy
+/// sheets from, and the identity of the whole selected presentation. The runtime receives none of it: gameplay is given
+/// only the extended frames' display bindings and the composed sheets.
 /// </summary>
-public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
+public sealed class EnemyTileSourceArtwork
 {
     /// <summary>Each enemy's installed characters, by definition.</summary>
     private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
@@ -21,8 +23,9 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
 
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
-    internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts) : base(Paired(parts).Gameplay)
+    internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
     {
+        RejectUnpaired(parts);
         sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
         palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
         MagdollitePaletteCycle = parts.MagdollitePaletteCycle;
@@ -99,18 +102,10 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
     public EnemySpritemapCatalog? Spritemaps { get; internal set; }
 
     /// <summary>
-    /// Installed extended frame compositions the sheet composer composes the frames' whole pictures from; replacing them
-    /// replaces the displays gameplay reads with theirs.
+    /// Installed extended frame compositions the sheet composer composes the frames' whole pictures from, with the display
+    /// bindings the installation gives gameplay.
     /// </summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames
-    {
-        get;
-        internal set
-        {
-            field = value;
-            ExtendedFrameDisplays = value?.Displays;
-        }
-    }
+    public EnemyExtendedFrameCatalog? ExtendedFrames { get; internal set; }
 
     /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
     public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }
@@ -141,16 +136,15 @@ public sealed class EnemyTileSourceArtwork : EnemyTileArtworkCatalog
         });
     }
 
-    /// <summary>Returns <paramref name="parts"/> after rejecting a sheet without its palette.</summary>
+    /// <summary>Rejects a sheet without its palette.</summary>
     /// <exception cref="InvalidDataException">A sheet has no colour sheet, or the counts differ.</exception>
-    private static EnemyTileArtworkParts Paired(EnemyTileArtworkParts parts)
+    private static void RejectUnpaired(EnemyTileArtworkParts parts)
     {
         Ensure.NotNull(parts);
         Ensure.NotNull(parts.Sheets);
         Ensure.NotNull(parts.Palettes);
         if (parts.Sheets.Count != parts.Palettes.Count || parts.Sheets.Keys.Any(definition => !parts.Palettes.ContainsKey(definition)))
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
-        return parts;
     }
 
     /// <summary>Requires a complete, correctly sized tile sheet and palette for every retail definition.</summary>

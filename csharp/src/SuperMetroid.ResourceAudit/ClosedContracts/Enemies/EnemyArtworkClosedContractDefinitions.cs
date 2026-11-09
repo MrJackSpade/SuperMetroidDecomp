@@ -7,9 +7,7 @@ internal static class EnemyArtworkClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork", "installed-enemy-sheets-and-palettes", ["TryGetPalette", "PaletteOf"],
-            [new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs"),
-             new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyTileSourceArtwork.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyGameplayArtworkParts.cs"),
+            [new("csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyTileSourceArtwork.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyTileSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Enemies/Artwork/EnemyTileSources.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/RoomEnemyGraphicsSetDefinitions.cs"),

@@ -217,7 +217,7 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;
 
-            runtime.EnemySession.TileArtwork = EnemyTiles.Enemies;
+            runtime.EnemySession.FrameDisplays = EnemyTiles.Enemies.ExtendedFrames?.Displays;
             runtime.EnemySession.Sheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(EnemyTiles.Enemies);
             runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
 

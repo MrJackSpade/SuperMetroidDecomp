@@ -1,12 +1,12 @@
-using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.AssetExtraction.Enemies;
 
-/// <summary>Verification access to <see cref="EnemyTileArtworkCatalog"/> members production does not use.</summary>
-internal static class EnemyTileArtworkCatalogAccess
+/// <summary>Verification access to <see cref="EnemyTileSourceArtwork"/> members production does not use.</summary>
+internal static class EnemyTileSourceArtworkAccess
 {
     /// <summary>Constructs a partial enemy-art catalog for focused verification.</summary>
-    extension(EnemyTileArtworkCatalog)
+    extension(EnemyTileSourceArtwork)
     {
         /// <summary>Explicitly partial constructed artwork; never an installed production catalog.</summary>
         internal static EnemyTileSourceArtwork FromArtworkForVerification(EnemyTileArtworkParts parts) =>

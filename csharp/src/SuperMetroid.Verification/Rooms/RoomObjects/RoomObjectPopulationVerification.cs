@@ -1281,7 +1281,7 @@ internal static class RoomObjectPopulationVerification
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
+        enemies.TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             // The save room's sprite objects compose with the installed enemy compositions, and their sheet takes the
             // n00b tube's crack shade every spawned-object sheet carries (#1512).
             Spritemaps = InstalledFixtures.EnemyTiles.Spritemaps, ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors,

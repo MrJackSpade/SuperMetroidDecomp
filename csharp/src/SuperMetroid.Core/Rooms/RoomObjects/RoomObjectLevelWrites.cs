@@ -5,12 +5,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>The terrain writes PLM families share: drawing a block and replacing its collision kind and behaviour.</summary>
 internal static class RoomObjectLevelWrites
 {
-    /// <summary>
-    /// Writes <paramref name="terrain"/> at a block; the room shows <paramref name="shown"/> there when a family's
-    /// installed artwork replaces the block's own appearance.
-    /// </summary>
-    internal static void DrawTerrain(RoomLevelData level, int blockIndex, RoomTerrainBlock terrain, RoomBlockAppearance? shown = null) =>
-        level.SetObjectTerrain(blockIndex, terrain, shown ?? terrain.Appearance);
+    /// <summary>Writes <paramref name="terrain"/> at a block, which shows the terrain's own picture.</summary>
+    internal static void DrawTerrain(RoomLevelData level, int blockIndex, RoomTerrainBlock terrain) =>
+        level.SetObjectTerrain(blockIndex, terrain);
 
     /// <summary>
     /// Replaces a block's collision kind and behaviour, keeping its appearance, as a PLM converts the block it sits on.

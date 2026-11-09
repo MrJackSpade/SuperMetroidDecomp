@@ -68,31 +68,25 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
     /// <summary>Tourian access-floor art; the terrain stays compiled.</summary>
     public RoomObjectTourianAccessVisuals? TourianAccessVisuals => _visuals.RoomObjectTourianAccessVisuals;
 
-    /// <summary>Gets or replaces Speed Booster block reveal artwork; compiled terrain still determines collision and breakability.</summary>
-    /// <remarks>The catalog is shared by reference. Null uses the draw's own appearance.</remarks>
+    /// <summary>The installed picture of the Speed Booster block reveal; compiled terrain still determines collision and breakability.</summary>
     public InstalledRoomObjectSpeedBoosterVisuals? SpeedBoosterVisuals => _visuals.RoomObjectSpeedBoosterVisuals;
 
-    /// <summary>Gets or replaces Maridia elevatube artwork for the draw it shares with Kraid's room, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
-    /// <remarks>The catalog is shared by reference. Null preserves the block's own appearance; tube collision and motion remain compiled.</remarks>
+    /// <summary>The installed picture of the Maridia elevatube for the draw it shares with Kraid's room, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
     public InstalledRoomObjectMaridiaElevatubeVisuals? MaridiaElevatubeVisuals => _visuals.RoomObjectMaridiaElevatubeVisuals;
 
-    /// <summary>Gets or replaces artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their terrain or sequence timing.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains each block's own appearance.</remarks>
+    /// <summary>The installed pictures of the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their terrain or sequence timing.</summary>
     public RoomObjectSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals => _visuals.RoomObjectSporeSpawnCeilingVisuals;
 
     /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
     public InstalledRoomObjectSamusEaterVisuals? SamusEaterVisuals => _visuals.RoomObjectSamusEaterVisuals;
 
-    /// <summary>Gets or replaces appearance for the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
-    /// <remarks>The catalog is shared by reference. Null uses the clear blocks' own appearance.</remarks>
+    /// <summary>The installed picture of the nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
     public InstalledRoomObjectBotwoonWallVisuals? BotwoonWallVisuals => _visuals.RoomObjectBotwoonWallVisuals;
 
-    /// <summary>Gets or replaces Kraid ceiling/spike PLM artwork, distinct from the boss's private background body maps and from elevatube owners of the shared crumble draw.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
+    /// <summary>The installed pictures of Kraid's ceiling and spike frames, distinct from the boss's private background body maps and from elevatube owners of the shared crumble draw.</summary>
     public InstalledRoomObjectKraidVisuals? KraidVisuals => _visuals.RoomObjectKraidVisuals;
 
-    /// <summary>Gets or replaces Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains each block's own appearance.</remarks>
+    /// <summary>The installed pictures of Crocomire's bridge-clear, crumble and invisible-wall frames; compiled draw runs still own block placement and collision.</summary>
     public RoomObjectCrocomireVisualCatalog? CrocomireVisuals => _visuals.RoomObjectCrocomireVisuals;
 
     /// <summary>Collectible art; compiled terrain retains collision.</summary>
@@ -367,11 +361,8 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         }
     }
 
-    /// <summary>
-    /// Converts a draw's block coordinate to a PLM block index before writing its terrain, shown as
-    /// <paramref name="shown"/> when a family's installed artwork replaces the block's own appearance.
-    /// </summary>
-    private static void DrawTerrainAt(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> block, RoomTerrainBlock terrain, RoomBlockAppearance? shown = null)
+    /// <summary>Converts a draw's block coordinate to a PLM block index before writing its terrain.</summary>
+    private static void DrawTerrainAt(RoomLevelData level, RoomObjectDraw draw, Position16<RoomBlocks> block, RoomTerrainBlock terrain)
     {
         int blockIndex;
         try
@@ -385,10 +376,8 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
                 "the room's PLM-reachable blocks.", error);
         }
 
-        RoomObjectLevelWrites.DrawTerrain(level, blockIndex, terrain, shown);
+        RoomObjectLevelWrites.DrawTerrain(level, blockIndex, terrain);
     }
-
-
 
     /// <summary>
     /// Writes the cell of a frame at <paramref name="cell"/> from the object's <paramref name="origin"/>: it collides as

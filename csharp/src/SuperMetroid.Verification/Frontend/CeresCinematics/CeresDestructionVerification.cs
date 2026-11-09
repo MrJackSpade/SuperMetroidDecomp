@@ -34,7 +34,7 @@ internal static void VerifyCeresDestructionCinematic()
         "Ceres destruction OBJ transfer fits VRAM");
 
     // Ceres' five initial explosions share one program but seed instruction timers 1/16/32/48/64.
-    // Prove the reusable object keeps that timer distinct from GeneralTimer, which belongs
+    // Prove the reusable object keeps that timer distinct from its loop countdown, which belongs
     // to the program's counted loops and must remain untouched.
     var delayedExplosion = new IntroDiscoverySprite(new(0, 0), CeresShades.Drawn(CeresSpriteColouring.Explosions), CinematicSpriteProgram.CeresSmallExplosion);
     delayedExplosion.DelayFirstInstruction(3);
@@ -42,8 +42,8 @@ internal static void VerifyCeresDestructionCinematic()
     delayedExplosion.Step();
     AssertEqual<CinematicSpritePose?>(null, delayedExplosion.Pose,
         "Ceres staggered explosion remains invisible before instruction delay");
-    AssertEqual(0, delayedExplosion.GeneralTimer,
-        "instruction delay does not overwrite cinematic goto timer");
+    AssertEqual(0, delayedExplosion.LoopCountdown.RemainingFrames,
+        "instruction delay does not overwrite cinematic loop countdown");
     delayedExplosion.Step();
     AssertEqual<CinematicSpritePose?>(AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>(CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.CeresSmallExplosion)[0], "first explosion step").Frame,
         delayedExplosion.Pose, "third handler call shows the delayed explosion's first frame");

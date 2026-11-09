@@ -60,24 +60,10 @@ internal sealed class IntroDiscoverySprite
     internal CinematicSpriteProgram CurrentProgram => CinematicSpriteAnimations.Programs.ResidentProgram(Program);
 
     /// <summary>
-    /// The actor's scratch count, which its program's loop steps count down and its owner otherwise uses as a fall count
-    /// or a spawn parameter; never negative.
+    /// The count the program's counted loops repeat by: a set-counter step loads it and a repeat-while-counting step
+    /// counts it down. Only those steps change it; it starts at zero.
     /// </summary>
-    public int GeneralTimer
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
-
-    /// <summary>
-    /// <see cref="GeneralTimer"/> read as the loop countdown of the set-timer and decrement-timer-and-goto
-    /// opcodes (<c>DEC</c>, <c>BNE</c>).
-    /// </summary>
-    private WrappingCountdown InstructionLoopCountdown
-    {
-        get => WrappingCountdown.FromRaw(GeneralTimer);
-        set => GeneralTimer = value.RemainingFrames;
-    }
+    internal WrappingCountdown LoopCountdown { get; private set; } = WrappingCountdown.Start(0);
 
     /// <summary>The pre-instruction the actor runs, or none.</summary>
     internal CinematicSpriteFrameBehavior? FrameBehavior { get; private set; }
@@ -98,10 +84,8 @@ internal sealed class IntroDiscoverySprite
     /// share one list but must begin on staggered frames.
     /// </summary>
     /// <remarks>
-    /// This is deliberately not represented by <see cref="GeneralTimer"/>. The latter is
-    /// the separate loop-timer scratch word consumed by the
-    /// loop steps; conflating the two makes a delayed actor interpret its first
-    /// frame immediately while merely changing an unrelated loop counter.
+    /// This is deliberately not <see cref="LoopCountdown"/>, which only the program's counted loops use; conflating the
+    /// two makes a delayed actor interpret its first frame immediately while merely changing an unrelated loop count.
     /// </remarks>
     public void DelayFirstInstruction(int frames)
     {
@@ -140,10 +124,7 @@ internal sealed class IntroDiscoverySprite
             return;
 
         AnimationProgramCursor<CinematicSpriteProgram> cursor = Program;
-        // Counter steps count the actor's goto-timer word, as the timer-load and countdown steps do. Only a
-        // counter step changes it, so an owner's own use of the word between steps survives.
-        int timerBefore = GeneralTimer;
-        WrappingCountdown counter = InstructionLoopCountdown;
+        WrappingCountdown counter = LoopCountdown;
         AnimationProgramAdvance<CinematicSpritePose> advance = CinematicSpriteAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) =>
             {
@@ -151,8 +132,7 @@ internal sealed class IntroDiscoverySprite
                 return null;
             });
         Program = cursor;
-        if (!counter.IsAt(timerBefore))
-            InstructionLoopCountdown = counter;
+        LoopCountdown = counter;
         switch (advance)
         {
             case AnimationProgramAdvance<CinematicSpritePose>.Show shown:

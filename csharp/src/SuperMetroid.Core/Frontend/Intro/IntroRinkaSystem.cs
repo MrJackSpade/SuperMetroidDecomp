@@ -20,10 +20,13 @@ internal sealed class IntroRinkaSystem
     /// <summary>Lowest slot available to Rinkas; the pass visits slots 14 down through one.</summary>
     private const int LowestSlot = 1;
 
-    /// <summary>Cinematic slots shared by the spawner and its four Rinkas.</summary>
-    internal readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
+    /// <summary>
+    /// The Rinkas in the cinematic slots, by slot. The spawner holds the highest slot until its program ends, so no Rinka
+    /// takes that slot while the spawner lives.
+    /// </summary>
+    internal readonly IntroRinka?[] slots = new IntroRinka?[SpawnerSlot + 1];
     /// <summary>Invisible actor whose instruction list schedules the two spawn pairs.</summary>
-    internal readonly IntroDiscoverySprite spawner;
+    private readonly IntroDiscoverySprite spawner;
     /// <summary>Prevents allocating Rinkas after Mother Brain's explosions occupy the shared slot range.</summary>
     private bool spawnsForbidden;
 
@@ -33,8 +36,11 @@ internal sealed class IntroRinkaSystem
         // The flashback's setup spawns the invisible spawner while slots 1..14 are all free. Reusing the
         // focused animation interpreter preserves its exact 74 then 128 frame waits.
         spawner = new(new(0, 0), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors), IntroRinkaDefinitions.SpawnerActor.Program);
-        slots[SpawnerSlot] = spawner;
     }
+
+    /// <summary>Whether <paramref name="slot"/> holds the spawner or a Rinka.</summary>
+    private bool IsOccupied(int slot) =>
+        slots[slot] is not null || (slot == SpawnerSlot && spawner.IsActive);
 
     /// <summary>One descending generic-handler pass over the spawner and Rinka slots.</summary>
     /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
@@ -54,25 +60,24 @@ internal sealed class IntroRinkaSystem
         // spawner allocates there runs its first pre-instruction and list step immediately.
         for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
         {
-            IntroDiscoverySprite? actor = slots[slot];
-            if (actor is null)
-                continue;
-
-            if (ReferenceEquals(actor, spawner))
+            // Deletion clears the slot's list pointer, freeing it for the next spawn: the spawner's once its program
+            // ends, a Rinka's as it is deleted.
+            if (slot == SpawnerSlot && spawner.IsActive)
             {
                 spawner.Step(HandleSpawnerCue);
-            }
-            else
-            {
-                RunFrameBehavior(actor, samus, motherBrainExploding);
-                if (actor.IsActive)
-                {
-                    actor.Step(cue => HandleRinkaCue(actor, cue));
-                }
+                continue;
             }
 
-            // Deletion clears the slot's list pointer, freeing it for the next spawn.
-            if (!actor.IsActive)
+            if (slots[slot] is not { } rinka)
+                continue;
+
+            RunFrameBehavior(rinka, samus, motherBrainExploding);
+            if (rinka.Sprite.IsActive)
+            {
+                rinka.Sprite.Step(cue => HandleRinkaCue(rinka, cue));
+            }
+
+            if (!rinka.Sprite.IsActive)
                 slots[slot] = null;
         }
     }
@@ -83,8 +88,7 @@ internal sealed class IntroRinkaSystem
     {
         for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
         {
-            if (slots[slot] is { } actor && !ReferenceEquals(actor, spawner))
-                actor.Draw(objects, installedArt: installedArt);
+            slots[slot]?.Sprite.Draw(objects, installedArt: installedArt);
         }
     }
 
@@ -141,24 +145,22 @@ internal sealed class IntroRinkaSystem
         }
     }
 
-    /// <summary>Starts a Rinka's movement, selecting the sole hit route for parameter zero and miss routes for the others.</summary>
+    /// <summary>Starts a Rinka's movement, selecting the hit route for the Rinka that strikes Samus and the miss route for the others.</summary>
     private static void HandleRinkaCue(
-        IntroDiscoverySprite rinka,
+        IntroRinka rinka,
         CinematicSpriteCueKind cue)
     {
         if (cue != CinematicSpriteCueKind.StartRinkaMoving)
             throw new InvalidOperationException($"The Rinka program publishes no {cue} cue.");
 
-        // Init parameter zero is the sole “hits Samus” route. Parameters one through three
-        // select the miss routine and remain in GeneralTimer for its velocity table lookup.
-        rinka.InstallFrameBehavior(
-            rinka.GeneralTimer == 0
+        rinka.Sprite.InstallFrameBehavior(
+            rinka.HitsSamus
                 ? CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus
                 : CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus);
     }
 
-    /// <summary>Allocates one definition-selected Rinka in the highest available cinematic slot.</summary>
-    private void Spawn(int parameter)
+    /// <summary>Allocates the Rinka of <paramref name="launch"/> in the highest available cinematic slot.</summary>
+    private void Spawn(int launch)
     {
         if (spawnsForbidden)
         {
@@ -167,63 +169,53 @@ internal sealed class IntroRinkaSystem
         }
 
         int slot = SpawnerSlot;
-        while (slot >= LowestSlot && slots[slot] is not null)
+        while (slot >= LowestSlot && IsOccupied(slot))
             slot--;
         if (slot < LowestSlot)
             throw new InvalidOperationException("No free cinematic sprite slot for an intro Rinka.");
 
-        IntroRinkaPhysicalDefinition definition = IntroRinkaLaunches.Rinka(parameter);
-        var rinka = new IntroDiscoverySprite(
-            definition.Position,
-            colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            program: IntroRinkaDefinitions.RinkaActor.Program)
-        {
-            GeneralTimer = parameter,
-        };
-        rinka.InstallFrameBehavior(
-            IntroRinkaDefinitions.RinkaActor.FrameBehavior);
-        slots[slot] = rinka;
+        slots[slot] = new IntroRinka(launch);
     }
 
     /// <summary>Moves a Rinka, publishes Samus knockback on the hit route, or deletes it at its exit bounds.</summary>
     private static void RunFrameBehavior(
-        IntroDiscoverySprite rinka,
+        IntroRinka rinka,
         SamusState samus,
         bool motherBrainExploding)
     {
-        switch (rinka.FrameBehavior)
+        IntroDiscoverySprite sprite = rinka.Sprite;
+        switch (sprite.FrameBehavior)
         {
             case null:
             case CinematicSpriteFrameBehavior.NoOp:
                 return;
 
             case CinematicSpriteFrameBehavior.IntroRinkaMovingHitsSamus:
-                MoveHalfPixelX(rinka, IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
-                MoveHalfPixelY(rinka);
+                MoveHalfPixelX(sprite, rinka.XWholeVelocity);
+                MoveHalfPixelY(sprite);
 
                 // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding routine.
-                if (CoordinateAxis.AsSigned(rinka.WholePosition.X + 8) <
+                if (CoordinateAxis.AsSigned(sprite.WholePosition.X + 8) <
                     CoordinateAxis.Difference(samus.Position.X.Whole, 5))
                 {
                     if (motherBrainExploding)
-                        rinka.Delete();
+                        sprite.Delete();
                     return;
                 }
 
                 samus.InvincibilityTimer = WrappingCountdown.Start(11);
                 samus.KnockbackTimer = 11;
                 samus.KnockbackXDirection = Samus.Movement.KnockbackHorizontalDirection.Right;
-                rinka.Delete();
+                sprite.Delete();
                 return;
 
             case CinematicSpriteFrameBehavior.IntroRinkaMovingMissesSamus:
-                MoveHalfPixelX(rinka,
-                    IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
-                MoveHalfPixelY(rinka);
-                int y = CoordinateAxis.AsSigned(rinka.WholePosition.Y);
+                MoveHalfPixelX(sprite, rinka.XWholeVelocity);
+                MoveHalfPixelY(sprite);
+                int y = CoordinateAxis.AsSigned(sprite.WholePosition.Y);
                 if (y < 16 || y >= 208 || motherBrainExploding)
-                    rinka.Delete();
+                    sprite.Delete();
                 return;
 
             case CinematicSpriteFrameBehavior.MetroidEgg:
@@ -260,7 +252,7 @@ internal sealed class IntroRinkaSystem
             case CinematicSpriteFrameBehavior.RewardHeadFlight:
             case CinematicSpriteFrameBehavior.RewardLanding:
             default:
-                throw new InvalidOperationException($"A Rinka does not run {rinka.FrameBehavior}.");
+                throw new InvalidOperationException($"A Rinka does not run {sprite.FrameBehavior}.");
         }
     }
 

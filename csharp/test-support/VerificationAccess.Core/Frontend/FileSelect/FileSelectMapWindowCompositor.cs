@@ -2,7 +2,10 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Opposing BG1/OBJ and BG2 window-one masks installed by $81:AAAC/$81:AFF6.</summary>
+/// <summary>
+/// The file-select map's reveals composed from whole scenes for focused checks: the area scene inside the entry's centered
+/// rectangle, and the room frame inside a map reveal's rectangle over the area scene (#1555).
+/// </summary>
 public static class FileSelectMapWindowCompositor
 {
     /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
@@ -36,19 +39,12 @@ public static class FileSelectMapWindowCompositor
             return pixels;
         }
         area.CopyTo(pixels);
-        // HDMA encodes the top rows, then max(1,bottom-top) rows using the window.
-        // WH0/WH1 include both horizontal endpoints, even for a zero-width window.
-        Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
-        int top = (byte)topLeft.Y;
-        int bottom = Math.Min(FrontendFrame.Height,
-            top + Math.Max(1, (int)unchecked((byte)(bottomRight.Y - topLeft.Y))));
-        int left = (byte)topLeft.X;
-        int right = (byte)bottomRight.X;
-        if (left > right) return pixels;
-        for (int y = top; y < bottom; y++)
+        // The room frame shows inside the reveal's rectangle, its right and bottom edges the first column and line past it.
+        if (window.IsEmpty) return pixels;
+        for (int y = window.Top; y < window.Bottom; y++)
         {
-            int offset = y * FrontendFrame.Width + left;
-            roomFrame.Slice(offset, right - left + 1).CopyTo(pixels.AsSpan(offset));
+            int offset = y * FrontendFrame.Width + window.Left;
+            roomFrame.Slice(offset, window.Right - window.Left).CopyTo(pixels.AsSpan(offset));
         }
         return pixels;
     }

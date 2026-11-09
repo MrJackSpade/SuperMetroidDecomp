@@ -2,20 +2,20 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Calculates the map-window velocities and timer from the stock label origin.</summary>
+/// <summary>Calculates the map reveal's edge speeds and its moving updates from the stock label origin.</summary>
 internal static class FileSelectMapWindowMotions
 {
     /// <summary>
-    /// Window velocities and timers for the six Zebes areas.
+    /// Reveal edge speeds and moving updates for the six Zebes areas.
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165 against all original words and their consumers.
     /// Let D=max(x,256-x,y,256-y) for the area's stock label position.
-    /// An edge at distance d travels floor(256*d/D)/64 pixels per call, negative for
+    /// An edge at distance d travels floor(256*d/D)/64 pixels per update, negative for
     /// left/top. Quantize the positive magnitude before negating, then promote to signed
-    /// 16.16. The farthest edge travels exactly four pixels per call. Timer=floor(D/4),
-    /// and the window moves on timer zero before completing at signed underflow.
-    /// The generation square is 256 high even though the consumer clamps bottom at224.
+    /// 16.16. The farthest edge travels exactly four pixels per update. The edges move on
+    /// floor(D/4)+1 updates, and the reveal completes on the last of them.
+    /// The generation square is 256 high even though the edges stop at the screen's bottom.
     /// Integer numerators are at most65536; division precedes the ten-bit shift.
     /// Stock origins intentionally remain independent of editable label positions: edits
     /// move the initial window but did not change compiled motion in the prior contract.
@@ -29,7 +29,7 @@ internal static class FileSelectMapWindowMotions
         // A sixty-fourth of a pixel is 1024 65536ths.
         SignedSixteenSixteen Velocity(int distance, int sign) =>
             SignedSixteenSixteen.FromRaw(sign * (256 * distance / farthest) * 1024);
-        return new(farthest / 4, Velocity(x, -1), Velocity(256 - x, 1),
+        return new(farthest / 4 + 1, Velocity(x, -1), Velocity(256 - x, 1),
             Velocity(y, -1), Velocity(256 - y, 1));
     }
 

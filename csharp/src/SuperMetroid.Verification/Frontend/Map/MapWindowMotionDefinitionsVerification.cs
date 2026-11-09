@@ -63,12 +63,15 @@ internal static class MapWindowMotionDefinitionsVerification
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
-    /// <summary>Compares the opening timer for all six area windows.</summary>
+    /// <summary>
+    /// Compares the opening's moving updates for all six area windows with the cartridge's countdown: the window moves on
+    /// the countdown's start value and on the update that reaches zero.
+    /// </summary>
     internal static void VerifyMapWindowTimers(ISnesAddressSpace rom)
     {
         for (int area = 0; area < 6; area++)
-            AssertEqual(ReadVerificationWord(rom, 0x81aa94 + area * 2),
-                FileSelectMapWindowMotions.Get(area).Timer, $"map window area {area} timer");
+            AssertEqual(ReadVerificationWord(rom, 0x81aa94 + area * 2) + 1,
+                FileSelectMapWindowMotions.Get(area).MovingUpdates, $"map window area {area} moving updates");
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
@@ -80,7 +83,10 @@ internal static class MapWindowMotionDefinitionsVerification
                 $"unsupported map window area {area}");
     }
 
-    /// <summary>Independent cartridge-data control, deliberately outside the production catalog.</summary>
+    /// <summary>
+    /// Independent cartridge-data control, deliberately outside the production catalog: the cartridge's countdown moves the
+    /// window on its start value and on the update that reaches zero.
+    /// </summary>
     internal static FileSelectMapWindowMotion ReadCartridgeMapWindowMotion(ISnesAddressSpace bus, int area)
     {
         SignedSixteenSixteen ReadVelocity(int edge)
@@ -89,7 +95,7 @@ internal static class MapWindowMotionDefinitionsVerification
             return SignedSixteenSixteen.FromRaw(unchecked((int)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address) |
                 (SixteenSixteenWords.FromWhole(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2))))));
         }
-        return new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapNativeSources.WindowTimers + area * 2),
+        return new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapNativeSources.WindowTimers + area * 2) + 1,
             ReadVelocity(0), ReadVelocity(1), ReadVelocity(2), ReadVelocity(3));
     }
 }

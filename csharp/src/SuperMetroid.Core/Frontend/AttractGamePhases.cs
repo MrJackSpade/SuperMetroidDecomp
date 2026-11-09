@@ -93,7 +93,6 @@ internal sealed class AttractGamePhases(FrontendSession session)
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitleBackdrop,
-                            session.Artwork.MapPresentation?.TitleGraphics,
                             session.Artwork.SpriteSheets));
                     else
                     {
@@ -102,7 +101,6 @@ internal sealed class AttractGamePhases(FrontendSession session)
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitleBackdrop,
-                            session.Artwork.MapPresentation?.TitleGraphics,
                             session.Artwork.SpriteSheets));
                     }
                     session.GameState = SuperMetroidGameState.OpeningCinematic;

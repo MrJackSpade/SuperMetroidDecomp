@@ -30,7 +30,6 @@ internal sealed class MenuGamePhases(FrontendSession session)
             session.audio,
             session.Artwork.MapPresentation?.TitleGradient,
             session.Artwork.MapPresentation?.TitleBackdrop,
-            session.Artwork.MapPresentation?.TitleGraphics,
             session.Artwork.SpriteSheets));
         session.ForgetQueuedAudio();
         session.ForgetSpacetimeRestart();
@@ -305,7 +304,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 "The opening cinematic's flashbacks require the installed Samus overread services."),
             session.Artwork.BossAndIntroOverreads?.ShellFragmentFallPastCurve ?? throw new InvalidOperationException(
                 "The opening cinematic's egg shell requires the installed boss and intro overread services.")),
-            session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
+            session.audio, session.Artwork.IntroCinematicArt,
             session.Artwork.SamusBodyArt, japaneseText)
         {
             Random = session.Random,

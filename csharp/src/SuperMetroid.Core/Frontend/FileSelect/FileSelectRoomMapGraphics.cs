@@ -49,8 +49,7 @@ public sealed class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect,
-            mapPresentation.WorldArtwork, installed);
+        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, installed);
         AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system, revealMode);
     }
 
@@ -74,7 +73,6 @@ public sealed class FileSelectRoomMapGraphics
         screen.Backdrop = catalog.Backdrops.FileSelect;
         var system = icons.MapSystem;
         var area = icons.MapArea;
-        screen.BindWorldArtwork(catalog.WorldArtwork);
         AreaMap = AreaMapProjection.Project(catalog.Get(area), system);
     }
 

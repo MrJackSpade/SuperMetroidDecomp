@@ -170,10 +170,9 @@ internal static class MapLoadAnchorsVerification
             "file-select map cannot construct a cartridge-backed fallback graph");
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
-            var native = new FileSelectAreaMapGraphics(area, catalog.Backdrops,
-                catalog.WorldArtwork, MenuSheetFixtures.For(catalog));
+            var native = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));
             native.BindLabels(catalog.Labels);
-            var compiled = new FileSelectAreaMapGraphics(area, catalog.Backdrops, catalog.WorldArtwork, MenuSheetFixtures.For(catalog));
+            var compiled = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));
             compiled.BindLabels(catalog.Labels);
             for (int mask = 0; mask < 64; mask++)
             {

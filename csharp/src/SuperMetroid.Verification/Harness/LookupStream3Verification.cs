@@ -2376,8 +2376,7 @@ internal static class LookupStream3Verification
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction, CeresDestructionMaps = stock.CeresDestructionMaps, ZebesReveal = stock.ZebesReveal, CeresDestructionSprites = stock.CeresDestructionSprites }, stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
         AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
-        var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: font, characterArtwork: stock)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2386,7 +2385,7 @@ internal static class LookupStream3Verification
             IntroCinematicSourceDefinitions.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.FontOne.Offset * 2), nativeFont.Length).SequenceEqual(nativeFont),
-            "actual opening constructor transfers all calculated font bytes");
+            "the opening's shown memory holds the installed font, which matches the cartridge's");
         AssertTrue(intro.ShownVram().AsSpan(
             (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
             "actual opening constructor transfers calculated narration to native VRAM destination");
@@ -2519,8 +2518,7 @@ internal static class LookupStream3Verification
         AssertTrue(stock.suppliedBackgroundPages is null,
             "native background pages store no output array");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-        var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: font, characterArtwork: stock)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2637,8 +2635,7 @@ BranchesToSharedBody:true),
         AssertTrue(stock.suppliedPortrait is null,
             "native portrait stores no output word array");
         AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-        var font = IntroFontCharacters.Read(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), introFont: font, characterArtwork: stock)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), characterArtwork: stock)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

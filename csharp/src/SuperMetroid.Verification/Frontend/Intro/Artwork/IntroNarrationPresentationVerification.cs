@@ -37,12 +37,11 @@ internal static class IntroNarrationPresentationVerification
         AssertTrue(font.Characters.Span.SequenceEqual(
             nativeFont.AsSpan(0, IntroFontAtlasFormat.ByteCount)),
             "installed opening-font PNG compiles to exact native planar bytes");
-        var installedIntro = CreateRetailIntroFixture(
-            introFont: font);
+        var installedIntro = CreateRetailIntroFixture();
         AssertTrue(installedIntro.ShownVram().AsSpan(
             (IntroVramLayout.FontOne.Offset * 2),
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Characters.Span),
-            "opening cinematic uploads the installed font without reading its ROM stream");
+            "the opening's shown memory holds the installed font, which compiles to the cartridge's");
 
         int comparedFrames = 0;
         foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())

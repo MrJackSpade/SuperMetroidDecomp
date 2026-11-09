@@ -46,9 +46,9 @@ internal static class TitleFixtureVerification
 /// <param name="Backdrop">The title palette's backdrop colour.</param>
 /// <param name="Gradient">The title gradient.</param>
 /// <param name="Sheets">The sprite sheets the graphics compose, beside the installation's others.</param>
-internal sealed record TitleFixtureContent(TitleGraphicsPresentation Graphics, SuperMetroid.Core.Assets.RgbColor Backdrop,
+internal sealed record TitleFixtureContent(TitleGraphicsCharacters Graphics, SuperMetroid.Core.Assets.RgbColor Backdrop,
     TitleGradientPresentation Gradient, SuperMetroid.Core.Assets.InstalledSpriteSheets Sheets)
 {
     /// <summary>A new title state drawing this content.</summary>
-    internal TitleSequenceState NewState(AudioQueues? audio = null) => new(audio, Gradient, Backdrop, Graphics, Sheets);
+    internal TitleSequenceState NewState(AudioQueues? audio = null) => new(audio, Gradient, Backdrop, Sheets);
 }

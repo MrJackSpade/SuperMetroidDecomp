@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Title;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -280,10 +282,10 @@ internal static class InstalledFixtures
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(AudioQueues? audio = null,
-        IntroFontAtlas? introFont = null, IntroCinematicArtwork? characterArtwork = null,
+        IntroCinematicArtwork? characterArtwork = null,
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio, introFont ?? Maps.IntroFont,
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio,
             characterArtwork ?? IntroArtwork, samusBodyArtwork ?? SamusBody)
         {
             Random = new SharedRandom(),
@@ -304,7 +306,6 @@ internal static class InstalledFixtures
         ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
         ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
         ending.InstalledArtwork.BindPaletteFxColors(Maps.RoomPaletteFx);
-        ending.Stage.BindEndingFont(Maps.EndingFont);
         return ending;
     }
 
@@ -316,10 +317,10 @@ internal static class InstalledFixtures
     internal static TitleSequenceState CreateTitle(AudioQueues? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         RgbColor? titleBackdrop = null,
-        TitleGraphicsPresentation? titleGraphicsPresentation = null) =>
+        TitleGraphicsCharacters? titleGraphicsPresentation = null) =>
         new(audio, titleGradientPresentation ?? Maps.TitleGradient,
-            titleBackdrop ?? Maps.TitleBackdrop, titleGraphicsPresentation ?? Maps.TitleGraphics,
-            MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? Maps.TitleGraphics));
+            titleBackdrop ?? Maps.TitleBackdrop,
+            MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? InstalledAreaMapPresentation.TitleGraphicsOf(Maps)));
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
     internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>

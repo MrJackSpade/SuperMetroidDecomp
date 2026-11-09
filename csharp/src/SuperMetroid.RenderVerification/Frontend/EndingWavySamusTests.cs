@@ -28,7 +28,6 @@ internal static class EndingWavySamusTests
         scene.InstalledArtwork.BindFixtureObjectArtwork(installed.LoadEndingObjectArt());
         scene.InstalledArtwork.BindBackdrops(installed.LoadEndingBackdrops());
         scene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
-        scene.Stage.BindEndingFont(maps.EndingFont);
         scene.InstalledArtwork.BindEndingText(maps.EndingText);
         scene.InstalledArtwork.LoadCreditsAndPostCreditsAssets();
         scene.CreditsRoll.SetupPostCreditsBlank();

@@ -34,8 +34,7 @@ public sealed class FileSelectAreaMapGraphics
         AreaMapPresentation presentation, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(presentation);
-        var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Backdrops,
-            presentation.WorldArtwork, sheets);
+        var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Backdrops, sheets);
         graphics.BindLabels(presentation.Labels);
         return graphics;
     }
@@ -43,20 +42,18 @@ public sealed class FileSelectAreaMapGraphics
     /// <summary>Initializes the unmasked world-map picture and backdrop owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
     /// <param name="selectedArea">Game-area identity 0..5, not the file-select label display-order ordinal.</param>
     /// <param name="backdrops">Required menu backdrops, including each area's world-map backdrop.</param>
-    /// <param name="worldArtwork">Required world-map character artwork.</param>
-
     /// <param name="sheets">Required installed sprite sheets: the map sprites the title and labels draw from, and the background tiles.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
     public FileSelectAreaMapGraphics(int selectedArea, MenuBackdrops? backdrops = null,
-        WorldMapArtwork? worldArtwork = null, InstalledSpriteSheets? sheets = null)
+        InstalledSpriteSheets? sheets = null)
     {
-        if (backdrops is null || worldArtwork is null || sheets is null)
+        if (backdrops is null || sheets is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");
         Backdrops = backdrops;
         worldSheets = sheets;
         mapSheet = sheets.Get(SpriteSheetId.MapSprites);
-        screen = new MenuScreen(backdrops.FileSelect, worldArtwork, sheets);
+        screen = new MenuScreen(backdrops.FileSelect, sheets);
         SelectArea(selectedArea);
     }
 
@@ -83,7 +80,6 @@ public sealed class FileSelectAreaMapGraphics
     {
         BindLabels(catalog?.Labels);
         BindBackdrops(catalog?.Backdrops);
-        screen.BindWorldArtwork(catalog?.WorldArtwork);
     }
 
     /// <summary>Replaces the installed backdrops and shows the current selection's.</summary>

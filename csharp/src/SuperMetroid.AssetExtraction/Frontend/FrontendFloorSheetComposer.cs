@@ -51,7 +51,7 @@ internal static class FrontendFloorSheetComposer
     private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
         new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
         {
-            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, ImportAreaMapPresentation.TitlePaletteOf(sources.Maps)),
+            [SpriteSheetId.TitleFloor] = sources => Title(InstalledAreaMapPresentation.TitleGraphicsOf(sources.Maps), ImportAreaMapPresentation.TitlePaletteOf(sources.Maps)),
             [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
             [SpriteSheetId.EndingEscapeAFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape), sources,
                 EndingFloorShot.EscapeA),
@@ -72,9 +72,9 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">
     /// The installed map or characters are shorter than the title loads, or the map shows no cell of the Baby.
     /// </exception>
-    internal static ComposedSpriteSheet Title(TitleGraphicsPresentation graphics, TitlePalettePresentation palette)
+    internal static ComposedSpriteSheet Title(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
     {
-        TitleGraphicsCharacters title = TitleGraphicsCharacters.Of(Ensure.NotNull(graphics));
+        TitleGraphicsCharacters title = Ensure.NotNull(graphics);
         if (title.FloorMap.Length < TitleFloorTileDefinitions.FloorMapByteCount)
             throw new InvalidDataException("Title Mode 7 map stream is shorter than the map the title loads.");
         if (title.FloorCharacters.Length < TitleFloorTileDefinitions.FloorCharacterByteCount)

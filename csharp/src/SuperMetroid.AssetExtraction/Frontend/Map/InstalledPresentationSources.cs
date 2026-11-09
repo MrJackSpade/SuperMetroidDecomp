@@ -5,6 +5,9 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -27,6 +30,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </param>
 /// <param name="EscapeTimerTiles">The escape timer's characters, which the escape encounters' sheets are composed from (#1513).</param>
 /// <param name="RoomFxAnimatedTiles">The animated tiles' installed characters, which room sheets and the Tourian statues' pictures are composed from (#1527).</param>
+/// <param name="WorldCharacters">The world map's characters, which the world-map and menu picture sheets are composed from (#1583).</param>
+/// <param name="IntroFont">The opening narration's font, which the narration pictures are composed from (#1583).</param>
+/// <param name="EndingFont">The ending's font, which the credits, post-credits and explosion pictures are composed from (#1583).</param>
+/// <param name="TitleGraphics">The title's characters and compositions, which the title and title floor sheets are composed from (#1583).</param>
 [ArchitectureReview("context-bag", "The source artwork documents an installed map presentation was read with; every member is immutable artwork data the import composes pictures from, not a service.")]
 internal sealed record InstalledPresentationSources(
     MapCharacterArtwork Characters,
@@ -39,4 +46,8 @@ internal sealed record InstalledPresentationSources(
     MapSpriteCompositions Sprites,
     MapPaletteCycle HighlightColours,
     EscapeTimerCharacters EscapeTimerTiles,
-    RoomFxAnimatedTileAtlas RoomFxAnimatedTiles);
+    RoomFxAnimatedTileAtlas RoomFxAnimatedTiles,
+    WorldMapCharacters WorldCharacters,
+    IntroFontCharacters IntroFont,
+    EndingFontCharacters EndingFont,
+    TitleGraphicsCharacters TitleGraphics);

@@ -7,6 +7,9 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -32,7 +35,43 @@ public class InstalledAreaMapPresentation : AreaMapPresentation
         HighlightColours = Ensure.NotNull(sources.HighlightColours);
         EscapeTimerTiles = Ensure.NotNull(sources.EscapeTimerTiles);
         RoomFxAnimatedTiles = Ensure.NotNull(sources.RoomFxAnimatedTiles);
+        WorldCharacters = Ensure.NotNull(sources.WorldCharacters);
+        IntroFont = Ensure.NotNull(sources.IntroFont);
+        EndingFont = Ensure.NotNull(sources.EndingFont);
+        TitleGraphics = Ensure.NotNull(sources.TitleGraphics);
     }
+
+    /// <summary>The world map's characters, which only the import reads to compose the world-map and menu picture sheets (#1583).</summary>
+    public WorldMapCharacters WorldCharacters { get; }
+
+    /// <summary>The world-map characters the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static WorldMapCharacters WorldCharactersOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.WorldCharacters
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no world-map characters.");
+
+    /// <summary>The opening narration's font, which only the import reads to compose the narration pictures (#1583).</summary>
+    public IntroFontCharacters IntroFont { get; }
+
+    /// <summary>The opening font the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static IntroFontCharacters IntroFontOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.IntroFont
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no opening font.");
+
+    /// <summary>The ending's font, which only the import reads to compose the ending's text and explosion pictures (#1583).</summary>
+    public EndingFontCharacters EndingFont { get; }
+
+    /// <summary>The ending font the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static EndingFontCharacters EndingFontOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.EndingFont
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no ending font.");
+
+    /// <summary>The title's characters and compositions, which only the import reads to compose the title sheets (#1583).</summary>
+    public TitleGraphicsCharacters TitleGraphics { get; }
+
+    /// <summary>The title graphics the installed presentation <paramref name="maps"/> was read with.</summary>
+    /// <exception cref="InvalidOperationException">The presentation was not read from an installation.</exception>
+    public static TitleGraphicsCharacters TitleGraphicsOf(AreaMapPresentation maps) => (Ensure.NotNull(maps) as InstalledAreaMapPresentation)?.TitleGraphics
+        ?? throw new InvalidOperationException("The map presentation was not read from an installation, so it has no title graphics.");
 
     /// <summary>
     /// The animated tiles' installed characters, which only the import reads to compose room sheets and the Tourian

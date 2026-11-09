@@ -33,7 +33,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
         {
             InstalledArtwork.BindEndingText(artwork.MapPresentation?.EndingText);
             InstalledArtwork.BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
-            Stage.BindEndingFont(artwork.MapPresentation?.EndingFont);
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             Flyaway.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);

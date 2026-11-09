@@ -18,7 +18,7 @@ internal static class EndingScreenMemory
     /// <summary>The image <paramref name="loads"/> leave over the bound artwork.</summary>
     [WholeImageFixture("the ending's VRAM image")]
     internal static byte[] Compose(EndingScreenLoads loads, EndingFloorCharacters? floor, CeresFlightArtwork? flight, EndingObjectArtwork? objects,
-        EndingFontAtlas? font, EndingReward reward)
+        EndingFontCharacters? font, EndingReward reward)
     {
         ArgumentNullException.ThrowIfNull(loads);
         var vram = new SnesVram();

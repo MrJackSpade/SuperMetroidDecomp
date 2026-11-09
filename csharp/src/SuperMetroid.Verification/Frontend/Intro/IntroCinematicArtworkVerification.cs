@@ -123,7 +123,6 @@ internal static class IntroCinematicArtworkVerification
 
             var native = CreateRetailIntroFixture();
             var completeInstalled = CreateRetailIntroFixture(
-                introFont: InstalledFixtures.Maps.IntroFont,
                 characterArtwork: stock);
             LayeredScene completeNativeScene = native.CaptureTranslatedRenderSnapshot();
             LayeredScene completeInstalledScene = completeInstalled.CaptureTranslatedRenderSnapshot();

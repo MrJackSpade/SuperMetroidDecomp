@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
@@ -131,7 +132,7 @@ internal static class CinematicSheetFixtures
                     RepositoryInstallation.Installation.LoadEndingObjectArt, () => InstalledFixtures.EndingColours,
                     RepositoryInstallation.Installation.LoadEndingMode7Art);
                 sheets[SpriteSheetId.IntroNarrationPictures] = LoadTiles(SpriteSheetId.IntroNarrationPictures,
-                    IntroNarrationPictureSheetComposer.Compose(key, InstalledFixtures.Maps.IntroFont), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                    IntroNarrationPictureSheetComposer.Compose(key, InstalledAreaMapPresentation.IntroFontOf(InstalledFixtures.Maps)), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.IntroScenePictures] = LoadTiles(SpriteSheetId.IntroScenePictures,
                     IntroScenePictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,

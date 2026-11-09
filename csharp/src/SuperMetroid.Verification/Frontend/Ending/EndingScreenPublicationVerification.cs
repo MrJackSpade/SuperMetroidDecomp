@@ -36,7 +36,6 @@ internal static class EndingScreenPublicationVerification
             restored.InstalledArtwork.BindFixtureObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
             restored.InstalledArtwork.BindBackdrops(InstalledFixtures.EndingBackdrops);
             restored.InstalledArtwork.BindPaletteFxColors(InstalledFixtures.Maps.RoomPaletteFx);
-            restored.Stage.BindEndingFont(InstalledFixtures.Maps.EndingFont);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);
             FramePaint restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Paint;
             var shownRestored = restored.ShownVram();

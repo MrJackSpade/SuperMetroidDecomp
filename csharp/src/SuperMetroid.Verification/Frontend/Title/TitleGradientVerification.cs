@@ -37,7 +37,7 @@ internal static class TitleGradientVerification
     /// <summary>Creates the production title owner with selected installed graphics, palette, and gradient overrides.</summary>
     private static TitleSequenceState CreateTitlePresentationFixture(TitleGradientPresentation? titleGradientPresentation = null,
         RgbColor? titleBackdrop = null,
-        TitleGraphicsPresentation? titleGraphicsPresentation = null)
+        TitleGraphicsCharacters? titleGraphicsPresentation = null)
  =>
         InstalledFixtures.CreateTitle(titleGradientPresentation: titleGradientPresentation,
             titleBackdrop: titleBackdrop, titleGraphicsPresentation: titleGraphicsPresentation);
@@ -175,7 +175,7 @@ internal static class TitleGradientVerification
                     new SnesSpritemapYByte(CpuBusRegionRead.Read(bus, record + 2)), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(textPaletteBits),
                     new Position16<SpritePixels>(128, 112));
             }
-            TitleGraphicsPresentation.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), TitleSpriteColouring.Text);
+            TitleSpriteDrawing.DrawSprite(MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title), frame.Sprite, installedOam, new(128, 112), TitleSpriteColouring.Text);
             nativeOam.FinalizeFrame(); installedOam.FinishFrame();
             // The glyphs of a typed card never overlap, so the order the objects are listed in shows nothing: the native
             // spritemap lists the newest glyph first and the installed draw places glyph 0 first. Compare the objects as a set.
@@ -424,7 +424,7 @@ internal static class TitleGradientVerification
         TitlePalettePresentation palette = TitlePaletteFile.Read(new MemoryStream(
             TitlePaletteExtractor.Extract(bus)));
         IReadOnlyDictionary<string, byte[]> graphicsFiles = TitleGraphicsExtractor.Extract(bus);
-        TitleGraphicsPresentation graphics = TitleGraphicsCharacters.Read(
+        TitleGraphicsCharacters graphics = TitleGraphicsCharacters.Read(
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
@@ -537,7 +537,7 @@ internal static class TitleGradientVerification
     internal static CaptureInstalledTitleGradientResult CaptureInstalledTitleGradient(
         TitleGradientPresentation presentation,
         RgbColor backdrop,
-        TitleGraphicsPresentation graphics)
+        TitleGraphicsCharacters graphics)
     {
         var title = CreateTitlePresentationFixture(titleGradientPresentation: presentation,
             titleBackdrop: backdrop, titleGraphicsPresentation: graphics);

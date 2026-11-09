@@ -8,8 +8,8 @@ internal static class CinematicClosedContractDefinitions
     [
         new("SuperMetroid.Core.Frontend.Title.Artwork.TitleGradientPresentation", "title-complete-masked-gradient-variants", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleGradientPresentation.cs")]),
-        new("SuperMetroid.Core.Frontend.Title.Artwork.TitleGraphicsPresentation", "title-complete-compiled-sprite-identities", ["DrawSprite"],
-            [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleGraphicsPresentation.cs"),
+        new("SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteDrawing", "title-complete-compiled-sprite-identities", ["DrawSprite"],
+            [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDrawing.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardStep.cs"),

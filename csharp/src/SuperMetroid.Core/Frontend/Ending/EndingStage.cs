@@ -62,13 +62,6 @@ internal sealed class EndingStage
             ? EndingReward.Helmetless
             : EndingReward.Armored;
 
-    /// <summary>Requires installed ending font art before it is loaded.</summary>
-    internal EndingFontAtlas ResolveEndingFont()
-    {
-        return EndingFont ?? throw new InvalidOperationException(
-            "Ending font requires installed presentation assets.");
-    }
-
     /// <summary>
     /// Adds an actor in its place in the running order: one the ending shows one of at a time replaces the one already shown
     /// and takes its fixed place after every other actor; any other follows the actors that spawned before it.
@@ -255,9 +248,6 @@ internal sealed class EndingStage
     /// <summary>The palette effects the ending runs.</summary>
     internal RoomPaletteFxSystem PaletteFxSystem { get; private set; } = new(new PaletteFxSessionState());
 
-    /// <summary>The ending's installed font.</summary>
-    internal EndingFontAtlas? EndingFont { get; private set; }
-
     /// <summary>The ending scenes' installed backdrops (#1544).</summary>
     internal EndingBackdrops? Backdrops { get; private set; }
 
@@ -296,12 +286,6 @@ internal sealed class EndingStage
 
     /// <summary>Restarts the fade cadence: the next fade step lands two calls from now.</summary>
     internal void RestartFadeCadence() => fadeCounter = 1;
-
-    /// <summary>Binds the installed ending font when the game is bound to its installed content.</summary>
-    internal void BindEndingFont(EndingFontAtlas? value)
-    {
-        EndingFont = value;
-    }
 
     /// <summary>Selects the backdrops later scenes show (#1544).</summary>
     internal void BindBackdrops(EndingBackdrops? value) => Backdrops = value;

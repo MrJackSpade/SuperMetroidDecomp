@@ -15,23 +15,26 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// </summary>
 internal static class MenuScreenMemory
 {
-    /// <summary>Character images already composed, by world-map artwork (#1532): installed artwork never changes once read.</summary>
-    private static readonly ConditionalWeakTable<WorldMapArtwork, byte[]> composedCharacters = new();
-
-    /// <summary>The character image of <paramref name="screen"/>'s bound artwork: a copy the caller owns.</summary>
-    [WholeImageFixture("the menu's character image")]
-    internal static byte[] Characters(MenuScreen screen) =>
-        (byte[])composedCharacters.GetValue(Ensure.NotNull(screen).WorldArtwork, ComposeCharacters).Clone();
+    /// <summary>Character images already composed, by world-map characters (#1532): installed artwork never changes once read.</summary>
+    private static readonly ConditionalWeakTable<WorldMapCharacters, byte[]> composedCharacters = new();
 
     /// <summary>
-    /// Composes the character image a menu showing <paramref name="worldArtwork"/> holds: its world characters with the
+    /// The character image a menu shows from <paramref name="maps"/>: its world-map characters, which the menu's installed
+    /// sheets are composed from (#1583), with the installation's map characters and sprite page; a copy the caller owns.
+    /// </summary>
+    [WholeImageFixture("the menu's character image")]
+    internal static byte[] Characters(AreaMapPresentation maps) =>
+        (byte[])composedCharacters.GetValue(InstalledAreaMapPresentation.WorldCharactersOf(maps), ComposeCharacters).Clone();
+
+    /// <summary>
+    /// Composes the character image a menu showing <paramref name="worldCharacters"/> holds: its world characters with the
     /// installed map characters and sprite page.
     /// </summary>
     [WholeImageFixture("the menu's character image")]
-    private static byte[] ComposeCharacters(WorldMapArtwork worldArtwork)
+    private static byte[] ComposeCharacters(WorldMapCharacters worldCharacters)
     {
         var image = new SnesVram();
-        worldArtwork.LoadTo(image);
+        worldCharacters.LoadTo(image);
         // The menu's map characters and sprite page are installed artwork, the same for every menu screen (#1463, #1466).
         MapCharacterArtwork.Of(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).Map
             .LoadTo(new VramRegion(image, MenuVramLayout.MapCharacters));
@@ -41,13 +44,14 @@ internal static class MenuScreenMemory
     }
 
     /// <summary>
-    /// The memory image <paramref name="screen"/> shows: its characters with <paramref name="tilemaps"/>, the cartridge's
-    /// four menu screens (BG1, the area map's second screen, BG2, the area background) laid out from what it shows (#1467).
+    /// The memory image a menu shows from <paramref name="maps"/>: its characters with <paramref name="tilemaps"/>, the
+    /// cartridge's four menu screens (BG1, the area map's second screen, BG2, the area background) laid out from what it
+    /// shows (#1467).
     /// </summary>
     [WholeImageFixture("the menu's 64 KiB memory image")]
-    internal static byte[] Compose(MenuScreen screen, ReadOnlySpan<BackgroundTile> tilemaps)
+    internal static byte[] Compose(AreaMapPresentation maps, ReadOnlySpan<BackgroundTile> tilemaps)
     {
-        byte[] image = Characters(screen);
+        byte[] image = Characters(maps);
         ushort[] words = BackgroundTileWordBytes.Words(tilemaps);
         int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
         for (int word = 0; word < words.Length; word++)
@@ -58,10 +62,4 @@ internal static class MenuScreenMemory
         return image;
     }
 
-    /// <summary>Reads a menu screen's memory image.</summary>
-    extension(MenuScreen self)
-    {
-        /// <summary>The character image of the screen's bound artwork.</summary>
-        internal byte[] Characters => Characters(self);
-    }
 }

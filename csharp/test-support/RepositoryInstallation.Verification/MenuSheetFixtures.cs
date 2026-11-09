@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -104,16 +105,16 @@ internal static class MenuSheetFixtures
     }
 
     /// <summary>Installed sheets with a title sheet already composed, by title graphics.</summary>
-    private static readonly ConditionalWeakTable<TitleGraphicsPresentation, InstalledSpriteSheets> titles = new();
+    private static readonly ConditionalWeakTable<TitleGraphicsCharacters, InstalledSpriteSheets> titles = new();
 
     /// <summary>
     /// The installed sheets with the title sheet <paramref name="graphics"/> composes, coloured with the installation's
     /// title palette; a fixture's edited colours reach the screen through the live-colour path.
     /// </summary>
-    internal static InstalledSpriteSheets WithTitle(TitleGraphicsPresentation graphics)
+    internal static InstalledSpriteSheets WithTitle(TitleGraphicsCharacters graphics)
     {
         ArgumentNullException.ThrowIfNull(graphics);
-        return ReferenceEquals(graphics, InstalledFixtures.Maps.TitleGraphics) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
+        return ReferenceEquals(graphics, InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps)) || ShowsStockTitle(graphics) ? InstalledFixtures.SpriteSheets
             : titles.GetValue(graphics, ComposedTitle);
     }
 
@@ -127,23 +128,21 @@ internal static class MenuSheetFixtures
     /// The installed sheets with the title and title floor sheets <paramref name="graphics"/> composes: those already composed
     /// for the same content, or composed now.
     /// </summary>
-    private static InstalledSpriteSheets ComposedTitle(TitleGraphicsPresentation graphics)
+    private static InstalledSpriteSheets ComposedTitle(TitleGraphicsCharacters characters)
     {
-        if (graphics is not SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters characters)
-            return ComposeTitle(graphics);
         lock (composedTitles)
         {
             foreach ((SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters composed, InstalledSpriteSheets sheets) in composedTitles)
                 if (SameTitleContent(characters, composed))
                     return sheets;
-            InstalledSpriteSheets made = ComposeTitle(graphics);
+            InstalledSpriteSheets made = ComposeTitle(characters);
             composedTitles.Add((characters, made));
             return made;
         }
     }
 
     /// <summary>Composes the installed sheets with the title and title floor sheets <paramref name="graphics"/> composes.</summary>
-    private static InstalledSpriteSheets ComposeTitle(TitleGraphicsPresentation graphics)
+    private static InstalledSpriteSheets ComposeTitle(TitleGraphicsCharacters graphics)
     {
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)),
@@ -161,10 +160,8 @@ internal static class MenuSheetFixtures
     /// Whether <paramref name="graphics"/> holds the installation's title graphics: the same content, read again (#1532),
     /// whose sheets are the installed sheets.
     /// </summary>
-    private static bool ShowsStockTitle(TitleGraphicsPresentation graphics) =>
-        graphics is SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters characters
-        && SameTitleContent(characters, InstalledFixtures.Maps.TitleGraphics as SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsCharacters
-            ?? throw new InvalidOperationException("The installation's title graphics are not installed title characters."));
+    private static bool ShowsStockTitle(TitleGraphicsCharacters graphics) =>
+        SameTitleContent(graphics, InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps));
 
     /// <summary>
     /// Whether two title graphics hold the same content: the floor map, the floor, object and Baby characters, and every
@@ -188,7 +185,7 @@ internal static class MenuSheetFixtures
         return ReferenceEquals(palette, ImportAreaMapPresentation.TitlePaletteOf(InstalledFixtures.Maps)) ? InstalledFixtures.SpriteSheets
             : titlePalettes.GetValue(palette, key =>
             {
-                TitleGraphicsPresentation graphics = InstalledFixtures.Maps.TitleGraphics;
+                TitleGraphicsCharacters graphics = InstalledAreaMapPresentation.TitleGraphicsOf(InstalledFixtures.Maps);
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(graphics, key),
                     $"title-palette-{RuntimeHelpers.GetHashCode(key):X8}");

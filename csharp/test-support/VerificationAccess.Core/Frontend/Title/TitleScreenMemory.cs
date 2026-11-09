@@ -14,10 +14,10 @@ internal static class TitleScreenMemory
 {
     /// <summary>The memory image of <paramref name="artwork"/> with Baby Metroid source page <paramref name="babySourcePage"/> shown.</summary>
     [WholeImageFixture("the title screen's memory image")]
-    internal static byte[] Compose(TitleGraphicsPresentation artwork, int babySourcePage)
+    internal static byte[] Compose(TitleGraphicsCharacters artwork, int babySourcePage)
     {
-        ReadOnlySpan<byte> characters = artwork.FloorCharacters;
-        ReadOnlySpan<byte> map = TitleGraphicsCharacters.Of(artwork).FloorMap;
+        ReadOnlySpan<byte> characters = Ensure.NotNull(artwork).FloorCharacters;
+        ReadOnlySpan<byte> map = artwork.FloorMap;
         ReadOnlySpan<byte> objects = artwork.ObjectCharacters;
         ReadOnlySpan<byte> baby = artwork.BabyCharacters;
         if (characters.Length < TitleFloorTileDefinitions.FloorCharacterByteCount)
@@ -42,9 +42,12 @@ internal static class TitleScreenMemory
         return vram.CaptureImage();
     }
 
-    /// <summary>The memory image <paramref name="title"/> shows at its current Baby Metroid animation frame.</summary>
+    /// <summary>
+    /// The memory image <paramref name="title"/> shows at its current Baby Metroid animation frame, from the installation's
+    /// title graphics, which the title's installed sheets are composed from (#1583).
+    /// </summary>
     [WholeImageFixture("the title screen's memory image")]
     internal static byte[] Compose(TitleSequenceState title) =>
-        Compose(title.TitleGraphics ?? throw new InvalidOperationException("Title rendering requires installed title artwork."),
+        Compose(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.TitleGraphicsOf(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
             TitleFloorTileDefinitions.BabyPages[TitleSequenceDefinitions.Graphics.BabyAnimation[title.BabyFrame]]);
 }

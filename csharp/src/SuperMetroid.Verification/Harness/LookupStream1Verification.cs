@@ -114,7 +114,7 @@ internal static class LookupStream1Verification
             AssertEqual(!available, stored.ContainsKey(index), "Exact font/icon basis, no stock primitive overrides");
         }
         AssertEqual(1725, stored.Count, "Exact residual contour pixels plus five selected font edges");
-        void Check(WorldMapArtwork art, byte[] expected)
+        void Check(WorldMapCharacters art, byte[] expected)
         {
             var vram = new SnesVram(); art.LoadTo(vram);
             AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(front), "Foreground obligation remains exact and separate");
@@ -1993,7 +1993,7 @@ internal static class LookupStream1Verification
         AssertEqual(10845, calculated, "Exact geometry and shared-source relations");
 
         AssertEqual(360, fontDifferences, "Exact selected glyph bevel/contour decisions");
-        void Check(WorldMapArtwork art, byte[] expected)
+        void Check(WorldMapCharacters art, byte[] expected)
         {
             var vram = new SnesVram(); art.LoadTo(vram);
             AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormatConstants.ForegroundDestination, front.Length).SequenceEqual(

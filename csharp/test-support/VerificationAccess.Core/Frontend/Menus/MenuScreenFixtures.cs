@@ -27,7 +27,7 @@ internal static class MenuScreenFixtures
         var tiles = new BackgroundTile[4 * ScreenCells];
         screens.Page(MapScreenDefinitions.WorldForeground).CopyTo(tiles);
         screens.Page(MapScreenDefinitions.WorldBackground(AreaIds.At(graphics.SelectedArea))).CopyTo(tiles.AsSpan(3 * ScreenCells));
-        return Load(MenuScreenMemory.Compose(graphics.screen, tiles));
+        return Load(MenuScreenMemory.Compose(maps, tiles));
     }
 
     /// <summary>A VRAM holding the room map <paramref name="graphics"/> shows, its frame read from <paramref name="maps"/>.</summary>
@@ -38,7 +38,7 @@ internal static class MenuScreenFixtures
         var tiles = new BackgroundTile[4 * ScreenCells];
         ShownAreaMapTiles.Of(graphics.AreaMap).CopyTo(tiles, 0);
         InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.RoomFrame(graphics.icons.MapArea)).CopyTo(tiles.AsSpan(2 * ScreenCells));
-        return Load(MenuScreenMemory.Compose(graphics.screen, tiles));
+        return Load(MenuScreenMemory.Compose(maps, tiles));
     }
 
     /// <summary>A VRAM holding <paramref name="image"/>.</summary>

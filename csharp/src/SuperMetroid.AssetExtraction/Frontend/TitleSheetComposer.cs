@@ -22,14 +22,13 @@ internal static class TitleSheetComposer
 
     /// <summary>What the title sheet composes.</summary>
     internal static SpriteSheetSources Sources(AreaMapPresentation maps) =>
-        Sources(Ensure.NotNull(maps).TitleGraphics, ImportAreaMapPresentation.TitlePaletteOf(maps));
+        Sources(InstalledAreaMapPresentation.TitleGraphicsOf(maps), ImportAreaMapPresentation.TitlePaletteOf(maps));
 
     /// <summary>What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>.</summary>
-    internal static SpriteSheetSources Sources(TitleGraphicsPresentation graphics, TitlePalettePresentation palette)
+    internal static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
     {
-        Ensure.NotNull(graphics);
+        TitleGraphicsCharacters characters = Ensure.NotNull(graphics);
         Ensure.NotNull(palette);
-        TitleGraphicsCharacters characters = TitleGraphicsCharacters.Of(graphics);
         // Each composition's palette-inheriting parts are pictured in the sprite set of the one colouring the title draws
         // it in (#1513), so the sheet shows every frame in its own colours. A card's reveals are pictured as the glyphs they
         // type, each once: a reveal's glyph is the parts it adds to the reveal before it, and a reveal adding none types a

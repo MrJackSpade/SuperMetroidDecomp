@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>Verification access to <see cref="EndingFontAtlas"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="EndingFontCharacters"/> construction production does not use.</summary>
 internal static class EndingFontAtlasAccess
 {
     /// <summary>Reconstructs the ending font from exact-size planar bytes for legacy fixtures.</summary>

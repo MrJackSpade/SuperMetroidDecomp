@@ -398,7 +398,7 @@ internal static void VerifyEndingCreditsState()
             previous = ending.Stage.Phase;
             reached.Add(previous);
             RgbaPixel[] pixels = ending.Render();
-            AssertEqual(FrontendFrame.Width * FrontendFrame.Height, pixels.Length,
+            AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height, pixels.Length,
                 $"ending {previous} frame size");
             renderedTransitions++;
         }

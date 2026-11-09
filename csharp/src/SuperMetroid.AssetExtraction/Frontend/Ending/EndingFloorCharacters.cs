@@ -45,21 +45,4 @@ public sealed class EndingFloorCharacters
 
     /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
     public EndingRewardIconArtwork RewardIcon { get; }
-
-    /// <summary>Identity of each decoded scene's two transfer lanes and the import's reward-icon transfer.</summary>
-    /// <exception cref="InvalidDataException">A scene or the reward icon was not read from installed artwork.</exception>
-    public string ContentIdentity => SelectedPresentationHash.Create("EndingFloorArtworkCatalog", content =>
-    {
-        content.Append("scene-count", 3);
-        AppendScene(this[EndingFloorSceneId.EscapeA]);
-        AppendScene(this[EndingFloorSceneId.EscapeB]);
-        AppendScene(this[EndingFloorSceneId.PlanetExplosion]);
-        content.Append("reward-icon", EndingRewardIconCharacters.Of(RewardIcon).Bytes.Span);
-
-        void AppendScene(EndingFloorSceneArtwork scene)
-        {
-            content.Append("map", scene.Map.Span);
-            content.Append("characters", EndingFloorSceneCharacters.Of(scene).Characters.Span);
-        }
-    });
 }

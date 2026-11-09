@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Installation;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;

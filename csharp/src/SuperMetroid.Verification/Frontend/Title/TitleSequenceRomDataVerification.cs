@@ -52,7 +52,7 @@ internal static class TitleSequenceRomDataVerification
                     previous = state.Phase;
                     observed.Add(previous);
                     AssertEqual(
-                        FrontendFrame.Width * FrontendFrame.Height,
+                        SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height,
                         state.Render().Length,
                         $"title {previous} frame geometry");
                 }

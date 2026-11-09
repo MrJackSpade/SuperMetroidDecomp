@@ -11,13 +11,13 @@ public static class FileSelectMapWindowCompositor
     /// <summary>As above, writing into <paramref name="pixels"/>, which must not alias either input.</summary>
     public static RgbaPixel[] CompositeInitialEntryWindow(ReadOnlySpan<RgbaPixel> area, ReadOnlySpan<RgbaPixel> roomFrame, RgbaPixel[] pixels)
     {
-        int length = FrontendFrame.Width * FrontendFrame.Height;
+        int length = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height;
         if (area.Length != length || roomFrame.Length != length || pixels.Length != length)
             throw new ArgumentException("File-select entry windows require two complete scenes and a complete output.");
         roomFrame.CopyTo(pixels);
         for (int y = FileSelectMapDefinitions.EntryWindowTop; y < FrontendFrame.Height - FileSelectMapDefinitions.EntryWindowTop; y++)
         {
-            int offset = y * FrontendFrame.Width + FileSelectMapDefinitions.EntryWindowLeft;
+            int offset = y * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels + FileSelectMapDefinitions.EntryWindowLeft;
             area.Slice(offset, FileSelectMapDefinitions.EntryWindowRight - FileSelectMapDefinitions.EntryWindowLeft + 1)
                 .CopyTo(pixels.AsSpan(offset));
         }
@@ -30,7 +30,7 @@ public static class FileSelectMapWindowCompositor
     {
         Ensure.NotNull(window);
         Ensure.NotNull(pixels);
-        int length = FrontendFrame.Width * FrontendFrame.Height;
+        int length = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height;
         if (area.Length != length || roomFrame.Length != length || pixels.Length != length)
             throw new ArgumentException("File-select map windows require two complete 256x224 scenes and a complete output.");
         if (window.IsComplete)
@@ -43,7 +43,7 @@ public static class FileSelectMapWindowCompositor
         if (window.IsEmpty) return pixels;
         for (int y = window.Top; y < window.Bottom; y++)
         {
-            int offset = y * FrontendFrame.Width + window.Left;
+            int offset = y * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels + window.Left;
             roomFrame.Slice(offset, window.Right - window.Left).CopyTo(pixels.AsSpan(offset));
         }
         return pixels;

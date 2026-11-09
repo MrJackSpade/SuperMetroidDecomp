@@ -14,8 +14,6 @@ public readonly record struct FrontendFrame(
     string Phase,
     int FrameNumber)
 {
-    /// <summary>Visible frame width in pixels: 256 columns in row-major screen order.</summary>
-    public const int Width = ScreenGeometry.ScreenWidthPixels;
     /// <summary>Visible non-overscan frame height in pixels: 224 scanlines.</summary>
     public const int Height = ScreenGeometry.ScreenHeightPixels;
 }

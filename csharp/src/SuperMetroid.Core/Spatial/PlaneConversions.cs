@@ -25,9 +25,4 @@ public static class PlaneConversions
     /// </summary>
     public static Offset16<PlanePixels> AsPlaneOffset(this Position16<RoomPixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
 
-    /// <summary>
-    /// The plane offset a scroll word names (#1555): a pictured plane does not repeat, so a word past the signed range
-    /// names a scroll left of or above the plane's origin.
-    /// </summary>
-    public static Offset16<PlanePixels> AsPlaneOffset(this Position16<PlanePixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
 }

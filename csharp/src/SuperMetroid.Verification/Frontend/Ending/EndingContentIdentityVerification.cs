@@ -1,9 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
@@ -75,17 +73,6 @@ internal static class EndingContentIdentityVerification
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
         AssertTrue(ReferenceEquals(reward, catalog.RewardIcon), "ending Mode7 reward identity");
-        string originalHash = SelectedPresentationHash.Create("EndingFloorArtworkCatalog", content =>
-        {
-            content.Append("scene-count", supplied.Length);
-            foreach (var scene in supplied)
-            {
-                content.Append("map", scene.Map.Span);
-                content.Append("characters", scene.Characters.Span);
-            }
-            content.Append("reward-icon", reward.Bytes.Span);
-        });
-        AssertEqual(originalHash, catalog.ContentIdentity, "ending Mode7 original hash ordering");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingFloorSceneId)invalid], "ending Mode7 role bounds");

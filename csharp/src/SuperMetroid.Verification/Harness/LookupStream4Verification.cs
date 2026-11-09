@@ -1079,7 +1079,6 @@ internal static class LookupStream4Verification
         {
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Icon exact document hash");
             ushort[] tiles=Enumerable.Repeat(selected.Blank.PackedWord,96).ToArray();
             for(int item=0;item<5;item++)
             {
@@ -1129,7 +1128,6 @@ internal static class LookupStream4Verification
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Template exact document hash");
             ushort[] tiles=new ushort[96];selected.ApplyTemplate(tiles);
             for(int index=0;index<96;index++)
             {
@@ -1158,7 +1156,6 @@ internal static class LookupStream4Verification
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Top row exact serialized content identity");
             ushort[] row=BackgroundTileWordBytes.Words(selected.TopRowTiles());
             AssertEqual(32,row.Length,"Top row covers every HUD column");
             for(int column=0;column<32;column++)
@@ -1188,7 +1185,6 @@ internal static class LookupStream4Verification
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);
             using var output=new MemoryStream();GameplayHudPresentationFile.Write(output,document);byte[] bytes=output.ToArray();
             var selected=GameplayHudPresentationFile.Read(new MemoryStream(bytes));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"AUTO preserves document content hash");
             var hud=new HudState();hud.BindPresentation(selected);
             hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
             foreach(bool full in new[]{true,false})

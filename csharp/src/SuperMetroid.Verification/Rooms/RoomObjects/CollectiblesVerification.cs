@@ -659,8 +659,8 @@ internal static class CollectiblesVerification
                     controllerRead: 0);
                 AssertTrue(
                     retailMessage.TilemapRowCount(RetailMessageFixture()) is >=
-                        SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.MinimumRows and <=
-                        SuperMetroid.AssetExtraction.Hud.GameplayMessageTilemapDefinitions.MaximumRows,
+                        SuperMetroid.AssetExtraction.Hud.GameplayMessageBoxRowsConstants.MinimumRows and <=
+                        SuperMetroid.AssetExtraction.Hud.GameplayMessageBoxRowsConstants.MaximumRows,
                     $"retail gameplay message {messageId} has a supported layout");
             }
         }

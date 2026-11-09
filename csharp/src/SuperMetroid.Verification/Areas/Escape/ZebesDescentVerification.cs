@@ -28,9 +28,9 @@ internal static class ZebesDescentVerification
             for (int y = 0; y < FrontendFrame.Height; y++)
             {
                 int planetPixels = 0;
-                for (int x = 0; x < FrontendFrame.Width; x++)
+                for (int x = 0; x < SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels; x++)
                 {
-                    var p = pixels[y * FrontendFrame.Width + x];
+                    var p = pixels[y * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels + x];
                     if (p.R > p.G && p.G > 30 && p.B < p.G / 2) planetPixels++;
                 }
                 // A row of planet gold, rather than isolated stars. Keeping the

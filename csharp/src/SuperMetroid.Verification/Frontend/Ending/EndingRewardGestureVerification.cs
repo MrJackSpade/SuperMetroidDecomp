@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Frontend.Intro;

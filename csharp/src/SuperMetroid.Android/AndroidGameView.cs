@@ -16,16 +16,16 @@ namespace SuperMetroid.Android;
 internal sealed class AndroidGameView : View
 {
     /// <summary>Reusable Android bitmap containing the latest software frame.</summary>
-    private readonly Bitmap bitmap = Bitmap.CreateBitmap(FrontendFrame.Width, FrontendFrame.Height,
+    private readonly Bitmap bitmap = Bitmap.CreateBitmap(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, FrontendFrame.Height,
         Bitmap.Config.Argb8888 ?? throw new InvalidOperationException("Android has no ARGB_8888 bitmap configuration."));
     /// <summary>Nearest-neighbor paint preserving source game pixels.</summary>
     private readonly Paint pixels = new() { FilterBitmap = false, AntiAlias = false };
     /// <summary>Paint for diagnostic status and room text over the game viewport.</summary>
     private readonly Paint text = new() { Color = Color.White, TextSize = 24, AntiAlias = true };
     /// <summary>Reusable packed pixel buffer uploaded to the bitmap.</summary>
-    private readonly int[] argb = new int[FrontendFrame.Width * FrontendFrame.Height];
+    private readonly int[] argb = new int[SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height];
     /// <summary>Single-frame handoff that replaces stale presentation frames.</summary>
-    private readonly AndroidFrameMailbox frames = new(FrontendFrame.Width * FrontendFrame.Height, new AndroidFrameHandoffTrace());
+    private readonly AndroidFrameMailbox frames = new(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height, new AndroidFrameHandoffTrace());
     /// <summary>Cached delegate used when the mailbox supplies a frame for upload.</summary>
     private readonly Action<RgbaPixel[]> uploadFrame;
     /// <summary>Current diagnostic status displayed inside the game viewport.</summary>
@@ -112,7 +112,7 @@ internal sealed class AndroidGameView : View
         canvas.Save();
         canvas.ClipRect(left, top, right, bottom);
         canvas.DrawText(Volatile.Read(ref status), left + 8, top + 28, text);
-        canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Size.X / FrontendFrame.Width}x",
+        canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Size.X / SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels}x",
             left + 8, top + 56, text);
         canvas.Restore();
         Interlocked.Add(ref drawTicks, Stopwatch.GetTimestamp() - drawStart);
@@ -130,7 +130,7 @@ internal sealed class AndroidGameView : View
             RgbaPixel p = frame[i];
             argb[i] = AndroidPixelPacking.Argb(p);
         }
-        bitmap.SetPixels(argb, 0, FrontendFrame.Width, 0, 0, FrontendFrame.Width, FrontendFrame.Height);
+        bitmap.SetPixels(argb, 0, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, 0, 0, SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels, FrontendFrame.Height);
         Interlocked.Add(ref uploadTicks, Stopwatch.GetTimestamp() - uploadStart);
     }
 

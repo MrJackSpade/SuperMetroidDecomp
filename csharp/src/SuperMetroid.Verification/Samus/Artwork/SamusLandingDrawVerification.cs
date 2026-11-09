@@ -71,6 +71,6 @@ internal static class SamusLandingDrawVerification
 
     /// <summary>Whether any of the draw's placed parts covers a visible screen pixel.</summary>
     private static bool OverlapsScreen(SpriteDraw draw) => Enumerable.Range(0, draw.Frame.Parts.Length).Select(draw.Place).Any(part =>
-        part.Position.X + part.Size.X > 0 && part.Position.X < FrontendFrame.Width &&
+        part.Position.X + part.Size.X > 0 && part.Position.X < SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels &&
         part.Position.Y + part.Size.Y > 0 && part.Position.Y < FrontendFrame.Height);
 }

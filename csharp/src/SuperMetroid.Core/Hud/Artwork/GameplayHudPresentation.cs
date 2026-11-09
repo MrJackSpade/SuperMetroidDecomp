@@ -23,8 +23,6 @@ public class GameplayHudPresentation
             throw new ArgumentException("The gameplay HUD's layout does not place each of its elements.", nameof(parts));
     }
 
-    /// <summary>Gets the SHA-256 identity of the source presentation document.</summary>
-    public string ContentIdentity => parts.ContentIdentity;
 
     /// <summary>The five-by-three minimap's size in HUD cells.</summary>
     public static Extent16<TilemapCells> MinimapSize => new(5, 3);
@@ -35,12 +33,6 @@ public class GameplayHudPresentation
     /// <summary>The template, across the three rows the HUD's values are drawn over.</summary>
     public static PlacedHudImage Template => new(HudTemplateImage.Instance, Drawn(Position16<TilemapCells>.Zero));
 
-    /// <summary>
-    /// Whether item <paramref name="itemIndex"/>'s icon draws when the HUD adds it: the game draws an icon only over
-    /// a blank anchor, and nothing but the template ever sits under an icon.
-    /// </summary>
-    /// <param name="itemIndex">The zero-based item icon index.</param>
-    public bool IconShowsOverTemplate(int itemIndex) => parts.IconsShowOverTemplate[ItemIndex(itemIndex)];
 
     /// <summary>
     /// Item <paramref name="itemIndex"/>'s cells: the icon where it has been added over a template that leaves room for it,

@@ -37,7 +37,7 @@ internal static class StartupReferenceTests
         }
         RgbaPixel[]? lastPixels = null;
         int maximumGlyphRed = 0;
-        byte[] channelBytes = new byte[FrontendFrame.Width * FrontendFrame.Height * 4];
+        byte[] channelBytes = new byte[SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height * 4];
         // Match within the named hold phase, not an assumed wall-clock startup tick.
         // This proves one visual state; it does not establish cartridge timing parity.
         for (int tick = 0; tick < 2500 && (!yearOnly || title.Phase == TitleSequencePhase.YearText); tick++)

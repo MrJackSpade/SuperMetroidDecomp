@@ -51,7 +51,7 @@ internal static class FrontendRenderCaptureTestsVerification
                 long allocationStart = GC.GetAllocatedBytesForCurrentThread();
                 var metadata = captured.CurrentFrame;
                 long metadataBytes = GC.GetAllocatedBytesForCurrentThread() - allocationStart;
-                AssertTrue(metadataBytes < FrontendFrame.Width * FrontendFrame.Height,
+                AssertTrue(metadataBytes < SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * FrontendFrame.Height,
                     "metadata access must not allocate even a one-byte-per-pixel raster");
                 AssertEqual(expected.GameState, metadata.GameState, "metadata state");
                 AssertEqual(expected.Phase, metadata.Phase, "metadata phase");

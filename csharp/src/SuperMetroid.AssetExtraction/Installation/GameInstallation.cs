@@ -102,11 +102,6 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads the installed opening-cinematic artwork.</summary>
     public IntroCinematicSourceArtwork LoadIntroCinematicArt() =>
         IntroCinematicArtworkFiles.Load(IntroCinematicDirectory);
-    /// <summary>Installed ending Mode 7 scene artwork, which the player edits in place.</summary>
-    public string EndingMode7Directory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingMode7DirectoryName);
-    /// <summary>Loads the installed ending Mode 7 artwork, which the import pictures the turning floors' sheets from; the game never loads it (#1555).</summary>
-    public EndingFloorCharacters LoadEndingMode7Art() =>
-        EndingMode7ArtworkFiles.Load(EndingMode7Directory);
     /// <summary>Installed ending sprite artwork, which the player edits in place.</summary>
     public string EndingObjectDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EndingObjectDirectoryName);
     /// <summary>Loads the installed ending OBJ artwork.</summary>

@@ -31,6 +31,4 @@ public static class GameplayHudDefinitions
     /// <summary>Six cells in the two-column, three-row AUTO label and arrows.</summary>
     public const int AutoReserveCellCount = 6;
 
-    /// <summary>The HUD's ammunition counters: missiles, Super Missiles and Power Bombs, the first three icons' items.</summary>
-    internal const int AmmoCounterCount = 3;
 }

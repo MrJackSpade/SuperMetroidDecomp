@@ -9,7 +9,6 @@ namespace SuperMetroid.Diagnostics.Input;
 /// joypad bit is named once here, in both directions.
 /// </summary>
 [EncodingOwner("SNES joypad word")]
-[ButtonWordEncoding("the explicit mapping between each button and its joypad bit")]
 public static class ControllerWordCodec
 {
     /// <summary>Every button a standard controller supplies, each converted through <see cref="JoypadBit"/>.</summary>

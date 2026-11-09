@@ -6,6 +6,26 @@ internal static class ReadOnlySpanQueriesAccess
     /// <summary>Allocating span queries that only verification runs.</summary>
     extension<T>(ReadOnlySpan<T> span)
     {
+        /// <summary>A new array of the elements satisfying <paramref name="predicate"/> given each element and its index.</summary>
+        internal T[] WhereToArray(Func<T, int, bool> predicate)
+        {
+            Ensure.NotNull(predicate);
+            int count = 0;
+            for (int index = 0; index < span.Length; index++)
+            {
+                if (predicate(span[index], index))
+                    count++;
+            }
+            var result = new T[count];
+            int next = 0;
+            for (int index = 0; index < span.Length; index++)
+            {
+                if (predicate(span[index], index))
+                    result[next++] = span[index];
+            }
+            return result;
+        }
+
         /// <summary>A new array of <paramref name="selector"/>'s results given each element and its index, in element order.</summary>
         public TResult[] SelectToArray<TResult>(Func<T, int, TResult> selector)
         {

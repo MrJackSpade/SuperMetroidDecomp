@@ -35,8 +35,8 @@ internal static class FileSelectPresentationVerification
         });
         saveRam.SelectSlot(0);
 
-        var nativeAudio = new AudioQueues();
-        var installedAudio = new AudioQueues();
+        var nativeAudio = AudioQueues.Standalone();
+        var installedAudio = AudioQueues.Standalone();
         var native = new FileSelectMenuState(saveRam, nativeAudio, original, MenuSheetFixtures.For(original));
         var installed = new FileSelectMenuState(saveRam, installedAudio, original, MenuSheetFixtures.For(original));
         int comparedFrames = 0;

@@ -19,7 +19,7 @@ internal static class EndingScreenPublicationVerification
     /// </summary>
     internal static void VerifyEndingScreenPublication()
     {
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         EndingCreditsState ending = InstalledFixtures.CreateEnding(audio, 3, 0);
         foreach (EndingCreditsPhase target in new[] { EndingCreditsPhase.Credits, EndingCreditsPhase.PostCreditsLogo })
         {

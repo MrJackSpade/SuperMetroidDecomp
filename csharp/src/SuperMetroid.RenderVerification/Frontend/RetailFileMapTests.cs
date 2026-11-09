@@ -35,7 +35,7 @@ internal static class RetailFileMapTests
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(masks), backdrop ? AreaMapBackgroundGlow.WholeScreen : AreaMapBackgroundGlow.ForegroundOnly), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(new SharedGameState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
+            var room = new FileSelectRoomMapGraphics(new SharedGameState(new SharedRandom()), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), $"room={area}, scroll={scroll}");
@@ -46,8 +46,8 @@ internal static class RetailFileMapTests
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             saves.SaveSlot(0, save);
-            var legacy = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
-            var captured = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
+            var legacy = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
+            var captured = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {

@@ -27,7 +27,7 @@ internal static class EyeDoorProjectileBehaviorVerification
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Projectile, Facing: EyeDoorOrientation.Left, RoomObjectBlockIndex: 4 * 16 + 7, DoorBit: 0),
             roomWidthInBlocks: 16,
-            new SharedGameState());
+            new SharedGameState(new SharedRandom()));
         RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         shot.Position = shot.Position.WithWhole(new(64, 32));

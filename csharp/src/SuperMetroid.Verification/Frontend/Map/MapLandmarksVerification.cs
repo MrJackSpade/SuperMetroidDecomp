@@ -26,7 +26,7 @@ internal static class MapLandmarksVerification
         for (int bits = 0; bits < 1 << BossBitMasks.InMarkerOrder.Count; bits++)
         {
             // Every combination of the named boss flags; no routine tests any other (#1475).
-            var system = new SharedGameState();
+            var system = new SharedGameState(new SharedRandom());
             BossBits bosses = BossMaskCodec.Decode(bits, "landmark boss combination");
             system.Progress.SetDefeatedBosses(area, bosses);
             if (downloaded) system.SetAreaMapAcquired(area);

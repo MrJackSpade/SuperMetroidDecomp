@@ -52,7 +52,7 @@ internal static class EyeDoorObjectsVerification
         int randomAdvances = 0;
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
         enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(0x9600), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(new SnesVram())) { Level = level, Samus = samus });
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         int roomObjectBlock = 4 * 16 + 7;
 
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
@@ -136,7 +136,7 @@ internal static class EyeDoorObjectsVerification
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             new RoomTerrainBlock[roomWidth * roomHeight],
             new RoomBlockBehavior[roomWidth * roomHeight]);
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),

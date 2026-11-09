@@ -119,7 +119,7 @@ internal static class FileSelectMapWindowVerification
         }
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
-        var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.SharedGameState(),
+        var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.SharedGameState(new SharedRandom()),
             SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
         RgbaPixel[] frameOnly = graphics.RenderFrameOnly().ToArray();
         AssertTrue(frameOnly.Length > 0 && graphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer],

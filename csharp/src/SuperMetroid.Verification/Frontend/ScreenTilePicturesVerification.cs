@@ -45,7 +45,7 @@ internal static class ScreenTilePicturesVerification
     {
         AreaMapPresentation maps = InstalledFixtures.Maps;
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
-        var explored = new SharedGameState();
+        var explored = new SharedGameState(new SharedRandom());
         explored.Progress.ExploreEveryCell();
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
@@ -106,7 +106,7 @@ internal static class ScreenTilePicturesVerification
             Console.WriteLine($"Screen tile pictures: {sampled.Count} Ceres destruction phases draw all {layers} of their floor layers from their pictures, as their characters do.");
             return;
         }
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         IntroCinematicState introState = CreateRetailIntroFixture(audio);
         // The caption is installed pictures placed by scene state (#1467), not tiles, so its phase is checked for drawing them.
         bool captionPictured = false;
@@ -180,7 +180,7 @@ internal static class ScreenTilePicturesVerification
         var sampled = new HashSet<string>();
         int layers = 0;
         // The ending waits on its music queue, which the game drains after every dispatch.
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         EndingCreditsState ending = CreateRetailEndingFixture(audio, 10, 59);
         for (int tick = 0; ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission
             && (afterCredits || ending.Stage.Phase < EndingCreditsPhase.Credits); tick++)
@@ -210,7 +210,7 @@ internal static class ScreenTilePicturesVerification
     /// </summary>
     internal static void VerifyTitleScreenTilePictures()
     {
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         TitleSequenceState title = InstalledFixtures.CreateTitle(audio);
         var sampled = new HashSet<string>();
         for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)
@@ -252,7 +252,7 @@ internal static class ScreenTilePicturesVerification
     internal static void VerifyPauseScreenTilePictures()
     {
         AreaMapPresentation maps = InstalledFixtures.Maps;
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         system.Progress.ExploreEveryCell();
         var pause = new PauseMenuState(new PauseMenuEntry
         {

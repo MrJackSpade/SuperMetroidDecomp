@@ -20,7 +20,7 @@ internal static class GameplayAudioPublicationVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.LiquidPhysics.CinematicFunctionActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         audio.AdvanceFrame(default);
         var publication = new GameplayAudioFramePublication(audio);
 
@@ -58,7 +58,7 @@ internal static class GameplayAudioPublicationVerification
 
         samus.LiquidPhysics.BeginFrameSoundRequests();
         runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.ForceActive(true);
-        var suppressedAudio = new AudioQueues();
+        var suppressedAudio = AudioQueues.Standalone();
         var suppressedPublication = new GameplayAudioFramePublication(suppressedAudio);
         // A suppressed echo is still admitted at the threshold with an empty queue (formerly the accumulator $0003).
         AssertEqual(SoundQueueAdmission.Admitted(0), suppressedPublication.QueueEcho(runtime),

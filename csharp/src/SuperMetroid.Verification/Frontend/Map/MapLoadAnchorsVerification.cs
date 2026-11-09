@@ -136,7 +136,7 @@ internal static class MapLoadAnchorsVerification
                 anchors++;
                 for (int visibility = 0; visibility < 4; visibility++)
                 {
-                    var system = new SharedGameState();
+                    var system = new SharedGameState(new SharedRandom());
                     if (visibility == 1)
                     {
                         system.MarkExploredMapTile(typedArea, new(0, 0));
@@ -166,7 +166,7 @@ internal static class MapLoadAnchorsVerification
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
         SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(0) ??
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
-        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(new AudioQueues(), savedSlot, 0),
+        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), savedSlot, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
@@ -194,8 +194,8 @@ internal static class MapLoadAnchorsVerification
             saves.SaveSlot(0, snapshot);
             byte[] before = ReadSram();
             var slot = saves.ReadSlot(0);
-            var native = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, catalog, MenuSheetFixtures.For(catalog));
-            var compiled = new FileSelectMapMenuState(new AudioQueues(), slot, 0, catalog, MenuSheetFixtures.For(catalog));
+            var native = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, catalog, MenuSheetFixtures.For(catalog));
+            var compiled = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), slot, 0, catalog, MenuSheetFixtures.For(catalog));
             // Area-specific expanding-window durations differ. Compare every
             // native phase and stop on its actual endpoint, with a bounded guard.
             for (int tick = 0; tick < 256 && compiled.Phase != FileSelectMapNavigationPhase.Room; tick++)

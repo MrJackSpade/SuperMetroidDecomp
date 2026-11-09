@@ -23,7 +23,7 @@ internal static class MapScreensVerification
     internal static void VerifyMapScreens(ISnesAddressSpace bus, AreaMapPresentation original)
     {
         var guard = NewMapScreenGuard(bus);
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         system.Progress.ExploreEveryCell();
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
         {

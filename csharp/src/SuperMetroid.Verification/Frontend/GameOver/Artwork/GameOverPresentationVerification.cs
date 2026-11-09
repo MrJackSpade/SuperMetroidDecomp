@@ -26,8 +26,8 @@ internal static class GameOverPresentationVerification
         AssertEqual(60, GameOverBabyAnimationDefinitions.InstructionCount,
             "compiled game-over Baby instruction count");
 
-        var nativeAudio = new AudioQueues();
-        var installedAudio = new AudioQueues();
+        var nativeAudio = AudioQueues.Standalone();
+        var installedAudio = AudioQueues.Standalone();
         var native = new GameOverMenuState(nativeAudio, original, MenuSheetFixtures.For(original));
         var installed = new GameOverMenuState(installedAudio, original, MenuSheetFixtures.For(original));
         bool choseNo = false;

@@ -287,7 +287,7 @@ internal static class CollectiblesVerification
         RoomLevelData level = CreateRoom(size,
             foreground,
             new RoomBlockBehavior[foreground.Length]);
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         if (precollected)
             system.SetCollectedItemBit(roomArgument);
         if (preopenedChozo)
@@ -471,7 +471,7 @@ internal static class CollectiblesVerification
     /// <summary>Checks SRAM round-trip of edge item bits, Chozo and door bits, events, bosses, and independent beam words.</summary>
     private static void VerifyCollectedItemSaveRoundTrip()
     {
-        var sourceSystem = new SharedGameState();
+        var sourceSystem = new SharedGameState(new SharedRandom());
         sourceSystem.SetCollectedItemBit(0);
         sourceSystem.SetCollectedItemBit(91);
         sourceSystem.SetCollectedItemBit(511);
@@ -495,7 +495,7 @@ internal static class CollectiblesVerification
         SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("collectible save slot checksum failed");
 
-        var restoredSystem = new SharedGameState();
+        var restoredSystem = new SharedGameState(new SharedRandom());
         var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         slot.ApplyTo(restoredSamus, restoredSystem);
         AssertTrue(restoredSystem.HasCollectedItemBit(0), "first physical item bit round-trips");

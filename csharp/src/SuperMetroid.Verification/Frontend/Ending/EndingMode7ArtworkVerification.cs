@@ -42,8 +42,8 @@ internal static class EndingMode7ArtworkVerification
 
         var guardedBus = NewEndingMode7SourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-        var nativeAudio = new AudioQueues();
-        var installedAudio = new AudioQueues();
+        var nativeAudio = AudioQueues.Standalone();
+        var installedAudio = AudioQueues.Standalone();
         var native = CreateRetailEndingFixture(nativeAudio, 0, 0);
         var installed = CreateRetailEndingFixture(installedAudio, 0, 0);
         installed.Stage.BindFloorArtwork(stock);

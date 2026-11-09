@@ -156,14 +156,14 @@ internal static void VerifyHudState()
     // 5x3 centering, exploration palette, and the map-station/unexplored palette independently.
     SeedSyntheticCrateriaAreaMap(bus);
 
-    var mapSystem = new SharedGameState();
+    var mapSystem = new SharedGameState(new SharedRandom());
     mapSystem.SetAreaMapAcquired(0);
     hud.UpdateMinimap(mapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "minimap Landing Site absolute tile");
     AssertEqual(SyntheticHudWord(new(25, 4), explored: false), hud.TileWords[26], "minimap top-left unvisited map-station tile");
     AssertEqual(SyntheticHudWord(new(27, 5), explored: true), hud.TileWords[60], "minimap explored center tile");
 
-    var noMapSystem = new SharedGameState();
+    var noMapSystem = new SharedGameState(new SharedRandom());
     hud.UpdateMinimap(noMapSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual((int)new MapTileWord(SyntheticMapWord(new(27, 5))).ForHud(explored: true).WithLocationBlink().Raw, hud.TileWords[60],
         "minimap blinking center palette");
@@ -175,7 +175,7 @@ internal static void VerifyHudState()
     foreach (int x in new[] { 31, 32 })
     foreach (ushort slope in new ushort[] { 0x0c28, 0x4c28 })
     {
-        var slopeSystem = new SharedGameState();
+        var slopeSystem = new SharedGameState(new SharedRandom());
         Position16<MapTiles> currentTile = new(checked((ushort)x), 5);
         Position16<MapTiles> aboveTile = new(checked((ushort)x), 4);
         ushort savedCurrent = ReadFixtureMapWord(bus, currentTile);
@@ -190,7 +190,7 @@ internal static void VerifyHudState()
         SeedFixtureMapWord(bus, currentTile, savedCurrent);
         SeedFixtureMapWord(bus, aboveTile, savedAbove);
     }
-    var ordinaryCornerSystem = new SharedGameState();
+    var ordinaryCornerSystem = new SharedGameState(new SharedRandom());
     // The hallway's lower ceiling, character $029, is adjacent in the graphics catalog but
     // must not get the lower floor's exploration side effect; this also rejects
     // indiscriminate upper-cell revealing.
@@ -208,7 +208,7 @@ internal static void VerifyHudState()
     const int secretHudY = 4;
     const int publicHudX = 26;
     ClearFixtureMapStationBit(bus, new(secretHudX, secretHudY));
-    var overrideSystem = new SharedGameState();
+    var overrideSystem = new SharedGameState(new SharedRandom());
     hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, MapRevealMode = MapRevealMode.Public, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(MapTileWords.HudBlank.Raw, hud.TileWords[26],
         "Public HUD override excludes cartridge secret-only cell");
@@ -238,7 +238,7 @@ internal static void VerifyHudState()
     const int rightPageNeighborX = 35;
     const int rightPageCenterY = 19;
     ResetFixtureMapStationBitsToSingleTile(bus, new(rightPageNeighborX, rightPageCenterY));
-    var rightPageSystem = new SharedGameState();
+    var rightPageSystem = new SharedGameState(new SharedRandom());
     rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
     hud.UpdateMinimap(rightPageSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(34, 18), RoomSize = new(2 * 16, 16), Samus = new(0x0080, 0x0080), FrameCounter = 8, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
     AssertEqual(new Position16<MapTiles>(34, rightPageCenterY), hud.MinimapCenter, "right-page minimap absolute tile");

@@ -72,7 +72,7 @@ internal static class EndingShootingStarsTests
 
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
-        var scene = new EndingCreditsState(new AudioQueues(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
+        var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
         scene.InstalledArtwork.BindFixtureObjectArtwork(installed.LoadEndingObjectArt());
         scene.InstalledArtwork.BindBackdrops(installed.LoadEndingBackdrops());
         scene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);

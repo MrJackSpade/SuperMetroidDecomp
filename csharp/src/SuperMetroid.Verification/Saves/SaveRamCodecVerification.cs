@@ -169,7 +169,7 @@ internal static class SaveRamCodecVerification
     /// </summary>
     internal static void VerifyProgressionSavedFields()
     {
-        var system = new SharedGameState { LoadedItemCount = SaveFieldValue.MaximumValue };
+        var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = SaveFieldValue.MaximumValue };
         AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "the loaded-item count holds a save field's largest value");
         AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = SaveFieldValue.MaximumValue + 1,
             "a loaded-item count past a save field is rejected instead of wrapping");
@@ -202,7 +202,7 @@ internal static class SaveRamCodecVerification
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)
     {
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         system.SetEvent(EventNumber.ZebesAwake);
         system.SetBossBits(area, BossBits.AreaBoss);
         system.SetCollectedItemBit(health % 64);

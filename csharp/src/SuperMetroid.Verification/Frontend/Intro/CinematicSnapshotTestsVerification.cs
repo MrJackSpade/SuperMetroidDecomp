@@ -28,7 +28,7 @@ internal static class CinematicSnapshotTestsVerification
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(new AudioQueues(), InstalledFixtures.IntroArtwork.CeresFlight, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.CeresFlight));
+        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.CeresFlight, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.CeresFlight));
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;
@@ -88,7 +88,7 @@ internal static class CinematicSnapshotTestsVerification
         int menuSamples = 0;
         foreach (bool chooseNo in new[] { false, true })
         {
-            var audio = new AudioQueues();
+            var audio = AudioQueues.Standalone();
             var menu = new GameOverMenuState(audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             bool toggled = false, released = false;
             GameOverMenuPhase? sampledPhase = null;
@@ -132,8 +132,8 @@ internal static class CinematicSnapshotTestsVerification
     {
         // Each owner keeps its own music queue, which the Ceres flight waits on; the game runs
         // the queue handler after every dispatch.
-        var legacyAudio = new AudioQueues();
-        var capturedAudio = new AudioQueues();
+        var legacyAudio = AudioQueues.Standalone();
+        var capturedAudio = AudioQueues.Standalone();
         var legacy = CreateRetailIntroFixture(legacyAudio);
         var captured = CreateRetailIntroFixture(capturedAudio);
         var phases = new HashSet<IntroCinematicPhase>();

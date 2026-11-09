@@ -161,8 +161,8 @@ internal static class EndingPaletteArtworkVerification
         var guardedBus = NewEndingPaletteSourceReadGuard(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
             maps.RoomPaletteFx, () => rejectAllCartridgeReads);
-        var nativeAudio = new AudioQueues();
-        var installedAudio = new AudioQueues();
+        var nativeAudio = AudioQueues.Standalone();
+        var installedAudio = AudioQueues.Standalone();
         var nativeState = CreateRetailEndingFixture(nativeAudio, 2, 59);
         var installedState = CreateRetailEndingFixture(installedAudio, 2, 59);
         installedState.InstalledArtwork.BindBackdrops(backdrops);

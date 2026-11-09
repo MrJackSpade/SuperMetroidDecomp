@@ -43,7 +43,7 @@ internal static class RetailElevatorReturnTests
         runtime.Enemies.ElevatorBehavior.SetElevatorStatusForDebugging((ushort)ElevatorActorStatus.Departing);
         RetailDoorCaptureTests.PublishDoor(runtime, DoorPointers.BlueBrinstarElevatorFromMorphBall);
         var transition = new DoorTransitionState();
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         transition.Begin(runtime);
         int samples = 0, scrolling = 0, arrivalFrames = 0;
         var cameraPositions = new HashSet<ushort>();

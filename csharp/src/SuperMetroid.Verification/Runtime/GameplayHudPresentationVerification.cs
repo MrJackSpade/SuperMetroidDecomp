@@ -87,8 +87,8 @@ internal static class GameplayHudPresentationVerification
         AssertEqual(native.SelectionSoundRequestedThisFrame, installed.SelectionSoundRequestedThisFrame,
             "installed HUD retains selection-sound mechanics");
 
-        var nativeSystem = new SharedGameState();
-        var installedSystem = new SharedGameState();
+        var nativeSystem = new SharedGameState(new SharedRandom());
+        var installedSystem = new SharedGameState(new SharedRandom());
         nativeSystem.SetAreaMapAcquired(AreaId.Crateria);
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
         native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), FrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });

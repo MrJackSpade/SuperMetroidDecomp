@@ -32,8 +32,8 @@ internal static class EndingRewardIconArtworkVerification
             "reward icon JSON/PNG preserves all interleaved native map and character bytes");
 
         var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-        var nativeAudio = new AudioQueues();
-        var installedAudio = new AudioQueues();
+        var nativeAudio = AudioQueues.Standalone();
+        var installedAudio = AudioQueues.Standalone();
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
         installedScene.Stage.BindFloorArtwork(stock);

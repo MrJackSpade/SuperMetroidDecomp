@@ -20,7 +20,7 @@ internal static class SoundQueueReturnVerification
             ushort expectedAccumulator = ushort.Parse(fields[2], NumberStyles.HexNumber);
             int expectedCount = int.Parse(fields[3], CultureInfo.InvariantCulture);
             int expectedNewSound = int.Parse(fields[4], CultureInfo.InvariantCulture);
-            var queue = new AudioQueues();
+            var queue = AudioQueues.Standalone();
             queue.AdvanceFrame(default);
             for (int index = 0; index < occupancy; index++)
                 queue.QueueSound(Library3Sound.CrocomireAcidDamage, SoundRequestPriority.Essential);

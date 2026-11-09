@@ -39,9 +39,9 @@ internal static class SoundAcceptanceClockVerification
     internal static void VerifySoundAcceptanceClockMatchesEmulatedDriver()
     {
         var session = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
-        var rendered = new AudioQueues();
+        var rendered = AudioQueues.Standalone();
         SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> ports = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder, SoundEffectLibrary.Library1);
-        var modeled = new AudioQueues();
+        var modeled = AudioQueues.Standalone();
         var acknowledgementBytes = new List<byte>();
         using var pcm = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var samples = new short[AudioSession.PcmSamplesPerFrame];

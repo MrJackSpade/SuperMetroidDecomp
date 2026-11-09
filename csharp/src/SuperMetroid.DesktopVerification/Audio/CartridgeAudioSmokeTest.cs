@@ -10,7 +10,7 @@ public static class CartridgeAudioSmokeTest
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);
 
-        var queue = new AudioQueues();
+        var queue = AudioQueues.Standalone();
         queue.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
         queue.QueueMusic(MusicRequest.SelectTrack(5));
 
@@ -57,7 +57,7 @@ public static class CartridgeAudioSmokeTest
         // A fresh player receives only reset's common driver/sample upload.  Keeping title
         // music out of this pass means any nonzero output belongs to the cartridge's actual
         // library-one power-beam program instead of merely proving that the mixer is alive.
-        var soundQueue = new AudioQueues();
+        var soundQueue = AudioQueues.Standalone();
         SoundEffectId powerBeam = SoundEffectCommands.Decode(SoundEffectLibrary.Library1, powerBeamSound);
         soundQueue.QueueSound(powerBeam, priority: SoundRequestPriority.Essential);
         SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> acknowledgements = default;

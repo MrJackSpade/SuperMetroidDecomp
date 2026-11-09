@@ -58,7 +58,7 @@ internal static class PauseBackdropsVerification
         // writes Plasma's label nine cells long, into the cells after it; that overrun is a presentation quirk the port
         // does not keep (#1515), so the page shows each label as its item's state describes it and the template after it.
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster), CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, EquippedBeams = SamusBeamFlags.Spazer };
-        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new SharedGameState(new SharedRandom()), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
@@ -74,7 +74,7 @@ internal static class PauseBackdropsVerification
         {
             // Ceres has no map station, so its map byte is never set natively; since #1252 the
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.
-            var system = new SharedGameState();
+            var system = new SharedGameState(new SharedRandom());
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
             return new(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         }

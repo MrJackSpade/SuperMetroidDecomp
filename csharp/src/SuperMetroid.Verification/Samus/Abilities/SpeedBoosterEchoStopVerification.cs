@@ -22,7 +22,7 @@ internal static class SpeedBoosterEchoStopVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
-        var queue = new AudioQueues();
+        var queue = AudioQueues.Standalone();
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         var libraries = renderer.PlayerForVerification.soundLibraries;

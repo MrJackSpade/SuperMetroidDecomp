@@ -34,7 +34,7 @@ internal static class BossMapMarkersVerification
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1) continue;
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (list + record * 4 + 2));
-                var system = new SharedGameState();
+                var system = new SharedGameState(new SharedRandom());
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                 // Center the marker under test without changing its authored position.
@@ -69,13 +69,13 @@ internal static class BossMapMarkersVerification
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
-                var restoredSystem = new SharedGameState();
+                var restoredSystem = new SharedGameState(new SharedRandom());
                 slot.ApplyTo(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), restoredSystem);
                 AssertTrue(dead.SequenceEqual(CenteredPause(restoredSystem).Render()),
                     "JSON/SRAM reload preserves the complete defeated pause image");
                 // The existing-save menu creates its own progression owner from the
                 // slot. Compare that actual constructor path with the live source.
-                var savedMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), slot, 0,
+                var savedMenu = new FileSelectMapMenuState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new SharedRandom(), slot, 0,
                     RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
                 var savedGraphics = savedMenu.roomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(system, (AreaId)area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));

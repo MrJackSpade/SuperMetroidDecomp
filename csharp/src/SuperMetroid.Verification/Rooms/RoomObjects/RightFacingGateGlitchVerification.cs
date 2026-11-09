@@ -119,7 +119,7 @@ internal static class RightFacingGateGlitchVerification
                 };
                 // Loading binds a new PLM system to this position's level, so every position starts from the same unbound one.
                 RoomObjectSystem roomObjects = unboundObjects;
-                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(populationVram), new SharedGameState(), areaIndex), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+                RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(populationVram), new SharedGameState(new SharedRandom()), areaIndex), population, new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
                 for (int warm = 0; warm < 2; warm++)
                     roomObjects.Step(level);
                 roomObjects.Gates.TakeDownwardGateProjectileRequests();

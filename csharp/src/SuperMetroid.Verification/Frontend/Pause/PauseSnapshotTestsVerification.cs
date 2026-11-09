@@ -31,7 +31,7 @@ internal static class PauseSnapshotTestsVerification
             MaxReserveEnergy = 100, ReserveEnergy = 47,
             Position = FixedPosition<RoomPixels>.FromWhole(new(512, 768)),
         };
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         system.SetAreaMapAcquired((byte)AreaId.Maridia);
         system.MarkExploredMapTile((byte)AreaId.Maridia, new(30, 5));
         // Retain a drawn HUD rather than testing only the cleared menu background (#1466).

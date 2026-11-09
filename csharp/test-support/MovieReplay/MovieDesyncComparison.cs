@@ -70,7 +70,7 @@ internal static class MovieDesyncComparison
             return new SoundQueueState(q.Start, q.Next, q.State);
         }));
         Console.WriteLine("  sfx native " + Queues(queue =>
-            new SoundQueueState(memory[0x0643 + queue], memory[0x0646 + queue], memory[0x0649 + queue])));
+            new SoundQueueState(memory[0x0643 + queue], memory[0x0646 + queue], SoundQueueState.PhaseFromNative(memory[0x0649 + queue]))));
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.

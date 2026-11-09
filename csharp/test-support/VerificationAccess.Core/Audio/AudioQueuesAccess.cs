@@ -16,9 +16,20 @@ internal static class AudioQueuesAccess
         internal SoundEffectId? SoundQueueEntryForVerification(int queue, int index) =>
             self.SoundQueues[queue, index];
 
-        /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
+        /// <summary>Queue start/next indices and handler handshake phase of one SFX library ($0643+/$0646+/$0649+).</summary>
         internal SoundQueueState SoundQueueForVerification(int queue) =>
             new SoundQueueState(self.SoundReadPositions[queue], self.SoundWritePositions[queue],
-             self.SoundStates[queue]);
+             self.SoundHandshakes.Handshakes[queue].Phase);
+    }
+
+    /// <summary>Creates queues for a check that runs them without a game session.</summary>
+    extension(AudioQueues)
+    {
+        /// <summary>
+        /// Queues over their own sound request handshakes, created for every library as the session's composition root
+        /// creates the session's; for a check whose queues stand alone.
+        /// </summary>
+        internal static AudioQueues Standalone() =>
+            new(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder));
     }
 }

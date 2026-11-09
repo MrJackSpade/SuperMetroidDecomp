@@ -75,7 +75,7 @@ internal static class AudioVerification
         Suite(nameof(VerifySoundQueueAccumulator), () => VerifySoundQueueAccumulator());
         Suite(nameof(VerifyGameplayAudioPublication), () => VerifyGameplayAudioPublication());
 
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
         audio.QueueMusic(MusicRequest.SelectTrack(5));
 
@@ -137,7 +137,7 @@ internal static class AudioVerification
 
         // Ceres post-battle rooms use `(0, 0)` specifically to retain track seven.
         // `$82:E071/$E0D5` return on each zero field; zero is not a stop command.
-        var inheritedRoomMusic = new AudioQueues();
+        var inheritedRoomMusic = AudioQueues.Standalone();
         inheritedRoomMusic.AdvanceFrame(default);
         inheritedRoomMusic.QueueMusic(MusicRequest.SelectTrack(7));
         // The first handler call copies the newly queued entry into the active timer;
@@ -164,7 +164,7 @@ internal static class AudioVerification
                     $"room track ${roomTrack:X2} is not one retail room states hold");
                 continue;
             }
-            var roomMusic = new AudioQueues();
+            var roomMusic = AudioQueues.Standalone();
             roomMusic.AdvanceFrame(default);
             roomMusic.QueueRoomMusic(RoomMusicCodec.Decode(0, (byte)roomTrack));
             var portWrites = new List<AudioRequest>();
@@ -181,7 +181,7 @@ internal static class AudioVerification
         // The Zebes approach interstitial and Landing Site both call their song "track
         // five", but use different SPC data banks. `$82:E0E6-$E104` compares the packed
         // bank/track pair, so the latter track must be resent after bank six uploads.
-        var postCeresLandingMusic = new AudioQueues();
+        var postCeresLandingMusic = AudioQueues.Standalone();
         postCeresLandingMusic.AdvanceFrame(default);
         postCeresLandingMusic.QueueMusic(MusicRequest.SelectTrack(5));
         for (int frame = 0; frame < 9; frame++)
@@ -199,7 +199,7 @@ internal static class AudioVerification
                 command == AudioRequest.ForTrack(new MusicTrack(5))),
             "Landing Site restarts same-numbered track after SPC data-bank change");
 
-        var sfx = new AudioQueues();
+        var sfx = AudioQueues.Standalone();
         sfx.AdvanceFrame(default); // consume reset upload/port writes
         sfx.QueueSound(Library2Sound.DudShotOnDoor, priority: SoundRequestPriority.Normal);
         IReadOnlyList<AudioRequest> request = sfx.AdvanceFrame(default);
@@ -214,7 +214,7 @@ internal static class AudioVerification
             sfx.AdvanceFrame(default).Single(),
             "SFX request clear");
 
-        var cancellation = new AudioQueues();
+        var cancellation = AudioQueues.Standalone();
         cancellation.AdvanceFrame(default);
         cancellation.QueueCancelSoundEffects();
         IReadOnlyList<AudioRequest> cancelWrites =

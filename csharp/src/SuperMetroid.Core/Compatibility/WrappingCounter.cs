@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// <para>
 /// <b>Frame point.</b> None of its own: each owner steps its counter once per call of the owner's update (an enemy's AI,
-/// the beam producer's firing step, a sound queue's clear delay at the end of the update).
+/// the beam producer's firing step).
 /// </para>
 /// <para>
 /// <b>Evidence.</b> The original game's counters are words and bytes stepped with no clamp; the full-movie replays (the
@@ -36,12 +36,6 @@ public static class WrappingCounter
     /// <summary>Takes one away from a count of 0 through 65535; a count at zero continues from 65535.</summary>
     /// <param name="value">The count, 0 through 65535.</param>
     public static int DecrementWord(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) - 1) & ushort.MaxValue;
-
-    /// <summary>
-    /// Takes one away from a count of 0 through 255 (for example a colour component or a sound queue's clear delay); a
-    /// count at zero continues from 255. Owners that step only a nonzero count never wrap it.
-    /// </summary>
-    public static byte DecrementByte(byte value) => unchecked((byte)(value - 1));
 
     /// <summary>Adds one to a count of 0 through 65535; a count at 65535 continues from zero.</summary>
     public static int IncrementWord(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + 1) & ushort.MaxValue;

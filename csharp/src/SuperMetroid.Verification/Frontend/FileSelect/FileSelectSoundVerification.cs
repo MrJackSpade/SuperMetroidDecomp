@@ -19,7 +19,7 @@ internal static class FileSelectSoundVerification
     internal static void VerifyFileSelectSound()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         var menu = new FileSelectMenuState(new SuperMetroid.Core.Saves.SaveSlotStore(), audio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
         var renderer = AudioSessionAccess.CreateSynthesizing(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
         int writes = 0, nonzero = 0;

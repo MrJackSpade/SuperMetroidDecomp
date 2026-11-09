@@ -31,7 +31,7 @@ internal static class SaveSchemaTranslationVerification
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var ram = new SaveSlotStore(RetailPresentationFixture());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { ReserveMissiles = 27 };
-        var system = new SharedGameState { LoadedItemCount = 65535 };
+        var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = 65535 };
         // Progress in every set schema two listed by table position, so its upgrade is exercised (#1475).
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaTorizo);
         system.MarkSaveStationUsed(AreaId.Norfair, 3);
@@ -58,7 +58,7 @@ internal static class SaveSchemaTranslationVerification
             "named schema rebuilds the canonical SRAM image");
         var loaded = targetSaves.ReadSlot(0);
         var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
-        var restoredSystem = new SharedGameState();
+        var restoredSystem = new SharedGameState(new SharedRandom());
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
         AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");
         AssertEqual(65535, restoredSystem.LoadedItemCount, "item load count reaches live progression owner");
@@ -265,7 +265,7 @@ internal static class SaveSchemaTranslationVerification
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
-        var ending = new EndingCreditsState(new SuperMetroid.Core.Audio.AudioQueues(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text.Typewriter() });
+        var ending = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text.Typewriter() });
         ending.InstalledArtwork.BindPaletteFxColors(RoomPaletteFxPresentationFile.Read(new MemoryStream(
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         // The game binds the installed sheets with the ending, which draws its stars from them.

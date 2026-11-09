@@ -45,7 +45,7 @@ internal static class GameSaveJsonVerification
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
             EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
         };
-        var system = new SharedGameState();
+        var system = new SharedGameState(new SharedRandom());
         system.SetEvent(EventNumber.ZebesAwake);
         system.Progress.Events.Add(63);
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaMiniBoss);
@@ -226,7 +226,7 @@ internal static class GameSaveJsonVerification
         AreaMapPresentation maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
-        var system = new SharedGameState { LoadedItemCount = ushort.MaxValue };
+        var system = new SharedGameState(new SharedRandom()) { LoadedItemCount = ushort.MaxValue };
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
             new SaveSnapshotContext { Area = AreaId.Maridia, SaveStation = SaveFieldValue.MaximumValue }) with
         {

@@ -24,7 +24,7 @@ internal static class PhantoonReport1196Verification
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         enemies.PublishEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
-        var audio = new AudioQueues();
+        var audio = AudioQueues.Standalone();
         var renderer = AudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);

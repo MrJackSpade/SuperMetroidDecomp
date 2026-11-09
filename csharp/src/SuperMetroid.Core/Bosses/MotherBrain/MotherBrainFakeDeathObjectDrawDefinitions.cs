@@ -11,8 +11,8 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
     /// </summary>
     internal static readonly Dictionary<MotherBrainFakeDeathDraw, MotherBrainFakeDeathDraws.RegularDraw> RegularShapes = new()
     {
-        [MotherBrainFakeDeathDraw.BackgroundRowEUnused] = new(MotherBrainFakeDeathDraw.BackgroundRowEUnused, 13, 1, MotherBrainFakeDeathClear.FillRow, 0),
-        [MotherBrainFakeDeathDraw.BackgroundRowFUnused] = new(MotherBrainFakeDeathDraw.BackgroundRowFUnused, 13, 1, MotherBrainFakeDeathClear.FillRow, 0),
+        [MotherBrainFakeDeathDraw.UnusedFirstSolidRow] = new(MotherBrainFakeDeathDraw.UnusedFirstSolidRow, 13, 1, MotherBrainFakeDeathClear.FillRow, 0),
+        [MotherBrainFakeDeathDraw.UnusedSecondSolidRow] = new(MotherBrainFakeDeathDraw.UnusedSecondSolidRow, 13, 1, MotherBrainFakeDeathClear.FillRow, 0),
         [MotherBrainFakeDeathDraw.ClearCeilingBlock] = new(MotherBrainFakeDeathDraw.ClearCeilingBlock, 2, 1, MotherBrainFakeDeathClear.CeilingTube, 0),
         [MotherBrainFakeDeathDraw.ClearCeilingTube] = new(MotherBrainFakeDeathDraw.ClearCeilingTube, 5, 1, MotherBrainFakeDeathClear.CeilingTube, 0),
         [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = new(MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube, 4, 1, MotherBrainFakeDeathClear.FloorTube, 0),
@@ -53,7 +53,7 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
                 RoomTerrainBlock.Of(545, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
-        [MotherBrainFakeDeathDraw.BackgroundRowEUnused] =
+        [MotherBrainFakeDeathDraw.UnusedFirstSolidRow] =
         [
             [
                 RoomTerrainBlock.Of(793, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -71,7 +71,7 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
                 RoomTerrainBlock.Of(793, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ],
         ],
-        [MotherBrainFakeDeathDraw.BackgroundRowFUnused] =
+        [MotherBrainFakeDeathDraw.UnusedSecondSolidRow] =
         [
             [
                 RoomTerrainBlock.Of(68, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -199,9 +199,9 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
     /// <summary>The twelve mural rows, top to bottom; a row's position is its row of the mural.</summary>
     internal static readonly MotherBrainFakeDeathDraw[] BackgroundRows =
     [
-        MotherBrainFakeDeathDraw.BackgroundRow2, MotherBrainFakeDeathDraw.BackgroundRow3, MotherBrainFakeDeathDraw.BackgroundRow4,
-        MotherBrainFakeDeathDraw.BackgroundRow5, MotherBrainFakeDeathDraw.BackgroundRow6, MotherBrainFakeDeathDraw.BackgroundRow7,
-        MotherBrainFakeDeathDraw.BackgroundRow8, MotherBrainFakeDeathDraw.BackgroundRow9, MotherBrainFakeDeathDraw.BackgroundRowA,
-        MotherBrainFakeDeathDraw.BackgroundRowB, MotherBrainFakeDeathDraw.BackgroundRowC, MotherBrainFakeDeathDraw.BackgroundRowD,
+        MotherBrainFakeDeathDraw.MuralRow1, MotherBrainFakeDeathDraw.MuralRow2, MotherBrainFakeDeathDraw.MuralRow3,
+        MotherBrainFakeDeathDraw.MuralRow4, MotherBrainFakeDeathDraw.MuralRow5, MotherBrainFakeDeathDraw.MuralRow6,
+        MotherBrainFakeDeathDraw.MuralRow7, MotherBrainFakeDeathDraw.MuralRow8, MotherBrainFakeDeathDraw.MuralRow9,
+        MotherBrainFakeDeathDraw.MuralRow10, MotherBrainFakeDeathDraw.MuralRow11, MotherBrainFakeDeathDraw.MuralRow12,
     ];
 }

@@ -35,7 +35,7 @@ internal static class RoomObjectSystemAccess
                 RoomObjectHeaderId.SpeedBoosterEscape or
                 RoomObjectHeaderId.WreckedShipAttic or
                 RoomObjectHeaderId.NoobTube or
-                RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired or
+                RoomObjectHeaderId.MetroidRoomClearance or
                 RoomObjectHeaderId.MotherBrainEscapeRoomGate or
                 RoomObjectHeaderId.DownwardGate or RoomObjectHeaderId.DownwardGateShotBlock ||
                 EyeDoorObjects.IsEyeDoorHeader(header) || DraygonCannonObjects.IsDraygonCannonHeader(header))

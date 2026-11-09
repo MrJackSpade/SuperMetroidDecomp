@@ -31,7 +31,7 @@ internal sealed class ShaktoolObjects
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.Header = RoomObjectHeaderId.ShaktoolsRoom;
+        slot.Header = RoomObjectHeaderId.ShaktoolRoomController;
         slot.BlockIndex = 0;
         slot.StartAnimation(new ScriptedRoomObjectAnimation(ScriptedRoomObjectProgram.ShaktoolRoomController));
         slot.FrameHold = 1;

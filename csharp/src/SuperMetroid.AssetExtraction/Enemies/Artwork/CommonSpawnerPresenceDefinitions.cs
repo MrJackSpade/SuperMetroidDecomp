@@ -35,8 +35,7 @@ internal static class CommonSpawnerPresenceDefinitions
     /// <summary>The gates whose sliding bars are enemy projectiles.</summary>
     private static readonly RoomObjectHeaderId[] Gates =
     [
-        RoomObjectHeaderId.DownwardsOpenGate, RoomObjectHeaderId.DownwardGate, RoomObjectHeaderId.UpwardsOpenGate, RoomObjectHeaderId.UpwardsClosedGate,
-        RoomObjectHeaderId.DownwardGateShotBlock, RoomObjectHeaderId.UpwardsGateShotblock,
+        RoomObjectHeaderId.DownwardGate, RoomObjectHeaderId.DownwardGateShotBlock,
     ];
 
     /// <summary>The corpses whose rot and crumble raise dust.</summary>
@@ -114,7 +113,7 @@ internal static class CommonSpawnerPresenceDefinitions
         },
         [nameof(DownwardGateBehavior)] = new() { RoomObjects = Gates },
         [Engine(nameof(EnemyProjectileEngine.SpawnSaveStationElectricity))] =
-            new() { RoomObjects = [RoomObjectHeaderId.SaveStation, RoomObjectHeaderId.SaveStationTrigger] },
+            new() { RoomObjects = [RoomObjectHeaderId.SaveStation] },
         [Engine(nameof(EnemyProjectileEngine.CreateEnemyProjectileDudShot))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRandomEnemyDeathSprite))] = EveryEnemy,
         [Engine(nameof(EnemyProjectileEngine.SpawnRoomGraphicsDustExplosion))] = new()

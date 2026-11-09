@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The changes Mother Brain's fight and death make to her room: the wall, the escape door, the background rows the
-/// ascent redraws and the tubes the fake death collapses. These are the only spawns her room spawner performs.
+/// The changes Mother Brain's fight and death make to her room: the wall, the escape door, the rows of the mural behind
+/// her tank that the ascent redraws and the tubes the fake death collapses. These are the only spawns her room spawner performs.
 /// </summary>
 public enum MotherBrainRoomMutation
 {
@@ -10,30 +10,30 @@ public enum MotherBrainRoomMutation
     FillWall,
     /// <summary>Opens the escape door.</summary>
     EscapeDoor,
-    /// <summary>Installs background row two.</summary>
-    BackgroundRow2,
-    /// <summary>Installs background row three.</summary>
-    BackgroundRow3,
-    /// <summary>Installs background row four.</summary>
-    BackgroundRow4,
-    /// <summary>Installs background row five.</summary>
-    BackgroundRow5,
-    /// <summary>Installs background row six.</summary>
-    BackgroundRow6,
-    /// <summary>Installs background row seven.</summary>
-    BackgroundRow7,
-    /// <summary>Installs background row eight.</summary>
-    BackgroundRow8,
-    /// <summary>Installs background row nine.</summary>
-    BackgroundRow9,
-    /// <summary>Installs background row ten.</summary>
-    BackgroundRowA,
-    /// <summary>Installs background row eleven.</summary>
-    BackgroundRowB,
-    /// <summary>Installs background row twelve.</summary>
-    BackgroundRowC,
-    /// <summary>Installs background row thirteen.</summary>
-    BackgroundRowD,
+    /// <summary>Draws the first row of the mural behind her tank.</summary>
+    MuralRow1,
+    /// <summary>Draws the second row of the mural behind her tank.</summary>
+    MuralRow2,
+    /// <summary>Draws the third row of the mural behind her tank.</summary>
+    MuralRow3,
+    /// <summary>Draws the fourth row of the mural behind her tank.</summary>
+    MuralRow4,
+    /// <summary>Draws the fifth row of the mural behind her tank.</summary>
+    MuralRow5,
+    /// <summary>Draws the sixth row of the mural behind her tank.</summary>
+    MuralRow6,
+    /// <summary>Draws the seventh row of the mural behind her tank.</summary>
+    MuralRow7,
+    /// <summary>Draws the eighth row of the mural behind her tank.</summary>
+    MuralRow8,
+    /// <summary>Draws the ninth row of the mural behind her tank.</summary>
+    MuralRow9,
+    /// <summary>Draws the tenth row of the mural behind her tank.</summary>
+    MuralRow10,
+    /// <summary>Draws the eleventh row of the mural behind her tank.</summary>
+    MuralRow11,
+    /// <summary>Draws the twelfth row of the mural behind her tank.</summary>
+    MuralRow12,
     /// <summary>Clears a ceiling block.</summary>
     ClearCeilingBlock,
     /// <summary>Clears a ceiling tube.</summary>

@@ -1,885 +1,655 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The PLMs a room population, door, item or scripted spawner can install. The values are arbitrary and nothing
-/// reads them (#1414): a family recognises its PLMs by member, and verification translates the game's PLM header
-/// identities through its own table. <see cref="None"/> marks an empty PLM slot.
+/// What a room object is: the thing a room population places, a door, item or block reaction leaves, or a boss or
+/// scripted scene spawns. The values are arbitrary and nothing reads them (#1414): a family recognises its objects by
+/// member, and verification translates the original game's identities through its own table. <see cref="None"/> marks
+/// a place in the room's update order that holds no identified object.
 /// </summary>
 /// <remarks>
-/// The exposed, Chozo-orb and concealed shot-block permanent items each name one PLM per
-/// <see cref="InWorldCollectibleKind"/>; doors name one PLM per color and facing. Mother Brain's fake-death sequence
-/// requests its background-row and tube PLMs by these identities.
+/// The exposed, Chozo-orb and concealed shot-block items each name one object per <see cref="InWorldCollectibleKind"/>;
+/// doors name one object per colour and facing. Mother Brain's fake death requests her mural-row and tube objects by
+/// these identities.
 /// </remarks>
 public enum RoomObjectHeaderId
 {
-    /// <summary>An empty PLM slot.</summary>
+    /// <summary>No identified object: a free place, or a block reaction's short-lived object.</summary>
     None = 0,
 
-    /// <summary>The <c>nothing</c> PLM.</summary>
+    /// <summary>The special-air reaction that does nothing.</summary>
     Nothing,
 
-    /// <summary>The <c>collisionReactionClearCarry</c> PLM.</summary>
-    CollisionReactionClearCarry,
+    /// <summary>The special-air contact through which Samus passes, as through air.</summary>
+    CollisionReactionPassThrough,
 
-    /// <summary>Extend a horizontal block chain toward increasing X.</summary>
+    /// <summary>A block extending the scroll trigger to its left along a horizontal chain.</summary>
     RightwardsScrollExtension,
 
-    /// <summary>Extend a horizontal block chain toward decreasing X.</summary>
+    /// <summary>A block extending the scroll trigger to its right along a horizontal chain.</summary>
     LeftwardsScrollExtension,
 
-    /// <summary>Extend a vertical block chain toward increasing Y.</summary>
+    /// <summary>A block extending the scroll trigger above it along a vertical chain.</summary>
     DownwardsScrollExtension,
 
-    /// <summary>Extend a vertical block chain toward decreasing Y.</summary>
+    /// <summary>A block extending the scroll trigger below it along a vertical chain.</summary>
     UpwardsScrollExtension,
 
-    /// <summary>Wrecked Ship entrance treadmill entered from the west.</summary>
+    /// <summary>The Wrecked Ship entrance treadmill, when Samus enters from the west.</summary>
     WreckedShipEntranceTreadmillFromWest,
 
-    /// <summary>Wrecked Ship entrance treadmill entered from the east.</summary>
+    /// <summary>The Wrecked Ship entrance treadmill, when Samus enters from the east.</summary>
     WreckedShipEntranceTreadmillFromEast,
 
-    /// <summary>The first of three inside reactions that do nothing.</summary>
-    InsideReactionNothingFirst,
-
-    /// <summary>The second of three inside reactions that do nothing.</summary>
-    InsideReactionNothingSecond,
-
-    /// <summary>The third of three inside reactions that do nothing.</summary>
-    InsideReactionNothingThird,
-
-    /// <summary>Fill Mother Brain's wall.</summary>
+    /// <summary>The block wall Mother Brain's room raises behind Samus when the fight starts.</summary>
     FillMotherBrainsWall,
 
-    /// <summary>Open Mother Brain's escape door.</summary>
+    /// <summary>The escape door Mother Brain's death blows open.</summary>
     MotherBrainsRoomEscapeDoor,
 
-    /// <summary>The <c>motherBrainsBackgroundRow2</c> PLM.</summary>
-    MotherBrainsBackgroundRow2,
+    /// <summary>The top row of the mural behind Mother Brain's tank, redrawn as she rises from her fake death.</summary>
+    MotherBrainMuralRow1,
 
-    /// <summary>The <c>motherBrainsBackgroundRow3</c> PLM.</summary>
-    MotherBrainsBackgroundRow3,
+    /// <summary>The second row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow2,
 
-    /// <summary>The <c>motherBrainsBackgroundRow4</c> PLM.</summary>
-    MotherBrainsBackgroundRow4,
+    /// <summary>The third row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow3,
 
-    /// <summary>The <c>motherBrainsBackgroundRow5</c> PLM.</summary>
-    MotherBrainsBackgroundRow5,
+    /// <summary>The fourth row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow4,
 
-    /// <summary>The <c>motherBrainsBackgroundRow6</c> PLM.</summary>
-    MotherBrainsBackgroundRow6,
+    /// <summary>The fifth row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow5,
 
-    /// <summary>The <c>motherBrainsBackgroundRow7</c> PLM.</summary>
-    MotherBrainsBackgroundRow7,
+    /// <summary>The sixth row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow6,
 
-    /// <summary>The <c>motherBrainsBackgroundRow8</c> PLM.</summary>
-    MotherBrainsBackgroundRow8,
+    /// <summary>The seventh row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow7,
 
-    /// <summary>The <c>motherBrainsBackgroundRow9</c> PLM.</summary>
-    MotherBrainsBackgroundRow9,
+    /// <summary>The eighth row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow8,
 
-    /// <summary>The <c>motherBrainsBackgroundRowA</c> PLM.</summary>
-    MotherBrainsBackgroundRowA,
+    /// <summary>The ninth row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow9,
 
-    /// <summary>The <c>motherBrainsBackgroundRowB</c> PLM.</summary>
-    MotherBrainsBackgroundRowB,
+    /// <summary>The tenth row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow10,
 
-    /// <summary>The <c>motherBrainsBackgroundRowC</c> PLM.</summary>
-    MotherBrainsBackgroundRowC,
+    /// <summary>The eleventh row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow11,
 
-    /// <summary>The <c>motherBrainsBackgroundRowD</c> PLM.</summary>
-    MotherBrainsBackgroundRowD,
+    /// <summary>The bottom row of the mural behind Mother Brain's tank.</summary>
+    MotherBrainMuralRow12,
 
-    /// <summary>The <c>clearCeilingBlockInMotherBrainsRoom</c> PLM.</summary>
+    /// <summary>Clears the ceiling block above Mother Brain's tank as her fake death begins.</summary>
     ClearMotherBrainCeilingBlock,
 
-    /// <summary>The <c>clearCeilingTubeInMotherBrainsRoom</c> PLM.</summary>
+    /// <summary>Clears the ceiling tube above Mother Brain's tank as it collapses.</summary>
     ClearMotherBrainCeilingTube,
 
-    /// <summary>The <c>clearMotherBrainsBottomMiddleSideTube</c> PLM.</summary>
+    /// <summary>Clears one of the side tubes beside the middle of Mother Brain's floor as it collapses.</summary>
     ClearMotherBrainBottomMiddleSideTube,
 
-    /// <summary>The <c>clearMotherBrainsBottomMiddleTubes</c> PLM.</summary>
+    /// <summary>Clears the middle tubes of Mother Brain's floor as they collapse.</summary>
     ClearMotherBrainBottomMiddleTubes,
 
-    /// <summary>The <c>clearMotherBrainsBottomLeftTube</c> PLM.</summary>
+    /// <summary>Clears the left tube of Mother Brain's floor as it collapses.</summary>
     ClearMotherBrainBottomLeftTube,
 
-    /// <summary>The <c>clearMotherBrainsBottomRightTube</c> PLM.</summary>
+    /// <summary>Clears the right tube of Mother Brain's floor as it collapses.</summary>
     ClearMotherBrainBottomRightTube,
 
-    /// <summary>The <c>insideReactionBrinstarFloorPlant</c> PLM.</summary>
+    /// <summary>The Brinstar plant that bites Samus from the floor when she stands inside it.</summary>
     InsideReactionBrinstarFloorPlant,
 
-    /// <summary>The <c>insideReactionBrinstarCeilingPlant</c> PLM.</summary>
+    /// <summary>The Brinstar plant that bites Samus from the ceiling when she stands inside it.</summary>
     InsideReactionBrinstarCeilingPlant,
 
-    /// <summary>Main map-station room actor.</summary>
+    /// <summary>A map station.</summary>
     MapStation,
 
-    /// <summary>The <c>mapStationRightAccess</c> PLM.</summary>
-    MapStationRightAccess,
-
-    /// <summary>The <c>mapStationLeftAccess</c> PLM.</summary>
-    MapStationLeftAccess,
-
-    /// <summary>The <c>energyStation</c> PLM.</summary>
+    /// <summary>An energy refill station.</summary>
     EnergyStation,
 
-    /// <summary>The <c>energyStationRightAccess</c> PLM.</summary>
-    EnergyStationRightAccess,
-
-    /// <summary>The <c>energyStationLeftAccess</c> PLM.</summary>
-    EnergyStationLeftAccess,
-
-    /// <summary>The <c>missileStation</c> PLM.</summary>
+    /// <summary>A missile refill station.</summary>
     MissileStation,
 
-    /// <summary>The <c>missileStationRightAccess</c> PLM.</summary>
-    MissileStationRightAccess,
-
-    /// <summary>The <c>missileStationLeftAccess</c> PLM.</summary>
-    MissileStationLeftAccess,
-
-    /// <summary>A second PLM that does nothing.</summary>
-    NothingSecond,
-
-    /// <summary>A third PLM that does nothing.</summary>
-    NothingThird,
-
-    /// <summary>The <c>scrollPLMTrigger</c> PLM.</summary>
-    ScrollTriggerCollision,
-
-    /// <summary>Resident special-air scroll trigger.</summary>
+    /// <summary>A scroll trigger: the block that changes the room's scroll cells when Samus touches it.</summary>
     ScrollTrigger,
 
-    /// <summary>The <c>unusedSolidScrollPLM</c> PLM.</summary>
-    UnusedSolidScrollPLM,
-
-    /// <summary>Ordinary elevator-platform room actor.</summary>
+    /// <summary>An elevator platform.</summary>
     ElevatorPlatform,
 
-    /// <summary>The <c>insideReactionCrateria80</c> PLM.</summary>
-    InsideReactionCrateria80,
+    /// <summary>The Crateria special-air block whose floor gives Samus ice physics.</summary>
+    InsideReactionCrateriaIcePhysics,
 
-    /// <summary>The <c>insideReactionQuicksandSurface</c> PLM.</summary>
+    /// <summary>Maridia's quicksand surface, when Samus stands inside it.</summary>
     InsideReactionQuicksandSurface,
 
-    /// <summary>The <c>insideReactionSubmergingQuicksand</c> PLM.</summary>
+    /// <summary>Maridia's submerging quicksand, when Samus stands inside it.</summary>
     InsideReactionSubmergingQuicksand,
 
-    /// <summary>The <c>insideReactionSandFallsSlow</c> PLM.</summary>
+    /// <summary>Maridia's slow sandfall, when Samus stands inside it.</summary>
     InsideReactionSandFallsSlow,
 
-    /// <summary>The <c>insideReactionSandFallsFast</c> PLM.</summary>
+    /// <summary>Maridia's fast sandfall, when Samus stands inside it.</summary>
     InsideReactionSandFallsFast,
 
-    /// <summary>The <c>collisionReactionQuicksandSurface</c> PLM.</summary>
+    /// <summary>Maridia's quicksand surface, when Samus touches it.</summary>
     CollisionReactionQuicksandSurface,
 
-    /// <summary>The <c>collisionReactionSubmergingQuicksand</c> PLM.</summary>
+    /// <summary>Maridia's submerging quicksand, when Samus touches it.</summary>
     CollisionReactionSubmergingQuicksand,
 
-    /// <summary>The <c>collisionReactionSandFallsSlow</c> PLM.</summary>
+    /// <summary>Maridia's slow sandfall, when Samus touches it.</summary>
     CollisionReactionSandFallsSlow,
 
-    /// <summary>The <c>collisionReactionSandFallsFast</c> PLM.</summary>
+    /// <summary>Maridia's fast sandfall, when Samus touches it.</summary>
     CollisionReactionSandFallsFast,
 
-    /// <summary>Clear Crocomire bridge PLM.</summary>
+    /// <summary>Clears the bridge of Crocomire's room after his death.</summary>
     ClearCrocomireBridge,
 
-    /// <summary>Crumble one Crocomire bridge block PLM.</summary>
+    /// <summary>Crumbles one block of Crocomire's bridge as he falls through it.</summary>
     CrumbleCrocomireBridgeBlock,
 
-    /// <summary>Clear one Crocomire bridge block PLM.</summary>
+    /// <summary>Clears one block of Crocomire's bridge.</summary>
     ClearCrocomireBridgeBlock,
 
-    /// <summary>Clear Crocomire's invisible wall PLM.</summary>
+    /// <summary>Clears the invisible wall that holds Samus in Crocomire's fight.</summary>
     ClearCrocomireInvisibleWall,
 
-    /// <summary>Create Crocomire's invisible wall PLM.</summary>
+    /// <summary>Raises the invisible wall that holds Samus in Crocomire's fight.</summary>
     CreateCrocomireInvisibleWall,
 
-    /// <summary>The <c>unusedDraw13BlankAirTiles</c> PLM.</summary>
-    UnusedDraw13BlankAirTiles,
-
-    /// <summary>The <c>unusedDraw13BlankSolidTiles</c> PLM.</summary>
-    UnusedDraw13BlankSolidTiles,
-
-    /// <summary>Clear the Baby Metroid encounter's invisible wall.</summary>
+    /// <summary>Clears the invisible wall of the Baby Metroid's encounter.</summary>
     ClearBabyMetroidInvisibleWall,
 
-    /// <summary>Create the Baby Metroid encounter's invisible wall.</summary>
+    /// <summary>Raises the invisible wall of the Baby Metroid's encounter.</summary>
     CreateBabyMetroidInvisibleWall,
 
-    /// <summary>The <c>saveStationTrigger</c> PLM.</summary>
-    SaveStationTrigger,
-
-    /// <summary>Main save-station room actor.</summary>
+    /// <summary>A save station.</summary>
     SaveStation,
 
-    /// <summary>The <c>crumbleAccessToTourianElevator</c> PLM.</summary>
+    /// <summary>Crumbles the blocks barring the way to the Tourian elevator once the statues have sunk.</summary>
     CrumbleAccessToTourianElevator,
 
-    /// <summary>The <c>clearAccessToTourianElevator</c> PLM.</summary>
+    /// <summary>Clears the way to the Tourian elevator in a room loaded after the statues have sunk.</summary>
     ClearAccessToTourianElevator,
 
-    /// <summary>Draw Phantoon's closed arena door.</summary>
+    /// <summary>Closes Phantoon's arena door for the fight.</summary>
     DrawPhantoonDoorDuringBossFight,
 
-    /// <summary>Restore Phantoon's door after the fight.</summary>
+    /// <summary>Restores Phantoon's arena door after the fight.</summary>
     RestorePhantoonDoorAfterBossFight,
 
-    /// <summary>Crumble Spore Spawn's ceiling PLM.</summary>
-    CrumbleSporeSpawnCeiling,
-
-    /// <summary>Clear Spore Spawn's ceiling PLM.</summary>
-    ClearSporeSpawnCeiling,
-
-    /// <summary>Clear Botwoon's wall PLM.</summary>
+    /// <summary>Clears the wall Botwoon breaks through.</summary>
     ClearBotwoonWall,
 
-    /// <summary>Crumble Botwoon's wall PLM.</summary>
+    /// <summary>Crumbles the wall Botwoon breaks through.</summary>
     CrumbleBotwoonWall,
 
-    /// <summary>The <c>unusedSetKraidCeilingBlockToBackground1</c> PLM.</summary>
-    UnusedSetKraidCeilingBlockToBackground1,
-
-    /// <summary>Kraid ceiling crumble using background variant one.</summary>
+    /// <summary>Crumbles a ceiling block as Kraid rises, leaving the first background behind it.</summary>
     CrumbleKraidCeilingIntoBackground1,
 
-    /// <summary>Kraid platform crumble using the first floor variant.</summary>
+    /// <summary>Crumbles a platform block as Kraid sinks, leaving the first floor background.</summary>
     CrumbleKraidPlatformVariant1,
 
-    /// <summary>Kraid ceiling crumble using background variant two.</summary>
+    /// <summary>Crumbles a ceiling block as Kraid rises, leaving the second background behind it.</summary>
     CrumbleKraidCeilingIntoBackground2,
 
-    /// <summary>Kraid platform crumble using the second floor variant.</summary>
+    /// <summary>Crumbles a platform block as Kraid sinks, leaving the second floor background.</summary>
     CrumbleKraidPlatformVariant2,
 
-    /// <summary>Kraid ceiling crumble using background variant three.</summary>
+    /// <summary>Crumbles a ceiling block as Kraid rises, leaving the third background behind it.</summary>
     CrumbleKraidCeilingIntoBackground3,
 
-    /// <summary>Clear Kraid's ceiling after an already-defeated room load.</summary>
+    /// <summary>Clears the ceiling of a Kraid room loaded after his defeat.</summary>
     ClearKraidCeiling,
 
-    /// <summary>Clear Kraid-room spikes after an already-defeated room load.</summary>
+    /// <summary>Clears the spikes of a Kraid room loaded after his defeat.</summary>
     ClearKraidSpikes,
 
-    /// <summary>The <c>crumbleKraidSpikeBlocks</c> PLM: animated live-death floor sweep.</summary>
+    /// <summary>Crumbles the spikes of Kraid's floor as he dies.</summary>
     CrumbleKraidSpikes,
 
-    /// <summary>The room object that enables sound effects again after a short delay, a longer one in Ceres.</summary>
-    EnableSoundsIn20FramesF0FramesIfCeres,
-
-    /// <summary>Speed Booster escape lavaquake controller.</summary>
+    /// <summary>The lava quake of the Speed Booster room's escape, once the Speed Booster is taken.</summary>
     SpeedBoosterEscape,
 
-    /// <summary>The <c>shaktoolsRoom</c> PLM.</summary>
-    ShaktoolsRoom,
+    /// <summary>The controller of Shaktool's room, which digs Shaktool's tunnel.</summary>
+    ShaktoolRoomController,
 
-    /// <summary>Maridia elevatube delay/sound PLM.</summary>
+    /// <summary>The Maridia elevatube's start delay and sound.</summary>
     MaridiaElevatube,
 
     /// <summary>
-    /// Old Tourian escape shaft fake wall, spawned by its room's setup during
-    /// the escape; explodes once Samus passes below and right of it.
+    /// The fake wall of the old Tourian escape shaft, spawned by its room's setup during the escape; it explodes once
+    /// Samus passes below and to the right of it.
     /// </summary>
     OldTourianEscapeShaftFakeWall,
 
-    /// <summary>The <c>RaiseAcidInEscapeRoomBeforeOldTourianEscapeShaft</c> PLM.</summary>
-    RaiseAcidInEscapeRoomBeforeOldTourianEscapeShaft,
-
-    /// <summary>The <c>gateBlock</c> PLM.</summary>
-    GateBlock,
-
-    /// <summary>The room object for a weapon hitting the block the critters escape through.</summary>
-    ReactionCrittersEscapeBlock,
-
-    /// <summary>The <c>CrittersEscapeBlock</c> PLM.</summary>
-    CrittersEscapeBlock,
-
-    /// <summary>The <c>turnCeresElevatorDoorToSolidBlocksDuringEscape</c> PLM.</summary>
-    TurnCeresElevatorDoorToSolidBlocksDuringEscape,
-
-    /// <summary>Bomb Torizo's exceptional right-facing grey door.</summary>
+    /// <summary>Bomb Torizo's right-facing grey door, which opens once Bomb Torizo is defeated.</summary>
     BombTorizoGreyDoor,
 
-    /// <summary>Resident Wrecked Ship attic no-op observer.</summary>
+    /// <summary>The Wrecked Ship attic's watcher, which does nothing while it waits.</summary>
     WreckedShipAttic,
 
     /// <summary>
-    /// Crateria mainstreet escape-passage clearer, spawned by its room's setup;
-    /// its setup deletes it unless the critters escaped.
+    /// The passage the critters open in Crateria's main street, spawned by its room's setup; its setup removes it unless
+    /// the critters escaped.
     /// </summary>
     CrateriaMainstreetEscapePassage,
 
-    /// <summary>The <c>leftGreenGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the left of a green gate, shot by a Super Missile.</summary>
     LeftGreenGateTrigger,
 
-    /// <summary>The <c>rightGreenGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the right of a green gate, shot by a Super Missile.</summary>
     RightGreenGateTrigger,
 
-    /// <summary>The <c>leftRedGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the left of a red gate, shot by a missile.</summary>
     LeftRedGateTrigger,
 
-    /// <summary>The <c>rightRedGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the right of a red gate, shot by a missile.</summary>
     RightRedGateTrigger,
 
-    /// <summary>The <c>leftBlueGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the left of a blue gate, shot by anything but a Power Bomb.</summary>
     LeftBlueGateTrigger,
 
-    /// <summary>The <c>rightBlueGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the right of a blue gate, shot by anything but a Power Bomb.</summary>
     RightBlueGateTrigger,
 
-    /// <summary>The <c>leftYellowGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the left of a yellow gate, set off by a Power Bomb.</summary>
     LeftYellowGateTrigger,
 
-    /// <summary>The <c>rightYellowGateTrigger</c> PLM.</summary>
+    /// <summary>The trigger on the right of a yellow gate.</summary>
     RightYellowGateTrigger,
 
-    /// <summary>The <c>downwardsOpenGate</c> PLM.</summary>
-    DownwardsOpenGate,
-
-    /// <summary>Resident five-block downward gate.</summary>
+    /// <summary>A five-block gate that slides down out of the way when its trigger is shot or Samus stands below it.</summary>
     DownwardGate,
 
-    /// <summary>The <c>upwardsOpenGate</c> PLM.</summary>
-    UpwardsOpenGate,
-
-    /// <summary>The <c>upwardsClosedGate</c> PLM.</summary>
-    UpwardsClosedGate,
-
-    /// <summary>Room-authored downward-gate shot block.</summary>
+    /// <summary>The coloured shot block beside a downward gate that triggers it.</summary>
     DownwardGateShotBlock,
 
-    /// <summary>The <c>upwardsGateShotblock</c> PLM.</summary>
-    UpwardsGateShotblock,
-
-    /// <summary>The <c>genericShotTriggerForAPLM</c> PLM.</summary>
-    GenericShotTriggerForAPLM,
-
-    /// <summary>The <c>greyDoorFacingLeft</c> PLM.</summary>
+    /// <summary>A grey door cap facing left, opened by its room's condition.</summary>
     GreyDoorFacingLeft,
 
-    /// <summary>The <c>greyDoorFacingRight</c> PLM.</summary>
+    /// <summary>A grey door cap facing right, opened by its room's condition.</summary>
     GreyDoorFacingRight,
 
-    /// <summary>The <c>greyDoorFacingUp</c> PLM.</summary>
+    /// <summary>A grey door cap facing up, opened by its room's condition.</summary>
     GreyDoorFacingUp,
 
-    /// <summary>The <c>greyDoorFacingDown</c> PLM.</summary>
+    /// <summary>A grey door cap facing down, opened by its room's condition.</summary>
     GreyDoorFacingDown,
 
-    /// <summary>The <c>yellowDoorFacingLeft</c> PLM.</summary>
+    /// <summary>A yellow door cap facing left, opened by a Power Bomb.</summary>
     YellowDoorFacingLeft,
 
-    /// <summary>The <c>yellowDoorFacingRight</c> PLM.</summary>
+    /// <summary>A yellow door cap facing right, opened by a Power Bomb.</summary>
     YellowDoorFacingRight,
 
-    /// <summary>The <c>yellowDoorFacingUp</c> PLM.</summary>
+    /// <summary>A yellow door cap facing up, opened by a Power Bomb.</summary>
     YellowDoorFacingUp,
 
-    /// <summary>The <c>yellowDoorFacingDown</c> PLM.</summary>
+    /// <summary>A yellow door cap facing down, opened by a Power Bomb.</summary>
     YellowDoorFacingDown,
 
-    /// <summary>The <c>greenDoorFacingLeft</c> PLM.</summary>
+    /// <summary>A green door cap facing left, opened by a Super Missile.</summary>
     GreenDoorFacingLeft,
 
-    /// <summary>The <c>greenDoorFacingRight</c> PLM.</summary>
+    /// <summary>A green door cap facing right, opened by a Super Missile.</summary>
     GreenDoorFacingRight,
 
-    /// <summary>The <c>greenDoorFacingUp</c> PLM.</summary>
+    /// <summary>A green door cap facing up, opened by a Super Missile.</summary>
     GreenDoorFacingUp,
 
-    /// <summary>The <c>greenDoorFacingDown</c> PLM.</summary>
+    /// <summary>A green door cap facing down, opened by a Super Missile.</summary>
     GreenDoorFacingDown,
 
-    /// <summary>The <c>redDoorFacingLeft</c> PLM.</summary>
+    /// <summary>A red door cap facing left, opened by missiles.</summary>
     RedDoorFacingLeft,
 
-    /// <summary>The <c>redDoorFacingRight</c> PLM.</summary>
+    /// <summary>A red door cap facing right, opened by missiles.</summary>
     RedDoorFacingRight,
 
-    /// <summary>The <c>redDoorFacingUp</c> PLM.</summary>
+    /// <summary>A red door cap facing up, opened by missiles.</summary>
     RedDoorFacingUp,
 
-    /// <summary>The <c>redDoorFacingDown</c> PLM.</summary>
+    /// <summary>A red door cap facing down, opened by missiles.</summary>
     RedDoorFacingDown,
 
-    /// <summary>The <c>blueDoorFacingLeft</c> PLM.</summary>
+    /// <summary>A blue door cap facing left, opened by any shot.</summary>
     BlueDoorFacingLeft,
 
-    /// <summary>The <c>blueDoorFacingRight</c> PLM.</summary>
+    /// <summary>A blue door cap facing right, opened by any shot.</summary>
     BlueDoorFacingRight,
 
-    /// <summary>The <c>blueDoorFacingUp</c> PLM.</summary>
+    /// <summary>A blue door cap facing up, opened by any shot.</summary>
     BlueDoorFacingUp,
 
-    /// <summary>The <c>blueDoorFacingDown</c> PLM.</summary>
+    /// <summary>A blue door cap facing down, opened by any shot.</summary>
     BlueDoorFacingDown,
 
-    /// <summary>Door-transition-only blue-door closer facing left.</summary>
+    /// <summary>The blue door cap closing behind Samus after she comes through a left-facing door.</summary>
     BlueDoorClosingFacingLeft,
 
-    /// <summary>Door-transition-only blue-door closer facing right.</summary>
+    /// <summary>The blue door cap closing behind Samus after she comes through a right-facing door.</summary>
     BlueDoorClosingFacingRight,
 
-    /// <summary>Door-transition-only blue-door closer facing up.</summary>
+    /// <summary>The blue door cap closing behind Samus after she comes through an upward-facing door.</summary>
     BlueDoorClosingFacingUp,
 
-    /// <summary>Door-transition-only blue-door closer facing down.</summary>
+    /// <summary>The blue door cap closing behind Samus after she comes through a downward-facing door.</summary>
     BlueDoorClosingFacingDown,
 
     /// <summary>
-    /// Resident gate in Tourian escape room one. Its second header list is
-    /// selected by the shared door-transition closer when entering from Mother Brain.
+    /// The gate of the first room of the Tourian escape. Samus coming in from Mother Brain's room makes the door closing
+    /// close it behind her.
     /// </summary>
     MotherBrainEscapeRoomGate,
 
     /// <summary>
-    /// Door-transition-only fallback gate closer, used when a special
-    /// direction-$8..$B door has no resident cap at its authored block coordinate.
+    /// The escape gate closing behind Samus at a door whose block holds no resident cap.
     /// </summary>
     MotherBrainEscapeRoomGateClosing,
 
-    /// <summary>The <c>1x1RespawningCrumbleBlock</c> PLM.</summary>
-    RoomObject1x1RespawningCrumbleBlock,
-
-    /// <summary>The <c>2x1RespawningCrumbleBlock</c> PLM.</summary>
-    RoomObject2x1RespawningCrumbleBlock,
-
-    /// <summary>The <c>1x2RespawningCrumbleBlock</c> PLM.</summary>
-    RoomObject1x2RespawningCrumbleBlock,
-
-    /// <summary>The <c>2x2RespawningCrumbleBlock</c> PLM.</summary>
-    RoomObject2x2RespawningCrumbleBlock,
-
-    /// <summary>The room object for a bomb blast on a Speed Booster block.</summary>
-    BombReactionSpeedBoostBlock,
-
     /// <summary>
-    /// The room object for Samus touching Brinstar's respawning Speed Booster block with the slower crumble
-    /// animation.
+    /// The Speed Booster block Samus breaks in Brinstar, with the slower crumble, which comes back.
     /// </summary>
     SpeedBlockBrinstarSlowRespawning,
 
     /// <summary>
-    /// The room object for Samus touching Brinstar's permanent Speed Booster block with the slower crumble
-    /// animation.
+    /// The Speed Booster block Samus breaks in Brinstar, with the slower crumble, which stays broken.
     /// </summary>
     SpeedBlockBrinstarSlowPermanent,
 
-    /// <summary>
-    /// The room object for Samus touching the area-independent respawning Speed Booster block.
-    /// </summary>
+    /// <summary>A Speed Booster block Samus breaks, which comes back.</summary>
     SpeedBlockRespawning,
 
-    /// <summary>
-    /// The room object for Samus touching the Brinstar Dachora room's respawning Speed Booster block.
-    /// </summary>
+    /// <summary>The Speed Booster block of Brinstar's Dachora room, which comes back.</summary>
     SpeedBlockDachoraRespawning,
 
-    /// <summary>
-    /// The room object for Samus touching a permanent Speed Booster block, by the area-independent behaviour or
-    /// Brinstar's own.
-    /// </summary>
+    /// <summary>A Speed Booster block Samus breaks, which stays broken.</summary>
     SpeedBlockPermanent,
 
-    /// <summary>Respawning 1x1 Samus-contact crumble block.</summary>
+    /// <summary>A one-block crumble block Samus stands on, which comes back.</summary>
     ContactCrumble1x1Respawning,
 
-    /// <summary>Respawning 2x1 Samus-contact crumble block.</summary>
+    /// <summary>A two-block-wide crumble block Samus stands on, which comes back.</summary>
     ContactCrumble2x1Respawning,
 
-    /// <summary>Respawning 1x2 Samus-contact crumble block.</summary>
+    /// <summary>A two-block-tall crumble block Samus stands on, which comes back.</summary>
     ContactCrumble1x2Respawning,
 
-    /// <summary>Respawning 2x2 Samus-contact crumble block.</summary>
+    /// <summary>A two-by-two crumble block Samus stands on, which comes back.</summary>
     ContactCrumble2x2Respawning,
 
-    /// <summary>Permanent 1x1 Samus-contact crumble block.</summary>
+    /// <summary>A one-block crumble block Samus stands on, which stays broken.</summary>
     ContactCrumble1x1Permanent,
 
-    /// <summary>Permanent 2x1 Samus-contact crumble block.</summary>
+    /// <summary>A two-block-wide crumble block Samus stands on, which stays broken.</summary>
     ContactCrumble2x1Permanent,
 
-    /// <summary>Permanent 1x2 Samus-contact crumble block.</summary>
+    /// <summary>A two-block-tall crumble block Samus stands on, which stays broken.</summary>
     ContactCrumble1x2Permanent,
 
-    /// <summary>Permanent 2x2 Samus-contact crumble block.</summary>
+    /// <summary>A two-by-two crumble block Samus stands on, which stays broken.</summary>
     ContactCrumble2x2Permanent,
 
-    /// <summary>The room object for a weapon hitting a 1x1 respawning shot block.</summary>
-    Reaction1x1RespawningShotBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x1 respawning shot block.</summary>
-    Reaction2x1RespawningShotBlock,
-
-    /// <summary>The room object for a weapon hitting a 1x2 respawning shot block.</summary>
-    Reaction1x2RespawningShotBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x2 respawning shot block.</summary>
-    Reaction2x2RespawningShotBlock,
-
-    /// <summary>The room object for a weapon hitting a 1x1 shot block.</summary>
-    Reaction1x1ShotBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x1 shot block.</summary>
-    Reaction2x1ShotBlock,
-
-    /// <summary>The room object for a weapon hitting a 1x2 shot block.</summary>
-    Reaction1x2ShotBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x2 shot block.</summary>
-    Reaction2x2ShotBlock,
-
-    /// <summary>The room object for a weapon hitting a respawning Power Bomb block.</summary>
-    ReactionRespawningPowerBombBlock,
-
-    /// <summary>The room object for a weapon hitting a Power Bomb block.</summary>
-    ReactionPowerBombBlock,
-
-    /// <summary>The room object for a weapon hitting a respawning Super Missile block.</summary>
-    ReactionRespawningSuperMissileBlock,
-
-    /// <summary>The room object for a weapon hitting a Super Missile block.</summary>
-    ReactionSuperMissileBlock,
-
-    /// <summary>The <c>EnemyBreakableBlock</c> PLM.</summary>
+    /// <summary>A block an enemy breaks.</summary>
     EnemyBreakableBlock,
 
-    /// <summary>The room object for Samus touching a 1x1 respawning bomb block.</summary>
-    Collision1x1RespawningBombBlock,
-
-    /// <summary>The room object for Samus touching a 2x1 respawning bomb block.</summary>
-    Collision2x1RespawningBombBlock,
-
-    /// <summary>The room object for Samus touching a 1x2 respawning bomb block.</summary>
-    Collision1x2RespawningBombBlock,
-
-    /// <summary>The room object for Samus touching a 2x2 respawning bomb block.</summary>
-    Collision2x2RespawningBombBlock,
-
-    /// <summary>The room object for Samus touching a 1x1 bomb block.</summary>
-    Collision1x1BombBlock,
-
-    /// <summary>The room object for Samus touching a 2x1 bomb block.</summary>
-    Collision2x1BombBlock,
-
-    /// <summary>The room object for Samus touching a 1x2 bomb block.</summary>
-    Collision1x2BombBlock,
-
-    /// <summary>The room object for Samus touching a 2x2 bomb block.</summary>
-    Collision2x2BombBlock,
-
-    /// <summary>The room object for a weapon hitting a 1x1 respawning bomb block.</summary>
-    Reaction1x1RespawningBombBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x1 respawning bomb block.</summary>
-    Reaction2x1RespawningBombBlock,
-
-    /// <summary>The room object for a weapon hitting a 1x2 respawning bomb block.</summary>
-    Reaction1x2RespawningBombBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x2 respawning bomb block.</summary>
-    Reaction2x2RespawningBombBlock,
-
-    /// <summary>The room object for a weapon hitting a 1x1 bomb block.</summary>
-    Reaction1x1BombBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x1 bomb block.</summary>
-    Reaction2x1BombBlock,
-
-    /// <summary>The room object for a weapon hitting a 1x2 bomb block.</summary>
-    Reaction1x2BombBlock,
-
-    /// <summary>The room object for a weapon hitting a 2x2 bomb block.</summary>
-    Reaction2x2BombBlock,
-
-    /// <summary>The room object for the Grapple Beam latching onto a grapple block.</summary>
-    GrappledGrappleBlock,
-
-    /// <summary>The room object for the Grapple Beam latching onto a respawning breakable grapple block.</summary>
-    GrappledRespawningBreakableGrappleBlock,
-
-    /// <summary>The room object for the Grapple Beam latching onto a breakable grapple block.</summary>
-    GrappledBreakableGrappleBlock,
-
-    /// <summary>The room object for the Grapple Beam latching onto a spike block.</summary>
-    GrappledGenericSpikeBlock,
-
-    /// <summary>The room object for the Grapple Beam latching onto one of Draygon's broken turrets.</summary>
-    GrappledDraygonsBrokenTurret,
-
-    /// <summary>The <c>UnusedBlueBrinstarFaceBlock</c> PLM.</summary>
-    UnusedBlueBrinstarFaceBlock,
-
-    /// <summary>The <c>CrumbleLowerNorfairChozoRoomPlug</c> PLM.</summary>
+    /// <summary>The plug of the Lower Norfair Chozo's room, which crumbles once the Chozo lowers the acid.</summary>
     CrumbleLowerNorfairChozoRoomPlug,
 
-    /// <summary>The <c>UnusedShotBlock</c> PLM.</summary>
-    UnusedShotBlock,
-
-    /// <summary>The <c>UnusedGrappleBlock</c> PLM.</summary>
-    UnusedGrappleBlock,
-
-    /// <summary>The <c>LowerNorfairChozoHand</c> PLM.</summary>
+    /// <summary>The Lower Norfair Chozo's hand, which carries Samus when she curls up in it.</summary>
     LowerNorfairChozoHand,
 
-    /// <summary>The room object for Samus touching the Lower Norfair Chozo hand's trigger block.</summary>
+    /// <summary>Samus touching the block of the Lower Norfair Chozo's hand.</summary>
     CollisionLowerNorfairChozoHandCheck,
 
-    /// <summary>Mother Brain's missile-reactive glass actor.</summary>
+    /// <summary>The glass of Mother Brain's tank, which missiles break.</summary>
     MotherBrainGlass,
 
-    /// <summary>Bomb Torizo's Chozo-hand synchronization actor.</summary>
+    /// <summary>The hand of Bomb Torizo's statue, which wakes Bomb Torizo when Samus takes its item.</summary>
     BombTorizoHand,
 
-    /// <summary>The <c>WreckedShipChozoHand</c> PLM.</summary>
+    /// <summary>The Wrecked Ship Chozo's hand, which carries Samus when she curls up in it.</summary>
     WreckedShipChozoHand,
 
-    /// <summary>The room object for Samus touching the Wrecked Ship Chozo hand's trigger block.</summary>
+    /// <summary>Samus touching the block of the Wrecked Ship Chozo's hand.</summary>
     CollisionWreckedShipChozoHandCheck,
 
-    /// <summary>The <c>ClearSlopeAccessForWreckedShipChozo</c> PLM.</summary>
+    /// <summary>Clears the slope under the Wrecked Ship Chozo, letting Samus reach it.</summary>
     ClearSlopeAccessForWreckedShipChozo,
 
-    /// <summary>The <c>BlockSlopeAccessForWreckedShipChozo</c> PLM.</summary>
+    /// <summary>Blocks the slope under the Wrecked Ship Chozo again.</summary>
     BlockSlopeAccessForWreckedShipChozo,
 
-    /// <summary>Maridia's power-bomb-reactive n00b tube actor.</summary>
+    /// <summary>Maridia's glass tube, which a Power Bomb shatters.</summary>
     NoobTube,
 
     /// <summary>
-    /// Resident room-kill observer which marks the four Tourian Metroid-room
-    /// events when their authored enemy death quotas have been reached.
+    /// Watches a Tourian Metroid room's kills and marks the room cleared once its authored count of Metroids is dead.
     /// </summary>
-    SetMetroidsClearedStatesWhenRequired,
+    MetroidRoomClearance,
 
-    /// <summary>Right-facing eye-door eye controller.</summary>
+    /// <summary>The eye of a right-facing eye door.</summary>
     EyeDoorEyeFacingRight,
 
-    /// <summary>Right-facing eye-door middle/door component.</summary>
+    /// <summary>The door of a right-facing eye door.</summary>
     EyeDoorFacingRight,
 
-    /// <summary>Right-facing eye-door bottom component.</summary>
+    /// <summary>The bottom of a right-facing eye door.</summary>
     EyeDoorBottomFacingRight,
 
-    /// <summary>Left-facing eye-door eye controller.</summary>
+    /// <summary>The eye of a left-facing eye door.</summary>
     EyeDoorEyeFacingLeft,
 
-    /// <summary>Left-facing eye-door middle/door component.</summary>
+    /// <summary>The door of a left-facing eye door.</summary>
     EyeDoorFacingLeft,
 
-    /// <summary>Left-facing eye-door bottom component.</summary>
+    /// <summary>The bottom of a left-facing eye door.</summary>
     EyeDoorBottomFacingLeft,
 
-    /// <summary>Draygon-room right-facing shielded cannon.</summary>
+    /// <summary>A right-facing shielded cannon of Draygon's room.</summary>
     DraygonCannonFacingRight,
 
     /// <summary>
-    /// Draygon-room right-facing cannon. Its authored list enters the
-    /// destroyed state immediately, disabling the unused upper-left firing position.
+    /// A right-facing cannon of Draygon's room that starts destroyed, so the upper-left firing position never fires.
     /// </summary>
     DraygonCannonFacingRightDestroyed,
 
-    /// <summary>Draygon-room left-facing shielded cannon.</summary>
+    /// <summary>A left-facing shielded cannon of Draygon's room.</summary>
     DraygonCannonFacingLeft,
 
-    /// <summary>The <c>DraygonCannonFacingLeft</c> PLM.</summary>
-    DraygonCannonFacingLeftUnshielded,
-
-    /// <summary>The <c>ItemCollisionDetection</c> PLM.</summary>
-    ItemCollisionDetection,
-
-    /// <summary>The <c>EnergyTank</c> PLM.</summary>
+    /// <summary>An Energy Tank lying in the open.</summary>
     ExposedEnergyTank,
 
-    /// <summary>The <c>MissileTank</c> PLM.</summary>
+    /// <summary>A Missile Tank lying in the open.</summary>
     ExposedMissileTank,
 
-    /// <summary>The <c>SuperMissileTank</c> PLM.</summary>
+    /// <summary>A Super Missile Tank lying in the open.</summary>
     ExposedSuperMissileTank,
 
-    /// <summary>The <c>PowerBombTank</c> PLM.</summary>
+    /// <summary>A Power Bomb Tank lying in the open.</summary>
     ExposedPowerBombTank,
 
-    /// <summary>The <c>Bombs</c> PLM.</summary>
+    /// <summary>The Bombs lying in the open.</summary>
     ExposedBombs,
 
-    /// <summary>The <c>ChargeBeam</c> PLM.</summary>
+    /// <summary>The Charge Beam lying in the open.</summary>
     ExposedChargeBeam,
 
-    /// <summary>The <c>IceBeam</c> PLM.</summary>
+    /// <summary>The Ice Beam lying in the open.</summary>
     ExposedIceBeam,
 
-    /// <summary>The <c>HiJumpBoots</c> PLM.</summary>
+    /// <summary>The Hi-Jump Boots lying in the open.</summary>
     ExposedHiJumpBoots,
 
-    /// <summary>The <c>SpeedBooster</c> PLM.</summary>
+    /// <summary>The Speed Booster lying in the open.</summary>
     ExposedSpeedBooster,
 
-    /// <summary>The <c>WaveBeam</c> PLM.</summary>
+    /// <summary>The Wave Beam lying in the open.</summary>
     ExposedWaveBeam,
 
-    /// <summary>The <c>Spazer</c> PLM.</summary>
+    /// <summary>The Spazer lying in the open.</summary>
     ExposedSpazerBeam,
 
-    /// <summary>The <c>SpringBall</c> PLM.</summary>
+    /// <summary>The Spring Ball lying in the open.</summary>
     ExposedSpringBall,
 
-    /// <summary>The <c>VariaSuit</c> PLM.</summary>
+    /// <summary>The Varia Suit lying in the open.</summary>
     ExposedVariaSuit,
 
-    /// <summary>The <c>GravitySuit</c> PLM.</summary>
+    /// <summary>The Gravity Suit lying in the open.</summary>
     ExposedGravitySuit,
 
-    /// <summary>The <c>XrayScope</c> PLM.</summary>
+    /// <summary>The X-Ray Scope lying in the open.</summary>
     ExposedXrayScope,
 
-    /// <summary>The <c>PlasmaBeam</c> PLM.</summary>
+    /// <summary>The Plasma Beam lying in the open.</summary>
     ExposedPlasmaBeam,
 
-    /// <summary>The <c>GrappleBeam</c> PLM.</summary>
+    /// <summary>The Grapple Beam lying in the open.</summary>
     ExposedGrappleBeam,
 
-    /// <summary>The <c>SpaceJump</c> PLM.</summary>
+    /// <summary>The Space Jump lying in the open.</summary>
     ExposedSpaceJump,
 
-    /// <summary>The <c>ScrewAttack</c> PLM.</summary>
+    /// <summary>The Screw Attack lying in the open.</summary>
     ExposedScrewAttack,
 
-    /// <summary>The <c>MorphBall</c> PLM.</summary>
+    /// <summary>The Morph Ball lying in the open.</summary>
     ExposedMorphBall,
 
-    /// <summary>The <c>ReserveTank</c> PLM.</summary>
+    /// <summary>A Reserve Tank lying in the open.</summary>
     ExposedReserveTank,
 
-    /// <summary>The <c>EnergyTankChozoOrb</c> PLM.</summary>
+    /// <summary>An Energy Tank held in a Chozo statue's orb.</summary>
     ChozoEnergyTank,
 
-    /// <summary>The <c>MissileTankChozoOrb</c> PLM.</summary>
+    /// <summary>A Missile Tank held in a Chozo statue's orb.</summary>
     ChozoMissileTank,
 
-    /// <summary>The <c>SuperMissileTankChozoOrb</c> PLM.</summary>
+    /// <summary>A Super Missile Tank held in a Chozo statue's orb.</summary>
     ChozoSuperMissileTank,
 
-    /// <summary>The <c>PowerBombTankChozoOrb</c> PLM.</summary>
+    /// <summary>A Power Bomb Tank held in a Chozo statue's orb.</summary>
     ChozoPowerBombTank,
 
-    /// <summary>The <c>BombsChozoOrb</c> PLM.</summary>
+    /// <summary>The Bombs held in a Chozo statue's orb.</summary>
     ChozoBombs,
 
-    /// <summary>The <c>ChargeBeamChozoOrb</c> PLM.</summary>
+    /// <summary>The Charge Beam held in a Chozo statue's orb.</summary>
     ChozoChargeBeam,
 
-    /// <summary>The <c>IceBeamChozoOrb</c> PLM.</summary>
+    /// <summary>The Ice Beam held in a Chozo statue's orb.</summary>
     ChozoIceBeam,
 
-    /// <summary>The <c>HiJumpBootsChozoOrb</c> PLM.</summary>
+    /// <summary>The Hi-Jump Boots held in a Chozo statue's orb.</summary>
     ChozoHiJumpBoots,
 
-    /// <summary>The <c>SpeedBoosterChozoOrb</c> PLM.</summary>
+    /// <summary>The Speed Booster held in a Chozo statue's orb.</summary>
     ChozoSpeedBooster,
 
-    /// <summary>The <c>WaveBeamChozoOrb</c> PLM.</summary>
+    /// <summary>The Wave Beam held in a Chozo statue's orb.</summary>
     ChozoWaveBeam,
 
-    /// <summary>The <c>SpazerChozoOrb</c> PLM.</summary>
+    /// <summary>The Spazer held in a Chozo statue's orb.</summary>
     ChozoSpazerBeam,
 
-    /// <summary>The <c>SpringBallChozoOrb</c> PLM.</summary>
+    /// <summary>The Spring Ball held in a Chozo statue's orb.</summary>
     ChozoSpringBall,
 
-    /// <summary>The <c>VariaSuitChozoOrb</c> PLM.</summary>
+    /// <summary>The Varia Suit held in a Chozo statue's orb.</summary>
     ChozoVariaSuit,
 
-    /// <summary>The <c>GravitySuitChozoOrb</c> PLM.</summary>
+    /// <summary>The Gravity Suit held in a Chozo statue's orb.</summary>
     ChozoGravitySuit,
 
-    /// <summary>The <c>XrayScopeChozoOrb</c> PLM.</summary>
+    /// <summary>The X-Ray Scope held in a Chozo statue's orb.</summary>
     ChozoXrayScope,
 
-    /// <summary>The <c>PlasmaBeamChozoOrb</c> PLM.</summary>
+    /// <summary>The Plasma Beam held in a Chozo statue's orb.</summary>
     ChozoPlasmaBeam,
 
-    /// <summary>The <c>GrappleBeamChozoOrb</c> PLM.</summary>
+    /// <summary>The Grapple Beam held in a Chozo statue's orb.</summary>
     ChozoGrappleBeam,
 
-    /// <summary>The <c>SpaceJumpChozoOrb</c> PLM.</summary>
+    /// <summary>The Space Jump held in a Chozo statue's orb.</summary>
     ChozoSpaceJump,
 
-    /// <summary>The <c>ScrewAttackChozoOrb</c> PLM.</summary>
+    /// <summary>The Screw Attack held in a Chozo statue's orb.</summary>
     ChozoScrewAttack,
 
-    /// <summary>The <c>MorphBallChozoOrb</c> PLM.</summary>
+    /// <summary>The Morph Ball held in a Chozo statue's orb.</summary>
     ChozoMorphBall,
 
-    /// <summary>The <c>ReserveTankChozoOrb</c> PLM.</summary>
+    /// <summary>A Reserve Tank held in a Chozo statue's orb.</summary>
     ChozoReserveTank,
 
-    /// <summary>The <c>EnergyTankShotBlock</c> PLM.</summary>
+    /// <summary>An Energy Tank hidden in a shot block.</summary>
     ShotBlockEnergyTank,
 
-    /// <summary>The <c>MissileTankShotBlock</c> PLM.</summary>
+    /// <summary>A Missile Tank hidden in a shot block.</summary>
     ShotBlockMissileTank,
 
-    /// <summary>The <c>SuperMissileTankShotBlock</c> PLM.</summary>
+    /// <summary>A Super Missile Tank hidden in a shot block.</summary>
     ShotBlockSuperMissileTank,
 
-    /// <summary>The <c>PowerBombTankShotBlock</c> PLM.</summary>
+    /// <summary>A Power Bomb Tank hidden in a shot block.</summary>
     ShotBlockPowerBombTank,
 
-    /// <summary>The <c>BombsShotBlock</c> PLM.</summary>
+    /// <summary>The Bombs hidden in a shot block.</summary>
     ShotBlockBombs,
 
-    /// <summary>The <c>ChargeBeamShotBlock</c> PLM.</summary>
+    /// <summary>The Charge Beam hidden in a shot block.</summary>
     ShotBlockChargeBeam,
 
-    /// <summary>The <c>IceBeamShotBlock</c> PLM.</summary>
+    /// <summary>The Ice Beam hidden in a shot block.</summary>
     ShotBlockIceBeam,
 
-    /// <summary>The <c>HiJumpBootsShotBlock</c> PLM.</summary>
+    /// <summary>The Hi-Jump Boots hidden in a shot block.</summary>
     ShotBlockHiJumpBoots,
 
-    /// <summary>The <c>SpeedBoosterShotBlock</c> PLM.</summary>
+    /// <summary>The Speed Booster hidden in a shot block.</summary>
     ShotBlockSpeedBooster,
 
-    /// <summary>The <c>WaveBeamShotBlock</c> PLM.</summary>
+    /// <summary>The Wave Beam hidden in a shot block.</summary>
     ShotBlockWaveBeam,
 
-    /// <summary>The <c>SpazerShotBlock</c> PLM.</summary>
+    /// <summary>The Spazer hidden in a shot block.</summary>
     ShotBlockSpazerBeam,
 
-    /// <summary>The <c>SpringBallShotBlock</c> PLM.</summary>
+    /// <summary>The Spring Ball hidden in a shot block.</summary>
     ShotBlockSpringBall,
 
-    /// <summary>The <c>VariaSuitShotBlock</c> PLM.</summary>
+    /// <summary>The Varia Suit hidden in a shot block.</summary>
     ShotBlockVariaSuit,
 
-    /// <summary>The <c>GravitySuitShotBlock</c> PLM.</summary>
+    /// <summary>The Gravity Suit hidden in a shot block.</summary>
     ShotBlockGravitySuit,
 
-    /// <summary>The <c>XrayScopeShotBlock</c> PLM.</summary>
+    /// <summary>The X-Ray Scope hidden in a shot block.</summary>
     ShotBlockXrayScope,
 
-    /// <summary>The <c>PlasmaBeamShotBlock</c> PLM.</summary>
+    /// <summary>The Plasma Beam hidden in a shot block.</summary>
     ShotBlockPlasmaBeam,
 
-    /// <summary>The <c>GrappleBeamShotBlock</c> PLM.</summary>
+    /// <summary>The Grapple Beam hidden in a shot block.</summary>
     ShotBlockGrappleBeam,
 
-    /// <summary>The <c>SpaceJumpShotBlock</c> PLM.</summary>
+    /// <summary>The Space Jump hidden in a shot block.</summary>
     ShotBlockSpaceJump,
 
-    /// <summary>The <c>ScrewAttackShotBlock</c> PLM.</summary>
+    /// <summary>The Screw Attack hidden in a shot block.</summary>
     ShotBlockScrewAttack,
 
-    /// <summary>The <c>MorphBallShotBlock</c> PLM.</summary>
+    /// <summary>The Morph Ball hidden in a shot block.</summary>
     ShotBlockMorphBall,
 
-    /// <summary>The <c>ReserveTankShotBlock</c> PLM.</summary>
+    /// <summary>A Reserve Tank hidden in a shot block.</summary>
     ShotBlockReserveTank,
 }

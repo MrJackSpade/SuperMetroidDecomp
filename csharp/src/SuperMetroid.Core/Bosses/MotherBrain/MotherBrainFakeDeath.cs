@@ -372,7 +372,7 @@ internal sealed class MotherBrainFakeDeath
         state.LowerNeckAngle = RotationAngle.FromRaw(18432);
         state.UpperNeckAngle = RotationAngle.FromRaw(20480);
         state.NeckAngleDelta = 256;
-        state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3;
+        state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2;
         ExplodeMotherBrainTube(tube);
     }
 
@@ -410,12 +410,12 @@ internal sealed class MotherBrainFakeDeath
     {
         int firstRow = state.Function switch
         {
-            MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3 => 2,
-            MotherBrainBodyFunction.FakeDeathAscentDrawRows4And5 => 4,
-            MotherBrainBodyFunction.FakeDeathAscentDrawRows6And7 => 6,
-            MotherBrainBodyFunction.FakeDeathAscentDrawRows8And9 => 8,
-            MotherBrainBodyFunction.FakeDeathAscentDrawRowsAAndB => 10,
-            MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD => 12,
+            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows1And2 => 2,
+            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows3And4 => 4,
+            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows5And6 => 6,
+            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows7And8 => 8,
+            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows9And10 => 10,
+            MotherBrainBodyFunction.FakeDeathAscentDrawMuralRows11And12 => 12,
             MotherBrainBodyFunction.FirstPhase or
                 MotherBrainBodyFunction.FakeDeathDescentInitialPause or
                 MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock or

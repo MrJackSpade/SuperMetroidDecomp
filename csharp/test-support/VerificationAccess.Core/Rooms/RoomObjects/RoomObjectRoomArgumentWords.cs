@@ -69,7 +69,7 @@ internal static class RoomObjectRoomArgumentWords
         }
         if (header is RoomObjectHeaderId.EnergyStation or RoomObjectHeaderId.MissileStation or RoomObjectHeaderId.SaveStation)
             return new StationArgument(word);
-        if (header == RoomObjectHeaderId.SetMetroidsClearedStatesWhenRequired)
+        if (header == RoomObjectHeaderId.MetroidRoomClearance)
         {
             return (word & 1) == 0
                 ? new MetroidRoomArgument(word / 2)

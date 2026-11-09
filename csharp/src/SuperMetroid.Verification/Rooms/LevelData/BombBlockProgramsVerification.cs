@@ -55,8 +55,8 @@ internal static class BombBlockProgramsVerification
                 cursor += 2 + 2 * count;
                 byte x = rom.ReadCartridgeByte(0x840000 | cursor);
                 byte y = rom.ReadCartridgeByte(0x840000 | (cursor + 1));
-                AssertEqual(unchecked((sbyte)x), RoomObjectRunContinuationCodec.X(list, run), "bomb restoration next X");
-                AssertEqual(unchecked((sbyte)y), RoomObjectRunContinuationCodec.Y(list, run), "bomb restoration next Y");
+                AssertEqual(unchecked((sbyte)x), RoomObjectRunContinuationCodecConstants.X(list, run), "bomb restoration next X");
+                AssertEqual(unchecked((sbyte)y), RoomObjectRunContinuationCodecConstants.Y(list, run), "bomb restoration next Y");
                 AssertEqual((byte)0, x, "bomb restoration calculated next row X");
                 AssertEqual(run + 1 < draw.RunCount ? (byte)1 : (byte)0, y, "bomb restoration calculated next row Y");
                 run++;

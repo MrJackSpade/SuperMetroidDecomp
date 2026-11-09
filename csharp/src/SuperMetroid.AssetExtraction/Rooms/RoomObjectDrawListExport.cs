@@ -6,17 +6,11 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectShotBlockDrawDefiniti
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Builds the run-by-run draw lists the PLM visual files export and check, from the shapes the game draws, and finds a
-/// family's draw by its published visual identity. The game draws from the shapes directly and never builds these lists.
+/// Builds the run-by-run draw lists the import lays room-object frames out from (#1557), from the shapes the game draws.
+/// The game draws from the shapes directly and never builds these lists.
 /// </summary>
 internal static class RoomObjectDrawListExport
 {
-    /// <summary>Resolves a published visual identity to its compiled draw list.</summary>
-    internal delegate bool VisualLookup(string id, out DrawList list);
-
-    /// <summary>A lookup of a compiled draw list by its draw.</summary>
-    internal delegate bool DrawListLookup(RoomObjectDraw draw, out DrawList list);
-
     /// <summary>The direction of every run of a draw that writes its runs along their rows.</summary>
     internal static readonly Func<int, RoomObjectRunDirection> Horizontal = static _ => RoomObjectRunDirection.Horizontal;
 
@@ -76,36 +70,5 @@ internal static class RoomObjectDrawListExport
         var blocks = new RoomTerrainBlock[4];
         for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = blockAt(cell);
         return SingleRun(draw, vertical ? RoomObjectRunDirection.Vertical : RoomObjectRunDirection.Horizontal, blocks);
-    }
-
-    /// <summary>Finds the draw list among <paramref name="candidates"/> whose published visual identity is <paramref name="id"/>.</summary>
-    internal static bool FindByVisualId(IEnumerable<DrawList> candidates, Func<RoomObjectDraw, string> visualId, string? id, out DrawList found) =>
-        TryFindByVisualId(candidates, candidate => visualId(candidate.Draw), id, out found);
-
-    /// <summary>Builds the draw list of the first of <paramref name="draws"/> whose visual identity is <paramref name="id"/>.</summary>
-    internal static bool FindByVisualId(IEnumerable<RoomObjectDraw> draws, Func<RoomObjectDraw, string> visualId, DrawListLookup lookup, string? id, out DrawList found)
-    {
-        foreach (RoomObjectDraw draw in draws)
-        {
-            if (string.Equals(id, visualId(draw), StringComparison.Ordinal))
-                return lookup(draw, out found);
-        }
-        found = default;
-        return false;
-    }
-
-    /// <summary>The first of <paramref name="candidates"/> whose published visual identity is <paramref name="id"/>.</summary>
-    internal static bool TryFindByVisualId<T>(IEnumerable<T> candidates, Func<T, string> visualId, string? id, out T found) where T : struct
-    {
-        foreach (T candidate in candidates)
-        {
-            if (string.Equals(visualId(candidate), id, StringComparison.Ordinal))
-            {
-                found = candidate;
-                return true;
-            }
-        }
-        found = default;
-        return false;
     }
 }

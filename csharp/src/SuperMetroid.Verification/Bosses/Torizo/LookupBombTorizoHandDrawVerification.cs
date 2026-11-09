@@ -92,8 +92,8 @@ internal static class LookupBombTorizoHandDrawVerification
                 {
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
-                        AssertEqual(x, RoomObjectRunContinuationCodec.X(frame, run), "Torizo hand DTO next X");
-                        AssertEqual(y, RoomObjectRunContinuationCodec.Y(frame, run), "Torizo hand DTO next Y");
+                        AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(frame, run), "Torizo hand DTO next X");
+                        AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(frame, run), "Torizo hand DTO next Y");
                     }
                 }
                 run++;

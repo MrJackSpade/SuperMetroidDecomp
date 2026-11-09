@@ -100,7 +100,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "ElevatorPlatform layout native DTO geometry");
                         AssertEqual(count, part.Blocks.Length, "ElevatorPlatform layout native DTO count");
-                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "ElevatorPlatform layout native DTO offset");
+                        AssertEqual(offset, RoomObjectRunContinuationCodecConstants.Encode(frame, run), "ElevatorPlatform layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2)),

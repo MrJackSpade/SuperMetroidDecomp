@@ -81,7 +81,7 @@ internal static class LookupTubeDrawsVerification
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Tube native DTO geometry");
                         AssertEqual(count, part.Count, "Tube native DTO count");
-                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "Tube native DTO offset");
+                        AssertEqual(offset, RoomObjectRunContinuationCodecConstants.Encode(frame, run), "Tube native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})

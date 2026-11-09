@@ -99,7 +99,7 @@ internal static class LookupStationLayoutsVerification
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Station layout native DTO geometry");
                         AssertEqual(count, part.Count, "Station layout native DTO count");
-                        AssertEqual(offset, RoomObjectRunContinuationCodec.Encode(frame, run), "Station layout native DTO offset");
+                        AssertEqual(offset, RoomObjectRunContinuationCodecConstants.Encode(frame, run), "Station layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, cursor + 2 + cell * 2)),

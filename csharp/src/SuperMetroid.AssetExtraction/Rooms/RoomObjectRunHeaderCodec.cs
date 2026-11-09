@@ -26,7 +26,4 @@ internal static class RoomObjectRunHeaderCodec
             RoomObjectRunDirection.Vertical => VerticalBit,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined PLM run direction."),
         }) | Ensure.BetweenInclusive(0, CountBits, count)));
-
-    /// <summary>The header word the cartridge stores before <paramref name="run"/>.</summary>
-    internal static ushort Encode(RoomObjectShotBlockDrawDefinitions.Run run) => Encode(run.Direction, run.Count);
 }

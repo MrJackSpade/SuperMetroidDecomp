@@ -91,10 +91,10 @@ internal static class TourianAccessObjectProgramsVerification
                 foreach (RoomTerrainBlock block in run.Blocks.Span)
                     AssertTourianDrawBlock(block);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)RoomObjectRunContinuationCodec.X(draw, runIndex)),
+                    unchecked((byte)RoomObjectRunContinuationCodecConstants.X(draw, runIndex)),
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run X offset matches ROM");
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
-                    unchecked((byte)RoomObjectRunContinuationCodec.Y(draw, runIndex)),
+                    unchecked((byte)RoomObjectRunContinuationCodecConstants.Y(draw, runIndex)),
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run Y offset matches ROM");
             }
             AssertEqual(checked((ushort)(cursor - RoomObjectDrawAddressCodec.Of(draw.Draw))),

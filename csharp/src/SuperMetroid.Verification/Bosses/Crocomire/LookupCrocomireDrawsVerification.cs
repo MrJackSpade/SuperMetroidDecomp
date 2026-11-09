@@ -61,10 +61,10 @@ internal static class LookupCrocomireDrawsVerification
                 }
                 sbyte nextX = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
                 sbyte nextY = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
-                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(dto, run), "Crocomire DTO X");
-                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(dto, run), "Crocomire DTO Y");
-                AssertEqual(nextX, RoomObjectRunContinuationCodec.X(exported[index], run), "Crocomire export X");
-                AssertEqual(nextY, RoomObjectRunContinuationCodec.Y(exported[index], run), "Crocomire export Y");
+                AssertEqual(nextX, RoomObjectRunContinuationCodecConstants.X(dto, run), "Crocomire DTO X");
+                AssertEqual(nextY, RoomObjectRunContinuationCodecConstants.Y(dto, run), "Crocomire DTO Y");
+                AssertEqual(nextX, RoomObjectRunContinuationCodecConstants.X(exported[index], run), "Crocomire export X");
+                AssertEqual(nextY, RoomObjectRunContinuationCodecConstants.Y(exported[index], run), "Crocomire export Y");
                 AssertEqual((sbyte)0, nextY, "Crocomire runtime column origin Y");
                 foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Crocomire cell bounds");

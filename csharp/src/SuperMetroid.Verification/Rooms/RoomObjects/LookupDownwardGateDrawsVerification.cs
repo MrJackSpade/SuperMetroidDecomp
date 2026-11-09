@@ -97,10 +97,10 @@ internal static class LookupDownwardGateDrawsVerification
                     // The cartridge ends each run with the next run's start, and the last with no offset.
                     AssertEqual(x, run + 1 < shape.RunCount ? shape.Start(run + 1).X : (short)0, "Gate original continuation X");
                     AssertEqual((sbyte)0, y, "Gate runtime continuation Y");
-                    AssertEqual(x, RoomObjectRunContinuationCodec.X(dto, run), "Gate DTO X");
-                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(dto, run), "Gate DTO Y");
-                    AssertEqual(x, RoomObjectRunContinuationCodec.X(exported[index], run), "Gate export X");
-                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(exported[index], run), "Gate export Y");
+                    AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(dto, run), "Gate DTO X");
+                    AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(dto, run), "Gate DTO Y");
+                    AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(exported[index], run), "Gate export X");
+                    AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(exported[index], run), "Gate export Y");
                 }
                 run++;
                 if (x == 0 && y == 0) break;

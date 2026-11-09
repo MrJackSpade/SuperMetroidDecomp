@@ -26,8 +26,8 @@ internal static class LookupElevatubeVerification
             AssertRunHeader(ReadSamusEaterObjectWord(rom, 0x849367), run, "Elevatube native run header");
             AssertEqual(1, run.Count, "Elevatube one word");
             AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x849369)), run.Blocks.Span[0], "Elevatube DTO native terrain");
-            AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), RoomObjectRunContinuationCodec.X(draw, 0), "Elevatube original X");
-            AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936c)), RoomObjectRunContinuationCodec.Y(draw, 0), "Elevatube original Y");
+            AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), RoomObjectRunContinuationCodecConstants.X(draw, 0), "Elevatube original X");
+            AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936c)), RoomObjectRunContinuationCodecConstants.Y(draw, 0), "Elevatube original Y");
         }
         foreach (string id in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
             AssertTrue(!RoomObjectMaridiaElevatubeVisualFiles.Family.Ids.Values.Contains(id, StringComparer.Ordinal), "Elevatube unknown visual ID");

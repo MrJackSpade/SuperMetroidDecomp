@@ -43,33 +43,15 @@ internal static class RoomObjectContentIdentityVerification
             "draw-run framing and host compatibility pass without a ROM.");
     }
 
-    /// <summary>Builds stock PLM catalogs from the compiled definitions or the installed pictures, optionally in reversed insertion order.</summary>
+    /// <summary>Rebuilds every family's installed pictures, optionally with their frames and cells in reversed insertion order (#1557).</summary>
     private static IReadOnlyDictionary<string, string> CreateObjectIdentityFixture(bool reverse = false)
     {
-        // Compiled definitions determine the shape, IDs and appearances.
-        IEnumerable<RoomObjectContentIdentityFrame> Runs(
-            IEnumerable<RoomObjectShotBlockDrawDefinitions.DrawList> definitions)
-        {
-            var frames = definitions.Select(draw => new RoomObjectContentIdentityFrame(draw.Draw, Runs:draw.Runs.Span
-                .SelectToArray(run => run.Blocks.Span
-                    .SelectToArray(block => block.Appearance)))).ToArray();
-            return reverse ? frames.Reverse() : frames;
-        }
-
-        // The pictured families have no compiled appearance (#1557): they are rebuilt from their installed pictures.
+        // Every family is pictured (#1557): its pictures are rebuilt from the installed ones.
         RoomObjectFrameImages<TFrame> Pictures<TFrame>(RoomObjectFrameImages<TFrame> installed) where TFrame : notnull
         {
             var frames = installed.All.Select(frame => KeyValuePair.Create(frame.Key, new RoomObjectFrameImage(
                 (reverse ? frame.Value.Cells.Reverse() : frame.Value.Cells).ToDictionary(cell => cell.Key, cell => cell.Value)))).ToArray();
             return new RoomObjectFrameImages<TFrame>((reverse ? frames.Reverse() : frames).ToDictionary(frame => frame.Key, frame => frame.Value));
-        }
-
-        IEnumerable<RoomObjectContentIdentityDefinition> Words(
-            IEnumerable<RoomObjectContentIdentityDefinition> definitions)
-        {
-            var frames = definitions.Select(draw =>
-                new RoomObjectContentIdentityDefinition(draw.Draw, draw.Appearance)).ToArray();
-            return reverse ? frames.Reverse() : frames;
         }
 
         return RoomObjectPresentationIdentity.Create(new RoomObjectVisualCatalogSet { ShotBlock = new InstalledRoomObjectShotBlockVisuals(Pictures(InstalledRoomObjectShotBlockVisuals.Stock().Images)), GrappleBlock = new InstalledRoomObjectGrappleBlockVisuals(Pictures(InstalledRoomObjectGrappleBlockVisuals.Stock().Images)), Station = new InstalledRoomObjectStationVisuals(Pictures(InstalledRoomObjectStationVisuals.Stock().Images)), BlueDoor = new InstalledRoomObjectBlueDoorVisuals(Pictures(InstalledRoomObjectBlueDoorVisuals.Stock().Images)), ColoredDoor = new InstalledRoomObjectColoredDoorVisuals(Pictures(InstalledRoomObjectColoredDoorVisuals.Stock().Images)), GreyDoor = new InstalledRoomObjectGreyDoorVisuals(Pictures(InstalledRoomObjectGreyDoorVisuals.Stock().Images)), EyeDoor = new InstalledRoomObjectEyeDoorVisuals(Pictures(InstalledRoomObjectEyeDoorVisuals.Stock().Images)), MotherBrainGlass = new InstalledMotherBrainGlassFrames(Pictures(InstalledMotherBrainGlassFrames.Stock().Images)), NoobTube = new InstalledRoomObjectNoobTubeVisuals(Pictures(InstalledRoomObjectNoobTubeVisuals.Stock().Images)), DownwardGate = new InstalledRoomObjectDownwardGateVisuals(Pictures(InstalledRoomObjectDownwardGateVisuals.Stock().Images)), ElevatorPlatform = new RoomObjectElevatorPlatformVisualCatalog(Pictures(RoomObjectElevatorPlatformVisualCatalog.Stock().Images)), EscapeGate = new InstalledEscapeGateFrames(Pictures(InstalledEscapeGateFrames.Stock().Images)), BombTorizoHand = new RoomObjectBombTorizoHandVisualCatalog(Pictures(RoomObjectBombTorizoHandVisualCatalog.Stock().Images)), DraygonCannon = new InstalledDraygonCannonFrames(Pictures(InstalledDraygonCannonFrames.Stock().Images)), ChozoStatue = new RoomObjectChozoStatueVisualCatalog(Pictures(RoomObjectChozoStatueVisualCatalog.Stock().Images)), LinkedRestore = new InstalledRoomObjectLinkedRestoreVisuals(Pictures(InstalledRoomObjectLinkedRestoreVisuals.Stock().Images)), TourianAccess = new RoomObjectTourianAccessVisuals(Pictures(RoomObjectTourianAccessVisuals.Stock().Images)), SpeedBooster = new InstalledRoomObjectSpeedBoosterVisuals(Pictures(InstalledRoomObjectSpeedBoosterVisuals.Stock().Images)), MaridiaElevatube = new InstalledRoomObjectMaridiaElevatubeVisuals(Pictures(InstalledRoomObjectMaridiaElevatubeVisuals.Stock().Images)), SporeSpawnCeiling = new RoomObjectSporeSpawnCeilingVisualCatalog(Pictures(RoomObjectSporeSpawnCeilingVisualCatalog.Stock().Images)), SamusEater = new InstalledRoomObjectSamusEaterVisuals(Pictures(InstalledRoomObjectSamusEaterVisuals.Stock().Images)), BotwoonWall = new InstalledRoomObjectBotwoonWallVisuals(Pictures(InstalledRoomObjectBotwoonWallVisuals.Stock().Images)), Kraid = new InstalledRoomObjectKraidVisuals(Pictures(InstalledRoomObjectKraidVisuals.Stock().Images)), Crocomire = new RoomObjectCrocomireVisualCatalog(Pictures(RoomObjectCrocomireVisualCatalog.Stock().Images)), MotherBrainFakeDeath = new InstalledMotherBrainFakeDeathFrames(Pictures(InstalledMotherBrainFakeDeathFrames.Stock().Images)), Collectible = new InstalledRoomObjectCollectibleVisuals(Pictures(InstalledRoomObjectCollectibleVisuals.Stock().Images)), RevealAndWall = new InstalledRoomObjectRevealAndWallVisuals(Pictures(InstalledRoomObjectRevealAndWallVisuals.Stock().Images)) });

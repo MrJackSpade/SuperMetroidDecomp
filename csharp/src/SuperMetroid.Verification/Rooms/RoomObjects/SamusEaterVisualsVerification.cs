@@ -122,10 +122,10 @@ internal static class SamusEaterVisualsVerification
                         ? draw.Start(run + 1) : Offset16<RoomBlocks>.Zero;
                     AssertEqual(x, continuation.X, "plant signed horizontal offset");
                     AssertEqual(y, continuation.Y, "plant signed vertical offset");
-                    AssertEqual(x, RoomObjectRunContinuationCodec.X(dto, run), "plant DTO horizontal offset");
-                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(dto, run), "plant DTO vertical offset");
-                    AssertEqual(x, RoomObjectRunContinuationCodec.X(exported[frame], run), "plant export horizontal offset");
-                    AssertEqual(y, RoomObjectRunContinuationCodec.Y(exported[frame], run), "plant export vertical offset");
+                    AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(dto, run), "plant DTO horizontal offset");
+                    AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(dto, run), "plant DTO vertical offset");
+                    AssertEqual(x, RoomObjectRunContinuationCodecConstants.X(exported[frame], run), "plant export horizontal offset");
+                    AssertEqual(y, RoomObjectRunContinuationCodecConstants.Y(exported[frame], run), "plant export vertical offset");
                 }
                 cursor += 4 + count * 2;
             }

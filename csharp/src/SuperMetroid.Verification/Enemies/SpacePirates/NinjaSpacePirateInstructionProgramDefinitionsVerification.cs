@@ -49,7 +49,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         using var tilePng = new MemoryStream();
         IndexedPng.Write(tilePng, size, pixels, SnesGraphics.DiagnosticPalette(16));
         tilePng.Position = 0;
-        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlasPng.Read(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>

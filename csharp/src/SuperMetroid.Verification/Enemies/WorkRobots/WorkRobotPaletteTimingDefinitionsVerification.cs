@@ -48,7 +48,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock }),
+            TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock }),
         };
         enemies.WorkRobotBehavior.GlowStepTimer = 1;
         enemies.WorkRobotBehavior.NextGlowStep = 0;

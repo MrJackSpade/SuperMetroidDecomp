@@ -15,17 +15,14 @@ internal static class EnemyExtendedFrameDisplaysVerification
 {
     /// <summary>
     /// For every enemy frame, the installed displays resolve exactly the frames the installed compositions resolve,
-    /// picture exactly those with a sprite piece, and select the same displayed frame; the runtime catalog binds them.
+    /// picture exactly those with a sprite piece, and select the same displayed frame.
     /// </summary>
     internal static void VerifyEnemyExtendedFrameDisplays()
     {
         EnemyTileSourceArtwork stock = InstalledFixtures.EnemyTiles;
         EnemyExtendedFrameCatalog compositions = stock.ExtendedFrames
             ?? throw new InvalidOperationException("Verification requires the installed extended frames.");
-        EnemyExtendedFrameDisplayCatalog displays = stock.ExtendedFrameDisplays
-            ?? throw new InvalidOperationException("Verification requires the installed extended frame displays.");
-        AssertTrue(ReferenceEquals(compositions.Displays, displays),
-            "the runtime catalog binds the displays derived from the installed compositions");
+        EnemyExtendedFrameDisplayCatalog displays = compositions.Displays;
         int installed = 0, pictured = 0;
         foreach (EnemyFrameId frame in Enum.GetValues<EnemyFrameId>())
         {

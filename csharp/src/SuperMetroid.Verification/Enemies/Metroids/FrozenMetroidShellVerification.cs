@@ -43,7 +43,7 @@ internal static class FrozenMetroidShellVerification
             "The reproduction must begin on the native empty shell frame.");
         ushort retainedTimer = shell.FrameHold;
         ushort expectedPointer = RoomSpriteObjectVisualDefinitionsConstants.Spritemap(AssertIs<AnimationProgramStep<RoomSpriteObjectProgram, RoomSpriteObjectFrame, NoAnimationCue>.ShowStep>(shellSteps[0], "first shell step").Frame);
-        Require(((enemies.TileArtwork ?? throw new InvalidOperationException("Verification requires installed enemy artwork.")).Spritemaps ?? throw new InvalidOperationException("Verification requires enemies.TileArtwork.Spritemaps.")).TryGetDisplay(0xb4, expectedPointer, out var parts),
+        Require((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed enemy compositions.")).TryGetDisplay(0xb4, expectedPointer, out var parts),
             "Installed frozen shell artwork must exist.");
         var expected = new OamBuffer();
         expected.BeginFrame();

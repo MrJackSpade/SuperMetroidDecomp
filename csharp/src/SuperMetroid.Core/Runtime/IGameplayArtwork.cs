@@ -148,6 +148,9 @@ internal interface IGameplayArtwork
     /// <summary>The pre-coloured enemy sheets, by the room graphics set that loads each enemy.</summary>
     InstalledEnemySheets? EnemySheets { get; }
 
+    /// <summary>The installed extended enemy frames' display bindings, drawn with the enemy sheets.</summary>
+    EnemyExtendedFrameDisplayCatalog? EnemyFrameDisplays { get; }
+
     /// <summary>The compatibility services reproducing what enemies read past their authored data, decoded from the player's game data.</summary>
     EnemyOverreadServices? EnemyOverreads { get; }
 
@@ -161,9 +164,6 @@ internal interface IGameplayArtwork
     InstalledGrappleSwingFrames? GrappleSwingFrames { get; }
 
 
-
-    /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
-    EnemyTileArtworkCatalog? EnemyTileArtwork { get; }
 
     /// <summary>The bosses' melts, background frames, corpse characters and colors.</summary>
     BossArtworkCatalog? BossArtwork { get; }

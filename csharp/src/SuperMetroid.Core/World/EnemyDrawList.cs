@@ -112,12 +112,12 @@ internal sealed class EnemyDrawList
                 }
 
                 if (slot.Frame is { } shown &&
-                    _room.Artwork?.ExtendedFrameDisplays?.TryGetDisplay(shown, out bool pictured) == true)
+                    _room.FrameDisplays?.TryGetDisplay(shown, out bool pictured) == true)
                 {
                     // Resolve the sprite picture and the body frame through one presentation binding. Validate the
                     // frame before the body is drawn; physical selectors continue to belong to compiled animation
                     // and collision programs.
-                    EnemyFrameId selected = _room.Artwork.ExtendedFrameDisplays.GetDisplayFrame(shown);
+                    EnemyFrameId selected = _room.FrameDisplays.GetDisplayFrame(shown);
                     _instructions.DrawBossBodyFrame(slot, selected);
                     prepared.Add(new PreparedEnemyDraw(layer, slot, origin, drawShading, shown, pictured));
                     continue;

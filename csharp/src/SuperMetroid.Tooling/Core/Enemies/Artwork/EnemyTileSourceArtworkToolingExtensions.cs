@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Development-tool instance members of <see cref="EnemyTileSourceArtwork"/>.</summary>
-internal static class EnemyTileArtworkCatalogToolingExtensions
+internal static class EnemyTileSourceArtworkToolingExtensions
 {
     /// <summary>Development-tool instance members of <see cref="EnemyTileSourceArtwork"/>.</summary>
     extension(EnemyTileSourceArtwork self)

@@ -100,7 +100,8 @@ The seams that broke the cycle follow a few shapes, and a new dependency should 
   module that uses it.
 
 Installed artwork follows the same rule. The enemy directory is read once, but it is published as three catalogs, one
-per owning domain: `EnemyTileArtworkCatalog` (ordinary enemies), `BossArtworkCatalog` (bosses) and
+per owning domain: the import's `EnemyTileSourceArtwork` (ordinary enemies, of which the runtime receives only the
+extended frames' display bindings, beside the enemy sheets: #1583), `BossArtworkCatalog` (bosses) and
 `AreaArtworkBundle` (the Ceres and Tourian actors). The runtime owns a `BossArtworkBinding` and an
 `AreaArtworkBinding` for the session; each room's enemy system hands them to the classes that read them, so a rebind
 reaches actors already in the room. The runtime artwork resolves boss and area transfers through the bindings, and

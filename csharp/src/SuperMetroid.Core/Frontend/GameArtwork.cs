@@ -155,9 +155,6 @@ public sealed record GameArtwork : IGameplayArtwork
     public InstalledProjectileFrameBindings? ProjectileFrameBindings { get; init; }
 
 
-    /// <summary>Enemy palettes, extended frames and colour catalogs.</summary>
-    public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }
-
     /// <summary>The bosses' melts, background body frames, corpse characters and colors.</summary>
     public BossArtworkCatalog? BossArtwork { get; init; }
 
@@ -178,6 +175,9 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>The pre-coloured enemy sheets, by the room graphics set that loads each enemy.</summary>
     public InstalledEnemySheets? EnemySheets { get; init; }
+
+    /// <summary>The installed extended enemy frames' display bindings, drawn with the enemy sheets.</summary>
+    public EnemyExtendedFrameDisplayCatalog? EnemyFrameDisplays { get; init; }
 
     /// <summary>The compatibility services reproducing what enemies read past their authored data, decoded from the player's game data.</summary>
     public EnemyOverreadServices? EnemyOverreads { get; init; }

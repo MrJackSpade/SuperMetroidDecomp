@@ -1923,7 +1923,7 @@ internal static class LookupStream4Verification
             selected.ApplyIntro(cgram);
             for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
             {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var actual=new SnesCgram(); var vram=new SnesVram();
                 enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
@@ -1981,7 +1981,7 @@ internal static class LookupStream4Verification
                 }
             }
             {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SnesCgram();
                                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthPaletteBand=5};
@@ -2035,7 +2035,7 @@ internal static class LookupStream4Verification
                 }
             }
             {
-                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance){TileArtwork=artwork, BossArtwork = artworkBosses}; var cgram=new SnesCgram();
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthPaletteBand=3};
@@ -2078,7 +2078,7 @@ internal static class LookupStream4Verification
                         selected.ResolveHealthBand(band, shade), "All native shades");
             }
             {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var cgram = new SnesCgram();
@@ -2196,7 +2196,7 @@ internal static class LookupStream4Verification
                 }
             }
             {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
@@ -2274,7 +2274,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 15; row++) for (int color = 0; color < 14; color++)
                 AssertEqual(Pack(original.Reveal[row][color]), selected.ResolveReveal(row, color), "Reveal words");
             {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { NorfairRidleyColors = selected };
                 var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var guard = NewProjectileCompositionForbiddenBus();
@@ -2335,7 +2335,7 @@ internal static class LookupStream4Verification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3971b + (band * 16 + color) * 2)), stock.HealthColor(band, color), "stock owner remains immutable");
             }
             {
-                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+                var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { BotwoonColors = catalog };
                 var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork, BossArtwork = artworkBosses };
                 var guard = NewBotwoonColorReadGuard(rom);

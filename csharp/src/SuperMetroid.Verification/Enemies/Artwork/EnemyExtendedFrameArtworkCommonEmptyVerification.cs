@@ -29,9 +29,8 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             // Exercise the ordinary draw entry point too: unlike the extended
             // $804F root below, enemies can select $804D directly during their
             // initialization. A full-ROM read guard proves this is compiled.
-            var ordinaryEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses };
             var emptyDraw = new OamBuffer();
-            ordinaryEnemies.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = bank, Pointer = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap, Origin = new Position16<SpritePixels>(0x0080, 0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            stock.Enemies.Spritemaps.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = bank, Pointer = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap, Origin = new Position16<SpritePixels>(0x0080, 0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame));

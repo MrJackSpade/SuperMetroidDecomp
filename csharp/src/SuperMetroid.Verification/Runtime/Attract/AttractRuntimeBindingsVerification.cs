@@ -23,13 +23,14 @@ internal static class AttractRuntimeBindingsVerification
             SamusOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads,
             BossAndIntroOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossAndIntroOverreads,
             EnemyOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyOverreads,
-            EnemyTileArtwork = enemyArtwork.Enemies,
+            EnemyFrameDisplays = (enemyArtwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("The fixture authors extended frames.")).Displays,
             EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, BossArtwork = enemyArtwork.Bosses, 
         });
         int incomingRandom = game.DispatcherRandomNumber;
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
         var demo = game.GameplayRuntimeForVerification;
-        AssertTrue(ReferenceEquals(enemyArtwork.Enemies, demo.EnemySession.TileArtwork), "attract runtime binds installed enemy artwork");
+        AssertTrue(ReferenceEquals(enemyArtwork.Enemies.ExtendedFrames?.Displays, demo.EnemySession.FrameDisplays),
+            "attract runtime binds the installed extended frame displays");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
         AssertTrue(ReferenceEquals(demo.Assists.Current, GameplayAssists.None),
             "attract runtime plays unassisted");

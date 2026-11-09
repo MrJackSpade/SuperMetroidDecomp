@@ -153,7 +153,7 @@ internal static void VerifyRoomEnemyLoading()
     }
     var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
+        TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
 
@@ -199,9 +199,10 @@ internal static void VerifyRoomEnemyLoading()
         "definition vulnerability table offset $3C");
 
     // Repeating the load with installed art while the cartridge tile sources are forbidden leaves every gameplay field.
+    EnemyTileSourceArtwork installedArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors });
     var installedEnemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999))
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
+        TileArtwork = installedArtwork,
     };
     var installedVram = new SnesVram();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram)));
@@ -212,11 +213,11 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(slot.Definition.Radius.X, installedEnemies.SlotTable.Slots[0].Definition.Radius.X,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
-        EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
+        EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
             .LoadTo(primaryDefinitionPointer, 0x40, new VramRegion(new SnesVram(), PpuMemoryLayout.Vram), 0xe000),
         "missing installed enemy sheet fails at its actual upload");
     AssertThrows<InvalidDataException>(() =>
-        (installedEnemies.TileArtwork ?? throw new InvalidOperationException("Verification requires installed enemy artwork.")).LoadTo(primaryDefinitionPointer, 0x20, new VramRegion(new SnesVram(), PpuMemoryLayout.Vram), 0xe000),
+        installedArtwork.LoadTo(primaryDefinitionPointer, 0x20, new VramRegion(new SnesVram(), PpuMemoryLayout.Vram), 0xe000),
         "wrong-size enemy sheet cannot silently truncate its native transfer");
 
     // Load the next room's enemies, over the same session, with an empty population and a deliberately invalid
@@ -683,7 +684,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
+    var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)));
     enemies.StepFrame(new RoomEnemyFrame { FrameCounter = enemies.StandaloneFrameCounter, Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorAnimationFrame.ElevatorLight, map.Drawn.Single(),
@@ -735,7 +736,7 @@ internal static void VerifyCeresDoorBossBranch()
         {
             areaBossReads++;
             return areaBossDefeated;
-        } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
+        } } }) { TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }) };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram)) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
     door.FrameHold = WrappingCountdown.Start(1);
@@ -831,7 +832,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // The escape writes its warning text over BG1 (#1346).
     var enemies = new RoomEnemySystem(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, Floor = RoomBackgroundsFixtures.CeresFloor() })
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+        TileArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [definitionPointer] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),

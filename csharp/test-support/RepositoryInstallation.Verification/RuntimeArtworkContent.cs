@@ -11,20 +11,25 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// Verification access (#1463): the installed characters a runtime's shown sprite sources name, resolved the way the
-/// import pipeline resolves them, from the enemy, boss, area and map artwork bound into the runtime and the installed
-/// standard OBJ sheet. The runtime itself never resolves characters; it draws pre-coloured sheets.
+/// import pipeline resolves them, from the boss and map artwork bound into the runtime, the enemy artwork the fixture
+/// installed it from and the installed standard OBJ sheet. The runtime itself never resolves characters; it draws
+/// pre-coloured sheets, and holds none of the import's enemy artwork (#1583).
 /// </summary>
 /// <param name="runtime">The runtime whose bound artwork is resolved.</param>
 /// <param name="standardObjects">The standard OBJ sheet the runtime's room loads show first.</param>
-internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCharacterAtlas standardObjects)
+/// <param name="enemyTiles">The import's enemy artwork the runtime's enemy sheets and frame displays were installed from.</param>
+internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCharacterAtlas standardObjects, EnemyTileSourceArtwork enemyTiles)
     : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
 {
-    /// <summary>The artwork bound into <paramref name="runtime"/>, with the installation's standard OBJ sheet.</summary>
-    internal static RuntimeArtworkContent Of(SuperMetroidRuntime runtime) => new(runtime, InstalledFixtures.StandardObjects);
+    /// <summary>The artwork bound into <paramref name="runtime"/>, with the installation's standard OBJ sheet and enemy artwork.</summary>
+    internal static RuntimeArtworkContent Of(SuperMetroidRuntime runtime) => Of(runtime, InstalledFixtures.EnemyTiles);
+
+    /// <summary>The artwork bound into <paramref name="runtime"/>, installed from <paramref name="enemyTiles"/>, with the installation's standard OBJ sheet.</summary>
+    internal static RuntimeArtworkContent Of(SuperMetroidRuntime runtime, EnemyTileSourceArtwork enemyTiles) =>
+        new(runtime, InstalledFixtures.StandardObjects, enemyTiles);
 
     /// <inheritdoc/>
-    public EnemyTileSourceArtwork EnemyTiles =>
-        (EnemyTileSourceArtwork?)runtime.EnemySession.TileArtwork ?? throw new InvalidOperationException("No enemy artwork is installed.");
+    public EnemyTileSourceArtwork EnemyTiles => enemyTiles;
 
     /// <inheritdoc/>
     public BossSourceArtwork BossTiles =>

@@ -59,7 +59,6 @@ internal static class RidleyBreakupProgramsVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = stock });
         // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.
         foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
         {
@@ -74,7 +73,7 @@ internal static class RidleyBreakupProgramsVerification
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(1, fragmentState.Program.Position, "breakup sleeps after its one frame");
             var actual = new OamBuffer();
-            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<SpritePixels>(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            stock.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<SpritePixels>(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, new NativeEnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new(128, 112), PaletteBits = 0x0e00, BaseTileIndex = 0 });
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "breakup OAM count");

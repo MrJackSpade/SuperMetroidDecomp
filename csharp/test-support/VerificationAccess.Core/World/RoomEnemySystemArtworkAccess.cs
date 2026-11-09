@@ -9,14 +9,16 @@ internal static class RoomEnemySystemArtworkAccess
     /// <summary>The artwork a fixture installs.</summary>
     extension(RoomEnemySystem self)
     {
-        /// <summary>The session's installed enemy presentation, and the enemy sheets drawn with it.</summary>
-        /// <remarks>Fixtures install the import pipeline's artwork, whose compositions the sheets are composed from.</remarks>
+        /// <summary>
+        /// Installs what the installation gives the session from the import pipeline's enemy artwork (#1583): its extended
+        /// frames' display bindings and the enemy sheets composed from it. The session keeps none of the import's artwork,
+        /// so a fixture that reads it again keeps its own reference.
+        /// </summary>
         internal EnemyTileSourceArtwork? TileArtwork
         {
-            get => (EnemyTileSourceArtwork?)self.Room.Session.TileArtwork;
             set
             {
-                self.Room.Session.TileArtwork = value;
+                self.Room.Session.FrameDisplays = value?.ExtendedFrames?.Displays;
                 self.Room.Session.Sheets = value is null ? null : SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures.For(value);
             }
         }

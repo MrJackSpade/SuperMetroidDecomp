@@ -26,7 +26,7 @@ internal static class InstalledArtworkBindingVerification
         if (enemyArtwork is not null)
             artwork = artwork with
             {
-                EnemyTileArtwork = enemyArtwork.Enemies,
+                EnemyFrameDisplays = enemyArtwork.Enemies.ExtendedFrames?.Displays,
                 BossArtwork = enemyArtwork.Bosses,
             };
         // An already-finished intro is deliberately not rebound for a restored gameplay room: its restored DMA side effect

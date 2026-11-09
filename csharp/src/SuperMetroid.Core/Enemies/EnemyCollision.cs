@@ -810,7 +810,7 @@ internal sealed class EnemyCollision
                 CoordinateAxis.Wrap(targetPosition.X + targetRadius.X),
                 CoordinateAxis.Wrap(targetPosition.Y + targetRadius.Y)),
             SelectsShot: contactKind == HitboxContactKind.Shot,
-            ArtworkInstalled: _room.Artwork is not null);
+            ArtworkInstalled: _room.FrameDisplays is not null);
 
         if (CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
         {

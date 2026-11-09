@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The grey door caps and the four shared cleared openings, and their physical cells from
+/// The grey door caps and the four shared cleared openings, and how their cells collide from
 /// <see cref="GreyDoorObjectDrawDefinitions"/>.
 /// </summary>
 internal static class GreyDoorCaps
@@ -15,11 +15,11 @@ internal static class GreyDoorCaps
         /// <summary>Left and right caps use a vertical four-cell run.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
 
-        /// <summary>The terrain of <paramref name="cell"/>, one of the cap's four cells in run order.</summary>
-        internal RoomTerrainBlock BlockAt(int cell)
+        /// <summary>How <paramref name="cell"/>, one of the cap's four cells in run order, collides.</summary>
+        internal RoomCollisionType CollisionAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return GreyDoorObjectDrawDefinitions.Cells[this][cell];
+            return GreyDoorObjectDrawDefinitions.Collisions[this][cell];
         }
     }
 

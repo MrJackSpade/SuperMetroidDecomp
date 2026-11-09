@@ -4,8 +4,8 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The draws of both mirrored, three-component eye doors: the draw each typed eye-door frame shows, their physical
-/// cells from <see cref="EyeDoorObjectDrawDefinitions"/>, and the editable source of each alias.
+/// The draws of both mirrored, three-component eye doors: the draw each typed eye-door frame shows, how their cells
+/// collide from <see cref="EyeDoorObjectDrawDefinitions"/>, and the installed picture each alias shows.
 /// </summary>
 internal static class EyeDoorDraws
 {
@@ -64,11 +64,11 @@ internal static class EyeDoorDraws
         /// <summary>Whether the run writes cells vertically rather than horizontally.</summary>
         internal bool Vertical => Part is Component.Eye or Component.Clear;
         /// <summary>Gets the cell count for an eye, middle, bottom, or clear component.</summary>
-        internal int BlockCount => EyeDoorObjectDrawDefinitions.Cells[this].Count;
-        /// <summary>The terrain of <paramref name="cell"/> in run order.</summary>
-        internal RoomTerrainBlock BlockAt(int cell)
+        internal int BlockCount => EyeDoorObjectDrawDefinitions.Collisions[this].Count;
+        /// <summary>How <paramref name="cell"/>, in run order, collides.</summary>
+        internal RoomCollisionType CollisionAt(int cell)
         {
-            IReadOnlyList<RoomTerrainBlock> cells = EyeDoorObjectDrawDefinitions.Cells[this];
+            IReadOnlyList<RoomCollisionType> cells = EyeDoorObjectDrawDefinitions.Collisions[this];
             if ((uint)cell >= (uint)cells.Count) throw new ArgumentOutOfRangeException(nameof(cell));
             return cells[cell];
         }

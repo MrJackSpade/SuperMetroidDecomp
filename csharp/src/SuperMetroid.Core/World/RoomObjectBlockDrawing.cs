@@ -226,28 +226,28 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
         {
             RoomObjectFrameImage cap = Installed(BlueDoorVisuals, "blue-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), blueDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(blueDoor.Vertical ? 0 : cell, blueDoor.Vertical ? cell : 0), blueDoor.CollisionAt(cell));
             return;
         }
         if (ColoredDoorCaps.TryDescribe(draw, out var coloredDoor))
         {
             RoomObjectFrameImage cap = Installed(ColoredDoorVisuals, "colored-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), coloredDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(coloredDoor.Vertical ? 0 : cell, coloredDoor.Vertical ? cell : 0), coloredDoor.CollisionAt(cell));
             return;
         }
         if (GreyDoorCaps.TryDescribe(draw, out var greyDoor))
         {
             RoomObjectFrameImage cap = Installed(GreyDoorVisuals, "grey-door").Image(draw);
             for (int cell = 0; cell < 4; cell++)
-                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, cap, new Offset16<RoomBlocks>(greyDoor.Vertical ? 0 : cell, greyDoor.Vertical ? cell : 0), greyDoor.CollisionAt(cell));
             return;
         }
         if (EyeDoorDraws.TryDescribe(draw, out var eyeDoor))
         {
             RoomObjectFrameImage part = Installed(EyeDoorVisuals, "eye-door").Image(draw);
             for (int cell = 0; cell < eyeDoor.BlockCount; cell++)
-                DrawImageCell(level, draw, origin, part, new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.BlockAt(cell).Collision);
+                DrawImageCell(level, draw, origin, part, new Offset16<RoomBlocks>(eyeDoor.Vertical ? 0 : cell, eyeDoor.Vertical ? cell : 0), eyeDoor.CollisionAt(cell));
             return;
         }
         if (MotherBrainGlassDraws.TryDescribe(draw, out var motherBrainGlass))

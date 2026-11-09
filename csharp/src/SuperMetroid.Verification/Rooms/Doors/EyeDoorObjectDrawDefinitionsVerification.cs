@@ -77,6 +77,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         AssertEqual(3, RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(new SharedRandom()), AreaId.Brinstar), RoomObjectPopulationImporter.Read(guarded, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = _ => { } } }),
             $"{orientation} eye-door three-component population loads");
         roomObjects.Step(level);
+        InstalledRoomObjectEyeDoorVisuals pictures = InstalledRoomObjectEyeDoorVisuals.Stock();
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
         for (int component = 0; component < pointers.Length; component++)
         {
@@ -85,9 +86,13 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
             RoomObjectShotBlockDrawDefinitions.Run run = list.Runs.Span[0];
             int stride = run.Direction == RoomObjectRunDirection.Vertical ? width : 1;
             for (int block = 0; block < run.Count; block++)
-                AssertEqual(run.Blocks.Span[block],
-                    level.GetCollisionBlockByIndex(origins[component] + block * stride).Terrain,
+            {
+                RoomTerrainBlock written = level.GetCollisionBlockByIndex(origins[component] + block * stride).Terrain;
+                AssertEqual(run.Collisions.Span[block], written.Collision,
                     $"{orientation} component {component} draws physical block {block}");
+                AssertEqual(pictures.Image(list.Draw).At(run.CellAt(block)), written.Appearance,
+                    $"{orientation} component {component} shows its installed picture at block {block}");
+            }
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} eye-door first draws avoid bank-$84 payload reads");

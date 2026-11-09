@@ -26,6 +26,7 @@ internal static class LookupGreyCapVerification
         string[] ids = ["clear-left","clear-right","clear-up","clear-down","grey-left-frame-0","grey-left-frame-1","grey-left-frame-2","grey-left-frame-3","grey-right-frame-0","grey-right-frame-1","grey-right-frame-2","grey-right-frame-3","grey-up-frame-0","grey-up-frame-1","grey-up-frame-2","grey-up-frame-3","grey-down-frame-0","grey-down-frame-1","grey-down-frame-2","grey-down-frame-3"];
         var exported = RoomObjectGreyDoorVisualFiles.All.ToArray();
         AssertEqual(20, exported.Length, "Grey cap export count");
+        InstalledRoomObjectGreyDoorVisuals? pictures = field == 2 ? InstalledRoomObjectGreyDoorVisuals.Stock() : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -66,14 +67,21 @@ internal static class LookupGreyCapVerification
                     AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.Y(frame, 0), "Grey cap DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Grey cap calculated row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid), "Grey cap calculated row bounds");
             }
             else for (int row = 0; row < 4; row++)
             {
                 RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + row * 2)));
-                AssertEqual(expected, shape.BlockAt(row), "Grey cap original calculated field");
-                AssertEqual(expected, dto.Runs.Span[0].Blocks.Span[row], "Grey cap original DTO field");
-                AssertEqual(expected, exported[index].Runs.Span[0].Blocks.Span[row], "Grey cap original export field");
+                if (field == 1)
+                {
+                    AssertEqual(expected.Collision, shape.CollisionAt(row), "Grey cap original calculated collision");
+                    AssertEqual(expected.Collision, dto.Runs.Span[0].Collisions.Span[row], "Grey cap original DTO collision");
+                    AssertEqual(expected.Collision, exported[index].Runs.Span[0].Collisions.Span[row], "Grey cap original export collision");
+                }
+                else
+                    // Core holds no appearance: what the cell shows is the cap's installed picture.
+                    AssertEqual(expected.Appearance, pictures!.Image(NativeObjectDraws.At<GreyDoorCaps.Draw>(pointer)).At(dto.Runs.Span[0].CellAt(row)),
+                        "Grey cap installed picture shows the cartridge's block");
             }
         }
     }

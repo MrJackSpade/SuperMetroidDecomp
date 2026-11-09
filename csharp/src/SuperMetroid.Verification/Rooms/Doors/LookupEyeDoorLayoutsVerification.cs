@@ -33,6 +33,7 @@ internal static class LookupEyeDoorLayoutsVerification
             0x9c4f,0x9c5b,0x9c63,0x9c6b,0x9c73,0x9c7b,0x9c83,0x9c89,0x9c8f,0x9c95,0x9c9b,0x9ca1];
         var exported = RoomObjectEyeDoorVisualFiles.All.ToArray();
         AssertEqual(24,exported.Length,"Eye door original layout count");
+        InstalledRoomObjectEyeDoorVisuals? pictures = field == 2 ? InstalledRoomObjectEyeDoorVisuals.Stock() : null;
         if (field == 0)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
@@ -68,7 +69,7 @@ internal static class LookupEyeDoorLayoutsVerification
                 AssertEqual(vertical,shape.Vertical,"Eye door original direction");
                 AssertEqual((ushort)0,ReadSamusEaterObjectWord(rom,0x840000 | (pointer + 2 + count * 2)),"Eye door native terminator");
                 foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad),"Eye door cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(bad),"Eye door cell bounds");
             }
             foreach (var view in views)
             {
@@ -86,8 +87,15 @@ internal static class LookupEyeDoorLayoutsVerification
                     for (int cell = 0; cell < count; cell++)
                     {
                         RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom,0x840000 | (pointer + 2 + cell * 2)));
-                        AssertEqual(expected,shape.BlockAt(cell),"Eye door native calculated field");
-                        AssertEqual(expected,run.Blocks.Span[cell],"Eye door native DTO field");
+                        if (field == 1)
+                        {
+                            AssertEqual(expected.Collision,shape.CollisionAt(cell),"Eye door native calculated collision");
+                            AssertEqual(expected.Collision,run.Collisions.Span[cell],"Eye door native DTO collision");
+                        }
+                        else
+                            // Core holds no appearance: what the cell shows is the door's installed picture.
+                            AssertEqual(expected.Appearance,pictures!.Image(view.Draw).At(run.CellAt(cell)),"Eye door installed picture shows the cartridge's block");
+
                     }
             }
             if (field == 0)

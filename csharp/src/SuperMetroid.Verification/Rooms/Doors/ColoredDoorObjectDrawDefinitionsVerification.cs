@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredCapVerification;
@@ -30,10 +31,11 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
 
         RoomObjectShotBlockDrawDefinitions.DrawList[] lists =
             RoomObjectColoredDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        RoomBlockAppearance greenLeftCompiled = lists.Single(draw => RoomObjectColoredDoorVisualFiles.VisualId(draw.Draw) == "green-left-frame-0")
-            .Runs.Span[0].Blocks.Span[0].Appearance;
         InstalledRoomObjectColoredDoorVisuals stock = InstalledRoomObjectColoredDoorVisuals.Stock();
-        AssertEqual(greenLeftCompiled, stock.Image(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)).At(Offset16<RoomBlocks>.Zero),
+        AssertEqual("green-left-frame-0", RoomObjectColoredDoorVisualFiles.VisualId(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)),
+            "the green left cap's first frame is the draw the cartridge stores at $A827");
+        AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (0xa827 + 2))).Appearance,
+            stock.Image(NativeObjectDraws.At<ColoredDoorCaps.Draw>(0xa827)).At(Offset16<RoomBlocks>.Zero),
             "stock colored-door visual retains native tile choice");
         Suite(nameof(VerifyColoredCapGeometry), () => VerifyColoredCapGeometry(rom));
         Suite(nameof(VerifyColoredCapCollision), () => VerifyColoredCapCollision(rom));
@@ -88,9 +90,13 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             bool vertical = selected.Runs.Span[0].Direction == RoomObjectRunDirection.Vertical;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
-                AssertEqual(selected.Runs.Span[0].Blocks.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).Terrain,
+            {
+                RoomTerrainBlock written = level.GetCollisionBlockByIndex(origin + block * stride).Terrain;
+                AssertEqual(selected.Runs.Span[0].Collisions.Span[block], written.Collision,
                     $"resident colored-door {header} draws physical block {block}");
+                AssertEqual(stock.Image(selected.Draw).At(selected.Runs.Span[0].CellAt(block)), written.Appearance,
+                    $"resident colored-door {header} shows its installed picture at block {block}");
+            }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored-door {header} avoids program and draw ROM reads");
 

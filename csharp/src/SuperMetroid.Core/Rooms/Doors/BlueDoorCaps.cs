@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The blue-door caps: the closed alias and the four opening frames of each facing, and their physical cells from
+/// The blue-door caps: the closed alias and the four opening frames of each facing, and how their cells collide from
 /// <see cref="BlueDoorObjectDrawDefinitions"/>.
 /// </summary>
 internal static class BlueDoorCaps
@@ -15,11 +15,11 @@ internal static class BlueDoorCaps
         /// <summary>Whether this cap's four blocks are laid out as a vertical run.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
 
-        /// <summary>The terrain of <paramref name="cell"/>, one of the cap's four cells in run order.</summary>
-        internal RoomTerrainBlock BlockAt(int cell)
+        /// <summary>How <paramref name="cell"/>, one of the cap's four cells in run order, collides.</summary>
+        internal RoomCollisionType CollisionAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return BlueDoorObjectDrawDefinitions.Cells[this][cell];
+            return BlueDoorObjectDrawDefinitions.Collisions[this][cell];
         }
     }
 

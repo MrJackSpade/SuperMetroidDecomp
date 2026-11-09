@@ -30,6 +30,7 @@ internal static class LookupColoredCapVerification
         string[] ids = families.SelectMany(family => Enumerable.Range(0,4).Select(frame => $"{family.Name}-frame-{frame}")).ToArray();
         var exported = RoomObjectColoredDoorVisualFiles.All.ToArray();
         AssertEqual(48, exported.Length, "Colored cap export count");
+        InstalledRoomObjectColoredDoorVisuals? pictures = field == 2 ? InstalledRoomObjectColoredDoorVisuals.Stock() : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -70,14 +71,21 @@ internal static class LookupColoredCapVerification
                     AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.Y(frame, 0), "Colored cap DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Colored cap calculated row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.CollisionAt(invalid), "Colored cap calculated row bounds");
             }
             else for (int row = 0; row < 4; row++)
             {
                 RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + 2 + row * 2)));
-                AssertEqual(expected, shape.BlockAt(row), "Colored cap original calculated field");
-                AssertEqual(expected, dto.Runs.Span[0].Blocks.Span[row], "Colored cap original DTO field");
-                AssertEqual(expected, exported[index].Runs.Span[0].Blocks.Span[row], "Colored cap original export field");
+                if (field == 1)
+                {
+                    AssertEqual(expected.Collision, shape.CollisionAt(row), "Colored cap original calculated collision");
+                    AssertEqual(expected.Collision, dto.Runs.Span[0].Collisions.Span[row], "Colored cap original DTO collision");
+                    AssertEqual(expected.Collision, exported[index].Runs.Span[0].Collisions.Span[row], "Colored cap original export collision");
+                }
+                else
+                    // Core holds no appearance: what the cell shows is the cap's installed picture.
+                    AssertEqual(expected.Appearance, pictures!.Image(NativeObjectDraws.At<ColoredDoorCaps.Draw>(pointer)).At(dto.Runs.Span[0].CellAt(row)),
+                        "Colored cap installed picture shows the cartridge's block");
             }
         }
     }

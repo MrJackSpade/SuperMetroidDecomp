@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public static class TourianStatueTileStrip
 {
-    /// <summary>The bytes one picture of <paramref name="statue"/> shows.</summary>
-    public static int WindowByteCount(AnimatedTileObject statue) => Window(statue).Tiles * TourianStatueTileStripDefinitions.BytesPerTile;
+    /// <summary>The size of the character artwork one picture of <paramref name="statue"/> shows.</summary>
+    public static int PictureArtworkSize(AnimatedTileObject statue) => Window(statue).Tiles * TourianStatueTileStripDefinitions.CharacterArtworkSize;
 
     /// <summary>The windows of <paramref name="statue"/>.</summary>
     private static TourianStatueTileWindow Window(AnimatedTileObject statue) =>

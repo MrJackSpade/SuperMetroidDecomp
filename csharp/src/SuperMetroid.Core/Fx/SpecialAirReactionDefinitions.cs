@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// Area-dependent special-air dispatch expressed as named reaction cases, without stored tables.
 /// The inside and collision dispatches select sixteen entries for each
-/// of seven retail areas; each selected PLM header supplies its setup callback.
+/// of seven retail areas; each selected room-object header supplies its setup callback.
 /// BTS callers clear bit seven before selection. Every entry that does nothing is the one no-op reaction;
 /// repeated quicksand-surface cases and the rejection of non-retail areas or indexes above fifteen are preserved.
 /// These are engine dispatch rules, not editable room or presentation assets.
@@ -15,7 +15,7 @@ public static class SpecialAirReactionDefinitions
     /// <summary>Each retail area owns sixteen authored BTS entries in both dispatches.</summary>
     public const int EntriesPerArea = 16;
 
-    /// <summary>The empty PLM entry, whose setup does nothing.</summary>
+    /// <summary>The empty room-object entry, whose setup does nothing.</summary>
     public static readonly SpecialAirReactionDefinition Nothing = new(RoomObjectHeaderId.Nothing, SpecialAirReactionSetup.Nothing);
 
     /// <summary>The collision-reaction entry through which Samus passes, as through air.</summary>

@@ -11,8 +11,8 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <remarks>
 /// Every room effect shares the base/target position, packed 8.8 Y velocity, and
-/// timer the room-FX loader sets. This owner retains those words even when that effect's
-/// renderer is not translated yet, allowing PLMs to make their shared-state
+/// timer the room-FX loader sets. This owner retains those values even when that effect's
+/// renderer is not translated yet, allowing room objects to make their shared-state
 /// writes without inventing another representation for the corresponding room-effect state.
 /// The translated effect overlay effects are lava, acid, water, spores, Landing Site rain, and Climb fog.
 /// </remarks>
@@ -98,7 +98,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>Selected lava or acid background wave displacement frame.</summary>
     private int lavaAcidBackgroundWavePhase;
     /// <summary>
-    /// Set after the first liquid effect overlay per-line effect pass installs its pre-instruction. Later passes
+    /// Set after the first liquid effect overlay per-line effect pass installs its per-frame step. Later passes
     /// run it before main-loop RNG; water uses this latch despite its older lava/acid name.
     /// </summary>
     internal bool LavaAcidOverlayFrameBehaviorInstalled { get; set; }
@@ -164,7 +164,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     public int? Surface { get; internal set; }
 
-    /// <summary>The liquid options the FX record selected, as PLMs have since changed them.</summary>
+    /// <summary>The liquid options the FX record selected, as room objects have since changed them.</summary>
     public RoomLiquidOptions LiquidOptions { get; internal set; }
 
     /// <summary>
@@ -204,7 +204,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and PLMs.
+    /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and room objects.
     /// The effect overlay plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="FxOverlayPlane"/>).
     /// </summary>
     private void SelectRecord(RoomFxLoadSource source)
@@ -359,8 +359,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!IsRenderable || frame.TimeIsFrozen)
             return;
 
-        // The shared animated-tiles handler runs independently of the per-line effect
-        // pre-instruction. In particular, lava/acid need this transfer before their effect overlay
+        // The shared animated-tiles handler runs independently of the per-line effect's
+        // per-frame step. In particular, lava/acid need this transfer before their effect overlay
         // tilemap can name anything other than stale standard-HUD characters.
         animatedTiles.Step(frames);
 
@@ -439,9 +439,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
 
     /// <summary>
-    /// Applies shared liquid writes made by room PLMs and enemy instructions. These are
-    /// intentionally not a rendering shortcut: PLMs write the same fields the
-    /// room-FX loader sets. The liquid handler consumes those shared words
+    /// Applies shared liquid writes made by room objects and enemy scripts. These are
+    /// intentionally not a rendering shortcut: room objects write the same fields the
+    /// room-FX loader sets. The liquid handler consumes those shared values
     /// on its next ordinary effect pass, just as the game does.
     /// </summary>
     internal void SetLiquidMotion(
@@ -465,7 +465,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     internal void RemoveLiquidTarget() => TargetSurface = null;
 
     /// <summary>
-    /// LoadFxEntry reloads motion, blending and three colors, but does not restart
+    /// Reloading a record's entry restores motion, blending and three colors, but does not restart
     /// per-line effects, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
     internal void ApplyEntry(RoomFxRecordDefinition definition)
@@ -494,14 +494,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Applies the enable-water-physics PLM step to the
-    /// liquid-options word. The PLM clears only its own bit, so
-    /// this mutation must live on the room-FX owner that republishes the word to Samus;
-    /// changing only Samus's projected copy would be undone by the next FX frame.
-    /// </summary>
-    /// <summary>
-    /// Clears the water-physics-disabled bit as the enable-water-physics instruction does; see
-    /// <see cref="SetLiquidMotion"/> for why the room-FX owner holds the word.
+    /// Clears the water-physics-disabled option as the enable-water-physics room object does. It clears only that
+    /// option, so this change lives on the room-FX owner that republishes the options to Samus; changing only Samus's
+    /// projected copy would be undone by the next FX frame (see <see cref="SetLiquidMotion"/>).
     /// </summary>
     internal void EnableWaterPhysics() =>
         LiquidOptions &= ~RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave;
@@ -689,7 +684,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
 
     /// <summary>
-    /// Runs <c>RaiseOrLowerFx</c> for the shared liquid words: moves the surface one step toward its target and reports
+    /// Raises or lowers the shared liquid surface: moves it one step toward its target and reports
     /// whether it reached it. A liquid with no target stops at once; one with no surface moves from below every line
     /// (<see cref="AbsentLiquidSurfaceDepth"/>).
     /// </summary>
@@ -718,9 +713,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Runs <c>FxHandleTide</c>. The game writes the scaled sine word starting
-    /// one byte into the 16.16 offset pair, equivalent to the eight-bit shift below. The
-    /// asymmetric phase deltas deliberately spend different durations in each half-wave.
+    /// Moves the tide. The scaled sine is an 8.8 displacement, which becomes the 16.16 offset. The asymmetric phase
+    /// deltas deliberately spend different durations in each half-wave.
     /// </summary>
     internal void StepLiquidTide()
     {

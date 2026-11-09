@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public static class TourianStatueTileStripDefinitions
 {
-    /// <summary>The bytes of one two-bit character.</summary>
-    public const int BytesPerTile = 16;
+    /// <summary>The size of one four-colour character's artwork.</summary>
+    public const int CharacterArtworkSize = 16;
 
     /// <summary>
     /// Each statue's windows of the strip: its first oscillation picture's first character, its pictures' width in

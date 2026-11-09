@@ -30,7 +30,7 @@ internal static class SandAnimatedTilesVerification
                     definition, definition.FrameInstructionPointer(frame));
                 bus.WriteBytes(source,
                     Enumerable.Repeat((byte)(1 + slot * 4 + frame),
-                        definition.FrameByteCount).ToArray());
+                        definition.FrameArtworkSize).ToArray());
             }
         }
         var guarded = NewRoomFxArtworkForbiddenBus(bus);

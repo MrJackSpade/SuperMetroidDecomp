@@ -2,10 +2,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable mechanics for the gunship emerging from the Zebes explosion.</summary>
 /// <remarks>
-/// Issue #845 / #625: the gunship definition
-/// runs <c>SetColorIndex(160)</c>, sixteen 36-byte
-/// records of <c>24, colors[16], Wait</c>, then <c>Delete</c> at
-/// its end after 384 frames. All 35 control words match. For every
+/// Issue #845 / #625: the gunship shows sixteen records of sixteen colours, each held for
+/// 24 frames, and ends after 384 frames. For every
 /// level and column, frames 0..7 interpolate from frame 0 to
 /// frame 7 using <c>floor(((7 - f)*q0 + f*q7)/7)</c>. Frame 8 repeats frame
 /// 7 except that its last color changes from a dim grey to black. Frames

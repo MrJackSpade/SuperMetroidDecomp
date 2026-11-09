@@ -99,7 +99,7 @@ internal static class HeatPaletteColors
 
     /// <summary>Bright red highlights move halfway toward saturated red, rounding upward.</summary>
     /// <remarks>Original Power slots1/8 rise from29/27 to30/29; Varia slot9 rises
-    /// from30 to31. Each endpoint is ceil((baseRed+31)/2), preserving green/blue.
+    /// from30 to31. Each endpoint is ceil((base red + 31) / 2), preserving green/blue.
     /// Sources: phase seven of Power colors 1 and 8 and Varia color 9, from the same colors at phase zero. This
     /// shared highlight rule uses no stored endpoint or fitted per-slot coefficients.
     /// Player endpoints differing from the result remain explicit installed overrides.</remarks>
@@ -124,7 +124,7 @@ internal static class HeatPaletteColors
     /// quarter steps from0 to5. Its green31/blue14 remain fixed. Thirteen other
     /// color tracks share this red difference, independently verified from the original
     /// phases. Keep the endpoint colors as inputs; interior heat step r=1..3 is
-    /// floor((startRed*(4-r)+endRed*r)/4), with the initial green/blue. Integer
+    /// floor((start red × (4 - r) + end red × r) / 4), with the initial green/blue. Integer
     /// weighted sums also give defined, bounded level results for edited endpoints.
     /// This is the sampled linear heating gradient, not a fit with corrections.</remarks>
     internal static bool TryRedRamp(PaletteFxColorKey key, IReadOnlyDictionary<PaletteFxColorKey, RgbColor> colors, out RgbColor value)

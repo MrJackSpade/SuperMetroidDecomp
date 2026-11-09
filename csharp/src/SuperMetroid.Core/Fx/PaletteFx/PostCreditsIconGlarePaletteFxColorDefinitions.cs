@@ -2,10 +2,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable mechanics for the post-credits Super Metroid icon glare.</summary>
 /// <remarks>
-/// Issue #851 / #625: the glare's definition
-/// runs <c>SetColorIndex(480)</c>, fourteen
-/// 36-byte records of <c>1, colors[16], Wait</c>, then <c>Delete</c> at
-/// its end after 14 frames. All 31 control words match. Let
+/// Issue #851 / #625: the glare shows fourteen records of sixteen colours, each for one
+/// frame, and ends after 14 frames. Let
 /// <c>base[c]</c> be the final record's sixteen authored colours.
 /// For record <c>f</c> (0..13), set <c>t = f + 1</c> for 0..6 and
 /// <c>t = 13 - f</c> for 7..13. For each color column <c>c</c> and

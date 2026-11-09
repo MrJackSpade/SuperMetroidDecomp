@@ -47,7 +47,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
             : throw new ArgumentOutOfRangeException(nameof(callback), callback, "The room main runs no scrolling sky.");
 
     /// <summary>
-    /// The background scroll the sky publishes: the sky copies the camera Y, with its sixteen-bit wrap, into Y.
+    /// The background scroll the sky publishes: the sky copies the camera Y, wrapping past row 65535, into Y.
     /// X stays zero because the sky never writes the uniform horizontal scroll; its bands shift each line instead.
     /// </summary>
     public Position16<BackgroundPixels> BackgroundScroll { get; private set; }
@@ -69,7 +69,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         if (timeIsFrozen)
         {
             // The sky's setup writes a zero first entry, terminating the table. The
-            // pre-instruction wrapper likewise skips fixed-point advancement.
+            // per-frame step likewise skips fixed-point advancement.
             BandsShown = false;
             return;
         }

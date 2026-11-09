@@ -29,7 +29,7 @@ internal static class AnimatedTileImageSources
     /// <summary>The cartridge address <paramref name="picture"/> of <paramref name="statue"/> starts at in the shared statue strip.</summary>
     internal static int TourianStatue(AnimatedTileObject statue, TourianStatueTilePicture picture) =>
         RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.AddWithinBank(
-            RoomFxAnimatedTilePictures.TourianStatueFirstTile(statue, picture) * TourianStatueTileStripDefinitions.BytesPerTile).Value;
+            RoomFxAnimatedTilePictures.TourianStatueFirstTile(statue, picture) * TourianStatueTileStripDefinitions.CharacterArtworkSize).Value;
 
     /// <summary>The cartridge address the shared Tourian statue strip starts at.</summary>
     internal static int TourianStatueStripStart => RoomFxAnimatedTileSourceDefinitions.TourianStatueStrip.Value;

@@ -67,7 +67,7 @@ internal static class AnimatedTileFrameArtwork
             {
                 AnimatedTileImage image = mechanics.Image(frame);
                 yield return new(AnimatedTileFrames.Frame(mechanics.AnimatedObject, frame),
-                    AnimatedTileImageSources.Of(image), Picture(image, mechanics.FrameByteCount));
+                    AnimatedTileImageSources.Of(image), Picture(image, mechanics.FrameArtworkSize));
             }
         }
         foreach (WreckedShipTreadmillDirection direction in Enum.GetValues<WreckedShipTreadmillDirection>())

@@ -13,7 +13,7 @@ public static class WreckedShipTreadmills
         WreckedShipTreadmillMechanicsDefinitions.Directions.TryGetValue(direction, out WreckedShipTreadmillLoop? loop)
             ? loop : throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}.");
 
-    /// <summary>Resolves either named header; all other bank87 identities return false/null.</summary>
+    /// <summary>Resolves either named header; every other animated-tile object returns false/null.</summary>
     public static bool TryResolve(AnimatedTileObject animatedObject, [NotNullWhen(true)] out WreckedShipTreadmillLoop? definition)
     {
         if (!Enum.IsDefined(animatedObject))

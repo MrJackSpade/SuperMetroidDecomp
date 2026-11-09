@@ -15,6 +15,18 @@ internal static class RoomObjectFixtures
     /// <summary>The installed artwork each fixture was built with, so a rebound fixture draws the same way.</summary>
     private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals> visualsByFixture = [];
 
+    /// <summary>The repository installation's pictures of Draygon's cannon frames, read once per process.</summary>
+    private static readonly Lazy<InstalledDraygonCannonFrames> DraygonCannonFrames = new(() => InstalledDraygonCannonFrames.Stock());
+
+    /// <summary>The repository installation's pictures of Mother Brain's glass frames, read once per process.</summary>
+    private static readonly Lazy<InstalledMotherBrainGlassFrames> MotherBrainGlassFrames = new(() => InstalledMotherBrainGlassFrames.Stock());
+
+    /// <summary>The repository installation's pictures of the escape gate's frames, read once per process.</summary>
+    private static readonly Lazy<InstalledEscapeGateFrames> EscapeGateFrames = new(() => InstalledEscapeGateFrames.Stock());
+
+    /// <summary>The repository installation's pictures of Mother Brain's fake-death room frames, read once per process.</summary>
+    private static readonly Lazy<InstalledMotherBrainFakeDeathFrames> MotherBrainFakeDeathFrames = new(() => InstalledMotherBrainFakeDeathFrames.Stock());
+
     /// <summary>A PLM system bound to no room: families that need room services fail at that dependency.</summary>
     /// <param name="visuals">
     /// The installed artwork, or none. The frame pictures of the objects that have no compiled appearance (#1557) are
@@ -23,10 +35,10 @@ internal static class RoomObjectFixtures
     internal static RoomObjectSystem Unbound(RoomObjectVisuals? visuals = null)
     {
         visuals ??= new RoomObjectVisuals();
-        visuals.RoomObjectDraygonCannonVisuals ??= InstalledDraygonCannonFrames.Stock();
-        visuals.RoomObjectMotherBrainGlassVisuals ??= InstalledMotherBrainGlassFrames.Stock();
-        visuals.RoomObjectEscapeGateVisuals ??= InstalledEscapeGateFrames.Stock();
-        visuals.RoomObjectMotherBrainFakeDeathVisuals ??= InstalledMotherBrainFakeDeathFrames.Stock();
+        visuals.RoomObjectDraygonCannonVisuals ??= DraygonCannonFrames.Value;
+        visuals.RoomObjectMotherBrainGlassVisuals ??= MotherBrainGlassFrames.Value;
+        visuals.RoomObjectEscapeGateVisuals ??= EscapeGateFrames.Value;
+        visuals.RoomObjectMotherBrainFakeDeathVisuals ??= MotherBrainFakeDeathFrames.Value;
         var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
         var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
         var roomObjects = new RoomObjectSystem(room, services, visuals);

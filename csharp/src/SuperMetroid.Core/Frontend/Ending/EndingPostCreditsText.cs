@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// The post-credits text scene (#1555): the panel it shows, the item-percentage and final-message typed texts, and how
 /// far the text has been moved down the screen. What the screen shows is derived from this state each frame, each piece at
-/// its screen pixel moved down by <see cref="Drop"/>; there is no staging page and nothing wraps.
+/// its screen pixel moved down by <see cref="Drop"/>, without wrapping.
 /// </summary>
 internal sealed class EndingPostCreditsText
 {

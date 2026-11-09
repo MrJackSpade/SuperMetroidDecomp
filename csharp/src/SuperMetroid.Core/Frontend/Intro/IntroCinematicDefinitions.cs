@@ -10,16 +10,6 @@ public static class IntroCinematicDefinitions
         public const int Width = 32;
     }
 
-    /// <summary>Blank text cells, the Japanese blank glyph and the final line's placement.</summary>
-    public static class Text
-    {
-        /// <summary>The first gameplay text cell cleared.</summary>
-        public const int GameplayBlankStartIndex = 128;
-        /// <summary>Gameplay text cells cleared.</summary>
-        public const int GameplayBlankWordCount = 640;
-        /// <summary>The first cell the final text line replaces.</summary>
-        public const int FinalLineFirstCell = 768;
-    }
 
     /// <summary>The colours the repeating flashback and narration crossfades fade.</summary>
     public static class Palette

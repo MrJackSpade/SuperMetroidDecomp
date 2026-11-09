@@ -45,6 +45,8 @@ internal static class SamusParticleAnimations
         int count = StepCount(kind);
         if (step < 0 || step >= count)
             throw new InvalidDataException($"Particle kind {kind} step {step} is outside its {count} steps.");
+        if ((start.StepUpdates > 0) == (start.HiddenUpdates > 0))
+            throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
         int later = 0;
         for (int earlier = step; earlier < count - 1; earlier++)
             later += StepUpdates(kind, earlier);

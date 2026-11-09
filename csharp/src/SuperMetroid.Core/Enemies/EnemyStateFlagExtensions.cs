@@ -27,10 +27,6 @@ public static class EnemyStateFlagExtensions
     /// <summary>This processing with <paramref name="flags"/> cleared.</summary>
     public static EnemyProcessing Without(this EnemyProcessing processing, EnemyProcessing flags) => processing & ~flags;
 
-    /// <summary>This processing with <paramref name="clear"/> cleared, then <paramref name="set"/> set.</summary>
-    public static EnemyProcessing Replace(this EnemyProcessing processing, EnemyProcessing clear, EnemyProcessing set) =>
-        (processing & ~clear) | set;
-
     /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
     public static bool HasAny(this EnemyPresence presence, EnemyPresence flags) => (presence & flags) != EnemyPresence.None;
 
@@ -39,8 +35,4 @@ public static class EnemyStateFlagExtensions
 
     /// <summary>This presence with <paramref name="flags"/> cleared.</summary>
     public static EnemyPresence Without(this EnemyPresence presence, EnemyPresence flags) => presence & ~flags;
-
-    /// <summary>This presence with <paramref name="clear"/> cleared, then <paramref name="set"/> set.</summary>
-    public static EnemyPresence Replace(this EnemyPresence presence, EnemyPresence clear, EnemyPresence set) =>
-        (presence & ~clear) | set;
 }

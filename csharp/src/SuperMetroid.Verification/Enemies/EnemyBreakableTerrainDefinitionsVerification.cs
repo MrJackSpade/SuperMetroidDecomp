@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -24,12 +25,12 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         {
             byte behavior = (byte)(highBit | index);
             AssertEqual(index == 15,
-                EnemyBreakableTerrain.IsEnemyBreakable(new RoomBlockBehavior(behavior)),
+                EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehaviorCodec.Decode(behavior)),
                 $"compiled enemy spike reaction ${behavior:X2}");
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes(
                 [RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
-                [new RoomBlockBehavior(behavior)],
+                [RoomBlockBehaviorCodec.Decode(behavior)],
                 [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid());
             var roomObjects = RoomObjectFixtures.Unbound();
             var terrain = new EnemyTerrain();
@@ -52,7 +53,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
             if ((behavior & 0x7f) <= 15) continue;
             byte invalid = (byte)behavior;
             AssertThrows<InvalidDataException>(
-                () => EnemyBreakableTerrain.IsEnemyBreakable(new RoomBlockBehavior(invalid)),
+                () => EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehaviorCodec.Decode(invalid)),
                 $"out-of-domain enemy spike BTS ${invalid:X2}");
         }
 

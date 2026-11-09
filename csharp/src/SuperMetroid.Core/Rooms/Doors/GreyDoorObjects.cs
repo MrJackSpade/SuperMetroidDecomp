@@ -129,7 +129,7 @@ internal sealed class GreyDoorObjects : IRoomObjectFamilySource
         // Preserve the authored appearance while replacing only collision and behaviour.
         level.SetTerrain(blockIndex,
             level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
-        level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentObjectProjectileTrigger);
+        level.SetBehavior(blockIndex, RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger));
     }
 
     /// <summary>

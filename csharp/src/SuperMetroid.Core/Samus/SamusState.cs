@@ -520,7 +520,7 @@ public sealed class SamusState
     /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase
     /// inside-block owner before beta movement reaches a directional collision scan.
     /// </summary>
-    internal bool OrdinarySpikeBlockBtsZeroDamageEnabled { get; set; } = true;
+    internal bool HeavySpikeDamageEnabled { get; set; } = true;
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction performs no reads of the original data and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>

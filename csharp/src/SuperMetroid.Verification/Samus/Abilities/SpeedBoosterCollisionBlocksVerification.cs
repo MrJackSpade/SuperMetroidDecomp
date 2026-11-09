@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
@@ -41,7 +42,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     private static void VerifyInactiveSpeedBlockRemainsSolid()
     {
         (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
-            CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0e), AreaId.Crateria);
+            CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: false);
 
         BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(4 << 16), ScanLeftToRight = true });
@@ -59,7 +60,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     private static void VerifyBoostedFloorContactRunsRespawningObject()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
-            CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0e), AreaId.Crateria);
+            CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
 
         BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(4 << 16), ScanLeftToRight = true });
@@ -100,7 +101,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
     private static void VerifyBoostedWallContactRunsPermanentObject()
     {
         (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
-            CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0f), AreaId.Crateria);
+            CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(0x0f), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
         samus.Position = samus.Position.WithWhole(new(34, 72));
 
@@ -135,7 +136,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         foreach ((byte bts, SpeedBoosterBlockObjectDefinition expected) in cases)
         {
             (_, RoomLevelData level, RoomObjectSystem roomObjects, int blockIndex) =
-                CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(bts), AreaId.Brinstar);
+                CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(bts), AreaId.Brinstar);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
             BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(4 << 16), ScanLeftToRight = true });
 

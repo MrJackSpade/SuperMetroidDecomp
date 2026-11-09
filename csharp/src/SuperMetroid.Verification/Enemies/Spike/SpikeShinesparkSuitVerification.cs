@@ -172,7 +172,7 @@ internal static class SpikeShinesparkSuitVerification
         for (int block = 0; block < level.Size.X * level.Size.Y; block++)
         {
             level.SetTerrain(block, OpenAir);
-            level.SetBehavior(block, RoomBlockBehaviorValues.None);
+            level.SetBehavior(block, RoomBlockBehavior.None);
         }
 
         SamusState samus = runtime.Player.IntroducedSamus;

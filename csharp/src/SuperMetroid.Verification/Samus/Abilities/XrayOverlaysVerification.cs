@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
 using SuperMetroid.Core.Progression;
@@ -37,9 +38,9 @@ internal static class XrayOverlaysVerification
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
-            if (XrayRevealTable.Find(type, new RoomBlockBehavior(bts)) is { } definition &&
+            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts)) is { } definition &&
                 InstalledXrayReveals.IsDrawable(definition.Command))
-                entries.Add(new(type, new RoomBlockBehavior(bts), new(definition.TopLeft, definition.TopRight,
+                entries.Add(new(type, RoomBlockBehaviorCodec.Decode(bts).Reaction, new(definition.TopLeft, definition.TopRight,
                     definition.BottomLeft, definition.BottomRight)));
         var visuals = new InstalledXrayReveals(entries, overlays);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid());

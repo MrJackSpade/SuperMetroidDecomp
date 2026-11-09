@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Drawing;
@@ -33,7 +34,7 @@ internal static void VerifyBreakableGrappleObjects()
         var foreground = new RoomTerrainBlock[width * height];
         var bts = new RoomBlockBehavior[foreground.Length];
         foreground[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock);
-        bts[blockIndex] = new RoomBlockBehavior(behavior);
+        bts[blockIndex] = RoomBlockBehaviorCodec.Decode(behavior);
         return CreateRoom(new(width, height), foreground, bts);
     }
 
@@ -53,7 +54,7 @@ internal static void VerifyBreakableGrappleObjects()
     var respawningObjects = RoomObjectFixtures.Unbound();
     AssertTrue(respawningObjects.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
         "respawning grapple PLM occupies a native slot");
-    AssertEqual(0, respawning.GetCollisionBlockByIndex(blockIndex).Behavior.Value,
+    AssertEqual(0, RoomBlockBehaviorCodec.Encode(respawning.GetCollisionBlockByIndex(blockIndex).Behavior),
         "CFB5 clears breakable grapple BTS immediately");
     AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "CFB5 retains original level word until handler");
@@ -87,7 +88,7 @@ internal static void VerifyBreakableGrappleObjects()
     StepMany(respawningObjects,respawning, 4 + 4 + 4 + 4);
     AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "DrawPLMBlock restores the complete saved grapple word");
-    AssertEqual(1, respawning.GetCollisionBlockByIndex(blockIndex).Behavior.Value,
+    AssertEqual(1, RoomBlockBehaviorCodec.Encode(respawning.GetCollisionBlockByIndex(blockIndex).Behavior),
         "respawning instruction restores BTS one before terrain");
     AssertEqual(1, respawningObjects.SlotTable.ActiveCount,
         "restoration pass retains PLM for timer-one delete delay");
@@ -113,7 +114,7 @@ internal static void VerifyBreakableGrappleObjects()
     permanentObjects.Step(permanent);
     AssertEqual(0, permanentObjects.SlotTable.ActiveCount,
         "nonrespawning sequence deletes one frame after timer-one blank draw");
-    AssertEqual(0, permanent.GetCollisionBlockByIndex(blockIndex).Behavior.Value,
+    AssertEqual(0, RoomBlockBehaviorCodec.Encode(permanent.GetCollisionBlockByIndex(blockIndex).Behavior),
         "nonrespawning sequence leaves cleared BTS");
 
     SeedBombBlockObjectPrograms(bus);
@@ -123,7 +124,7 @@ internal static void VerifyBreakableGrappleObjects()
         var foreground = new RoomTerrainBlock[width * height];
         var bts = new RoomBlockBehavior[foreground.Length];
         foreground[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
-        bts[blockIndex] = new RoomBlockBehavior(behavior);
+        bts[blockIndex] = RoomBlockBehaviorCodec.Decode(behavior);
         return CreateRoom(new(width, height), foreground, bts);
     }
 

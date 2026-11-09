@@ -85,7 +85,7 @@ internal static class NativeSnapshotImport
         for (int index = 0; index < level.Size.X * level.Size.Y; index++)
         {
             level.SetTerrain(index, RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + index * sizeof(ushort))));
-            level.SetBehavior(index, new RoomBlockBehavior(memory[NativeSnapshotMemory.Bts + index]));
+            level.SetBehavior(index, RoomBlockBehaviorCodec.Decode(memory[NativeSnapshotMemory.Bts + index]));
         }
 
         var initialPaletteSlots = runtime.RoomPaletteFx.slots;

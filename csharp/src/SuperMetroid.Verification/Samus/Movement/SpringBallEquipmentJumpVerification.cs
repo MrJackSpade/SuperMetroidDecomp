@@ -36,7 +36,7 @@ internal static class SpringBallEquipmentJumpVerification
             foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
             var level = runtime.Room.LoadedLevelData;
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
-            { level.SetTerrain(block, default); level.SetBehavior(block, RoomBlockBehaviorValues.None); }
+            { level.SetTerrain(block, default); level.SetBehavior(block, RoomBlockBehavior.None); }
             var samus = runtime.Player.IntroducedSamus;
             samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
             samus.CollectedItems = (samus.EquippedItems | SamusEquipmentFlags.SpringBall);

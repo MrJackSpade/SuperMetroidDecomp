@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core;
@@ -29,9 +30,9 @@ internal static class RoomRevealPresentationContractChecks
             using SuperMetroid.Core.Samus.Abilities.Artwork;
             class RevealConsumer {
                 void Inspect(InstalledXrayReveals reveals, InstalledXrayOverlays overlays) {
-                    reveals.Apply(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(2));
-                    reveals.Apply(RoomCollisionType.SolidBlock, new RoomBlockBehavior(0));
-                    reveals.Apply(RoomCollisionType.HorizontalExtension, new RoomBlockBehavior(3));
+                    reveals.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(2));
+                    reveals.Apply(RoomCollisionType.SolidBlock, RoomBlockBehaviorCodec.Decode(0));
+                    reveals.Apply(RoomCollisionType.HorizontalExtension, RoomBlockBehaviorCodec.Decode(3));
                     overlays.TankMetatile(InWorldCollectibleKind.EnergyTank);
                     overlays.TankMetatile(InWorldCollectibleKind.PowerBombTank);
                     overlays.TankMetatile(InWorldCollectibleKind.Bombs);
@@ -70,16 +71,16 @@ internal static class RoomRevealPresentationContractChecks
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
-            if (XrayRevealTable.Find(type, new RoomBlockBehavior(value)) is { } rule && InstalledXrayReveals.IsDrawable(rule.Command))
-                entries.Add(new(type, new RoomBlockBehavior(value), new(1, 2, 3, 4)));
+            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)) is { } rule && InstalledXrayReveals.IsDrawable(rule.Command))
+                entries.Add(new(type, RoomBlockBehaviorCodec.Decode(value).Reaction, new(1, 2, 3, 4)));
         var catalog = new InstalledXrayReveals(entries);
-        Require(catalog.Apply(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(2)) is { } tall &&
+        Require(catalog.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(2)) is { } tall &&
             tall.Command == XrayRevealCommand.CopyTall && tall.TopLeft == 1 && tall.BottomLeft == 3,
             "one identity must select the compiled command and the matching installed operands");
-        Require(catalog.Apply(RoomCollisionType.HorizontalExtension, new RoomBlockBehavior(3)) ==
-            XrayRevealTable.Find(RoomCollisionType.HorizontalExtension, new RoomBlockBehavior(3)), "extensions must retain their compiled definition");
-        Require(catalog.Apply(RoomCollisionType.SolidBlock, new RoomBlockBehavior(0)) is null &&
-            catalog.Apply(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(byte.MaxValue)) is null,
+        Require(catalog.Apply(RoomCollisionType.HorizontalExtension, RoomBlockBehaviorCodec.Decode(3)) ==
+            XrayRevealTable.Find(RoomCollisionType.HorizontalExtension, RoomBlockBehaviorCodec.Decode(3)), "extensions must retain their compiled definition");
+        Require(catalog.Apply(RoomCollisionType.SolidBlock, RoomBlockBehaviorCodec.Decode(0)) is null &&
+            catalog.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(byte.MaxValue)) is null,
             "unowned collision/BTS pairs must return native no-reveal, not demand missing artwork");
         Require(typeof(InstalledXrayReveals).GetMethods().Where(method => method.Name == "Apply")
             .Single().GetParameters().Length == 2, "the mismatched third input must no longer exist");

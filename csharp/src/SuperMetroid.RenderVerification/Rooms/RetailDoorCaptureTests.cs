@@ -73,9 +73,9 @@ internal static class RetailDoorCaptureTests
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: false);
+            var door = level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: false);
             if (door.Pointer != pointer) continue;
-            level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
+            level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
             return;
         }
         throw new InvalidOperationException($"No authored collision for door {pointer:X4}.");

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -1147,7 +1148,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         var behaviors = new RoomBlockBehavior[words.Length];
         int muzzleBlock = 6 * width + 4;
         words[muzzleBlock] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-        behaviors[muzzleBlock] = new RoomBlockBehavior(behavior);
+        behaviors[muzzleBlock] = RoomBlockBehaviorCodec.Decode(behavior);
         return CreateRoom(new(width, height), words, behaviors);
     }
 
@@ -1195,7 +1196,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         var behaviors = new RoomBlockBehavior[words.Length];
         int muzzleBlock = 6 * width + 4;
         words[muzzleBlock] = RoomTerrainBlock.Of(0, BlockMirroring.None, collision);
-        behaviors[muzzleBlock] = new RoomBlockBehavior(behavior);
+        behaviors[muzzleBlock] = RoomBlockBehaviorCodec.Decode(behavior);
         return CreateRoom(new(width, height), words, behaviors);
     }
 
@@ -1242,7 +1243,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         int blockY = 3;
         int blockIndex = blockY * 16 + blockX;
         coloredDoorWords[blockIndex] = RoomTerrainBlock.Of(0x0120 + index, BlockMirroring.None, RoomCollisionType.SolidBlock);
-        coloredDoorBehaviors[blockIndex] = new RoomBlockBehavior(unchecked((byte)(0x40 + (index & 3))));
+        coloredDoorBehaviors[blockIndex] = RoomBlockBehaviorCodec.Decode(unchecked((byte)(0x40 + (index & 3))));
 
         coloredDoorRecords[index] = new ColoredDoorRecord(coloredDoorHeaders[index],
             unchecked((byte)blockX), unchecked((byte)blockY), unchecked((ushort)index));
@@ -1259,7 +1260,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         RoomCollisionBlock block = coloredDoors.GetCollisionBlock(new(checked((ushort)(index + 1)), 3));
         AssertEqual(RoomCollisionType.ShootableBlock, block.CollisionType,
             $"colored-door setup installs shootable collision for header {index}");
-        AssertEqual(0x44, block.Behavior.Value,
+        AssertEqual(0x44, RoomBlockBehaviorCodec.Encode(block.Behavior),
             $"colored-door setup installs shared BTS for header {index}");
         AssertEqual(RoomBlockAppearance.Of(0x120 + index), block.Terrain.Appearance,
             $"colored-door setup preserves tile payload for header {index}");
@@ -1320,7 +1321,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var reopenedDoorObjects = RoomObjectFixtures.Unbound();
     RoomObjectFixtures.LoadPopulation(ref reopenedDoorObjects, new RoomObjectRoom(reopenedDoorLevel, BgArtworkFixtures.For(new SnesVram()), residentDoorSystem, 0), RoomObjectPopulationImporter.Read(bus, residentDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reopenedDoorObjects.Step(reopenedDoorLevel);
-    AssertEqual(0x40, reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Behavior.Value,
+    AssertEqual(0x40, RoomBlockBehaviorCodec.Encode(reopenedDoorLevel.GetCollisionBlockByIndex(residentDoorBlock).Behavior),
         "persisted left-facing red door reloads as ordinary left blue cap");
     AssertEqual(0, reopenedDoorObjects.ColoredDoors.Count,
         "persisted colored-door conversion deletes resident actor after draw");
@@ -1349,7 +1350,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(RoomCollisionType.ShootableBlock,
         greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).CollisionType,
         "grey-door setup installs shootable-solid collision");
-    AssertEqual(0x44, greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior.Value,
+    AssertEqual(0x44, RoomBlockBehaviorCodec.Encode(greyDoorLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior),
         "grey-door setup installs generic resident-PLM BTS");
     GreyDoorObjectSnapshot lockedGreyDoor = greyDoorObjects.GreyDoorSnapshots.Single();
     AssertEqual(GreyDoorCondition.EnemyDeathQuota, lockedGreyDoor.Condition,
@@ -1394,7 +1395,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var reloadedGreyObjects = RoomObjectFixtures.Unbound();
     RoomObjectFixtures.LoadPopulation(ref reloadedGreyObjects, new RoomObjectRoom(reloadedGreyLevel, BgArtworkFixtures.For(new SnesVram()), greyDoorSystem, AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, greyDoorPopulation), new RoomObjectServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
     reloadedGreyObjects.Step(reloadedGreyLevel);
-    AssertEqual(0x40, reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior.Value,
+    AssertEqual(0x40, RoomBlockBehaviorCodec.Encode(reloadedGreyLevel.GetCollisionBlockByIndex(greyDoorBlock).Behavior),
         "persisted left grey door reloads as ordinary left blue cap");
     AssertEqual(0, reloadedGreyObjects.GreyDoorSnapshots.Count,
         "persisted grey-door conversion releases resident actor");
@@ -1403,12 +1404,12 @@ internal static void VerifySamusPowerBeamProjectiles()
     var blueDoorBehaviors = new RoomBlockBehavior[blueDoorWords.Length];
     int blueDoorOrigin = 4 * width + 6;
     blueDoorWords[blueDoorOrigin] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-    blueDoorBehaviors[blueDoorOrigin] = new RoomBlockBehavior(0x41);
+    blueDoorBehaviors[blueDoorOrigin] = RoomBlockBehaviorCodec.Decode(0x41);
     for (int rowOffset = 1; rowOffset < 4; rowOffset++)
     {
         blueDoorWords[blueDoorOrigin + rowOffset * width] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.VerticalExtension);
         blueDoorBehaviors[blueDoorOrigin + rowOffset * width] =
-            new RoomBlockBehavior(unchecked((byte)-rowOffset));
+            RoomBlockBehaviorCodec.Decode(unchecked((byte)-rowOffset));
     }
     RoomLevelData blueDoor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blueDoorWords, blueDoorBehaviors, new RoomBlockAppearance[blueDoorWords.Length]), RoomLevelData.NothingBeyondGrid());
 
@@ -1617,7 +1618,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         int index = y * width + 6;
         integratedSuperWords[index] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-        integratedSuperBehaviors[index] = new RoomBlockBehavior(10);
+        integratedSuperBehaviors[index] = RoomBlockBehaviorCodec.Decode(10);
     }
     RoomLevelData integratedSuperWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedSuperWords, integratedSuperBehaviors, new RoomBlockAppearance[integratedSuperWords.Length]), RoomLevelData.NothingBeyondGrid());
     var integratedSuperSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
@@ -1660,7 +1661,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int y = 0; y < height; y++)
     {
         skippedWords[y * width + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-        skippedBehaviors[y * width + 6] = new RoomBlockBehavior(10);
+        skippedBehaviors[y * width + 6] = RoomBlockBehaviorCodec.Decode(10);
         skippedWords[y * width + 7] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     }
     RoomLevelData skippedWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(skippedWords, skippedBehaviors, new RoomBlockAppearance[skippedWords.Length]), RoomLevelData.NothingBeyondGrid());

@@ -517,7 +517,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
             slot.BlockIndex,
             original,
             RoomCollisionType.SpecialBlock,
-            RoomBlockBehaviorCodec.StationAccess(StationAccessBehavior.SaveFloor));
+            RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.SaveFloor)));
         slot.Family = new StationObjectState(
             StationKind.Save,
             area,
@@ -571,7 +571,7 @@ internal sealed class StationObjects : IRoomObjectFamilySource
             blockIndex,
             level.GetCollisionBlockByIndex(blockIndex).Terrain,
             RoomCollisionType.SpecialBlock,
-            RoomBlockBehaviorCodec.StationAccess(behavior));
+            RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(behavior)));
     }
 
     /// <summary>Changes a station block's collision kind while preserving its appearance, and sets its optional behaviour.</summary>

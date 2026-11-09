@@ -26,7 +26,7 @@ internal static class PauseDoorShinesparkVerification
     private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
     /// <summary>The door column's behaviour: entry three of the Parlor door list.</summary>
-    private static readonly RoomBlockBehavior ParlorExitDoor = new(3);
+    private static readonly RoomBlockBehavior ParlorExitDoor = RoomBlockBehavior.LinkingDoor(3);
 
     /// <summary>Confirms normal and terminal fade frames publish the door transition in native order without extra source-room movement.</summary>
     internal static void VerifyPauseDoorShinespark()

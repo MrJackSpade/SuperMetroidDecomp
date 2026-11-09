@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -783,14 +784,14 @@ internal static void VerifyRoomLevelData()
         RoomTerrainBlock.Of(2, BlockMirroring.None, RoomCollisionType.GrappleBlock),
         RoomTerrainBlock.Of(3, BlockMirroring.None, RoomCollisionType.BombableBlock),
     ];
-    RoomBlockBehavior[] behavior = [new(0x00), new(0x45), new(0x80), new(0x11), new(0x22), new(0x33)];
+    RoomBlockBehavior[] behavior = [RoomBlockBehaviorCodec.Decode(0x00), RoomBlockBehaviorCodec.Decode(0x45), RoomBlockBehaviorCodec.Decode(0x80), RoomBlockBehaviorCodec.Decode(0x11), RoomBlockBehaviorCodec.Decode(0x22), RoomBlockBehaviorCodec.Decode(0x33)];
     RoomBlockAppearance[] background = [.. Enumerable.Range(0, width * height).Select(block => RoomBlockAppearance.Of(block))];
     var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), RoomLevelData.NothingBeyondGrid());
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(4, block.Index, "room collision row-major index");
     AssertEqual(foreground[4], block.Terrain, "room collision reads the block's terrain");
-    AssertEqual(new RoomBlockBehavior(0x22), block.Behavior, "room collision reads the block's behaviour");
+    AssertEqual(RoomBlockBehaviorCodec.Decode(0x22), block.Behavior, "room collision reads the block's behaviour");
     AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType, "room collision kind");
     AssertEqual(2, block.VisualBlockIndex, "room collision block shown");
     AssertTrue(level.ForegroundPlane.Blocks.SequenceEqual(foreground.Select(terrain => terrain.Appearance).ToArray()),

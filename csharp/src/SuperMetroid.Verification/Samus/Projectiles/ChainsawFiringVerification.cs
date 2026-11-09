@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
@@ -85,12 +86,12 @@ internal static class ChainsawFiringVerification
         RoomBlockBehavior[] doorBts = new RoomBlockBehavior[256];
         int doorOrigin = 6 * 16 + 9;
         doorWords[doorOrigin] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-        doorBts[doorOrigin] = new RoomBlockBehavior(0x41);
+        doorBts[doorOrigin] = RoomBlockBehaviorCodec.Decode(0x41);
         for (int row = 1; row < 4; row++)
         {
             doorWords[doorOrigin + row * 16] =
                 RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.VerticalExtension);
-            doorBts[doorOrigin + row * 16] = new RoomBlockBehavior(unchecked((byte)-row));
+            doorBts[doorOrigin + row * 16] = RoomBlockBehaviorCodec.Decode(unchecked((byte)-row));
         }
         var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid());
         var doorSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())

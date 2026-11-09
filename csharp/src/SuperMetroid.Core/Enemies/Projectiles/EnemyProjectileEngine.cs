@@ -540,7 +540,7 @@ internal sealed class EnemyProjectileEngine
             return true;
 
         RoomCollisionType type = collisionBlock.CollisionType;
-        if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.IsNonSquareSlope)
+        if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.Slope.IsNonSquare)
         {
             // The horizontal scan tests only occupied eight-pixel quadrants touched by the
             // leading edge. Empty halves of square slopes are not solid walls.
@@ -570,7 +570,7 @@ internal sealed class EnemyProjectileEngine
             return false;
         }
 
-        if (type == RoomCollisionType.Slope && collisionBlock.Behavior.IsNonSquareSlope)
+        if (type == RoomCollisionType.Slope && collisionBlock.Behavior.Slope.IsNonSquare)
         {
             // Horizontal motion ignores non-square slopes; the following
             // vertical pass owns their height profile. Treating one as a full wall can
@@ -586,12 +586,12 @@ internal sealed class EnemyProjectileEngine
                 return false;
 
             bool movingUp = movingNegative;
-            if (movingUp != collisionBlock.Behavior.SlopeFlipsVertically)
+            if (movingUp != collisionBlock.Behavior.Slope.FlipsVertically)
                 return false;
 
             int height = EnemyTerrain.ReadNonSquareSlopeHeight(
                 collisionBlock.Behavior,
-                (collisionBlock.Behavior.SlopeFlipsHorizontally
+                (collisionBlock.Behavior.Slope.FlipsHorizontally
                     ? projectile.Position.X.Whole ^ BlockPixelMask
                     : projectile.Position.X.Whole) & BlockPixelMask);
             int edgeWithinBlock = movingUp

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Verification.Samus.Abilities;
@@ -12,7 +13,7 @@ internal static class XrayExtensionsVerification
         void Set(RoomLevelData level, int index, RoomCollisionType type, int behavior)
         {
             level.SetObjectTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type));
-            level.SetObjectBehavior(index, new RoomBlockBehavior(behavior));
+            level.SetObjectBehavior(index, RoomBlockBehaviorCodec.Decode(behavior));
         }
         var level = Create();
         Set(level, 18, RoomCollisionType.HorizontalExtension, 0xff);

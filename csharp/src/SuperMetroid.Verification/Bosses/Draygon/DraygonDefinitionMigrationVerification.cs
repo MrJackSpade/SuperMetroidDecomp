@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
@@ -22,11 +23,11 @@ internal static class DraygonDefinitionMigrationVerification
 
         // The cannon's terrain is the collision kind and behaviour the cartridge writes for each cannon state.
         AssertEqual(RoomCollisionType.ShootableBlock, DraygonCannonDefinitions.LiveCannon.Type, "live cannon collision kind");
-        AssertEqual(new RoomBlockBehavior(0x44), DraygonCannonDefinitions.LiveCannon.Behavior, "live cannon behaviour");
+        AssertEqual(RoomBlockBehaviorCodec.Decode(0x44), DraygonCannonDefinitions.LiveCannon.Behavior, "live cannon behaviour");
         AssertEqual(RoomCollisionType.VerticalExtension, DraygonCannonDefinitions.LiveCannonExtension.Type, "live cannon extension collision kind");
-        AssertEqual(new RoomBlockBehavior(0xff), DraygonCannonDefinitions.LiveCannonExtension.Behavior, "live cannon extension behaviour");
+        AssertEqual(RoomBlockBehaviorCodec.Decode(0xff), DraygonCannonDefinitions.LiveCannonExtension.Behavior, "live cannon extension behaviour");
         AssertEqual(RoomCollisionType.SpikeBlock, DraygonCannonDefinitions.DestroyedCannon.Type, "destroyed cannon collision kind");
-        AssertEqual(new RoomBlockBehavior(3), DraygonCannonDefinitions.DestroyedCannon.Behavior, "destroyed cannon behaviour");
+        AssertEqual(RoomBlockBehaviorCodec.Decode(3), DraygonCannonDefinitions.DestroyedCannon.Behavior, "destroyed cannon behaviour");
         AssertEqual(0x77, DraygonCannonDefinitions.SuperMissileHitCounterSeed, "Super Missile hit counter");
         AssertEqual(3, DraygonCannonDefinitions.HitsToDestroy, "hits to destroy");
 

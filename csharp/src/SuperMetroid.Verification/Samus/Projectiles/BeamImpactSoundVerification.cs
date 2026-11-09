@@ -37,7 +37,7 @@ internal static class BeamImpactSoundVerification
             int index = y * level.Size.X + x;
             level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None,
                 y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
-            level.SetBehavior(index, RoomBlockBehaviorValues.None);
+            level.SetBehavior(index, RoomBlockBehavior.None);
         }
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

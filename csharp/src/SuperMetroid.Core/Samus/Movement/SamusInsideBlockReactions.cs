@@ -26,24 +26,24 @@ public static class SamusInsideBlockReactions
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
-            if (!block.Behavior.UsesAreaReactionTable)
+            if (!block.Behavior.Reaction.IsAreaSpecific)
             {
                 // Admits only inside-block sample one (the center).
                 // Feet/head contacts belong to the separate movement scans. Keeping
                 // this center wake-up lets a lower trigger win after the torso clears
                 // an upper trigger, without changing PLM slot priority.
-                if (centerPoint && block.Behavior == RoomBlockBehaviorValues.ScrollTrigger &&
+                if (centerPoint && block.Behavior.Reaction == BlockReactionDefinitions.ScrollTrigger &&
                     (roomObjects is null || !roomObjects.Scrolls.TryNotifyScrollTouch(block.Index)))
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
-                ApplyConveyor(block.Behavior.Value);
+                ApplyConveyor(block.Behavior.Reaction);
                 return;
             }
             SpecialAirReactionDefinition areaReaction =
                 SpecialAirReactions.ResolveInside(
                     area,
-                    block.Behavior.AreaReactionIndex);
+                    block.Behavior.Reaction.Entry);
             RoomObjectHeaderId header = areaReaction.Header;
             if (header == RoomObjectHeaderId.None) return;
             bool hasCompiledReaction = QuicksandReactions.TryGetReaction(
@@ -130,22 +130,14 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Undefined special-air setup {setup}.");
             }
         }
-        void ApplyConveyor(int behavior)
+        void ApplyConveyor(BlockReaction reaction)
         {
-            // The normal special-air table shares its behaviour space; only conveyor entries react here.
-            ConveyorBlockBts? carrier = behavior switch
-            {
-                8 => ConveyorBlockBts.GroundedRight,
-                9 => ConveyorBlockBts.GroundedLeft,
-                10 => ConveyorBlockBts.UnconditionalRight,
-                11 => ConveyorBlockBts.UnconditionalLeft,
-                _ => null,
-            };
-            if (carrier is not { } conveyor) return;
-            bool groundedOnly = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.GroundedLeft;
-            bool rightward = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.UnconditionalRight;
+            // The common special-air reactions include the conveyors; only they react here.
+            if (!ConveyorBlockDefinitions.Conveyors.TryGetValue(reaction, out ConveyorBlock conveyor)) return;
+            bool rightward = conveyor.Direction == HorizontalDirection.Right;
             samus.HorizontalSpeed.SelectNormalAirSpeedTable();
-            if (groundedOnly && ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
+            if (conveyor.Condition == ConveyorCarryCondition.OnFootWithPower &&
+                ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
                 return;
             // The original checks only whole Y speed: fractional vertical motion does
             // not suppress carry. This replaces external X displacement, never adds to it.
@@ -170,11 +162,11 @@ public static class SamusInsideBlockReactions
     {
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        if (!block.Behavior.UsesAreaReactionTable) return false;
+        if (!block.Behavior.Reaction.IsAreaSpecific) return false;
         SpecialAirReactionDefinition areaReaction =
             SpecialAirReactions.ResolveCollision(
                 body.SandCollisionArea,
-                block.Behavior.AreaReactionIndex);
+                block.Behavior.Reaction.Entry);
         RoomObjectHeaderId header = areaReaction.Header;
         if (header == RoomObjectHeaderId.None) return false;
         bool hasCompiledReaction = QuicksandReactions.TryGetReaction(

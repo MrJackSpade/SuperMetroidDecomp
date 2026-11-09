@@ -108,7 +108,7 @@ internal static class DoorAlignmentVerification
         RoomLevelData level = runtime.Room.LoadedLevelData;
         int doorX = -1;
         int doorY = -1;
-        int behavior = 0;
+        RoomBlockBehavior behavior = RoomBlockBehavior.None;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
@@ -116,14 +116,14 @@ internal static class DoorAlignmentVerification
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             DoorDefinition? candidate = level.ResolveDoorCollision(
-                block.Behavior.Value,
+                block.Behavior,
                 SamusPoseId.MovingRightNormalPose.ForRoomCollision(),
                 publishDoorSideEffects: false).Door;
             if (candidate?.DestinationRoom != destinationRoom)
                 continue;
             doorX = x;
             doorY = y;
-            behavior = block.Behavior.Value;
+            behavior = block.Behavior;
             break;
         }
         AssertTrue(doorX >= 0, "door-alignment route contains its retail destination door");

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -35,7 +36,7 @@ internal static class RechargeStationAdmissionVerification
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomObjectPopulationImporter.Read(bus, 0x9000), new RoomObjectServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             int accessX = right ? 9 : 7;
-            var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior.Value);
+            var behavior = RoomBlockBehaviorCodec.Decode(RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior));
             bool Touch() => roomObjects.Stations.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
                 (right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose).ForRoomCollision(),
                 Axis.Horizontal, movingPositive: !right, roomWidthInBlocks: 32);

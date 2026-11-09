@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
@@ -27,17 +28,17 @@ private static readonly RoomTerrainBlock Air = RoomTerrainBlock.Of(0, BlockMirro
 private static readonly RoomTerrainBlock Slope = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
 
 /// <summary>Behaviour zero: no parameter.</summary>
-private static readonly RoomBlockBehavior NoBehavior = RoomBlockBehaviorValues.None;
+private static readonly RoomBlockBehavior NoBehavior = RoomBlockBehavior.None;
 
 /// <summary>Slope behaviour $12: shape $12, unmirrored floor.</summary>
-private static readonly RoomBlockBehavior Shape12 = new(0x12);
+private static readonly RoomBlockBehavior Shape12 = RoomBlockBehaviorCodec.Decode(0x12);
 
 /// <summary>Slope, block, grounded, reversal, moonwalk, and wall-contact verification.</summary>
 internal static void VerifySamusSlopePhysics()
 {
     // The production rule takes a typed behaviour, displacement and speed; the cases are stated as raw words.
     static int Scale(int behavior, int displacement, uint verticalSpeed) =>
-        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(new RoomBlockBehavior(behavior),
+        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(RoomBlockBehaviorCodec.Decode(behavior),
             SignedSixteenSixteen.FromRaw(displacement), UnsignedSixteenSixteen.FromRaw(verticalSpeed)).RawValue;
 
     // Shape $12 selects multiplier-table word index 2*$12+1 = $25. Retail ROM stores
@@ -106,7 +107,7 @@ internal static void VerifySamusBlockCollision()
     // Row one contains a non-square slope in column one and an ordinary type-8 solid in
     // column two. Every other cell is dispatcher type zero air.
     foreground[1 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-    behavior[1 * width + 1] = new RoomBlockBehavior(0x12);
+    behavior[1 * width + 1] = RoomBlockBehaviorCodec.Decode(0x12);
     foreground[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData level = CreateRoom(new(width, height), foreground, behavior);
 
@@ -135,7 +136,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement.RawValue, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.Position.Y.Whole, "grounding collision preserves resting center Y");
-    AssertEqual(0x12, level.GetCollisionBlockAtPixel(new(24, 24)).Behavior.Value,
+    AssertEqual(0x12, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockAtPixel(new(24, 24)).Behavior),
         "grounding collision probe's target block carries slope BTS");
 
     // Moving two pixels right from X=26 would enter the type-8 block at X=32. The solid
@@ -170,9 +171,9 @@ internal static void VerifySamusBlockCollision()
     var squareForeground = new RoomTerrainBlock[width * height];
     var squareBehavior = new RoomBlockBehavior[squareForeground.Length];
     squareForeground[1 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-    squareBehavior[1 * width + 2] = new RoomBlockBehavior(0x04);
+    squareBehavior[1 * width + 2] = RoomBlockBehaviorCodec.Decode(0x04);
     squareForeground[2 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-    squareBehavior[2 * width + 1] = new RoomBlockBehavior(0x04);
+    squareBehavior[2 * width + 1] = RoomBlockBehaviorCodec.Decode(0x04);
     RoomLevelData squareLevel = CreateRoom(new(width, height), squareForeground, squareBehavior);
 
     var squareWallBody = new SamusKinematicsState
@@ -227,7 +228,7 @@ internal static void VerifySamusBlockCollision()
     AssertTrue(doorLevel.PendingDoorTransition is null,
         "consumed door transition does not leak into later movement");
 
-    doorBehavior[1 * width + 2] = new RoomBlockBehavior(2);
+    doorBehavior[1 * width + 2] = RoomBlockBehaviorCodec.Decode(2);
     RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(doorListPointer));
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel }, doorBody, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(0x00020000) });
@@ -321,19 +322,16 @@ internal static void VerifySamusBlockCollision()
     WritePoseDefinitionByte(bus, SamusPoseNumbers.Number(SamusPoseId.FacingRightNormalPose), 0, SamusPoseRecordCodecTooling.FacingByte(SamusPoseId.FacingRightNormalPose));
     foreach ((byte spikeBehavior, ushort expectedDamage) in new SamusTerrainMovementVerifySamusBlockCollisionCase[]
     {
-        new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.Heavy,
-            SpikeHazardDefinitions.HeavySpikeDamage),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.Light,
-            SpikeHazardDefinitions.LightSpikeDamage),
-        new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.AlternateLight,
-            SpikeHazardDefinitions.LightSpikeDamage),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase(0, SpikeHazardDefinitions.HeavySpikeDamage),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase(1, SpikeHazardDefinitions.LightSpikeDamage),
+        new SamusTerrainMovementVerifySamusBlockCollisionCase(3, SpikeHazardDefinitions.LightSpikeDamage),
         new SamusTerrainMovementVerifySamusBlockCollisionCase(2, 0),
     })
     {
         var spikeWords = new RoomTerrainBlock[width * height];
         var spikeBehaviors = new RoomBlockBehavior[spikeWords.Length];
         spikeWords[2 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
-        spikeBehaviors[2 * width + 1] = new RoomBlockBehavior(spikeBehavior);
+        spikeBehaviors[2 * width + 1] = RoomBlockBehaviorCodec.Decode(spikeBehavior);
         RoomLevelData spikeLevel = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
@@ -373,7 +371,7 @@ internal static void VerifySamusBlockCollision()
         var spikeWords = new RoomTerrainBlock[width * height];
         var spikeBehaviors = new RoomBlockBehavior[spikeWords.Length];
         spikeWords[2 * width + 1] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
-        spikeBehaviors[2 * width + 1] = RoomBlockBehaviorValues.None;
+        spikeBehaviors[2 * width + 1] = RoomBlockBehavior.None;
         RoomLevelData wreckedShipSpikes = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {

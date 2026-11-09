@@ -15,13 +15,13 @@ internal static class EyeDoorDefinitions
     public const RoomCollisionType EyeCollision = RoomCollisionType.ShootableBlock;
 
     /// <summary>The live eye's behaviour: shots that hit it notify the eye door.</summary>
-    public static readonly RoomBlockBehavior EyeBehavior = RoomBlockBehaviorValues.ResidentObjectProjectileTrigger;
+    public static readonly RoomBlockBehavior EyeBehavior = RoomBlockBehavior.Reacting(BlockReactionDefinitions.ResidentObjectTrigger);
 
     /// <summary>The collision the passive door components install: a spike-type solid block.</summary>
     public const RoomCollisionType ClosedComponentCollision = RoomCollisionType.SpikeBlock;
 
     /// <summary>The passive components' behaviour: none.</summary>
-    public static readonly RoomBlockBehavior ClosedComponentBehavior = RoomBlockBehaviorValues.None;
+    public static readonly RoomBlockBehavior ClosedComponentBehavior = RoomBlockBehavior.None;
 
     /// <summary>Vertical extension rows the live eye installs below itself, each resolving to the eye.</summary>
     public const int EyeExtensionRows = 1;

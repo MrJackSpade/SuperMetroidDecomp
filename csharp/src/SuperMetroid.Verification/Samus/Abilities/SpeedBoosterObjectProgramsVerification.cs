@@ -84,7 +84,7 @@ internal static class SpeedBoosterObjectProgramsVerification
             foreach (var entry in entries)
                 if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
                     tableAddress = entry.Address;
-            bool found = SpeedBoosterBlocks.TryResolve(new RoomBlockBehavior((byte)bts),
+            bool found = SpeedBoosterBlocks.TryResolve(RoomBlockBehaviorCodec.Decode((byte)bts),
                 (AreaId)(byte)area,out var definition);
             AssertEqual(tableAddress != 0,found,"speed selector full byte BTS/area contract");
             if (!found)
@@ -118,11 +118,11 @@ internal static class SpeedBoosterObjectProgramsVerification
 
         var cases = new SpeedBoosterObjectProgramsCase[]
         {
-            new SpeedBoosterObjectProgramsCase(new RoomBlockBehavior(0x0e), AreaId.Crateria, true),
-            new SpeedBoosterObjectProgramsCase(new RoomBlockBehavior(0x0f), AreaId.Crateria, false),
-            new SpeedBoosterObjectProgramsCase(new RoomBlockBehavior(0x82), AreaId.Brinstar, true),
-            new SpeedBoosterObjectProgramsCase(new RoomBlockBehavior(0x83), AreaId.Brinstar, false),
-            new SpeedBoosterObjectProgramsCase(new RoomBlockBehavior(0x84), AreaId.Brinstar, true),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x0e), AreaId.Crateria, true),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x0f), AreaId.Crateria, false),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x82), AreaId.Brinstar, true),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x83), AreaId.Brinstar, false),
+            new SpeedBoosterObjectProgramsCase(RoomBlockBehaviorCodec.Decode(0x84), AreaId.Brinstar, true),
         };
         foreach ((RoomBlockBehavior bts, AreaId area, bool respawns) in cases)
         {
@@ -132,26 +132,26 @@ internal static class SpeedBoosterObjectProgramsVerification
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
             BlockMoveResult contact = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromRaw(4 << 16), ScanLeftToRight = true });
             AssertTrue(!contact.Collided,
-                $"boosted contact with BTS ${bts.Value:X2} admits the real PLM");
+                $"boosted contact with BTS ${RoomBlockBehaviorCodec.Encode(bts):X2} admits the real PLM");
             for (int frame = 0; frame < 100 && roomObjects.SlotTable.ActiveCount != 0; frame++)
                 roomObjects.Step(level);
             AssertEqual(0, roomObjects.SlotTable.ActiveCount,
-                $"BTS ${bts.Value:X2} compiled list reaches native deletion");
+                $"BTS ${RoomBlockBehaviorCodec.Encode(bts):X2} compiled list reaches native deletion");
             AssertEqual(respawns ? RoomCollisionType.SpecialBlock :
                     RoomCollisionType.Air,
                 level.GetCollisionBlockByIndex(blockIndex).CollisionType,
-                $"BTS ${bts.Value:X2} retains native restoration behavior");
+                $"BTS ${RoomBlockBehaviorCodec.Encode(bts):X2} retains native restoration behavior");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"BTS ${bts.Value:X2} never rereads its compiled program or draw bytes");
+                $"BTS ${RoomBlockBehaviorCodec.Encode(bts):X2} never rereads its compiled program or draw bytes");
         }
 
         (TestAddressSpace bombBus, RoomLevelData bombLevel,
             RoomObjectSystem bombObjects, int bombBlock) =
-            CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x82),
+            CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(0x82),
                 AreaId.Brinstar);
         var bombGuard = NewSpeedBoosterObjectReadGuard(bombBus);
         AssertTrue(bombObjects.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombBlock,
-                new RoomBlockBehavior(0x82), AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
+                RoomBlockBehaviorCodec.Decode(0x82), AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
             "normal bomb allocates the Speed Booster reveal PLM");
         bombObjects.Step(bombLevel);
         AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),

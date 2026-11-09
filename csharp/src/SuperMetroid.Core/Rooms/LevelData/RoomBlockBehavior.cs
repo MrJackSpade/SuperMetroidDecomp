@@ -4,144 +4,111 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// The behaviour parameter of one room block. It has no single global meaning: the block's collision kind selects the
-/// reaction that reads it. Callers therefore use the context-specific views below instead of treating unrelated meanings
-/// that happen to share a value as one domain. A block whose collision kind changes keeps its parameter, and the new kind
-/// reads it through its own view.
+/// What a room block does beyond how it collides (#1551). The block's collision kind decides which of four readings
+/// applies: a slope reads its <see cref="Slope"/>, an extension its <see cref="ExtensionOffset"/>, a door its
+/// <see cref="DoorLink"/>, and every reacting kind (shootable, bombable, special, spike and grapple blocks, and their air
+/// siblings) its <see cref="Reaction"/>.
 /// </summary>
-/// <param name="Value">The parameter, 0 through 255.</param>
-public readonly record struct RoomBlockBehavior(int Value)
+/// <remarks>
+/// A block whose collision kind changes keeps its behaviour, and the new kind reads it through its own reading, so every
+/// behaviour holds all four. The installation decodes them once from the original data; a behaviour a room object writes
+/// is written as the reading it is meant for, and carries the others as <see cref="BlockParameterCarryOver"/> states.
+/// </remarks>
+public readonly record struct RoomBlockBehavior
 {
-    /// <summary>The parameter, 0 through 255; its kind-specific views below give it meaning.</summary>
-    [PackedFields("block behaviour parameter whose meaning the block's collision kind decodes")]
-    public int Value { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Value);
+    /// <summary>Holds a behaviour's four readings, which the import's codec decodes together.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The offset or door link is out of range.</exception>
+    internal RoomBlockBehavior(BlockReaction reaction, SlopeGeometry slope, int extensionOffset, int doorLink)
+    {
+        Reaction = reaction;
+        Slope = slope;
+        ExtensionOffset = Ensure.BetweenInclusive(MostBackwardExtension, MostForwardExtension, extensionOffset);
+        DoorLink = Ensure.BetweenInclusive(0, BlockReaction.LastEntry, doorLink);
+    }
+
+    /// <summary>The farthest an extension reaches backward: 128 blocks (or rows).</summary>
+    public const int MostBackwardExtension = -BlockParameterCarryOver.EntriesPerReactionList;
+
+    /// <summary>The farthest an extension reaches forward: 127 blocks (or rows).</summary>
+    public const int MostForwardExtension = BlockParameterCarryOver.EntriesPerReactionList - 1;
 
     /// <summary>
-    /// The behaviour a downward gate's trigger block takes from its own picture: the low part of the trigger's block
-    /// number, so the trigger's picture also selects the gate's colour and side.
+    /// The empty behaviour: the first common reaction, a flat unmirrored slope, an extension that ends its chain, and the
+    /// room's first door. Every block past a room's grid starts with it.
     /// </summary>
-    /// <param name="trigger">What the trigger block shows.</param>
-    public static RoomBlockBehavior OfGateTrigger(RoomBlockAppearance trigger) => RoomBlockBehaviorCodec.GateTrigger(trigger);
+    public static RoomBlockBehavior None { get; } = Reacting(BlockReaction.Common(0));
+
+    /// <summary>A reacting block's behaviour.</summary>
+    /// <param name="reaction">The reaction.</param>
+    public static RoomBlockBehavior Reacting(BlockReaction reaction)
+    {
+        BlockMirroring mirroring =
+            (BlockParameterCarryOver.ReflectsSlopeHorizontally(reaction.Entry) ? BlockMirroring.Horizontal : BlockMirroring.None) |
+            (reaction.IsAreaSpecific ? BlockMirroring.Vertical : BlockMirroring.None);
+        return new RoomBlockBehavior(
+            reaction,
+            new SlopeGeometry(BlockParameterCarryOver.SlopeShapeOf(reaction.Entry), mirroring),
+            BlockParameterCarryOver.ExtensionOffsetOf(reaction.IsAreaSpecific, reaction.Entry),
+            reaction.Entry);
+    }
+
+    /// <summary>An extension's behaviour.</summary>
+    /// <param name="offset">The signed displacement, <see cref="MostBackwardExtension"/> through <see cref="MostForwardExtension"/>.</param>
+    public static RoomBlockBehavior Extending(int offset)
+    {
+        Ensure.BetweenInclusive(MostBackwardExtension, MostForwardExtension, offset);
+        return Reacting(new BlockReaction(
+            BlockParameterCarryOver.IsAreaSpecificReaction(offset) ? BlockReactionScope.AreaSpecific : BlockReactionScope.Common,
+            BlockParameterCarryOver.ReactionEntryOf(offset)));
+    }
+
+    /// <summary>A slope's behaviour.</summary>
+    /// <param name="slope">The slope's shape and mirroring.</param>
+    public static RoomBlockBehavior Sloping(SlopeGeometry slope) =>
+        Reacting(new BlockReaction(
+            slope.FlipsVertically ? BlockReactionScope.AreaSpecific : BlockReactionScope.Common,
+            BlockParameterCarryOver.ReactionEntryOf(slope.Shape, slope.FlipsHorizontally)));
+
+    /// <summary>A door block's behaviour.</summary>
+    /// <param name="doorLink">The entry of the room's door list the door selects.</param>
+    public static RoomBlockBehavior LinkingDoor(int doorLink) => Reacting(BlockReaction.Common(doorLink));
+
+    /// <summary>The reaction a shootable, bombable, special, spike or grapple block (or its air sibling) selects.</summary>
+    public BlockReaction Reaction { get; }
+
+    /// <summary>A slope block's shape and mirroring.</summary>
+    public SlopeGeometry Slope { get; }
 
     /// <summary>
-    /// The behaviour of a horizontal or vertical extension that collides as the block <paramref name="offset"/> blocks
-    /// (or rows) away; <see cref="ExtensionOffset"/> reads it back.
+    /// The signed number of blocks (horizontal) or rows (vertical) from an extension to the block it collides as; zero
+    /// ends the chain, and the extension then behaves as its kind's terminator.
     /// </summary>
-    /// <param name="offset">The signed displacement, -128 through 127.</param>
-    public static RoomBlockBehavior OfExtensionOffset(int offset) => RoomBlockBehaviorCodec.ExtensionOffset(offset);
+    public int ExtensionOffset { get; }
 
-    /// <summary>The low five bits: a slope's shape.</summary>
-    private const int SlopeShapeBits = (1 << 5) - 1;
-    /// <summary>Bit six: a slope's horizontal reflection.</summary>
-    private const int HorizontalFlipBit = 1 << 6;
-    /// <summary>Bit seven: a slope's vertical reflection, or the area/grapple table selector.</summary>
-    private const int HighBit = 1 << 7;
-    /// <summary>The low seven bits: an area or grapple reaction index.</summary>
-    private const int LowSevenBits = HighBit - 1;
-
-    /// <summary>Signed block displacement used by horizontal and vertical extensions, -128 through 127.</summary>
-    public int ExtensionOffset => RoomBlockBehaviorCodec.ReadExtensionOffset(this);
-
-    /// <summary>The slope's shape: the low five bits, an index into the slope-shape tables.</summary>
-    public int SlopeShape => Value & SlopeShapeBits;
-
-    /// <summary>Whether the slope selects the non-square height-table dispatcher.</summary>
-    public bool IsNonSquareSlope => SlopeShape >= 5;
-
-    /// <summary>Whether a slope block's shape is reflected horizontally.</summary>
-    public bool SlopeFlipsHorizontally => (Value & HorizontalFlipBit) != 0;
-
-    /// <summary>Whether a slope block's shape is reflected vertically.</summary>
-    public bool SlopeFlipsVertically => (Value & HighBit) != 0;
-
-    /// <summary>Two-bit slope orientation/quadrant selector stored in bits six and seven.</summary>
-    public int SlopeOrientation => Value >> 6;
+    /// <summary>Whether an extension with this behaviour ends its chain instead of leading to another block.</summary>
+    public bool EndsExtension => ExtensionOffset == 0;
 
     /// <summary>
-    /// Whether a projectile/bomb reaction selects the area-dependent table. This is the
-    /// same physical bit as the slope vertical reflection bit, but only in this context.
+    /// The entry of the room's door list a door block selects. Elevator and special-door blocks select through the same
+    /// list.
     /// </summary>
-    public bool UsesAreaReactionTable => (Value & HighBit) != 0;
+    public int DoorLink { get; }
 
-    /// <summary>
-    /// The entry of the room's door list a door block selects: the low seven bits. Bit seven is not part of the index;
-    /// elevator and special-door behaviours share the same seven-bit lookup.
-    /// </summary>
-    public int DoorListIndex => Value & LowSevenBits;
-
-    /// <summary>Low-seven-bit index used by area-dependent reaction tables.</summary>
-    public int AreaReactionIndex => Value & LowSevenBits;
-
-    /// <summary>Low-seven-bit index into the enemy spike-block reaction table; bit seven is not part of the index.</summary>
-    public int EnemySpikeReactionIndex => Value & LowSevenBits;
-
-    /// <summary>Whether this is a valid index into a normal table of the given size.</summary>
-    public bool IsNormalReactionIndex(int entryCount) =>
-        !UsesAreaReactionTable && Value < entryCount;
-
-    /// <summary>Whether this is a valid index into an area table of the given size.</summary>
-    public bool IsAreaReactionIndex(int entryCount) =>
-        UsesAreaReactionTable && AreaReactionIndex < entryCount;
-
-    /// <summary>Whether grapple collision rejects the indexed reaction via bit seven.</summary>
-    public bool RejectsGrappleReaction => (Value & HighBit) != 0;
-
-    /// <summary>Low-seven-bit grapple reaction-table index.</summary>
-    [PackedFields("low seven bits of the behaviour, an index into the grapple reaction table")]
-    public int GrappleReactionIndex => Value & LowSevenBits;
-
-    /// <summary>Persistent grapple anchors are table entries zero and three.</summary>
-    public bool IsPersistentGrappleReaction =>
-        !RejectsGrappleReaction && GrappleReactionIndex is 0 or 3;
-
-    /// <summary>Breakable grapple anchors are table entries one and two.</summary>
-    public bool IsBreakableGrappleReaction =>
-        !RejectsGrappleReaction && GrappleReactionIndex is 1 or 2;
-
-    /// <summary>Validated direct index for a non-area projectile/bomb reaction table.</summary>
-    [PackedFields("the behaviour as an index into the block reaction table")]
-    public int NormalReactionIndex => Value;
-
-    /// <summary>Entries zero through three restore after their break animation.</summary>
-    public bool IsRespawningReaction => IsNormalReactionIndex(4);
-
-    /// <summary>Entries four through seven remain cleared after their break animation.</summary>
-    public bool IsPermanentReaction =>
-        IsNormalReactionIndex(8) && !IsRespawningReaction;
-
-    /// <summary>Shot-block entries eight and nine require the Power Bomb family.</summary>
-    public bool RequiresPowerBombReaction =>
-        !UsesAreaReactionTable && Value is 8 or 9;
-
-    /// <summary>Shot-block entries ten and eleven require the Super Missile family.</summary>
-    public bool RequiresSuperMissileReaction =>
-        !UsesAreaReactionTable && Value is 10 or 11;
-
-    /// <summary>
-    /// Shootable-table entry 16: the collision probe that publishes its collision result before spawning a one-frame
-    /// object that does nothing.
-    /// </summary>
-    public bool IsShootableCollisionProbe => Value == RoomBlockBehaviorValues.ShootableCollisionProbe.Value;
-
-    /// <summary>Shootable-table entries 17 through 63 and 78 spawn the object that does nothing.</summary>
-    public bool IsUnusedShootableReaction => Value is >= 17 and <= 63 or 78;
-
-    /// <summary>Decodes the four contiguous blue-door cap values.</summary>
+    /// <summary>The blue-door cap a shootable block's reaction selects, if it selects one.</summary>
     public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation) =>
-        RoomBlockBehaviorCodec.TryBlueDoorOrientation(this, out orientation);
+        BlockReactionDefinitions.BlueDoorCaps.TryGetMeaning(Reaction, out orientation);
 
-    /// <summary>Decodes a map, recharge, or save-station access behaviour.</summary>
+    /// <summary>The map, recharge or save-station access a special block's reaction selects, if it selects one.</summary>
     public bool TryGetStationAccess(out StationAccessBehavior access) =>
-        RoomBlockBehaviorCodec.TryStationAccess(this, out access);
+        BlockReactionDefinitions.StationAccesses.TryGetMeaning(Reaction, out access);
 
     /// <summary>
-    /// Decodes the eight shootable-block values reserved for downward gate triggers.
-    /// These values overlap unrelated meanings in other collision families, so the caller
-    /// must first establish that the block is a shootable block.
+    /// The downward-gate trigger a shootable block's reaction selects, if it selects one. The same reactions mean
+    /// unrelated things to other collision kinds, so the caller first establishes that the block is shootable.
     /// </summary>
     public bool TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger) =>
-        RoomBlockBehaviorCodec.TryDownwardGateTrigger(this, out trigger);
+        BlockReactionDefinitions.DownwardGateTriggers.TryGetMeaning(Reaction, out trigger);
 
-    /// <summary>Formats the parameter as a two-digit hexadecimal value.</summary>
-    public override string ToString() => $"${Value:X2}";
+    /// <summary>Names the behaviour by its reaction, which every reading follows from.</summary>
+    public override string ToString() => $"reaction {Reaction}";
 }

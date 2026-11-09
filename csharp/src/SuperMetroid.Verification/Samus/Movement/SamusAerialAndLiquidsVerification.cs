@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -302,7 +303,7 @@ level, fallLeft, 0, unchecked((ushort)(frame + 1))),
                 var squareForeground = new RoomTerrainBlock[width * height];
                 var squareBehavior = new RoomBlockBehavior[width * height];
                 squareForeground[3 * width + solidBlockX] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
-                squareBehavior[3 * width + solidBlockX] = new RoomBlockBehavior(unchecked((byte)(
+                squareBehavior[3 * width + solidBlockX] = RoomBlockBehaviorCodec.Decode(unchecked((byte)(
                     shape | (orientation << 6))));
                 RoomLevelData squareRoom = CreateRoom(new(width, height),
                     squareForeground,
@@ -621,7 +622,7 @@ empty, screwRepeat, ControllerButton.A, 0, ControllerButton.A);
     var screwBombBts = new RoomBlockBehavior[screwBombForeground.Length];
     int screwBombIndex = 8 * 16 + 8;
     screwBombForeground[screwBombIndex] = RoomTerrainBlock.Of(291, BlockMirroring.None, RoomCollisionType.BombableBlock);
-    screwBombBts[screwBombIndex] = new RoomBlockBehavior(4);
+    screwBombBts[screwBombIndex] = RoomBlockBehaviorCodec.Decode(4);
     RoomLevelData screwBombLevel = CreateRoom(new(16, 16), screwBombForeground, screwBombBts);
     var screwBombObjects = RoomObjectFixtures.Unbound();
     SamusState screwBombSamus = CreateFallingSpin(

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonObjectProgramVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -48,12 +49,12 @@ internal static class DraygonCannonObjectsVerification
         AssertEqual(RoomCollisionType.ShootableBlock,
             level.GetCollisionBlockByIndex(rightBlock).CollisionType,
             "shielded right cannon setup installs a shootable block");
-        AssertEqual(0x44, level.GetCollisionBlockByIndex(rightBlock).Behavior.Value,
+        AssertEqual(0x44, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(rightBlock).Behavior),
             "shielded right cannon setup installs behaviour 44");
         AssertEqual(RoomCollisionType.VerticalExtension,
             level.GetCollisionBlockByIndex(rightBlock + roomWidth).CollisionType,
             "shielded right cannon setup installs its vertical extension");
-        AssertEqual(0xff, level.GetCollisionBlockByIndex(rightBlock + roomWidth).Behavior.Value,
+        AssertEqual(0xff, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(rightBlock + roomWidth).Behavior),
             "shielded right cannon extension points to its origin");
 
         StepDraygonCannonObjects(roomObjects, level);
@@ -133,7 +134,7 @@ internal static class DraygonCannonObjectsVerification
             AssertEqual(RoomCollisionType.SpikeBlock,
                 level.GetCollisionBlockByIndex(cell).CollisionType,
                 $"{context} replaces cell {cell} with a spike block");
-            AssertEqual(0x03, level.GetCollisionBlockByIndex(cell).Behavior.Value,
+            AssertEqual(0x03, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(cell).Behavior),
                 $"{context} replaces cell {cell} with behaviour 03");
         }
     }

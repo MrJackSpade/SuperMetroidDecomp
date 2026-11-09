@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
@@ -46,7 +47,7 @@ internal static class XrayTilemapVerification
         void Set(int index, RoomCollisionType type, int behavior)
         {
             level.SetObjectTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type), foreground[index].Appearance);
-            level.SetObjectBehavior(index, new RoomBlockBehavior(behavior));
+            level.SetObjectBehavior(index, RoomBlockBehaviorCodec.Decode(behavior));
         }
         RevealedBlock?[] basis = Build();
         AssertEqual(Copied(1, 1), Cell(basis, 0, 0), "base copy starts at the block holding the screen's top-left corner, mirrored as the level mirrors it");

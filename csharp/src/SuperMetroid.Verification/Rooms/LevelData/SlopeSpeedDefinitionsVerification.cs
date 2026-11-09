@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -37,7 +38,7 @@ internal static class SlopeSpeedDefinitionsVerification
 
         // The production rule takes a typed behaviour, displacement and speed; the cases are stated as raw words.
         static int Scale(int behavior, int displacement, uint verticalSpeed) =>
-            SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(new RoomBlockBehavior(behavior),
+            SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(RoomBlockBehaviorCodec.Decode(behavior),
                 SignedSixteenSixteen.FromRaw(displacement), UnsignedSixteenSixteen.FromRaw(verticalSpeed)).RawValue;
 
         int cases = 0;

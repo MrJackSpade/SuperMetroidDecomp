@@ -53,7 +53,7 @@ internal static class NativeCaptureSeeds
             for (int index = 0; index < level.Size.Area; index++)
                 writer.Write(RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(index).Terrain));
             for (int index = 0; index < level.Size.Area; index++)
-                writer.Write(checked((byte)level.GetCollisionBlockByIndex(index).Behavior.Value));
+                writer.Write(checked((byte)RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(index).Behavior)));
         }
         File.WriteAllText(Path.Combine(output, "seed.txt"), scenario.TakeoffSeed());
         var (rows, apex) = scenario.Jump();

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
@@ -79,7 +80,7 @@ internal static class GameplayContentIdentityVerification
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            if (XrayRevealTable.Find(type, new RoomBlockBehavior(bts)) is not { } native ||
+            if (XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts)) is not { } native ||
                 !InstalledXrayReveals.IsDrawable(native.Command)) continue;
             var visual = new XrayRevealVisualBlocks(native.TopLeft, native.TopRight, native.BottomLeft, native.BottomRight);
             if (!editedOperands && native.Command == XrayRevealCommand.CopySquare && edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
@@ -93,7 +94,7 @@ internal static class GameplayContentIdentityVerification
                 };
                 editedOperands = true;
             }
-            entries.Add(new(type, new RoomBlockBehavior(bts), visual));
+            entries.Add(new(type, RoomBlockBehaviorCodec.Decode(bts).Reaction, visual));
         }
         AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
         var items = new RoomBlockAppearance[InstalledXrayOverlays.TankCount];

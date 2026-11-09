@@ -129,9 +129,9 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
     internal static void RevertSlopesToSpikes(RoomLevelData level)
     {
         WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex,
-            RoomCollisionType.SpikeBlock, RoomBlockBehaviorValues.None);
+            RoomCollisionType.SpikeBlock, RoomBlockBehavior.None);
         WriteChozoBlock(level, ChozoStatueRoomDefinitions.FirstSlopeBlockIndex + 1,
-            RoomCollisionType.SpikeBlock, RoomBlockBehaviorValues.None);
+            RoomCollisionType.SpikeBlock, RoomBlockBehavior.None);
     }
 
     /// <summary>Moves the Lower Norfair acid to its lowered height.</summary>

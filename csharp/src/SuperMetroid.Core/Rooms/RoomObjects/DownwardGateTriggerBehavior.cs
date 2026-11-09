@@ -1,7 +1,9 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The downward-gate trigger a shootable block's behaviour selects (decoded by <c>RoomBlockBehaviorCodec</c>): the
+/// The downward-gate trigger a shootable block's reaction selects (<see cref="BlockReactionDefinitions.DownwardGateTriggers"/>): the
 /// trigger's colour, and whether it sits left or right of its gate.
 /// </summary>
 public enum DownwardGateTriggerBehavior

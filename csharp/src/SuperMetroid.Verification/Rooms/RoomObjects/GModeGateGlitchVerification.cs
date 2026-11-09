@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
@@ -183,7 +185,7 @@ internal static class GModeGateGlitchVerification
         EnterDirectGMode(samus);
 
         RoomTerrainBlock[] words = Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray();
-        RoomBlockBehavior[] behavior = Enumerable.Repeat(new RoomBlockBehavior(0x80), 16).ToArray();
+        RoomBlockBehavior[] behavior = Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(0x80), 16).ToArray();
         RoomLevelData level = CreateRoom(new(4, 4), words, behavior);
         var roomObjects = RoomObjectFixtures.Unbound();
 
@@ -246,7 +248,7 @@ internal static class GModeGateGlitchVerification
             var words = new RoomTerrainBlock[width * height];
             var behavior = new RoomBlockBehavior[words.Length];
             words[doorIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-            behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight;
+            behavior[doorIndex] = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right));
             return CreateRoom(new(width, height), words, behavior);
         }
 
@@ -255,7 +257,7 @@ internal static class GModeGateGlitchVerification
         AssertTrue(freeObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 freeLevel,
                 doorIndex,
-                RoomBlockBehaviorValues.BlueDoorFacingRight,
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
                 SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "G-Mode shot at a blue door allocates its inert opening actor while a slot remains");
         AssertEqual(RoomCollisionType.SolidBlock,
@@ -270,7 +272,7 @@ internal static class GModeGateGlitchVerification
         AssertTrue(!fullObjects.DoorObjects.TrySpawnBlueDoorOpening(
                 fullLevel,
                 doorIndex,
-                RoomBlockBehaviorValues.BlueDoorFacingRight,
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)),
                 SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "overloaded G-Mode PLM pool drops a blue-door opening request");
         AssertEqual(RoomCollisionType.ShootableBlock,
@@ -318,7 +320,7 @@ internal static class GModeGateGlitchVerification
                 var words = new RoomTerrainBlock[width * height];
                 var behaviors = new RoomBlockBehavior[words.Length];
                 words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, collisionType);
-                behaviors[blockIndex] = new RoomBlockBehavior(bts);
+                behaviors[blockIndex] = RoomBlockBehaviorCodec.Decode(bts);
                 return CreateRoom(new(width, height), words, behaviors);
             }
 
@@ -379,7 +381,7 @@ internal static class GModeGateGlitchVerification
         int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
         AssertTrue(roomObjects.TryNotifyStationTouch(
                 accessBlock,
-                RoomBlockBehaviorCodec.StationAccess(StationAccessBehavior.EnergyRight)),
+                RoomBlockBehavior.Reacting(BlockReactionDefinitions.StationAccesses.ReactionFor(StationAccessBehavior.EnergyRight))),
             "G-Mode fixture reaches the resident Energy Station through its real access setup");
         AssertTrue(samus.Control.AlphaLocked,
             "station setup executes Samus command six before the suspended PLM handler");

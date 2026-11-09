@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -9,28 +8,9 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 /// </summary>
 public sealed class InstalledXrayReveals
 {
-    /// <summary>The number of behaviour values a collision kind's visuals span.</summary>
-    private const int BehaviorValueCount = byte.MaxValue + 1;
-
-    /// <summary>The collision kinds in the order the visual store lays out their behaviour spans.</summary>
-    private static readonly RoomCollisionType[] TypeOrder =
-    [
-        RoomCollisionType.Air, RoomCollisionType.Slope, RoomCollisionType.SpikeAir, RoomCollisionType.SpecialAir,
-        RoomCollisionType.ShootableAir, RoomCollisionType.HorizontalExtension, RoomCollisionType.UnusedAir,
-        RoomCollisionType.BombableAir, RoomCollisionType.SolidBlock, RoomCollisionType.DoorBlock,
-        RoomCollisionType.SpikeBlock, RoomCollisionType.SpecialBlock, RoomCollisionType.ShootableBlock,
-        RoomCollisionType.VerticalExtension, RoomCollisionType.GrappleBlock, RoomCollisionType.BombableBlock,
-    ];
-
-    /// <summary>Each collision type's position in <see cref="TypeOrder"/>.</summary>
-    private static readonly FrozenDictionary<RoomCollisionType, int> TypePosition =
-        Enumerable.Range(0, TypeOrder.Length).ToFrozenDictionary(position => TypeOrder[position]);
-
-    /// <summary>Installed reveal blocks indexed by collision kind and behaviour.</summary>
+    /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>
-    /// Issue #1037: the index is the kind's position times the 256 behaviour values, plus the behaviour, over the 16
-    /// collision kinds. Of 4096 possible
-    /// slots, the original data has 305 drawable pairs; the
+    /// Issue #1037: of every collision kind's reading of every reaction, the original data has 305 drawable pairs; the
     /// constructor requires exactly those pairs and rejects duplicates.
     /// Stock operands come from reveal command records and all
     /// 305 installed values match the independent oracle.
@@ -39,10 +19,7 @@ public sealed class InstalledXrayReveals
     /// single formula derived from the original data can reproduce every valid installation:
     /// retain this bounded indexed store for the selected visual data.
     /// </remarks>
-    internal readonly XrayRevealVisualBlocks?[] blocks = new XrayRevealVisualBlocks?[16 * BehaviorValueCount];
-
-    /// <summary>Where a collision kind and behaviour's visuals sit in the store.</summary>
-    private static int Index(RoomCollisionType type, RoomBlockBehavior behavior) => TypePosition[type] * BehaviorValueCount + behavior.Value;
+    internal readonly Dictionary<XrayRevealVisualKey, XrayRevealVisualBlocks> blocks = [];
 
     /// <summary>Creates a complete visual replacement for every drawable reveal rule.</summary>
     /// <param name="entries">Exactly one set of blocks for each drawable collision kind and behaviour; command selection and copy geometry remain fixed.</param>
@@ -54,29 +31,26 @@ public sealed class InstalledXrayReveals
     {
         Ensure.NotNull(entries);
         Overlays = overlays;
-        foreach ((RoomCollisionType type, RoomBlockBehavior behavior, XrayRevealVisualBlocks visual) in entries)
+        foreach ((RoomCollisionType type, BlockReaction reaction, XrayRevealVisualBlocks visual) in entries)
         {
-            XrayRevealDefinition? retail = XrayRevealTable.Find(type, behavior);
+            XrayRevealDefinition? retail = XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction));
             if (retail is not { } definition || !IsDrawable(definition.Command))
                 throw new InvalidDataException(
-                    $"X-ray visual {type}/behaviour {behavior} has no drawable reveal rule.");
-            int index = Index(type, behavior);
-            if (blocks[index] is not null)
-                throw new InvalidDataException(
-                    $"X-ray visual {type}/behaviour {behavior} appears more than once.");
+                    $"X-ray visual {type}/reaction {reaction} has no drawable reveal rule.");
             ValidateBlocks(visual);
-            blocks[index] = visual;
+            if (!blocks.TryAdd(new XrayRevealVisualKey(type, reaction), visual))
+                throw new InvalidDataException(
+                    $"X-ray visual {type}/reaction {reaction} appears more than once.");
         }
 
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        for (int value = 0; value < BehaviorValueCount; value++)
+        foreach (BlockReaction reaction in BlockReaction.All)
         {
-            var behavior = new RoomBlockBehavior(value);
-            bool drawable = XrayRevealTable.Find(type, behavior) is { } definition &&
+            bool drawable = XrayRevealTable.Find(type, RoomBlockBehavior.Reacting(reaction)) is { } definition &&
                 IsDrawable(definition.Command);
-            if (drawable != (blocks[Index(type, behavior)] is not null))
+            if (drawable != blocks.ContainsKey(new XrayRevealVisualKey(type, reaction)))
                 throw new InvalidDataException(
-                    $"X-ray visual catalog does not cover reveal rule {type}/behaviour {behavior}.");
+                    $"X-ray visual catalog does not cover reveal rule {type}/reaction {reaction}.");
         }
     }
 
@@ -91,7 +65,7 @@ public sealed class InstalledXrayReveals
     {
         if (XrayRevealTable.Find(type, behavior) is not { } retail) return null;
         if (!IsDrawable(retail.Command)) return retail;
-        XrayRevealVisualBlocks visual = blocks[Index(type, behavior)] ??
+        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.Reaction), out XrayRevealVisualBlocks visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");
         return retail with
         {

@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The solid spike-block BTS values with a damaging reaction.</summary>
+/// <summary>The solid spikes with a damaging reaction (<see cref="SpikeHazardDefinitions.DamagingSpikeBlocks"/>).</summary>
 public enum SpikeBlockBehavior
 {
-    /// <summary>Spike-block BTS zero selects the conditional 60-energy reaction.</summary>
-    Heavy = 0,
+    /// <summary>The conditional 60-energy reaction.</summary>
+    Heavy,
 
-    /// <summary>Spike-block BTS one selects the 16-energy reaction.</summary>
-    Light = 1,
+    /// <summary>The 16-energy reaction.</summary>
+    Light,
 
-    /// <summary>Spike-block BTS three selects the alternate 16-energy reaction.</summary>
-    AlternateLight = 3,
+    /// <summary>The alternate 16-energy reaction.</summary>
+    AlternateLight,
 }

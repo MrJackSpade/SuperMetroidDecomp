@@ -10,7 +10,7 @@ public static class EnemyBreakableTerrain
     /// <exception cref="InvalidDataException">The behavior's reaction index lies past the sixteen-entry reaction table.</exception>
     public static bool IsEnemyBreakable(RoomBlockBehavior behavior)
     {
-        int index = behavior.EnemySpikeReactionIndex;
+        int index = behavior.Reaction.Entry;
         if (index >= ReactionCount)
         {
             throw new InvalidDataException(

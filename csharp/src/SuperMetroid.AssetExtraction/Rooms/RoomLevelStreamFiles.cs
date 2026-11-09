@@ -152,7 +152,7 @@ public static class RoomLevelStreamFiles
             for (int index = 0; index < level.Foreground.Length; index++)
             {
                 WriteTerrain(writer, level.Foreground[index]);
-                writer.Write(checked((byte)level.Behaviors[index].Value));
+                writer.Write(checked((byte)RoomBlockBehaviorCodec.Encode(level.Behaviors[index])));
             }
             foreach (RoomBlockAppearance appearance in level.Background)
                 WriteAppearance(writer, appearance);
@@ -194,7 +194,7 @@ public static class RoomLevelStreamFiles
             for (int index = 0; index < blocks; index++)
             {
                 foreground.Add(ReadTerrain(reader, kinds));
-                behaviors.Add(new RoomBlockBehavior(reader.ReadByte()));
+                behaviors.Add(RoomBlockBehaviorCodec.Decode(reader.ReadByte()));
             }
             var background = ImmutableArray.CreateBuilder<RoomBlockAppearance>(blocks);
             for (int index = 0; index < blocks; index++)

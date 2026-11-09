@@ -21,8 +21,8 @@ internal static class WreckedShipTreadmillBlockDefinitions
     public static readonly RoomTerrainBlock ActiveTreadmillBlock = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SpecialAir);
 
     /// <summary>The block behaviour that carries Samus rightwards.</summary>
-    public static readonly RoomBlockBehavior RightwardsBehavior = new(8);
+    public static readonly RoomBlockBehavior RightwardsBehavior = RoomBlockBehavior.Reacting(BlockReaction.Common(8));
 
     /// <summary>The block behaviour that carries Samus leftwards.</summary>
-    public static readonly RoomBlockBehavior LeftwardsBehavior = new(9);
+    public static readonly RoomBlockBehavior LeftwardsBehavior = RoomBlockBehavior.Reacting(BlockReaction.Common(9));
 }

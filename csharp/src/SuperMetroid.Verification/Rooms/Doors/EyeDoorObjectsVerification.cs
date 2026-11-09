@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
@@ -156,7 +157,7 @@ internal static class EyeDoorObjectsVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock).CollisionType,
             $"{orientation} eye setup installs collision type C");
-        AssertEqual(0x44, level.GetCollisionBlockByIndex(eyeBlock).Behavior.Value,
+        AssertEqual(0x44, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlockByIndex(eyeBlock).Behavior),
             $"{orientation} eye setup installs BTS 44");
         AssertEqual((int)RoomCollisionType.SpikeBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock + roomWidth * 2).CollisionType,
@@ -220,9 +221,9 @@ internal static class EyeDoorObjectsVerification
             $"{orientation} opening produces ordinary blue-door cap type");
         AssertEqual(
             orientation == EyeDoorOrientation.Right
-                ? RoomBlockBehaviorValues.BlueDoorFacingRight.Value
-                : RoomBlockBehaviorValues.BlueDoorFacingLeft.Value,
-            cap.Behavior.Value,
+                ? RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)).Value
+                : RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)).Value,
+            RoomBlockBehaviorCodec.Encode(cap.Behavior),
             $"{orientation} opening produces correct blue-door BTS");
         for (int row = 1; row <= EyeDoorDefinitions.BlueDoorExtensionCount; row++)
         {
@@ -231,7 +232,7 @@ internal static class EyeDoorObjectsVerification
             AssertEqual((int)RoomCollisionType.VerticalExtension,
                 (int)extension.CollisionType,
                 $"{orientation} blue-door extension row {row} type");
-            AssertEqual(unchecked((byte)-row), extension.Behavior.Value,
+            AssertEqual(unchecked((byte)-row), RoomBlockBehaviorCodec.Encode(extension.Behavior),
                 $"{orientation} blue-door extension row {row} BTS");
         }
     }

@@ -68,7 +68,7 @@ public static class XrayRevealVisualFiles
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             XrayRevealDefinition? native = ReadNative(bus, type, value);
-            if (native != XrayRevealTable.Find(type, new RoomBlockBehavior(value)))
+            if (native != XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(value)))
                 throw new InvalidDataException(
                     $"Compiled X-ray rule {type}/behaviour ${value:X2} differs from the cartridge.");
             if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Command))
@@ -138,7 +138,7 @@ public static class XrayRevealVisualFiles
         {
             var visual = new XrayRevealVisualBlocks(entry.TopLeft, entry.TopRight, entry.BottomLeft, entry.BottomRight);
             foreach (int value in entry.BehaviorValues)
-                mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, new RoomBlockBehavior(value), visual));
+                mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, RoomBlockBehaviorCodec.Decode(value).Reaction, visual));
         }
         var overlays = new InstalledXrayOverlays(document.TankMetatiles,
             document.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
@@ -170,7 +170,7 @@ public static class XrayRevealVisualFiles
             if (entry is null || entry.BehaviorValues is null || entry.BehaviorValues.Length == 0 ||
                 entry.BehaviorValues.Any(value => value is < 0 or > byte.MaxValue))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid behaviour group.");
-            if (XrayRevealTable.Find(entry.CollisionType, new RoomBlockBehavior(entry.BehaviorValues[0])) is not { } rule ||
+            if (XrayRevealTable.Find(entry.CollisionType, RoomBlockBehaviorCodec.Decode(entry.BehaviorValues[0])) is not { } rule ||
                 !InstalledXrayReveals.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             XrayRevealCommand command = rule.Command;

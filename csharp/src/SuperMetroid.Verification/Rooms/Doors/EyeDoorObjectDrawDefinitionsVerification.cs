@@ -164,9 +164,9 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         AssertEqual(RoomCollisionType.ShootableBlock, cap.CollisionType,
             $"{orientation} retail eye opening constructs the blue cap");
         AssertEqual(orientation == EyeDoorOrientation.Left
-                ? RoomBlockBehaviorValues.BlueDoorFacingLeft.Value
-                : RoomBlockBehaviorValues.BlueDoorFacingRight.Value,
-            cap.Behavior.Value,
+                ? RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)).Value
+                : RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)).Value,
+            RoomBlockBehaviorCodec.Encode(cap.Behavior),
             $"{orientation} retail eye opening selects the blue-cap orientation");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} retail eye-door lifecycle avoids instruction and draw ROM reads");

@@ -1072,7 +1072,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         const int height = IntroMotherBrainCollisionDefinitions.RoomRows;
         RoomTerrainBlock[] foreground = IntroMotherBrainCollision.CreateForeground();
         var behavior = new RoomBlockBehavior[width * height];
-        behavior.AsSpan().Fill(RoomBlockBehaviorValues.None);
+        behavior.AsSpan().Fill(RoomBlockBehavior.None);
 
         // The background plane is irrelevant to collision in this visual room; it exists
         // only to satisfy the shared RoomLevelData ownership contract.

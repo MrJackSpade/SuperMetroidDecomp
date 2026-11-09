@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -46,7 +47,7 @@ internal static class ScrollObjectsVerification
         int origin = level.GetBlockIndex(new(3, 3));
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), level.GetCollisionBlockByIndex(origin).Terrain,
             "scroll trigger setup installs special air");
-        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger, level.GetCollisionBlockByIndex(origin).Behavior,
+        AssertEqual(RoomBlockBehavior.Reacting(BlockReactionDefinitions.ScrollTrigger), level.GetCollisionBlockByIndex(origin).Behavior,
             "scroll trigger setup installs the scroll-trigger behaviour");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.HorizontalExtension), level.GetCollisionBlock(new(4, 3)).Terrain,
             "right extension setup installs a horizontal extension");
@@ -62,7 +63,7 @@ internal static class ScrollObjectsVerification
             "down extension points one row up");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(3, 2)).Terrain,
             "up extension setup installs a vertical extension");
-        AssertEqual(0x01, level.GetCollisionBlock(new(3, 2)).Behavior.Value,
+        AssertEqual(0x01, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(3, 2)).Behavior),
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(

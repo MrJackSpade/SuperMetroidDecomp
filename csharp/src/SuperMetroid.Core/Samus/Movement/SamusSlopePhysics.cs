@@ -29,10 +29,10 @@ public static class SamusSlopePhysics
 
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
         // the routine's complete early-return condition, not a host-side policy choice.
-        if (behavior.SlopeFlipsVertically || !verticalSpeed.IsZero)
+        if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
-        int multiplier = SlopeSpeeds.HorizontalMultiplier(behavior.SlopeShape);
+        int multiplier = SlopeSpeeds.HorizontalMultiplier(behavior.Slope.Shape);
 
         // The lowest eight fractional bits are discarded before scaling, rounding toward negative
         // infinity, so a leftward displacement scales by the same rule as a rightward one.
@@ -47,10 +47,10 @@ public static class SamusSlopePhysics
 
         // the behaviour's horizontal-flip bit mirrors the profile horizontally. XORing the complete coordinate by
         // 15 is equivalent to flipping its low nibble while retaining sixteen-bit word math.
-        int sampledX = behavior.SlopeFlipsHorizontally
+        int sampledX = behavior.Slope.FlipsHorizontally
             ? CoordinateAxis.Wrap(xPosition ^ 15)
             : xPosition;
-        return SlopeHeights.Read(behavior.SlopeShape, sampledX & 15);
+        return SlopeHeights.Read(behavior.Slope.Shape, sampledX & 15);
     }
 
     /// <summary>
@@ -82,9 +82,9 @@ public static class SamusSlopePhysics
         int bottomPosition = CoordinateAxis.Wrap(yPosition + yRadius - 1);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
-            bottom.Behavior.IsNonSquareSlope)
+            bottom.Behavior.Slope.IsNonSquare)
         {
-            if (!bottom.Behavior.SlopeFlipsVertically)
+            if (!bottom.Behavior.Slope.FlipsVertically)
             {
                 int height = ReadAlignmentHeight(bottom.Behavior, xPosition);
                 int bottomNibble = bottomPosition & 15;
@@ -102,9 +102,9 @@ public static class SamusSlopePhysics
         int topPosition = CoordinateAxis.Wrap(yPosition - yRadius);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&
-            top.Behavior.IsNonSquareSlope)
+            top.Behavior.Slope.IsNonSquare)
         {
-            if (top.Behavior.SlopeFlipsVertically)
+            if (top.Behavior.Slope.FlipsVertically)
             {
                 int height = ReadAlignmentHeight(top.Behavior, xPosition);
                 int invertedTopNibble = (topPosition & 15) ^ 15;

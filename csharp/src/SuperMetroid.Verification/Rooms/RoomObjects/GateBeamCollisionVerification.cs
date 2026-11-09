@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
@@ -66,7 +67,7 @@ internal static class GateBeamCollisionVerification
             int first = horizontal ? 33 : 18;
             int second = horizontal ? 49 : 19;
             words[first] = words[second] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock);
-            bts[first] = bts[second] = new RoomBlockBehavior(0x10);
+            bts[first] = bts[second] = RoomBlockBehaviorCodec.Decode(0x10);
             var level = CreateRoom(new(16, 16), words, bts);
             var roomObjects = RoomObjectFixtures.Unbound();
             if (full)

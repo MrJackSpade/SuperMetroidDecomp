@@ -95,7 +95,7 @@ public sealed class LoadedRoomAssets
         return new RoomLevelData(level.Size,
             new RoomLevelPlanes(level.Foreground.AsSpan(), level.Behaviors.AsSpan(), level.Background.AsSpan()),
             new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.Following, level.BeyondCount,
-                RoomTerrainBlocks.EdgeSolid, RoomBlockBehaviorValues.None),
+                RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None),
             header.Doors, visualLayout);
     }
 

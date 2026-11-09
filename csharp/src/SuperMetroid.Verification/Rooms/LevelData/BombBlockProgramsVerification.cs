@@ -195,8 +195,8 @@ internal static class BombBlockProgramsVerification
                     AssertEqual(native.Level.GetCollisionBlockByIndex(block).Terrain,
                         compiled.Level.GetCollisionBlockByIndex(block).Terrain,
                         $"bomb BTS {behavior}/{producer} block {block}, frame {frame}");
-                    AssertEqual(native.Level.GetCollisionBlockByIndex(block).Behavior.Value,
-                        compiled.Level.GetCollisionBlockByIndex(block).Behavior.Value,
+                    AssertEqual(RoomBlockBehaviorCodec.Encode(native.Level.GetCollisionBlockByIndex(block).Behavior),
+                        RoomBlockBehaviorCodec.Encode(compiled.Level.GetCollisionBlockByIndex(block).Behavior),
                         $"bomb BTS {behavior}/{producer} BTS {block}, frame {frame}");
                 }
             }
@@ -294,7 +294,7 @@ internal static class BombBlockProgramsVerification
         var words = new RoomTerrainBlock[width * width];
         words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
         var bts = new RoomBlockBehavior[words.Length];
-        bts[blockIndex] = new RoomBlockBehavior(behavior);
+        bts[blockIndex] = RoomBlockBehaviorCodec.Decode(behavior);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, bts, new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
         var roomObjects = RoomObjectFixtures.Unbound();
         bool spawned = producer switch

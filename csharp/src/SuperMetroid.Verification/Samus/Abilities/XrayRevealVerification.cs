@@ -19,17 +19,17 @@ internal static class XrayRevealVerification
         {
             XrayRevealDefinition? expected = ReadNativeXrayRevealDefinition(
                 bus, type, unchecked((byte)bts));
-            XrayRevealDefinition? found = XrayRevealTable.Find(type, new RoomBlockBehavior(bts));
+            XrayRevealDefinition? found = XrayRevealTable.Find(type, RoomBlockBehaviorCodec.Decode(bts));
             AssertEqual(expected, found, $"retail reveal definition {type}/BTS {bts:X2}");
             if (found is { } command) { matches++; commands.Add(command.Command); }
         }
         AssertEqual(817, matches, "retail reveal lookup matches all wildcard and explicit entries");
         AssertEqual(7, commands.Count, "all seven reveal commands are decoded");
         AssertEqual(new XrayRevealDefinition(XrayRevealCommand.CopyTall, 0x98, 0, 0xb8, 0),
-            (XrayRevealTable.Find(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(2)) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2).")),
+            (XrayRevealTable.Find(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(2)) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 2).")),
             "tall shot-block reveal advances to a distinct lower operand at $91:CF67");
         AssertEqual(new XrayRevealDefinition(XrayRevealCommand.CopySquare, 0x99, 0x9a, 0xb9, 0xba),
-            (XrayRevealTable.Find(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(3)) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 3).")),
+            (XrayRevealTable.Find(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(3)) ?? throw new InvalidOperationException("Verification requires XrayRevealTable.Find(RoomCollisionType.ShootableBlock, 3).")),
             "square shot-block reveal preserves all four row-major metatiles");
         Console.WriteLine("  X-ray reveal tables: all 4096 type/BTS definitions and operands match the cartridge; production lookup is ROM-independent.");
     }

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Frozen;
-using SuperMetroid.Core.Fx.PaletteFx;
 
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;

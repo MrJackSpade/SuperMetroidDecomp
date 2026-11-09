@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;

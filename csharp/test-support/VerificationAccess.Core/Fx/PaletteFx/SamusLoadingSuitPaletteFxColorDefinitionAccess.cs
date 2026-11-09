@@ -1,10 +1,10 @@
 ﻿using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>Verification access to <see cref="SamusLoadingSuitPaletteFxColorDefinition"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition"/> members production does not use.</summary>
 internal static class SamusLoadingSuitPaletteFxColorDefinitionAccess
 {
-    /// <summary>Exposes <see cref="SamusLoadingSuitPaletteFxColorDefinition"/> state that only verification reads.</summary>
+    /// <summary>Exposes <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.SamusLoadingSuitPaletteFxColorDefinition"/> state that only verification reads.</summary>
     extension(SamusLoadingSuitPaletteFxColorDefinition self)
     {
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>

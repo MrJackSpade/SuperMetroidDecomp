@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
@@ -29,21 +28,10 @@ public sealed record BossSourceArtwork
     public CrocomireColorCatalog? CrocomireColors { get; init; }
 
     /// <summary>
-    /// Kraid's installed colours, which the import pre-colours his sheets and room in (#1512); setting them also sets the
-    /// eye colours gameplay reads back (<see cref="KraidEyes"/>). Null only for constructed fixtures.
+    /// Kraid's installed colours, which the import pre-colours his sheets and room in (#1512), and from which the game's
+    /// eye colours are read (<see cref="KraidColorCatalog.Eyes"/>). Null only for constructed fixtures.
     /// </summary>
-    public KraidColorCatalog? KraidColors
-    {
-        get;
-        init
-        {
-            field = value;
-            KraidEyes = value?.Eyes();
-        }
-    }
-
-    /// <summary>Kraid's installed eye colours, which the game binds for his eye glow (#1512); null only for constructed fixtures.</summary>
-    public KraidEyeColours? KraidEyes { get; private init; }
+    public KraidColorCatalog? KraidColors { get; init; }
 
     /// <summary>Editable Mother Brain death-fade colours, which the import pre-colours her sheets in (#1512).</summary>
     public MotherBrainDeathColorCatalog? MotherBrainDeathColors { get; init; }

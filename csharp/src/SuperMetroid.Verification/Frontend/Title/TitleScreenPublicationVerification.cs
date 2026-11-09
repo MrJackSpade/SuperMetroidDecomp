@@ -8,7 +8,6 @@ using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Frontend.Title;

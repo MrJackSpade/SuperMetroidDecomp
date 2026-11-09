@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;

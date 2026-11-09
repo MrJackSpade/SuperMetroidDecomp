@@ -4,7 +4,6 @@ using System.Collections;
 using System.Reflection;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Fx;

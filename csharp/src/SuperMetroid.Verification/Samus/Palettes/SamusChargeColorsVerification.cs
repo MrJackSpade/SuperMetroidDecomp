@@ -12,7 +12,6 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;

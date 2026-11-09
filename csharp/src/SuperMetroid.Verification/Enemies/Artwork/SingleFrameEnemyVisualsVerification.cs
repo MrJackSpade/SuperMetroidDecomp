@@ -3,17 +3,12 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.Core.World;
-using SuperMetroid.AssetExtraction.Rooms.Artwork;
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 

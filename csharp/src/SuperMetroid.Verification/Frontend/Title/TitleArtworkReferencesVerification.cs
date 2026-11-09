@@ -25,7 +25,10 @@ internal static class TitleArtworkReferencesVerification
             Version = TitleGraphicsFormat.Version,
             Width = TitleGraphicsFormat.MapWidth,
             Height = TitleGraphicsFormat.MapHeight,
-            Tiles = new int[TitleGraphicsFormat.MapWidth * TitleGraphicsFormat.MapHeight],
+            // The installed floor map, so the title's floor composes its Baby Metroid cells; the check varies only the
+            // sprite selectors (#1583).
+            Tiles = [.. SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.TitleGraphicsOf(
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps).FloorMap.ToArray().Select(tile => (int)tile)],
             Sprites = frames,
         };
         byte[] mode7 = Png(TitleGraphicsFormat.FloorWidth, TitleGraphicsFormat.FloorHeight, 256);

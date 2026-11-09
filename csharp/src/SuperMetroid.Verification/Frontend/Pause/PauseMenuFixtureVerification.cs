@@ -17,7 +17,6 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Builds a constructed pause presentation from retail source data and isolated fixture visuals.</summary>
@@ -116,6 +115,6 @@ internal static class PauseMenuFixtureVerification
             new ImportPresentationColours(ImportAreaMapPresentation.SamusColoursOf(stock), ImportAreaMapPresentation.TitlePaletteOf(stock),
                 palettes, ImportAreaMapPresentation.CeresRidleyColorsOf(stock), ImportAreaMapPresentation.CeresRidleyFloorColorsOf(stock),
                 ImportAreaMapPresentation.MotherBrainHealthPaletteOf(stock), ImportAreaMapPresentation.MotherBrainRoomColorsOf(stock),
-                ImportAreaMapPresentation.RoomFxPaletteBlendsOf(stock)));
+                ImportAreaMapPresentation.RoomFxPaletteBlendsOf(stock), ImportAreaMapPresentation.RoomPaletteFxOf(stock)));
     }
 }

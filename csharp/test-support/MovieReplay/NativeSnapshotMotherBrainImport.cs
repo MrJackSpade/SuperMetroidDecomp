@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.TestSupport.MovieReplay;
 

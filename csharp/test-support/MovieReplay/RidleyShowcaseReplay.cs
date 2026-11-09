@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using System.Security.Cryptography;

@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerifi
 using static SuperMetroid.Verification.Bosses.Kraid.KraidHeadInstructionsVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;

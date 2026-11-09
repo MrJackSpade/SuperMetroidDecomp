@@ -1,7 +1,7 @@
 ﻿using SuperMetroid.Core.Areas.Tourian;
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>Development-tool members of <see cref="TourianStatueGreyPaletteFxColorDefinitions"/>; never linked by player hosts.</summary>
+/// <summary>Development-tool members of <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.TourianStatueGreyPaletteFxColorDefinitions"/>; never linked by player hosts.</summary>
 internal static class TourianStatueGreyPaletteFxColorToolingDefinitions
 {
     /// <summary>The Draygon, Kraid, Ridley, and Phantoon entries in cartridge order.</summary>

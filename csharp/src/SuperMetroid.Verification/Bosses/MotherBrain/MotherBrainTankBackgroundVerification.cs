@@ -1,8 +1,6 @@
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainAscentCaptureVerification;

@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.VerificationOracles;

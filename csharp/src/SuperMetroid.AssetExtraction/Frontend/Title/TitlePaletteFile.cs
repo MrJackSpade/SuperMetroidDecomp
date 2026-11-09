@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;

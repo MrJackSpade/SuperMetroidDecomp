@@ -28,7 +28,7 @@ internal static class RoomEnemySystemArtworkAccess
         /// </summary>
         internal BossSourceArtwork? BossArtwork
         {
-            set => self.BossArtworkBinding.KraidEyes = value?.KraidEyes;
+            set => self.BossArtworkBinding.KraidEyes = value?.KraidColors?.Eyes();
         }
     }
 }

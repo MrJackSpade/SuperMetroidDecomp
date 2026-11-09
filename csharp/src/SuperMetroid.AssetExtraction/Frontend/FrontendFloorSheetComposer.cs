@@ -9,7 +9,6 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -18,7 +17,6 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend;

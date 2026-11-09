@@ -23,7 +23,6 @@ namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
-using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Checks that enemy OAM and projectile sprite owners use installed artwork after cartridge readers are removed.</summary>

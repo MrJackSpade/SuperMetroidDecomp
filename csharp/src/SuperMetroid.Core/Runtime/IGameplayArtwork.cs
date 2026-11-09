@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Assets;

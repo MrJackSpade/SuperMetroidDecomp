@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVer
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Video;

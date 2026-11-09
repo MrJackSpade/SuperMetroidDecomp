@@ -12,7 +12,6 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

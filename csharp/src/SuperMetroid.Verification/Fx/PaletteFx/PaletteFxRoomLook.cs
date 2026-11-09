@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Fx.Artwork;

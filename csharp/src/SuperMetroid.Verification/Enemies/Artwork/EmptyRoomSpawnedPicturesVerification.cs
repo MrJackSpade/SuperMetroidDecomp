@@ -27,7 +27,7 @@ internal static class EmptyRoomSpawnedPicturesVerification
             "a room that loads no set draws under the session-start set");
         var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads, new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint())
         {
-            TileArtwork = InstalledFixtures.EnemyTiles,
+            FrameDisplays = InstalledFixtures.EnemyTiles.ExtendedFrames?.Displays,
             Sheets = InstalledFixtures.EnemySheets,
         };
         var presentation = new EnemyPresentation(new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null), graphics);

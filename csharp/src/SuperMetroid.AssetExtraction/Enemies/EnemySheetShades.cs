@@ -19,7 +19,6 @@ using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Progression;

@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Hud;

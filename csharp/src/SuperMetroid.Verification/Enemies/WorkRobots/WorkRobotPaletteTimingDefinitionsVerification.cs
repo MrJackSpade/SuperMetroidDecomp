@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;

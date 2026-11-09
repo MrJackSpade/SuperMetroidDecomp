@@ -19,7 +19,8 @@ internal static class EnemyContentIdentityVerification
         string baseline = stock.ContentIdentity;
         AssertEqual(baseline, new EnemyIdentityFixture(reverse: true).Build().ContentIdentity,
             "enemy identity canonicalizes dictionary insertion order");
-        foreach (string edit in fixture.Edits)
+        // Each edit builds its own bundle from the shared unedited components, so the edits are independent and run at once.
+        Parallel.ForEach(fixture.Edits, edit =>
         {
             string changed = new EnemyIdentityFixture(edit).Build().ContentIdentity;
             AssertTrue(changed != baseline, edit + " changes the complete selected enemy bundle");
@@ -28,7 +29,7 @@ internal static class EnemyContentIdentityVerification
             AssertTrue(EnemyIdentity(baseline).GetCompatibilityWarnings(EnemyIdentity(changed).ToSnapshot(), "test")
                 .Any(warning => warning.Contains(GameInstallationLayout.EnemyTileDirectoryName, StringComparison.Ordinal)),
                 edit + " names enemy content in state/replay compatibility warnings");
-        }
+        });
         foreach (string edit in new[] { "json-indent", "png-colors" })
             AssertEqual(baseline, new EnemyIdentityFixture(edit).Build().ContentIdentity,
                 edit + " preserves decoded enemy presentation identity");
@@ -42,9 +43,11 @@ internal static class EnemyContentIdentityVerification
         AssertEqual(36, childTypes.Length, "all enemy bundle subdomains are accounted for");
         foreach (Type type in childTypes.Concat(catalogs).Append(typeof(EnemyPaletteSheet)))
         {
-            // The game's catalogs carry no identity; the import pipeline identifies them (#1502).
-            AssertTrue(MetadataShape.DeclaresProperty(type, "ContentIdentity") == (type.Assembly == typeof(EnemyTileSourceArtwork).Assembly),
-                type.Name + " exposes typed selected content identity only on the import side");
+            // The game's catalogs carry no identity; the import pipeline identifies them (#1502). The import side's
+            // identities may be extension members (ActorColourContentIdentity), which the enemy bundle's identity reads, so
+            // the compiler already requires each; reflection checks only that no game-side catalog declares one (#1583).
+            if (type.Assembly != typeof(EnemyTileSourceArtwork).Assembly)
+                AssertTrue(!MetadataShape.DeclaresProperty(type, "ContentIdentity"), type.Name + " is a game catalog and carries no content identity");
             AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic),
                 type.Name + " adds no persisted derived-identity field");
         }

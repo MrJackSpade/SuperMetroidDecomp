@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Fx.PaletteFx;
 
-/// <summary>Cartridge values and helpers of <see cref="PaletteFxHeatProgramDefinition"/> that only verification reads.</summary>
+/// <summary>Cartridge values and helpers of <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxHeatProgramDefinition"/> that only verification reads.</summary>
 internal static class PaletteFxHeatProgramDefinitionConstants
 {
     /// <summary>Calculated duration for one of the sixteen native phases.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Fx.Artwork.CrateriaLightningColorDefinitions;
 

@@ -13,7 +13,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 

@@ -24,7 +24,7 @@ internal static class AttractRuntimeBindingsVerification
             BossAndIntroOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossAndIntroOverreads,
             EnemyOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyOverreads,
             EnemyFrameDisplays = (enemyArtwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("The fixture authors extended frames.")).Displays,
-            EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, KraidEyes = enemyArtwork.Bosses.KraidEyes, 
+            EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, KraidEyes = enemyArtwork.Bosses.KraidColors?.Eyes(), 
         });
         int incomingRandom = game.DispatcherRandomNumber;
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);

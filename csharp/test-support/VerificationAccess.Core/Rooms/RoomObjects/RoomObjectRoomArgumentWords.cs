@@ -98,7 +98,7 @@ internal static class RoomObjectRoomArgumentWords
             DoorBitArgument door => checked((ushort)(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door.Door) | (door.Persists ? 0 : NeverPersists))),
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (grey.ConditionIndex << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
-            SpentDoorArgument spent => SpentWord(spent),
+            SpentDoorArgument => SpentMark,
             StationArgument station => checked((ushort)station.Station),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),
@@ -111,26 +111,10 @@ internal static class RoomObjectRoomArgumentWords
     }
 
     /// <summary>
-    /// The word a spent cap holds: never-persists, and a bit for each door open at the opening among the sixteen doors
-    /// numbered from the first of the spent door's group of eight.
+    /// The part of a spent cap's word the port keeps: its never-persists mark. The cartridge also leaves the bits of the
+    /// doors open around it at the opening, which nothing reads afterwards, so a comparison checks only this mark.
     /// </summary>
-    private static ushort SpentWord(SpentDoorArgument spent)
-    {
-        int firstDoor = SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(spent.Door) / SpentWindowGroupDoorCount * SpentWindowGroupDoorCount;
-        int window = 0;
-        foreach (int number in spent.OpenedDoors.Select(door => SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door)))
-        {
-            if (number >= firstDoor && number < firstDoor + SpentWindowDoorCount)
-                window |= 1 << (number - firstDoor);
-        }
-        return unchecked((ushort)(NeverPersists | window));
-    }
-
-    /// <summary>The doors a spent cap's window covers.</summary>
-    private const int SpentWindowDoorCount = 16;
-
-    /// <summary>The doors of each group a spent cap's window starts at the first of.</summary>
-    private const int SpentWindowGroupDoorCount = 8;
+    internal const ushort SpentMark = NeverPersists;
 
     /// <summary>The native room-argument word of a live slot.</summary>
     extension(RoomObjectSlot slot)

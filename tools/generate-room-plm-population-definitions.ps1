@@ -87,7 +87,7 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
     $lines.Add('')
     $lines.Add('/// <summary>')
     $lines.Add('/// The retail room PLM populations, each named for its room state. Each holds its placements')
-    $lines.Add('/// in native order: PLM header, block X and Y, and the room argument decoded into what the PLM reads; regenerate with')
+    $lines.Add('/// in authored order: PLM header, block X and Y, and the room argument decoded into what the PLM reads; regenerate with')
     $lines.Add('/// tools/generate-room-plm-population-definitions.ps1.')
     $lines.Add('/// </summary>')
     $lines.Add('internal static class RoomObjectPopulationDefinitions')
@@ -140,7 +140,7 @@ public static class RoomObjectHeaderGenerationProcessPolicy {
                 if (-not $draygonCannonControls.ContainsKey($argument)) {
                     throw ('Draygon cannon argument {0:X4} names no control word.' -f $argument)
                 }
-                $argumentText = 'null, DraygonCannonControlWord.{0}' -f $draygonCannonControls[$argument]
+                $argumentText = 'null, DraygonWallCannon.{0}' -f $draygonCannonControls[$argument]
             }
             else {
                 $argumentText = Format-RoomArgument $headerNames[$header] $argument

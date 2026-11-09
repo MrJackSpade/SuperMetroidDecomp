@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="LoopTimer">The PLM program's loop counter.</param>
 /// <param name="ProjectileHit">The projectile hit the PLM recorded, if any.</param>
 /// <param name="Animation">The PLM's running animation, if any.</param>
+/// <param name="SpentCap">Whether the PLM is a door cap opened for good, whose word keeps only its spent mark.</param>
 internal readonly record struct RoomObjectSlotSnapshot(
     int ProcessingPosition,
     RoomObjectHeaderId HeaderPointer,
@@ -22,4 +23,5 @@ internal readonly record struct RoomObjectSlotSnapshot(
     ushort FrameHold,
     ushort LoopTimer,
     ResidentObjectProjectileHit? ProjectileHit,
-    RoomObjectAnimation? Animation);
+    RoomObjectAnimation? Animation,
+    bool SpentCap);

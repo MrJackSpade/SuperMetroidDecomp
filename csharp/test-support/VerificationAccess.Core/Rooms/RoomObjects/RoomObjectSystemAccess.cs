@@ -217,7 +217,8 @@ internal static class RoomObjectSystemAccess
                     FrameHold: checked((ushort)entry.Slot.FrameHold),
                     LoopTimer: entry.Slot.LoopTimer.RawValue,
                     ProjectileHit: entry.Slot.ProjectileHit,
-                    Animation: entry.Slot.Animation)),
+                    Animation: entry.Slot.Animation,
+                    SpentCap: entry.Slot.Argument is SpentDoorArgument)),
         ];
 
         /// <summary>

@@ -179,7 +179,7 @@ internal sealed class DoorObjects : IRoomObjectFamilySource
             // The cap keeps the doors open once it has opened its own, marked spent.
             SharedGameState system = RequireSystem();
             system.OpenDoor(cap.Door);
-            slot.Argument = new SpentDoorArgument(cap.Door, [.. system.Progress.OpenedDoors.Members]);
+            slot.Argument = new SpentDoorArgument(cap.Door);
         }
         slot.FrameBehavior = RoomObjectFrameBehaviors.Inert;
     }

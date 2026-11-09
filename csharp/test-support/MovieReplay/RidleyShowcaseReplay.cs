@@ -636,7 +636,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     {
                         Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.RoomObjectLoopTimer + offset);
                     }
-                    Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.RoomObjectRoomArgument + offset);
+                    // A spent cap's word is compared by its spent mark; the open doors the cartridge leaves beside it are read by nothing.
+                    if (slot.SpentCap)
+                        CheckValue($"PLM {slotIndex} RoomArgument spent mark", slot.RoomArgument,
+                            W(NativeSnapshotMemory.RoomObjectRoomArgument + offset) & RoomObjectRoomArgumentWords.SpentMark);
+                    else
+                        Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.RoomObjectRoomArgument + offset);
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms
                     // one on each pass. Both wake with one, so only a sleeping door's countdown is left uncompared.
                     if (typedDoor.Program != GreyDoorProgram.Sleep)

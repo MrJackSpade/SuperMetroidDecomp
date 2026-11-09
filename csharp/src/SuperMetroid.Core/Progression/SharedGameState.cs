@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Progression;
 public sealed class SharedGameState
 {
     /// <summary>
-    /// The startup route the next save keeps. Ordinary gameplay saves the main game; SpaceTime Beam can overwrite it
+    /// The startup route the next save keeps. Ordinary gameplay saves the main game; the Spacetime Beam can overwrite it
     /// independently of Samus's equipment and checkpoint.
     /// </summary>
     public SaveLoadingGameState SavedStartupRoute { get; private set; } = SaveLoadingGameState.MainGame;
@@ -55,7 +55,7 @@ public sealed class SharedGameState
         SavedStartupRoute = Enum.IsDefined(route) ? route : throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route.");
 
     /// <summary>
-    /// Cumulative item PLM initializations, including repeat visits, 0 through 65,535. The count is saved as one save
+    /// Cumulative item room-object initializations, including repeat visits, 0 through 65,535. The count is saved as one save
     /// field and wraps from 65,535 to zero when an item initializes, a wrap the saved value shows; the setter rejects
     /// anything outside the field's range, so the producer that counts must apply that wrap.
     /// </summary>
@@ -68,7 +68,7 @@ public sealed class SharedGameState
     }
 
     /// <summary>
-    /// Applies SpaceTime's progression overwrite (#1318, #1330, #1474, #1475): every story event, boss, item, door,
+    /// Applies the Spacetime Beam's progression overwrite (#1318, #1330, #1474, #1475): every story event, boss, item, door,
     /// station and map the overwrite decides takes the state it gives, and the saved loading state when the overwrite
     /// reaches it.
     /// </summary>
@@ -103,9 +103,7 @@ public sealed class SharedGameState
     internal void SwapRandomHalves() => Random.SwapHalves();
 
     /// <summary>
-    /// Most recently calculated held input.
-    /// Despite the C decompilation's name <c>joypad_released_keys</c>, the assembly names
-    /// and behavior show that this is the previous value of "held but not newly pressed."
+    /// Most recently calculated held input: the previous value of "held but not newly pressed."
     /// </summary>
     public ControllerButton HeldInputPrevious { get; private set; }
 
@@ -141,8 +139,8 @@ public sealed class SharedGameState
 
     /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator
-    /// does, preserving the two byte-multiply results, high-byte addition carry,
-    /// and final 16-bit wrapping addition. Every caller observes the updated seed.
+    /// does, preserving the two half-by-half products, the carry into the upper half,
+    /// and the final addition wrapping past 65535. Every caller observes the updated seed.
     /// </summary>
     /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="Random"/>.</returns>
     public int NextRandom() => Random.Generate();
@@ -158,12 +156,12 @@ public sealed class SharedGameState
     {
         TimedHeldInputTimerReset = timerReset;
 
-        // TRB in the original clears every newly-pressed bit from the current input.
-        // A fresh press is deliberately not considered "held" until the following frame.
+        // Every newly pressed button is cleared from the current input: a fresh press is deliberately not considered
+        // "held" until the following frame.
         ControllerButton heldInput = controllerInput & ~controllerNewInput;
 
-        // CMP happens before STA, so remember the comparison result before replacing the
-        // previous sample. This ordering is significant when a button changes state.
+        // The comparison happens before the previous sample is replaced, so remember its result first. This ordering is
+        // significant when a button changes state.
         bool heldInputIsUnchanged = heldInput == HeldInputPrevious;
         HeldInputPrevious = heldInput;
 
@@ -176,7 +174,7 @@ public sealed class SharedGameState
         }
         else
         {
-            // The decrement is an unsigned 16-bit wrap, but the branch interprets bit 15 as the sign bit.
+            // The decrement wraps below zero to 65,535, and the test reads 32,768 and above as negative.
             // Therefore zero decrements to 65,535 and takes the activation path.
             CountdownStep timer = TimedHeldInputTimer.Decrement();
             TimedHeldInputTimer = timer.Remaining;

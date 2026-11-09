@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// What SpaceTime's runaway palette copy does to saved progress (#1318, #1330, #1474, #1475): which story events, the
+/// What the Spacetime Beam's runaway palette copy does to saved progress (#1318, #1330, #1474, #1475): which story events, the
 /// Zebetite count (#1527), which area bosses, item locations, doors, used stations and acquired area maps it turns on or off, and the loading
 /// state it leaves the game to resume in. The copy runs through progress in a fixed order (events, bosses, orbs, items,
 /// doors, stations, maps, loading state), so it decides everything before the point where it stops and nothing after.
 /// </summary>
 /// <remarks>
 /// <see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/> yields it and <see cref="SharedGameState"/> applies
-/// it. Evidence: the SpaceTime check replays the recorded Pit Room probe's two alpha passes and matches its corrupted loading
+/// it. Evidence: the Spacetime Beam check replays the recorded Pit Room probe's two alpha passes and matches its corrupted loading
 /// state, and runs the original copy over the game's data for every situation, requiring this overwrite to leave every
 /// event, boss, orb, item, door, station and map as the copy does; the owner kept only the progress part of the
 /// overwrite (#1318).

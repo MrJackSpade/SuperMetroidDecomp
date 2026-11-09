@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>Spawns the PLM that clears or crumbles the Tourian access floor (<see cref="TourianAccessObjectDefinitions"/>).</summary>
+/// <summary>Spawns the room object that clears or crumbles the Tourian access floor (<see cref="TourianAccessObjectDefinitions"/>).</summary>
 internal static class TourianAccessFloors
 {
     /// <summary>Returns the complete spawn identity for the requested floor state.</summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Progression;
 /// <remarks>
 /// Each component is widened to <see cref="int"/> with the save field's domain, 0 through 65,535. Ordinary play keeps
 /// frames, seconds and minutes inside 0..59 and hours inside 0..99, but a loaded save may hold any field value, and the
-/// clock's sixteen-bit wrap of each increment is load-bearing for such a value: 65,535 frames step to 0 without
+/// clock's wrap of each increment past 65,535 is load-bearing for such a value: 65,535 frames step to 0 without
 /// a rollover. <see cref="IncrementWrapping"/> keeps that wrap explicitly.
 /// </remarks>
 public sealed class GameTimeState
@@ -36,7 +36,7 @@ public sealed class GameTimeState
     /// <summary>Advances the four-component clock once: frames, then seconds, minutes and hours, saturating at 99:59:59.59.</summary>
     public void Step()
     {
-        // The comparisons are signed 16-bit, but every component stays inside the save-field range, and the
+        // The comparisons read 32,768 and above as negative, but every component stays inside the save-field range, and the
         // wrapping increment keeps a loaded corrupt value stepping exactly as the original clock does.
         Frames = IncrementWrapping(Frames);
         if (Frames >= UnitsPerNextUnit)
@@ -80,7 +80,7 @@ public sealed class GameTimeState
 
     /// <summary>
     /// One clock-component increment: the next value, wrapping from the save field's largest value, 65,535, to zero as
-    /// the clock's sixteen-bit increment does.
+    /// the clock's increment does.
     /// </summary>
     private static int IncrementWrapping(int component) => component == SaveFieldValue.MaximumValue ? 0 : component + 1;
 }

@@ -36,7 +36,7 @@ public enum SamusBeamCombination
     SpazerPlasma,
     /// <summary>Glitched Spazer, Plasma and Wave (the Chainsaw beam).</summary>
     SpazerPlasmaWave,
-    /// <summary>Glitched Spazer, Plasma and Ice (the SpaceTime beam).</summary>
+    /// <summary>Glitched Spazer, Plasma and Ice (the Spacetime Beam).</summary>
     SpazerPlasmaIce,
     /// <summary>Glitched Spazer, Plasma, Ice and Wave.</summary>
     SpazerPlasmaIceWave,

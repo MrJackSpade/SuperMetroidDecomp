@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Samus's independent beam components and the Charge Beam upgrade, one flag each; they combine freely. The values are
-/// arbitrary and nothing reads them: the save slot and work-memory beam word is the import's SamusEquipmentWordCodec's.
+/// arbitrary and nothing reads them: the saved beam encoding belongs to the import's equipment codec.
 /// </summary>
 [Flags]
 public enum SamusBeamFlags

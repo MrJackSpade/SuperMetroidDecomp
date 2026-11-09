@@ -13,10 +13,10 @@ internal sealed class TourianObjects
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The enemy effects room objects trigger.</summary>
     private readonly IRoomObjectEnemyEffects? _enemies;
-    /// <summary>Forty-slot PLM table scanned from the final slot during hardcoded spawns.</summary>
+    /// <summary>Forty-slot room-object table scanned from the final slot during hardcoded spawns.</summary>
     private readonly RoomObjectSlotTable _slotTable;
 
-    /// <summary>Binds Tourian room callbacks to the active room's services and PLM slots.</summary>
+    /// <summary>Binds Tourian room callbacks to the active room's services and room-object slots.</summary>
     internal TourianObjects(IRoomSamusAccess? samus, IRoomObjectEnemyEffects? enemies, RoomObjectSlotTable slotTable)
     {
         _samus = samus;
@@ -31,14 +31,14 @@ internal sealed class TourianObjects
     {
         Ensure.NotNull(slot);
         slot.Become(new MetroidRoomClearanceObject(MetroidsClearedEvents.ResolveEvent((slot.Argument as MetroidRoomArgument
-            ?? throw new InvalidDataException($"Metroids-cleared PLM at block {slot.BlockIndex} was placed without its entry.")).Entry)));
+            ?? throw new InvalidDataException($"Metroids-cleared room object at block {slot.BlockIndex} was placed without its entry.")).Entry)));
     }
 
     /// <summary>
     /// Runs the room setup that spawns the fake wall at block (16,135), whose setup clears the block's collision before
     /// the wall's first update.
     /// </summary>
-    /// <returns>False only when all 40 PLM slots are occupied.</returns>
+    /// <returns>False only when all 40 room-object slots are occupied.</returns>
     public bool TrySpawnOldTourianEscapeShaftWall(RoomLevelData level)
     {
         Ensure.NotNull(level);

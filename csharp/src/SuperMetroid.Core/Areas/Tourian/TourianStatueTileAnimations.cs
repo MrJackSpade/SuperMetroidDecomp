@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>
 /// The typed programs a Tourian boss statue's animated tiles run.
 /// All four statues share the layout; only the first idle frame's duration differs, and every other operand is read
-/// from the statue's <see cref="TourianStatueAnimatedTileProgramDefinition"/> when a cue runs. The oracle in
-/// <c>LookupTourianProgramVerification</c> matches each statue's programs step by step with its list.
+/// from the statue's <see cref="TourianStatueAnimatedTileProgramDefinition"/> when a cue runs. The Tourian program
+/// lookup check matches each statue's programs step by step with its list.
 /// </summary>
 internal static class TourianStatueTileAnimations
 {

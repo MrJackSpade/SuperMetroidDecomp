@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// The four horizontal crumble frames and six-row clear draw selected by the Tourian access-floor PLMs: rows of four air
+/// The four horizontal crumble frames and six-row clear draw selected by the Tourian access-floor room objects: rows of four air
 /// cells, stacked down from the origin (<see cref="TourianAccessDraws"/>). What each frame shows is its installed picture
 /// (#1557).
 /// </summary>

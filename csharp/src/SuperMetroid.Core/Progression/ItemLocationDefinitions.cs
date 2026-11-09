@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Every item location of the retail room populations, named for the first room-state population that places it and
-/// its item and, where two would share that name, its block. Regenerate with
-/// tools/generate-room-plm-population-definitions.ps1.
+/// its item and, where two would share that name, its block. Regenerate with the room-population definitions generator
+/// under tools.
 /// </summary>
 [NumberedIdentities("Each item location named with its block is one distinct location of its population, told apart by where it stands; no caller indexes them.")]
 public static class ItemLocationDefinitions

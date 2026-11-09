@@ -1040,7 +1040,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
         "  Samus liquids: boundaries, palette probe, ROM tables, gravity, Dash/lava cancellation, grapple, animation, Space Jump, and Gravity Suit agree.");
 }
 
-//// <summary>
+/// <summary>
 /// Checks the particle producers, the particles' animation and drawing, the breath bubble and lava spray waits, sound
 /// publications, and periodic fixed-point damage translated from `$90:8000-$82DB/$8A4C-$8C1E/$A3E5/$E9CE`.
 /// </summary>

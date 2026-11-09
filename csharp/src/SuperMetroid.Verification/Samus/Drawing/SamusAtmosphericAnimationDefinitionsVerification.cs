@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;

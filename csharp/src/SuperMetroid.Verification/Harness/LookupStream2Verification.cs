@@ -176,7 +176,7 @@ internal static class LookupStream2Verification
         for (int color = 0; color < native.Length; color++)
         {
             native[color] = ReadVerificationWord(rom, 0xa899ac + color * 2);
-            AssertEqual(native[color], WreckedShipGhostAppearance.Colour(color), "Calculated ghost channels preserve native target words");
+            AssertEqual(native[color], WreckedShipGhostAppearance.Colours[color], "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
         }
@@ -236,8 +236,6 @@ internal static class LookupStream2Verification
             kagoUsage[color]++;
         }
         AssertTrue(kagoUsage.SequenceEqual(expectedKagoUsage), "Exact native Kago pixel-label usage supports each shared paint role; slot0 is transparent");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.Colour(-1), "Ghost color lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearance.Colour(16), "Ghost color upper bound");
         Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
     }
 

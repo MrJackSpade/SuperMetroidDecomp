@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using static SuperMetroid.Core.Rooms.RoomObjects.DownwardGateObjectDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>How each downward gate draw is described.</summary>
+/// <summary>
+/// How each downward gate draw is described: six vertical five-cell column frames that fill one more shootable row per
+/// step, and four trigger colours on either side. What each frame shows is its installed picture (#1557).
+/// </summary>
 internal static class DownwardGateObjectDraws
 {
     /// <summary>The shape of one of the six column stages or eight trigger draws; a trigger's frame is its color's tile step.</summary>
@@ -35,7 +37,7 @@ internal static class DownwardGateObjectDraws
         return true;
     }
 
-    /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this draw identity.</summary>
+    /// <summary>Decoded column step or colored trigger shape; how each cell collides is calculated from this draw identity.</summary>
     internal readonly record struct Draw(DownwardGatePart Part, [property: IntegerQuantity("gate animation frame index")] int Frame)
     {
         /// <summary>Whether the list writes the gate column.</summary>
@@ -59,17 +61,13 @@ internal static class DownwardGateObjectDraws
             if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return new(!Column && !Right && run == 1 ? -1 : 0, 0);
         }
-        /// <summary>Calculates the stationary/moving top tile, filled shootable rows, or color-specific trigger tile.</summary>
-        internal RoomTerrainBlock BlockAt(int run, int cell)
+        /// <summary>How a cell collides: the shootable column top and filled rows, the solid neighbour, or the shootable trigger.</summary>
+        internal RoomCollisionType CollisionAt(int run, int cell)
         {
             if ((uint)cell >= BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             if (Column)
-                return cell == 0
-                    ? RoomTerrainBlock.Of(Frame is 0 or 5 ? StationaryTopBlock : MovingTopBlock, BlockMirroring.None, RoomCollisionType.ShootableBlock)
-                    : RoomTerrainBlock.Of(BodyBlock, BlockMirroring.None, cell <= Frame ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-            if (run == 0 && cell == 0) return RoomTerrainBlock.Of(NeighbourBlock, BlockMirroring.None, RoomCollisionType.SolidBlock);
-            return RoomTerrainBlock.Of(TriggerFirstBlock - Frame, Right ? BlockMirroring.Horizontal : BlockMirroring.None,
-                RoomCollisionType.ShootableBlock);
+                return cell <= Frame || cell == 0 ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air;
+            return run == 0 && cell == 0 ? RoomCollisionType.SolidBlock : RoomCollisionType.ShootableBlock;
         }
     }
 }

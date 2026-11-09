@@ -290,7 +290,7 @@ internal sealed class RoomObjectBlockDrawing(RoomObjectVisuals visuals) : IRoomO
             RoomObjectFrameImage gatePicture = Installed(DownwardGateVisuals, "downward gate").Image(draw);
             for (int run = 0; run < gate.RunCount; run++)
                 for (int word = 0; word < gate.BlockCount(run); word++)
-                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), gate.BlockAt(run, word).Collision);
+                    DrawImageCell(level, draw, origin, gatePicture, gate.Start(run) + new Offset16<RoomBlocks>(gate.Column ? 0 : word, gate.Column ? word : 0), gate.CollisionAt(run, word));
             return;
         }
         if (MotherBrainEscapeGateDraws.TryDescribe(draw, out var escapeGate))

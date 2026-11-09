@@ -15520,32 +15520,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.WreckedShipGhostFadeColours",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/WreckedShipGhostFadeColours.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Enemies.WreckedShipGhostFadeColours.extension(SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFade)",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/WreckedShipGhostFadeColours.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Enemies.WreckedShipRoomEnemyGraphicsSetDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -46912,51 +46886,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidEyeGlow",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidEyeGlow.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidEyeGlowAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Kraid/KraidEyeGlowAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidEyeGlowAccess.extension(SuperMetroid.Core.Bosses.Kraid.KraidEyeGlow)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Kraid/KraidEyeGlowAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidFootCollision",
       "kind": "static class",
       "scope": "product",
@@ -58470,6 +58399,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.BlockScanCycle",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/BlockScanCycle.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices",
       "kind": "class",
       "scope": "product",
@@ -58931,6 +58873,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.KraidEyeGlow",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KraidEyeGlow.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.KraidMouthHitBound",
       "kind": "static class",
       "scope": "product",
@@ -59385,6 +59340,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.SharedBeamChargeCount",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SharedBeamChargeCount.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SharedEscapeAndDrainCount",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SharedEscapeAndDrainCount.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.SharedFadeStepCount",
       "kind": "class",
       "scope": "product",
@@ -59393,6 +59374,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/SharedFadeStepCount.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SharedHurtFlashCount",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SharedHurtFlashCount.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -59606,6 +59600,58 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestHandshakes\u003CTLibrary, TSound\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestHandshakes.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestHandshakes\u003CTLibrary, TSound\u003E.HandlerStep",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestHandshakes.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestHandshakes\u003CTLibrary, TSound\u003E.Handshake",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestHandshakes.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestHandshakes\u003CTLibrary, TSound\u003E.Phase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestHandshakes.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.SoundRequestPriority",
       "kind": "record struct",
       "scope": "product",
@@ -59698,7 +59744,7 @@
     },
     {
       "type": "SuperMetroid.Core.Compatibility.SuitPickupSparkCarryover",
-      "kind": "static class",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -59707,7 +59753,7 @@
         "csharp/src/SuperMetroid.Core/Compatibility/SuitPickupSparkCarryover.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.TerrainBeyondRoom\u003CTTerrain, TBehavior\u003E",
@@ -59814,6 +59860,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.WaveScanRead",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WaveScanRead.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.WrappingCountdown",
       "kind": "record struct",
       "scope": "product",
@@ -59904,7 +59963,33 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.WrappingCounterConstants",
+      "type": "SuperMetroid.Core.Compatibility.WreckedShipGhostFade",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WreckedShipGhostFade.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WreckedShipGhostFade.Effect",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WreckedShipGhostFade.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WreckedShipGhostFadeAccess",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -59914,10 +59999,39 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Compatibility/WrappingCounterConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Compatibility/WreckedShipGhostFadeAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WreckedShipGhostFadeAccess.extension(SuperMetroid.Core.Compatibility.WreckedShipGhostFade)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/WreckedShipGhostFadeAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WreckedShipGhostFadeStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WreckedShipGhostFadeStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.ZebetiteShotShare",
@@ -84608,19 +84722,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostColourEffect",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostColourEffect.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostEnemyState",
       "kind": "class",
       "scope": "product",
@@ -84647,49 +84748,17 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFade",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFadeShade",
+      "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostFade.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFadeAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/WreckedShip/WreckedShipGhostFadeAccess.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostFadeShade.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFadeAccess.extension(SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFade)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/WreckedShip/WreckedShipGhostFadeAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostFlickerStep",
@@ -121751,19 +121820,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Samus.BlockScanCycle",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/BlockScanCycle.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.CeresRidleyShoveDirection",
       "kind": "enum",
       "scope": "product",
@@ -128737,6 +128793,51 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusCompatibility",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusCompatibility.cs"
+      ],
+      "partial": "none",
+      "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusCompatibilityAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/SamusCompatibilityAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusCompatibilityAccess.extension(SuperMetroid.Core.Samus.SamusState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/SamusCompatibilityAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Samus.SamusControl",
@@ -143368,6 +143469,22 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/RepositoryInstallation.Verification/EnemySessionFixtures.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySheetFixtures",
@@ -165539,14 +165656,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Hardware.NativeByteCounterVerification",
+      "type": "SuperMetroid.Verification.Hardware.NativeWordIncrementVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Hardware/NativeByteCounterVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Hardware/NativeWordIncrementVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -170986,6 +171103,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Samus.Abilities.SuitPickupCarryoverVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Samus/Abilities/SuitPickupCarryoverVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Samus.Abilities.SuitPickupPeriodicDamageVerification",
       "kind": "static class",
       "scope": "test",
@@ -170994,19 +171124,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Samus/Abilities/SuitPickupPeriodicDamageVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Samus.Abilities.SuitPickupSharedScratchVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Samus/Abilities/SuitPickupSharedScratchVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

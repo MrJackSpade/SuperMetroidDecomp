@@ -830,6 +830,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGoldenTorizoAttackChoice), () => VerifyGoldenTorizoAttackChoice()),
         .. SuperMetroid.Verification.Bosses.Torizo.TorizoTransferPicturesVerification.TorizoTransferPicturesSuites(),
         .. SuperMetroid.Verification.Enemies.Artwork.EnemySheetFilesVerification.EnemySheetFilesSuites(),
+        .. SuperMetroid.Verification.Audio.AudioBankTransitionVerification.AudioBankTransitionSuites(),
         new(nameof(VerifyWallProbeBombBlock), () => VerifyWallProbeBombBlock()),
         new(nameof(VerifyPuromiArcPosition), () => VerifyPuromiArcPosition()),
         new(nameof(VerifySpringBallBounce), () => VerifySpringBallBounce()),

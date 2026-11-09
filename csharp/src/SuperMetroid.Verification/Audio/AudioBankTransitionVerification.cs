@@ -44,34 +44,40 @@ internal static class AudioBankTransitionVerification
         }, "an audible unmapped source must still fail loudly");
     }
 
-    /// <summary>Checks that each installed music bank can transition to the captivity track with audible output.</summary>
-    internal static void VerifyAudioBankTransition(string directory)
+    /// <summary>The installed audio catalog, loaded once for every bank's suite.</summary>
+    private static readonly Lazy<ExtractedAudioAssetCatalog> InstalledAudio = new(() => SharedFixtureTiming.Load("Fixture: installed audio catalog",
+        () => ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory)));
+
+    /// <summary>Each installed music bank's transition to the captivity track, a suite of its own.</summary>
+    internal static FullRunSuitesVerification.RegisteredSuite[] AudioBankTransitionSuites() =>
+    [
+        .. AudioAssetCatalogDefinitions.Music.Select(bank =>
+            new FullRunSuitesVerification.RegisteredSuite($"{nameof(VerifyAudioBankTransition)}{bank.Name}", () => VerifyAudioBankTransition(bank))),
+    ];
+
+    /// <summary>Checks that <paramref name="bank"/>'s first song can hand over to the captivity track with audible output.</summary>
+    private static void VerifyAudioBankTransition(AudioUploadAssetDefinition bank)
     {
-        Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
-        var assets = ExtractedAudioAssetCatalog.Load(directory);
-        foreach (var bank in AudioAssetCatalogDefinitions.Music)
-        {
-            var renderer = AudioSessionAccess.CreateSynthesizing(assets);
-            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(null)]);
-            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(bank.DataSet)]);
-            renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
-            for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
-            renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.LastMetroidInCaptivity)]);
-            renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
-            bool audible = false;
-            for (int frame = 0; frame < 600; frame++)
-                audible |= renderer.RenderFrame([]).Any(sample => sample != 0);
-            AssertTrue(audible, $"{bank.Name} -> captivity retains audible playback");
-            Console.WriteLine($"{bank.Name} -> captivity passed.");
-        }
+        var renderer = AudioSessionAccess.CreateSynthesizing(InstalledAudio.Value);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(null)]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(bank.DataSet)]);
+        renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
+        for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
+        renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.LastMetroidInCaptivity)]);
+        renderer.RenderFrame([AudioRequest.ForTrack(MusicTrack.FirstSetSong)]);
+        bool audible = false;
+        for (int frame = 0; frame < 600; frame++)
+            audible |= renderer.RenderFrame([]).Any(sample => sample != 0);
+        AssertTrue(audible, $"{bank.Name} -> captivity retains audible playback");
+        Console.WriteLine($"{bank.Name} -> captivity passed.");
     }
 
-    /// <summary>Runs the DSP release and installed music-bank transition checks.</summary>
+    /// <summary>Runs every installed music bank's transition check, one suite per bank.</summary>
     [VerificationCommand("--audio-bank-transition")]
     internal static int AudioBankTransitionCommand()
     {
-        string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
-        Suite(nameof(VerifyAudioBankTransition), () => VerifyAudioBankTransition(audioDirectory));
+        foreach (FullRunSuitesVerification.RegisteredSuite suite in AudioBankTransitionSuites())
+            Suite(suite.Name, suite.Body);
         return 0;
     }
 }

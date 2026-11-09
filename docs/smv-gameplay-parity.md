@@ -181,7 +181,10 @@ host's own WinForms timer advancing frames. The converted movie session is the h
 `IHostFrameDriver`; it makes the one initial-state import, supplies each update's input and
 compares the same checkpoints as the headless replay. The first divergence, gameplay failure or
 renderer fault ends the command with a nonzero exit; a finished movie prints its report. The
-host paces updates at 60 Hz, and the command has no time bound until the owner sets one.
+movie session declares itself unpaced (#1511): on each tick of the host's timer the host runs
+the movie's updates back to back for one timer interval and presents only the last, instead of
+spacing them at 60 Hz as live play and recorded playback do, while the window's message pump
+keeps running between ticks. The command has no time bound until the owner sets one.
 
 ## Which movies pass
 

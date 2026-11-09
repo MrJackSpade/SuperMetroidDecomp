@@ -15,10 +15,13 @@ internal static class RoomObjectSetupBlockSourceDefinitions
     /// <summary>Bank $84, where every room-object setup is stored.</summary>
     private const byte Bank = 0x84;
 
-    /// <summary>The level words that hold each setup block, in the setups' order.</summary>
+    /// <summary>
+    /// The level words that hold each setup block, in the setups' order: the bomb-block parent's are the collision bomb
+    /// block's, the Power Bomb's and the normal bomb's setups, and the running treadmill's are the rightwards and the
+    /// leftwards belt's row writes.
+    /// </summary>
     internal static IReadOnlyDictionary<RoomObjectSetupBlock, IReadOnlyList<SnesAddress>> Words { get; } = new Dictionary<RoomObjectSetupBlock, IReadOnlyList<SnesAddress>>
     {
-        // The collision bomb block's, the Power Bomb's and the normal bomb's bomb-block setups.
         [RoomObjectSetupBlock.BombBlockParent] = [new(Bank, 0xcecc), new(Bank, 0xceff), new(Bank, 0xcf21)],
         [RoomObjectSetupBlock.CrumbleBlockParent] = [new(Bank, 0xce4d)],
         [RoomObjectSetupBlock.SpeedBoosterBlockParent] = [new(Bank, 0xce29)],
@@ -27,7 +30,6 @@ internal static class RoomObjectSetupBlockSourceDefinitions
         [RoomObjectSetupBlock.SuperMissileBlockParent] = [new(Bank, 0xcf8c)],
         [RoomObjectSetupBlock.CritterWallStruck] = [new(Bank, 0xb995)],
         [RoomObjectSetupBlock.TreadmillIdle] = [new(Bank, 0xb04e)],
-        // The rightwards and the leftwards belt's row writes.
         [RoomObjectSetupBlock.TreadmillRunning] = [new(Bank, 0xad46), new(Bank, 0xad5b)],
     };
 }

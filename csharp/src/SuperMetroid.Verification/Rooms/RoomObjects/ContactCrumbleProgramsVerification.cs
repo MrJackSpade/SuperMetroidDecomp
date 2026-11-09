@@ -220,7 +220,7 @@ internal static class ContactCrumbleProgramsVerification
             var words = new RoomTerrainBlock[width * width];
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
-            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals });
+            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
             AssertTrue(roomObjects.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                     RoomBlockBehaviorCodec.Decode(0)),
                 "visual test installs the real contact-crumble PLM");

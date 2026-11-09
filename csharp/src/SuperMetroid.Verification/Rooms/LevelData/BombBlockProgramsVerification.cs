@@ -227,7 +227,7 @@ internal static class BombBlockProgramsVerification
             var words = new RoomTerrainBlock[width * width];
             words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid());
-            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals });
+            var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectShotBlockVisuals = visuals, RoomObjectSetupBlocks = InstalledRoomObjectSetupBlocks.Stock() });
             AssertTrue(roomObjects.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
             roomObjects.Step(level);

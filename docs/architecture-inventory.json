@@ -12727,19 +12727,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.CorpseColumnRotDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Enemies/CorpseColumnRotDocument.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Enemies.CorpsePictureDocument",
       "kind": "record",
       "scope": "product",
@@ -12787,6 +12774,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRowUpload.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.CorpseRowUploadList",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/CorpseRowUploadList.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -12878,6 +12878,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/RottingCorpseCells.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.Corpses.RottingCorpseSpecies",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/Corpses/RottingCorpseSpecies.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -61212,27 +61225,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.CorpseColumnRot",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/CorpseColumnRot.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.CorpsePictureLayout",
+      "type": "SuperMetroid.Core.Enemies.Artwork.CorpsePicturePlacement",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/CorpsePictureLayout.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Artwork/CorpsePicturePlacement.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -65381,6 +65381,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRowDust",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRowDust.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRowFall",
       "kind": "class",
       "scope": "product",
@@ -65392,19 +65405,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRowMoveDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/CorpseRowMoveDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Corpses.CorpseRowOperation",
@@ -65449,19 +65449,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadMonsterFrame",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadMonsterFrame.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperAiFunction",
       "kind": "enum",
       "scope": "product",
@@ -65499,19 +65486,6 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperCorpseDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperCorpseDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperCorpseDefinitions",
@@ -65988,19 +65962,6 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.RottingCorpseKind",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/RottingCorpseKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Corpses.RottingCorpseRows",
       "kind": "class",
       "scope": "product",
@@ -66012,19 +65973,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.RottingCorpseSpecies",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/RottingCorpseSpecies.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Crawlers.Artwork.CrawlerFrameDefinitions",
@@ -143337,19 +143285,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseCharacterRot",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationOracles/Corpses/CorpseCharacterRot.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseGraphicsCopy",
       "kind": "record struct",
       "scope": "test",
@@ -143371,32 +143306,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationOracles/Corpses/CorpseRotRow.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseRotationExtent",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationOracles/Corpses/CorpseRotationExtent.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.VerificationOracles.CorpseRowGeometry",
-      "kind": "record",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationOracles/Corpses/CorpseRowGeometry.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -143504,19 +143413,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoSandCadence",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationOracles/Corpses/DeadTorizoSandCadence.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.TestSupport.VerificationOracles.DeadTorizoSourcePart",
@@ -152828,8 +152724,8 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotDrawingVerification.ScreenPixel",
-      "kind": "record struct",
+      "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotDrawingVerification.AuthoredRot",
+      "kind": "class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
@@ -152838,7 +152734,7 @@
         "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotDrawingVerification.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRotScheduleChecks",
@@ -152862,19 +152758,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRotScheduleVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Corpses.CorpseRowLayouts",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Corpses/CorpseRowLayouts.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -158621,19 +158504,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Stoke/VerifyStokeBehaviorCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.VerifyCorpseMetadataDefinitionsCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/VerifyCorpseMetadataDefinitionsCase.cs"
       ],
       "partial": "none",
       "disposition": "value"
